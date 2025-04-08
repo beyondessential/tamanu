@@ -34,6 +34,9 @@ const validationSchema = yup.object().shape({
   discontinuingClinicianId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
+  discontinuingReason: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ),
 });
 
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
@@ -67,20 +70,29 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
         render={({ submitForm }) => (
           <>
             <Box px={1} pt={2.75} pb={5}>
-              <Box>
-                <DarkText fontWeight={700} display={'inline-block'}>
+              {medication.isOngoing ? (
+                <Box>
+                  <DarkText fontWeight={700} display={'inline-block'}>
+                    <TranslatedText
+                      stringId="medication.discontinueModal.description1"
+                      fallback="Please note this is an ongoing medication."
+                    />
+                  </DarkText>{' '}
+                  <DarkText display={'inline-block'}>
+                    <TranslatedText
+                      stringId="medication.discontinueModal.description2"
+                      fallback="Are you sure you would like to discontinue it?"
+                    />
+                  </DarkText>
+                </Box>
+              ) : (
+                <DarkText>
                   <TranslatedText
-                    stringId="medication.discontinueModal.description1"
-                    fallback="Please note this is an ongoing medication."
-                  />
-                </DarkText>{' '}
-                <DarkText display={'inline-block'}>
-                  <TranslatedText
-                    stringId="medication.discontinueModal.description2"
-                    fallback="Are you sure you would like to discontinue it?"
+                    stringId="medication.discontinueModal.description"
+                    fallback="Are you sure you would like to discontinue the below medication?"
                   />
                 </DarkText>
-              </Box>
+              )}
               <MedicationSummary medication={medication} />
               <FormGrid>
                 <Field
@@ -104,6 +116,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                     />
                   }
                   component={TextField}
+                  required
                 />
               </FormGrid>
             </Box>

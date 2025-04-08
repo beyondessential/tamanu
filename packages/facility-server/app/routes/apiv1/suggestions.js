@@ -595,6 +595,48 @@ createSuggester(
   },
 );
 
+createSuggester(
+  'nonSensitiveLabTestCategory',
+  'ReferenceData',
+  (search) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: {
+        [Op.in]: Sequelize.literal(
+          `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS FALSE
+          )`,
+        ),
+      },
+    };
+  },
+);
+
+createSuggester(
+  'sensitiveLabTestCategory',
+  'ReferenceData',
+  (search) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: {
+        [Op.in]: Sequelize.literal(
+          `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS TRUE
+          )`,
+        ),
+      },
+    };
+  },
+);
+
 // Specifically fetches lab test categories that have a lab request against a patient
 createSuggester(
   'patientLabTestCategories',
