@@ -1,4 +1,9 @@
 {
+  "audit": {
+    "accesses": {
+      "enabled": true
+    }
+  },
   "db": {
     "name": "tamanu-facility-test",
     "migrateOnStartup": true,
