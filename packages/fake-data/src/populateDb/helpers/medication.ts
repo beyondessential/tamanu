@@ -14,7 +14,6 @@ export const createMedication = async ({
     PatientOngoingPrescription,
     EncounterPausePrescription,
     EncounterPausePrescriptionHistory,
-    MedicationAdministrationRecord,
   },
   encounterId,
   patientId,
