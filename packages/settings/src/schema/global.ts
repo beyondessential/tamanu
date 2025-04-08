@@ -35,7 +35,6 @@ export const globalSettings = {
       properties: {
         accesses: {
           description: 'Audit accesses',
-          type: yup.boolean(),
           properties: {
             enabled: {
               description: 'Enable audit accesses',
@@ -46,7 +45,6 @@ export const globalSettings = {
         },
         changes: {
           description: 'Audit changes',
-          type: yup.boolean(),
           properties: {
             enabled: {
               description: 'Enable audit changes',
