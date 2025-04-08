@@ -247,7 +247,7 @@ async function getUser(models, userId) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const { models } = req;
+  const { models, settings } = req;
   try {
     const token = getTokenFromHeaders(req);
     const sessionId = createSessionIdentifier(token);
@@ -262,10 +262,7 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
-    const auditSettings = {
-      accesses: { enabled: true },
-      changes: { enabled: true },
-    };
+    const auditSettings = await settings[req.facilityId]?.get('audit');
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates

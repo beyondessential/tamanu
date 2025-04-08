@@ -12,7 +12,7 @@ import { version } from '../../package.json';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
-    const { store, headers } = req;
+    const { store, headers, settings } = req;
 
     const { canonicalHostName } = config;
 
@@ -60,10 +60,7 @@ export const userMiddleware = ({ secret }) =>
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
-    const auditSettings = {
-      accesses: { enabled: true },
-      changes: { enabled: true },
-    };
+    const auditSettings = await settings[req.facilityId]?.get('audit');
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
