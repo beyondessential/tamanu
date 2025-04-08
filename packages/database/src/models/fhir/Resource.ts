@@ -205,10 +205,9 @@ export class FhirResource extends Model {
       } catch (error) {
         if (error instanceof Error) {
           // Rethrowing like this to preserve stacktrace while logging which resource failed to resolve
-          const rethrownError = new Error(
-            `Error resolving upstreams for ${this.fhirName}/${unresolvedResource.id}: ${error.stack ?? error.message ?? error.toString() ?? ''}`,
-          );
-          rethrownError.stack = error.stack;
+          const errorMessage = `Error resolving upstreams for ${this.fhirName}/${unresolvedResource.id}: ${error.message ?? error.toString() ?? ''}`;
+          const rethrownError = new Error(errorMessage);
+          rethrownError.stack = `${errorMessage}\n${error.stack}`;
           throw rethrownError;
         } else {
           throw error;
