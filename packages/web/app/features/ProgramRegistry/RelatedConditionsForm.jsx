@@ -23,6 +23,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { optionalForeignKey } from '../../utils/validation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
+import { ConditionHistoryModal } from './ConditionHistoryModal';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
@@ -106,7 +107,7 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, conditionCategory, date, programRegistryCondition }) => {
+  rows.forEach(({ id, conditionCategory, date, programRegistryCondition, history }) => {
     const group = Object.entries(groupMapping).find(([, conditions]) =>
       conditions.includes(conditionCategory),
     )?.[0];
@@ -117,6 +118,7 @@ const getGroupedData = rows => {
         name: programRegistryCondition.name,
         date,
         conditionCategory,
+        history,
       });
     }
   });
@@ -150,6 +152,7 @@ export const RelatedConditionsForm = ({
   validationSchema = {},
 }) => {
   const [warningOpen, setWarningOpen] = useState(false);
+  const [selectedCondition, setSelectedCondition] = useState(null);
   const { getTranslation } = useTranslation();
 
   const { id, programRegistryId, clinicalStatusId } = patientProgramRegistration;
@@ -421,7 +424,7 @@ export const RelatedConditionsForm = ({
                 return null;
               }
               return (
-                <ViewHistoryButton>
+                <ViewHistoryButton onClick={() => setSelectedCondition(row)}>
                   <TranslatedText stringId="programRegistry.viewHistory" fallback="View history" />
                 </ViewHistoryButton>
               );
@@ -447,6 +450,11 @@ export const RelatedConditionsForm = ({
                 // Manually pass the values to the confirmed submit function
                 await handleConfirmedSubmit(values);
               }}
+            />
+            <ConditionHistoryModal
+              open={!!selectedCondition}
+              onClose={() => setSelectedCondition(null)}
+              condition={selectedCondition}
             />
             <FormActions isDirty={dirty} />
           </>

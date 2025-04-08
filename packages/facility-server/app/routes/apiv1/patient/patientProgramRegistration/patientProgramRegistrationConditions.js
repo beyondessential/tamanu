@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
+import { Op } from 'sequelize';
 
 export const patientProgramRegistrationConditions = express.Router();
 
@@ -32,7 +34,8 @@ patientProgramRegistrationConditions.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { programRegistrationId } = params;
-    const { PatientProgramRegistrationCondition, PatientProgramRegistration } = models;
+    const { PatientProgramRegistrationCondition, PatientProgramRegistration, ChangeLog, User } =
+      models;
 
     const programRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);
     if (!programRegistration) {
@@ -42,7 +45,7 @@ patientProgramRegistrationConditions.get(
     req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistrationCondition');
 
-    const history = await PatientProgramRegistrationCondition.findAll({
+    const conditions = await PatientProgramRegistrationCondition.findAll({
       where: {
         patientProgramRegistrationId: programRegistrationId,
       },
@@ -50,9 +53,54 @@ patientProgramRegistrationConditions.get(
       order: [['date', 'DESC']],
     });
 
+    // Get all condition IDs
+    const conditionIds = conditions.map((c) => c.id);
+
+    // Fetch change history for all conditions
+    const changes = await ChangeLog.findAll({
+      where: {
+        tableName: 'patient_program_registration_conditions',
+        recordId: {
+          [Op.in]: conditionIds,
+        },
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'DESC']],
+      replacements: {
+        programRegistrationId,
+      },
+    });
+
+    // Create a map of condition ID to its change history
+    const conditionHistoryMap = changes.reduce((acc, change) => {
+      const conditionId = change.recordId;
+      if (!acc[conditionId]) {
+        acc[conditionId] = [];
+      }
+      acc[conditionId].push({
+        id: change.id,
+        date: change.loggedAt,
+        data: camelCaseProperties(change.recordData),
+        clinician: change.user,
+      });
+      return acc;
+    }, {});
+
+    // Add history to each condition
+    const conditionsWithHistory = conditions.map((condition) => ({
+      ...condition.toJSON(),
+      history: conditionHistoryMap[condition.id] || [],
+    }));
+
     res.send({
-      count: history.length,
-      data: history,
+      count: conditionsWithHistory.length,
+      data: conditionsWithHistory,
     });
   }),
 );

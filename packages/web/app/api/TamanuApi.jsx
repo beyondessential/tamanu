@@ -167,14 +167,7 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const {
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      permissions,
-      role,
-    } = output;
+    const { token, localisation, server, availableFacilities, permissions, role } = output;
     saveToLocalStorage({
       token,
       localisation,
@@ -197,7 +190,7 @@ export class TamanuApi extends ApiClient {
     return { settings };
   }
 
-  async fetch(endpoint, query, config) {
+  async fetch(endpoint, query = null, config) {
     const {
       isErrorUnknown = isErrorUnknownDefault,
       showUnknownErrorToast = false,
