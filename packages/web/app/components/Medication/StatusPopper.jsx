@@ -6,7 +6,7 @@ import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { Button } from '../Button';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { useMarMutation } from '../../api/mutations/useMarMutation';
+import { useNotGivenMarMutation } from '../../api/mutations/useMarMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 
@@ -66,7 +66,7 @@ export const StatusPopper = ({
   prescriptionId,
 }) => {
   const [showReasonScreen, setShowReasonScreen] = useState(false);
-  const { mutateAsync: updateMar } = useMarMutation(marId);
+  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId);
   const queryClient = useQueryClient();
   const handleNotGivenClick = () => {
     setShowReasonScreen(true);

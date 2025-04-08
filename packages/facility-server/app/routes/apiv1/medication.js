@@ -7,13 +7,13 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
   simpleGet,
-  simplePost,
-  simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
 import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_STATUS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { add, format, isAfter } from 'date-fns';
 import { Op } from 'sequelize';
@@ -458,8 +458,78 @@ medication.get(
   }),
 );
 
-medication.put('/mar/:id', simplePut('MedicationAdministrationRecord'));
-medication.post('/mar', simplePost('MedicationAdministrationRecord'));
+const notGivenInputUpdateSchema = z.object({
+  reasonNotGivenId: z.string(),
+});
+
+medication.put('/mar/:id/notGiven', asyncHandler(async (req, res) => {
+  req.checkPermission('write', 'MedicationAdministrationRecord');
+  const { models, params } = req;
+  const { MedicationAdministrationRecord } = models;
+
+  const { reasonNotGivenId } = await notGivenInputUpdateSchema.parseAsync(req.body);
+
+  //validate not given reason
+  const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
+    where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+  });
+  if (!reasonNotGiven) {
+    throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+  }
+
+  const mar = await MedicationAdministrationRecord.findByPk(params.id);
+  if (!mar) {
+    throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+  }
+  
+  if (mar.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
+    throw new InvalidOperationError(`MAR with id ${params.id} is already not given`);
+  }
+
+  //Update MAR
+  mar.reasonNotGivenId = reasonNotGivenId;
+  mar.status = ADMINISTRATION_STATUS.NOT_GIVEN;
+  await mar.save();
+
+  res.send(mar.forResponse());
+}));
+
+const notGivenInputCreateSchema = z.object({
+  reasonNotGivenId: z.string(),
+  administeredAt: z.string().datetime(),
+  prescriptionId: z.string(),
+});
+medication.post('/mar/notGiven', asyncHandler(async (req, res) => {
+  req.checkPermission('create', 'MedicationAdministrationRecord');
+  const { models } = req;
+  const { MedicationAdministrationRecord, Prescription } = models;
+
+  const { reasonNotGivenId, administeredAt, prescriptionId } = await notGivenInputCreateSchema.parseAsync(req.body);
+
+  //validate prescription
+  const prescription = await Prescription.findByPk(prescriptionId);
+  if (!prescription) {
+    throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
+  }
+
+  //validate not given reason
+  const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
+    where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+  });
+  if (!reasonNotGiven) {
+    throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+  }
+  
+  //create MAR
+  const mar = await MedicationAdministrationRecord.create({
+    reasonNotGivenId,
+    administeredAt,
+    prescriptionId,
+    status: ADMINISTRATION_STATUS.NOT_GIVEN,
+  });
+
+  res.send(mar.forResponse());
+}));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>
