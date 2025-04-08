@@ -165,8 +165,6 @@ const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = (allRecords) =>
-  getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',

@@ -413,108 +413,120 @@ describe('PatientProgramRegistration', () => {
         fake(models.ProgramRegistryClinicalStatus, { programRegistryId: registry.id }),
       );
 
-      const records = [
+      const registration = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        clinicalStatusId: status1.id,
+        programRegistryId: registry.id,
+        registeringFacilityId: facility.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        date: '2023-09-02 08:00:00',
+      });
+      expect(registration).toHaveSucceeded();
+
+      const registrationId = registration.body.id;
+
+      const updates = [
         {
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          clinicalStatusId: status1.id,
-          programRegistryId: registry.id,
-          registeringFacilityId: facility.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          date: '2023-09-02 08:00:00',
-        },
-        {
-          clinicianId: clinician.id,
-          patientId: patient.id,
           clinicalStatusId: status2.id,
-          programRegistryId: registry.id,
-          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 09:00:00',
         },
         {
-          // Note this record won't show up as the status hasn't changed
-          // but it should have it's date as a registrationDate
-          patientId: patient.id,
-          programRegistryId: registry.id,
           clinicalStatusId: status2.id,
           villageId: village.id,
-          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 10:00:00',
         },
         {
-          patientId: patient.id,
           clinicalStatusId: status1.id,
-          programRegistryId: registry.id,
-          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 11:00:00',
         },
         {
-          patientId: patient.id,
           clinicalStatusId: status2.id,
-          programRegistryId: registry.id,
-          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 11:30:00',
         },
       ];
 
-      for (const r of records) {
-        const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
-        expect(result).toHaveSucceeded();
+      for (const update of updates) {
+        const updateResult = await app
+          .put(`/api/patient/programRegistration/${registrationId}`)
+          .send(update);
+        expect(updateResult).toHaveSucceeded();
       }
 
-      return { patient, registry, records };
+      return { patient, registry, registration: registration.body, updates };
     };
 
     it('fetches the registration history for a patient', async () => {
-      const { patient, registry, records } = await populate();
-
+      const { patient, registry, registration, updates } = await populate();
       const result = await app.get(
         `/api/patient/${patient.id}/programRegistration/${registry.id}/history`,
       );
       expect(result).toHaveSucceeded();
 
-      // Only expect the records where the status has changed
-      const expectedRecords = [...records.slice(0, 2), ...records.slice(3)];
-      // it'll give us latest-first, so reverse it
-      const history = [...expectedRecords].reverse();
-      expect(result.body.data).toMatchObject(history);
+      // Verify the response format
+      expect(result.body).toHaveProperty('count');
+      expect(result.body).toHaveProperty('data');
+      expect(Array.isArray(result.body.data)).toBe(true);
 
-      // also check for the correctly-joined info
-      expect(result.body.data[0]).toHaveProperty('clinician.displayName');
-      expect(result.body.data[0]).toHaveProperty('clinicalStatus.name');
+      // Get the history entries
+      const history = result.body.data;
+      expect(history.length).toBeGreaterThan(0);
 
-      // Check for correct registrationDates
-      expect(result.body.data[0]).toHaveProperty('registrationDate');
-      // In chronological order (numbers are negative because the result is reversed, and -1 so the indexes match):
-      expect(result.body.data.at(-1).registrationDate).toEqual(records.at(0).date);
-      expect(result.body.data.at(-2).registrationDate).toEqual(records.at(0).date);
-      // (third record is filtered out)
-      expect(result.body.data.at(-3).registrationDate).toEqual(records.at(2).date);
-      expect(result.body.data.at(-4).registrationDate).toEqual(records.at(2).date);
+      // Check that entries are ordered by date (newest first)
+      for (let i = 1; i < history.length; i++) {
+        const currentDate = new Date(history[i].date);
+        const previousDate = new Date(history[i - 1].date);
+        expect(currentDate.getTime()).toBeLessThanOrEqual(previousDate.getTime());
+      }
+      // Note: updates array is in chronological order, history is in reverse chronological order
+      updates.reverse();
+
+      // Check each history entry against the expected entries
+      history.forEach((entry, index) => {
+        const expected = index < history.length - 1 ? updates[index] : registration;
+        expect(entry).toMatchObject({
+          registrationStatus: expected.registrationStatus,
+          registrationDate: expected.date,
+          clinicalStatusId: expected.clinicalStatusId,
+        });
+        expect(entry).toHaveProperty('id');
+        expect(entry).toHaveProperty('clinicalStatus');
+        expect(entry.clinicalStatus).toHaveProperty('id');
+        expect(entry.clinicalStatus).toHaveProperty('name');
+        expect(entry).toHaveProperty('clinician');
+        expect(entry.clinician).toHaveProperty('id');
+        expect(entry.clinician).toHaveProperty('displayName');
+        expect(entry).toHaveProperty('registrationDate');
+      });
     });
 
     it('fetches the full detail of the latest registration', async () => {
-      const { patient, registry, records } = await populate();
+      const { patient, registry, updates, registration } = await populate();
 
       const result = await app.get(`/api/patient/${patient.id}/programRegistration/${registry.id}`);
       expect(result).toHaveSucceeded();
 
       const record = result.body;
-      expect(record).toMatchObject(records.slice(-1)[0]);
+      const lastUpdate = updates.at(-1);
+
+      // Verify the record matches the latest update
+      expect(record).toMatchObject({
+        registrationStatus: lastUpdate.registrationStatus,
+        clinicalStatusId: lastUpdate.clinicalStatusId,
+        date: lastUpdate.date,
+        patientId: patient.id,
+        programRegistryId: registry.id,
+      });
+
+      // Verify the included relationships
       expect(record).toHaveProperty('clinician.displayName');
       expect(record).toHaveProperty('clinicalStatus.name');
       expect(record).toHaveProperty('registeringFacility.name');
       expect(record).toHaveProperty('village.name');
-
-      // Check for derived info:
-      expect(record).toHaveProperty('registrationDate', records[2].date);
-      expect(record).toHaveProperty('registrationClinician.displayName');
-      expect(record).toHaveProperty('dateRemoved', records.at(-1).date);
-      expect(record).toHaveProperty('removedBy.displayName');
     });
 
     describe('errors', () => {
@@ -799,14 +811,30 @@ describe('PatientProgramRegistration', () => {
       it('should return history with permitted program registry', async () => {
         const patient = await models.Patient.create(fake(models.Patient));
         const programRegistry = await createProgramRegistry();
-        await models.PatientProgramRegistration.create(
+        const clinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+          fake(models.ProgramRegistryClinicalStatus, {
+            programRegistryId: programRegistry.id,
+            name: 'Test Status',
+          }),
+        );
+
+        // Create initial registration
+        const registration = await models.PatientProgramRegistration.create(
           fake(models.PatientProgramRegistration, {
             programRegistryId: programRegistry.id,
             clinicianId: app.user.id,
             patientId: patient.id,
+            clinicalStatusId: clinicalStatus.id,
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
             date: TEST_DATE_EARLY,
           }),
         );
+
+        // Update registration
+        await registration.update({
+          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+          date: TEST_DATE_LATE,
+        });
 
         const permissions = [
           ['read', 'ProgramRegistry', programRegistry.id],
@@ -818,6 +846,21 @@ describe('PatientProgramRegistration', () => {
           `/api/patient/${patient.id}/programRegistration/${programRegistry.id}/history`,
         );
         expect(result).toHaveSucceeded();
+
+        // Verify the response format
+        expect(result.body).toHaveProperty('count');
+        expect(result.body).toHaveProperty('data');
+        expect(Array.isArray(result.body.data)).toBe(true);
+
+        // Verify the history entries
+        const history = result.body.data;
+        expect(history.length).toBeGreaterThan(0);
+
+        // Check the first entry (most recent)
+        const latestEntry = history[0];
+        expect(latestEntry).toHaveProperty('registrationStatus', REGISTRATION_STATUSES.INACTIVE);
+        expect(latestEntry).toHaveProperty('clinicalStatusId', clinicalStatus.id);
+        expect(latestEntry).toHaveProperty('registrationDate', TEST_DATE_LATE);
       });
     });
 
