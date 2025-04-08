@@ -5,7 +5,7 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
-import type { InitOptions, Models } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterPatientIdSelect } from '../sync';
 
 export class EncounterPausePrescriptionHistory extends Model {
@@ -26,10 +26,9 @@ export class EncounterPausePrescriptionHistory extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        actionDate: {
-          type: DataTypes.DATETIMESTRING,
+        actionDate: dateTimeType('actionDate', {
           allowNull: false,
-        },
+        }),
         notes: {
           type: DataTypes.TEXT,
           allowNull: true,

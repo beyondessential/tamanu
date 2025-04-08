@@ -11,7 +11,7 @@ import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { Button } from '../Button';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { useMarMutation } from '../../api/mutations/useMarMutation';
+import { useNotGivenMarMutation } from '../../api/mutations/useMarMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Field, Form, NumberField } from '../Field';
@@ -225,7 +225,7 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMar } = useMarMutation(marId, {
+  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       onClose();
@@ -384,12 +384,12 @@ export const StatusPopper = ({
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const queryClient = useQueryClient();
-  const { mutateAsync: updateMar } = useMarMutation(marId, {
+  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     },
   });
+  const queryClient = useQueryClient();
 
   const handleNotGivenClick = () => {
     setShowReasonScreen(true);

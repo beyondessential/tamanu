@@ -3,10 +3,11 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedReferenceData } from '../..';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
+import { findAdministrationTimeSlotFromIdealTime } from '@tamanu/shared/utils/medication';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -14,9 +15,10 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
-    const hour = new Date(record.administeredAt).getHours();
-    // Calculate which window this time belongs to (0-11)
-    const windowIndex = Math.floor(hour / 2);
+    const administeredAt = new Date(record.administeredAt);
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(
+      `${administeredAt.getHours()}:${administeredAt.getMinutes()}`,
+    ).index;
     result[windowIndex] = record;
   });
 
@@ -39,6 +41,8 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     notes,
     discontinued,
     medicationAdministrationRecords,
+    pharmacyNotes,
+    displayPharmacyNotesInMar,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -57,7 +61,18 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
-        <Box color={Colors.midText}>{notes}</Box>
+        <Box color={Colors.midText}>
+          <span>{notes}</span>
+          {displayPharmacyNotesInMar && pharmacyNotes && (
+            <span>
+              {notes && ', '}
+              <TranslatedText
+                stringId="medication.mar.pharmacyNotes"
+                fallback="Pharmacy note"
+              />: {pharmacyNotes}
+            </span>
+          )}
+        </Box>
       </MarRowContainer>
       {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
         return (

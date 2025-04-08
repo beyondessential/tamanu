@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { DRUG_ROUTE_LABELS, MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation } from 'react-router-dom';
 
 import { DataFetchingTable } from '../Table';
@@ -99,9 +99,9 @@ const getMedicationName = (
           (<TranslatedText stringId="medication.table.pausing" fallback="Paused" />,{' '}
           {pauseData.pauseDuration}{' '}
           {singularize(
-            getEnumTranslation(MEDICATION_PAUSE_DURATION_UNITS_LABELS, pauseData.pauseTimeUnit),
+            getEnumTranslation(MEDICATION_DURATION_UNITS_LABELS, pauseData.pauseTimeUnit),
             pauseData.pauseDuration,
-          )}{' '}
+          ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
           {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
         </Box>
@@ -124,12 +124,17 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
   );
 };
 
-const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
+const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) => [
   {
     key: 'medication.name',
     title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
     accessor: data => getMedicationName(data, getEnumTranslation),
-    CellComponent: LimitedLinesCell,
+    CellComponent: props => (
+      <LimitedLinesCell 
+        {...props}
+        disableTooltip={disableTooltip}
+      />
+    ),
   },
   {
     key: 'dose',
@@ -266,7 +271,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         />
       )}
       <StyledDataFetchingTable
-        columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
+        columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation, !!selectedMedication)}
         endpoint={`encounter/${encounterId}/medications`}
         rowStyle={rowStyle}
         elevated={false}
