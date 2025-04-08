@@ -36,12 +36,24 @@ export const globalSettings = {
         accesses: {
           description: 'Audit accesses',
           type: yup.boolean(),
-          defaultValue: false,
+          properties: {
+            enabled: {
+              description: 'Enable audit accesses',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
         },
         changes: {
           description: 'Audit changes',
           type: yup.boolean(),
-          defaultValue: false,
+          properties: {
+            enabled: {
+              description: 'Enable audit changes',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
         },
       },
     },
