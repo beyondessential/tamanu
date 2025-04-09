@@ -52,7 +52,6 @@ const IconWrapper = styled.div`
     width: 24px;
     height: 24px;
     color: ${props => props.$color};
-    color: ${props => props.$color};
   }
 `;
 
