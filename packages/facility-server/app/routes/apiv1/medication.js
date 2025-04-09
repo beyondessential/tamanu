@@ -8,7 +8,7 @@ import {
   permissionCheckingRouter,
   simpleGet,
 } from '@tamanu/shared/utils/crudHelpers';
-import { InvalidOperationError, ResourceConflictError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
