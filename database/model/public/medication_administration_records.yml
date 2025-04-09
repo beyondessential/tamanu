@@ -25,6 +25,10 @@ sources:
           - name: prescription_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__prescription_id') }}"
+          - name: reason_not_given_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__reason_not_given_id')
+              }}"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in
