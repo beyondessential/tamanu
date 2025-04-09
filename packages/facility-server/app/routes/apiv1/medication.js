@@ -461,7 +461,7 @@ medication.get(
 const givenMarUpdateSchema = z.object({
   dose: z.object({
     doseAmount: z.number(),
-    givenTime: z.string(),
+    givenTime: z.string().datetime(),
   }),
 });
 medication.put(
