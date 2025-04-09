@@ -14,14 +14,18 @@ export const NestedVitalsModal = React.memo(({ field, patient, encounterType }) 
 
   return (
     <>
-      <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
-      <Modal open={isOpen} onClose={closeModal} title="Record vitals">
+      <OutlinedButton onClick={openModal} data-testid='outlinedbutton-pp8c'>Record vitals</OutlinedButton>
+      <Modal
+        open={isOpen}
+        onClose={closeModal}
+        title="Record vitals"
+        data-testid='modal-yu0a'>
         <VitalsForm
           patient={patient}
           onSubmit={onSubmit}
           onClose={closeModal}
           encounterType={encounterType}
-        />
+          data-testid='vitalsform-1q8e' />
       </Modal>
     </>
   );

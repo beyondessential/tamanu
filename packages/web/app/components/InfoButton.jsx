@@ -9,4 +9,4 @@ const InfoIcon = styled(Info)`
   cursor: pointer;
 `;
 
-export const InfoButton = ({ onClick }) => <InfoIcon onClick={onClick} />;
+export const InfoButton = ({ onClick }) => <InfoIcon onClick={onClick} data-testid='infoicon-cnfl' />;

@@ -90,10 +90,12 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       width="md"
       printable
       onPrint={() => printPDF(VACCINE_CERTIFICATE_PDF_ID)}
-      additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
-    >
+      additionalActions={<EmailButton
+        onEmail={createVaccineCertificateNotification}
+        data-testid='emailbutton-f55q' />}
+      data-testid='modal-377p'>
       {isLoading ? (
-        <LoadingIndicator height="500px" />
+        <LoadingIndicator height="500px" data-testid='loadingindicator-skvx' />
       ) : (
         <WorkerRenderedPDFViewer
           id={VACCINE_CERTIFICATE_PDF_ID}
@@ -110,7 +112,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
-        />
+          data-testid='workerrenderedpdfviewer-e076' />
       )}
     </Modal>
   );

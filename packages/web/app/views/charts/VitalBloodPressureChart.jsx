@@ -58,7 +58,7 @@ export const VitalBloodPressureChart = props => {
         chartProps={chartProps}
         useInwardArrowVector
         secondaryConfig={dbpVisualisationConfig}
-      />
+        data-testid='linechart-60c3' />
     </>
   );
 };

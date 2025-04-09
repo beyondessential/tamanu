@@ -24,7 +24,7 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
+const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} data-testid='select-zra3' />)`
   .react-select__control {
     padding-right: 8px;
     min-height: 44px;
@@ -148,19 +148,21 @@ export const MultiselectInput = ({
           readOnly={isReadonly}
           InputProps={{
             endAdornment: (
-              <Icon position="end">
-                <ExpandMoreIcon />
+              <Icon position="end" data-testid='icon-ogzj'>
+                <ExpandMoreIcon data-testid='expandmoreicon-knh6' />
               </Icon>
             ),
           }}
-          {...props}
-        />
+          {...props} />
       </OuterLabelFieldWrapper>
     );
   }
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props} ref={inputRef}>
+    <OuterLabelFieldWrapper
+      label={label}
+      {...props}
+      ref={inputRef}>
       <StyledFormControl {...props}>
         <StyledSelect
           value={selected}
@@ -184,20 +186,29 @@ export const MultiselectInput = ({
             DropdownIndicator: SelectDropdownIndicator,
             MultiValueRemove: SelectMultiValueRemove,
           }}
-          {...props}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+          {...props} />
+        {helperText && <FormHelperText data-testid='formhelpertext-s80c'>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
 };
 
 export const BaseMultiselectField = ({ field, ...props }) => (
-  <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
+  <MultiselectInput
+    name={field.name}
+    onChange={field.onChange}
+    value={field.value}
+    {...props}
+    data-testid='multiselectinput-cxdw' />
 );
 
 export const TranslatedMultiSelectField = props => {
-  return <TranslatedEnumField {...props} component={MultiselectInput} />;
+  return (
+    <TranslatedEnumField
+      {...props}
+      component={MultiselectInput}
+      data-testid='translatedenumfield-oi43' />
+  );
 };
 
 MultiselectInput.propTypes = {
@@ -225,7 +236,7 @@ export const MultiselectField = ({ field, value, name, ...props }) => (
     value={field ? field.value : value}
     name={field ? field.name : name}
     {...props}
-  />
+    data-testid='multiselectinput-dvij' />
 );
 
 MultiselectField.propTypes = {

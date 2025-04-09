@@ -47,7 +47,7 @@ export const RemoveConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.action.removeCondition.success"
           fallback="Related condition removed successfully'"
-        />,
+          data-testid='translatedtext-71n0' />,
       );
       queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
       onSubmit();
@@ -57,7 +57,7 @@ export const RemoveConditionFormModal = ({
           stringId="programRegistry.action.removeCondition.error"
           fallback="Failed to remove related condition with error: :errorMessage"
           replacements={{ errorMessage: e.message }}
-        />,
+          data-testid='translatedtext-vloe' />,
       );
     }
   };
@@ -70,12 +70,12 @@ export const RemoveConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.modal.removeCondition.title"
           fallback="Remove related condition"
-        />
+          data-testid='translatedtext-y783' />
       }
       open={open}
       onClose={onCancel}
-    >
-      <Text>
+      data-testid='modal-lrki'>
+      <Text data-testid='text-j23j'>
         <TranslatedText
           stringId="programRegistry.modal.removeCondition.text"
           fallback="Are you sure you would like to remove the related condition of :condition from the patient's program registration?"
@@ -85,10 +85,15 @@ export const RemoveConditionFormModal = ({
               programRegistryCondition?.name,
             ),
           }}
-        />
+          data-testid='translatedtext-6f0l' />
       </Text>
-      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-      <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />
+      <FormSeparatorLine
+        style={{ marginTop: '30px', marginBottom: '30px' }}
+        data-testid='formseparatorline-o94e' />
+      <ConfirmCancelRow
+        onConfirm={removeCondition}
+        onCancel={onCancel}
+        data-testid='confirmcancelrow-jo72' />
     </Modal>
   );
 };

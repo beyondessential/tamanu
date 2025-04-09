@@ -58,14 +58,24 @@ export const SwitchInput = ({ label, disabled, value, className, ...props }) => 
   };
   return (
     <StyledFormControlLabel
-      control={<StyledSwitch value={value} checked={!!value} {...props} onChange={handleChange} />}
+      control={<StyledSwitch
+        value={value}
+        checked={!!value}
+        {...props}
+        onChange={handleChange}
+        data-testid='styledswitch-wyw7' />}
       label={label}
       disabled={disabled}
       className={className}
-    />
+      data-testid='styledformcontrollabel-y8xy' />
   );
 };
 
 export const SwitchField = ({ field, ...props }) => (
-  <SwitchInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <SwitchInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid='switchinput-bt2i' />
 );

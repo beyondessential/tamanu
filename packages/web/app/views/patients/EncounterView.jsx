@@ -40,71 +40,108 @@ const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterT
 
 const TABS = [
   {
-    label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.tasks"
+      fallback="tasks"
+      data-testid='translatedtext-48go' />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
     render: props => (
-      <EncounterPaneWithPermissionCheck permissionNoun="Tasking">
-        <TasksPane {...props} />
+      <EncounterPaneWithPermissionCheck
+        permissionNoun="Tasking"
+        data-testid='encounterpanewithpermissioncheck-eiap'>
+        <TasksPane {...props} data-testid='taskspane-s9f4' />
       </EncounterPaneWithPermissionCheck>
     ),
     condition: getSetting => getSetting('features.enableTasking'),
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.vitals"
+      fallback="Vitals"
+      data-testid='translatedtext-caxg' />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
-    render: props => <VitalsPane {...props} />,
+    render: props => <VitalsPane {...props} data-testid='vitalspane-vu7r' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.charts"
+      fallback="Charts"
+      data-testid='translatedtext-8okl' />,
     key: ENCOUNTER_TAB_NAMES.CHARTS,
     render: props => (
-      <ChartDataProvider>
-        <ChartsPane {...props} />
+      <ChartDataProvider data-testid='chartdataprovider-dwj3'>
+        <ChartsPane {...props} data-testid='chartspane-l442' />
       </ChartDataProvider>
     ),
     condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.notes"
+      fallback="Notes"
+      data-testid='translatedtext-8bc9' />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
-    render: props => <NotesPane {...props} />,
+    render: props => <NotesPane {...props} data-testid='notespane-tzjl' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.procedures" fallback="Procedures" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.procedures"
+      fallback="Procedures"
+      data-testid='translatedtext-0v4k' />,
     key: ENCOUNTER_TAB_NAMES.PROCEDURES,
-    render: props => <ProcedurePane {...props} />,
+    render: props => <ProcedurePane {...props} data-testid='procedurepane-oy3x' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.labs" fallback="Labs" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.labs"
+      fallback="Labs"
+      data-testid='translatedtext-wuul' />,
     key: ENCOUNTER_TAB_NAMES.LABS,
-    render: props => <LabsPane {...props} />,
+    render: props => <LabsPane {...props} data-testid='labspane-4b0t' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.imaging" fallback="Imaging" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.imaging"
+      fallback="Imaging"
+      data-testid='translatedtext-w4o1' />,
     key: ENCOUNTER_TAB_NAMES.IMAGING,
-    render: props => <ImagingPane {...props} />,
+    render: props => <ImagingPane {...props} data-testid='imagingpane-x8gy' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.medication" fallback="Medication" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.medication"
+      fallback="Medication"
+      data-testid='translatedtext-g9ps' />,
     key: ENCOUNTER_TAB_NAMES.MEDICATION,
-    render: props => <EncounterMedicationPane {...props} />,
+    render: props => <EncounterMedicationPane {...props} data-testid='encountermedicationpane-vij3' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.forms" fallback="Forms" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.forms"
+      fallback="Forms"
+      data-testid='translatedtext-bxyg' />,
     key: ENCOUNTER_TAB_NAMES.FORMS,
-    render: props => <EncounterProgramsPane {...props} />,
+    render: props => <EncounterProgramsPane {...props} data-testid='encounterprogramspane-knu4' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.documents" fallback="Documents" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.documents"
+      fallback="Documents"
+      data-testid='translatedtext-xn5g' />,
     key: ENCOUNTER_TAB_NAMES.DOCUMENTS,
-    render: props => <DocumentsPane {...props} />,
+    render: props => <DocumentsPane {...props} data-testid='documentspane-698w' />,
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
+    label: <TranslatedText
+      stringId="encounter.tabs.invoicing"
+      fallback="Invoicing"
+      data-testid='translatedtext-uoeh' />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => (
-      <EncounterPaneWithPermissionCheck permissionNoun="Invoice">
-        <EncounterInvoicingPane {...props} />
+      <EncounterPaneWithPermissionCheck
+        permissionNoun="Invoice"
+        data-testid='encounterpanewithpermissioncheck-0zt7'>
+        <EncounterInvoicingPane {...props} data-testid='encounterinvoicingpane-sci0' />
       </EncounterPaneWithPermissionCheck>
     ),
     condition: getSetting => getSetting('features.enableInvoicing'),
@@ -114,18 +151,41 @@ const TABS = [
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
     case ENCOUNTER_TYPES.TRIAGE:
-      return <TranslatedText stringId="encounter.type.triage" fallback="Triage" />;
+      return (
+        <TranslatedText
+          stringId="encounter.type.triage"
+          fallback="Triage"
+          data-testid='translatedtext-e1f6' />
+      );
     case ENCOUNTER_TYPES.OBSERVATION:
-      return <TranslatedText stringId="encounter.type.observation" fallback="Active ED patient" />;
+      return (
+        <TranslatedText
+          stringId="encounter.type.observation"
+          fallback="Active ED patient"
+          data-testid='translatedtext-l9uj' />
+      );
     case ENCOUNTER_TYPES.EMERGENCY:
-      return <TranslatedText stringId="encounter.type.emergency" fallback="Emergency short stay" />;
+      return (
+        <TranslatedText
+          stringId="encounter.type.emergency"
+          fallback="Emergency short stay"
+          data-testid='translatedtext-9bww' />
+      );
     case ENCOUNTER_TYPES.ADMISSION:
-      return <TranslatedText stringId="encounter.type.admission" fallback="Hospital admission" />;
+      return (
+        <TranslatedText
+          stringId="encounter.type.admission"
+          fallback="Hospital admission"
+          data-testid='translatedtext-h9l0' />
+      );
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
       return (
-        <TranslatedText stringId="encounter.header.patientEncounter" fallback="Patient Encounter" />
+        <TranslatedText
+          stringId="encounter.header.patientEncounter"
+          fallback="Patient Encounter"
+          data-testid='translatedtext-6wvg' />
       );
   }
 }
@@ -222,10 +282,10 @@ export const EncounterView = () => {
     );
   };
 
-  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator data-testid='loadingindicator-032s' />;
 
   return (
-    <GridColumnContainer>
+    <GridColumnContainer data-testid='gridcolumncontainer-vq5m'>
       <EncounterTopBar
         title={getHeaderText(encounter)}
         subTitle={
@@ -234,18 +294,18 @@ export const EncounterView = () => {
               fallback={encounter.location.facility.name}
               value={encounter.location.facility.id}
               category="facility"
-            />
+              data-testid='translatedreferencedata-dtq6' />
           )
         }
         encounter={encounter}
-      >
+        data-testid='encountertopbar-bp4b'>
         {(facilityId === encounter.location.facilityId || encounter.endDate) &&
           // Hide all actions if encounter type is Vaccination or Survey Response,
           // as they should only contain 1 survey response or vaccination and discharged automatically,
           // no need to show any summaries or actions
           ![ENCOUNTER_TYPES.VACCINATION, ENCOUNTER_TYPES.SURVEY_RESPONSE].includes(
             encounter.encounterType,
-          ) && <EncounterActions encounter={encounter} />}
+          ) && <EncounterActions encounter={encounter} data-testid='encounteractions-8368' />}
       </EncounterTopBar>
       <EncounterInfoPane
         encounter={encounter}
@@ -256,12 +316,16 @@ export const EncounterView = () => {
               fallback={patientBillingTypeData.name}
               value={patientBillingTypeData.id}
               category="patientBillingType"
-            />
+              data-testid='translatedreferencedata-kkpj' />
           )
         }
-      />
-      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} readOnly={disabled} />
-      <ContentPane>
+        data-testid='encounterinfopane-nabb' />
+      <DiagnosisView
+        encounter={encounter}
+        isTriage={getIsTriage(encounter)}
+        readOnly={disabled}
+        data-testid='diagnosisview-7r50' />
+      <ContentPane data-testid='contentpane-nv12'>
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
@@ -270,7 +334,7 @@ export const EncounterView = () => {
           patient={patient}
           disabled={disabled}
           handleDragEnd={handleDragEnd}
-        />
+          data-testid='styledtabdisplaydraggable-f593' />
       </ContentPane>
     </GridColumnContainer>
   );

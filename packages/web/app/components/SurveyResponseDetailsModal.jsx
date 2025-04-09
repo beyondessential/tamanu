@@ -32,15 +32,22 @@ const COLUMNS = [
       <TranslatedText
         stringId="surveyResponse.details.table.column.indicator"
         fallback="Indicator"
-      />
+        data-testid='translatedtext-62uq' />
     ),
     accessor: ({ name }) => name,
   },
   {
     key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
+    title: <TranslatedText
+      stringId="surveyResponse.details.table.column.value"
+      fallback="Value"
+      data-testid='translatedtext-fah5' />,
     accessor: ({ answer, sourceType, type }) => (
-      <SurveyAnswerResult answer={answer} sourceType={sourceType} type={type} />
+      <SurveyAnswerResult
+        answer={answer}
+        sourceType={sourceType}
+        type={type}
+        data-testid='surveyanswerresult-dhnv' />
     ),
   },
 ];
@@ -60,16 +67,19 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     return (
       <Modal
         title={
-          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+          <TranslatedText
+            stringId="surveyResponse.modal.details.title"
+            fallback="Form response"
+            data-testid='translatedtext-y8ns' />
         }
         open={!!surveyResponseId}
         onClose={onClose}
-      >
+        data-testid='modal-vzvm'>
         <h3>
           <TranslatedText
             stringId="surveyResponse.modal.details.error.fetchErrorMessage"
             fallback="Error fetching response details"
-          />
+            data-testid='translatedtext-b9js' />
         </h3>
         <pre>{error.stack}</pre>
       </Modal>
@@ -80,12 +90,18 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     return (
       <Modal
         title={
-          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+          <TranslatedText
+            stringId="surveyResponse.modal.details.title"
+            fallback="Form response"
+            data-testid='translatedtext-0lad' />
         }
         open={!!surveyResponseId}
         onClose={onClose}
-      >
-        <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+        data-testid='modal-qnfv'>
+        <TranslatedText
+          stringId="general.table.loading"
+          fallback="Loading..."
+          data-testid='translatedtext-ec13' />
       </Modal>
     );
   }
@@ -112,30 +128,43 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   return (
     <Modal
       title={
-        <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+        <TranslatedText
+          stringId="surveyResponse.modal.details.title"
+          fallback="Form response"
+          data-testid='translatedtext-bnqe' />
       }
       open={!!surveyResponseId}
       onClose={onClose}
-    >
+      data-testid='modal-ag6a'>
       {onPrint && (
         <PrintButton
           onClick={onPrint}
           color="primary"
           variant="outlined"
-          startIcon={<PrintIcon />}
+          startIcon={<PrintIcon data-testid='printicon-t3sp' />}
           size="small"
-        >
-          <TranslatedText stringId="general.action.print" fallback="Print" />
+          data-testid='printbutton-ywph'>
+          <TranslatedText
+            stringId="general.action.print"
+            fallback="Print"
+            data-testid='translatedtext-gct8' />
         </PrintButton>
       )}
-      <TableContainer>
-        <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      <TableContainer data-testid='tablecontainer-csba'>
+        <Table
+          data={answerRows}
+          columns={COLUMNS}
+          allowExport={false}
+          data-testid='table-3xqx' />
       </TableContainer>
-      <SectionSpacing />
+      <SectionSpacing data-testid='sectionspacing-gtmt' />
       <ModalCancelRow
         onConfirm={onClose}
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-      />
+        confirmText={<TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid='translatedtext-mhfm' />}
+        data-testid='modalcancelrow-dpsx' />
     </Modal>
   );
 };

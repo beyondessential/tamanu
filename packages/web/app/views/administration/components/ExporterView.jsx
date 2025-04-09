@@ -26,7 +26,7 @@ const ExportForm = ({
   buttonLabel,
   ExportButton = FormSubmitButton,
 }) => (
-  <StyledFormGrid columns={1}>
+  <StyledFormGrid columns={1} data-testid='styledformgrid-iit3'>
     {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
@@ -34,14 +34,14 @@ const ExportForm = ({
           <TranslatedText
             stringId="admin.export.includedDataTypes.label"
             fallback="Select data types to export"
-          />
+            data-testid='translatedtext-oz7u' />
         }
         component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
-      />
+        data-testid='field-aww5' />
     )}
-    <ButtonRow alignment="left">
-      <ExportButton text={buttonLabel} />
+    <ButtonRow alignment="left" data-testid='buttonrow-zs3j'>
+      <ExportButton text={buttonLabel} data-testid='exportbutton-7sto' />
     </ButtonRow>
   </StyledFormGrid>
 );
@@ -68,7 +68,10 @@ export const ExporterView = memo(
     const buttonLabel = useMemo(() => {
       return (
         <span>
-          <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
+          <TranslatedText
+            stringId="general.action.export"
+            fallback="Export"
+            data-testid='translatedtext-vthi' />{' '}
           {pluralize(title).toLowerCase()}
         </span>
       );
@@ -82,7 +85,7 @@ export const ExporterView = memo(
           buttonLabel={buttonLabel}
           ExportButton={ExportButton}
           {...props}
-        />
+          data-testid='exportform-r3vl' />
       ),
       [dataTypes, dataTypesSelectable, ExportButton, buttonLabel],
     );
@@ -98,7 +101,7 @@ export const ExporterView = memo(
           includedDataTypes: [...dataTypes],
         }}
         render={renderForm}
-      />
+        data-testid='form-mmoh' />
     );
   },
 );

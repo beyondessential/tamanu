@@ -93,7 +93,7 @@ export const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value = '', label, enablePasting = false, ...props }) => {
+export const TextInput = ({ value = '', label, enablePasting = false, ['data-testid']: dataTestId, ...props }) => {
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
   // eslint-disable-next-line no-unused-vars
@@ -107,17 +107,30 @@ export const TextInput = ({ value = '', label, enablePasting = false, ...props }
   };
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledTextField value={value} variant="outlined" onPaste={onPaste} {...rest} />
+      <StyledTextField
+        value={value}
+        variant="outlined"
+        onPaste={onPaste}
+        inputProps={{
+          ...props.inputProps,
+          'data-testid': `${dataTestId}-input`
+        }}
+        {...rest}/>
     </OuterLabelFieldWrapper>
   );
 };
 
 export const LimitedTextField = ({ limit = 255, ...props }) => (
-  <TextField {...props} inputProps={{ maxLength: limit }} />
+  <TextField {...props} inputProps={{ maxLength: limit }}/>
 );
 
 export const TextField = ({ field, ...props }) => (
-  <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+  <TextInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+ />
 );
 
 export const MultilineTextField = ({ field, ...props }) => (
@@ -126,12 +139,13 @@ export const MultilineTextField = ({ field, ...props }) => (
     name={field.name}
     value={field.value || ''}
     onChange={field.onChange}
-    {...props}
-  />
+    {...props} />
 );
 
 export const TallMultilineTextField = props => (
-  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
+  <MultilineTextField
+    style={{ minHeight: '156px' }}
+    {...props}/>
 );
 
 export const ReadOnlyTextField = ({ field, ...props }) => (
@@ -141,7 +155,7 @@ export const ReadOnlyTextField = ({ field, ...props }) => (
     onChange={field.onChange}
     {...props}
     disabled
-  />
+/>
 );
 
 TextInput.propTypes = {

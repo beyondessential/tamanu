@@ -60,23 +60,31 @@ export const DeathFormScreen = ({
 
   if (showSummary) {
     return (
-      <SummaryScreenOne onCancel={onCancel} onStepBack={toggleSummary} submitForm={handleSubmit} />
+      <SummaryScreenOne
+        onCancel={onCancel}
+        onStepBack={toggleSummary}
+        submitForm={handleSubmit}
+        data-testid='summaryscreenone-5hou' />
     );
   }
 
   return (
     <>
       {updatedScreenReactElement}
-      <Actions mt={4}>
-        <Box>
+      <Actions mt={4} data-testid='actions-oa9q'>
+        <Box data-testid='box-43gs'>
           {showSaveAndClose && (
-            <OutlinedButton onClick={toggleSummary}>Save and close</OutlinedButton>
+            <OutlinedButton onClick={toggleSummary} data-testid='outlinedbutton-nyjb'>Save and close</OutlinedButton>
           )}
-          {showBackButton && <OutlinedButton onClick={onStepBack}>Back</OutlinedButton>}
+          {showBackButton && <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-mj9c'>Back</OutlinedButton>}
         </Box>
-        <Box>
-          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <Button color="primary" variant="contained" onClick={onStepForward}>
+        <Box data-testid='box-itrv'>
+          <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-nsd2'>Cancel</OutlinedButton>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={onStepForward}
+            data-testid='button-ok5z'>
             {isLast ? 'Submit' : 'Continue'}
           </Button>
         </Box>

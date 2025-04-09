@@ -164,14 +164,14 @@ const getStatus = row => {
   switch (status) {
     case TASK_STATUSES.TODO:
       return (
-        <Box marginLeft="1.5px">
-          <StatusTodo />
+        <Box marginLeft="1.5px" data-testid='box-zu8j'>
+          <StatusTodo data-testid='statustodo-cgar' />
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
-      return <StyledCheckCircleIcon />;
+      return <StyledCheckCircleIcon data-testid='styledcheckcircleicon-2zud' />;
     case TASK_STATUSES.NON_COMPLETED:
-      return <StyledCancelIcon />;
+      return <StyledCancelIcon data-testid='styledcancelicon-a0it' />;
     default:
       break;
   }
@@ -179,45 +179,45 @@ const getStatus = row => {
 
 const getDueTime = ({ dueTime }) => {
   return (
-    <DateWrapper>
-      <BodyText>{formatTime(dueTime)}</BodyText>
-      <SmallBodyText color={Colors.midText}>{formatShortest(dueTime)}</SmallBodyText>
+    <DateWrapper data-testid='datewrapper-hd7h'>
+      <BodyText data-testid='bodytext-fq9o'>{formatTime(dueTime)}</BodyText>
+      <SmallBodyText color={Colors.midText} data-testid='smallbodytext-grca'>{formatShortest(dueTime)}</SmallBodyText>
     </DateWrapper>
   );
 };
 
 const getLocation = ({ encounter }) => (
   <div>
-    <BodyText>{encounter.location.locationGroup.name}</BodyText>
-    <SmallBodyText color={Colors.midText}>{encounter.location.name}</SmallBodyText>
+    <BodyText data-testid='bodytext-pajw'>{encounter.location.locationGroup.name}</BodyText>
+    <SmallBodyText color={Colors.midText} data-testid='smallbodytext-087a'>{encounter.location.name}</SmallBodyText>
   </div>
 );
 
 const getTaskName = ({ name, requestedBy, requestTime, highPriority }) => (
   <StyledToolTip
     title={
-      <TooltipContainer>
+      <TooltipContainer data-testid='tooltipcontainer-dse4'>
         <div>{name}</div>
         <div>{requestedBy?.displayName}</div>
-        <Box sx={{ textTransform: 'lowercase' }}>
+        <Box sx={{ textTransform: 'lowercase' }} data-testid='box-mkj4'>
           {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
         </Box>
       </TooltipContainer>
     }
-  >
+    data-testid='styledtooltip-myk4'>
     <span>
-      {highPriority && <StyledPriorityHighIcon />}
+      {highPriority && <StyledPriorityHighIcon data-testid='styledpriorityhighicon-8mdd' />}
       {name}
     </span>
   </StyledToolTip>
 );
 
 const NoDataMessage = () => (
-  <NoDataContainer>
+  <NoDataContainer data-testid='nodatacontainer-t1wr'>
     <TranslatedText
       stringId="dashboard.tasks.table.noData"
       fallback="No upcoming tasks to display. If applicable please try adjusting the filter."
-    />
+      data-testid='translatedtext-596x' />
   </NoDataContainer>
 );
 
@@ -230,29 +230,44 @@ const COLUMNS = [
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="dashboard.tasks.table.column.location" fallback="Location" />,
+    title: <TranslatedText
+      stringId="dashboard.tasks.table.column.location"
+      fallback="Location"
+      data-testid='translatedtext-gazb' />,
     accessor: getLocation,
   },
   {
     key: 'encounter.patient.displayId',
     title: (
-      <TranslatedText stringId="dashboard.tasks.table.column.patientId" fallback="Patient ID" />
+      <TranslatedText
+        stringId="dashboard.tasks.table.column.patientId"
+        fallback="Patient ID"
+        data-testid='translatedtext-bujz' />
     ),
     accessor: ({ encounter }) => encounter.patient.displayId,
   },
   {
     key: 'patientName',
-    title: <TranslatedText stringId="dashboard.tasks.table.column.patient" fallback="Patient" />,
+    title: <TranslatedText
+      stringId="dashboard.tasks.table.column.patient"
+      fallback="Patient"
+      data-testid='translatedtext-euwb' />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   },
   {
     key: 'name',
-    title: <TranslatedText stringId="dashboard.tasks.table.column.task" fallback="Task" />,
+    title: <TranslatedText
+      stringId="dashboard.tasks.table.column.task"
+      fallback="Task"
+      data-testid='translatedtext-op9s' />,
     accessor: getTaskName,
   },
   {
     key: 'dueTime',
-    title: <TranslatedText stringId="dashboard.tasks.table.column.due" fallback="Due" />,
+    title: <TranslatedText
+      stringId="dashboard.tasks.table.column.due"
+      fallback="Due"
+      data-testid='translatedtext-anyk' />,
     accessor: getDueTime,
   },
 ];
@@ -289,9 +304,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
 
   if (!userTasks?.count && !isLoading) {
     return (
-      <Container>
-        <StyledDivider />
-        <NoDataMessage />
+      <Container data-testid='container-0v0x'>
+        <StyledDivider data-testid='styleddivider-p5yn' />
+        <NoDataMessage data-testid='nodatamessage-p0vm' />
       </Container>
     );
   }
@@ -303,7 +318,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   };
 
   return (
-    <Container>
+    <Container data-testid='container-261m'>
       <StyledTable
         data={userTasks?.data}
         columns={COLUMNS}
@@ -317,9 +332,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         hideHeader={!userTasks?.count}
         onRowClick={onRowClick}
         rowIdKey="id"
-      />
+        data-testid='styledtable-l8ab' />
       {!isLoading && (
-        <PaginatorContainer>
+        <PaginatorContainer data-testid='paginatorcontainer-ypcr'>
           <Paginator
             page={page}
             colSpan={COLUMNS.length}
@@ -328,7 +343,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-          />
+            data-testid='paginator-1y3e' />
         </PaginatorContainer>
       )}
     </Container>

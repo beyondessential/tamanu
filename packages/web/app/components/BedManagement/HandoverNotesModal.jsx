@@ -24,7 +24,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
       stringId="bedManagement.modal.handoverNotes.title"
       fallback="Handover notes :date"
       replacements={{ date: getDisplayDate(new Date(), 'dd/MM/yy') }}
-    />
+      data-testid='translatedtext-4lua' />
   );
 
   const {
@@ -46,8 +46,12 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const isLoading = isFetchingCertificate || isFetchingHandoverNotes;
 
   return (
-    <Modal {...props} title={modalTitle} onPrint={() => printPDF('handover-notes')}>
-      <PDFLoader isLoading={isLoading} id="handover-notes">
+    <Modal
+      {...props}
+      title={modalTitle}
+      onPrint={() => printPDF('handover-notes')}
+      data-testid='modal-8os6'>
+      <PDFLoader isLoading={isLoading} id="handover-notes" data-testid='pdfloader-fbu0'>
         <HandoverNotesPDF
           logoSrc={logo}
           handoverNotes={handoverNotes}
@@ -55,7 +59,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           getLocalisation={getLocalisation}
           getSetting={getSetting}
           letterheadConfig={letterheadConfig}
-        />
+          data-testid='handovernotespdf-uu0b' />
       </PDFLoader>
     </Modal>
   );

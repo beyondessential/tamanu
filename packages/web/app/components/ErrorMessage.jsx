@@ -4,9 +4,9 @@ import { Box } from '@material-ui/core';
 
 export const ErrorMessage = ({ title, errorMessage, error }) => {
   return (
-    <Box p={5} mb={4}>
-      <Alert severity="error">
-        <AlertTitle>{title}</AlertTitle>
+    <Box p={5} mb={4} data-testid='box-d3kl'>
+      <Alert severity="error" data-testid='alert-8ome'>
+        <AlertTitle data-testid='alerttitle-jiu4'>{title}</AlertTitle>
         {errorMessage}
         {error ? <pre>{error.stack}</pre> : ''}
       </Alert>

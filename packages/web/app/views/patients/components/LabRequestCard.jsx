@@ -50,27 +50,30 @@ const CardValue = styled(CardLabel)`
 
 export const LabRequestCard = ({ labRequest, actions }) => {
   return (
-    <Container>
-      <Box display="flex" alignItems="center">
-        <LabIcon src={labsIcon} />
-        <CardItem>
-          <CardLabel>
+    <Container data-testid='container-7pq6'>
+      <Box display="flex" alignItems="center" data-testid='box-evl7'>
+        <LabIcon src={labsIcon} data-testid='labicon-e74e' />
+        <CardItem data-testid='carditem-urbq'>
+          <CardLabel data-testid='cardlabel-9yw2'>
             <TranslatedText
               stringId="lab.details.card.item.labTestId.label"
               fallback="Lab test ID"
-            />
+              data-testid='translatedtext-scz2' />
             :
           </CardLabel>
-          <CardValue>{labRequest.displayId}</CardValue>
-          <CardLabel>
-            <TranslatedText stringId="general.requestDate.label" fallback="Request date" />:
+          <CardValue data-testid='cardvalue-wpiy'>{labRequest.displayId}</CardValue>
+          <CardLabel data-testid='cardlabel-hqix'>
+            <TranslatedText
+              stringId="general.requestDate.label"
+              fallback="Request date"
+              data-testid='translatedtext-mu6g' />:
           </CardLabel>
-          <CardValue>
-            <DateDisplay date={labRequest.requestedDate} />
+          <CardValue data-testid='cardvalue-bag0'>
+            <DateDisplay date={labRequest.requestedDate} data-testid='datedisplay-wngn' />
           </CardValue>
         </CardItem>
-        <BorderSection>
-          <CardLabel>
+        <BorderSection data-testid='bordersection-pgdb'>
+          <CardLabel data-testid='cardlabel-hifd'>
             <TranslatedText
               stringId="general.requestingClinician.label"
               fallback="Requesting :clinician"
@@ -80,23 +83,26 @@ export const LabRequestCard = ({ labRequest, actions }) => {
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                     casing="lower"
-                  />
+                    data-testid='translatedtext-hppd' />
                 ),
               }}
-            />
+              data-testid='translatedtext-2j11' />
             :
           </CardLabel>
-          <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
-          <CardLabel>
-            <TranslatedText stringId="general.department.label" fallback="Department" />:
+          <CardValue data-testid='cardvalue-tin5'>{labRequest.requestedBy?.displayName}</CardValue>
+          <CardLabel data-testid='cardlabel-cuwo'>
+            <TranslatedText
+              stringId="general.department.label"
+              fallback="Department"
+              data-testid='translatedtext-b1o5' />:
           </CardLabel>
-          <CardValue>
+          <CardValue data-testid='cardvalue-l8vk'>
             {labRequest.department?.name && (
               <TranslatedReferenceData
                 fallback={labRequest.department.name}
                 value={labRequest.department.id}
                 category="department"
-              />
+                data-testid='translatedreferencedata-wp5x' />
             )}
           </CardValue>
         </BorderSection>

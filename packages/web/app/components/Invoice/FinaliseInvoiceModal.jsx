@@ -28,22 +28,25 @@ export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
         <TranslatedText
           stringId="invoice.modal.finaliseInvoice.title"
           fallback="Finalise invoice"
-        />
+          data-testid='translatedtext-jphh' />
       }
       open={open}
       onClose={onClose}
-    >
-      <ContentText>
+      data-testid='modal-j1bi'>
+      <ContentText data-testid='contenttext-ebxz'>
         <TranslatedText
           stringId="invoice.modal.finaliseInvoice.warningText"
           fallback="Are you sure you would like to finalise this invoice? You will not be able to make any changes."
-        />
+          data-testid='translatedtext-80vy' />
       </ContentText>
       <ModalActionRow
         onConfirm={finaliseInvoice}
         onCancel={onClose}
-        confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
-      />
+        confirmText={<TranslatedText
+          stringId="general.action.finalise"
+          fallback="Finalise"
+          data-testid='translatedtext-ah5j' />}
+        data-testid='modalactionrow-r8rf' />
     </Modal>
   );
 };

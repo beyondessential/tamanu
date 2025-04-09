@@ -42,7 +42,7 @@ const Toggle = styled(ToggleButton)`
 `;
 
 const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
-  <Toggle $color={color} $selected={selected} {...props}>
+  <Toggle $color={color} $selected={selected} {...props} data-testid='toggle-mzt4'>
     {children}
   </Toggle>
 );
@@ -60,7 +60,7 @@ export const AppointmentStatusChip = ({
     role="radio"
     selected={selected}
     {...props}
-  >
+    data-testid='chip-poiu'>
     {appointmentStatus ?? <>&mdash;</>}
   </Chip>
 );

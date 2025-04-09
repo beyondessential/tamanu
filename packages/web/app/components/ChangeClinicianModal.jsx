@@ -33,19 +33,19 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
                 casing="lower"
-              />
+                data-testid='translatedtext-1lfz' />
             ),
           }}
-        />
+          data-testid='translatedtext-8saz' />
       }
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-359z'>
       <ChangeClinicianForm
         clinicianSuggester={clinicianSuggester}
         onSubmit={onSubmit}
         onCancel={onClose}
-      />
+        data-testid='changeclinicianform-e6jb' />
     </FormModal>
   );
 });

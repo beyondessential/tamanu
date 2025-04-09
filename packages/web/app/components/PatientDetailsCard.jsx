@@ -48,43 +48,58 @@ const CardValue = styled(CardLabel)`
 `;
 
 const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props}>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
+  <CardCell {...props} data-testid='cardcell-kiqd'>
+    <CardLabel data-testid='cardlabel-ew60'>{label}</CardLabel>
+    <CardValue data-testid='cardvalue-xte9'>{value}</CardValue>
   </CardCell>
 );
 
 export const PatientDetailsCard = ({ patient }) => (
-  <Card mb={4}>
-    <Column>
+  <Card mb={4} data-testid='card-z5eu'>
+    <Column data-testid='column-ka13'>
       <CardItem
-        label={<TranslatedText stringId="general.patientId.label" fallback="Patient ID" />}
+        label={<TranslatedText
+          stringId="general.patientId.label"
+          fallback="Patient ID"
+          data-testid='translatedtext-dxyi' />}
         value={patient?.displayId}
-      />
+        data-testid='carditem-ij6h' />
       <CardItem
         label={
-          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid='translatedtext-hmo0' />
         }
         value={patient?.firstName}
-      />
+        data-testid='carditem-58iy' />
       <CardItem
         label={
-          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid='translatedtext-6wf8' />
         }
         value={patient?.lastName}
-      />
+        data-testid='carditem-2zmk' />
     </Column>
-    <Column>
+    <Column data-testid='column-tjs7'>
       <CardItem
         label={
-          <TranslatedText stringId="patient.detail.card.dateOfBirth.label.short" fallback="DOB" />
+          <TranslatedText
+            stringId="patient.detail.card.dateOfBirth.label.short"
+            fallback="DOB"
+            data-testid='translatedtext-0qfs' />
         }
-        value={<DateDisplay date={patient?.dateOfBirth} />}
-      />
+        value={<DateDisplay date={patient?.dateOfBirth} data-testid='datedisplay-h1tz' />}
+        data-testid='carditem-mm6v' />
       <CardItem
-        label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+        label={<TranslatedText
+          stringId="general.localisedField.sex.label"
+          fallback="Sex"
+          data-testid='translatedtext-75mt' />}
         value={SEX_VALUE_INDEX[patient?.sex]?.label}
-      />
+        data-testid='carditem-i7lc' />
     </Column>
   </Card>
 );

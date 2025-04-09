@@ -29,7 +29,7 @@ import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 export const ButtonBase = props => {
   delete props.functionallyDisabled;
   const locationsProps = getLocationProps(props);
-  return <MuiButtonBase {...props} {...locationsProps} />;
+  return <MuiButtonBase {...props} {...locationsProps} data-testid='muibuttonbase-3vnh' />;
 };
 
 const StyledButton = styled(({ ...props }) => {
@@ -97,7 +97,7 @@ const BaseButton = ({
         // see the disabled prop so it won't add its own styling, but the underlying button element
         // is still disabled.
         // eslint-disable-next-line react/button-has-type
-        <button type={type} {...buttonProps} ref={ref} disabled />
+        (<button type={type} {...buttonProps} ref={ref} disabled data-testid='button-0nnt' />)
       ))
     : undefined;
 
@@ -108,10 +108,9 @@ const BaseButton = ({
       disabled={disabled || !hasPermission}
       type={type}
       functionallyDisabled={functionallyDisabled}
-      {...(buttonComponent && { component: buttonComponent })}
-    >
-      {displayLock && <Lock />}
-      {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} />}
+      {...(buttonComponent && { component: buttonComponent })}>
+      {displayLock && <Lock data-testid='lock-zz2l' />}
+      {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} data-testid='styledcircularprogress-4end' />}
       {!showLoadingIndicator && children}
     </StyledButton>
   );
@@ -123,7 +122,7 @@ export const Button = ({ isSubmitting = false, ...props }) => (
     functionallyDisabled={isSubmitting}
     showLoadingIndicator={isSubmitting}
     {...props}
-  />
+ />
 );
 
 BaseButton.propTypes = {
@@ -150,15 +149,19 @@ const StyledOutlinedButton = styled(StyledButton)`
 `;
 
 export const OutlinedButton = props => (
-  <StyledOutlinedButton variant="outlined" color="primary" {...props} />
+  <StyledOutlinedButton
+    variant="outlined"
+    color="primary"
+    {...props}
+    data-testid='styledoutlinedbutton-95j5' />
 );
 
-export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled(props => <StyledButton {...props} data-testid='styledbutton-d007' />)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled(props => <StyledButton {...props} data-testid='styledbutton-hi21' />)`
   border: 1px solid ${Colors.alert};
   color: ${Colors.alert};
 `;
@@ -171,11 +174,19 @@ const StyledLargeButton = styled(StyledButton)`
 `;
 
 export const LargeButton = props => (
-  <StyledLargeButton variant="contained" color="primary" {...props} />
+  <StyledLargeButton
+    variant="contained"
+    color="primary"
+    {...props}
+    data-testid='styledlargebutton-2tfa' />
 );
 
 export const LargeOutlineButton = props => (
-  <StyledLargeButton variant="outlined" color="primary" {...props} />
+  <StyledLargeButton
+    variant="outlined"
+    color="primary"
+    {...props}
+    data-testid='styledlargebutton-1kaf' />
 );
 
 const StyledDeleteButton = styled(Button)`
@@ -190,7 +201,7 @@ const StyledDeleteButton = styled(Button)`
 export const DeleteButton = props => {
   const { children } = props;
   return (
-    <StyledDeleteButton variant="contained" {...props}>
+    <StyledDeleteButton variant="contained" {...props} data-testid='styleddeletebutton-3y25'>
       {children || 'Delete'}
     </StyledDeleteButton>
   );
@@ -211,7 +222,10 @@ const StyledTextButton = styled(Button)`
 `;
 
 export const TextButton = ({ children, ...props }) => (
-  <StyledTextButton variant="text" color="primary" {...props}>
+  <StyledTextButton
+    variant="text"
+    color="primary"
+    {...props}>
     {children}
   </StyledTextButton>
 );
@@ -226,32 +240,35 @@ const StyledNavButton = styled(TextButton)`
 `;
 
 export const BackButton = ({ to, text = true, ...props }) => (
-  <StyledNavButton to={to} {...props}>
-    <ChevronLeft />
+  <StyledNavButton to={to} {...props} data-testid='stylednavbutton-jww0'>
+    <ChevronLeft data-testid='chevronleft-5eri' />
     {text && (
       <>
         {' '}
-        <TranslatedText stringId="general.action.back" fallback="Back" />
+        <TranslatedText
+          stringId="general.action.back"
+          fallback="Back"
+          data-testid='translatedtext-qwih' />
       </>
     )}
   </StyledNavButton>
 );
 
 export const PlusIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <AddBoxOutlined fontSize="inherit" />
+  <IconButton color="primary" {...props} data-testid='iconbutton-yqe8'>
+    <AddBoxOutlined fontSize="inherit" data-testid='addboxoutlined-ukuf' />
   </IconButton>
 );
 
 export const MinusIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <IndeterminateCheckBox fontSize="inherit" />
+  <IconButton color="primary" {...props} data-testid='iconbutton-s03s'>
+    <IndeterminateCheckBox fontSize="inherit" data-testid='indeterminatecheckbox-nrt2' />
   </IconButton>
 );
 
 export const RefreshIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <Refresh fontSize="inherit" />
+  <IconButton color="primary" {...props} data-testid='iconbutton-7wqr'>
+    <Refresh fontSize="inherit" data-testid='refresh-lfbz' />
   </IconButton>
 );
 
@@ -273,7 +290,7 @@ export const FormSubmitButton = ({
       functionallyDisabled={isSubmitting}
       type="submit"
       {...props}
-    >
+      data-testid='button-qy78'>
       {children || text}
     </Button>
   );
@@ -282,7 +299,12 @@ export const FormSubmitButton = ({
 export const FormCancelButton = ({ ...props }) => {
   const { isSubmitting } = useFormikContext();
 
-  return <OutlinedButton functionallyDisabled={isSubmitting} {...props} />;
+  return (
+    <OutlinedButton
+      functionallyDisabled={isSubmitting}
+      {...props}
+      data-testid='outlinedbutton-8rnr' />
+  );
 };
 
 export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
@@ -300,15 +322,23 @@ const StyledLargeSubmitButton = styled(FormSubmitButton)`
 `;
 
 export const LargeSubmitButton = props => (
-  <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
+  <StyledLargeSubmitButton
+    variant="contained"
+    color="primary"
+    {...props}
+    data-testid='styledlargesubmitbutton-jgnk' />
 );
 
 export const LargeOutlinedSubmitButton = props => (
-  <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
+  <StyledLargeSubmitButton
+    variant="outlined"
+    color="primary"
+    {...props}
+    data-testid='styledlargesubmitbutton-hi0z' />
 );
 
 export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props}>{children}</IconButton>
+  <IconButton {...props} data-testid='iconbutton-zsiq'>{children}</IconButton>
 ))`
   border-radius: 20%;
   padding: 0px;

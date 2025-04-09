@@ -26,7 +26,10 @@ const Icon = styled.i`
 `;
 
 const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+  <Tooltip
+    classes={{ popper: props.className }}
+    {...props}
+    data-testid='tooltip-vm4x'>
     {props.children}
   </Tooltip>
 ))`
@@ -59,8 +62,14 @@ export const OuterLabelFieldWrapper = React.memo(
         </OuterLabel>
       )}
       {infoTooltip && (
-        <StyledTooltip arrow placement="top" title={infoTooltip}>
-          <Icon className="fa fa-info-circle" color={Colors.softText} />
+        <StyledTooltip
+          arrow
+          placement="top"
+          title={infoTooltip}
+          data-testid='styledtooltip-pmvq'>
+          <Icon
+            className="fa fa-info-circle"
+            color={Colors.softText} />
         </StyledTooltip>
       )}
       {children}

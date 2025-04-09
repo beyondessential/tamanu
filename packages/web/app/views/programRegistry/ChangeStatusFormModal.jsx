@@ -60,37 +60,39 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           <TranslatedText
             stringId="programRegistry.modal.changeStatus.title"
             fallback="Change status"
-          />
+            data-testid='translatedtext-gqu2' />
         }
         open={open}
         onClose={onClose}
         overrideContentPadding
-      >
+        data-testid='modal-jwed'>
         <Form
           showInlineErrorsOnly
           onSubmit={changeStatus}
           render={({ submitForm }) => {
             return (
               <div>
-                <StyledFormGrid columns={1}>
+                <StyledFormGrid columns={1} data-testid='styledformgrid-y1dv'>
                   <Field
                     name="clinicalStatusId"
                     label={
                       <TranslatedText
                         stringId="programRegistry.clinicalStatus.label"
                         fallback="Status"
-                      />
+                        data-testid='translatedtext-dbev' />
                     }
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
-                  />
+                    data-testid='field-kjuk' />
                 </StyledFormGrid>
-                <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
+                <FormSeparatorLine
+                  style={{ marginTop: '60px', marginBottom: '30px' }}
+                  data-testid='formseparatorline-4vw4' />
                 <ConfirmCancelRow
                   style={{ padding: '0px 30px' }}
                   onConfirm={submitForm}
                   onCancel={onClose}
-                />
+                  data-testid='confirmcancelrow-x957' />
               </div>
             );
           }}
@@ -101,7 +103,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
           validationSchema={yup.object().shape({
             clinicalStatusId: optionalForeignKey(),
           })}
-        />
+          data-testid='form-qce1' />
       </Modal>
     </>
   );

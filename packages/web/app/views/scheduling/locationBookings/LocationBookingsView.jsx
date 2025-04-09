@@ -26,7 +26,10 @@ const PlusIcon = styled(AddRounded)`
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
-    <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
+    <TranslatedText
+      stringId="scheduling.locationBookings.title"
+      fallback="Location bookings"
+      data-testid='translatedtext-y7nl' />
   ),
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
@@ -110,29 +113,29 @@ export const LocationBookingsView = () => {
   const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
   if (!canViewAppointments) {
-    return <NoPermissionScreen />;
+    return <NoPermissionScreen data-testid='nopermissionscreen-56z7' />;
   }
 
   return (
-    <Wrapper>
-      <LocationBookingsTopBar>
-        <LocationBookingsFilter />
+    <Wrapper data-testid='wrapper-r1vl'>
+      <LocationBookingsTopBar data-testid='locationbookingstopbar-0w60'>
+        <LocationBookingsFilter data-testid='locationbookingsfilter-xdku' />
         {canCreateAppointment && (
-          <NewBookingButton onClick={handleNewBooking}>
-            <PlusIcon />
+          <NewBookingButton onClick={handleNewBooking} data-testid='newbookingbutton-sl1p'>
+            <PlusIcon data-testid='plusicon-ufmc' />
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
-            />
+              data-testid='translatedtext-feur' />
           </NewBookingButton>
         )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
-        <EmptyStateLabel>
+        <EmptyStateLabel data-testid='emptystatelabel-5iov'>
           <TranslatedText
             stringId="locationBooking.calendar.noBookableLocations"
             fallback="No bookable locations"
-          />
+            data-testid='translatedtext-e6bf' />
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
@@ -140,13 +143,13 @@ export const LocationBookingsView = () => {
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
-        />
+          data-testid='locationbookingscalendar-s3yu' />
       )}
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
-      />
+        data-testid='cancellocationbookingmodal-4tih' />
       {selectedAppointment && (
         <LocationBookingDrawer
           initialValues={appointmentToFormValues(selectedAppointment)}
@@ -156,7 +159,7 @@ export const LocationBookingsView = () => {
           }
           open={isDrawerOpen}
           onClose={closeBookingForm}
-        />
+          data-testid='locationbookingdrawer-kv0j' />
       )}
     </Wrapper>
   );

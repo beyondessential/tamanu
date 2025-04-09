@@ -289,9 +289,9 @@ export const DataFetchingTable = memo(
             <TranslatedText
               stringId="general.table.error.noPermission"
               fallback="You do not have permission to view this table. If you require access, please contact your administrator."
-            />
+              data-testid='translatedtext-r2tx' />
           }
-        />
+          data-testid='table-6fs4' />
       );
     }
 
@@ -305,10 +305,13 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setIsNotificationMuted(true);
             }}
-          />
+            data-testid='tablenotification-pij8' />
         )}
         {enableAutoRefresh && (
-          <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
+          <TableRefreshButton
+            lastUpdatedTime={lastUpdatedAt}
+            refreshTable={manualRefresh}
+            data-testid='tablerefreshbutton-4u94' />
         )}
         <Table
           isLoading={isLoading}
@@ -334,7 +337,7 @@ export const DataFetchingTable = memo(
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
-        />
+          data-testid='table-4rt7' />
       </>
     );
   },

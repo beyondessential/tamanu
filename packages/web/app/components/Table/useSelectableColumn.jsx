@@ -41,7 +41,7 @@ export const useSelectableColumn = (
           onChange={event => cellOnChange(event, rowIndex)}
           style={{ margin: 'auto' }}
           disabled={getIsRowDisabled(selectedKeys, row)}
-        />
+          data-testid='checkinput-83pj' />
       );
     },
     [rows, selectionKey, selectedKeys, cellOnChange],
@@ -76,7 +76,7 @@ export const useSelectableColumn = (
         style={{ margin: 'auto' }}
         indeterminate={showIndeterminate && isSomeRowSelected}
         disabled={getIsTitleDisabled(selectedKeys)}
-      />
+        data-testid='checkinput-irky' />
     );
   }, [rows, selectedRows, titleOnChange, selectedKeys]);
 

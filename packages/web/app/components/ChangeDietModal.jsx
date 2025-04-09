@@ -24,16 +24,16 @@ export const ChangeDietModal = React.memo(({ open, onClose }) => {
         <TranslatedText
           stringId="encounter.modal.changeDiet.title"
           fallback="Change diet"
-        />
+          data-testid='translatedtext-b2im' />
       }
       open={open}
       onClose={onClose}
-    >
+      data-testid='formmodal-anbb'>
       <ChangeDietForm
         onSubmit={onSubmit}
         onCancel={onClose}
         dietIds={encounter.diets?.map(diet => diet?.id)}
-      />
+        data-testid='changedietform-2vn0' />
     </FormModal>
   );
 });

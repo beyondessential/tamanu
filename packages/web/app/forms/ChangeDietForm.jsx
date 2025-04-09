@@ -10,19 +10,25 @@ import { ModalActionRow } from '../components';
 
 export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
   const renderForm = ({ submitForm }) => (
-    <FormGrid columns={1}>
+    <FormGrid columns={1} data-testid='formgrid-r4hj'>
       <LocalisedField
         name="dietIds"
-        label={<TranslatedText stringId="general.localisedField.dietId.label" fallback="Diet" />}
+        label={<TranslatedText
+          stringId="general.localisedField.dietId.label"
+          fallback="Diet"
+          data-testid='translatedtext-0udr' />}
         endpoint="diet"
         component={SuggesterSelectField}
         isMulti
-      />
+        data-testid='localisedfield-wlag' />
       <ModalActionRow
-        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        confirmText={<TranslatedText
+          stringId="general.action.confirm"
+          fallback="Confirm"
+          data-testid='translatedtext-6dac' />}
         onConfirm={submitForm}
         onCancel={onCancel}
-      />
+        data-testid='modalactionrow-83gu' />
     </FormGrid>
   );
 
@@ -36,7 +42,7 @@ export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
       formType={FORM_TYPES.EDIT_FORM}
       render={renderForm}
       onSubmit={onSubmit}
-    />
+      data-testid='form-vanc' />
   );
 };
 

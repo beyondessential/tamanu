@@ -53,11 +53,11 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
   };
 
   return (
-    <AppBar className={className}>
-      <Bar>
-        {dotColors[encounterType] && <Dot color={dotColors[encounterType]} />}
+    <AppBar className={className} data-testid='appbar-eplg'>
+      <Bar data-testid='bar-0r5f'>
+        {dotColors[encounterType] && <Dot color={dotColors[encounterType]} data-testid='dot-lfmg' />}
         {title && (
-          <TopBarHeading variant="h3">
+          <TopBarHeading variant="h3" data-testid='topbarheading-bgnl'>
             {title}
             {subTitle && (
               <>
@@ -86,9 +86,9 @@ TopBar.defaultProps = {
 };
 
 export const SimpleTopBar = React.memo(({ title, children, className }) => (
-  <AppBar className={className}>
-    <Bar>
-      <TopBarHeading variant="h1">{title}</TopBarHeading>
+  <AppBar className={className} data-testid='appbar-rhqd'>
+    <Bar data-testid='bar-c8bn'>
+      <TopBarHeading variant="h1" data-testid='topbarheading-go4f'>{title}</TopBarHeading>
       {children}
     </Bar>
   </AppBar>
@@ -121,8 +121,12 @@ const StaticTopBar = styled(TopBar)`
 `;
 
 export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
-  <StaticTopBar title={title} subTitle={subTitle} encounterType={encounter.encounterType}>
-    <Container>{children}</Container>
+  <StaticTopBar
+    title={title}
+    subTitle={subTitle}
+    encounterType={encounter.encounterType}
+    data-testid='statictopbar-pmtf'>
+    <Container data-testid='container-zn0h'>{children}</Container>
   </StaticTopBar>
 );
 

@@ -135,32 +135,37 @@ export const BaseModal = memo(
         onClose={onDialogClose}
         transitionDuration={MODAL_TRANSITION_DURATION}
         {...props}
-      >
-        <ModalTitle>
-          <VerticalCenteredText>{title}</VerticalCenteredText>
-          <Box flexShrink={0}>
+        data-testid='dialog-g9qi'>
+        <ModalTitle data-testid='modaltitle-ojhf'>
+          <VerticalCenteredText data-testid='verticalcenteredtext-ni4s'>{title}</VerticalCenteredText>
+          <Box flexShrink={0} data-testid='box-okdu'>
             {additionalActions}
             {printable && (
               <StyledButton
                 color="primary"
                 variant="outlined"
                 onClick={handlePrint}
-                startIcon={<PrintIcon />}
+                startIcon={<PrintIcon data-testid='printicon-mgui' />}
                 size="small"
-              >
-                <TranslatedText stringId="general.action.print" fallback="Print" />
+                data-testid='styledbutton-z2pp'>
+                <TranslatedText
+                  stringId="general.action.print"
+                  fallback="Print"
+                  data-testid='translatedtext-0ush' />
               </StyledButton>
             )}
             {cornerExitButton && (
-              <IconButton onClick={onClose} disabled={!isClosable}>
-                <CloseIcon />
+              <IconButton onClick={onClose} disabled={!isClosable} data-testid='iconbutton-eull'>
+                <CloseIcon data-testid='closeicon-z1u6' />
               </IconButton>
             )}
           </Box>
         </ModalTitle>
-        <ModalContainer $color={color}>
-          <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
-          <DialogActions>{actions}</DialogActions>
+        <ModalContainer $color={color} data-testid='modalcontainer-uc2n'>
+          <ModalContent
+            $overrideContentPadding={overrideContentPadding}
+            data-testid='modalcontent-bk4w'>{children}</ModalContent>
+          <DialogActions data-testid='dialogactions-jkc6'>{actions}</DialogActions>
         </ModalContainer>
         {fixedBottomRow && bottomRowContent}
       </Dialog>
@@ -182,8 +187,8 @@ const Loader = styled(Box)`
 `;
 
 export const ModalLoader = ({ loadingText }) => (
-  <Loader>
-    <CircularProgress size="5rem" />
-    {loadingText && <Typography>{loadingText}</Typography>}
+  <Loader data-testid='loader-kayp'>
+    <CircularProgress size="5rem" data-testid='circularprogress-1eqo' />
+    {loadingText && <Typography data-testid='typography-winh'>{loadingText}</Typography>}
   </Loader>
 );

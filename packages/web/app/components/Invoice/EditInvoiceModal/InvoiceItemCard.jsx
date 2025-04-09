@@ -54,9 +54,9 @@ const PriceText = styled.span`
 `;
 
 const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props}>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
+  <CardCell {...props} data-testid='cardcell-qkvv'>
+    <CardLabel data-testid='cardlabel-erof'>{label}</CardLabel>
+    <CardValue data-testid='cardvalue-cngq'>{value}</CardValue>
   </CardCell>
 );
 
@@ -65,53 +65,65 @@ export const InvoiceItemCard = ({ item }) => {
   const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   return (
-    <Card mb={3}>
-      <Column>
+    <Card mb={3} data-testid='card-bvae'>
+      <Column data-testid='column-ckh6'>
         <CardItem
-          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          label={<TranslatedText
+            stringId="general.date.label"
+            fallback="Date"
+            data-testid='translatedtext-dz71' />}
           value={item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
-        />
+          data-testid='carditem-v4wj' />
         <CardItem
-          label={<TranslatedText stringId="invoice.table.column.code" fallback="Code" />}
+          label={<TranslatedText
+            stringId="invoice.table.column.code"
+            fallback="Code"
+            data-testid='translatedtext-9lm0' />}
           value={item.productCode}
-        />
+          data-testid='carditem-fvcd' />
         <CardItem
           label={
             <TranslatedText
               stringId="invoice.modal.editInvoice.orderedBy.label"
               fallback="Ordered by"
-            />
+              data-testid='translatedtext-31ub' />
           }
           value={item?.orderedByUser?.displayName}
-        />
+          data-testid='carditem-daqa' />
       </Column>
-      <Column>
+      <Column data-testid='column-az90'>
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.details.label"
+              fallback="Details"
+              data-testid='translatedtext-qh0h' />
           }
           value={item.productName}
-        />
+          data-testid='carditem-pohl' />
         <CardItem
           label={
             <TranslatedText
               stringId="invoice.modal.editInvoice.quantity.label"
               fallback="Quantity"
-            />
+              data-testid='translatedtext-kozc' />
           }
           value={item.quantity}
-        />
+          data-testid='carditem-ml9p' />
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.price.label"
+              fallback="Price"
+              data-testid='translatedtext-ryyv' />
           }
           value={
             <>
-              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+              <PriceText $isCrossedOut={!!discountPrice} data-testid='pricetext-4vhj'>{price}</PriceText>
               {!!discountPrice && <span>{discountPrice}</span>}
             </>
           }
-        />
+          data-testid='carditem-cusg' />
       </Column>
     </Card>
   );

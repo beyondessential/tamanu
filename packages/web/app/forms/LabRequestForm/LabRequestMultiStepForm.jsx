@@ -47,23 +47,29 @@ export const LabRequestMultiStepForm = ({
               stringId="general.localisedField.clinician.label.short"
               fallback="Clinician"
               casing="lower"
-            />
+              data-testid='translatedtext-d8im' />
           ),
         }}
-      />,
+        data-testid='translatedtext-fg6b' />,
     ),
     requestedDate: yup
       .date()
       .required()
       .translatedLabel(
-        <TranslatedText stringId="general.requestDate.label" fallback="Request date" />,
+        <TranslatedText
+          stringId="general.requestDate.label"
+          fallback="Request date"
+          data-testid='translatedtext-63ek' />,
       ),
     requestFormType: yup
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
       .required()
       .translatedLabel(
-        <TranslatedText stringId="general.requestType.label" fallback="Request type" />,
+        <TranslatedText
+          stringId="general.requestType.label"
+          fallback="Request type"
+          data-testid='translatedtext-xm3y' />,
       ),
   });
 
@@ -114,7 +120,7 @@ export const LabRequestMultiStepForm = ({
                 <TranslatedText
                   stringId="lab.modal.recordSample.specimenType.label"
                   fallback="Specimen type"
-                />,
+                  data-testid='translatedtext-sj2g' />,
               ),
             otherwise: yup.string(),
           })
@@ -144,30 +150,33 @@ export const LabRequestMultiStepForm = ({
         ...editedObject,
       }}
       validationSchema={combinedValidationSchema}
-    >
-      <FormStep validationSchema={screen1ValidationSchema}>
+      data-testid='multistepform-udmr'>
+      <FormStep validationSchema={screen1ValidationSchema} data-testid='formstep-9ltq'>
         <LabRequestFormScreen1
           practitionerSuggester={practitionerSuggester}
           departmentSuggester={departmentSuggester}
-        />
+          data-testid='labrequestformscreen1-cz7w' />
       </FormStep>
-      <FormStep validationSchema={screen2ValidationSchema}>
+      <FormStep validationSchema={screen2ValidationSchema} data-testid='formstep-04p2'>
         <LabRequestFormScreen2
           onSelectionChange={samples => {
             setInitialSamples(samples);
           }}
-        />
+          data-testid='labrequestformscreen2-1d6k' />
       </FormStep>
       <FormStep
         validationSchema={screen3ValidationSchema}
-        submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
-      >
+        submitButtonText={<TranslatedText
+          stringId="general.action.finalise"
+          fallback="Finalise"
+          data-testid='translatedtext-2ap2' />}
+        data-testid='formstep-2u2d'>
         <LabRequestFormScreen3
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
           initialSamples={initialSamples}
-        />
+          data-testid='labrequestformscreen3-jejy' />
       </FormStep>
     </MultiStepForm>
   );

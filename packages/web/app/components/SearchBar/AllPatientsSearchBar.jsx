@@ -57,21 +57,24 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.culturalName.label.short"
                 fallback="Cultural name"
-              />
+                data-testid='translatedtext-bcz1' />
             }
-          />
-          <TwoColumnsField>
-            <DOBFields showExactBirth={false} />
+            data-testid='localisedfield-epbq' />
+          <TwoColumnsField data-testid='twocolumnsfield-wg4x'>
+            <DOBFields showExactBirth={false} data-testid='dobfields-k8zn' />
             <SexLocalisedField
               name="sex"
-              label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+              label={<TranslatedText
+                stringId="general.localisedField.sex.label"
+                fallback="Sex"
+                data-testid='translatedtext-uodm' />}
               component={TranslatedSelectField}
               transformOptions={options =>
                 hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
               }
               enumValues={SEX_LABELS}
               size="small"
-            />
+              data-testid='sexlocalisedfield-7lm9' />
           </TwoColumnsField>
           <VillageLocalisedField
             name="villageId"
@@ -79,52 +82,64 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.villageId.label"
                 fallback="Village"
-              />
+                data-testid='translatedtext-3kz7' />
             }
             component={AutocompleteField}
             suggester={villageSuggester}
             size="small"
-          />
+            data-testid='villagelocalisedfield-mcri' />
           <SearchBarCheckField
             name="deceased"
             label={
               <TranslatedText
                 stringId="patientList.table.includeDeceasedCheckbox.label"
                 fallback="Include deceased patients"
-              />
+                data-testid='translatedtext-a68s' />
             }
-          />
+            data-testid='searchbarcheckfield-7dw8' />
         </>
       }
-    >
+      data-testid='customisablesearchbarwithpermissioncheck-al75'>
       <LocalisedField
         component={SearchField}
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid='translatedtext-d0eg' />
         }
-      />
+        data-testid='localisedfield-dzml' />
       <LocalisedField
         component={SearchField}
         name="firstName"
         label={
-          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid='translatedtext-8yui' />
         }
-      />
+        data-testid='localisedfield-i9br' />
       <LocalisedField
         component={SearchField}
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid='translatedtext-hnon' />
         }
-      />
+        data-testid='localisedfield-ngsn' />
       <Field
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label={<TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />}
+        label={<TranslatedText
+          stringId="general.dateOfBirth.label"
+          fallback="DOB"
+          data-testid='translatedtext-99pk' />}
         max={getCurrentDateString()}
-      />
+        data-testid='field-qk60' />
     </CustomisableSearchBarWithPermissionCheck>
   );
 });

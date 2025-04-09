@@ -23,13 +23,20 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const canCreateChart = ability.can('create', 'Charting');
 
   if (isLoading) {
-    return <ModalLoader />;
+    return <ModalLoader data-testid='modalloader-wncd' />;
   }
 
   if (!canCreateChart) {
     return (
-      <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
+      <Modal
+        title="Permission required"
+        open
+        onClose={onClose}
+        data-testid='modal-inaz'>
+        <ForbiddenErrorModalContents
+          onConfirm={onClose}
+          confirmText="Close"
+          data-testid='forbiddenerrormodalcontents-nafx' />
       </Modal>
     );
   }
@@ -40,7 +47,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
         title="Error: Cannot load chart form"
         errorMessage="Please contact an administrator to ensure the Chart form is configured correctly."
         error={error}
-      />
+        data-testid='errormessage-k6hd' />
     );
   }
 
@@ -62,16 +69,19 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
           setFieldValue={setFieldValue}
           submitButton={
             <FormSubmitCancelRow
-              confirmText={<TranslatedText stringId="general.action.record" fallback="Record" />}
+              confirmText={<TranslatedText
+                stringId="general.action.record"
+                fallback="Record"
+                data-testid='translatedtext-6dm3' />}
               onConfirm={submitForm}
               onCancel={onClose}
-            />
+              data-testid='formsubmitcancelrow-1ah9' />
           }
-        />
+          data-testid='surveyscreen-ek46' />
         </>
         
       )}
-    />
+      data-testid='form-v82r' />
   );
 });
 

@@ -65,14 +65,14 @@ const Card = styled.div`
 
 const InfoCardEntry = ({ label, value }) => (
   <>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
+    <CardLabel data-testid='cardlabel-6kys'>{label}</CardLabel>
+    <CardValue data-testid='cardvalue-lcni'>{value}</CardValue>
   </>
 );
 
 export const InfoCardHeader = ({ label, value, ...props }) => (
-  <CardHeader {...props}>
-    <InfoCardEntry label={label} value={value} />
+  <CardHeader {...props} data-testid='cardheader-9dpu'>
+    <InfoCardEntry label={label} value={value} data-testid='infocardentry-20gx' />
   </CardHeader>
 );
 
@@ -89,8 +89,8 @@ export const InfoCardItem = ({
     $fontSize={fontSize}
     $borderHeight={borderHeight}
     {...props}
-  >
-    <InfoCardEntry label={label} value={value} />
+    data-testid='cardcell-8efu'>
+    <InfoCardEntry label={label} value={value} data-testid='infocardentry-f5nj' />
   </CardCell>
 );
 
@@ -108,8 +108,8 @@ export const InfoCard = ({
     $inlineValues={inlineValues}
     $contentPadding={contentPadding}
     $contentMarginBottom={contentMarginBottom}
-  >
+    data-testid='card-7f9h'>
     {headerContent}
-    <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
+    <CardBody $numberOfColumns={numberOfColumns} data-testid='cardbody-3iyj'>{children}</CardBody>
   </Card>
 );

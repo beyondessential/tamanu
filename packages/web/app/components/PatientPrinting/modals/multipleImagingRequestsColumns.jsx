@@ -34,12 +34,15 @@ const COMMON_COLUMNS = [
     title: 'Request date & time',
     sortable: false,
     form: {
-      accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,
+      accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} data-testid='multilinedatetimedisplay-s1fw' />,
     },
     printout: {
       widthProportion: 4,
       accessor: ({ requestedDate }) => (
-        <MultilineDatetimeDisplay date={requestedDate} isTimeSoft={false} />
+        <MultilineDatetimeDisplay
+          date={requestedDate}
+          isTimeSoft={false}
+          data-testid='multilinedatetimedisplay-ghti' />
       ),
     },
   },
@@ -64,7 +67,7 @@ const COMMON_COLUMNS = [
     title: 'Type',
     sortable: false,
     maxWidth: 70,
-    accessor: ({ imagingType }) => <ImagingType imagingType={imagingType} />,
+    accessor: ({ imagingType }) => <ImagingType imagingType={imagingType} data-testid='imagingtype-kkkm' />,
     printout: { widthProportion: 4 },
   },
   {

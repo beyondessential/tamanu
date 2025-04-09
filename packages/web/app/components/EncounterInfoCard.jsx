@@ -67,15 +67,15 @@ const CardEntry = styled.div`
 `;
 
 const InfoCardEntry = ({ label, value }) => (
-  <CardEntry>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
+  <CardEntry data-testid='cardentry-bzr3'>
+    <CardLabel data-testid='cardlabel-0v8z'>{label}</CardLabel>
+    <CardValue data-testid='cardvalue-1v8z'>{value}</CardValue>
   </CardEntry>
 );
 
 export const EncounterInfoCardHeader = ({ label, value, ...props }) => (
-  <CardHeader {...props}>
-    <InfoCardEntry label={label} value={value} />
+  <CardHeader {...props} data-testid='cardheader-g3z5'>
+    <InfoCardEntry label={label} value={value} data-testid='infocardentry-s893' />
   </CardHeader>
 );
 
@@ -93,9 +93,9 @@ export const EncounterInfoCardItem = ({
     $fontSize={fontSize}
     $borderHeight={borderHeight}
     {...props}
-  >
-    <CardIcon src={icon}/>
-    <InfoCardEntry label={label} value={value} icon={icon} />
+    data-testid='cardcell-ns7j'>
+    <CardIcon src={icon} data-testid='cardicon-rfic' />
+    <InfoCardEntry label={label} value={value} icon={icon} data-testid='infocardentry-09z6' />
   </CardCell>
 );
 
@@ -108,13 +108,13 @@ export const EncounterInfoCard = ({
   headerContent = null,
   numberOfColumns = 2,
 }) => (
-  <Card 
-    $elevated={elevated} 
-    $inlineValues={inlineValues} 
-    $contentPadding={contentPadding} 
+  <Card
+    $elevated={elevated}
+    $inlineValues={inlineValues}
+    $contentPadding={contentPadding}
     $paddingTop={paddingTop}
-  >
+    data-testid='card-664y'>
     {headerContent}
-    <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
+    <CardBody $numberOfColumns={numberOfColumns} data-testid='cardbody-m456'>{children}</CardBody>
   </Card>
 );

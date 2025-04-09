@@ -34,7 +34,7 @@ export const ProgramRegistryView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) return <LoadingIndicator data-testid='loadingindicator-08mp' />;
   if (
     isSuccess &&
     programRegistries?.data &&
@@ -43,29 +43,31 @@ export const ProgramRegistryView = () => {
   )
     return (
       <>
-        <ViewHeader>
+        <ViewHeader data-testid='viewheader-0ae2'>
           <h1>
             <TranslatedReferenceData
               fallback={searchParams.get('name')}
               value={programRegistryId}
               category="programRegistry"
-            />
+              data-testid='translatedreferencedata-ouwu' />
           </h1>
         </ViewHeader>
-        <Container>
+        <Container data-testid='container-u94j'>
           <span>
             <TranslatedText
               stringId="programRegistry.patientSearch.title"
               fallback="Program patient search"
-            />
+              data-testid='translatedtext-4bug' />
           </span>
           <ProgramRegistrySearchBar
             searchParameters={searchParameters}
             setSearchParameters={setSearchParameters}
-          />
-          <ProgramRegistryTable searchParameters={searchParameters} />
+            data-testid='programregistrysearchbar-nyxg' />
+          <ProgramRegistryTable
+            searchParameters={searchParameters}
+            data-testid='programregistrytable-o95j' />
         </Container>
       </>
     );
-  return <Redirect to="/patients/all" />;
+  return <Redirect to="/patients/all" data-testid='redirect-knps' />;
 };

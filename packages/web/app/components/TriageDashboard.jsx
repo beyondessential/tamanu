@@ -87,18 +87,18 @@ const CardFooter = ({ averageWaitTime, color }) => {
 
   return (
     <>
-      <Row>
-        <AccessTime htmlColor={color} />
-        <FooterLabel>
+      <Row data-testid='row-vqca'>
+        <AccessTime htmlColor={color} data-testid='accesstime-inep' />
+        <FooterLabel data-testid='footerlabel-c5da'>
           <TranslatedText
             stringId="patientList.triage.card.footer.avgWaitTime"
             fallback="Avg. wait time"
-          />
+            data-testid='translatedtext-vvsa' />
           :{' '}
         </FooterLabel>
-        <FooterTime>{averageHrs}</FooterTime>
+        <FooterTime data-testid='footertime-pe6h'>{averageHrs}</FooterTime>
       </Row>
-      <FooterTime>{averageMins}</FooterTime>
+      <FooterTime data-testid='footertime-wnxx'>{averageMins}</FooterTime>
     </>
   );
 };
@@ -111,9 +111,10 @@ export const TriageDashboard = () => {
   }
 
   return (
-    <StatisticsCardContainer>
+    <StatisticsCardContainer data-testid='statisticscardcontainer-4vpu'>
       {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
         <StatisticsCard
+          level={level}
           key={level}
           color={color}
           title={
@@ -121,10 +122,13 @@ export const TriageDashboard = () => {
               stringId="patientList.triage.card.patientLevel"
               fallback="Level :level patient"
               replacements={{ level }}
-            />
+              data-testid={`translatedtext-wgbf-${level}`} />
           }
           value={numberOfPatients}
-          Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}
+          Footer={<CardFooter
+            color={color}
+            averageWaitTime={averageWaitTime}
+            data-testid={`cardfooter-awa6-${level}`} />}
         />
       ))}
     </StatisticsCardContainer>

@@ -13,7 +13,7 @@ import { TranslatedText } from '../Translation';
 import { ThemedTooltip } from '../Tooltip';
 
 const StyledTitleCell = ({ value }) => (
-  <Box sx={{ color: Colors.midText, fontWeight: 400 }}>{value}</Box>
+  <Box sx={{ color: Colors.midText, fontWeight: 400 }} data-testid='box-f4ea'>{value}</Box>
 );
 
 const PriceCell = styled.div`
@@ -30,10 +30,13 @@ const getPrice = row => {
   const discountPrice = getInvoiceItemDiscountPriceDisplay(row);
 
   return (
-    <PriceCell>
-      <PriceText isCrossedOut={!!discountPrice}>{price}</PriceText>
+    <PriceCell data-testid='pricecell-wkn4'>
+      <PriceText isCrossedOut={!!discountPrice} data-testid='pricetext-gvh2'>{price}</PriceText>
       {!!discountPrice && (
-        <ThemedTooltip title={row.discount?.reason} open={row.discount?.reason ? undefined : false}>
+        <ThemedTooltip
+          title={row.discount?.reason}
+          open={row.discount?.reason ? undefined : false}
+          data-testid='themedtooltip-5fw6'>
           <span>{discountPrice}</span>
         </ThemedTooltip>
       )}
@@ -51,7 +54,7 @@ const getInvoiceItemDetails = row => {
       <TranslatedText
         stringId="invoice.table.details.nonDiscountable"
         fallback="Non-discountable"
-      />
+        data-testid='translatedtext-s9s9' />
       {')'}
     </>
   );
@@ -60,40 +63,58 @@ const getInvoiceItemDetails = row => {
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'orderDate',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+    title: <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid='translatedtext-l3fm' />,
     sortable: false,
-    accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
+    accessor: ({ orderDate }) => <DateDisplay date={orderDate} data-testid='datedisplay-p1sz' />,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'details',
-    title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.details"
+      fallback="Details"
+      data-testid='translatedtext-74nz' />,
     sortable: false,
     accessor: getInvoiceItemDetails,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'productCode',
-    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.code"
+      fallback="Code"
+      data-testid='translatedtext-78cn' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'quantity',
-    title: <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.quantity"
+      fallback="Quantity"
+      data-testid='translatedtext-kkh9' />,
     sortable: false,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'orderedBy',
-    title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.orderedBy"
+      fallback="Ordered by"
+      data-testid='translatedtext-cn4a' />,
     sortable: false,
     accessor: ({ orderedByUser }) => orderedByUser?.displayName,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'price',
-    title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
+    title: <TranslatedText
+      stringId="invoice.table.column.price"
+      fallback="Price"
+      data-testid='translatedtext-9x8l' />,
     sortable: false,
     accessor: getPrice,
     TitleCellComponent: StyledTitleCell,
@@ -109,7 +130,7 @@ export const InvoiceItemsTable = ({ invoice }) => {
         <TranslatedText
           stringId="invoice.invoiceItemsTable.noData"
           fallback="No invoice items found"
-        />
+          data-testid='translatedtext-1bb4' />
       }
       allowExport={false}
       elevated={false}
@@ -123,6 +144,6 @@ export const InvoiceItemsTable = ({ invoice }) => {
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
       data={invoice.items}
-    />
+      data-testid='datafetchingtable-66iy' />
   );
 };

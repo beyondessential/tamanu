@@ -19,9 +19,9 @@ const CardValue = styled(CardLabel)`
 `;
 
 export const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props}>
-    <CardLabel>{label}:</CardLabel>
-    <CardValue>{value}</CardValue>
+  <CardCell {...props} data-testid='cardcell-19pz'>
+    <CardLabel data-testid='cardlabel-p9c2'>{label}:</CardLabel>
+    <CardValue data-testid='cardvalue-7q3b'>{value}</CardValue>
   </CardCell>
 );
 

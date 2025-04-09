@@ -39,8 +39,8 @@ export const FormDivider = styled.div`
 
 export const PrintMultipleSelectionTable = ({ label, ...props }) => {
   return (
-    <StyledOuterLayerFieldWrapper label={label}>
-      <StyledSelectionTable {...props} />
+    <StyledOuterLayerFieldWrapper label={label} data-testid='styledouterlayerfieldwrapper-tej8'>
+      <StyledSelectionTable {...props} data-testid='styledselectiontable-tnod' />
     </StyledOuterLayerFieldWrapper>
   );
 };

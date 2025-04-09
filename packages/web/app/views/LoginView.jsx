@@ -51,7 +51,7 @@ export const LoginView = () => {
   };
 
   return (
-    <AuthFlowView>
+    <AuthFlowView data-testid='authflowview-7rqa'>
       {screen === 'login' && (
         <LoginForm
           onSubmit={submitLogin}
@@ -61,7 +61,7 @@ export const LoginView = () => {
             setScreen('resetPassword');
             dispatch(restartPasswordResetFlow());
           }}
-        />
+          data-testid='loginform-fp20' />
       )}
       {screen === 'resetPassword' && (
         <>
@@ -74,7 +74,7 @@ export const LoginView = () => {
             resetPasswordEmail={resetPasswordEmail}
             onNavToChangePassword={() => setScreen('changePassword')}
             onNavToLogin={() => setScreen('login')}
-          />
+            data-testid='resetpasswordform-eka3' />
         </>
       )}
       {screen === 'changePassword' && (
@@ -89,7 +89,7 @@ export const LoginView = () => {
           }}
           onNavToResetPassword={() => setScreen('resetPassword')}
           onValidateResetCode={data => dispatch(validateResetCode(data))}
-        />
+          data-testid='changepasswordform-2331' />
       )}
     </AuthFlowView>
   );

@@ -108,25 +108,31 @@ const StatusBadge = styled.div`
 `;
 
 const getDate = ({ startTime }) => (
-  <LowercaseText>
+  <LowercaseText data-testid='lowercasetext-gcnv'>
     {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
   </LowercaseText>
 );
 
-const getStatus = ({ status }) => <StatusBadge $status={status}>{status}</StatusBadge>;
+const getStatus = ({ status }) => <StatusBadge $status={status} data-testid='statusbadge-h8hq'>{status}</StatusBadge>;
 
 const COLUMNS = [
   {
     key: 'startTime',
-    title: <TranslatedText stringId="pastAppointment.modal.table.column.date" fallback="Date" />,
+    title: <TranslatedText
+      stringId="pastAppointment.modal.table.column.date"
+      fallback="Date"
+      data-testid='translatedtext-ii8d' />,
     accessor: getDate,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-pvv1' />,
   },
   {
     key: 'outpatientAppointmentArea',
-    title: <TranslatedText stringId="pastAppointment.modal.table.column.area" fallback="Area" />,
+    title: <TranslatedText
+      stringId="pastAppointment.modal.table.column.area"
+      fallback="Area"
+      data-testid='translatedtext-lqeo' />,
     accessor: ({ locationGroup }) => locationGroup?.name,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-1631' />,
   },
   {
     key: 'clinician',
@@ -134,23 +140,29 @@ const COLUMNS = [
       <TranslatedText
         stringId="pastAppointment.modal.table.column.clinician"
         fallback="Clinician"
-      />
+        data-testid='translatedtext-tnkx' />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-ye2y' />,
   },
   {
     key: 'appointmentType',
     title: (
-      <TranslatedText stringId="pastAppointment.modal.table.column.type" fallback="Appt type" />
+      <TranslatedText
+        stringId="pastAppointment.modal.table.column.type"
+        fallback="Appt type"
+        data-testid='translatedtext-9knl' />
     ),
     accessor: ({ appointmentType }) => appointmentType?.name,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine />,
+    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-5zku' />,
   },
   {
     key: 'status',
     title: (
-      <TranslatedText stringId="pastAppointment.modal.table.column.status" fallback="Status" />
+      <TranslatedText
+        stringId="pastAppointment.modal.table.column.status"
+        fallback="Status"
+        data-testid='translatedtext-9qt9' />
     ),
     accessor: getStatus,
   },
@@ -181,13 +193,13 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
         <TranslatedText
           stringId="appointment.modal.pastAppointments.title"
           fallback="Past appointments"
-        />
+          data-testid='translatedtext-oozd' />
       }
       open={open}
       onClose={onClose}
       width="lg"
-    >
-      <Container>
+      data-testid='styledmodal-897f'>
+      <Container data-testid='container-68bq'>
         <StyledTable
           isLoading={isLoading}
           data={appointments}
@@ -195,7 +207,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
           order={order}
           orderBy={orderBy}
           onChangeOrderBy={onChangeOrderBy}
-        />
+          data-testid='styledtable-ltf5' />
       </Container>
     </StyledModal>
   );

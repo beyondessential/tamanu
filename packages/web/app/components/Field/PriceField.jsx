@@ -28,6 +28,6 @@ export const PriceField = ({ field, ...props }) => {
       max={999999}
       size="small"
       {...props}
-    />
+      data-testid='numberinput-qwug' />
   );
 };

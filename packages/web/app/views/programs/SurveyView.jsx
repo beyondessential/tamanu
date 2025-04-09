@@ -91,14 +91,14 @@ export const SurveyView = ({
         errors={errors}
         setStatus={setStatus}
         status={status}
-      />
+        data-testid='surveyscreenpaginator-8wns' />
     );
   };
 
   return (
-    <ProgramsPane>
-      <SurveyPaneHeader>
-        <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
+    <ProgramsPane data-testid='programspane-s83l'>
+      <SurveyPaneHeader data-testid='surveypaneheader-q0w3'>
+        <SurveyPaneHeading variant="h6" data-testid='surveypaneheading-b5sc'>{survey.name}</SurveyPaneHeading>
       </SurveyPaneHeader>
       <Form
         initialValues={initialValues}
@@ -107,7 +107,7 @@ export const SurveyView = ({
         validationSchema={validationSchema}
         validateOnChange
         validateOnBlur
-      />
+        data-testid='form-12ot' />
     </ProgramsPane>
   );
 };

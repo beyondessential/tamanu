@@ -65,7 +65,7 @@ const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, parameters, ..
       baseQueryParameters={baseQueryParameters}
       name={name}
       {...props}
-    />
+      data-testid='field-u0dj' />
   );
 };
 
@@ -78,15 +78,30 @@ const ParameterAutocompleteField = ({
 }) => {
   const options = useReportSuggesterOptions(parameters, suggesterOptions);
   const suggester = useSuggester(suggesterEndpoint, options);
-  return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
+  return (
+    <Field
+      component={AutocompleteField}
+      suggester={suggester}
+      name={name}
+      {...props}
+      data-testid='field-fbkj' />
+  );
 };
 
 const ParameterSelectField = ({ name, ...props }) => (
-  <Field component={BaseSelectField} name={name} {...props} />
+  <Field
+    component={BaseSelectField}
+    name={name}
+    {...props}
+    data-testid='field-ozoi' />
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (
-  <Field component={BaseMultiselectField} name={name} {...props} />
+  <Field
+    component={BaseMultiselectField}
+    name={name}
+    {...props}
+    data-testid='field-qy3y' />
 );
 
 const EmptyField = styled.div``;
@@ -129,6 +144,6 @@ export const ParameterField = ({
       parameterValues={values}
       parameters={parameters}
       {...props}
-    />
+      data-testid='parameterfieldcomponent-r4ff' />
   );
 };

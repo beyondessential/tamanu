@@ -39,18 +39,21 @@ export const ImportExportView = memo(
 
     const importTab = useMemo(
       () => ({
-        label: <TranslatedText stringId="admin.import.title" fallback="Import" />,
+        label: <TranslatedText
+          stringId="admin.import.title"
+          fallback="Import"
+          data-testid='translatedtext-6mv4' />,
         key: 'import',
         icon: 'fa fa-file-import',
         render: () => (
-          <TabContainer>
+          <TabContainer data-testid='tabcontainer-romz'>
             <ImporterView
               endpoint={endpoint}
               dataTypes={dataTypes}
               dataTypesSelectable={dataTypesSelectable}
               setIsLoading={setIsLoading}
               ImportButton={ImportButton}
-            />
+              data-testid='importerview-o1ew' />
           </TabContainer>
         ),
       }),
@@ -59,11 +62,14 @@ export const ImportExportView = memo(
 
     const exportTab = useMemo(
       () => ({
-        label: <TranslatedText stringId="admin.export.title" fallback="Export" />,
+        label: <TranslatedText
+          stringId="admin.export.title"
+          fallback="Export"
+          data-testid='translatedtext-bp3j' />,
         key: 'export',
         icon: 'fa fa-file-export',
         render: () => (
-          <TabContainer>
+          <TabContainer data-testid='tabcontainer-bojy'>
             <ExporterView
               title={title}
               endpoint={endpoint}
@@ -71,7 +77,7 @@ export const ImportExportView = memo(
               dataTypesSelectable={dataTypesSelectable}
               setIsLoading={setIsLoading}
               ExportButton={ExportButton}
-            />
+              data-testid='exporterview-8w7t' />
           </TabContainer>
         ),
       }),
@@ -81,13 +87,16 @@ export const ImportExportView = memo(
     const tabs = buildTabs ? buildTabs(importTab, exportTab) : [importTab, exportTab];
 
     return (
-      <AdminViewContainer title={title} showLoadingIndicator={isLoading}>
+      <AdminViewContainer
+        title={title}
+        showLoadingIndicator={isLoading}
+        data-testid='adminviewcontainer-8mti'>
         <StyledTabDisplay
           tabs={tabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           scrollable={false}
-        />
+          data-testid='styledtabdisplay-cd6a' />
       </AdminViewContainer>
     );
   },
