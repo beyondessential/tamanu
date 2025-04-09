@@ -6,15 +6,48 @@ import { MAR_WARNING_MODAL } from '../../constants/medication';
 
 const Content = styled.div`
   font-size: 14px;
-  text-align: center;
-  margin: 78px auto 66px auto;
+  margin: 0 auto;
+  margin-bottom: -12px;
+  height: 192px;
   max-width: 478px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  justify-content: center;
 `;
 
-export const WarningModal = ({ modal, onClose, onConfirm }) => {
-  let title, text;
+export const WarningModal = ({ modal, onClose, onConfirm, isPast = false }) => {
+  let title, text, secondaryText;
 
   switch (modal) {
+    case MAR_WARNING_MODAL.PAUSED:
+      title = (
+        <TranslatedText
+          stringId="medication.mar.paused.warning.title"
+          fallback="Paused medication"
+        />
+      );
+      text = (
+        <TranslatedText
+          stringId="medication.mar.paused.warning.text"
+          fallback="This medication is currently paused. Please confirm that you would like to continue recording a dose for the selected time."
+        />
+      );
+      if (isPast) {
+        title = (
+          <TranslatedText
+            stringId="medication.mar.medicationWarning.title"
+            fallback="Medication warning"
+          />
+        );
+        secondaryText = (
+          <TranslatedText
+            stringId="medication.mar.past.warning.secondaryText"
+            fallback="You are also recording a dose in the past. Please confirm that you would like to continue recording a dose for the selected time."
+          />
+        );
+      }
+      break;
     case MAR_WARNING_MODAL.FUTURE:
       title = (
         <TranslatedText stringId="medication.mar.future.warning.title" fallback="Dose not due" />
@@ -48,7 +81,12 @@ export const WarningModal = ({ modal, onClose, onConfirm }) => {
       onCancel={onClose}
       onConfirm={onConfirm}
       title={title}
-      customContent={<Content>{text}</Content>}
+      customContent={
+        <Content>
+          <span>{text}</span>
+          {secondaryText && <span>{secondaryText}</span>}
+        </Content>
+      }
     />
   );
 };
