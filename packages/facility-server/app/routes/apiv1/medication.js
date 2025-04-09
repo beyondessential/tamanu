@@ -458,6 +458,89 @@ medication.get(
   }),
 );
 
+const givenMarUpdateSchema = z.object({
+  dose: z.object({
+    doseAmount: z.number(),
+    givenTime: z.string().datetime(),
+  }),
+});
+medication.put(
+  '/mar/:id/given',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecord');
+    const { models, params } = req;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose } = models;
+
+    const { dose } = await givenMarUpdateSchema.parseAsync(req.body);
+
+    const mar = await MedicationAdministrationRecord.findByPk(params.id);
+    if (!mar) {
+      throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+    }
+    
+    if (mar.status === ADMINISTRATION_STATUS.GIVEN) {
+      throw new InvalidOperationError(`MAR with id ${params.id} is already given`);
+    }
+
+    //Update MAR and add dose to the MAR
+    mar.status = ADMINISTRATION_STATUS.GIVEN;
+    await mar.save();
+    await MedicationAdministrationRecordDose.create({
+      medicationAdministrationRecordId: mar.id,
+      doseAmount: dose.doseAmount,
+      givenTime: dose.givenTime,
+    });
+
+    res.send(mar.forResponse());
+  })
+);
+
+const givenMarCreateSchema = z.object({
+  dose: z.object({
+    doseAmount: z.number(),
+    givenTime: z.string().datetime(),
+  }),
+  administeredAt: z.string().datetime(),
+  prescriptionId: z.string(),
+});
+
+medication.post(
+  '/mar/given',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, Prescription } = models;
+    
+    req.checkPermission('create', 'MedicationAdministrationRecord');
+    const { dose, administeredAt, prescriptionId } = await givenMarCreateSchema.parseAsync(req.body);
+    
+    //validate prescription
+    const prescription = await Prescription.findByPk(prescriptionId);
+    if (!prescription) {
+      throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
+    }
+
+    //validate dose
+    if (dose.doseAmount <= 0) {
+      throw new InvalidOperationError(`Dose amount must be greater than 0`);
+    }
+
+    //create MAR
+    const mar = await MedicationAdministrationRecord.create({
+      administeredAt,
+      prescriptionId,
+      status: ADMINISTRATION_STATUS.GIVEN,
+    });
+
+    //create dose
+    await MedicationAdministrationRecordDose.create({
+      medicationAdministrationRecordId: mar.id,
+      doseAmount: dose.doseAmount,
+      givenTime: dose.givenTime,
+    });
+
+    res.send(mar.forResponse());
+  })
+);
 const notGivenInputUpdateSchema = z.object({
   reasonNotGivenId: z.string(),
 });

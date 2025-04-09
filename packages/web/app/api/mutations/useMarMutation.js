@@ -17,3 +17,20 @@ export const useNotGivenMarMutation = (existingMarId = null, useMutationOptions 
     },
   );
 };
+
+export const useGivenMarMutation = (existingMarId = null, useMutationOptions = {}) => {
+  const api = useApi();
+
+  return useMutation(
+    payload =>
+      existingMarId
+        ? api.put(`medication/mar/${existingMarId}/given`, payload)
+        : api.post('medication/mar/given', payload),
+    {
+      ...useMutationOptions,
+      onSuccess: (data, variables, context) => {
+        useMutationOptions.onSuccess?.(data, variables, context);
+      },
+    },
+  );
+};
