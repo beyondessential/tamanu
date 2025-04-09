@@ -27,6 +27,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery.js';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
@@ -38,17 +39,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
-  const { data: { data: conditions } = {} } = useQuery(
-    ['programRegistryConditions', selectedProgramRegistryId],
-    () =>
-      api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
-        orderBy: 'name',
-        order: 'ASC',
-      }),
-    {
-      enabled: !!selectedProgramRegistryId,
-    },
-  );
+  const { data: conditions = [] } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
