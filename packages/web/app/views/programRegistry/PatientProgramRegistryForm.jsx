@@ -27,7 +27,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery.js';
+import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
