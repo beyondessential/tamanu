@@ -65,22 +65,22 @@ export const userMiddleware = ({ secret }) =>
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: auditSettings?.accesses.enabled
-        ? async ({ recordId, params, model }) =>
-            req.models.AccessLog.create({
-              userId,
-              recordId,
-              recordType: model.name,
-              sessionId,
-              isMobile: false,
-              frontEndContext: params,
-              backEndContext: { endpoint: req.originalUrl },
-              loggedAt: new Date(),
-              facilityId: null,
-              deviceId: req.deviceId || 'unknown-device',
-              version,
-            })
-        : () => null,
+      access: async ({ recordId, params, model }) => {
+        if (!auditSettings?.accesses.enabled) return;
+        return req.models.AccessLog.create({
+          userId,
+          recordId,
+          recordType: model.name,
+          sessionId,
+          isMobile: false,
+          frontEndContext: params,
+          backEndContext: { endpoint: req.originalUrl },
+          loggedAt: new Date(),
+          facilityId: null,
+          deviceId: req.deviceId || 'unknown-device',
+          version,
+        });
+      },
     };
 
     const spanAttributes = user
