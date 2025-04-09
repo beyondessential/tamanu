@@ -219,13 +219,16 @@ export const MarStatus = ({
       setIsSelected(true);
       return;
     }
+    setSelectedElement(event.currentTarget);
+    if (isPaused) {
+      setShowWarningModal(MAR_WARNING_MODAL.PAUSED);
+      return;
+    }
     if (isPast) {
-      setSelectedElement(event.currentTarget);
       setShowWarningModal(MAR_WARNING_MODAL.PAST);
       return;
     }
     if (isDisabled) {
-      setSelectedElement(event.currentTarget);
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
     }
@@ -425,6 +428,7 @@ export const MarStatus = ({
         modal={showWarningModal}
         onClose={() => setShowWarningModal('')}
         onConfirm={handleConfirm}
+        isPast={isPast}
       />
     </>
   );
