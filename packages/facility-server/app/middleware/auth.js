@@ -262,7 +262,7 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
-    const auditSettings = await settings[req.facilityId]?.get('audit');
+    const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
