@@ -80,7 +80,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
         // Check if a language is already selected, or the found language options differ
         // to the currently loaded language options
         if (!language || JSON.stringify(languageOptions) != JSON.stringify(foundLanguageOptions)) {
-          setLanguage(foundLanguageOptions[0].value.language);
+          setLanguage(foundLanguageOptions[0].languageCode);
           setLanguageOptions(foundLanguageOptions);
         }
       }
