@@ -1,4 +1,5 @@
 import { Page } from '@playwright/test';
+import { constructFacilityUrl } from '../utils/navigation';
 
 export class BasePage {
   readonly page: Page;
@@ -14,10 +15,10 @@ export class BasePage {
       throw new Error('Base URL is not defined');
     }
 
-    await this.page.goto(this.url);
+    await this.page.goto(constructFacilityUrl(this.page, this.url));
   }
 
   async navigateTo(url) {
-    await this.page.goto(url);
+    await this.page.goto(constructFacilityUrl(this.page, url));
   }
 }
