@@ -13,6 +13,8 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { ReferenceDataType } from '~/types/IReferenceData';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -43,7 +45,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -53,7 +55,10 @@ export const AdditionalInfo = ({
     error,
   } = usePatientAdditionalData(patient.id);
 
-  const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
+  const customDataById = mapValues(
+    customPatientFieldValues,
+    (nestedObject) => nestedObject[0].value,
+  );
 
   // Display general error
   if (error) {
@@ -63,15 +68,25 @@ export const AdditionalInfo = ({
   // Check if patient additional data should be editable
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
-  // Add edit callback and map the inner 'fields' array
-  const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
-    const fields = dataFields || displayFields;
-    const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+  console.log('patient', patient);
 
-      const fieldsWithData = fields.map(field => {
+  // Add edit callback and map the inner 'fields' array
+  const additionalSections = dataSections.map(
+    ({ title, dataFields, fields: displayFields, sectionKey }) => {
+      const fields = dataFields || displayFields;
+      const onEditCallback = (): void =>
+        onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+
+      const fieldsWithData = fields.map((field) => {
         if (field === 'villageId' || field.name === 'villageId') {
-          return ['villageId', patient.village?.name];
+          return [
+            'villageId',
+            <TranslatedReferenceData
+              category={ReferenceDataType.Village}
+              fallback={patient.village?.name}
+              value={patient.villageId}
+            />,
+          ];
         } else if (Object.keys(customDataById).includes(field)) {
           return [field, customDataById[field]];
         } else {
@@ -85,8 +100,9 @@ export const AdditionalInfo = ({
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues, null);
-    const mappedFields = fields.map(field => {
+    const onEditCallback = (): void =>
+      onEdit(null, title, true, fields, customPatientFieldValues, null);
+    const mappedFields = fields.map((field) => {
       const { id, name } = field;
       const [customFieldValue] = customPatientFieldValues[id] || [];
       return [name, customFieldValue?.value];
