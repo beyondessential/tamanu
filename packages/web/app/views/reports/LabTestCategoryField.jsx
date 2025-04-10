@@ -14,7 +14,7 @@ export const LabTestCategoryField = ({
     includeAllOption={includeAllOption}
     label={label ?? <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />}
     component={SuggesterSelectField}
-    endpoint="labTestCategory"
+    endpoint="nonSensitiveLabTestCategory"
     required={required}
   />
 );

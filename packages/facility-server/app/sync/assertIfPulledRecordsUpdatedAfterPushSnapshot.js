@@ -1,8 +1,5 @@
-import {
-  getSnapshotTableName,
-  SYNC_SESSION_DIRECTION,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/database/sync';
+import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
+import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 
 /**
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.
@@ -26,7 +23,7 @@ const assertModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, session
       bind: {
         recordType: model.tableName,
         direction: SYNC_SESSION_DIRECTION.INCOMING,
-        lastSuccessfulSyncPushKey: LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+        lastSuccessfulSyncPushKey: FACT_LAST_SUCCESSFUL_SYNC_PUSH,
       },
     },
   );

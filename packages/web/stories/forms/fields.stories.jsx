@@ -319,6 +319,6 @@ addStories('CalendarInput', props => (
   </LocalizationProvider>
 ));
 
-addStories('SwitchField', props => (
+addStories('SwitchInput', props => (
   <StoryControlWrapper Component={SwitchInput} label="Enable" {...props} />
 ));

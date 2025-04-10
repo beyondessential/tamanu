@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
 
@@ -55,7 +55,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
             FhirPatient.materialiseFromUpstream(id),
           ),
         )
-      ).map(row => row.id);
+      ).map((row) => row.id);
 
       await FhirPatient.resolveUpstreams();
 
@@ -188,10 +188,12 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       const response = await app.get(path);
 
       // assert
-      const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
-        ?.resource;
-      const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
-        ?.resource;
+      const resourceC = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.c,
+      )?.resource;
+      const resourceD = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.d,
+      )?.resource;
 
       expect(resourceC).toMatchObject({
         resourceType: 'Patient',
@@ -409,10 +411,12 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       const response = await app.get(path);
 
       // assert
-      const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
-        ?.resource;
-      const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
-        ?.resource;
+      const resourceC = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.c,
+      )?.resource;
+      const resourceD = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.d,
+      )?.resource;
 
       expect(resourceC).toMatchObject({
         resourceType: 'Patient',

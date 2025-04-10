@@ -30,7 +30,7 @@ const useOrdinalText = (date, frequency) => {
 const IntervalText = ({ interval, frequency }) => {
   const { getEnumTranslation } = useTranslation();
   return interval === 1 ? (
-    <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} upperFirst />
+    <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} casing='sentence' />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onNthWeekdayText"

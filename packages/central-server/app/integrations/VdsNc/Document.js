@@ -17,7 +17,7 @@ export class VdsNcDocument {
     this.messageData = messageData;
     this.uniqueProofId = uniqueProofId;
 
-    if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
+    if (!Object.values(ICAO_DOCUMENT_TYPES).some(({ JSON }) => this.type === JSON)) {
       throw new Error('A VDS-NC document must have a valid type.');
     }
   }

@@ -12,15 +12,15 @@ const FlexSpaceBetween = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: flex-end;
+  justify-content: ${p => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
   margin-top: 10px;
   width: 100%;
 
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
-  > button,
-  > div {
+  > button:not(:first-child),
+  > div:not(:first-child) {
     margin-left: 20px;
   }
 `;
@@ -44,18 +44,23 @@ export const FormSubmitCancelRow = React.memo(
     cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
     confirmStyle,
+    CustomConfirmButton,
     ...props
   }) => (
     <ButtonRow {...props}>
       {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
-      <FormSubmitButton
-        color={confirmColor}
-        onSubmit={onConfirm}
-        disabled={confirmDisabled}
-        {...(confirmStyle && { confirmStyle })}
-      >
-        {confirmText}
-      </FormSubmitButton>
+      {CustomConfirmButton ? (
+        <CustomConfirmButton onClick={onConfirm} disabled={confirmDisabled} />
+      ) : (
+        <FormSubmitButton
+          color={confirmColor}
+          onSubmit={onConfirm}
+          disabled={confirmDisabled}
+          {...(confirmStyle && { confirmStyle })}
+        >
+          {confirmText}
+        </FormSubmitButton>
+      )}
     </ButtonRow>
   ),
 );
@@ -107,12 +112,15 @@ export const FormConfirmCancelBackRow = ({
 export const ConfirmCancelBackRow = ({
   onBack,
   backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  backDisabled = false,
   ...props
 }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+        <OutlinedButton onClick={onBack} disabled={backDisabled}>
+          {backButtonText}
+        </OutlinedButton>
       </GoBackButtonContainer>
     )}
     <ConfirmCancelRow {...props} />

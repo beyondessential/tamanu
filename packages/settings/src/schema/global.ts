@@ -245,6 +245,11 @@ export const globalSettings = {
               defaultValue: false,
               unit: 'seconds',
             },
+            dischargeDiagnosisMandatory: {
+              description: 'Require at least one diagnosis to be selected before discharging',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
       },
@@ -1284,6 +1289,16 @@ export const globalSettings = {
       description: 'Customise the options available for vital reason for edit',
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+    },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: 'Settings for the time frame of recent notifications',
+          type: yup.number(),
+          defaultValue: 48,
+        }
+      }
     },
   },
 };

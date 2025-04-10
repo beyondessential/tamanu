@@ -65,7 +65,7 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
         <TranslatedText
           stringId="patient.recentlyViewed.title"
           fallback="RECENTLY VIEWED PATIENTS"
-          uppercase
+          casing="upper"
         />
       </StyledText>
       <ScrollView horizontal>

@@ -149,7 +149,7 @@ export const ReportGeneratorForm = () => {
       <TranslatedText stringId="report.generate.dateRange.label" fallback="Date range" />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
-    filterDateRangeAsStrings = false,
+    filterDateRangeAsStrings = true,
   } = reportsById[selectedReportId] || {};
 
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;

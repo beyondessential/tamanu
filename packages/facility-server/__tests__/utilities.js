@@ -2,6 +2,7 @@ import 'jest-expect-message';
 import supertest from 'supertest';
 import config from 'config';
 
+import { FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import {
   createMockReportingSchemaAndRoles,
   seedDepartments,
@@ -12,7 +13,8 @@ import {
   seedSettings,
 } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
-import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/fake-data/fake';
+import { asNewRole, showError } from '@tamanu/shared/test-helpers';
 
 import { createApiApp } from '../dist/createApiApp';
 import { initReporting } from '../dist/database';
@@ -156,7 +158,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   const facilityIdsString = JSON.stringify(facilities.map((facility) => facility.id));
   // ensure there's a corresponding local system fact for it too
-  await models.LocalSystemFact.set('facilityIds', facilityIdsString);
+  await models.LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
 
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();

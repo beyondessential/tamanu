@@ -9,6 +9,7 @@ export * from './deaths.js';
 export * from './diagnoses.js';
 export * from './documents.js';
 export * from './encounters.js';
+export * from './facts.js';
 export * from './fhir.js';
 export * from './imaging.js';
 export * from './importable.js';

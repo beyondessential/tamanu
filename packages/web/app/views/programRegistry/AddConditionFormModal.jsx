@@ -17,6 +17,7 @@ import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -35,6 +36,7 @@ export const AddConditionFormModal = ({
 }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
 
   const submit = async data => {
@@ -53,7 +55,16 @@ export const AddConditionFormModal = ({
     onClose();
   };
   return (
-    <Modal title="Add related condition" open={open} onClose={onClose}>
+    <Modal
+      title={
+        <TranslatedText
+          stringId="programRegistry.modal.addCondition.title"
+          fallback="Add related condition"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <Form
         showInlineErrorsOnly
         onSubmit={submit}
@@ -67,7 +78,7 @@ export const AddConditionFormModal = ({
                   name="programRegistryConditionId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.relatedCondition.label"
+                      stringId="programRegistry.relatedCondition.label"
                       fallback="Related condition"
                     />
                   }
@@ -85,14 +96,9 @@ export const AddConditionFormModal = ({
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="conditions.validation.conditionName.path"
-                fallback="Condition"
-              />,
-            ),
+          programRegistryConditionId: foreignKey().required(
+            getTranslation('validation.required.inline', '*Required'),
+          ),
         })}
       />
     </Modal>

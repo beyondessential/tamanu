@@ -1,0 +1,47 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: reference_data_relations
+        description: '{{ doc("table__reference_data_relations") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in reference_data_relations."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in reference_data_relations."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in reference_data_relations."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in reference_data_relations."
+          - name: reference_data_id
+            data_type: text
+            description: "{{ doc('reference_data_relations__reference_data_id') }}"
+          - name: reference_data_parent_id
+            data_type: text
+            description: "{{ doc('reference_data_relations__reference_data_parent_id') }}"
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('reference_data_relations__type') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              reference_data_relations."
+            data_tests:
+              - not_null

@@ -18,6 +18,7 @@ const ErrorSpan = styled.span`
 
 const DateTimePicker = ({
   disabled = false,
+  onChange,
   minDate,
   required = false,
   timePickerVariant,
@@ -74,7 +75,10 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={minDate}
         name={datePickerName}
-        onChange={flushChangeToDateField}
+        onChange={e => {
+          flushChangeToDateField(e);
+          onChange?.(e);
+        }}
         required={required}
         helperText={
           hasConflict && (

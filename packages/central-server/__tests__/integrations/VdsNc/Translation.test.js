@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../dist/integrations/VdsNc';
 
@@ -82,8 +82,8 @@ describe('VDS: Proof of Vaccination', () => {
       models: ctx.store.models,
       countryCode: 'UTO',
     }).then(
-      resolved => ({ resolved }),
-      rejected => ({ rejected }),
+      (resolved) => ({ resolved }),
+      (rejected) => ({ rejected }),
     );
 
     // Assert

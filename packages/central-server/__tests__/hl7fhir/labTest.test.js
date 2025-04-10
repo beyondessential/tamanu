@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 import { validate } from './hl7utilities';

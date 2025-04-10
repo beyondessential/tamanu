@@ -1,0 +1,31 @@
+name: Call Meta API
+description: Hit an endpoint on the Tamanu Meta API
+inputs:
+  url:
+    description: URL for the meta server
+    required: true
+  crt:
+    description: Certificate for the meta server
+    required: true
+  key:
+    description: Key for the certificate
+    required: true
+  api:
+    description: Endpoint to hit
+    required: true
+  arg:
+    description: Other curl args
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        cat << EOF > ./meta.crt
+        ${{ inputs.crt }}
+        EOF
+        cat << EOF > ./meta.key
+        ${{ inputs.key }}
+        EOF
+
+        set -x
+        curl -v "${{ inputs.url }}${{ inputs.api }}" -E meta.crt --key meta.key ${{ inputs.arg }}

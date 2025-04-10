@@ -1,6 +1,6 @@
 import { StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
-import { formatShort, getCurrentDateString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Text } from '../../pdf/Text';
 import { useLanguageContext } from '../../pdf/languageContext';
 
@@ -57,8 +57,13 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
     <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
-        <LabelText>{getTranslation('pdf.footer.printDate.label', 'Print date')}: </LabelText>
-        <ValueText>{formatShort(printDate || getCurrentDateString())} </ValueText>
+        <LabelText>
+          {getTranslation('pdf.footer.printDateAndTime.label', 'Print date & time')}:{' '}
+        </LabelText>
+        <ValueText>
+          {formatShort(printDate || getCurrentDateTimeString())}{' '}
+          {formatTime(printDate || getCurrentDateTimeString())}
+        </ValueText>
         {printFacility && (
           <>
             <ValueText> |</ValueText>
@@ -83,8 +88,10 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
           style={styles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {
-              currentPage: pageNumber,
-              totalPages,
+              replacements: {
+                currentPage: pageNumber,
+                totalPages,
+              },
             })
           }
         />

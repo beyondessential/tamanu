@@ -92,9 +92,11 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
     if (!coords) return '';
     // {}: a hack to remove the empty space
     return getTranslation('program.survey.geolocate.value', ':lat, :long (:accuracy{}m accuracy)', {
-      lat: coords.latitude.toFixed(6),
-      long: coords.longitude.toFixed(6),
-      accuracy: coords.accuracy,
+      replacements: {
+        lat: coords.latitude.toFixed(6),
+        long: coords.longitude.toFixed(6),
+        accuracy: coords.accuracy,
+      },
     }).replace('{}', '');
   }, [coords]);
 

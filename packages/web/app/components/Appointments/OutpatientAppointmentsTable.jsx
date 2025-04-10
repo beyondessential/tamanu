@@ -254,7 +254,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title, patient }) => {
+const TableHeader = ({ title, patient, hasPastAppointments }) => {
   const { ability } = useAuth();
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
@@ -266,17 +266,19 @@ const TableHeader = ({ title, patient }) => {
         {title}
       </Box>
       <ActionRow>
-        <ViewPastBookingsButton
-          component={'span'}
-          onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr="6px"
-        >
-          <TranslatedText
-            stringId="patient.appointments.table.viewPastAppointments"
-            fallback="View past appointments"
-          />
-        </ViewPastBookingsButton>
-        {canCreateAppointment && (
+        {hasPastAppointments && (
+          <ViewPastBookingsButton
+            component={'span'}
+            onClick={() => setIsViewPastBookingsModalOpen(true)}
+            mr="6px"
+          >
+            <TranslatedText
+              stringId="patient.appointments.table.viewPastAppointments"
+              fallback="View past appointments"
+            />
+          </ViewPastBookingsButton>
+        )}
+        {canCreateAppointment && !patient?.dateOfDeath && (
           <Button
             variant="outlined"
             color="primary"
@@ -307,13 +309,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const allAppointments =
-    useOutpatientAppointmentsQuery({
-      all: true,
-      patientId: patient?.id,
-      after: '1970-01-01 00:00',
-    }).data?.data ?? [];
+  // Query to check if there are past appointments
+  const pastAppointmentsQuery = useOutpatientAppointmentsQuery({
+    patientId: patient?.id,
+    before: getCurrentDateTimeString(),
+    after: '1970-01-01 00:00',
+    rowsPerPage: 1,
+  });
+  
+  const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
 
+  // Query for future appointments
   const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
@@ -398,10 +404,6 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       : []),
   ];
 
-  if (!allAppointments.length) {
-    return null;
-  }
-
   if (!appointments.length && !isLoading) {
     return (
       <NoDataContainer>
@@ -413,6 +415,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
             />
           }
           patient={patient}
+          hasPastAppointments={hasPastAppointments}
         />
       </NoDataContainer>
     );
@@ -434,6 +437,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               />
             }
             patient={patient}
+            hasPastAppointments={hasPastAppointments}
           />
         }
         onClickRow={handleRowClick}

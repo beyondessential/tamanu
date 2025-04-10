@@ -59,6 +59,7 @@ export const REFERENCE_TYPES = {
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // Reference data stored in its own table (not in 'reference_data' table)
+
 export const OTHER_REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   FACILITY: 'facility',
@@ -70,7 +71,11 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+  PROGRAM_REGISTRY: 'programRegistry',
+  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
 };
+
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 
 export const TRANSLATABLE_REFERENCE_TYPES = [
@@ -87,9 +92,8 @@ const CLINCAL_DATA_TYPES = {
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
 
 // System data used for configuration purposes
-const SYSTEM_DATA_TYPES = {
+export const SYSTEM_DATA_TYPES = {
   REFERENCE_DATA_RELATION: 'referenceDataRelation',
-  TRANSLATED_STRING: 'translatedString',
   CERTIFIABLE_VACCINE: 'certifiableVaccine',
   IMAGING_AREA_EXTERNAL_CODE: 'imagingAreaExternalCode',
 };

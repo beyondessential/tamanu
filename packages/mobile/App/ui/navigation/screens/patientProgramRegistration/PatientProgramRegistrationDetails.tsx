@@ -77,7 +77,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.date.label"
+            stringId="programRegistry.registrationDate.label"
             fallback="Date of registration"
           />
         }
@@ -86,7 +86,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
+            stringId="programRegistry.registeredBy.label"
             fallback="Registered by"
           />
         }
@@ -95,7 +95,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.registeringFacility.label"
+            stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
           />
         }
@@ -108,19 +108,38 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         }
       />
       <DataRow
-        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
-        value={patientProgramRegistration?.clinicalStatus?.name || '—'}
+        label={
+          <TranslatedText
+            stringId="programRegistry.clinicalStatus.label"
+            fallback="Status"
+          />
+        }
+        value={
+          <TranslatedReferenceData
+            fallback={patientProgramRegistration.clinicalStatus?.name}
+            value={patientProgramRegistration.clinicalStatus?.id}
+            category="programRegistryClinicalStatus"
+            placeholder="—"
+          />
+        }
       />
       <DataRow
         label={
           <TranslatedText
-            stringId="patientProgramRegistry.conditions.label"
+            stringId="programRegistry.conditions.label"
             fallback="Conditions"
           />
         }
         value={
           Array.isArray(pprCondition) && pprCondition.length > 0
-            ? pprCondition.map(x => x.programRegistryCondition.name)
+            ? pprCondition.map(({ programRegistryCondition }) => (
+                <TranslatedReferenceData
+                  key={programRegistryCondition.id}
+                  fallback={programRegistryCondition.name}
+                  value={programRegistryCondition.id}
+                  category="programRegistryCondition"
+                />
+              ))
             : '—'
         }
       />

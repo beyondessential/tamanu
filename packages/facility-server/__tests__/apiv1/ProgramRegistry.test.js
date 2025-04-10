@@ -1,5 +1,7 @@
 import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
+
 import { createTestContext } from '../utilities';
 
 describe('ProgramRegistry', () => {
@@ -268,9 +270,11 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`).query({
-        sortBy: 'clinicalStatus',
-      });
+      const result = await app
+        .get(`/api/programRegistry/${programRegistryId}/registrations`)
+        .query({
+          sortBy: 'clinicalStatus',
+        });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
@@ -372,16 +376,23 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`).query({
-        programRegistryCondition: relevantCondition.id,
-      });
+      const result = await app
+        .get(`/api/programRegistry/${programRegistryId}/registrations`)
+        .query({
+          programRegistryCondition: relevantCondition.id,
+        });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       expect(body.count).toEqual(1);
       expect(body.data.length).toEqual(1);
       expect(body.data).toMatchObject([
-        { conditions: expect.arrayContaining([decoyCondition.name, relevantCondition.name]) },
+        {
+          conditions: expect.arrayContaining([
+            { id: decoyCondition.id, name: decoyCondition.name },
+            { id: relevantCondition.id, name: relevantCondition.name },
+          ]),
+        },
       ]);
     });
 
@@ -428,7 +439,7 @@ describe('ProgramRegistry', () => {
           expect(result).toHaveSucceeded();
 
           expect(result.body.data).not.toHaveLength(0);
-          result.body.data.forEach(x => {
+          result.body.data.forEach((x) => {
             expect(x.patient).toHaveProperty(filter, value);
           });
         },
@@ -465,7 +476,9 @@ describe('ProgramRegistry', () => {
           ['list', 'PatientProgramRegistration'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.get(`/api/programRegistry/${programRegistryId}/registrations`);
+        const result = await appWithPermissions.get(
+          `/api/programRegistry/${programRegistryId}/registrations`,
+        );
         expect(result).toBeForbidden();
       });
 
@@ -496,7 +509,9 @@ describe('ProgramRegistry', () => {
           ['list', 'PatientProgramRegistration'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.get(`/api/programRegistry/${programRegistryId}/registrations`);
+        const result = await appWithPermissions.get(
+          `/api/programRegistry/${programRegistryId}/registrations`,
+        );
         expect(result).toHaveSucceeded();
 
         const { body } = result;

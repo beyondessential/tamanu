@@ -16,7 +16,12 @@ const StyledDivider = styled(Divider)`
 
 const MAX_FAMILY_SIZE = 12;
 
-export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBack }) => {
+export const InvoiceDiscountAssessmentForm = ({
+  handleSubmit,
+  onClose,
+  handleBack,
+  isSubmitting,
+}) => {
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
 
@@ -42,8 +47,8 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
     });
   }, [familySize, slidingFeeScale]);
 
-  const handleAnnualIncomeChange = e => {
-    const selectedOption = annualIncomeOptions.find(option => option.value === e.target.value);
+  const handleAnnualIncomeChange = (e) => {
+    const selectedOption = annualIncomeOptions.find((option) => option.value === e.target.value);
     if (selectedOption) {
       setPercentage(selectedOption.percentage);
     }
@@ -78,7 +83,7 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
                 }
                 component={SelectField}
                 options={familySizesOptions}
-                onChange={e => setFamilySize(e.target.value)}
+                onChange={(e) => setFamilySize(e.target.value)}
               />
               <Field
                 name="annualIncome"
@@ -100,6 +105,7 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
               onCancel={onClose}
               onBack={handleBack}
               confirmText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+              confirmDisabled={isSubmitting}
             />
           </>
         )}

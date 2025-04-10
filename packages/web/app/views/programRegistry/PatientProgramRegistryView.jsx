@@ -10,8 +10,10 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
+import { PatientNavigation } from '../../components/PatientNavigation';
+import { usePatientRoutes } from '../../routes/PatientRoutes';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -43,22 +45,33 @@ const ProgramStatusAndConditionContainer = styled.div`
   width: 100%;
   position: relative;
 `;
+
 export const PatientProgramRegistryView = () => {
-  const queryParams = useUrlSearchParams();
-  const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(patientId, programRegistryId);
+  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
+    patientId,
+    programRegistryId,
+  );
   const {
     data: programRegistryConditions = [],
     isLoading: conditionsLoading,
   } = useProgramRegistryConditionsQuery(data?.programRegistryId);
+
+  const patientRoutes = usePatientRoutes();
 
   if (isLoading || conditionsLoading) {
     return <LoadingIndicator />;
   }
 
   if (isError) {
-    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+    return (
+      <p>
+        <TranslatedText
+          stringId="programRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
+        />
+      </p>
+    );
   }
 
   const conditionOptions = programRegistryConditions.map(x => ({
@@ -67,9 +80,16 @@ export const PatientProgramRegistryView = () => {
   }));
 
   return (
-    <Fragment key={data.id}>
+    <>
+      <PatientNavigation patientRoutes={patientRoutes} />
       <ViewHeader>
-        <h1>{data.programRegistry.name}</h1>
+        <h1>
+          <TranslatedReferenceData
+            fallback={data.programRegistry.name}
+            value={data.programRegistry.id}
+            category="programRegistry"
+          />
+        </h1>
         <RegistrationStatusIndicator
           style={{ height: '10px', width: '10px' }}
           patientProgramRegistration={data}
@@ -89,7 +109,6 @@ export const PatientProgramRegistryView = () => {
             programRegistryConditions={conditionOptions}
           />
         </ProgramStatusAndConditionContainer>
-
         <Row>
           <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>
@@ -97,6 +116,6 @@ export const PatientProgramRegistryView = () => {
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
-    </Fragment>
+    </>
   );
 };

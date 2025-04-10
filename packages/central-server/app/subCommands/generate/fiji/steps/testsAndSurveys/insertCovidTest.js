@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance } from '../../../chance';
 
@@ -7,7 +7,7 @@ export const insertCovidTest = async ({ LabTest, LabRequest }, setupData, { enco
     ...fake(LabRequest),
     labTestCategoryId: chance.pickone(setupData.labTestCategories).id,
     status: chance.pickone(
-      Object.values(LAB_REQUEST_STATUSES).filter(s => s !== LAB_REQUEST_STATUSES.DELETED),
+      Object.values(LAB_REQUEST_STATUSES).filter((s) => s !== LAB_REQUEST_STATUSES.DELETED),
     ),
     encounterId,
   });

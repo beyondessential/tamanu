@@ -32,7 +32,7 @@ export const Checkbox = ({
   color,
   label,
 }: CheckboxProps): JSX.Element => {
-  const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value]);
+  const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value, id]);
 
   const getColor = useCallback(() => {
     if (error) return theme.colors.ERROR;

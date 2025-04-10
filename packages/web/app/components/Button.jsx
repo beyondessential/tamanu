@@ -60,9 +60,16 @@ const StyledButton = styled(({ ...props }) => {
     padding-right: 14px;
   }
 
-  &.MuiButton-outlinedPrimary {
+  &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
     border-color: ${props => props.theme.palette.primary.main};
   }
+
+  &.Mui-disabled {
+    color: ${Colors.white};
+    box-shadow: none;
+    background-color: ${Colors.primary30};
+  }
+
   ${props => props.confirmStyle ?? ''}
 `;
 

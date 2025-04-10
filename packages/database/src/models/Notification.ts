@@ -94,13 +94,13 @@ export class Notification extends Model {
         case NOTIFICATION_TYPES.IMAGING_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter?.patientId;
+          patientId = encounter!.patientId;
           break;
         }
         case NOTIFICATION_TYPES.LAB_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
-          patientId = encounter?.patientId;
+          patientId = encounter!.patientId;
           break;
         }
         default:

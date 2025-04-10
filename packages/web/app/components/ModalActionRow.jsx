@@ -6,7 +6,7 @@ import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow } from './ButtonRow';
 
 // TODO this is a little weird - might be better to refactor ConfirmCancelRow to allow replacing
 // the ButtonRow component it uses with a differently styled one
-const makeModalRow = (Component, includeLeftPadding = true) => {
+export const makeModalRow = (Component, includeLeftPadding = true) => {
   const Row = styled(Component)`
     border-top: 1px solid ${Colors.outline};
     padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0
@@ -32,3 +32,5 @@ export const ModalActionRow = makeModalRow(ConfirmCancelRow, false);
 export const ModalFormActionRow = makeModalRow(FormSubmitCancelRow, false);
 
 export const ModalCancelRow = makeModalRow(ConfirmCancelRow, false);
+
+export const ModalButtonActionRow = makeModalRow(ButtonRow, false);

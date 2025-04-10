@@ -57,6 +57,9 @@ ENV PORT=3000
 EXPOSE 3000
 
 # read configuration from source and from /config
+#
+# NOTE: We also explicitly set this value in central-server/pm2.config.cjs for when running in production
+# but the two values should resolve to the same path
 ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
@@ -82,8 +85,8 @@ FROM rust AS build-bestool
 RUN cargo install bestool --no-default-features \
   -F completions \
   -F crypto \
-  -F tamanu \
-  -F walg
+  -F file \
+  -F tamanu
 
 FROM ubuntu AS toolbox
 RUN apt update && apt install -y --no-install-recommends \

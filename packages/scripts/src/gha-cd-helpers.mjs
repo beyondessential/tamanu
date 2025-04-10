@@ -55,7 +55,7 @@ const OPTIONS = [
   { key: 'env', defaultValue: 'staging' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
-  { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
+  { key: 'dbstorage', defaultValue: 10, parse: input => intBounds(input, [10, 100]) },
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
