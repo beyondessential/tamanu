@@ -8,7 +8,7 @@ export const surveyResponse = express.Router();
 surveyResponse.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     req.checkPermission('read', 'SurveyResponse');
 
     const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
@@ -28,11 +28,18 @@ surveyResponse.get(
       notTransformDate: true,
     });
 
+    await req.audit.access({
+      recordId: surveyResponseRecord.id,
+      params,
+      model: models.SurveyResponse,
+      facilityId: query.facilityId,
+    });
+
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map(answer => {
-        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+      answers: answers.map((answer) => {
+        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
@@ -58,7 +65,7 @@ surveyResponse.post(
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const getDefaultId = async type =>
+    const getDefaultId = async (type) =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),

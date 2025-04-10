@@ -25,8 +25,6 @@ export const simpleUpdateModels = [
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
-  'PatientProgramRegistration',
-  'PatientProgramRegistrationCondition',
   'PatientContact',
   'IPSRequest',
   'Notification',
@@ -38,6 +36,7 @@ export const simpleUpdateModels = [
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
+  'PatientProgramRegistration',
   'PatientBirthData',
   'PatientDeathData',
   'Note',
@@ -67,6 +66,10 @@ const omittedColumns = [
   'updatedAtByField',
 ];
 
+// This is for cases where we never want to update the patient_id
+// even after merge
+const omittedModels = ['AccessLog'];
+
 function isNullOrEmptyString(value) {
   return value === null || value === '';
 }
@@ -82,14 +85,14 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = field => field.references?.model === 'patients';
+const fieldReferencesPatient = (field) => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
-  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
+  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels, ...omittedModels];
   const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;
@@ -213,6 +216,32 @@ export async function mergePatientDeathData(models, keepPatientId, unwantedPatie
   return results;
 }
 
+export async function mergePatientProgramRegistrations(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedRegistrations = await models.PatientProgramRegistration.findAll({
+    where: { patientId: unwantedPatientId },
+  });
+
+  if (!existingUnwantedRegistrations.length) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const unwantedRegistration of existingUnwantedRegistrations) {
+    // Move to keep patient and reset isMostRecent to false
+    await unwantedRegistration.update({
+      patientId: keepPatientId,
+      isMostRecent: false,
+    });
+
+    // Soft delete the registration
+    await unwantedRegistration.destroy();
+    results.push(unwantedRegistration);
+  }
+
+  return results;
+}
+
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: unwantedPatientId },
@@ -276,9 +305,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
     patientId: keepPatientId,
     facilityId,
   }));
@@ -373,6 +402,15 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     );
     if (fieldValueUpdates.length > 0) {
       updates.PatientFieldValue = fieldValueUpdates.length;
+    }
+
+    const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (patientProgramRegistrationUpdates.length > 0) {
+      updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

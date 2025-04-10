@@ -96,7 +96,7 @@ export const getPatientDetailsValidation = (getSetting: <T>(key: string) => T) =
       getSetting,
       'passport',
       Yup.string().translatedLabel(
-        <TranslatedText stringId="general.localisedField.passport.label" fallback="Passport" />,
+        <TranslatedText stringId="general.localisedField.passport.label.short" fallback="Passport" />,
       ),
     ),
     primaryContactNumber: requiredWhenConfiguredMandatory(
@@ -204,7 +204,7 @@ export const getPatientDetailsValidation = (getSetting: <T>(key: string) => T) =
       'patientBillingTypeId',
       Yup.string().translatedLabel(
         <TranslatedText
-          stringId="general.localisedField.patientBillingTypeId.label"
+          stringId="general.localisedField.patientBillingTypeId.label.short"
           fallback="Type"
         />,
       ),

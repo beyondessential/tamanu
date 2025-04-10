@@ -13,6 +13,7 @@ import {
   createTask,
   createPatientCommunication,
   generateImportData,
+  createAccessLog,
 } from './helpers';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
@@ -95,5 +96,11 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       referenceDataId: referenceData.id,
     }),
     await createPatientCommunication({ models, patientId: patient.id }),
+    await createAccessLog({
+      models,
+      userId: user.id,
+      patientId: patient.id,
+      facilityId: facility.id,
+    }),
   ]);
 };

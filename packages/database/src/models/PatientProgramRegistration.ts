@@ -95,6 +95,11 @@ export class PatientProgramRegistration extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
+
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'patientProgramRegistrationId',
+      as: 'conditions',
+    });
   }
 
   static async create(values: any): Promise<any> {

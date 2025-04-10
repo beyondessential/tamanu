@@ -106,8 +106,8 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext({ enableReportInstances } = {}) {
-  const context = await new ApplicationContext().init();
+export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
+  const context = await new ApplicationContext().init({ databaseOverrides });
   // create mock reporting schema + roles if test requires it
   // init reporting instances for these roles
   if (enableReportInstances) {
