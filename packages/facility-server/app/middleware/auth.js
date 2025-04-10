@@ -247,7 +247,7 @@ async function getUser(models, userId) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const { models } = req;
+  const { models, settings } = req;
   try {
     const token = getTokenFromHeaders(req);
     const sessionId = createSessionIdentifier(token);
@@ -262,11 +262,14 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
+    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: async ({ recordId, params, model }) =>
-        req.models.AccessLog.create({
+      access: async ({ recordId, params, model }) => {
+        if (!auditSettings?.accesses.enabled) return;
+        return req.models.AccessLog.create({
           userId,
           recordId,
           recordType: model.name,
@@ -278,7 +281,8 @@ export const authMiddleware = async (req, res, next) => {
           facilityId: req.facilityId,
           deviceId: req.deviceId || 'unknown-device',
           version,
-        }),
+        });
+      },
     };
 
     const spanAttributes = {};
