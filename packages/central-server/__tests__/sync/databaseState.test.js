@@ -1,6 +1,7 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
@@ -48,7 +49,7 @@ describe('databaseState', () => {
 
   it('syncing models should set tick on create', async () => {
     const { LocalSystemFact, Patient, Facility } = models;
-    const currentTick = await LocalSystemFact.get('currentSyncTick');
+    const currentTick = await LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
     // can't test against every model because of dependencies, just pick a few
     for (const Model of [Patient, Facility]) {

@@ -5,19 +5,20 @@ import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
-import { usePatientAdditionalDataQuery, usePatientProgramRegistrationQuery } from '../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  usePatientProgramRegistrationQuery,
+} from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getAnswersFromData } from '../../utils';
 import { useApi } from '../../api';
+import { TranslatedText } from '../../components/index.js';
 
 export const ProgramRegistrySurveyView = () => {
   const api = useApi();
   const [startTime] = useState(getCurrentDateTimeString());
-  const queryParams = useUrlSearchParams();
   const { navigateToProgramRegistry } = usePatientNavigation();
-  const title = queryParams.get('title');
   const { currentUser, facilityId } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
   const patient = useSelector(state => state.patient);
@@ -49,9 +50,20 @@ export const ProgramRegistrySurveyView = () => {
     navigateToProgramRegistry();
   };
 
-  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading)
+  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading) {
     return <LoadingIndicator />;
-  if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
+  }
+
+  if (isError) {
+    return (
+      <p>
+        <TranslatedText
+          stringId="programRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
+        />
+      </p>
+    );
+  }
 
   return (
     <SurveyView

@@ -9,6 +9,7 @@ import { NavigationProp } from '@react-navigation/native';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistration/PatientProgramRegistrySummary';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Stack = createStackNavigator();
 
@@ -31,7 +32,12 @@ const PatientSummary = ({
   return (
     <ErrorBoundary>
       <StackHeader
-        title="Program registries"
+        title={
+          <TranslatedText
+            stringId="programRegistry.header.title"
+            fallback="Program registries"
+          />
+        }
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />

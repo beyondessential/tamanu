@@ -1,0 +1,76 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: scheduled_vaccines
+        description: '{{ doc("table__scheduled_vaccines") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in scheduled_vaccines."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in scheduled_vaccines."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in scheduled_vaccines."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in scheduled_vaccines."
+          - name: category
+            data_type: character varying(255)
+            description: "{{ doc('scheduled_vaccines__category') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - Campaign
+                    - Catchup
+                    - Other
+                    - Routine
+          - name: label
+            data_type: character varying(255)
+            description: "{{ doc('scheduled_vaccines__label') }}"
+          - name: dose_label
+            data_type: character varying(255)
+            description: "{{ doc('scheduled_vaccines__dose_label') }}"
+          - name: weeks_from_birth_due
+            data_type: integer
+            description: "{{ doc('scheduled_vaccines__weeks_from_birth_due') }}"
+          - name: index
+            data_type: integer
+            description: "{{ doc('scheduled_vaccines__index') }}"
+          - name: vaccine_id
+            data_type: character varying(255)
+            description: "{{ doc('scheduled_vaccines__vaccine_id') }}"
+          - name: weeks_from_last_vaccination_due
+            data_type: integer
+            description: "{{ doc('scheduled_vaccines__weeks_from_last_vaccination_due') }}"
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in scheduled_vaccines."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in scheduled_vaccines."
+            data_tests:
+              - not_null
+          - name: hide_from_certificate
+            data_type: boolean
+            description: "{{ doc('scheduled_vaccines__hide_from_certificate') }}"
+            data_tests:
+              - not_null
+          - name: sort_index
+            data_type: integer
+            description: "{{ doc('scheduled_vaccines__sort_index') }}"
+            data_tests:
+              - not_null

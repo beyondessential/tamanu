@@ -70,6 +70,7 @@ user.get(
         patients.last_name,
         patients.sex,
         patients.date_of_birth,
+        patients.date_of_death,
         encounters.id AS encounter_id,
         encounters.encounter_type,
         user_recently_viewed_patients.updated_at AS last_accessed_on

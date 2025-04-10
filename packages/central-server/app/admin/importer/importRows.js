@@ -246,7 +246,7 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType = normaliseSheetName(sheetName);
+      const dataType = normaliseSheetName(sheetName, model);
       const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
@@ -268,8 +268,8 @@ export async function importRows(
       `
         INSERT INTO translated_strings (string_id, text, language)
         VALUES ${translationData.map(() => '(?)').join(',')}
-        ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-    `,
+          ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+      `,
       {
         replacements: translationData,
         type: models.TranslatedString.sequelize.QueryTypes.INSERT,

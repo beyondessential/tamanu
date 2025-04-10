@@ -101,3 +101,12 @@ jobs:
         target_commitish: ${{ steps.tagged.outputs.current_version_ref }}
         body_path: RELEASE_NOTES.md
         make_latest: ${{ steps.latest.outputs.latest_version == steps.tagged.outputs.current_version }}
+
+    - name: Publish release to meta
+      uses: ./.github/actions/meta-api
+      with:
+        url: ${{ vars.META_URL }}
+        crt: ${{ secrets.META_CERT }}
+        key: ${{ secrets.META_KEY }}
+        api: /versions/${{ steps.tagged.outputs.current_version }}
+        arg: --data-binary @RELEASE_NOTES.md

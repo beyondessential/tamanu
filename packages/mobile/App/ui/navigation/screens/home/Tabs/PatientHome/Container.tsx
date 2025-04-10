@@ -143,7 +143,7 @@ const usePatientMenuButtons = navigation => {
         },
         {
           key: 'programRegistries',
-   title: <TranslatedText stringId="patient.action.viewProgramRegistries" fallback="Program registries" />,
+          title: <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />,
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
           hideFromMenu: !canViewProgramRegistries,
         },
