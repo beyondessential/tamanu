@@ -7,6 +7,7 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
+import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { startScheduledTasks } from '../tasks';
@@ -34,6 +35,13 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   await initDeviceId(context);
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
+
+  context.timesync = await initTimesync({
+    models: context.models,
+    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+    settings: context.settings.global,
+    readOnly: false,
+  });
 
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = syncManager ?? new FacilitySyncManager(context);
