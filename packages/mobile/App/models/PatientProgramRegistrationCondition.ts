@@ -4,18 +4,15 @@ import {
   DateTimeString,
   IPatientProgramRegistrationCondition,
   ID,
-  IPatient,
-  IProgramRegistry,
   IUser,
   IProgramRegistryCondition,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
-import { ProgramRegistry } from './ProgramRegistry';
-import { Patient } from './Patient';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 @Entity('patient_program_registration_conditions')
 export class PatientProgramRegistrationCondition
@@ -38,15 +35,10 @@ export class PatientProgramRegistrationCondition
   reasonForChange: string;
 
   // Relations
-  @ManyToOne(() => ProgramRegistry)
-  programRegistry: IProgramRegistry;
-  @RelationId(({ programRegistry }) => programRegistry)
-  programRegistryId: ID;
-
-  @ManyToOne(() => Patient)
-  patient: IPatient;
-  @RelationId(({ patient }) => patient)
-  patientId: ID;
+  @ManyToOne(() => PatientProgramRegistration)
+  patientProgramRegistration: IPatientProgramRegistration;
+  @RelationId(({ patientProgramRegistration }) => patientProgramRegistration)
+  patientProgramRegistrationId: ID;
 
   @ManyToOne(
     () => ProgramRegistryCondition,
