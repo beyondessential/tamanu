@@ -17,7 +17,7 @@ createDateTypes();
 export const asyncLocalStorage = new AsyncLocalStorage();
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-setSessionConfigInNamespace// done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
+// done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
 export const namespace = {
   bind: () => {}, // compatibility with cls-hooked, not used by sequelize
   get: (id) => asyncLocalStorage.getStore()?.get(id),
@@ -25,7 +25,7 @@ export const namespace = {
   run: (callback) => asyncLocalStorage.run(new Map(), callback),
 };
 
-export const  = (key, value, callback) => {
+export const setSessionConfigInNamespace = (key, value, callback) => {
   namespace.run(() => {
     namespace.set(`${SESSION_CONFIG_PREFIX}${key}`, value);
     callback()
@@ -75,6 +75,7 @@ async function connectToDatabase(dbOptions) {
     pool,
     alwaysCreateConnection = true,
     loggingOverride = null, // used in tests for migration determinism
+    disableChangesAudit = false,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -130,6 +131,7 @@ async function connectToDatabase(dbOptions) {
       bind: { key, value },
     });
 
+  if (!disableChangesAudit) {
     class QueryWithAuditConfig extends sequelize.dialect.Query {
       async run(sql, options) {
         const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
@@ -142,6 +144,7 @@ async function connectToDatabase(dbOptions) {
       }
     }
     sequelize.dialect.Query = QueryWithAuditConfig;
+  }
 
   setupQuote(sequelize);
   await sequelize.authenticate();
