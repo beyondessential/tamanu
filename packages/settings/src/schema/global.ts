@@ -32,6 +32,7 @@ export const globalSettings = {
   properties: {
     audit: {
       description: 'Audit settings',
+      highRisk: true,
       properties: {
         accesses: {
           description: 'Audit accesses',
