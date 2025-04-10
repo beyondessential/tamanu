@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
 import { createEuDccVaccinationData } from '../../../dist/integrations/EuDcc';
 

@@ -25,7 +25,7 @@ const DumbLabRequestTabs = ({
 }: NewProgramEntryTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   return (
     <>

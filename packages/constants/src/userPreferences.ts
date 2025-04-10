@@ -6,4 +6,5 @@ export const USER_PREFERENCES_KEYS = {
   SELECTED_CHART_TYPE_ID: 'selectedChartTypeId',
   LOCATION_BOOKING_FILTERS: 'locationBookingFilters',
   OUTPATIENT_APPOINTMENT_FILTERS: 'outpatientAppointmentFilters',
+  OUTPATIENT_APPOINTMENT_GROUP_BY: 'outpatientAppointmentGroupBy',
 };

@@ -42,7 +42,6 @@ const PrimaryDetails = styled('div')`
 const PatientId = styled('p')`
   color: ${Colors.primary};
   font-weight: 500;
-  letter-spacing: 0.08em;
   font-variant-numeric: lining-nums tabular-nums;
   margin-block: 0.25rem 0;
 `;

@@ -24,6 +24,7 @@ export interface ILabTestType {
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
+  isSensitive: boolean,
   visibilityStatus: VisibilityStatus.Current,
 
   labTestPanels?: LabTestPanel[];

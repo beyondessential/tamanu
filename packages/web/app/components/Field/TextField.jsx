@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
+import { useSettings } from '../../contexts/Settings';
 
 const JoinedFieldStyles = css`
   position: relative;
@@ -92,12 +93,21 @@ export const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value = '', label, ...props }) => {
+export const TextInput = ({ value = '', label, enablePasting = false, ...props }) => {
+  const { getSetting } = useSettings();
+  const disableInputPasting = getSetting('features.disableInputPasting');
   // eslint-disable-next-line no-unused-vars
   const { saveDateAsString, ...rest } = props;
+
+  const onPaste = e => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledTextField value={value} variant="outlined" {...rest} />
+      <StyledTextField value={value} variant="outlined" onPaste={onPaste} {...rest} />
     </OuterLabelFieldWrapper>
   );
 };

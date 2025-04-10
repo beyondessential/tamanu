@@ -2,11 +2,11 @@ import crypto from 'crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
 import {
-  CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY,
-  SYNC_SESSION_DIRECTION,
-} from '@tamanu/database/sync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
+} from '@tamanu/constants/facts';
+import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -16,8 +16,11 @@ import {
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
+  APPOINTMENT_STATUSES,
+  REPEAT_FREQUENCY,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
@@ -150,7 +153,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
     await models.Facility.truncate({ cascade: true, force: true });
     await models.Program.truncate({ cascade: true, force: true });
     await models.Survey.truncate({ cascade: true, force: true });
@@ -179,7 +182,7 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionId);
 
       const localSystemFact = await models.LocalSystemFact.findOne({
-        where: { key: CURRENT_SYNC_TIME_KEY },
+        where: { key: FACT_CURRENT_SYNC_TICK },
       });
       expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
     });
@@ -431,7 +434,7 @@ describe('CentralSyncManager', () => {
         const NEW_SYNC_TICK = 20;
 
         // ~ ~ ~ Set up old data
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
         const patient1 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -469,7 +472,7 @@ describe('CentralSyncManager', () => {
           patientId: patient3.id,
         });
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
         // ~ ~ ~ Set up data for marked for sync patients
         await models.PatientFacility.create({
@@ -511,7 +514,7 @@ describe('CentralSyncManager', () => {
         const NEW_SYNC_TICK = 30;
 
         // ~ ~ ~ Set up old data
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
         const patient1 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -556,7 +559,7 @@ describe('CentralSyncManager', () => {
           patientId: patient3.id,
         });
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
         // ~ ~ ~ Set up data for marked for sync patients
         await models.PatientFacility.create({
@@ -600,7 +603,7 @@ describe('CentralSyncManager', () => {
         const NEW_SYNC_TICK = 20;
 
         // ~ ~ ~ Set up old data
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
         const patient1 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -622,7 +625,7 @@ describe('CentralSyncManager', () => {
           patientId: patient1.id,
         });
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
         const encounter2 = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -1197,7 +1200,7 @@ describe('CentralSyncManager', () => {
           facilityId: facility.id,
         });
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
 
         // Encounter data for pushing (not inserted yet)
         const encounterData = {
@@ -1265,7 +1268,7 @@ describe('CentralSyncManager', () => {
         const CURRENT_SYNC_TICK = '10';
         const facility = await models.Facility.create(fake(models.Facility));
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
 
         const duplicatedDisplayId = 'ABC';
 
@@ -1347,6 +1350,235 @@ describe('CentralSyncManager', () => {
         // Check if pulled down synced patient also has displayId appended with _duplicate_2
         expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
       });
+
+      it("does not append 'duplicate' to existing patient that is being updated", async () => {
+        // Set up data pre sync
+        const CURRENT_SYNC_TICK = '12';
+        const facility = await models.Facility.create(fake(models.Facility));
+
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
+
+        // Existing patient
+        const existingPatient = await models.Patient.create({
+          ...fake(models.Patient),
+          displayId: 'DEF',
+        });
+
+        // Patient data for pushing (not inserted yet)
+        const updatedPatientData = {
+          ...existingPatient.dataValues,
+          firstName: 'Changed',
+        };
+
+        const changes = [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'patients',
+            recordId: updatedPatientData.id,
+            data: updatedPatientData,
+          },
+        ];
+
+        const centralSyncManager = initializeCentralSyncManager({
+          sync: {
+            lookupTable: {
+              enabled: true,
+            },
+            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+          },
+        });
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        // Push the encounter
+        await centralSyncManager.addIncomingChanges(sessionId, changes);
+        await centralSyncManager.completePush(sessionId, facility.id);
+        await waitForPushCompleted(centralSyncManager, sessionId);
+
+        await centralSyncManager.updateLookupTable();
+
+        // Start the snapshot for pull process
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [facility.id],
+            deviceId: facility.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'patients');
+
+        // Check if no patient is updated and pulled back to facility
+        expect(returnedPatients).toHaveLength(0);
+
+        const existingPatientData = await models.Patient.findByPk(updatedPatientData.id);
+
+        // Check if existing patient still has the same display ID and did not get duplicate appended
+        expect(existingPatientData.displayId).toBe(updatedPatientData.displayId);
+      });
+    });
+  });
+
+  describe('resolves out of bounds appointments in cancelled schedule', () => {
+    it('deletes out of bound appointments generated on central when syncing a schedule that has been cancelled', async () => {
+      // Set up data pre sync
+      const CURRENT_SYNC_TICK = '15';
+      await models.Setting.set('appointments.maxRepeatingAppointmentsPerGeneration', 2);
+      settingsCache.reset();
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+      const locationGroup = await models.LocationGroup.create({
+        ...fake(models.LocationGroup),
+        facilityId: facility.id,
+      });
+      await models.ReferenceData.create({
+        id: 'appointmentType-standard',
+        type: 'appointmentType',
+        code: 'standard',
+        name: 'Standard',
+      });
+      const { schedule, firstAppointment } = await models.Appointment.createWithSchedule({
+        settings: ctx.settings,
+        appointmentData: {
+          status: APPOINTMENT_STATUSES.CONFIRMED,
+          startTime: '1990-10-02 12:00:00',
+          endTime: '1990-10-02 13:00:00',
+          locationGroupId: locationGroup.id,
+          patientId: patient.id,
+        },
+        scheduleData: {
+          // Until date covers 4 appointments, 2 of which will be initially created
+          untilDate: '1990-10-23',
+          interval: 1,
+          frequency: REPEAT_FREQUENCY.WEEKLY,
+          daysOfWeek: ['WE'],
+        },
+      });
+
+      const createDataAppointment = firstAppointment.toCreateData();
+
+      const appointmentsInSchedule = await schedule.getAppointments({
+        order: [['startTime', 'ASC']],
+      });
+
+      // The remaining 2 appointments are created by scheduled task
+      const generatedAppointments = await models.Appointment.bulkCreate([
+        {
+          ...createDataAppointment,
+          startTime: '1990-10-16 12:00:00',
+          endTime: '1990-10-16 13:00:00',
+        },
+        {
+          ...createDataAppointment,
+          startTime: '1990-10-23 12:00:00',
+          endTime: '1990-10-23 13:00:00',
+        },
+      ]);
+
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
+
+      // Schedule is cancelled before the generated appointments had synced down.
+      const toBeSyncedAppointmentData1 = {
+        ...appointmentsInSchedule[0].get({ plain: true }),
+        status: APPOINTMENT_STATUSES.CANCELLED,
+      };
+      const toBeSyncedAppointmentData2 = {
+        ...appointmentsInSchedule[1].get({ plain: true }),
+        status: APPOINTMENT_STATUSES.CANCELLED,
+      };
+
+      const toBeSyncedAppointmentScheduleData = {
+        ...schedule.get({ plain: true }),
+        // Facility is only aware that the first two appointments are generated at time of cancelling
+        generatedUntilDate: '1990-10-09',
+        cancelledAtDate: '1990-10-02',
+        isFullyGenerated: true,
+      };
+
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointments',
+          recordId: toBeSyncedAppointmentData1.id,
+          data: toBeSyncedAppointmentData1,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointments',
+          recordId: toBeSyncedAppointmentData2.id,
+          data: toBeSyncedAppointmentData2,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'appointment_schedules',
+          recordId: schedule.id,
+          data: toBeSyncedAppointmentScheduleData,
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      // Push the cancelled schedule
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      await centralSyncManager.updateLookupTable();
+
+      // Start the snapshot for pull process
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          deviceId: facility.id,
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
+
+      // Check if the out of bounds appointments are deleted
+      expect(returnedAppointments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            isDeleted: true,
+            data: expect.objectContaining({
+              id: generatedAppointments[0].id,
+            }),
+          }),
+          expect.objectContaining({
+            isDeleted: true,
+            data: expect.objectContaining({
+              id: generatedAppointments[1].id,
+            }),
+          }),
+        ]),
+      );
     });
   });
 
@@ -1398,7 +1630,7 @@ describe('CentralSyncManager', () => {
       jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
       await models.DebugLog.truncate({ force: true });
-      await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
+      await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     });
 
     afterEach(async () => {
@@ -1460,7 +1692,7 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      const currentSyncTime = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+      const currentSyncTime = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
       await centralSyncManager.updateLookupTable();
 
@@ -1498,7 +1730,7 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.updateLookupTable();
       const lookupData2 = await models.SyncLookup.findAll({});
 
-      const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
+      const newCurrentSyncTime = (await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)) - 1;
 
       expect(lookupData2).toHaveLength(1);
       expect(lookupData2[0]).toEqual(
@@ -1542,7 +1774,7 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      const currentSyncTime = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+      const currentSyncTime = await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
       await centralSyncManager.updateLookupTable();
 
@@ -1580,7 +1812,7 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.updateLookupTable();
       const lookupData2 = await models.SyncLookup.findAll({});
 
-      const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
+      const newCurrentSyncTime = (await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)) - 1;
 
       expect(lookupData2).toHaveLength(2);
       expect(lookupData2.find((d) => d.recordType === 'patients')).toEqual(
@@ -1795,7 +2027,7 @@ describe('CentralSyncManager', () => {
     it('records info about updating sync_lookup in debug log', async () => {
       await models.Patient.create(fake(models.Patient));
 
-      await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, 6);
+      await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, 6);
 
       const centralSyncManager = initializeCentralSyncManager({
         sync: {

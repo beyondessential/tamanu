@@ -30,6 +30,11 @@ export const DateTimeRangePicker = ({
   /** Keep synchronised with start date field for overnight bookings */
   const flushChangeToStartDateField = e => void setFieldValue('startDate', e.target.value);
 
+  const clearStartEndTimes = () => {
+    setFieldValue('startTime', undefined);
+    setFieldValue('endTime', undefined);
+  };
+
   return (
     <>
       <Field
@@ -41,6 +46,7 @@ export const DateTimeRangePicker = ({
         onChange={e => {
           updateSelectedCell({ date: parseISO(e.target.value) });
           flushChangeToStartDateField(e);
+          clearStartEndTimes();
         }}
         required={required}
         saveDateAsString

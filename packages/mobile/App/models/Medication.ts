@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IMedication } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -36,10 +36,7 @@ export class Medication extends BaseModel implements IMedication {
   @RelationId(({ medication }) => medication)
   medicationId?: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.medications,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.medications)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;

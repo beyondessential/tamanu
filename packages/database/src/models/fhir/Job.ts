@@ -27,7 +27,7 @@ export class FhirJob extends Model {
         id: {
           ...primaryKey,
           type: DataTypes.UUID,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
         },
 
         // queue
@@ -55,7 +55,7 @@ export class FhirJob extends Model {
         discriminant: {
           type: DataTypes.TEXT,
           allowNull: false,
-          defaultValue: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('gen_random_uuid'),
           unique: true,
         },
 

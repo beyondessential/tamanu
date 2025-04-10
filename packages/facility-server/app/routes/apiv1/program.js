@@ -22,6 +22,7 @@ program.get(
     req.checkPermission('list', 'Program');
     const { models, ability } = req;
     const records = await models.Program.findAll({
+      order: [['name', 'ASC']],
       include: [
         {
           association: 'surveys',
@@ -57,6 +58,7 @@ programRelations.get(
         programId: params.id,
         visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
       },
+      order: [['name', 'ASC']],
     });
     const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
     const data = filteredRecords.map(x => x.forResponse());

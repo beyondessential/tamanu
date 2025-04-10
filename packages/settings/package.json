@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.25.0",
+  "version": "2.30.0",
   "private": true,
   "description": "BES - Settings",
   "main": "dist/cjs/index.js",
@@ -38,7 +38,7 @@
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "SEE LICENSE IN ../../license",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",

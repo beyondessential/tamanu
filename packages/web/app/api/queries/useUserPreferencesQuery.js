@@ -8,7 +8,7 @@ export const useUserPreferencesQuery = queryOptions => {
 
   return useQuery(
     ['userPreferences', currentUser?.id],
-    () => api.get(`user/userPreferences/${facilityId}`),
+    () => api.get(`user/userPreferences/${encodeURIComponent(facilityId)}`),
     queryOptions,
   );
 };

@@ -100,14 +100,17 @@ export const LocationBookingsCalendar = ({
     clinicianId?.length > 0 || bookingTypeId?.length > 0 || !!patientNameOrId;
   const { data: locations } = locationsQuery;
 
-  const { data: appointmentsData } = useLocationBookingsQuery({
-    after: toDateTimeString(displayedDates[0]),
-    before: toDateTimeString(endOfDay(displayedDates.at(-1))),
-    all: true,
-    clinicianId,
-    bookingTypeId,
-    patientNameOrId,
-  });
+  const { data: appointmentsData } = useLocationBookingsQuery(
+    {
+      after: toDateTimeString(displayedDates[0]),
+      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
+      all: true,
+      clinicianId,
+      bookingTypeId,
+      patientNameOrId,
+    },
+    { keepPreviousData: true },
+  );
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 

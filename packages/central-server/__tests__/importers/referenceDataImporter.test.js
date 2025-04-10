@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
@@ -382,6 +382,189 @@ describe('Data definition import', () => {
     });
     expect(expectedStringIds.length).toEqual(createdTranslationCount);
   });
+
+  it('should allow importing sensitive lab test types within the same lab test category', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-sensitive-lab-test-types',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'ReferenceData/labTestCategory': { created: 1, updated: 0, errored: 0 },
+      LabTestType: { created: 2, updated: 0, errored: 0 },
+    });
+  });
+
+  it('should allow updating lab test types if all from category have the same sensitivity', async () => {
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-SensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Sensitive category 1',
+      code: 'SENSITIVECATEGORY1',
+    });
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestOne',
+      name: 'STONE',
+      code: 'SensitiveTestOne',
+      isSensitive: false,
+    });
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestTwo',
+      name: 'STTWO',
+      code: 'SensitiveTestTwo',
+      isSensitive: false,
+    });
+
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-sensitive-lab-test-types',
+      dryRun: true,
+    });
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'ReferenceData/labTestCategory': { created: 0, updated: 1, errored: 0 },
+      LabTestType: { created: 0, updated: 2, errored: 0 },
+    });
+  });
+
+  it('should error if not all lab test types are sensitive within the same lab test category (on the same spreadsheet)', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-sensitive-lab-test-types',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestType',
+      -1,
+      'Only sensitive lab test types allowed in sensitive category',
+    );
+  });
+
+  it('should error importing non sensitive lab test type to category containing sensitive test types', async () => {
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-SensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Sensitive category 1',
+      code: 'SENSITIVECATEGORY1',
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      name: 'Sensitive test 1',
+      code: 'SENSITIVETEST1',
+      isSensitive: true,
+    });
+
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-non-sensitive-lab-test-type',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestType',
+      2,
+      "Cannot add non sensitive lab test type to sensitive category 'labTestCategory-SensitiveCategory'",
+    );
+  });
+
+  it('should error importing sensitive lab test type to category containing non sensitive test types', async () => {
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-NonSensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Non sensitive category 1',
+      code: 'NONSENSITIVECATEGORY1',
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      name: 'Non sensitive test 1',
+      code: 'NONSENSITIVETEST1',
+    });
+
+    // Try to add one non-sensitive lab test to previously uploaded sensitive category"
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-sensitive-lab-test-type',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestType',
+      2,
+      "Cannot add sensitive lab test type to non sensitive category 'labTestCategory-NonSensitiveCategory'",
+    );
+  });
+
+  it('should import a lab test panel', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-lab-test-panel',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'ReferenceData/labTestCategory': { created: 1, updated: 0, errored: 0 },
+      LabTestType: { created: 5, updated: 0, errored: 0 },
+      LabTestPanel: { created: 1, updated: 0, errored: 0 },
+    });
+  });
+
+  it('should not import a lab test panel with a sensitive test', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-lab-test-panel-complete',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestPanel',
+      -1,
+      'Lab test panels cannot contain sensitive lab test types',
+    );
+  });
+
+  it('should not import a lab test panel referencing a sensitive test', async () => {
+    await models.LabTestType.destroy({ where: {}, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
+    const labTestCategory = await models.ReferenceData.create({
+      id: 'labTestCategory-SensitiveCategory',
+      type: 'labTestCategory',
+      name: 'Sensitive category 1',
+      code: 'SENSITIVECATEGORY1',
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestOne',
+      name: 'STONE',
+      code: 'SensitiveTestOne',
+      isSensitive: true,
+    });
+
+    await models.LabTestType.create({
+      labTestCategoryId: labTestCategory.id,
+      id: 'labTestType-SensitiveTestTwo',
+      name: 'STTWO',
+      code: 'SensitiveTestTwo',
+      isSensitive: true,
+    });
+
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-lab-test-panel-partial',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'labTestPanel',
+      -1,
+      'Lab test panels cannot contain sensitive lab test types',
+    );
+  });
 });
 
 describe('Permissions import', () => {
@@ -578,6 +761,7 @@ describe('Import from an exported file', () => {
         2: REFERENCE_TYPES.ALLERGY,
         3: 'diagnosis',
       },
+      {},
       './exported-refdata-all-table.xlsx',
     );
 

@@ -96,7 +96,7 @@ describe('reportRoutes', () => {
       const res = await adminApp.get(`/api/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(2);
-      expect(res.body.map(x => x.id)).toEqual(expect.arrayContaining([v1.id, v2.id]));
+      expect(res.body.map((x) => x.id)).toEqual(expect.arrayContaining([v1.id, v2.id]));
     });
     it('shouldnt return unnecessary metadata', async () => {
       const { ReportDefinitionVersion } = models;
@@ -115,7 +115,7 @@ describe('reportRoutes', () => {
         'active',
         'createdBy',
       ];
-      const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
+      const additionalKeys = Object.keys(res.body[0]).filter((k) => !allowedKeys.includes(k));
       expect(additionalKeys).toHaveLength(0);
     });
   });
@@ -195,10 +195,7 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const newVersion = getMockReportVersion(
-        1,
-        'select * from patients limit 1',
-      );
+      const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
       delete newVersion.versionNumber;
 
       const res = await adminApp
@@ -403,7 +400,9 @@ describe('reportRoutes', () => {
     describe('verifyQuery', () => {
       it('should return true if query is valid', async () => {
         const query = 'select * from patients limit 1';
-        await expect(verifyQuery(query, { parameters: [] }, { store: ctx.store })).resolves.not.toThrow();
+        await expect(
+          verifyQuery(query, { parameters: [] }, { store: ctx.store }),
+        ).resolves.not.toThrow();
       });
       it('should return true if query is valid with paramDefinition', async () => {
         const query = 'select * from patients where id = :test limit 1';

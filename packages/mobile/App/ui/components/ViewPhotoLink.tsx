@@ -19,7 +19,14 @@ const MODAL_HEIGHT = Dimensions.get('window').width * 0.6;
 
 const Message = ({ color, message }): JSX.Element => (
   <StyledView background="white" justifyContent="center" height={MODAL_HEIGHT}>
-    <StyledText marginTop={0} marginBottom={0} marginLeft="auto" marginRight="auto" color={color} fontSize={15}>
+    <StyledText
+      marginTop={0}
+      marginBottom={0}
+      marginLeft="auto"
+      marginRight="auto"
+      color={color}
+      fontSize={15}
+    >
       {message}
     </StyledText>
   </StyledView>
@@ -35,7 +42,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   const openModalCallback = useCallback(async () => {
     setLoading(true);
     setShowModal(true);
-    const image = await models.Attachment.findOne({ id: imageId });
+    const image = await models.Attachment.findOne({ where: { id: imageId } });
     // Use local image if it still exist locally and has not been synced up
     if (image) {
       const localImageData = image.data.toString('base64');
@@ -111,11 +118,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   return (
     <View>
       <TouchableOpacity onPress={openModalCallback}>
-        <StyledText
-          fontWeight="bold"
-          color={theme.colors.BRIGHT_BLUE}
-          fontSize={18}
-        >
+        <StyledText fontWeight="bold" color={theme.colors.BRIGHT_BLUE} fontSize={18}>
           View Image
         </StyledText>
       </TouchableOpacity>
@@ -130,15 +133,8 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
             />
           </TouchableOpacity>
         )}
-        {errorMessage && (
-          <Message color={theme.colors.ALERT} message={errorMessage} />
-        )}
-        {loading && (
-          <Message
-            color={theme.colors.BRIGHT_BLUE}
-            message="Loading image..."
-          />
-        )}
+        {errorMessage && <Message color={theme.colors.ALERT} message={errorMessage} />}
+        {loading && <Message color={theme.colors.BRIGHT_BLUE} message="Loading image..." />}
         <FlashMessage position="top" />
       </Modal>
     </View>

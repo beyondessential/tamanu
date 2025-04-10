@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Certainty, IDiagnosis } from '~/types';
 import { Encounter } from './Encounter';
@@ -25,10 +25,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   @RelationId(({ diagnosis }) => diagnosis)
   diagnosisId?: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.diagnoses,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.diagnoses)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;

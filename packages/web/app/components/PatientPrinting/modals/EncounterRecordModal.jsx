@@ -89,7 +89,7 @@ const extractLocationHistory = (notes, encounterData) => {
     ];
   }
 
-  return history.map((location) => {
+  return history.map(location => {
     const locationArr = location.to?.split(/,\s+/);
     const hasLocationGroup = locationArr.length > 1;
     return {
@@ -100,7 +100,7 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
-const getDateTitleArray = (date) => {
+const getDateTitleArray = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
 
@@ -157,10 +157,15 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   ]);
 
   const modalProps = {
-    title: (
+    title: discharge ? (
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter Record"
+      />
+    ) : (
+      <TranslatedText
+        stringId="patient.modal.print.encounterProgressRecord.title"
+        fallback="Patient Encounter Progress Record"
       />
     ),
     color: Colors.white,
@@ -171,7 +176,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   };
 
   if (allQueries.isError) {
-    if (allQueries.errors.some((e) => e instanceof ForbiddenError)) {
+    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
       return (
         <Modal {...modalProps}>
           <ForbiddenErrorModalContents onClose={onClose} />
@@ -201,7 +206,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Filter and sort diagnoses: remove error/cancelled diagnosis, sort by whether it is primary and then date
   const diagnoses = encounter.diagnoses
-    .filter((diagnosis) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(diagnosis.certainty))
+    .filter(diagnosis => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(diagnosis.certainty))
     .sort((a, b) => {
       if (a.isPrimary !== b.isPrimary) {
         return a.isPrimary ? -1 : 1;
@@ -221,9 +226,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const updatedLabRequests = [];
   if (labRequests) {
-    labRequests.data.forEach((labRequest) => {
+    labRequests.data.forEach(labRequest => {
       if (!labFilterStatuses.includes(labRequest.status)) {
-        labRequest.tests.forEach((test) => {
+        labRequest.tests.forEach(test => {
           updatedLabRequests.push({
             testType: test.labTestType.name,
             testCategory: labRequest.category?.name,
@@ -248,39 +253,54 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const imagingRequests = imagingRequestsData
     .filter(({ status }) => !imagingStatusesToExclude.includes(status))
-    .map((imagingRequest) => ({
+    .map(imagingRequest => ({
       ...imagingRequest,
       imagingName: imagingTypeNames[imagingRequest.imagingType],
     }));
 
   // Remove discontinued medications and sort by date
   const medications = encounter.medications
-    .filter((medication) => !medication.discontinued)
+    .filter(medication => !medication.discontinued)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  const displayNotes = notes.filter((note) => {
+  const displayNotes = notes.filter(note => {
     return note.noteType !== NOTE_TYPES.SYSTEM;
   });
 
-  const systemNotes = notes.filter((note) => {
+  const systemNotes = notes.filter(note => {
     return note.noteType === NOTE_TYPES.SYSTEM;
   });
 
-  const locationSystemNotes = systemNotes.filter((note) => {
+  const locationSystemNotes = systemNotes.filter(note => {
     return note.content.match(locationNoteMatcher);
   });
   const locationHistory = locationSystemNotes
     ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
-  const encounterTypeSystemNotes = systemNotes.filter((note) => {
+  const encounterTypeSystemNotes = systemNotes.filter(note => {
     return note.content.match(encounterTypeNoteMatcher);
   });
   const encounterTypeHistory = encounterTypeSystemNotes
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
-  const getVitalsColumn = (startIndex) => {
+  const formatValue = (value, config) => {
+    const { rounding = 0, unit = '' } = config || {};
+    const float = Number.parseFloat(value);
+
+    if (isNaN(float)) {
+      return value || '—'; // em dash
+    }
+
+    const unitSuffix = unit && unit.length <= 2 ? unit : '';
+    if (rounding > 0 || rounding === 0) {
+      return `${float.toFixed(rounding)}${unitSuffix}`;
+    }
+    return `${float}${unitSuffix}`;
+  };
+
+  const getVitalsColumn = startIndex => {
     const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
     return [
       {
@@ -291,12 +311,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       },
       ...dateArray
         .sort((a, b) => b.localeCompare(a))
-        .map((date) => ({
+        .map(date => ({
           title: getDateTitleArray(date),
           key: date,
-          accessor: (cells) => {
-            const { value } = cells[date];
-            return value || '-';
+          accessor: cells => {
+            const { value, config } = cells[date];
+            return formatValue(value, config);
           },
           style: { width: 60 },
         })),

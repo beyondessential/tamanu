@@ -1,5 +1,5 @@
 import { createTestContext } from '../utilities';
-import { fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
+import { fakeReferenceData } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 
@@ -64,14 +64,14 @@ async function prepopulate(models) {
   const { ReferenceData, ReferenceDataRelation } = models;
 
   await ReferenceData.bulkCreate(
-    referenceData.map(refRecord => ({
+    referenceData.map((refRecord) => ({
       ...fakeReferenceData(),
       ...refRecord,
     })),
   );
 
   await ReferenceDataRelation.bulkCreate(
-    relationData.map(relData => ({
+    relationData.map((relData) => ({
       id: fakeUUID(),
       type: REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY,
       ...relData,
@@ -102,7 +102,7 @@ describe('Reference Data Hierarchy', () => {
     const entity = await models.ReferenceData.findByPk('village4');
     const ancestors = await entity.getAncestors(REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY);
     expect(ancestors.length).toEqual(3);
-    expect(ancestors.map(ancestor => ancestor.id)).toEqual([
+    expect(ancestors.map((ancestor) => ancestor.id)).toEqual([
       'country1',
       'division1',
       'subdivision2',

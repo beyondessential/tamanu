@@ -29,7 +29,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
   const [referrals, error] = useBackendEffect(
     async ({ models }) => {
       const referrals = (await models.Referral.getForPatient(selectedPatient.id)) || [];
-      return referrals.filter(referral =>
+      return referrals.filter((referral) =>
         ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
       );
     },
@@ -54,7 +54,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
               title={`${survey.name} (${formatStringDate(startTime, DateFormats.DDMMYY)})`}
               left={(props): ReactElement => <List.Icon {...props} icon="clipboard-plus-outline" />}
             >
-              {answers.map(answer => (
+              {answers.map((answer) => (
                 <List.Item
                   key={answer.id}
                   title={answer.dataElement.defaultText}

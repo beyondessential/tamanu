@@ -85,8 +85,8 @@ appointments.post(
       settings,
     } = req;
     const { Appointment } = models;
-    await db.transaction(async () => {
-      const result = scheduleData
+    const result = await db.transaction(async () => {
+      const appointment = scheduleData
         ? (
             await Appointment.createWithSchedule({
               settings: settings[facilityId],
@@ -99,15 +99,17 @@ appointments.post(
       const { email } = appointmentData;
       if (email) {
         await sendAppointmentReminder({
-          appointmentId: result.id,
+          appointmentId: appointment.id,
           email,
           facilityId,
           models,
           settings,
         });
       }
-      res.status(201).send(result);
+
+      return appointment;
     });
+    res.status(201).send(result);
   }),
 );
 
@@ -136,7 +138,7 @@ appointments.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Appointment');
     const { models, body, params, settings } = req;
-    const { schedule: scheduleData, facilityId, modifyRepeatingMode, ...appointmentData } = body;
+    const { schedule: scheduleData, facilityId, modifyMode, ...appointmentData } = body;
 
     const { id } = params;
     const { Appointment } = models;
@@ -146,12 +148,16 @@ appointments.put(
     }
 
     const result = await req.db.transaction(async () => {
-      if (modifyRepeatingMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+      if (modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
         const existingSchedule = await appointment.getSchedule();
         if (!existingSchedule) {
           throw new Error('Cannot update future appointments for a non-recurring appointment');
         }
-        if (scheduleData) {
+        if (
+          existingSchedule.isDifferentFromSchedule(scheduleData) ||
+          appointmentData.startTime !== appointment.startTime ||
+          appointmentData.endTime !== appointment.endTime
+        ) {
           // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
           // To do this we cancel this and all future appointments and mark existing schedule as ended
           await existingSchedule.endAtAppointment(appointment);
@@ -165,7 +171,7 @@ appointments.put(
             return { schedule };
           }
         } else {
-          // No scheduleData provided, so this is a simple change that doesn't require deleting and regenerating future appointments
+          // No scheduleData or appointment time change, so this is a simple change that doesn't require deleting and regenerating future appointments
           await existingSchedule.modifyFromAppointment(
             appointment,
             // When modifying all future appointments we strip startTime, and endTime

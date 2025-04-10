@@ -19,6 +19,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -94,8 +95,10 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
 };
 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
+  const { ability } = useAuth();
+  const canListSensitive = ability.can('create', 'SensitiveLabRequest');
   const [data, error] = useBackendEffect(
-    ({ models }) => models.LabRequest.getForPatient(selectedPatient.id),
+    ({ models }) => models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
     [selectedPatient],
   );
 

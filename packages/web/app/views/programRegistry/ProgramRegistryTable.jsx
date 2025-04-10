@@ -4,26 +4,29 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
+import { useTranslation } from '../../contexts/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const { getTranslation } = useTranslation();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
       {
         key: 'registrationStatus',
+        title: '',
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
@@ -61,20 +64,14 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'homeVillage',
         title: (
-          <TranslatedText
-            stringId="programRegistry.table.column.homeVillage"
-            fallback="Home village"
-          />
+          <TranslatedText stringId="programRegistry.homeVillage.label" fallback="Home village" />
         ),
         accessor: ({ patient }) => patient.village.name,
       },
       {
         key: 'currentlyIn',
         title: (
-          <TranslatedText
-            stringId="programRegistry.table.column.currentlyIn"
-            fallback="Currently in"
-          />
+          <TranslatedText stringId="programRegistry.currentlyIn.label" fallback="Currently in" />
         ),
         accessor: row => {
           if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
@@ -86,16 +83,19 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'conditions',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.conditions"
+            stringId="programRegistry.relatedConditions.label"
             fallback="Related conditions"
           />
         ),
         sortable: false,
         accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
-            : '';
-          return conditionsText;
+          return conditions
+            ?.map(condition => {
+              const { id, name } = condition;
+              return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+            })
+            .sort((a, b) => b.localeCompare(a))
+            .join(', ');
         },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
@@ -104,7 +104,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'registeringFacility',
         title: (
           <TranslatedText
-            stringId="programRegistry.table.column.registeringFacility"
+            stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
           />
         ),
@@ -129,14 +129,13 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'clinicalStatus',
-        title: <TranslatedText stringId="general.status.label" fallback="Status" />,
-        accessor: row => {
-          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
-        },
+        title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
+        CellComponent: ClinicalStatusCell,
         maxWidth: 200,
       },
       {
         key: 'actions',
+        title: '',
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
@@ -210,7 +209,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
-        noDataMessage="No Program registry found"
+        noDataMessage={
+          <TranslatedText
+            stringId="programRegistry.registryTable.noDataMessage"
+            fallback="No program registry found"
+          />
+        }
         onRowClick={selectRegistration}
         fetchOptions={searchParameters}
         rowStyle={({ patient }) => {

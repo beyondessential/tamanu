@@ -1,0 +1,50 @@
+version: 2
+sources:
+  - name: fhir__tamanu
+    schema: fhir
+    description: "{{ doc('fhir__generic__schema') }}"
+    tables:
+      - name: specimens
+        description: '{{ doc("fhir__table__specimens") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__id') }} in specimens."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__version_id') }} in specimens."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying(255)
+            description: "{{ doc('fhir__generic__upstream_id') }} in specimens."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__generic__last_updated') }} in specimens."
+            data_tests:
+              - not_null
+          - name: collection
+            data_type: jsonb
+            description: "{{ doc('fhir__specimens__collection') }}"
+          - name: request
+            data_type: jsonb
+            description: "{{ doc('fhir__specimens__request') }}"
+          - name: type
+            data_type: jsonb
+            description: "{{ doc('fhir__specimens__type') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in specimens."
+            data_tests:
+              - not_null
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in specimens."
+            data_tests:
+              - not_null

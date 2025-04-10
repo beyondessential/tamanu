@@ -21,6 +21,7 @@ import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingM
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
 import { useAuth } from '../../contexts/Auth';
+import { CompactContentPane as ContentPane } from '../ContentPane';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -124,9 +125,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 6px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 11px 6px;
     &:first-child {
       position: relative;
       padding-left: 10px;
@@ -154,6 +153,8 @@ const StyledTable = styled(Table)`
       }
       position: relative;
       border-bottom: none;
+      padding-top: 0;
+      padding-bottom: 0;
       &:before {
         content: '';
         position: absolute;
@@ -205,6 +206,7 @@ const DateText = styled.div`
 `;
 
 const NoDataContainer = styled.div`
+  margin: 10px 30px;
   padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
@@ -293,14 +295,17 @@ export const LocationBookingsTable = ({ patient }) => {
     initialSortDirection: 'asc',
   });
 
-  const allAppointments = useLocationBookingsQuery(
-    {
-      all: true,
-      patientId: patient?.id,
-      after: '1970-01-01 00:00',
-    },
-  ).data?.data ?? [];
+  // Query to check if there are past location bookings
+  const pastBookingsQuery = useLocationBookingsQuery({
+    patientId: patient?.id,
+    before: getCurrentDateTimeString(),
+    after: '1970-01-01 00:00',
+    rowsPerPage: 1,
+  });
+  
+  const hasPastBookings = (pastBookingsQuery.data?.data?.length || 0) > 0;
 
+  // Query for future bookings
   const { data, isLoading } = useLocationBookingsQuery(
     {
       all: true,
@@ -384,7 +389,9 @@ export const LocationBookingsTable = ({ patient }) => {
       : []),
   ];
 
-  if (!allAppointments.length) {
+  const hasAnyBookings = hasPastBookings || appointments.length > 0;
+  
+  if (!hasAnyBookings) {
     return null;
   }
 
@@ -411,7 +418,7 @@ export const LocationBookingsTable = ({ patient }) => {
   }
 
   return (
-    <div>
+    <ContentPane>
       <StyledTable
         isLoading={isLoading}
         data={appointments}
@@ -426,6 +433,7 @@ export const LocationBookingsTable = ({ patient }) => {
               />
             }
             openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
+            hasPastBookings={hasPastBookings}
           />
         }
         onClickRow={handleRowClick}
@@ -444,6 +452,6 @@ export const LocationBookingsTable = ({ patient }) => {
           onClose={() => setIsViewPastBookingsModalOpen(false)}
         />
       )}
-    </div>
+    </ContentPane>
   );
 };

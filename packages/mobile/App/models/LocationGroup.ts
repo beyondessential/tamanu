@@ -1,5 +1,4 @@
-import { Column, OneToMany, RelationId } from 'typeorm';
-import { Entity, ManyToOne } from 'typeorm/browser';
+import { Column, OneToMany, RelationId, Entity, ManyToOne } from 'typeorm';
 import { IFacility, ILocationGroup } from '../types';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
@@ -26,9 +25,6 @@ export class LocationGroup extends BaseModel implements ILocationGroup {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(
-    () => Location,
-    ({ locationGroup }) => locationGroup,
-  )
+  @OneToMany(() => Location, ({ locationGroup }) => locationGroup)
   locations: Location[];
 }

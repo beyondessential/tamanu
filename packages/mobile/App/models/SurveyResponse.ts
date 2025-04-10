@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
 
 import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
@@ -37,7 +37,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
+    (q) => q.dataElement.type === FieldTypes.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const config = question.getConfigObject();
@@ -88,7 +88,7 @@ async function writeToPatientFields(
 
   if (valuesByModel.PatientProgramRegistration) {
     const facilityId = await readConfig('facilityId', '');
-    const { programId } = await Survey.findOne({ id: surveyId });
+    const { programId } = await Survey.findOne({ where: { id: surveyId } });
     const programRegistryDetail = await ProgramRegistry.findOne({
       where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
     });
@@ -124,45 +124,34 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ nullable: true })
   notified?: boolean;
 
-  @ManyToOne(
-    () => Survey,
-    survey => survey.responses,
-  )
+  @ManyToOne(() => Survey, (survey) => survey.responses)
   survey: Survey;
 
   @RelationId(({ survey }) => survey)
   surveyId: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.surveyResponses,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.surveyResponses)
   encounter: Encounter;
 
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @OneToMany(
-    () => Referral,
-    referral => referral.surveyResponse,
-  )
+  @OneToMany(() => Referral, (referral) => referral.surveyResponse)
   referral: Referral;
 
-  @OneToMany(
-    () => SurveyResponseAnswer,
-    answer => answer.response,
-  )
+  @OneToMany(() => SurveyResponseAnswer, (answer) => answer.response)
   answers: SurveyResponseAnswer[];
 
-  static async getFullResponse(surveyId: string) {
+  static async getFullResponse(surveyResponseId: string) {
     const repo = this.getRepository();
-    const response = await repo.findOne(surveyId, {
+    const response = await repo.findOne({
+      where: { id: surveyResponseId },
       relations: ['survey', 'encounter', 'encounter.patient'],
     });
     const questions = await response.survey.getComponents({ includeAllVitals: true });
     const answers = await SurveyResponseAnswer.getRepository().find({
       where: {
-        response: response.id,
+        response: { id: response.id },
       },
       relations: ['dataElement'],
     });
@@ -184,7 +173,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     return getConnection().transaction(async () => {
       const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
-      const survey = await Survey.findOne({ id: surveyId });
+      const survey = await Survey.findOne({ where: { id: surveyId } });
       if (!survey) throw new Error(`Survey with id ${surveyId} not found`);
 
       try {
@@ -228,7 +217,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
         for (const a of Object.entries(finalValues)) {
           const [dataElementCode, value] = a;
-          const component = components.find(c => c.dataElement.code === dataElementCode);
+          const component = components.find((c) => c.dataElement.code === dataElementCode);
           if (!component) {
             // better to fail entirely than save partial data
             throw new Error(

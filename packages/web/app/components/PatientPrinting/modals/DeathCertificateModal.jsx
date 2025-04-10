@@ -5,11 +5,14 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
+import { useTranslation } from '../../../contexts/Translation';
+import { TranslatedText } from '../../Translation';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { getLocalisation } = useLocalisation();
+  const { storedLanguage, translations } = useTranslation();
 
   const {
     data: additionalData,
@@ -18,14 +21,22 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
-  const patientData = { ...patient, ...deathData, additionalData };
+  const villageQuery = useReferenceDataQuery(patient?.villageId);
+  const village = villageQuery.data;
+
+  const patientData = { ...patient, ...deathData, additionalData, village };
 
   const isLoading = isAdditionalDataFetching || isCertificateFetching;
 
   return (
     <>
       <Modal
-        title="Cause of death certificate"
+        title={
+          <TranslatedText
+            stringId="death.modal.deathCertificate.title"
+            fallback="Cause of death certificate"
+          />
+        }
         open={isOpen}
         onClose={() => setIsOpen(false)}
         width="md"
@@ -37,11 +48,16 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             patientData={patientData}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
+            language={storedLanguage}
+            translations={translations}
           />
         </PDFLoader>
       </Modal>
       <Button variant="contained" color="primary" onClick={() => setIsOpen(true)}>
-        View death certificate
+        <TranslatedText
+          stringId="death.action.viewDeathCertificate"
+          fallback="View death certificate"
+        />
       </Button>
     </>
   );

@@ -54,12 +54,13 @@ const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
     $isToday &&
     css`
       --base-font-weight: 500;
-      background-color: color-mix(in oklab, white 100%, ${Colors.primary} 10%);
+      background-color: ${Colors.primary};
+      color: ${Colors.white};
     `}
 `;
 
 const Weekday = styled.p`
-  color: ${Colors.midText};
+  color: ${({ $isToday = false }) => ($isToday ? Colors.white : Colors.midText)};
   font-variant-caps: all-small-caps;
   font-weight: calc(var(--base-font-weight) + 100);
   letter-spacing: 0.1em;
@@ -67,14 +68,15 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
+  const isToday = isSameDay(date, startOfToday());
   return (
     <HeaderCell
       $dim={dim}
-      $isToday={isSameDay(date, startOfToday())}
+      $isToday={isToday}
       dateTime={formatISO(date, { representation: 'date' })}
       {...props}
     >
-      <Weekday>{formatWeekdayShort(date)}</Weekday>
+      <Weekday $isToday={isToday}>{formatWeekdayShort(date)}</Weekday>
       {formatShort(date)}
     </HeaderCell>
   );
@@ -92,7 +94,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const isFirstDisplayedDate = (date) => isSameDay(date, displayedDates[0]);
+  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
   const location = useLocation();
@@ -120,12 +122,12 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
         <StyledMonthPicker key={monthPickerRefreshKey} value={monthOf} onChange={setMonthOf} />
         <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
       </StyledFirstHeaderCell>
-      {displayedDates.map((d) => {
+      {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
           ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-            ? FIRST_DISPLAYED_DAY_ID
-            : null;
+          ? FIRST_DISPLAYED_DAY_ID
+          : null;
         return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
       })}
     </CarouselGrid.HeaderRow>

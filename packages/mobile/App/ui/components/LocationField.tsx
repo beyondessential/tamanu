@@ -36,7 +36,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
   useEffect(() => {
     if (values.locationId && !values.locationGroupId) {
       (async (): Promise<void> => {
-        const location = await models.Location.findOne(values.locationId);
+        const location = await models.Location.findOne({ where: { id: values.locationId } });
         const newValues = { ...values, locationGroupId: location.locationGroupId };
         setValues(newValues);
       })();

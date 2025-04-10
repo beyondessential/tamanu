@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { DevSettings } from 'react-native';
 import { readConfig, writeConfig } from '~/services/config';
 import { useBackend } from '../hooks';
@@ -17,7 +11,7 @@ interface FacilityContextData {
 
 const FacilityContext = createContext<FacilityContextData>({
   facilityId: null,
-  facilityName: "Unmounted context",
+  facilityName: 'Unmounted context',
   assignFacility: () => Promise.resolve(null),
 });
 
@@ -32,7 +26,7 @@ export const FacilityProvider = ({ children }) => {
       const id = await readConfig('facilityId', '');
       if (id) {
         setFacilityId(id);
-        const facility = await models.Facility.findOne(id);
+        const facility = await models.Facility.findOne({ where: { id } });
         if (!facility) {
           // Should only occur in the following scenarios:
           // 1. app was killed immediately after logging in, before it could sync facilities
@@ -49,11 +43,14 @@ export const FacilityProvider = ({ children }) => {
     })();
   }, [setFacilityId]);
 
-  const assignFacility = useCallback((facilityId, facilityName) => {
-    setFacilityId(facilityId);
-    setFacilityName(facilityName);
-    return writeConfig('facilityId', facilityId);
-  }, [setFacilityId]);
+  const assignFacility = useCallback(
+    (facilityId, facilityName) => {
+      setFacilityId(facilityId);
+      setFacilityName(facilityName);
+      return writeConfig('facilityId', facilityId);
+    },
+    [setFacilityId],
+  );
 
   if (__DEV__) {
     DevSettings.addMenuItem('Clear facility', async () => {
@@ -63,12 +60,14 @@ export const FacilityProvider = ({ children }) => {
   }
 
   return (
-    <FacilityContext.Provider value={{
-      facilityId,
-      facilityName,
-      assignFacility
-    }}>
+    <FacilityContext.Provider
+      value={{
+        facilityId,
+        facilityName,
+        assignFacility,
+      }}
+    >
       {children}
     </FacilityContext.Provider>
   );
-}
+};

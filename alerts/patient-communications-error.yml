@@ -2,22 +2,21 @@ sql: |
   SELECT *
   FROM patient_communications
   WHERE status = 'Error'
-  AND created_at > $1;
+  AND created_at > $1
+  ORDER BY created_at DESC
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] Patient communication error ({{ hostname }})'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <h1>Patient communication errored</h1>
-      <p>There are {{ rows | length }} Patient communications that have failed to process.</p>
-      <ul>
-        {% for row in rows | slice(end=5) %}
-        <li><b>{{ row.id }}</b>: {{ row.type }} - <i>{{ row.error }}</i></li>
-        {% endfor %}
-        {% if rows | length > 5 %}
-        <li>... and {{ rows | length - 5 }} more</li>
-        {% endif %}
-      </ul>
-      <p>For more information, please check the logs.</p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      There are {{ rows | length }} patient communications that have failed to process:
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.id }}**: (*{{ row.type }}*) {{ row.error }}
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

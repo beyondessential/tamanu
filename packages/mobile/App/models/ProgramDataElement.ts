@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm/browser';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { DataElementType, IProgramDataElement } from '~/types';
@@ -24,15 +24,12 @@ export class ProgramDataElement extends BaseModel implements IProgramDataElement
   @Column('text')
   type: DataElementType;
 
-  @OneToMany(
-    () => SurveyResponseAnswer,
-    answer => answer.dataElement,
-  )
+  @OneToMany(() => SurveyResponseAnswer, (answer) => answer.dataElement)
   answers: SurveyResponseAnswer[];
 
   @OneToOne(
     () => SurveyScreenComponent,
-    surveyScreenComponent => surveyScreenComponent.dataElement,
+    (surveyScreenComponent) => surveyScreenComponent.dataElement,
   )
   surveyScreenComponent: SurveyScreenComponent;
 }

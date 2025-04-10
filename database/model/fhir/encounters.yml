@@ -1,0 +1,65 @@
+version: 2
+sources:
+  - name: fhir__tamanu
+    schema: fhir
+    description: "{{ doc('fhir__generic__schema') }}"
+    tables:
+      - name: encounters
+        description: '{{ doc("fhir__table__encounters") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__id') }} in encounters."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__version_id') }} in encounters."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying(255)
+            description: "{{ doc('fhir__generic__upstream_id') }} in encounters."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__generic__last_updated') }} in encounters."
+            data_tests:
+              - not_null
+          - name: status
+            data_type: text
+            description: "{{ doc('fhir__encounters__status') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - in-progress
+                    - discharged
+          - name: class
+            data_type: jsonb
+            description: "{{ doc('fhir__encounters__class') }}"
+          - name: actual_period
+            data_type: jsonb
+            description: "{{ doc('fhir__encounters__actual_period') }}"
+          - name: subject
+            data_type: jsonb
+            description: "{{ doc('fhir__encounters__subject') }}"
+          - name: location
+            data_type: jsonb
+            description: "{{ doc('fhir__encounters__location') }}"
+          - name: service_provider
+            data_type: jsonb
+            description: "{{ doc('fhir__encounters__service_provider') }}"
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in encounters."
+            data_tests:
+              - not_null
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in encounters."
+            data_tests:
+              - not_null

@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { createTestContext } from '../utilities';
@@ -479,9 +479,10 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${thirdAppointment.id}`).send({
         startTime: '2024-10-16 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -503,9 +504,10 @@ describe('Appointments', () => {
 
       await userApp.put(`/api/appointments/${firstAppointment.id}`).send({
         startTime: '2024-10-02 12:00:00',
+        endTime: null,
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -517,7 +519,7 @@ describe('Appointments', () => {
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close the existing one if schedule data is supplied when updating a mid schedule appointment', async () => {
+    it('should create a new schedule and close the existing one if schedule data has changed when updating a mid schedule appointment', async () => {
       const { schedule, appointments } = await generateSchedule();
       const thirdAppointment = appointments[2];
 
@@ -534,64 +536,50 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: thirdAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
       expect(result.body.schedule).toBeTruthy();
 
-      const updatedExistingSchedule = await models.AppointmentSchedule.findOne({
+      const updatedExistingSchedule = await models.AppointmentSchedule.findByPk(schedule.id);
+      const updatedExistingScheduleAppointments = await updatedExistingSchedule.getAppointments({
         where: {
-          id: schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-            where: {
-              status: {
-                [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
-              },
-            },
+          status: {
+            [Op.not]: APPOINTMENT_STATUSES.CANCELLED,
           },
-        ],
+        },
+        order: [['startTime', 'ASC']],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-09');
-      expect(updatedExistingSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
+      expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
       ]);
       expect(
-        updatedExistingSchedule.appointments.every(
+        updatedExistingScheduleAppointments.every(
           (a) => a.appointmentTypeId === 'appointmentType-standard',
         ),
       ).toBeTruthy();
 
-      const newSchedule = await models.AppointmentSchedule.findOne({
-        where: {
-          id: result.body.schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-          },
-        ],
+      const newScheduleAppointments = await models.Appointment.findAll({
+        where: { scheduleId: result.body.schedule.id },
+        order: [['startTime', 'ASC']],
       });
 
-      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
         '2024-11-06 12:00:00',
       ]);
       expect(
-        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
-    it('should create a new schedule and close the existing one if schedule data is supplied when updating the first appointment in schedule', async () => {
+    it('should create a new schedule and close the existing one if schedule data has changed when updating the first appointment in schedule', async () => {
       const { schedule, appointments } = await generateSchedule();
       const firstAppointment = appointments[0];
 
@@ -608,7 +596,7 @@ describe('Appointments', () => {
         appointmentTypeId: 'appointmentType-specialist',
         facilityId,
         id: firstAppointment.id,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
 
       expect(result).toHaveSucceeded();
@@ -632,27 +620,19 @@ describe('Appointments', () => {
         ],
       });
 
-      expect(updatedExistingSchedule.untilDate).toEqual('2024-10-02');
+      expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-02');
       expect(updatedExistingSchedule.appointments).toHaveLength(0);
 
-      const newSchedule = await models.AppointmentSchedule.findOne({
-        where: {
-          id: result.body.schedule.id,
-        },
-        include: [
-          {
-            model: models.Appointment,
-            as: 'appointments',
-          },
-        ],
+      const newScheduleAppointments = await models.Appointment.findAll({
+        where: { scheduleId: result.body.schedule.id },
+        order: [['startTime', 'ASC']],
       });
-
-      expect(newSchedule.appointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
       expect(
-        newSchedule.appointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
   });
@@ -691,7 +671,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],
@@ -711,7 +691,7 @@ describe('Appointments', () => {
         },
       });
 
-      expect(updatedSchedule.untilDate).toEqual('2024-10-09');
+      expect(updatedSchedule.cancelledAtDate).toEqual('2024-10-09');
     });
     it('should delete just the selected appointment if "this appointment" selected', async () => {
       const [schedule, appointments] = await generateSchedule();
@@ -721,7 +701,7 @@ describe('Appointments', () => {
         schedule: scheduleData,
         status: APPOINTMENT_STATUSES.CANCELLED,
         facilityId,
-        modifyRepeatingMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
+        modifyMode: MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT,
       });
       const appointmentsInSchedule = await schedule.getAppointments({
         order: [['startTime', 'ASC']],

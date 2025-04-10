@@ -78,13 +78,16 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
 
       const where = {
         [Op.or]: [
           whereQuery,
           {
-            id: { [Op.in]: suggestedIds },
+            // Wrap inside AND block to avoid being overwritten by whereQuery results
+            [Op.and]: {
+              id: { [Op.in]: suggestedIds },
+            },
             ...omit(whereQuery, 'name'),
           },
         ],
@@ -342,19 +345,24 @@ createSuggester(
       const types = query.types;
       if (!types?.length) return;
 
-      const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+      const caseStatement = types
+        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
         .join(' ');
 
       return [
         Sequelize.literal(`
-        CASE "ReferenceData"."type"
-          ${caseStatement}
-          ELSE ${query.types.length + 1}
-        END
-      `),
+          CASE "ReferenceData"."type"
+            ${caseStatement}
+            ELSE ${types.length + 1}
+          END
+        `),
       ];
     },
+    extraReplacementsBuilder: (query) =>
+      query.types.reduce((acc, value, index) => {
+        acc[`type${index}`] = value;
+        return acc;
+      }, {}),
     mapper: (item) => item,
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
@@ -545,38 +553,101 @@ createSuggester(
   },
 );
 
+// Remove whitespace from the start and end of each string then combine with a space in between
+// E.g. 'William ' + 'Horoto' => 'William Horoto'
+const trimAndConcat = (col1, col2) =>
+  Sequelize.fn(
+    'concat',
+    Sequelize.fn('trim', Sequelize.col(col1)),
+    ' ',
+    Sequelize.fn('trim', Sequelize.col(col2)),
+  );
 createSuggester(
   'patient',
   'Patient',
   (search) => ({
     [Op.or]: [
-      Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
-        { [Op.iLike]: search },
-      ),
+      Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
+      Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  { mapper: (patient) => patient, searchColumn: 'first_name' },
+  {
+    mapper: (patient) => patient,
+    searchColumn: 'first_name',
+    orderBuilder: (req) => {
+      const searchQuery = (req.query.q || '').trim().toLowerCase();
+      const escapedQuery = req.db.escape(searchQuery);
+      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+      return Sequelize.literal(`
+          CASE
+            WHEN LOWER(display_id) = ${escapedQuery} THEN 0
+            WHEN LOWER(display_id) LIKE ${escapedPartialMatch} THEN 1
+            WHEN LOWER(TRIM(first_name) || ' ' || TRIM(last_name)) LIKE ${escapedPartialMatch} THEN 2
+            WHEN LOWER(TRIM(last_name) || ' ' || TRIM(first_name)) LIKE ${escapedPartialMatch} THEN 3
+            ELSE 4
+          END
+        `);
+    },
+  },
 );
 
-// Specifically fetches lab test categories that have a lab request against a patient
 createSuggester(
-  'patientLabTestCategories',
+  'nonSensitiveLabTestCategory',
   'ReferenceData',
-  (search, query) => {
+  (search) => {
     const baseWhere = DEFAULT_WHERE_BUILDER(search);
-
-    if (!query.patientId) {
-      return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
-    }
-
     return {
       ...baseWhere,
       type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
       id: {
         [Op.in]: Sequelize.literal(
           `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS FALSE
+          )`,
+        ),
+      },
+    };
+  },
+);
+
+createSuggester(
+  'sensitiveLabTestCategory',
+  'ReferenceData',
+  (search) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: {
+        [Op.in]: Sequelize.literal(
+          `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS TRUE
+          )`,
+        ),
+      },
+    };
+  },
+);
+
+// Specifically fetches lab test categories that have a lab request against a patient
+createSuggester(
+  'patientLabTestCategories',
+  'ReferenceData',
+  (search, query, req) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+
+    if (!query.patientId) {
+      return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
+    }
+
+    const idBaseFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
           SELECT DISTINCT(lab_test_category_id)
           FROM lab_requests
           INNER JOIN
@@ -586,8 +657,33 @@ createSuggester(
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
-        ),
-      },
+      ),
+    };
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const idSensitiveFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_types.lab_test_category_id)
+          FROM lab_requests
+          INNER JOIN encounters
+            ON (encounters.id = lab_requests.encounter_id)
+          INNER JOIN lab_tests
+            ON (lab_requests.id = lab_tests.lab_request_id)
+          INNER JOIN lab_test_types
+            ON (lab_test_types.id = lab_tests.lab_test_type_id)
+          WHERE lab_requests.status = :lab_request_status
+            AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
+            AND lab_test_types.is_sensitive IS FALSE
+        )`,
+      ),
+    };
+
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: canListSensitive ? idBaseFilter : idSensitiveFilter,
     };
   },
   {
@@ -703,31 +799,40 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.patientId) {
-    return baseWhere;
-  }
+createNameSuggester(
+  'programRegistry',
+  'ProgramRegistry',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    // Only suggest program registries this patient isn't already part of
-    id: {
-      [Op.notIn]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = '${query.patientId}'
+            ppr.patient_id = :patient_id
           AND
             ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: (query) => ({
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');

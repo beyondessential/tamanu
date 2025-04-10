@@ -231,6 +231,27 @@ export const globalSettings = {
             },
           },
         },
+        disableInputPasting: {
+          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        discharge: {
+          description:
+            'Encounter discharge configuration',
+          properties: {
+            dischargeNoteMandatory: {
+              type: yup.boolean(),
+              defaultValue: false,
+              unit: 'seconds',
+            },
+            dischargeDiagnosisMandatory: {
+              description: 'Require at least one diagnosis to be selected before discharging',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
       },
     },
     customisations: {
@@ -1268,6 +1289,16 @@ export const globalSettings = {
       description: 'Customise the options available for vital reason for edit',
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+    },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: 'Settings for the time frame of recent notifications',
+          type: yup.number(),
+          defaultValue: 48,
+        }
+      }
     },
   },
 };

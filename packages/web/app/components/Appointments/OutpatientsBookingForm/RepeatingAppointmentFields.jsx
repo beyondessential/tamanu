@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormControlLabel';
 import Radio, { radioClasses } from '@mui/material/Radio';
@@ -25,7 +25,7 @@ import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescrip
 
 const Container = styled('div')`
   width: 100%;
-  background: ${Colors.white};
+  background: ${({ readonly }) => (readonly ? Colors.background : Colors.white)};
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -58,14 +58,29 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
     }
     width: 108px;
     margin-block-start: 20px;
+    & .MuiInputBase-input {
+      padding-block: 11px;
+      padding-inline: 13px 10px;
+      &.Mui-disabled {
+        background-color: ${Colors.background};
+      }
+    }
   }
 `;
 
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
-    color: ${Colors.primary};
+    color: ${Colors.outline};
     padding: 2px;
   }
+
+  &.${radioClasses.checked} {
+    color: ${Colors.primary};
+    &.${radioClasses.disabled} {
+      opacity: 30%;
+    }
+  }
+
   & svg {
     width: 1.2rem;
     height: 1.2rem;
@@ -118,13 +133,17 @@ export const ENDS_MODES = {
 
 export const RepeatingAppointmentFields = ({
   values,
+  initialValues,
   setFieldValue,
   setFieldError,
   handleResetRepeatUntilDate,
+  readonly,
 }) => {
+  const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
   const { startTime, schedule } = values;
-  const { interval, frequency, occurrenceCount, untilDate, endsMode } = schedule;
-  const startTimeDate = useMemo(() => parseISO(startTime), [startTime]);
+  const { interval, frequency, occurrenceCount, untilDate } = schedule;
+  const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
+  const startTimeDate = useMemo(() => startTime && parseISO(startTime), [startTime]);
 
   const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
@@ -133,11 +152,11 @@ export const RepeatingAppointmentFields = ({
       setFieldValue('schedule.occurrenceCount', null);
       setFieldError('schedule.occurrenceCount', null);
     } else if (newModeValue === ENDS_MODES.AFTER) {
-      setFieldValue('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT);
+      setFieldValue('schedule.occurrenceCount', initialOccurrenceCount || DEFAULT_OCCURRENCE_COUNT);
       setFieldValue('schedule.untilDate', null);
       setFieldError('schedule.untilDate', null);
     }
-    setFieldValue('schedule.endsMode', newModeValue);
+    setEndsMode(newModeValue);
   };
 
   const handleFrequencyChange = e => {
@@ -158,12 +177,13 @@ export const RepeatingAppointmentFields = ({
   };
 
   return (
-    <Container>
+    <Container readonly={readonly}>
       <Box display="flex" gap="0.5rem" height="100%">
         <Field
           name="schedule.interval"
           min={1}
           max={99}
+          disabled={readonly}
           onBlur={() => validateKeyboardEnteredNumber('schedule.interval')}
           label={
             <TranslatedText
@@ -176,11 +196,12 @@ export const RepeatingAppointmentFields = ({
         <Field
           placeholder=""
           name="schedule.frequency"
+          disabled={readonly}
           isClearable={false}
           enumValues={
             interval === 1 ? REPEAT_FREQUENCY_UNIT_LABELS : REPEAT_FREQUENCY_UNIT_PLURAL_LABELS
           }
-          TranslatedTextProps={{ upperFirst: true }}
+          TranslatedTextProps={{ casing: 'sentence' }}
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
         />
@@ -199,7 +220,6 @@ export const RepeatingAppointmentFields = ({
           <TranslatedText stringId="outpatientAppointment.repeating.ends.label" fallback="Ends" />
         </StyledFormLabel>
         <StyledRadioGroup
-          name="schedule.endsMode"
           aria-labelledby="ends-radio"
           onChange={handleChangeEndsMode}
           value={endsMode}
@@ -207,7 +227,7 @@ export const RepeatingAppointmentFields = ({
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
               value={ENDS_MODES.ON}
-              control={<StyledRadio />}
+              control={<StyledRadio disabled={readonly} />}
               label={
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.on"
@@ -217,7 +237,7 @@ export const RepeatingAppointmentFields = ({
             />
             <Field
               name="schedule.untilDate"
-              disabled={endsMode !== ENDS_MODES.ON}
+              disabled={readonly || endsMode !== ENDS_MODES.ON}
               value={endsMode === ENDS_MODES.ON ? untilDate : ''}
               min={format(
                 add(startTimeDate, {
@@ -231,7 +251,7 @@ export const RepeatingAppointmentFields = ({
           <Box display="flex" alignItems="center" gap="10px">
             <StyledFormControlLabel
               value={ENDS_MODES.AFTER}
-              control={<StyledRadio />}
+              control={<StyledRadio disabled={readonly} />}
               label={
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.after"
@@ -250,7 +270,7 @@ export const RepeatingAppointmentFields = ({
                 validateKeyboardEnteredNumber('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT)
               }
               value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
-              disabled={endsMode !== ENDS_MODES.AFTER}
+              disabled={readonly || endsMode !== ENDS_MODES.AFTER}
               component={StyledNumberField}
             />
             <SmallBodyText color="textTertiary">

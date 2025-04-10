@@ -139,6 +139,7 @@ const LoginFormComponent = ({
         placeholder={getTranslation('login.email.placeholder', 'Enter your email address')}
         onChange={() => removeValidation()}
         autoComplete="off"
+        enablePasting
       />
       <div>
         <StyledField

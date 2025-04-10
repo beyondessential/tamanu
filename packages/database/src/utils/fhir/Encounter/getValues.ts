@@ -25,19 +25,23 @@ import type { Encounter } from '../../../models';
 export async function getValues(upstream: Model, models: Models) {
   const { Encounter } = models;
 
-  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream);
+  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream, models);
   throw new Error(`Invalid upstream type for encounter ${upstream.constructor.name}`);
 }
 
-async function getValuesFromEncounter(upstream: Encounter) {
+async function getValuesFromEncounter(upstream: Encounter, models: Models) {
+  const subject = await subjectRef(upstream, models);
+  const serviceProvider = await serviceProviderRef(upstream, models);
+
   return {
     lastUpdated: new Date(),
     status: status(upstream),
     class: classification(upstream),
     actualPeriod: period(upstream),
-    subject: subjectRef(upstream),
-    location: locationRef(upstream),
-    serviceProvider: await serviceProviderRef(upstream),
+    subject,
+    location: await locationRef(upstream, models),
+    serviceProvider,
+    resolved: subject.isResolved() && (serviceProvider ? serviceProvider.isResolved() : true),
   };
 }
 
@@ -106,18 +110,33 @@ function period(encounter: Encounter) {
   });
 }
 
-function subjectRef(encounter: Encounter) {
-  return new FhirReference({
-    type: 'upstream://patient',
-    reference: encounter.patient?.id,
+function subjectRef(encounter: Encounter, models: Models) {
+  return FhirReference.to(models.FhirPatient, encounter.patient?.id, {
     display: `${encounter.patient?.firstName} ${encounter.patient?.lastName}`,
   });
 }
 
-const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
+const { BED, WARD, JURISDICTION } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
 
-function locationRef(encounter: Encounter) {
+async function locationRef(encounter: Encounter, models: Models) {
+  const department = await models.Department.findOne({ where: { id: encounter.departmentId } });
   return [
+    new FhirEncounterLocation({
+      location: new FhirReference({
+        display: department?.name,
+        id: department?.id,
+      }),
+      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+      physicalType: new FhirCodeableConcept({
+        coding: [
+          {
+            system: config.hl7.dataDictionaries.locationPhysicalType,
+            code: JURISDICTION,
+            display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[JURISDICTION],
+          },
+        ],
+      }),
+    }),
     new FhirEncounterLocation({
       location: new FhirReference({
         display: encounter.location?.locationGroup?.name,
@@ -153,15 +172,13 @@ function locationRef(encounter: Encounter) {
   ];
 }
 
-async function serviceProviderRef(encounter: Encounter) {
+async function serviceProviderRef(encounter: Encounter, models: Models) {
   const { facility } = encounter.location || {};
   if (!facility) {
     return null;
   }
 
-  return new FhirReference({
-    type: 'upstream://organization',
-    reference: facility.id,
+  return FhirReference.to(models.FhirOrganization, facility.id, {
     display: facility.name,
   });
 }

@@ -307,7 +307,7 @@ export const ContactDetails = ({
             __html: getTranslation(
               'patient.details.reminderContacts.emptyDescription',
               "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-              { patientName: `<span>${patientName}</span>` },
+              { replacements: { patientName: `<span>${patientName}</span>` } },
             ),
           }}
         ></StyledText>
@@ -317,7 +317,7 @@ export const ContactDetails = ({
             __html: getTranslation(
               'patient.details.reminderContacts.description',
               'The below contact list is registered to receive reminders for :patientName.',
-              { patientName: `<span>${patientName}</span>` },
+              { replacements: { patientName: `<span>${patientName}</span>` } },
             ),
           }}
         ></StyledText>

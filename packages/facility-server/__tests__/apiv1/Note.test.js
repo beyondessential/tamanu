@@ -4,11 +4,11 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { chance } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { chance, fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { addMinutes } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { randomSensitiveLabRequest } from '@tamanu/database/demoData/labRequests';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
   models.LabTestType.findAll({
@@ -72,6 +72,20 @@ describe('Note', () => {
       expect(note.content).toEqual(content);
       expect(note.recordType).toEqual('LabRequest');
       expect(note.recordId).toEqual(labRequest.body[0].id);
+    });
+
+    it('should error trying to add a note to a sensitive lab request', async () => {
+      const labRequestData = await randomSensitiveLabRequest(models, {
+        patientId: patient.id,
+      });
+      const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+      const content = chance.paragraph();
+      const response = await app.post(`/api/labRequest/${sensitiveLabRequest.id}/notes`).send({
+        content,
+        noteType: NOTE_TYPES.OTHER,
+      });
+
+      expect(response).toBeForbidden();
     });
   });
 

@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column, BeforeInsert } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column, BeforeInsert } from 'typeorm';
 
 import {
   DateTimeString,
@@ -24,7 +24,7 @@ import { DateTimeStringColumn } from './DateColumns';
 
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
-const getValuesFromRelations = values => {
+const getValuesFromRelations = (values) => {
   if (!values) {
     return {};
   }
@@ -149,7 +149,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     programRegistryId: string,
     data: any,
   ): Promise<PatientProgramRegistration> {
-    const { programId } = await ProgramRegistry.findOne({ id: programRegistryId });
+    const { programId } = await ProgramRegistry.findOne({ where: { id: programRegistryId } });
     const existingRegistration = await PatientProgramRegistration.getRecentOne(
       programId,
       patientId,

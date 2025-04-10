@@ -1,1 +1,0 @@
-../../central-server/public/local_system_facts.md

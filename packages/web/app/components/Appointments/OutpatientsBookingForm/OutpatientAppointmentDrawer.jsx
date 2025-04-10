@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
-import { omit, set } from 'lodash';
-import { format, isAfter, parseISO, add } from 'date-fns';
+import { isNumber, omit, set } from 'lodash';
+import {
+  format,
+  isAfter,
+  parseISO,
+  add,
+  set as dateFnsSet,
+  getYear,
+  getDate,
+  getMonth,
+} from 'date-fns';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
+  REPEAT_FREQUENCY,
+} from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -79,7 +93,7 @@ const getDescription = (isEdit, isLockedPatient) => {
   );
 };
 
-const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
+const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -87,30 +101,16 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
   return (
     <ConfirmModal
       title={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.edit.title"
-            fallback="Cancel modifying appointment"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.create.title"
-            fallback="Cancel new appointment"
-          />
-        )
+        <TranslatedText
+          stringId="outpatientAppointments.cancelWarningModal.title"
+          fallback="Cancel appointment modification"
+        />
       }
       subText={
-        isEdit ? (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.edit.subtext"
-            fallback="Are you sure you would like to cancel modifying the appointment?"
-          />
-        ) : (
-          <TranslatedText
-            stringId="outpatientAppointments.cancelWarningModal.create.subtext"
-            fallback="Are you sure you would like to cancel the new appointment?"
-          />
-        )
+        <TranslatedText
+          stringId="outpatientAppointments.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel modifying the appointment?"
+        />
       }
       open={open}
       onConfirm={() => {
@@ -118,6 +118,12 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn, isEdit }) => {
       }}
       cancelButtonText={
         <TranslatedText stringId="appointments.action.backToEditing" fallback="Back to editing" />
+      }
+      confirmButtonText={
+        <TranslatedText
+          stringId="appointments.action.cancelModification"
+          fallback="Cancel modification"
+        />
       }
       onCancel={() => {
         handleClose(false);
@@ -191,7 +197,7 @@ const EmailFields = ({ patientId }) => {
   );
 };
 
-export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} }) => {
+export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -200,6 +206,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
 
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
+  const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -246,30 +253,41 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     }),
     schedule: yup.object().when('isRepeatingAppointment', {
       is: true,
-      then: yup.object().shape({
-        interval: yup.number().required(requiredMessage),
-        frequency: yup.string().required(requiredMessage),
-        occurrenceCount: yup.mixed().when('endsMode', {
-          is: ENDS_MODES.AFTER,
-          then: yup.number().required(requiredMessage),
-          otherwise: yup.number().nullable(),
-        }),
-        untilDate: yup.string().when('endsMode', {
-          is: ENDS_MODES.ON,
-          then: yup.string().required(requiredMessage),
-          otherwise: yup.string().nullable(),
-        }),
-        daysOfWeek: yup
-          .array()
-          .of(yup.string().oneOf(DAYS_OF_WEEK))
-          // Note: currently supports a single day of the week
-          .length(1),
-        nthWeekday: yup
-          .number()
-          .nullable()
-          .min(-1)
-          .max(4),
-      }),
+      then: yup.object().shape(
+        {
+          interval: yup.number().required(requiredMessage),
+          frequency: yup.string().required(requiredMessage),
+          occurrenceCount: yup.mixed().when('untilDate', {
+            is: val => !val,
+            then: yup
+              .number()
+              .required(requiredMessage)
+              .min(
+                2,
+                getTranslation('validation.rule.atLeastN', 'Must be at least :n', {
+                  replacements: { n: 2 },
+                }),
+              ),
+            otherwise: yup.number().nullable(),
+          }),
+          untilDate: yup.mixed().when('occurrenceCount', {
+            is: val => !isNumber(val),
+            then: yup.string().required(requiredMessage),
+            otherwise: yup.string().nullable(),
+          }),
+          daysOfWeek: yup
+            .array()
+            .of(yup.string().oneOf(DAYS_OF_WEEK))
+            // Note: currently supports a single day of the week
+            .length(1),
+          nthWeekday: yup
+            .number()
+            .nullable()
+            .min(-1)
+            .max(4),
+        },
+        ['untilDate', 'occurrenceCount'],
+      ),
     }),
   });
 
@@ -283,16 +301,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
     setValues,
   }) => {
     const warnAndResetForm = async () => {
-      const confirmed = !dirty || (await handleShowWarningModal());
+      const requiresWarning = dirty && isEdit;
+      const confirmed = !requiresWarning || (await handleShowWarningModal());
       if (!confirmed) return;
       onClose();
       resetForm();
     };
 
     const handleResetRepeatUntilDate = startTimeDate => {
+      const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT }),
+        initialUntilDate ||
+          toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
       );
     };
 
@@ -324,7 +345,27 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       // Note: currently supports a single day of the week
       setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
 
-      handleResetRepeatUntilDate(startTimeDate);
+      // Don't update the until date if occurrence count is set
+      if (!values.schedule.occurrenceCount) {
+        handleResetRepeatUntilDate(startTimeDate);
+      }
+    };
+
+    const handleUpdateStartTime = event => {
+      const startTimeDate = parseISO(event.target.value);
+      handleUpdateScheduleToStartTime(startTimeDate);
+      if (!values.endTime) return;
+      // Update the end time to match the new start time date
+      setFieldValue(
+        'endTime',
+        toDateTimeString(
+          dateFnsSet(parseISO(values.endTime), {
+            year: getYear(startTimeDate),
+            date: getDate(startTimeDate),
+            month: getMonth(startTimeDate),
+          }),
+        ),
+      );
     };
 
     return (
@@ -394,14 +435,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             component={AutocompleteField}
             suggester={clinicianSuggester}
           />
-          <DateTimeFieldWithSameDayWarning
-            isEdit={isEdit}
-            onChange={e => {
-              const newValue = e.target.value;
-              setFieldValue('startTime', newValue);
-              handleUpdateScheduleToStartTime(parseISO(newValue));
-            }}
-          />
+          <DateTimeFieldWithSameDayWarning isEdit={isEdit} onChange={handleUpdateStartTime} />
           <Field
             name="endTime"
             disabled={!values.startTime}
@@ -438,24 +472,29 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
             onChange={handleResetEmailFields}
           />
           {values.shouldEmailAppointment && <EmailFields patientId={values.patientId} />}
-          <Field
-            name="isRepeatingAppointment"
-            onChange={handleChangeIsRepeatingAppointment}
-            disabled={!values.startTime || isEdit}
-            label={
-              <TranslatedText
-                stringId="appointment.isRepeatingAppointment.label"
-                fallback="Repeating appointment"
-              />
-            }
-            component={SwitchField}
-          />
-          {values.isRepeatingAppointment && !isEdit && (
+          {!hideIsRepeatingToggle && (
+            <Field
+              name="isRepeatingAppointment"
+              onChange={handleChangeIsRepeatingAppointment}
+              disabled={!values.startTime || isEdit}
+              value={!!values.schedule}
+              label={
+                <TranslatedText
+                  stringId="appointment.isRepeatingAppointment.label"
+                  fallback="Repeating appointment"
+                />
+              }
+              component={SwitchField}
+            />
+          )}
+          {values.schedule && (
             <RepeatingAppointmentFields
+              initialValues={initialValues}
               values={values}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+              readonly={modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_APPOINTMENT}
             />
           )}
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
@@ -481,7 +520,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    await handleSubmit(values);
+    await handleSubmit({ ...values, modifyMode });
     resetForm();
   };
 
@@ -501,7 +540,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
-        isEdit={isEdit}
       />
     </>
   );

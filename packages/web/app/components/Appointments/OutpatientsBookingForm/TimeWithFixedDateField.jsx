@@ -9,13 +9,15 @@ import { TimeInput } from '../../Field';
  */
 export const TimeWithFixedDateField = ({ field, date, ...props }) => {
   const handleChange = event => {
-    const newValue = toDateTimeString(
-      dateFnsSet(parseISO(event.target.value), {
-        year: getYear(date),
-        date: getDate(date),
-        month: getMonth(date),
-      }),
-    );
+    const newValue = event.target.value
+      ? toDateTimeString(
+          dateFnsSet(parseISO(event.target.value), {
+            year: getYear(date),
+            date: getDate(date),
+            month: getMonth(date),
+          }),
+        )
+      : null;
     field.onChange({ target: { value: newValue, name: field.name } });
   };
   return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;

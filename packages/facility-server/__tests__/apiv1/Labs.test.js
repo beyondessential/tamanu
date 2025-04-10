@@ -9,8 +9,11 @@ import {
   createDummyPatient,
   randomLabRequest,
 } from '@tamanu/database/demoData';
-import { chance, fake } from '@tamanu/shared/test-helpers';
-import { createLabTestTypes } from '@tamanu/database/demoData/labRequests';
+import { chance, fake } from '@tamanu/fake-data/fake';
+import {
+  createLabTestTypes,
+  randomSensitiveLabRequest,
+} from '@tamanu/database/demoData/labRequests';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
@@ -324,7 +327,11 @@ describe('Labs', () => {
       patientId,
     });
     const { id: requestId } = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId, requestedById: user.body.id, encounterId: encounter.id }),
+      await randomLabRequest(models, {
+        patientId,
+        requestedById: user.body.id,
+        encounterId: encounter.id,
+      }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
     const response = await app
@@ -371,6 +378,35 @@ describe('Labs', () => {
     });
   });
 
+  it('should not fetch sensitive lab test types without permission', async () => {
+    await models.LabTestType.truncate({ cascade: true });
+    const { id: nonSensitiveCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: 'Non Sensitive Test Laboratory',
+      code: 'NONSENSITIVETESTLABORATORY',
+    });
+    await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: nonSensitiveCategoryId,
+    });
+
+    const { id: sensitiveCategoryId } = await models.ReferenceData.create({
+      type: 'labTestCategory',
+      name: 'Sensitive Test Laboratory',
+      code: 'SENSITIVETESTLABORATORY',
+    });
+    await models.LabTestType.create({
+      ...fake(models.LabTestType),
+      labTestCategoryId: sensitiveCategoryId,
+      isSensitive: true,
+    });
+
+    const result = await app.get('/api/labTestType');
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toBe(1);
+    expect(result.body[0].isSensitive).toBe(false);
+  });
+
   it('should only retrieve panels with a visibilityStatus status of current', async () => {
     await models.LabTestPanel.create({
       name: 'Historical test panel',
@@ -391,6 +427,52 @@ describe('Labs', () => {
       labRequest = await models.LabRequest.createWithTests(
         await randomLabRequest(models, { patientId }),
       );
+    });
+
+    describe('GET individual', () => {
+      it('should get a lab test', async () => {
+        const [labTest] = await labRequest.getTests();
+        const response = await app.get(`/api/labTest/${labTest.id}`);
+        expect(response).toHaveSucceeded();
+        expect(response.body.labRequestId).toBe(labRequest.id);
+      });
+
+      it('should error if lab test is sensitive', async () => {
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
+        const response = await app.get(`/api/labTest/${sensitiveTest.id}`);
+        expect(response).toBeForbidden();
+      });
+    });
+
+    describe('GET list', () => {
+      it('should get a list of tests included from lab request', async () => {
+        const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
+        expect(response).toHaveSucceeded();
+        expect(response.body).toMatchObject({
+          count: 2,
+          data: expect.any(Array),
+        });
+      });
+
+      it('should exclude sensitive tests', async () => {
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+
+        const response = await app.get(`/api/labRequest/${sensitiveLabRequest.id}/tests`);
+        expect(response).toHaveSucceeded();
+        expect(response.body).toMatchObject({
+          count: 0,
+          data: expect.any(Array),
+        });
+      });
     });
 
     describe('PUT', () => {
@@ -463,70 +545,122 @@ describe('Labs', () => {
         });
         expect(response).toHaveRequestError(404);
       });
+
+      it('should fail with forbidden if trying to update sensitive lab test', async () => {
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const response = await app.put(`/api/labRequest/${sensitiveLabRequest.id}/tests`).send({
+          [sensitiveTest.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+        });
+        expect(response).toBeForbidden();
+      });
     });
   });
 
-  describe('Filtering by allFacilities', () => {
-    // These are the only statuses returned by the listing endpoint
-    // when no specific argument is included.
-    const VALID_LISTING_LAB_REQUEST_STATUSES = [
-      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-      LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-      LAB_REQUEST_STATUSES.RESULTS_PENDING,
-      LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-      LAB_REQUEST_STATUSES.VERIFIED,
-      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    ];
-    const [facilityId] = selectFacilityIds(config);
-    const otherFacilityId = 'kerang';
-    const makeRequestAtFacility = async (facilityId) => {
-      const location = await models.Location.create({
-        ...fake(models.Location),
-        facilityId,
-      });
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        locationId: location.id,
-        patientId,
-      });
-      await models.LabRequest.create({
-        ...fake(models.LabRequest),
-        encounterId: encounter.id,
-        requestedById: app.user.id,
-        status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
-      });
-    };
+  describe('Lab request table endpoint', () => {
+    describe('Filtering by allFacilities', () => {
+      // These are the only statuses returned by the listing endpoint
+      // when no specific argument is included.
+      const VALID_LISTING_LAB_REQUEST_STATUSES = [
+        LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+        LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+        LAB_REQUEST_STATUSES.VERIFIED,
+        LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+      ];
+      const [facilityId] = selectFacilityIds(config);
+      const otherFacilityId = 'kerang';
+      const makeRequestAtFacility = async (facilityId) => {
+        const location = await models.Location.create({
+          ...fake(models.Location),
+          facilityId,
+        });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId,
+        });
+        await models.LabRequest.create({
+          ...fake(models.LabRequest),
+          encounterId: encounter.id,
+          requestedById: app.user.id,
+          status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
+        });
+      };
 
-    beforeAll(async () => {
-      // Because of the high number of lab requests
-      // the endpoint pagination doesn't return the expected results.
-      await models.LabRequest.truncate({ cascade: true, force: true });
+      beforeAll(async () => {
+        // Because of the high number of lab requests
+        // the endpoint pagination doesn't return the expected results.
+        await models.LabRequest.truncate({ cascade: true, force: true });
 
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(facilityId);
-      await makeRequestAtFacility(otherFacilityId);
-      await makeRequestAtFacility(otherFacilityId);
-      await makeRequestAtFacility(otherFacilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(otherFacilityId);
+        await makeRequestAtFacility(otherFacilityId);
+        await makeRequestAtFacility(otherFacilityId);
+      });
+
+      it('should omit external requests when allFacilities is false', async () => {
+        const result = await app.get(
+          `/api/labRequest?allFacilities=false&facilityId=${facilityId}`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(3);
+        result.body.data.forEach((lr) => {
+          expect(lr.facilityId).toBe(facilityId);
+        });
+      });
+
+      it('should include all requests when allFacilities is true', async () => {
+        const result = await app.get(`/api/labRequest?allFacilities=true`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(6);
+        const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
+        expect(hasConfigFacility).toBe(true);
+
+        const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
+        expect(hasOtherFacility).toBe(true);
+      });
     });
 
-    it('should omit external requests when allFacilities is false', async () => {
-      const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
-      expect(result).toHaveSucceeded();
-      result.body.data.forEach((lr) => {
-        expect(lr.facilityId).toBe(facilityId);
+    describe('Permissions', () => {
+      let sensitiveLabRequestId;
+
+      beforeAll(async () => {
+        await models.LabRequest.truncate({ cascade: true, force: true });
+
+        for (let i = 0; i < 3; i++) {
+          await models.LabRequest.createWithTests(await randomLabRequest(models, { patientId }));
+        }
+
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        sensitiveLabRequestId = sensitiveLabRequest.id;
       });
-    });
 
-    it('should include all requests when allFacilities is true', async () => {
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
-      expect(result).toHaveSucceeded();
-
-      const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
-      expect(hasConfigFacility).toBe(true);
-
-      const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
-      expect(hasOtherFacility).toBe(true);
+      it('should exclude sensitive lab requests', async () => {
+        const result = await app.get('/api/labRequest?allFacilities=true');
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toBe(3);
+        expect(result.body.data.length).toBe(3);
+        const labIds = result.body.data.map((lab) => lab.id);
+        const hasSensitiveRequest = labIds.includes(sensitiveLabRequestId);
+        expect(hasSensitiveRequest).toBe(false);
+      });
     });
   });
 });

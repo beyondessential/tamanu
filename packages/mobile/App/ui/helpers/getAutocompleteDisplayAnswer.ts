@@ -11,7 +11,7 @@ export async function getAutocompleteDisplayAnswer(
   try {
     autocompleteComponent = await models.SurveyScreenComponent.findOne({
       where: {
-        dataElement: dataElementId,
+        dataElement: { id: dataElementId },
       },
       withDeleted: true,
     });
@@ -24,7 +24,7 @@ export async function getAutocompleteDisplayAnswer(
   if (autocompleteConfig) {
     const fullLinkedAnswer = await models[autocompleteConfig.source]
       .getRepository()
-      .findOne(sourceId);
+      .findOne({ where: { id: sourceId } });
     return getDisplayNameForModel(autocompleteConfig.source, fullLinkedAnswer);
   }
 

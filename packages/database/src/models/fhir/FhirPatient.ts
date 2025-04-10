@@ -1,6 +1,9 @@
 import { DataTypes, type InitOptions } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
+import {
+  FhirReference,
+} from '@tamanu/shared/services/fhirTypes';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -87,13 +90,16 @@ export class FhirPatient extends FhirResource {
 
   asFhir() {
     const resource = super.asFhir();
+
+    const { FhirPatient } = this.sequelize.models;
+
     // Exclude upstream links if they remain in the materialised data.
     // This can occur if there are records in the Tamanu data that have not been
     // materialised into the FHIR data, but are referred to by the patient links.
     // Although that should not really happen, but it's better to be safe and not
     // expose the upstream link data.
     resource.link = resource.link.filter(
-      (link: Record<string, any>) => link.other.type !== 'upstream://patient',
+      (link: Record<string, any>) => link.other.type !== FhirReference.unresolvedReferenceType(FhirPatient),
     );
     return resource;
   }

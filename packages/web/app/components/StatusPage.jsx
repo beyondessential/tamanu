@@ -6,6 +6,7 @@ import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
 import { getBrandName } from '../utils';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -62,8 +63,20 @@ export const UnavailableStatusPage = () => {
   const brandName = getBrandName();
   return (
     <StatusPage
-      message={`${brandName} is currently unavailable`}
-      description={`${brandName} is currently unavailable. Please try again later or contact your system administrator for further information.`}
+      message={
+        <TranslatedText
+          stringId="splash.unavailable.message"
+          fallback=":brandName is currently unavailable"
+          replacements={{ brandName }}
+        />
+      }
+      description={
+        <TranslatedText
+          stringId="splash.unavailable.description"
+          fallback=":brandName is currently unavailable. Please try again later or contact your system administrator for further information."
+          replacements={{ brandName }}
+        />
+      }
     />
   );
 };
@@ -93,8 +106,22 @@ export const LoadingStatusPage = () => {
   const brandName = getBrandName();
   return (
     <StatusPage
-      message={<AnimateEllipsis>{brandName} is loading</AnimateEllipsis>}
-      description={`${brandName} is currently loading. Please do not navigate away from this page.`}
+      message={
+        <AnimateEllipsis>
+          <TranslatedText
+            stringId="splash.loading.message"
+            fallback=":brandName is loading"
+            replacements={{ brandName }}
+          />
+        </AnimateEllipsis>
+      }
+      description={
+        <TranslatedText
+          stringId="splash.loading.description"
+          fallback=":brandName is currently loading. Please do not navigate away from this page."
+          replacements={{ brandName }}
+        />
+      }
     />
   );
 };
@@ -135,8 +162,20 @@ export const UnsupportedBrowserStatusPage = () => {
   const brandName = getBrandName();
   return (
     <StatusPageWithHeroImage
-      message={`${brandName} is only available on Chrome`}
-      description={`Please contact your system administrator for further information on how to access ${brandName} using a Chrome browser.`}
+      message={
+        <TranslatedText
+          stringId="splash.browser.message"
+          fallback=":brandName is not available on your browser"
+          replacements={{ brandName }}
+        />
+      }
+      description={
+        <TranslatedText
+          stringId="splash.browser.description"
+          fallback="Please contact your system administrator for further information on how to access :brandName using a Chrome or Edge browser."
+          replacements={{ brandName }}
+        />
+      }
     />
   );
 };
@@ -162,8 +201,11 @@ export const MobileStatusPage = ({ platformType }) => {
     <MobileContainer $platformType={platformType}>
       <Logo onClick={handleRefreshPage} size="140px" />
       <ErrorDescription color="textTertiary">
-        {brandName} is not currently supported by mobile or tablet devices. Please access via a
-        desktop computer or laptop.
+        <TranslatedText
+          stringId="splash.mobile.description"
+          fallback=":brandName is not currently supported by mobile or tablet devices. Please access via a desktop computer or laptop."
+          replacements={{ brandName }}
+        />
       </ErrorDescription>
     </MobileContainer>
   );
@@ -179,10 +221,20 @@ export const SingleTabStatusPage = () => {
     <StatusPage
       message={
         <SingleTabErrorMessage>
-          {brandName} can not be opened across <br /> multiple tabs.
+          <TranslatedText
+            stringId="splash.singleTab.message"
+            fallback=":brandName can not be opened across multiple tabs."
+            replacements={{ brandName }}
+          />
         </SingleTabErrorMessage>
       }
-      description="Please continue working in the existing tab."
+      description={
+        <TranslatedText
+          stringId="splash.singleTab.description"
+          fallback="Please continue working in the existing tab."
+          replacements={{ brandName }}
+        />
+      }
     />
   );
 };

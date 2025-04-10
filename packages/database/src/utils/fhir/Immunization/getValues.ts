@@ -39,6 +39,7 @@ async function getValuesFromAdministeredVaccine(administeredVaccine: Administere
     site: site(administeredVaccine.injectionSite),
     performer: performer(recorder),
     protocolApplied: protocolApplied(scheduledVaccine?.doseLabel),
+    resolved: true,
   };
 }
 

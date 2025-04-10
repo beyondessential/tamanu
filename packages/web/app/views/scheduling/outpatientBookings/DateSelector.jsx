@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { css, styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';

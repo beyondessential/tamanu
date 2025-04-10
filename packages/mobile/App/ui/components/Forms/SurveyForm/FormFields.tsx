@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { IPatient, ISurveyScreenComponent } from '../../../../types';
+import { IPatient, ISurveyScreenComponent, GenericFormValues } from '../../../../types';
 import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
@@ -21,7 +21,6 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
-import { GenericFormValues } from '~/models/Forms';
 import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '../../LoadingScreen';
@@ -34,13 +33,13 @@ interface UseScrollToFirstError {
 }
 
 const useScrollToFirstError = (): UseScrollToFirstError => {
-  const [questionPositions, setQuestionPositions] = useState<{ [key: string]: string }>({});
+  const questionPositionsRef = useRef({});
 
   const scrollToQuestion = (
     scrollViewRef: MutableRefObject<ScrollView>,
     questionCode: string,
   ): void => {
-    const yPosition = questionPositions[questionCode];
+    const yPosition = questionPositionsRef.current[questionCode];
 
     if (scrollViewRef.current !== null) {
       // Allow a bit of space at the top of the form field for the form label text
@@ -51,7 +50,7 @@ const useScrollToFirstError = (): UseScrollToFirstError => {
 
   const setQuestionPosition = (questionCode: string) => (yPosition: string) => {
     if (yPosition) {
-      setQuestionPositions(x => ({ ...x, [questionCode]: yPosition }));
+      questionPositionsRef.current[questionCode] = yPosition;
     }
   };
 
@@ -84,9 +83,8 @@ export const FormFields = ({
   onGoBack,
 }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
-    GenericFormValues
-  >();
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } =
+    useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
   const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
@@ -102,7 +100,7 @@ export const FormFields = ({
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
-    [values],
+    [components, values],
   );
 
   // Handle back button press or swipe right gesture
@@ -118,7 +116,7 @@ export const FormFields = ({
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+  }, [onGoBack, currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
   if (encounterError) {
     return <ErrorScreen error={encounterError} />;
@@ -130,11 +128,11 @@ export const FormFields = ({
 
   const { encounter } = encounterResult || {};
   const maxIndex = components
-    .map(x => x.screenIndex)
+    .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
+    .filter((x) => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
   const visibleComponents = screenComponents.filter(shouldShow);
 
@@ -150,8 +148,8 @@ export const FormFields = ({
     const formErrors = await validateForm();
 
     // Only include components that are on this page
-    const pageErrors = Object.keys(formErrors).filter(x =>
-      screenComponents.map(c => c.dataElement.code).includes(x),
+    const pageErrors = Object.keys(formErrors).filter((x) =>
+      screenComponents.map((c) => c.dataElement.code).includes(x),
     );
 
     if (pageErrors.length === 0) {

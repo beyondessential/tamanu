@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
 
@@ -25,41 +25,49 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       await Patient.destroy({ where: {} });
       await PatientAdditionalData.destroy({ where: {} });
 
-      const primaryA = await Patient.create(
+      const patientA = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
       );
 
-      const mergedB = await Patient.create(
+      const patientB = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
-          mergedIntoId: primaryA.id,
         }),
       );
 
-      const mergedC = await Patient.create(
+      const patientC = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
-          mergedIntoId: mergedB.id,
         }),
       );
 
-      const mergedD = await Patient.create(
+      const patientD = await Patient.create(
         fake(Patient, {
           visibilityStatus: VISIBILITY_STATUSES.MERGED,
-          mergedIntoId: mergedB.id,
         }),
       );
 
       const [a, b, c, d] = (
         await Promise.all(
-          [primaryA, mergedB, mergedC, mergedD].map(({ id }) =>
+          [patientA, patientB, patientC, patientD].map(({ id }) =>
             FhirPatient.materialiseFromUpstream(id),
           ),
         )
-      ).map(row => row.id);
+      ).map((row) => row.id);
 
+      await FhirPatient.resolveUpstreams();
+
+      await patientB.update({ mergedIntoId: patientA.id });
+      await patientC.update({ mergedIntoId: patientB.id });
+      await patientD.update({ mergedIntoId: patientB.id });
+
+      await Promise.all(
+        [patientA, patientB, patientC, patientD].map(({ id }) =>
+          FhirPatient.materialiseFromUpstream(id),
+        ),
+      );
       await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };
@@ -180,10 +188,12 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       const response = await app.get(path);
 
       // assert
-      const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
-        ?.resource;
-      const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
-        ?.resource;
+      const resourceC = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.c,
+      )?.resource;
+      const resourceD = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.d,
+      )?.resource;
 
       expect(resourceC).toMatchObject({
         resourceType: 'Patient',
@@ -401,10 +411,12 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       const response = await app.get(path);
 
       // assert
-      const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
-        ?.resource;
-      const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
-        ?.resource;
+      const resourceC = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.c,
+      )?.resource;
+      const resourceD = response.body?.entry?.find(
+        ({ resource }) => resource.id === ids.d,
+      )?.resource;
 
       expect(resourceC).toMatchObject({
         resourceType: 'Patient',
