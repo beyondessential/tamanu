@@ -15,10 +15,10 @@ export class BasePage {
       throw new Error('Base URL is not defined');
     }
 
-    await this.page.goto(constructFacilityUrl(this.page, this.url));
+    await this.page.goto(constructFacilityUrl(this.url));
   }
 
   async navigateTo(url) {
-    await this.page.goto(constructFacilityUrl(this.page, url));
+    await this.page.goto(constructFacilityUrl(url));
   }
 }

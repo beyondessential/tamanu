@@ -12,6 +12,6 @@ export const goToAdminFrontend = async (page: Page) => {
   await page.goto(adminFrontend);
 };
 
-export const constructFacilityUrl = (page: any, url: string) => {
+export const constructFacilityUrl = (url: string) => {
   return `${facilityFrontend}${url}`;
 };

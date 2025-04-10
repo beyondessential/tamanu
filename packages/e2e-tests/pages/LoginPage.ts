@@ -2,6 +2,7 @@ import { Locator, Page } from '@playwright/test';
 
 import { BasePage } from './BasePage';
 import { routes } from '../config/routes';
+import { constructFacilityUrl } from '../utils/navigation';
 
 export class LoginPage extends BasePage {
   readonly loginButton: Locator;
@@ -19,6 +20,6 @@ export class LoginPage extends BasePage {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.loginButton.click();
-    await this.page.waitForURL(routes.dashboard);
+    await this.page.waitForURL(constructFacilityUrl(routes.dashboard));
   }
 }

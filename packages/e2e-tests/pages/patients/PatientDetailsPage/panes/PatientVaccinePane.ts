@@ -33,10 +33,19 @@ export class PatientVaccinePane extends BasePatientPane {
 
   async getRecordedVaccineCount(): Promise<number> {
     await this.recordedVaccinesTable.waitFor();
+    await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
 
-    const paginationText = await this.recordedVaccinesTablePaginator.innerText();
-    const match = paginationText.match(/of (\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
+    // Check if the paginator is visible and extract the number of vaccines
+    if (await this.recordedVaccinesTablePaginator.isVisible()) {
+      const paginationText = await this.recordedVaccinesTablePaginator.innerText();
+      const match = paginationText.match(/of (\d+)/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+    }
+
+    // Pagination is not visible, so we assume 0 vaccines recorded
+    return 0;
   }
 
   async waitForRecordedVaccinesTableToLoad() {
