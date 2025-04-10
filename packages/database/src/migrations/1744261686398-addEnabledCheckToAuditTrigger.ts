@@ -1,12 +1,13 @@
 import { QueryInterface } from 'sequelize';
 import { AUDIT_USERID_KEY, AUDIT_PAUSE_KEY } from '@tamanu/constants/database';
+import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.record_change()
     RETURNS trigger AS $$
     BEGIN
-      IF NOT COALESCE((SELECT value::boolean FROM settings WHERE key = 'audit.changes.enabled'), false) THEN
+      IF NOT COALESCE((SELECT value::boolean FROM settings WHERE key = 'audit.changes.enabled' AND scope = '${SETTINGS_SCOPES.GLOBAL}'), false) THEN
         RETURN NEW;
       END IF;
 
