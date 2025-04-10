@@ -11,9 +11,13 @@ import { LocationDetailsSection } from '~/ui/components/Forms/NewPatientForm/Pat
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   const navigation = useNavigation();
+  const { getSetting } = useSettings();
+  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+
   const onGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -35,7 +39,7 @@ export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
       <PatientPersonalInfoForm isEdit={isEdit}>
         <NameSection />
         <KeyInformationSection />
-        <LocationDetailsSection />
+        {!isUsingHierarchyLogic && <LocationDetailsSection />}
         <PatientAdditionalDataFields fields={ALL_ADDITIONAL_DATA_FIELDS} showMandatory />
       </PatientPersonalInfoForm>
     </FullView>

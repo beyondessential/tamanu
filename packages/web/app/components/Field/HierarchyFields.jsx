@@ -20,6 +20,10 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
     fields.find(f => f.referenceType === type),
   );
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
+
+  // TODO: Shouldn't have to do
+  if (fields.length === 0) return null;
+
   return (
     <Container>
       {hierarchyToShow.map((type, index) => {
@@ -29,7 +33,7 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
 
         return (
           <HierarchyFieldItem
-            key={fieldData.name}
+            key={fieldData?.name}
             relationType={relationType}
             isFirstLevel={index === 0}
             parentId={parentId}
