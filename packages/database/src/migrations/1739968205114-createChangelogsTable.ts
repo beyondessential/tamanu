@@ -5,10 +5,10 @@ const TABLE = { schema: 'logs', tableName: 'changes' };
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE, {
     id: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     table_oid: {
       type: DataTypes.INTEGER,
