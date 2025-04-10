@@ -38,6 +38,8 @@ describe('Attach audit user to DB session', () => {
     });
     models = ctx.models;
 
+    await models.Setting.set('audit.changes.enabled', true)
+
     // Setup a mock express app with a route that updates a user
     // and includes the attachAuditUserToDbSession middleware
     // to set the authenticated user in the sequelize cls async storage context
