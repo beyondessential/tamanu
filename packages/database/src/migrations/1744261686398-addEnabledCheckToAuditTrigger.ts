@@ -24,7 +24,7 @@ export async function up(query: QueryInterface): Promise<void> {
         deleted_at,
         updated_at_sync_tick,
         updated_by_user_id,
-        arecord_id,
+        record_id,
         record_update,
         record_data
       ) VALUES (
