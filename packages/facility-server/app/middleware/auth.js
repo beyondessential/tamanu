@@ -4,11 +4,13 @@ import { compare } from 'bcrypt';
 import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
+import { version } from '../../package.json';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
@@ -143,12 +145,8 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      allowedFacilities,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+    const { central, user, localisation, allowedFacilities } =
+      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -207,7 +205,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user);
+  const token = await buildToken(user, req.facilityId);
   res.send({ token });
 }
 
@@ -252,15 +250,36 @@ export const authMiddleware = async (req, res, next) => {
   const { models } = req;
   try {
     const token = getTokenFromHeaders(req);
+    const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
+
+    // Auditing middleware
+    // eslint-disable-next-line require-atomic-updates
+    req.audit = {
+      access: async ({ recordId, params, model }) =>
+        req.models.AccessLog.create({
+          userId,
+          recordId,
+          recordType: model.name,
+          sessionId,
+          isMobile: false,
+          frontEndContext: params,
+          backEndContext: { endpoint: req.originalUrl },
+          loggedAt: new Date(),
+          facilityId: req.facilityId,
+          deviceId: req.deviceId || 'unknown-device',
+          version,
+        }),
+    };
 
     const spanAttributes = {};
     if (req.user) {

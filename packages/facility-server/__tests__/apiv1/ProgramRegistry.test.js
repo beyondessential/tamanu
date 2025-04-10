@@ -330,7 +330,7 @@ describe('ProgramRegistry', () => {
 
       // Patient 1
       const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '1-123' }));
-      await models.PatientProgramRegistration.create(
+      const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient1.id,
@@ -339,23 +339,21 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
           conditionCategory: 'recordedInError',
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
         }),
       );
 
       // Patient 2
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-123' }));
-      await models.PatientProgramRegistration.create(
+      const registration2 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
@@ -364,8 +362,7 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient2.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
           conditionCategory: 'recordedInError',
         }),
@@ -379,7 +376,9 @@ describe('ProgramRegistry', () => {
       expect(body.data.length).toEqual(2);
       const patient1Conditions = body.data[0].conditions;
       const patient2Conditions = body.data[1].conditions;
-      expect(patient1Conditions).toEqual([relevantCondition.name]);
+      expect(patient1Conditions).toEqual([
+        { name: relevantCondition.name, id: relevantCondition.id },
+      ]);
       expect(patient2Conditions).toEqual(null);
     });
 
@@ -409,7 +408,7 @@ describe('ProgramRegistry', () => {
 
       // Patient 1: Should show
       const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
-      await models.PatientProgramRegistration.create(
+      const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient1.id,
@@ -420,22 +419,20 @@ describe('ProgramRegistry', () => {
 
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
         }),
       );
 
       // Patient 2: Should not show
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-2' }));
-      await models.PatientProgramRegistration.create(
+      const registration2 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
@@ -444,15 +441,14 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient2.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
         }),
       );
 
       // Patient 3: Should not show
       const patient3 = await models.Patient.create(fake(models.Patient, { displayId: '3-3' }));
-      await models.PatientProgramRegistration.create(
+      const registration3 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient3.id,
@@ -461,8 +457,7 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient2.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration3.id,
           programRegistryConditionId: relevantCondition.id,
           conditionCategory: 'recordedInError',
         }),
@@ -479,7 +474,12 @@ describe('ProgramRegistry', () => {
       expect(body.count).toEqual(1);
       expect(body.data.length).toEqual(1);
       expect(body.data).toMatchObject([
-        { conditions: expect.arrayContaining([decoyCondition.name, relevantCondition.name]) },
+        {
+          conditions: expect.arrayContaining([
+            { name: decoyCondition.name, id: decoyCondition.id },
+            { name: relevantCondition.name, id: relevantCondition.id },
+          ]),
+        },
       ]);
     });
 

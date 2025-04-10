@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column, BeforeInsert } from 'typeorm';
+import { Entity, ManyToOne, RelationId, Column, BeforeInsert, OneToMany } from 'typeorm';
 
 import {
   DateTimeString,
@@ -10,6 +10,7 @@ import {
   IProgramRegistryClinicalStatus,
   IReferenceData,
   IUser,
+  IPatientProgramRegistrationCondition,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
@@ -21,6 +22,7 @@ import { Facility } from './Facility';
 import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
+import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
@@ -85,6 +87,12 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   clinician: IUser;
   @RelationId(({ clinician }) => clinician)
   clinicianId: ID;
+
+  @OneToMany<PatientProgramRegistrationCondition>(
+    () => PatientProgramRegistrationCondition,
+    ({ patientProgramRegistration }) => patientProgramRegistration,
+  )
+  conditions: IPatientProgramRegistrationCondition[];
 
   // dateRemoved: DateTimeString;
   // removedBy?: IUser;

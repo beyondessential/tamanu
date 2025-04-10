@@ -151,10 +151,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>
-      models.PatientProgramRegistrationCondition.findForRegistryAndPatient(
-        patientProgramRegistration.programRegistryId,
-        patientProgramRegistration.patientId,
-      ),
+      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistration.id),
     [patientProgramRegistration],
   );
   return (

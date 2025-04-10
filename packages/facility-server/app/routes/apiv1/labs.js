@@ -36,10 +36,19 @@ labRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const labRequestRecord = await findRouteObject(req, 'LabRequest');
-    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
+
+    const { LabRequest } = req.models;
+
+    await req.audit.access({
+      recordId: labRequestRecord.id,
+      params: req.params,
+      model: LabRequest,
+    });
+
     const latestAttachment = await labRequestRecord.getLatestAttachment();
     res.send({
       ...labRequestRecord.forResponse(),
@@ -54,9 +63,9 @@ labRequest.put(
     const { models, params, db } = req;
     const { userId, ...labRequestData } = req.body;
     req.checkPermission('read', 'LabRequest');
-    const labRequestRecord = await models.LabRequest.findByPk(
-      params.id, { include: [{ association: 'tests', include: ['labTestType'] }] },
-    );
+    const labRequestRecord = await models.LabRequest.findByPk(params.id, {
+      include: [{ association: 'tests', include: ['labTestType'] }],
+    });
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
 
@@ -64,7 +73,7 @@ labRequest.put(
       req.checkPermission('write', 'LabRequestStatus');
     }
 
-    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -252,7 +261,8 @@ labRequest.get(
       )
     `;
 
-    const countResult = await req.db.query(`
+    const countResult = await req.db.query(
+      `
       ${queryCte}
       SELECT COUNT(1) AS count ${from}
       `,
@@ -346,7 +356,7 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const hasSensitiveTests = lab.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = lab.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -389,7 +399,7 @@ labRelations.put(
     });
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    const areSensitiveTests = labTests.some((test) => test.labTestType.isSensitive);
     if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -436,7 +446,11 @@ export const labTest = express.Router();
 labTest.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
     const labTestId = params.id;
 
     req.checkPermission('read', 'LabTest');
@@ -452,6 +466,13 @@ labTest.get(
     if (response.labTestType.isSensitive === true) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
+
+    await req.audit.access({
+      recordId: response.id,
+      params: req.params,
+      model: models.LabTest,
+      facilityId,
+    });
 
     res.send(response);
   }),

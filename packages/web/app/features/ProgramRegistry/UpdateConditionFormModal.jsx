@@ -26,24 +26,20 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) => {
+const useUpdateConditionMutation = (patientProgramRegistrationId, conditionId) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation(
     data => {
-      return api.put(
-        `patient/${patientId}/programRegistration/${programRegistryId}/condition/${conditionId}`,
-        data,
-      );
+      return api.put(`patient/programRegistration/condition/${conditionId}`, data);
     },
     {
       onSuccess: () => {
         queryClient.invalidateQueries([
           'patient',
-          patientId,
           'programRegistration',
-          programRegistryId,
+          patientProgramRegistrationId,
         ]);
       },
     },
@@ -53,10 +49,9 @@ const useUpdateConditionMutation = (patientId, programRegistryId, conditionId) =
 export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const [warningOpen, setWarningOpen] = useState(false);
   const { getTranslation } = useTranslation();
-  const { id: conditionId, patientId, programRegistryId, conditionCategory } = condition;
+  const { id: conditionId, patientProgramRegistrationId, conditionCategory } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
-    patientId,
-    programRegistryId,
+    patientProgramRegistrationId,
     conditionId,
   );
 

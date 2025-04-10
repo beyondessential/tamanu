@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { PatientProgramRegistryUpdateFormModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateFormModal.jsx';
+import { PatientProgramRegistryUpdateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateModal.jsx';
 import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
@@ -11,7 +11,7 @@ import { PatientProgramRegistryFormHistory } from '../app/views/programRegistry/
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
-import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
+import { PatientProgramRegistryActivateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryActivateModal.jsx';
 import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
 import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
@@ -175,7 +175,7 @@ export const PatientProgramRegistryFormHistoryStory = {
 export const ProgramRegistryStatusChangeStory = {
   name: 'Patient Program Registry Update Form Modal',
   render: () => (
-    <PatientProgramRegistryUpdateFormModal
+    <PatientProgramRegistryUpdateModal
       patientProgramRegistration={patientProgramRegistration}
       onSubmit={action('submit')}
       onCancel={action('cancel')}
@@ -199,7 +199,7 @@ export const ProgramRegistryDeleteModalStory = {
 export const ActivatePatientProgramRegistryStory = {
   name: 'Activate Patient Program Registry',
   render: () => (
-    <ActivatePatientProgramRegistry
+    <PatientProgramRegistryActivateModal
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       patientProgramRegistration={patientProgramRegistration}

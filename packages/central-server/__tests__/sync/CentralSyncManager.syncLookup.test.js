@@ -2,7 +2,6 @@ import waitForExpect from 'wait-for-expect';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
-  SYNC_DIRECTIONS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
   REPORT_DB_SCHEMAS,
@@ -13,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
-  getModelsForDirection,
+  getModelsForPull,
   findSyncSnapshotRecords,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
@@ -440,7 +439,7 @@ describe('Sync Lookup data', () => {
         programRegistryId: programRegistry.id,
       }),
     );
-    await PatientProgramRegistration.create(
+    const registration = await PatientProgramRegistration.create(
       fake(PatientProgramRegistration, {
         clinicianId: examiner.id,
         patientId: patient.id,
@@ -449,8 +448,7 @@ describe('Sync Lookup data', () => {
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: patient.id,
-        programRegistryId: programRegistry.id,
+        patientProgramRegistrationId: registration.id,
       }),
     );
     await PatientAllergy.create(
@@ -643,7 +641,7 @@ describe('Sync Lookup data', () => {
 
     const since = -1;
     const patientCount = 1;
-    const outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const outgoingModels = getModelsForPull(models);
     await snapshotOutgoingChanges(
       ctx.store,
       outgoingModels,
@@ -716,7 +714,7 @@ describe('Sync Lookup data', () => {
   });
 
   it('Does not snapshot non patient linked records when it is a full snapshot for marked for sync patients', async () => {
-    const outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const outgoingModels = getModelsForPull(models);
 
     const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
       ctx.store.sequelize,
