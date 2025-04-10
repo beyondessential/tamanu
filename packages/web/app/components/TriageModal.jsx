@@ -65,7 +65,7 @@ export const TriageModal = React.memo(
     ).map(([name, label, accessor]) => (
       <React.Fragment key={name}>
         <DetailLabel>
-          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={label} />:
+          <TranslatedText stringId={`general.localisedField.${name}.label`} fallback={label} />:
         </DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
