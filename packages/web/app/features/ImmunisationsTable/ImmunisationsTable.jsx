@@ -128,6 +128,7 @@ export const ImmunisationsTable = React.memo(
           )
         }
         disablePagination={disablePagination}
+        data-testid="immunisations-table"
       />
     );
   },

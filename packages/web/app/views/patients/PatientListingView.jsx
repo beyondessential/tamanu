@@ -171,6 +171,7 @@ export const PatientListingView = ({ onViewPatient }) => {
           fetchOptions={{ matchSecondaryIds: true }}
           searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
           columns={LISTING_COLUMNS}
+          data-testid="patienttable-l8c2"
         />
       </ContentPane>
     </PageContainer>

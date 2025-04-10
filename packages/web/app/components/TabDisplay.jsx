@@ -51,6 +51,7 @@ export const TabDisplay = React.memo(
             color={currentTabData.key === key ? Colors.primary : Colors.softText}
           />
         }
+        data-testid={`tab-${key}`}
         style={{ minWidth: 'auto' }}
         label={label}
         disabled={!render}

@@ -192,7 +192,15 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
+const getTableRow = ({
+  children,
+  lazyLoading,
+  rowStyle,
+  onClick,
+  className,
+  onMouseEnter,
+  onMouseLeave,
+}) => (
   <StyledTableRow
     className={className}
     onClick={onClick}
@@ -329,7 +337,14 @@ const StatusRow = React.memo(({ className, colSpan, children, textColor, statusC
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
-    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
+    if (isLoading)
+      return (
+        <TranslatedText
+          stringId="general.table.loading"
+          fallback="Loading..."
+          data-testid="translatedtext-yvlt"
+        />
+      );
     if (errorMessage) return errorMessage;
     if (isEmpty || !data.length) return noDataMessage;
     return null;
@@ -490,7 +505,16 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } = this.props;
+    const {
+      page,
+      lazyLoading,
+      exportName,
+      columns,
+      data,
+      allowExport,
+      count,
+      ExportButton,
+    } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
@@ -502,7 +526,12 @@ class TableComponent extends React.Component {
         <StyledTableRow $lazyLoading={lazyLoading}>
           {allowExport ? (
             <TableCell colSpan={page !== null ? 2 : columns.length}>
-              <DownloadDataButton exportName={exportName} columns={columns} data={data} ExportButton={ExportButton} />
+              <DownloadDataButton
+                exportName={exportName}
+                columns={columns}
+                data={data}
+                ExportButton={ExportButton}
+              />
             </TableCell>
           ) : null}
           {page !== null && !lazyLoading && this.renderPaginator()}

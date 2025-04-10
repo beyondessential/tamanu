@@ -1,0 +1,1 @@
+export { ImmunisationRegisterPage } from './ImmunisationRegisterPage';
