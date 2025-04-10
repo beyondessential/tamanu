@@ -6,7 +6,7 @@ export async function up(query: QueryInterface): Promise<void> {
     CREATE OR REPLACE FUNCTION logs.record_change()
     RETURNS trigger AS $$
     BEGIN
-      IF NOT (SELECT coalesce(value, 'false')::boolean FROM settings WHERE key = 'audit.changes.enabled') THEN
+      IF NOT COALESCE((SELECT value::boolean FROM settings WHERE key = 'audit.changes.enabled'), false) THEN
         RETURN NEW;
       END IF;
 
