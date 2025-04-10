@@ -102,6 +102,7 @@ export const SelectInput = ({
   inputProps = {},
   isClearable = true,
   customStyleObject,
+  ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.form;
@@ -184,7 +185,7 @@ export const SelectInput = ({
         ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
         : selectedOptionLabel;
     return (
-      <OuterLabelFieldWrapper label={label} {...props} data-testid='outerlabelfieldwrapper-hrjd'>
+      <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
           value={valueText}
           styles={defaultStyles}
@@ -194,7 +195,7 @@ export const SelectInput = ({
           readOnly={isReadonly}
           components={{ Option, SingleValue }}
           {...props}
-          data-testid='styledtextfield-xptm' />
+          data-testid={`${dataTestId}-styledtextfield`} />
       </OuterLabelFieldWrapper>
     );
   }
@@ -206,8 +207,8 @@ export const SelectInput = ({
       label={label}
       ref={inputRef}
       {...props}
-      data-testid='outerlabelfieldwrapper-wawx'>
-      <StyledFormControl {...props} data-testid='styledformcontrol-b7hs'>
+   >
+      <StyledFormControl {...props}>
         <Select
           value={selectedOption}
           onChange={handleChange}
@@ -227,13 +228,13 @@ export const SelectInput = ({
               <ClearIndicator
                 {...innerProps}
                 tabIndex={inputProps.tabIndex}
-                data-testid='clearindicator-t2qe' />
+                data-testid={`${dataTestId}-clearindicator`}/>
             ),
             DropdownIndicator: () => <ExpandMoreIcon data-testid='expandmoreicon-h115' />,
           }}
           {...props}
-          data-testid='select-mbnb' />
-        {helperText && <FormHelperText data-testid='formhelpertext-fc0e'>{helperText}</FormHelperText>}
+          data-testid={`${dataTestId}-select`} />
+        {helperText && <FormHelperText data-testid={`${dataTestId}-formhelptertext`}>{helperText}</FormHelperText>}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
@@ -244,8 +245,7 @@ export const BaseSelectField = ({ field, ...props }) => (
     name={field.name}
     onChange={field.onChange}
     value={field.value}
-    {...props}
-    data-testid='selectinput-d6mv' />
+    {...props} />
 );
 
 // NOTE: not compatible with disabled SelectFields
@@ -253,12 +253,11 @@ export const SelectField = ({ field, value, name, ...props }) => (
   <SelectInput
     value={field ? field.value : value}
     name={field ? field.name : name}
-    {...props}
-    data-testid='selectinput-b06y' />
+    {...props} />
 );
 
 export const TranslatedSelectField = props => {
-  return <TranslatedEnumField {...props} component={SelectInput} data-testid='translatedenumfield-de2z' />;
+  return <TranslatedEnumField {...props} component={SelectInput} />;
 };
 
 SelectField.propTypes = {
