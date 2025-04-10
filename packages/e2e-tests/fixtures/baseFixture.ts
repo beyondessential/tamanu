@@ -27,7 +27,7 @@ type BaseFixtures = {
   dashboardPage: DashboardPage;
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
-  bedMangementPage: BedManagementPage;
+  bedManagementPage: BedManagementPage;
   reportsPage: ReportsPage;
   activeImagingRequestPage: ActiveImagingRequestsPage;
   completedImagingRequestsPage: CompletedImagingRequestsPage;
@@ -59,7 +59,7 @@ export const test = base.extend<BaseFixtures>({
     await use(new SidebarPage(page));
   },
 
-  bedMangementPage: async ({ page }, use) => {
+  bedManagementPage: async ({ page }, use) => {
     await use(new BedManagementPage(page));
   },
 
