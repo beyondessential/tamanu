@@ -9,6 +9,7 @@ describe('pauseAudit', () => {
     ctx = await createTestContext();
     models = ctx.models;
     sequelize = ctx.sequelize;
+    await models.Setting.set('audit.changes.enabled', true);
   });
 
   afterAll(() => ctx.close());
