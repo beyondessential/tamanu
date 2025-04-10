@@ -135,6 +135,12 @@ imagingRequest.get(
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
+    await req.audit.access({
+      recordId: imagingRequestObject.id,
+      params: req.params,
+      model: ImagingRequest,
+    });
+
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),

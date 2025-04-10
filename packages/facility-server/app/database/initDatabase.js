@@ -5,7 +5,7 @@ import { fakeUUID } from '@tamanu/utils/generateId';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
-const getOrCreateConnection = async (configOverrides, key = 'main') => {
+ const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
   return await openDatabase(key, {
     ...config.db,
@@ -14,9 +14,10 @@ const getOrCreateConnection = async (configOverrides, key = 'main') => {
   });
 };
 
-export async function initDatabase() {
+export async function initDatabase(configOverrides = {}) {
   const testMode = process.env.NODE_ENV === 'test';
   return getOrCreateConnection({
+    configOverrides,
     primaryKeyDefault: testMode ? fakeUUID : undefined,
   });
 }
@@ -26,6 +27,7 @@ async function initReportStore(schemaName, credentials) {
   const overrides = {
     alwaysCreateConnection: false,
     migrateOnStartup: false,
+    disableChangesAudit: true,
     pool,
     username,
     password,

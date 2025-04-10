@@ -2,6 +2,7 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
+import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 
 import {
   authMiddleware,
@@ -107,6 +108,8 @@ apiv1.get(
 apiv1.use(authMiddleware);
 
 apiv1.use(constructPermission);
+
+apiv1.use(attachAuditUserToDbSession);
 
 apiv1.delete(
   '/admin/settings/cache',
