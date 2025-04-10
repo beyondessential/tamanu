@@ -76,14 +76,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const description = getTranslation(
     'patient.details.reminderContacts.description',
     'The below contact list is registered to receive reminders for :patientName.',
-    { patientName },
+    { replacements: { patientName } },
   );
 
   const emptyDescription = getTranslation(
     'patient.details.reminderContacts.emptyDescription',
-
     "There are no contacts registered to receive reminders for :patientName. Please select 'Add contact' to register a contact.",
-    { patientName },
+    { replacements: { patientName } },
   );
 
   return (
@@ -216,7 +215,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                 textColor={theme.colors.PRIMARY_MAIN}
                 fontSize={screenPercentageToDP(2, Orientation.Height)}
                 fontWeight={500}
-                alignItems='center'
+                alignItems="center"
                 buttonText={
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.add"

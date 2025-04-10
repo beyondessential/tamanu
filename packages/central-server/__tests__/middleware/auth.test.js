@@ -5,7 +5,8 @@ import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext, withDateUnsafelyFaked } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
@@ -49,7 +50,7 @@ describe('Auth', () => {
     const { Role, User, Facility } = store.models;
     await Promise.all([
       Role.create(fake(Role, { id: TEST_ROLE_ID })),
-      ...USERS.map(r => User.create(r)),
+      ...USERS.map((r) => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
     deactivatedUser = await User.create(
@@ -135,13 +136,10 @@ describe('Auth', () => {
     });
 
     it('Should not issue a refresh token for external client', async () => {
-      const response = await baseApp
-        .post('/api/login')
-        .set({ 'X-Tamanu-Client': 'FHIR' })
-        .send({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-        });
+      const response = await baseApp.post('/api/login').set({ 'X-Tamanu-Client': 'FHIR' }).send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
       expect(response).toHaveSucceeded();
       expect(response.body.refreshToken).toBeUndefined();
     });

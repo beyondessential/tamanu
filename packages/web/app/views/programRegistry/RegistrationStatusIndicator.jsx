@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Colors, PROGRAM_REGISTRATION_STATUS_LABEL } from '../../constants';
+import { REGISTRATION_STATUSES, PROGRAM_REGISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import { Colors } from '../../constants';
+import { TranslatedEnum } from '../../components';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 const StatusDiv = styled.div`
@@ -28,7 +29,12 @@ const StatusInactiveDot = styled.div`
 export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideText, style }) => {
   return (
     <ThemedTooltip
-      title={PROGRAM_REGISTRATION_STATUS_LABEL[patientProgramRegistration.registrationStatus]}
+      title={
+        <TranslatedEnum
+          value={patientProgramRegistration.registrationStatus}
+          enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
+        />
+      }
     >
       <StatusDiv>
         {patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
@@ -37,7 +43,12 @@ export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideTe
           <StatusInactiveDot style={style} />
         )}
         {!hideText && (
-          <b>{PROGRAM_REGISTRATION_STATUS_LABEL[patientProgramRegistration.registrationStatus]}</b>
+          <b>
+            <TranslatedEnum
+              value={patientProgramRegistration.registrationStatus}
+              enumValues={PROGRAM_REGISTRATION_STATUS_LABELS}
+            />
+          </b>
         )}
       </StatusDiv>
     </ThemedTooltip>

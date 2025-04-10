@@ -16,6 +16,7 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Row = styled.View`
   flex-direction: row;
@@ -52,7 +53,10 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
     <StyledView margin={20} borderRadius={5}>
       <Row>
         <SectionHeader h1 fontSize={14} fontWeight={500} color={theme.colors.TEXT_SUPER_DARK}>
-          Program registry
+          <TranslatedText
+            stringId="programRegistry.programRegistry.label"
+            fallback="Program registry"
+          />
         </SectionHeader>
         {canCreateRegistration && (
           <Button

@@ -16,10 +16,10 @@ import {
   destroyPermission,
 } from './referenceDataUtils';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { REFERENCE_DATA_TRANSLATION_PREFIX, REFERENCE_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/utils/dateTime';
-import { REFERENCE_TYPES } from '@tamanu/constants';
 import { writeExcelFile } from '../../dist/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
@@ -586,6 +586,87 @@ describe('Reference data exporter', () => {
       '',
     );
   });
+
+  it('Should include reference data in translated strings export when set to true', async () => {
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: 'en',
+      text: 'test',
+    });
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: 'km',
+      text: 'សាកល្បង',
+    });
+    await models.TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.test-reference-string`,
+      language: 'en',
+      text: 'test reference',
+    });
+    await models.TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.test-reference-string`,
+      language: 'km',
+      text: 'ឯកសារយោងសាកល្បង',
+    });
+
+    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'true' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['stringId', 'en', 'km'],
+            [
+              `${REFERENCE_DATA_TRANSLATION_PREFIX}.test-reference-string`,
+              'test reference',
+              'ឯកសារយោងសាកល្បង',
+            ],
+            ['test-string', 'test', 'សាកល្បង'],
+          ],
+          name: 'Translated String',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should exclude reference data in translated strings export when set to false', async () => {
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: 'en',
+      text: 'test',
+    });
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: 'km',
+      text: 'សាកល្បង',
+    });
+    await models.TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.test-reference-string`,
+      language: 'en',
+      text: 'test reference',
+    });
+    await models.TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.test-reference-string`,
+      language: 'km',
+      text: 'ឯកសារយោងសាកល្បង',
+    });
+
+    await exporter(store, { 1: 'translatedString' }, { includeReferenceData: 'false' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['stringId', 'en', 'km'],
+            ['test-string', 'test', 'សាកល្បង'],
+          ],
+          name: 'Translated String',
+        },
+      ],
+      '',
+    );
+  });
 });
 
 describe('Permission and Roles exporter', () => {
@@ -741,13 +822,13 @@ describe('Permission and Roles exporter', () => {
       [
         {
           data: [
-            ['verb', 'noun', 'objectId', 'reception', 'admin'],
+            ['verb', 'noun', 'objectId', 'admin', 'reception'],
             ['list', 'User', null, 'y', 'y'],
             ['list', 'ReferenceData', null, 'y', 'y'],
-            ['read', 'ReferenceData', null, 'n', ''],
-            ['write', 'User', null, '', 'y'],
-            ['write', 'ReferenceData', null, '', 'y'],
-            ['read', 'Report', 'new-patients', '', 'y'],
+            ['read', 'ReferenceData', null, '', 'n'],
+            ['write', 'User', null, 'y', ''],
+            ['write', 'ReferenceData', null, 'y', ''],
+            ['read', 'Report', 'new-patients', 'y', ''],
           ],
           name: 'Permission',
         },

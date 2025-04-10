@@ -1,39 +1,40 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
-import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
-import shortid from 'shortid';
+import { Box, Tooltip } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
-import { useApi } from '../../../api';
 import {
-  Field,
-  Form,
-  OutlinedButton,
-  SearchField,
-  TableFormFields,
-  TextField,
-} from '../../../components';
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+  ENGLISH_LANGUAGE_CODE,
+  DEFAULT_LANGUAGE_CODE,
+} from '@tamanu/constants';
+import { useApi } from '../../../api';
+import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
+
+const Container = styled.div`
+  padding: 30px;
+  min-height: 0;
+  form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+`;
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
     text-align: left;
   }
-`;
-
-const StyledIconButton = styled(IconButton)`
-  padding: 3px;
-  margin-left: 5px;
-  color: #2f4358;
 `;
 
 const ReservedText = styled.p`
@@ -42,6 +43,32 @@ const ReservedText = styled.p`
   font-weight: 500;
   font-size: 14px;
 `;
+
+const SearchArea = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  width: 340px;
+`;
+
+const translationToFormValue = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ({
+  ...rest,
+  // Display default translations in english column
+  [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
+});
+
+const formValuesToTranslation = ({
+  [DEFAULT_LANGUAGE_CODE]: defaultText,
+  [ENGLISH_LANGUAGE_CODE]: enText,
+  ...rest
+}) => ({
+  ...rest,
+  // Remove en translations that are the same as the default text so they are not saved
+  [ENGLISH_LANGUAGE_CODE]: defaultText === enText ? null : enText,
+});
 
 /**
  *
@@ -52,8 +79,6 @@ const ReservedText = styled.p`
  *
  */
 const validationSchema = yup.lazy(values => {
-  delete values.search; // Remove the search option
-
   const existingStringIds = new Set(); // Use to check if a new id clashes with an existing id
   const numNewIdsByStringId = {}; // Use to check if any new ids clash with each other
 
@@ -132,52 +157,37 @@ const useTranslationMutation = () => {
   });
 };
 
-const TranslationField = ({ placeholderId, stringId, code }) => (
+const TranslationField = ({ stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField
-    id={`['${placeholderId || stringId}']`}
-    name={code}
-    component={TextField}
-    multiline
-  />
+  <AccessorField id={`['${stringId}']`} name={code} component={TextField} multiline />
 );
 
-export const FormContents = ({
-  data,
-  languageNames,
-  setFieldValue,
-  isSaving,
-  submitForm,
-  dirty,
-  additionalRows,
-  setAdditionalRows,
-  values,
-}) => {
+// Saving doesn't track `isSubmitting` correctly because there is a custom mutation handling
+// the submit, so we need to track it manually
+// When the form starts saving, isSubmitting will be set to true, but it will be set to false
+// before the formik form is actually reset
+// Detect when the formik form is reset by checking if it is no longer dirty
+const useIsSaving = (isSubmitting, dirty) => {
+  const [isSaving, setIsSaving] = useState(false);
+  useEffect(() => {
+    if (isSubmitting) setIsSaving(true);
+  }, [isSubmitting]);
+  useEffect(() => {
+    if (isSaving && !dirty) setIsSaving(false);
+  }, [isSaving, dirty]);
+  return [isSaving];
+};
+
+export const FormContents = ({ data, languageNames, isSubmitting, submitForm, dirty }) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [includeReferenceData, setIncludeReferenceData] = useState(false);
+  const [isSaving] = useIsSaving(isSubmitting, dirty);
+
   const handleSave = event => {
     // Reset search so any validation errors are visible
-    setFieldValue('search', '');
+    setSearchValue('');
     submitForm(event);
   };
-
-  const handleAddColumn = useCallback(() => {
-    const placeholderId = shortid();
-    setAdditionalRows([
-      ...additionalRows,
-      {
-        placeholderId,
-      },
-    ]);
-    // Initialize stringId so it can be validated if empty
-    setFieldValue(`${placeholderId}.stringId`, '');
-  }, [additionalRows, setAdditionalRows, setFieldValue]);
-
-  const handleRemoveColumn = useCallback(
-    placeholderId => {
-      setAdditionalRows(additionalRows.filter(column => column.placeholderId !== placeholderId));
-      setFieldValue(placeholderId, undefined);
-    },
-    [additionalRows, setAdditionalRows, setFieldValue],
-  );
 
   const columns = useMemo(
     () => [
@@ -189,64 +199,60 @@ export const FormContents = ({
               stringId="admin.translation.table.column.translationId"
               fallback="Translation ID"
             />
-            <StyledIconButton onClick={handleAddColumn}>
-              <AddIcon />
-            </StyledIconButton>
           </Box>
         ),
-        accessor: ({ stringId, placeholderId }) => {
-          if (stringId === 'languageName')
+        accessor: ({ stringId }) => {
+          if (stringId === 'languageName' || stringId === 'countryCode')
             return (
               <Box display="flex" alignItems="center">
                 <ReservedText>{stringId}</ReservedText>
                 <Tooltip
                   title={
-                    <TranslatedText
-                      stringId="admin.translation.table.languageName.toolTip"
-                      fallback="Language name is a reserved translation ID used for displaying language in selector"
-                    />
+                    <>
+                      {stringId === 'languageName' && (
+                        <TranslatedText
+                          stringId="admin.translation.table.languageName.toolTip"
+                          fallback="Language name is a reserved translation ID used for displaying language in selector"
+                        />
+                      )}
+                      {stringId === 'countryCode' && (
+                        <TranslatedText
+                          stringId="admin.translation.table.countryCode.toolTip"
+                          fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
+                        />
+                      )}
+                    </>
                   }
                 >
                   <HelpIcon style={{ color: Colors.primary }} />
                 </Tooltip>
               </Box>
             );
-          if (!placeholderId) return stringId;
-          return (
-            <AccessorField
-              id={placeholderId}
-              name="stringId"
-              component={TextField}
-              InputProps={{
-                endAdornment: (
-                  <StyledIconButton onClick={() => handleRemoveColumn(placeholderId)}>
-                    <DeleteIcon />
-                  </StyledIconButton>
-                ),
-              }}
-            />
-          );
+          return stringId;
         },
       },
-      ...Object.keys(omit(data[0], ['stringId'])).map(code => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
         accessor: row => <TranslationField code={code} {...row} />,
       })),
     ],
-    [handleAddColumn, handleRemoveColumn, data, languageNames],
+    [data, languageNames],
   );
 
-  const tableRows = useMemo(
-    () =>
-      [...data, ...additionalRows].filter(
-        row =>
-          row.placeholderId ||
-          // Search from start of stringId or after a . delimiter
-          row.stringId.match(new RegExp(`(?:^|\\.)${values.search.replace('.', '\\.')}`, 'i')),
-      ),
-    [data, additionalRows, values.search],
-  );
+  const tableRows = useMemo(() => {
+    const includedTranslations = includeReferenceData
+      ? data
+      : data.filter(row => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
+
+    if (searchValue) {
+      return includedTranslations.filter(row =>
+        // Search from start of stringId or after a . delimiter
+        row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
+      );
+    }
+    return includedTranslations;
+  }, [data, includeReferenceData, searchValue]);
 
   if (data.length === 0)
     return (
@@ -258,44 +264,54 @@ export const FormContents = ({
   return (
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
-        <Box mr={2} width="250px">
-          <Field
+        <SearchArea>
+          <StyledSearchInput
             label={<TranslatedText stringId="general.action.search" fallback="Search" />}
-            name="search"
-            component={SearchField}
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onClear={() => setSearchValue('')}
           />
-        </Box>
-        <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
-          <TranslatedText stringId="general.action.save" fallback="Save" />
-        </OutlinedButton>
+          <ReferenceDataSwitchInput
+            value={includeReferenceData}
+            onChange={() => setIncludeReferenceData(!includeReferenceData)}
+            label={
+              <TranslatedText
+                stringId="admin.translation.showReferenceData"
+                fallback="Show reference data"
+              />
+            }
+          />
+        </SearchArea>
+        <Button disabled={isSaving || !dirty} onClick={handleSave}>
+          <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
+        </Button>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} pagination />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination stickyHeader />
     </>
   );
 };
 
 export const TranslationForm = () => {
-  const [additionalRows, setAdditionalRows] = useState([]);
   const { data = {}, error, isLoading } = useTranslationQuery();
   const { translations = [], languageNames = {} } = data;
-  const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
+  const { mutate: saveTranslations } = useTranslationMutation();
 
   const initialValues = useMemo(() => {
-    const values = { search: '' };
+    const values = {};
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = rest;
+      values[stringId] = translationToFormValue(rest);
     }
     return values;
   }, [translations]);
 
   const handleSubmit = async payload => {
-    // Swap temporary id out for stringId
-    delete payload.search;
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [
+        stringId || key,
+        formValuesToTranslation(rest),
+      ]),
     );
     await saveTranslations(submitData);
-    setAdditionalRows([]);
   };
 
   if (isLoading) return <LoadingIndicator />;
@@ -312,25 +328,23 @@ export const TranslationForm = () => {
       />
     );
 
-  const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
+  const sortedTranslations = sortBy(
+    translations,
+    obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
+  ); // Ensure languageName key stays on top
 
   return (
-    <Form
-      initialValues={initialValues}
-      enableReinitialize
-      showInlineErrorsOnly
-      onSubmit={handleSubmit}
-      validationSchema={validationSchema}
-      render={props => (
-        <FormContents
-          {...props}
-          data={sortedTranslations}
-          languageNames={languageNames}
-          isSaving={isSaving}
-          setAdditionalRows={setAdditionalRows}
-          additionalRows={additionalRows}
-        />
-      )}
-    />
+    <Container>
+      <Form
+        initialValues={initialValues}
+        enableReinitialize
+        showInlineErrorsOnly
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        render={props => (
+          <FormContents {...props} data={sortedTranslations} languageNames={languageNames} />
+        )}
+      />
+    </Container>
   );
 };

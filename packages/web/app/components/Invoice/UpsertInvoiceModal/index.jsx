@@ -49,7 +49,7 @@ export const UpsertInvoiceModal = ({
     }
   };
 
-  const { mutate: createInvoice } = useCreateInvoice();
+  const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
   const [discountType, setDiscountType] = useState(getInitialDiscountType);
   const [activeView, setActiveView] = useState(getInitialView);
@@ -58,11 +58,15 @@ export const UpsertInvoiceModal = ({
     setDiscountType(discountType);
   };
 
-  const handleActiveView = view => {
+  const handleActiveView = (view) => {
     setActiveView(view);
   };
 
-  const handleUpsertInvoice = payload => {
+  const handleUpsertInvoice = (payload) => {
+    if (isSubmitting) {
+      return;
+    }
+
     if (isCreating) {
       createInvoice(
         { encounterId, facilityId, date: getCurrentDateTimeString(), ...payload },
@@ -74,7 +78,7 @@ export const UpsertInvoiceModal = ({
     }
   };
 
-  const handleUpsertInvoiceWithDiscount = data => {
+  const handleUpsertInvoiceWithDiscount = (data) => {
     const discount = {
       percentage: data.percentage,
       reason: data.reason,
@@ -102,6 +106,7 @@ export const UpsertInvoiceModal = ({
             }
             onClose={onClose}
             handleSkip={isCreating ? () => handleUpsertInvoice() : undefined}
+            isSubmitting={isSubmitting}
           />
         );
       case ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
@@ -110,6 +115,7 @@ export const UpsertInvoiceModal = ({
             handleSubmit={handleUpsertInvoiceWithDiscount}
             onClose={onClose}
             handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE_SELECTOR)}
+            isSubmitting={isSubmitting}
           />
         );
       case ACTIVE_VIEW.DISCOUNT_MANUAL:
@@ -118,6 +124,7 @@ export const UpsertInvoiceModal = ({
             handleSubmit={handleUpsertInvoiceWithDiscount}
             onClose={onClose}
             handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE_SELECTOR)}
+            isSubmitting={isSubmitting}
             initialValues={
               invoice?.discount?.isManual
                 ? { ...invoice.discount, percentage: invoice.discount.percentage * 100 }

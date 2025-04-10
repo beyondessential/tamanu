@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { Colors } from '../../constants';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ProgramRegistrySearchBar } from './ProgramRegistrySearchBar';
 import { ProgramRegistryTable } from './ProgramRegistryTable';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -28,6 +29,7 @@ const Container = styled.div`
 `;
 
 export const ProgramRegistryView = () => {
+  const { programRegistryId } = useParams();
   const searchParams = useUrlSearchParams();
   const [searchParameters, setSearchParameters] = useState({});
   const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
@@ -37,15 +39,26 @@ export const ProgramRegistryView = () => {
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
-    programRegistries.data.find(x => x.name === searchParams.get('name'))
+    programRegistries.data.find(x => x.id === programRegistryId)
   )
     return (
       <>
         <ViewHeader>
-          <h1>{searchParams.get('name')}</h1>
+          <h1>
+            <TranslatedReferenceData
+              fallback={searchParams.get('name')}
+              value={programRegistryId}
+              category="programRegistry"
+            />
+          </h1>
         </ViewHeader>
         <Container>
-          <span>Program patient search</span>
+          <span>
+            <TranslatedText
+              stringId="programRegistry.patientSearch.title"
+              fallback="Program patient search"
+            />
+          </span>
           <ProgramRegistrySearchBar
             searchParameters={searchParameters}
             setSearchParameters={setSearchParameters}

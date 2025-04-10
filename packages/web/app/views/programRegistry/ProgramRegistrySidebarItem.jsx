@@ -5,6 +5,7 @@ import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegis
 import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem';
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
+import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
@@ -29,15 +30,17 @@ export const ProgramRegistrySidebarItem = ({
     <PrimarySidebarItem
       {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
     >
-      {programRegistries.data.map(x => {
-        const secondaryPath = `${path}/${x.id}?name=${x.name}`;
+      {programRegistries.data.map(({ id, name }) => {
+        const secondaryPath = `${path}/${id}?name=${name}`;
         return !retracted ? (
           <SecondarySidebarItem
-            key={x.id}
+            key={id}
             path={secondaryPath}
             isCurrent={currentPath.includes(secondaryPath)}
             color=""
-            label={x.name}
+            label={
+              <TranslatedReferenceData value={id} fallback={name} category="programRegistry" />
+            }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}
           />

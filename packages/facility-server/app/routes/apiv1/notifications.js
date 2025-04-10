@@ -5,7 +5,6 @@ import { NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { Op, Sequelize } from 'sequelize';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { sub } from 'date-fns';
-import config from 'config';
 
 export const notifications = express.Router();
 
@@ -13,9 +12,12 @@ notifications.get(
   '/',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const { models, user } = req;
+    const { models, user, settings, query } = req;
+    const facilityId = query.facilityId;
 
-    const recentNotificationsTimeFrame = config.notification?.recentNotificationsTimeFrame || 48;
+    const recentNotificationsTimeFrame =
+      (await settings[facilityId]?.get('notifications.recentNotificationsTimeFrame')) || 48;
+
     const readNotifications = await models.Notification.findAll({
       where: {
         userId: user.id,

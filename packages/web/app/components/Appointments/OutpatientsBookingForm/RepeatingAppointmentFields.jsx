@@ -201,7 +201,7 @@ export const RepeatingAppointmentFields = ({
           enumValues={
             interval === 1 ? REPEAT_FREQUENCY_UNIT_LABELS : REPEAT_FREQUENCY_UNIT_PLURAL_LABELS
           }
-          TranslatedTextProps={{ upperFirst: true }}
+          TranslatedTextProps={{ casing: 'sentence' }}
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
         />

@@ -1,4 +1,5 @@
 import config from 'config';
+import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -23,10 +24,10 @@ async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
   const centralServer = new CentralServerConnection(context);
   const configuredHost = centralServer.host;
-  const lastHost = await LocalSystemFact.get('syncHost');
+  const lastHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
 
   if (!lastHost) {
-    await LocalSystemFact.set('syncHost', centralServer.host);
+    await LocalSystemFact.set(FACT_CENTRAL_HOST, centralServer.host);
     return;
   }
 
@@ -43,7 +44,7 @@ async function ensureHostMatches(context) {
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
   const configuredFacilities = selectFacilityIds(config);
-  const lastFacilities = await LocalSystemFact.get('facilityIds');
+  const lastFacilities = await LocalSystemFact.get(FACT_FACILITY_IDS);
 
   if (!lastFacilities) {
     await performInitialIntegritySetup(context);
@@ -75,7 +76,7 @@ async function performInitialIntegritySetup(context) {
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
   const facilityIdsString = JSON.stringify(serverFacilityIds);
-  await LocalSystemFact.set('facilityIds', facilityIdsString);
+  await LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
 
   log.info(`Verified with central server as facilities ${facilityIdsString}`);
 }

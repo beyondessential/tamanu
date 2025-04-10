@@ -1,8 +1,10 @@
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
-import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { createTestContext } from '../utilities';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { chance } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+
+import { createTestContext } from '../utilities';
 
 let baseApp = null;
 let models = null;

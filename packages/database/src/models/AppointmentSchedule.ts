@@ -20,6 +20,8 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { Appointment, AppointmentCreateData } from './Appointment';
 import { dateType } from './../types/model';
 import type { InitOptions, Models } from '../types/model';
+import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
+import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,
@@ -44,6 +46,8 @@ export type MonthlySchedule = AppointmentSchedule & {
 export class AppointmentSchedule extends Model {
   declare id: string;
   declare untilDate?: string;
+  declare generatedUntilDate?: string;
+  declare cancelledAtDate?: string;
   declare interval: number;
   declare frequency: keyof typeof REPEAT_FREQUENCY;
   declare daysOfWeek?: [string];
@@ -58,6 +62,8 @@ export class AppointmentSchedule extends Model {
       {
         id: primaryKey,
         untilDate: dateType('untilDate', { allowNull: true }),
+        generatedUntilDate: dateType('generatedUntilDate', { allowNull: true }),
+        cancelledAtDate: dateType('cancelledAtDate', { allowNull: true }),
         interval: { type: DataTypes.INTEGER, allowNull: false },
         frequency: {
           type: DataTypes.ENUM(...REPEAT_FREQUENCY_VALUES),
@@ -164,6 +170,12 @@ export class AppointmentSchedule extends Model {
     };
   }
 
+  static async incomingSyncHook(
+    changes: SyncSnapshotAttributes[],
+  ): Promise<SyncHookSnapshotChanges | undefined> {
+    return resolveAppointmentSchedules(this, changes);
+  }
+
   isDifferentFromSchedule(scheduleData: AppointmentScheduleCreateData) {
     const toComparable = (schedule: AppointmentScheduleCreateData) =>
       omit(schedule, ['createdAt', 'updatedAt', 'updatedAtSyncTick', 'id']);
@@ -202,11 +214,11 @@ export class AppointmentSchedule extends Model {
         },
       },
     });
-    await this.update({
+    const updatedSchedule = await this.update({
       isFullyGenerated: true,
-      untilDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
-      occurrenceCount: null,
+      cancelledAtDate: previousAppointment ? previousAppointment.startTime : appointment.startTime,
     });
+    return updatedSchedule;
   }
 
   /**
@@ -329,17 +341,11 @@ export class AppointmentSchedule extends Model {
     }
 
     const appointments = await models.Appointment.bulkCreate(appointmentsToCreate);
-    if (isFullyGenerated) {
-      await this.update({
-        isFullyGenerated,
-        // If the schedule was generated with occurrenceCount, set the untilDate to the last appointment
-        // and clear the occurrenceCount
-        ...(this.occurrenceCount && {
-          untilDate: appointments.at(-1)!.startTime,
-          occurrenceCount: null,
-        }),
-      });
-    }
+    await this.update({
+      isFullyGenerated,
+      generatedUntilDate: appointments.at(-1)!.startTime,
+    });
+
     return appointments;
   }
 }

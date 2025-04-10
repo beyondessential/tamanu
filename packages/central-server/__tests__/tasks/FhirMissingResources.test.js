@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { Op } from 'sequelize';
 import { createTestContext } from '../utilities';
 import {
@@ -51,7 +51,7 @@ describe('FhirMissingResources task', () => {
     });
 
     expect(count).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
-    rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
+    rows.forEach((job) => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
 
     await labRequest.destroy();
   });
@@ -170,7 +170,7 @@ describe('FhirMissingResources task', () => {
     });
 
     expect(count).toEqual(2);
-    rows.forEach(job => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
+    rows.forEach((job) => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
 
     await oldLabRequest.destroy();
     await newLabRequest.destroy();

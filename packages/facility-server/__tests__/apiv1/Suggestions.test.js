@@ -14,7 +14,8 @@ import {
   splitIds,
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
-import { fake, findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -34,6 +35,7 @@ describe('Suggestions', () => {
 
   describe('Patients', () => {
     let searchPatient;
+    let spaceySearchPatient;
 
     beforeAll(async () => {
       searchPatient = await models.Patient.create(
@@ -41,6 +43,13 @@ describe('Suggestions', () => {
           firstName: 'Test',
           lastName: 'Appear',
           displayId: 'abcabc123123',
+        }),
+      );
+      spaceySearchPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Spacey ',
+          lastName: 'Patient ',
+          displayId: 'zxyzxy321321 ',
         }),
       );
       await models.Patient.create(
@@ -70,13 +79,40 @@ describe('Suggestions', () => {
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
-    it('should get a patient by combined first and last name', async () => {
+    it('should get a patient by combined first then last name', async () => {
       const result = await userApp.get('/api/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by combined last then first name', async () => {
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Appear Test' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by combined first then last name when there is a space in the patient record', async () => {
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Spacey Patient' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', spaceySearchPatient.id);
+    });
+
+    it('should get a patient by combined last then first name when there is a space in the patient record', async () => {
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'Patient Spacey' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', spaceySearchPatient.id);
     });
 
     it('should get a patient by displayId', async () => {
@@ -86,6 +122,67 @@ describe('Suggestions', () => {
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by displayId when there is a space in the patient record', async () => {
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'zxyzxy321321' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', spaceySearchPatient.id);
+    });
+
+    it('should order patients by displayId if matched, then by first then last name, then by last then first name', async () => {
+      // intentionally created out of order
+      const monPartialDisplayIdPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Patient',
+          displayId: 'mon123',
+        }),
+      );
+      const monLastNamePatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Montegue',
+          displayId: 'lastname',
+        }),
+      );
+      const monFirstNameFirstPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Monica',
+          lastName: 'Patient',
+          displayId: 'firstfirstname',
+        }),
+      );
+      const monFirstNameSecondPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Monty', // testing alphabetical order within a section
+          lastName: 'Patient',
+          displayId: 'secondfirstname',
+        }),
+      );
+      const monExactDisplayIdPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Patient',
+          displayId: 'mon',
+        }),
+      );
+
+      const result = await userApp.get('/api/suggestions/patient').query({ q: 'mon' });
+      expect(result).toHaveSucceeded();
+
+      const orderedPatientIds = [
+        monExactDisplayIdPatient.id,
+        monPartialDisplayIdPatient.id,
+        monFirstNameFirstPatient.id,
+        monFirstNameSecondPatient.id,
+        monLastNamePatient.id,
+      ];
+      const { body } = result;
+      expect(body.map((p) => p.id)).toStrictEqual(orderedPatientIds);
     });
 
     it('should not get patients without permission', async () => {

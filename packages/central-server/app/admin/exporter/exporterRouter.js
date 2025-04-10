@@ -12,7 +12,7 @@ exporterRouter.get(
   '/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
-    const { includedDataTypes = {} } = query;
+    const { includedDataTypes, ...otherOptions } = query;
 
     for (const dataType of Object.values(includedDataTypes)) {
       // When it is ReferenceData, check if user has permission to list ReferenceData
@@ -27,7 +27,7 @@ exporterRouter.get(
       req.checkPermission('list', nonReferenceDataModelName);
     }
 
-    const filename = await exporter(store, query.includedDataTypes);
+    const filename = await exporter(store, includedDataTypes, otherOptions);
     res.download(filename);
   }),
 );

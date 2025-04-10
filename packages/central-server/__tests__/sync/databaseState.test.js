@@ -1,7 +1,8 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -20,7 +21,7 @@ describe('databaseState', () => {
 
   it('all syncing models should have a tick column', async () => {
     const syncModels = Object.values(models).filter(
-      model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
+      (model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
     );
 
     for (const Model of syncModels) {
@@ -34,7 +35,7 @@ describe('databaseState', () => {
   it('unsyncing models should not have tick column', async () => {
     const unsyncModels = Object.values(models).filter(
       // sync_lookup is a special table that is non syncing but should still have updated_at_sync_tick
-      model =>
+      (model) =>
         model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC && model.tableName !== 'sync_lookup',
     );
 
@@ -48,7 +49,7 @@ describe('databaseState', () => {
 
   it('syncing models should set tick on create', async () => {
     const { LocalSystemFact, Patient, Facility } = models;
-    const currentTick = await LocalSystemFact.get('currentSyncTick');
+    const currentTick = await LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
     // can't test against every model because of dependencies, just pick a few
     for (const Model of [Patient, Facility]) {

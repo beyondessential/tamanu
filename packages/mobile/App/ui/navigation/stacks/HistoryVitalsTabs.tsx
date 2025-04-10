@@ -12,7 +12,11 @@ export const HistoryVitalsTabs = (): ReactElement => (
     <Tabs.Screen
       options={{
         title: () => (
-          <TranslatedText stringId="patient.history.visits.title" fallback="VISITS" uppercase />
+          <TranslatedText
+            stringId="patient.history.visits.title"
+            fallback="VISITS"
+            casing="upper"
+          />
         ),
       }}
       name={Routes.HomeStack.HistoryVitalsStack.HistoryVitalsTabs.Visits}
@@ -21,7 +25,11 @@ export const HistoryVitalsTabs = (): ReactElement => (
     <Tabs.Screen
       options={{
         title: () => (
-          <TranslatedText stringId="patient.history.vaccines.title" fallback="VACCINES" uppercase />
+          <TranslatedText
+            stringId="patient.history.vaccines.title"
+            fallback="VACCINES"
+            casing="upper"
+          />
         ),
       }}
       name={Routes.HomeStack.HistoryVitalsStack.HistoryVitalsTabs.Vaccines}

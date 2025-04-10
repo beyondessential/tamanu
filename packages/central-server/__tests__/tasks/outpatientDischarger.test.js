@@ -1,6 +1,6 @@
 import { endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { OutpatientDischarger } from '../../dist/tasks/OutpatientDischarger';
@@ -20,7 +20,7 @@ describe('Outpatient discharger', () => {
     return discharger.run();
   };
 
-  const expectEndsOnSameDayBeforeMidnight = encounter => {
+  const expectEndsOnSameDayBeforeMidnight = (encounter) => {
     const { startDate, endDate } = encounter;
     expect(startDate).toBeTruthy();
     expect(endDate).toBeTruthy();

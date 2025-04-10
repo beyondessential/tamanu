@@ -1,6 +1,8 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
+import styled from 'styled-components';
+import { pluralize } from 'inflection';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi } from '../../../api';
@@ -14,8 +16,17 @@ import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifySuccess } from '../../../utils';
 
-const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
-  <FormGrid columns={1}>
+const StyledFormGrid = styled(FormGrid)`
+  margin-left: 10px;
+`;
+
+const ExportForm = ({
+  dataTypes,
+  dataTypesSelectable,
+  buttonLabel,
+  ExportButton = FormSubmitButton,
+}) => (
+  <StyledFormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
@@ -29,50 +40,65 @@ const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
-    <ButtonRow>
-      <FormSubmitButton
-        text={<TranslatedText stringId="general.action.export" fallback="Export" />}
-      />
+    <ButtonRow alignment="left">
+      <ExportButton text={buttonLabel} />
     </ButtonRow>
-  </FormGrid>
+  </StyledFormGrid>
 );
 
-export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
-  const api = useApi();
-  const { getTranslation } = useTranslation();
+export const ExporterView = memo(
+  ({ title, endpoint, dataTypes, dataTypesSelectable, ExportButton }) => {
+    const api = useApi();
+    const { getTranslation } = useTranslation();
 
-  const onSubmit = useCallback(
-    async ({ includedDataTypes }) => {
-      await saveFile({
-        defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
-        getData: async () => api.download(`admin/export/${endpoint}`, { includedDataTypes }),
-        extension: 'xlsx',
-      });
-      notifySuccess(
-        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+    const onSubmit = useCallback(
+      async queryParameters => {
+        await saveFile({
+          defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
+          getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
+          extension: 'xlsx',
+        });
+        notifySuccess(
+          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+        );
+      },
+      [api, title, endpoint],
+    );
+
+    const buttonLabel = useMemo(() => {
+      return (
+        <span>
+          <TranslatedText stringId="general.action.export" fallback="Export" />{' '}
+          {pluralize(title).toLowerCase()}
+        </span>
       );
-    },
-    [api, title, endpoint],
-  );
+    }, [title]);
 
-  const renderForm = useCallback(
-    props => (
-      <ExportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
+    const renderForm = useCallback(
+      props => (
+        <ExportForm
+          dataTypes={dataTypes}
+          dataTypesSelectable={dataTypesSelectable}
+          buttonLabel={buttonLabel}
+          ExportButton={ExportButton}
+          {...props}
+        />
+      ),
+      [dataTypes, dataTypesSelectable, ExportButton, buttonLabel],
+    );
 
-  return (
-    <Form
-      onSubmit={onSubmit}
-      validationSchema={yup.object().shape({
-        includedDataTypes: yup.array(),
-      })}
-      formType={FORM_TYPES.CREATE_FORM}
-      initialValues={{
-        includedDataTypes: [...dataTypes],
-      }}
-      render={renderForm}
-    />
-  );
-});
+    return (
+      <Form
+        onSubmit={onSubmit}
+        validationSchema={yup.object().shape({
+          includedDataTypes: yup.array(),
+        })}
+        formType={FORM_TYPES.CREATE_FORM}
+        initialValues={{
+          includedDataTypes: [...dataTypes],
+        }}
+        render={renderForm}
+      />
+    );
+  },
+);

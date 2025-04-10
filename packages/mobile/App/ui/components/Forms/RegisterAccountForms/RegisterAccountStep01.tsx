@@ -70,13 +70,17 @@ const Form: FunctionComponent<any> = () => {
           .min(
             PhoneMask.mask.length,
             getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
-              digits: PhoneMask.mask.length,
+              replacements: {
+                digits: PhoneMask.mask.length,
+              },
             }),
           )
           .max(
             PhoneMask.mask.length,
             getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
-              digits: PhoneMask.mask.length,
+              replacements: {
+                digits: PhoneMask.mask.length,
+              },
             }),
           )
           .required(),

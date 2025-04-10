@@ -1,7 +1,7 @@
 import config from 'config';
 import Chance from 'chance';
 import { v4 as uuidv4 } from 'uuid';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { randomReferenceData } from '@tamanu/database/demoData/patients';
 import { randomRecord } from '@tamanu/database/demoData/utilities';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';

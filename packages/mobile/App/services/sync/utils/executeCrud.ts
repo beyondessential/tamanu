@@ -1,4 +1,5 @@
 import { chunk, cloneDeep } from 'lodash';
+import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
 import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
@@ -85,7 +86,7 @@ export const executeDeletes = async (
   const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
-      const entities = await model.findByIds(batchOfIds);
+      const entities = await model.find({ where: { id: In(batchOfIds) } });
       await model.softRemove(entities);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the

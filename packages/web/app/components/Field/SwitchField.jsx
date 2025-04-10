@@ -39,7 +39,7 @@ const StyledSwitch = styled(Switch)`
     opacity: 1;
   }
   .MuiSwitch-switchBase.Mui-disabled.Mui-checked + .MuiSwitch-track {
-    background-color: #c2d2e1;
+    background-color: ${Colors.primary30};
     opacity: 1;
   }
 `;
@@ -51,7 +51,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-export const SwitchInput = ({ label, disabled, value, ...props }) => {
+export const SwitchInput = ({ label, disabled, value, className, ...props }) => {
   const handleChange = event => {
     event.target.value = event.target.checked;
     props.onChange(event);
@@ -61,6 +61,7 @@ export const SwitchInput = ({ label, disabled, value, ...props }) => {
       control={<StyledSwitch value={value} checked={!!value} {...props} onChange={handleChange} />}
       label={label}
       disabled={disabled}
+      className={className}
     />
   );
 };

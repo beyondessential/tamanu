@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -33,7 +33,7 @@ async function makeEncounterWithAssociations(models) {
     locationId: location.id,
   });
 
-  const history = await EncounterHistory.findOne({ where: { encounterId: encounter.id }});
+  const history = await EncounterHistory.findOne({ where: { encounterId: encounter.id } });
 
   const note = await Note.create(
     fake(Note, {

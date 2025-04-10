@@ -1,6 +1,6 @@
 import Chance from 'chance';
 import config from 'config';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SURVEY_TYPES,
@@ -197,7 +197,7 @@ describe('SurveyResponseAnswer', () => {
       it('should modify a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
         const newValue = parseInt(singleAnswer.body, 10) + 1;
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test',
@@ -213,7 +213,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a log on modification', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
         const previousValue = singleAnswer.body;
         const newValue = parseInt(previousValue, 10) + 1;
         const reasonForChange = 'test2';
@@ -239,9 +239,9 @@ describe('SurveyResponseAnswer', () => {
         const answers = await response.getAnswers();
 
         // This answer is used in a calculated value
-        const usedAnswer = answers.find(answer => answer.dataElementId === dataElements[1].id);
+        const usedAnswer = answers.find((answer) => answer.dataElementId === dataElements[1].id);
         const calculatedAnswer = answers.find(
-          answer => answer.dataElementId === dataElements[2].id,
+          (answer) => answer.dataElementId === dataElements[2].id,
         );
         const previousValue = calculatedAnswer.body;
         const newValue = parseInt(usedAnswer.body, 10) + 1;
@@ -304,7 +304,7 @@ describe('SurveyResponseAnswer', () => {
           SurveyResponse.createWithAnswers(data),
         );
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);
+        const singleAnswer = answers.find((answer) => answer.dataElementId === pde.id);
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test4',
           newValue: chance.string(),
@@ -319,7 +319,7 @@ describe('SurveyResponseAnswer', () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
         const calculatedAnswer = answers.find(
-          answer => answer.dataElementId === dataElements[2].id,
+          (answer) => answer.dataElementId === dataElements[2].id,
         );
 
         const result = await app
@@ -337,7 +337,7 @@ describe('SurveyResponseAnswer', () => {
       it('should reject editing if new value is the same as previous value', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const singleAnswer = answers.find((answer) => answer.dataElementId === dataElements[0].id);
         const newValue = singleAnswer.body;
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test6',
@@ -385,7 +385,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+        const dateAnswer = answers.find((answer) => answer.dataElementId === dataElements[3].id);
         const newValue = chance.integer({ min: 0, max: 100 });
         const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test',
@@ -406,7 +406,7 @@ describe('SurveyResponseAnswer', () => {
       it('should create a log', async () => {
         const response = await createNewVitalsSurveyResponse();
         const answers = await response.getAnswers();
-        const dateAnswer = answers.find(answer => answer.dataElementId === dataElements[3].id);
+        const dateAnswer = answers.find((answer) => answer.dataElementId === dataElements[3].id);
         const newValue = chance.integer({ min: 0, max: 100 });
         const reasonForChange = 'another-test2';
         const date = getCurrentDateTimeString();

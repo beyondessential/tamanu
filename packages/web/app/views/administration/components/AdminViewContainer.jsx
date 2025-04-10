@@ -6,7 +6,13 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 const OuterContainer = styled.div`
   position: relative;
   background-color: white;
-  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 const ContentContainer = styled.div`
