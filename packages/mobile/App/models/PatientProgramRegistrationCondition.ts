@@ -12,6 +12,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 @Entity('patient_program_registration_conditions')
