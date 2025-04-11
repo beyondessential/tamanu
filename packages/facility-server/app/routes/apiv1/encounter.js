@@ -201,6 +201,11 @@ encounterRelations.get(
           attributes: ['id'],
         },
         {
+          model: models.MedicationAdministrationRecord,
+          as: 'medicationAdministrationRecords',
+          include: 'reasonNotGiven'
+        },
+        {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
           include: {
