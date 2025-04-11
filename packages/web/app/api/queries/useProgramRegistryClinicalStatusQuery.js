@@ -9,11 +9,8 @@ export const useProgramRegistryClinicalStatusQuery = (
   const api = useApi();
 
   return useQuery(['patient', patientId, 'programRegistration', programRegistryId, 'history'], () =>
-    api.get(
-      `patient/${encodeURIComponent(patientId)}/programRegistration/${encodeURIComponent(
-        programRegistryId,
-      )}/history`,
-      fetchOptions,
-    ),
+    api
+      .get(`patient/${patientId}/programRegistration/${programRegistryId}/history`, fetchOptions)
+      .then(response => response.data),
   );
 };
