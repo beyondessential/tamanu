@@ -8,7 +8,6 @@ export interface IMedication {
   medication: IReferenceData;
   endDate?: string;
   note?: string;
-  prescription?: string;
   indication?: string;
   route?: string;
 }

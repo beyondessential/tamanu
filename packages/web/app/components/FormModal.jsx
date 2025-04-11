@@ -15,7 +15,7 @@ const FormModalComponent = memo(({ children, ...props }) => {
   }, [hasFormSubmission]);
 
   return (
-    <BaseModal {...props} isClosable={isClosable}>
+    <BaseModal isClosable={isClosable} {...props}>
       {showNotUsingFormWarning && (
         <Alert severity="warning" onClose={() => setShowNotUsingFormWarning(false)}>
           <AlertTitle>
