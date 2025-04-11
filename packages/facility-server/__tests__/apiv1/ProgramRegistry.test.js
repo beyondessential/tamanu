@@ -309,6 +309,79 @@ describe('ProgramRegistry', () => {
       ]);
     });
 
+    it('should exclude conditions with hidden condition categories', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+
+      const relevantCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+      const decoyCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, {
+          programRegistryId,
+        }),
+      );
+
+      const baseRegistrationData = {
+        programRegistryId,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        date: '2023-09-04 08:00:00',
+        clinicianId: app.user.id,
+      };
+
+      // Patient 1
+      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '1-123' }));
+      const registration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient1.id,
+          date: '2024-03-03 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: decoyCondition.id,
+          conditionCategory: 'recordedInError',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: relevantCondition.id,
+        }),
+      );
+
+      // Patient 2
+      const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-123' }));
+      const registration2 = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2024-09-04 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientProgramRegistrationId: registration2.id,
+          programRegistryConditionId: decoyCondition.id,
+          conditionCategory: 'recordedInError',
+        }),
+      );
+
+      const result = await app.get(`/api/programRegistry/${programRegistryId}/registrations`);
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      const patient1Conditions = body.data[0].conditions;
+      const patient2Conditions = body.data[1].conditions;
+      expect(patient1Conditions).toEqual([
+        { name: relevantCondition.name, id: relevantCondition.id },
+      ]);
+      expect(patient2Conditions).toEqual(null);
+    });
+
     it('should filter by associated condition', async () => {
       // Config models
       const { id: programRegistryId } = await createProgramRegistry();
@@ -335,7 +408,7 @@ describe('ProgramRegistry', () => {
 
       // Patient 1: Should show
       const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
-      await models.PatientProgramRegistration.create(
+      const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient1.id,
@@ -346,22 +419,20 @@ describe('ProgramRegistry', () => {
 
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient1.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
         }),
       );
 
       // Patient 2: Should not show
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2-2' }));
-      await models.PatientProgramRegistration.create(
+      const registration2 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
@@ -370,9 +441,25 @@ describe('ProgramRegistry', () => {
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
-          patientId: patient2.id,
-          programRegistryId,
+          patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
+        }),
+      );
+
+      // Patient 3: Should not show
+      const patient3 = await models.Patient.create(fake(models.Patient, { displayId: '3-3' }));
+      const registration3 = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient3.id,
+          date: '2024-09-04 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientProgramRegistrationId: registration3.id,
+          programRegistryConditionId: relevantCondition.id,
+          conditionCategory: 'recordedInError',
         }),
       );
 
@@ -389,8 +476,8 @@ describe('ProgramRegistry', () => {
       expect(body.data).toMatchObject([
         {
           conditions: expect.arrayContaining([
-            { id: decoyCondition.id, name: decoyCondition.name },
-            { id: relevantCondition.id, name: relevantCondition.name },
+            { name: decoyCondition.name, id: decoyCondition.id },
+            { name: relevantCondition.name, id: relevantCondition.id },
           ]),
         },
       ]);

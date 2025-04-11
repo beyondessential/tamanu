@@ -145,6 +145,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
 
 const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
+    id={PANE_SECTION_IDS.PROGRAM_REGISTRY}
     patient={patient}
     readonly={readonly}
     title={
@@ -156,7 +157,6 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
     Form={PatientProgramRegistryForm}
-    overrideContentPadding
     ListItemComponent={ProgramRegistryListItem}
     behavior="modal"
     itemTitle={

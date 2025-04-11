@@ -4,6 +4,7 @@ import { DateTimeString } from './DateString';
 import { IFacility, IPatient, IReferenceData, IUser } from '.';
 import { IProgramRegistry } from './IProgramRegistry';
 import { RegistrationStatus } from '~/constants/programRegistries';
+import { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
 
 export interface IPatientProgramRegistration {
   id: ID;
@@ -32,4 +33,6 @@ export interface IPatientProgramRegistration {
 
   villageId?: ID;
   village?: IReferenceData;
+
+  conditions: IPatientProgramRegistrationCondition[];
 }

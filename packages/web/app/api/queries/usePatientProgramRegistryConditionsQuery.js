@@ -1,30 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const usePatientProgramRegistryConditionsQuery = (
-  patientId,
-  programRegistryId,
-  fetchOptions,
-) => {
+export const usePatientProgramRegistryConditionsQuery = (registrationId, fetchOptions) => {
   const api = useApi();
-  return useQuery(['PatientProgramRegistryConditions', programRegistryId], () =>
-    api.get(
-      `patient/${encodeURIComponent(patientId)}/programRegistration/${encodeURIComponent(
-        programRegistryId,
-      )}/condition`,
-      fetchOptions,
-    ),
+  return useQuery(
+    ['patient', 'programRegistration', registrationId, 'condition', fetchOptions],
+    () =>
+      api
+        .get(`patient/programRegistration/${registrationId}/condition`, fetchOptions)
+        .then(response => response.data),
+    { enabled: Boolean(registrationId) },
   );
 };
 
 export const useProgramRegistryConditionsQuery = programRegistryId => {
   const api = useApi();
-  return useQuery(['programRegistryConditions', programRegistryId], () =>
-    api
-      .get(`programRegistry/${programRegistryId}/conditions`, {
-        orderBy: 'name',
-        order: 'ASC',
-      })
-      .then(response => response.data),
+  return useQuery(
+    ['programRegistry', programRegistryId, 'conditions'],
+    () =>
+      api
+        .get(`programRegistry/${programRegistryId}/conditions`, {
+          orderBy: 'name',
+          order: 'ASC',
+        })
+        .then(response => response.data),
+    { enabled: Boolean(programRegistryId) },
   );
 };
