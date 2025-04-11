@@ -153,6 +153,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
         fallback="Program registry"
       />
     }
+    id={PANE_SECTION_IDS.PROGRAM_REGISTRY}
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
     Form={PatientProgramRegistryForm}
