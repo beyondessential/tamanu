@@ -74,6 +74,41 @@ export const DRUG_UNIT_LABELS = Object.values(DRUG_UNITS).reduce((prev, curr) =>
   return prev;
 }, {} as any);
 
+export const DRUG_UNIT_SHORT_LABELS = {
+  [DRUG_UNITS.percentage]: '%',
+  [DRUG_UNITS.capsule]: 'Cap',
+  [DRUG_UNITS.disc]: 'Disc',
+  [DRUG_UNITS.douche]: 'Dche',
+  [DRUG_UNITS.drop]: 'Drop',
+  [DRUG_UNITS.ffu]: 'FFU',
+  [DRUG_UNITS.g]: 'g',
+  [DRUG_UNITS.iu]: 'IU',
+  [DRUG_UNITS.l]: 'L',
+  [DRUG_UNITS.lozenge]: 'Loz',
+  [DRUG_UNITS.mg]: 'mg',
+  [DRUG_UNITS.mcg]: 'mcg',
+  [DRUG_UNITS.ml]: 'mL',
+  [DRUG_UNITS.mmol]: 'mmol',
+  [DRUG_UNITS.mol]: 'mol',
+  [DRUG_UNITS.patch]: 'Patch',
+  [DRUG_UNITS.pellet]: 'Pellet',
+  [DRUG_UNITS.pouch]: 'Pouch',
+  [DRUG_UNITS.puff]: 'Puff',
+  [DRUG_UNITS.ring]: 'Ring',
+  [DRUG_UNITS.smear]: 'Smear',
+  [DRUG_UNITS.spray]: 'Spray',
+  [DRUG_UNITS.stick]: 'Stick',
+  [DRUG_UNITS.strip]: 'Strip',
+  [DRUG_UNITS.suppository]: 'Supp',
+  [DRUG_UNITS.swab]: 'Swab',
+  [DRUG_UNITS.tablet]: 'Tab',
+  [DRUG_UNITS.tbsp]: 'tbsp',
+  [DRUG_UNITS.tsp]: 'tsp',
+  [DRUG_UNITS.u]: 'U',
+  [DRUG_UNITS.vial]: 'Vial',
+  [DRUG_UNITS.wafer]: 'Wafer',
+};
+
 const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
