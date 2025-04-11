@@ -59,6 +59,7 @@ export const DateInput = ({
   arrows = false,
   inputProps = {},
   keepIncorrectValue,
+  ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.placeholder;
@@ -189,6 +190,7 @@ export const DateInput = ({
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min, ...inputProps },
+        'data-testid': `${dataTestId}-input`
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
