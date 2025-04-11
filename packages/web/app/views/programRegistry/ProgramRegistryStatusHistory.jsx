@@ -6,7 +6,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
-import { ClinicalStatusCell, ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { TranslatedText } from '../../components';
 
