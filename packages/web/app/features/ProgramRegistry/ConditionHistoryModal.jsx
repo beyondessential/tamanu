@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
+import Divider from '@material-ui/core/Divider';
 import {
   Modal,
   DateDisplay,
@@ -8,13 +9,16 @@ import {
   TranslatedReferenceData,
   TranslatedEnum,
   Heading5,
+  Button,
+  ModalGenericButtonRow,
 } from '../../components';
 import { Colors } from '../../constants';
 import { FormTable } from './FormTable';
 
 const StyledFormTable = styled(FormTable)`
   overflow: auto;
-  margin-bottom: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 
   table tr td {
     border: none;
@@ -22,42 +26,46 @@ const StyledFormTable = styled(FormTable)`
 `;
 
 const HistorySection = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   background-color: ${Colors.white};
-  padding: 1.25rem;
+  padding: 1rem;
   border-radius: 3px;
+  border: 1px solid ${Colors.outline};
+  margin-bottom: 2rem;
 `;
 
 const HistoryItem = styled.div`
-  padding: 1rem;
-  border-bottom: 1px solid ${Colors.outline};
-
-  &:last-child {
-    border-bottom: none;
-  }
+  font-size: 14px;
+  line-height: 18px;
+  flex: 1;
 `;
 
-const Category = styled.div`
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-`;
-
-const Reason = styled.div`
-  margin-bottom: 0.5rem;
-`;
-
-const MetaInfo = styled.div`
+const HistoryItemRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  color: ${Colors.text.light};
-  font-size: 0.875rem;
+`;
+
+const HistoryItemLabel = styled.div`
+  color: ${Colors.darkText};
+  margin-right: 1ch;
+`;
+
+const HistoryItemValue = styled.div`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+`;
+
+const SmallText = styled.div`
+  color: ${Colors.midText};
+  font-size: 11px;
+  span {
+    margin-right: 1ch;
+  }
 `;
 
 export const ConditionHistoryModal = ({ open, onClose, condition }) => {
   if (!condition) return null;
-
-  console.log('ConditionHistoryModal', condition);
-
-  const { history = [], programRegistryCondition, date, conditionCategory } = condition;
 
   const columns = [
     {
@@ -91,6 +99,8 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
     },
   ];
 
+  const { history = [] } = condition;
+
   return (
     <Modal
       title={<TranslatedText stringId="programRegistry.viewHistory" fallback="View history" />}
@@ -99,7 +109,8 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       width="md"
     >
       <StyledFormTable columns={columns} data={[condition]} />
-      <Heading5 mt={0} mb={1}>
+      <Divider />
+      <Heading5 mb={1} mt={1}>
         <TranslatedText
           stringId="programRegistry.conditionCategoryHistory.title"
           fallback="Condition category history"
@@ -108,20 +119,31 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       <HistorySection>
         {history.map(entry => (
           <HistoryItem key={entry.id}>
-            <Category>
-              <TranslatedEnum
-                value={entry.data.conditionCategory}
-                enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
-              />
-            </Category>
-            {entry.data.reasonForChange && <Reason>{entry.data.reasonForChange}</Reason>}
-            <MetaInfo>
+            <HistoryItemRow>
+              <HistoryItemLabel>Category:</HistoryItemLabel>
+              <HistoryItemValue>
+                <TranslatedEnum
+                  value={entry.data.conditionCategory}
+                  enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+                />
+              </HistoryItemValue>
+            </HistoryItemRow>
+            {entry.data.reasonForChange && (
+              <HistoryItemRow>
+                <HistoryItemLabel>Reason for change:</HistoryItemLabel>
+                <HistoryItemValue>{entry.data.reasonForChange}</HistoryItemValue>
+              </HistoryItemRow>
+            )}
+            <SmallText>
               <span>{entry.clinician.displayName}</span>
-              <DateDisplay date={entry.date} />
-            </MetaInfo>
+              <DateDisplay date={entry.date} showTime />
+            </SmallText>
           </HistoryItem>
         ))}
       </HistorySection>
+      <ModalGenericButtonRow>
+        <Button onClick={onClose}>Close</Button>
+      </ModalGenericButtonRow>
     </Modal>
   );
 };
