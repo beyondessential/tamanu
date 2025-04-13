@@ -4,14 +4,29 @@ import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
+    CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled()
+    RETURNS boolean AS $$
+    BEGIN
+      IF get_session_config('${AUDIT_PAUSE_KEY}', 'false')::boolean THEN
+        RETURN false;
+      END IF;
+
+      RETURN COALESCE(
+        (SELECT value::boolean
+         FROM settings
+         WHERE key = 'audit.changes.enabled'
+         AND scope = '${SETTINGS_SCOPES.GLOBAL}'),
+        false
+      );
+    END;
+    $$ LANGUAGE plpgsql;
+  `);
+
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.record_change()
     RETURNS trigger AS $$
     BEGIN
-      IF NOT COALESCE((SELECT value::boolean FROM settings WHERE key = 'audit.changes.enabled' AND scope = '${SETTINGS_SCOPES.GLOBAL}'), false) THEN
-        RETURN NEW;
-      END IF;
-
-      IF (SELECT get_session_config('${AUDIT_PAUSE_KEY}', 'false')::boolean) THEN
+      IF NOT logs.is_audit_changes_enabled() THEN
         RETURN NEW;
       END IF;
 
@@ -87,5 +102,8 @@ export async function down(query: QueryInterface): Promise<void> {
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
+  `);
+  await query.sequelize.query(`
+    DROP FUNCTION logs.is_audit_changes_enabled();
   `);
 }
