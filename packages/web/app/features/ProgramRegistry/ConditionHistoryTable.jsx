@@ -43,7 +43,7 @@ const SmallText = styled.div`
   }
 `;
 
-export const ConditionHistoryTable = ({ historyData }) => {
+export const ConditionHistoryTable = ({ historyData = [] }) => {
   return (
     <>
       <Heading5 mb={1} mt={1}>

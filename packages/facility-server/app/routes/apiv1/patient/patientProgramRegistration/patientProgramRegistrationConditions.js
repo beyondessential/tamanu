@@ -72,9 +72,6 @@ patientProgramRegistrationConditions.get(
         },
       ],
       order: [['loggedAt', 'DESC']],
-      replacements: {
-        programRegistrationId,
-      },
     });
 
     // Create a map of condition ID to its change history

@@ -14,6 +14,7 @@ import {
   TextField,
   TranslatedText,
   Form,
+  TranslatedReferenceData,
 } from '../../components';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
@@ -225,7 +226,11 @@ export const RelatedConditionsForm = ({
                         conditionCategory === 'recordedInError' ? 'line-through' : 'none',
                     }}
                   >
-                    {name}
+                    <TranslatedReferenceData
+                      value={conditionId}
+                      fallback={name}
+                      category="programRegistryCondition"
+                    />
                   </span>
                 );
               }
