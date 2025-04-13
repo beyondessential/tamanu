@@ -635,7 +635,123 @@ describe('PatientProgramRegistration', () => {
     });
 
     describe('GET patient/programRegistration/:programRegistrationId/condition', () => {
-      it.todo('should retrieve current patient program registration conditions');
+      let patient;
+      let programRegistry;
+      let registration;
+      let condition1;
+      let condition2;
+
+      beforeEach(async () => {
+        patient = await models.Patient.create(fake(models.Patient));
+        const program = await models.Program.create(fake(models.Program));
+        programRegistry = await models.ProgramRegistry.create(
+          fake(models.ProgramRegistry, { programId: program.id }),
+        );
+        const programRegistryCondition1 = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+        const programRegistryCondition2 = await models.ProgramRegistryCondition.create(
+          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+        );
+
+        registration = await models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        condition1 = await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientProgramRegistrationId: registration.id,
+            programRegistryConditionId: programRegistryCondition1.id,
+            date: TEST_DATE_EARLY,
+          }),
+        );
+
+        condition2 = await models.PatientProgramRegistrationCondition.create(
+          fake(models.PatientProgramRegistrationCondition, {
+            patientProgramRegistrationId: registration.id,
+            programRegistryConditionId: programRegistryCondition2.id,
+            date: TEST_DATE_LATE,
+          }),
+        );
+      });
+
+      afterEach(async () => {
+        await models.PatientProgramRegistrationCondition.truncate({ cascade: true, force: true });
+        await models.ProgramRegistryCondition.truncate({ cascade: true, force: true });
+        await models.Patient.truncate({ cascade: true, force: true });
+        await models.ProgramRegistry.truncate({ cascade: true, force: true });
+        await models.Program.truncate({ cascade: true, force: true });
+      });
+
+      it('should retrieve current patient program registration conditions', async () => {
+        const result = await app.get(
+          `/api/patient/programRegistration/${registration.id}/condition`,
+        );
+        expect(result).toHaveSucceeded();
+
+        // Verify the response format
+        expect(result.body).toHaveProperty('count');
+        expect(result.body).toHaveProperty('data');
+        expect(Array.isArray(result.body.data)).toBe(true);
+
+        // Verify the conditions data
+        const conditions = result.body.data;
+        expect(conditions.length).toBe(2);
+
+        // Check that conditions are ordered by date (newest first)
+        expect(conditions[0].id).toBe(condition2.id);
+        expect(conditions[1].id).toBe(condition1.id);
+
+        // Verify each condition has the expected properties
+        conditions.forEach((condition) => {
+          expect(condition).toHaveProperty('id');
+          expect(condition).toHaveProperty('patientProgramRegistrationId', registration.id);
+          expect(condition).toHaveProperty('programRegistryConditionId');
+          expect(condition).toHaveProperty('date');
+          expect(condition).toHaveProperty('history');
+          expect(Array.isArray(condition.history)).toBe(true);
+        });
+      });
+
+      it('should include condition history with clinician information', async () => {
+        // Update condition1 using the PUT endpoint to create history
+        const updateResult = await app
+          .put(`/api/patient/programRegistration/condition/${condition1.id}`)
+          .send({
+            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            reasonForChange: 'Test reason',
+            patientProgramRegistrationId: registration.id,
+          });
+        expect(updateResult).toHaveSucceeded();
+
+        const result = await app.get(
+          `/api/patient/programRegistration/${registration.id}/condition`,
+        );
+        expect(result).toHaveSucceeded();
+
+        const conditions = result.body.data;
+        const conditionWithHistory = conditions.find((c) => c.id === condition1.id);
+
+        // Verify history data
+        expect(conditionWithHistory.history.length).toBe(2);
+        const historyEntry = conditionWithHistory.history[0];
+        expect(historyEntry).toHaveProperty('id');
+        expect(historyEntry).toHaveProperty('date');
+        expect(historyEntry).toHaveProperty('data');
+        expect(historyEntry.data).toHaveProperty(
+          'conditionCategory',
+          PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+        );
+        expect(historyEntry.data).toHaveProperty('reasonForChange', 'Test reason');
+        expect(historyEntry).toHaveProperty('clinician');
+        expect(historyEntry.clinician).toHaveProperty('id', app.user.id);
+        expect(historyEntry.clinician).toHaveProperty('displayName');
+      });
     });
   });
 
