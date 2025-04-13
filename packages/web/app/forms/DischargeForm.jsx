@@ -48,14 +48,6 @@ const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
-const StyledFormSubmitButton = styled(FormSubmitButton)`
-  &.Mui-disabled {
-    color: ${Colors.white};
-    box-shadow: none;
-    background-color: #c2d2e1;
-  }
-`;
-
 const IconButton = styled(BaseIconButton)`
   position: absolute;
   top: 14px;
@@ -409,14 +401,14 @@ const DischargeFormScreen = props => {
                   </SmallBodyText>
                 }
               >
-                <StyledFormSubmitButton {...props}>
+                <FormSubmitButton {...props}>
                   <Box whiteSpace="nowrap">
                     <TranslatedText
                       stringId="general.action.finaliseDischarge"
                       fallback="Finalise discharge"
                     />
                   </Box>
-                </StyledFormSubmitButton>
+                </FormSubmitButton>
               </ConditionalTooltip>
             )}
             confirmDisabled={isDiagnosisEmpty}

@@ -4,6 +4,7 @@ import {
   TASK_STATUSES,
   TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
   SYSTEM_USER_UUID,
+  TASK_DURATION_UNIT,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import config from 'config';
@@ -29,6 +30,8 @@ export class Task extends Model {
   declare note?: string;
   declare frequencyValue?: number;
   declare frequencyUnit?: string;
+  declare durationValue?: number;
+  declare durationUnit?: string;
   declare highPriority?: boolean;
   declare parentTaskId?: string;
   declare completedTime?: string;
@@ -79,6 +82,14 @@ export class Task extends Model {
           allowNull: true,
         },
         frequencyUnit: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        durationValue: {
+          type: DataTypes.DECIMAL,
+          allowNull: true,
+        },
+        durationUnit: {
           type: DataTypes.STRING,
           allowNull: true,
         },
@@ -135,6 +146,10 @@ export class Task extends Model {
   }
 
   static initRelations(models: Models) {
+    this.belongsTo(models.Task, {
+      foreignKey: 'parentTaskId',
+      as: 'parentTask',
+    });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -267,7 +282,7 @@ export class Task extends Model {
 
       const upcomingTasksShouldBeGeneratedTimeFrame =
         config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
-      const { frequencyValue, frequencyUnit } = task;
+      const { frequencyValue, frequencyUnit, durationValue, durationUnit } = task;
       const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
 
       const maxDueTime = addMilliseconds(
@@ -277,11 +292,28 @@ export class Task extends Model {
       let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
       const generatedTasks = [];
 
-      for (
-        ;
-        nextDueTime.getTime() <= maxDueTime.getTime();
-        nextDueTime = addMilliseconds(nextDueTime, frequency)
-      ) {
+      // const parsedStartDate = parseISO(startDate);
+      // const duration = parseInt(durationValue, 10);
+      // add(parsedStartDate, { [durationUnit]: duration });
+      let endDate = Infinity;
+      if (durationValue && durationUnit) {
+        switch (durationUnit) {
+          case TASK_DURATION_UNIT.OCCURRENCES:
+            endDate = addMilliseconds(
+              new Date(task.dueTime),
+              frequency * (durationValue - 1),
+            ).getTime();
+            break;
+          default: {
+            const duration = ms(`${durationValue} ${durationUnit}`);
+            endDate = addMilliseconds(new Date(task.dueTime), duration).getTime();
+            break;
+          }
+        }
+      }
+
+      // Use a while loop to generate tasks until we reach maxDueTime or endDateTime
+      while (nextDueTime.getTime() <= maxDueTime.getTime() && nextDueTime.getTime() <= endDate) {
         const nextTask = {
           id: uuidv4(),
           encounterId: task.encounterId,
@@ -293,10 +325,15 @@ export class Task extends Model {
           note: task.note,
           frequencyValue: task.frequencyValue,
           frequencyUnit: task.frequencyUnit,
+          durationValue: task.durationValue,
+          durationUnit: task.durationUnit,
           highPriority: task.highPriority,
           parentTaskId: task.id,
         };
         generatedTasks.push(nextTask);
+
+        // Increment nextDueTime for the next iteration
+        nextDueTime = addMilliseconds(nextDueTime, frequency);
       }
 
       const clonedDesignations = [];

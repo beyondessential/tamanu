@@ -163,6 +163,22 @@ describe(`Materialised FHIR - Encounter`, () => {
         location: [
           {
             location: {
+              display: resources.department.name,
+              id: resources.department.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'jdn',
+                  display: 'Jurisdiction',
+                },
+              ],
+            },
+          },
+          {
+            location: {
               display: resources.locationGroup.name,
               id: resources.locationGroup.id,
             },

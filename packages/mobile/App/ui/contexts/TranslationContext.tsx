@@ -6,12 +6,14 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
+import { LanguageOption } from '~/models/TranslatedString';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -33,8 +35,8 @@ export interface TranslatedTextProps {
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: [];
-  setLanguageOptions: (languageOptions: []) => void;
+  languageOptions: LanguageOption[];
+  setLanguageOptions: (languageOptions: LanguageOption[]) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
@@ -82,7 +84,18 @@ const applyCasing = (text: string, casing: Casing) => {
   throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
-const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
+const TranslationContext = createContext<TranslationContextData>({
+  debugMode: false,
+  language: 'en',
+  languageOptions: null,
+  setLanguageOptions: () => {},
+  getTranslation: () => {
+    return '';
+  },
+  setLanguage: () => {},
+  host: null,
+  setHost: () => {},
+} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const DEFAULT_LANGUAGE = 'en';
@@ -93,24 +106,27 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [language, setLanguage] = useState(null);
   const [host, setHost] = useState(null);
 
-  const getLanguageOptions = async () => {
+  const getLanguageOptions = useCallback(async () => {
     const languageOptionArray = await models.TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
-  };
+  }, [models.TranslatedString]);
 
-  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
-    await writeLanguage(languageCode);
-    if (!languageOptions) getLanguageOptions();
-    const translations = await models.TranslatedString.getForLanguage(languageCode);
-    if (isEmpty(translations) && host) {
-      // If we dont have translations synced down, fetch from the public server endpoint directly
-      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
-      const data = await response.json();
-      setTranslations(data);
-    } else {
-      setTranslations(translations);
-    }
-  };
+  const setLanguageState = useCallback(
+    async (languageCode: string = DEFAULT_LANGUAGE) => {
+      await writeLanguage(languageCode);
+      if (!languageOptions) getLanguageOptions();
+      const translations = await models.TranslatedString.getForLanguage(languageCode);
+      if (isEmpty(translations) && host) {
+        // If we dont have translations synced down, fetch from the public server endpoint directly
+        const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+        const data = await response.json();
+        setTranslations(data);
+      } else {
+        setTranslations(translations);
+      }
+    },
+    [getLanguageOptions, host, languageOptions, models.TranslatedString],
+  );
 
   const getTranslation = (
     stringId: string,
@@ -138,12 +154,14 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     setLanguageState(language);
-  }, [language, host]);
+  }, [language, setLanguageState, host]);
 
   useEffect(() => {
     restoreLanguage();
     if (!__DEV__) return;
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
+    DevSettings.addMenuItem('Toggle translation highlighting', () =>
+      setIsDebugMode((oldDebugValue) => !oldDebugValue),
+    );
   }, []);
 
   return (

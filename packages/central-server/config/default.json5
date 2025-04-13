@@ -36,13 +36,19 @@
       }
     }
   },
+  "metaServer": {
+    "host": "https://meta.tamanu.app",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "updateUrls": {
-    "mobile": ""
+    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
   "log": {
     "path": "",
     "consoleLevel": "http",
-    "color": true
+    "color": true,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
@@ -73,7 +79,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": false,
+      "enabled": true,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
@@ -258,6 +264,11 @@
       // every day at 1 AM
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
+    },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
     }
   },
   "integrations": {
@@ -473,6 +484,9 @@
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
+  "socket.io": {
+    enabled: true,
+  },
   "telegramBot": {
     apiToken: "",
     webhook: {

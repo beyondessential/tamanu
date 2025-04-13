@@ -1,3 +1,8 @@
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
+  FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+} from '@tamanu/constants/facts';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../dist/sync/FacilitySyncManager';
@@ -107,7 +112,7 @@ describe('FacilitySyncManager', () => {
     });
 
     it("snapshots outgoing changes with the current 'lastSuccessfulSyncPush'", async () => {
-      await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '10');
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
 
       jest.doMock('../../dist/sync/snapshotOutgoingChanges', () => ({
         snapshotOutgoingChanges: jest.fn().mockImplementation(() => []),
@@ -137,7 +142,7 @@ describe('FacilitySyncManager', () => {
 
     it('pushes outgoing changes with current sessionId', async () => {
       const outgoingChanges = [{ test: 'test' }];
-      await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
+      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
       jest.doMock('../../dist/sync/snapshotOutgoingChanges', () => ({
         ...jest.requireActual('../../dist/sync/snapshotOutgoingChanges'),
@@ -181,7 +186,7 @@ describe('FacilitySyncManager', () => {
     });
 
     it("pull changes with current 'lastSuccessfulSyncPull'", async () => {
-      await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPull', '10');
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '10');
 
       jest.doMock('@tamanu/database/sync', () => ({
         ...jest.requireActual('@tamanu/database/sync'),
@@ -219,7 +224,7 @@ describe('FacilitySyncManager', () => {
     });
 
     it('save changes with current sessionId', async () => {
-      await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
+      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
 
       jest.doMock('@tamanu/database/sync', () => ({
         ...jest.requireActual('@tamanu/database/sync'),

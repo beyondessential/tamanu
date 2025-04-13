@@ -13,6 +13,7 @@ export type BaseModelSubclass = typeof BaseModel;
 interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
+  relations?: Array<string>;
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
@@ -20,6 +21,9 @@ const MODEL_TO_REFERENCE_DATA_TYPE = {
   Facility: 'facility',
   Department: 'department',
   Location: 'location',
+  ProgramRegistry: 'programRegistry',
+  ProgramRegistryClinicalStatus: 'programRegistryClinicalStatus',
+  ProgramRegistryCondition: 'programRegistryCondition',
 };
 
 const TRANSLATABLE_MODELS = ['ReferenceData', ...Object.keys(MODEL_TO_REFERENCE_DATA_TYPE)];
@@ -51,6 +55,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   filter?: (entity: BaseModel) => boolean;
 
+  lastUpdatedAt: number;
+
+  cachedData: any;
+
   constructor(
     model: ModelType,
     options,
@@ -64,6 +72,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     // Frontend filter applied to the data received. Use this to filter by permission
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = filter;
+    this.lastUpdatedAt = -Infinity;
+    this.cachedData = null;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -82,6 +92,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   };
 
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
+    const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
@@ -126,7 +137,16 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       data = replaceDataLabelsWithTranslations({ data, translations });
 
-      return this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);
+      const formattedData = this.filter
+        ? data.filter(this.filter).map(this.formatter)
+        : data.map(this.formatter);
+
+      if (this.lastUpdatedAt < requestedAt) {
+        this.cachedData = formattedData;
+        this.lastUpdatedAt = requestedAt;
+      }
+
+      return this.cachedData;
     } catch (e) {
       return [];
     }

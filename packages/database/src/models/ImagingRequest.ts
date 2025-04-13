@@ -113,7 +113,7 @@ export class ImagingRequest extends Model {
             ) {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.IMAGING_REQUEST,
-                imagingRequest,
+                imagingRequest.dataValues,
               );
             }
 

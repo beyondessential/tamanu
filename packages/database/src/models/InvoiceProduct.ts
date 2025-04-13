@@ -30,7 +30,7 @@ export class InvoiceProduct extends Model {
         },
         price: {
           type: DataTypes.DECIMAL,
-          allowNull: false,
+          allowNull: true,
         },
         discountable: {
           type: DataTypes.BOOLEAN,

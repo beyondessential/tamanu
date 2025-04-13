@@ -1,22 +1,25 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
+  FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+} from '@tamanu/constants/facts';
 import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForDirection,
+  getModelsForPush,
+  getModelsForPull,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
-  CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_SYNC_PULL_KEY,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
 } from '@tamanu/database/sync';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -119,9 +122,12 @@ export class FacilitySyncManager {
     const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 
-    log.info('FacilitySyncManager.attemptStart', { reason: JSON.stringify(this.reason), startTime });
+    log.info('FacilitySyncManager.attemptStart', {
+      reason: JSON.stringify(this.reason),
+      startTime,
+    });
 
-    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -169,12 +175,12 @@ export class FacilitySyncManager {
 
   async pushChanges(sessionId, newSyncClockTime) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
-    const currentSyncClockTime = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+    const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
     // use the new unique sync tick for any changes from now on so that any records that are created
     // or updated even mid way through this sync, are marked using the new tick and will be captured
     // in the next push
-    await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
+    await this.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, newSyncClockTime);
     log.debug('FacilitySyncManager.updatedLocalSyncClockTime', { newSyncClockTime });
 
     await waitForPendingEditsUsingSyncTick(this.sequelize, currentSyncClockTime);
@@ -183,13 +189,10 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the central server
-    const pushSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PUSH_KEY)) || -1;
+    const pushSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
-    const outgoingChanges = await snapshotOutgoingChanges(
-      this.sequelize,
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-      pushSince,
-    );
+    const modelsForPush = getModelsForPush(this.models);
+    const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
     if (outgoingChanges.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
         totalPushing: outgoingChanges.length,
@@ -198,9 +201,10 @@ export class FacilitySyncManager {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
+      await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
-    await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, currentSyncClockTime);
+    await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
@@ -208,7 +212,7 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
@@ -222,7 +226,7 @@ export class FacilitySyncManager {
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
-        Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+        Object.values(getModelsForPull(this.models)),
         sessionId,
       );
     }
@@ -230,18 +234,14 @@ export class FacilitySyncManager {
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
-        await saveIncomingChanges(
-          this.sequelize,
-          getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          sessionId,
-        );
+        await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
       }
 
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
-      await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, pullUntil);
+      await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, pullUntil);
     });
   }
 }

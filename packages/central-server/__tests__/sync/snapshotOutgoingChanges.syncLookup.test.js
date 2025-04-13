@@ -1,12 +1,11 @@
 import { beforeAll, describe } from '@jest/globals';
 
 import {
-  getModelsForDirection,
+  getModelsForPull,
   createSnapshotTable,
   findSyncSnapshotRecords,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -14,6 +13,7 @@ import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -40,7 +40,7 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    outgoingModels = getModelsForPull(models);
   });
 
   afterAll(() => ctx.close());
@@ -56,7 +56,7 @@ describe('snapshotOutgoingChanges', () => {
       debugInfo: {},
     });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
-    tock = await models.LocalSystemFact.incrementValue('currentSyncTick', 2);
+    tock = await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
     facility = await models.Facility.create({
       code: 'test-facility-1',
       name: 'Test Facility 1',

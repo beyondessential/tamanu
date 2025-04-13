@@ -1,0 +1,171 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: lab_requests
+        description: '{{ doc("table__lab_requests") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_requests."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in lab_requests."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in lab_requests."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in lab_requests."
+          - name: sample_time
+            data_type: character(19)
+            description: "{{ doc('lab_requests__sample_time') }}"
+          - name: requested_date
+            data_type: character(19)
+            description: "{{ doc('lab_requests__requested_date') }}"
+          - name: urgent
+            data_type: boolean
+            description: "{{ doc('lab_requests__urgent') }}"
+          - name: specimen_attached
+            data_type: boolean
+            description: "{{ doc('lab_requests__specimen_attached') }}"
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__status') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - reception_pending
+                    - results_pending
+                    - interim_results
+                    - to_be_verified
+                    - verified
+                    - published
+                    - cancelled
+                    - invalidated
+                    - deleted
+                    - sample-not-collected
+                    - entered-in-error
+          - name: senaite_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__senaite_id') }}"
+          - name: sample_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__sample_id') }}"
+          - name: requested_by_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__requested_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__encounter_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'encounters')
+                  field: id
+          - name: lab_test_category_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_category_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'labTestCategory'
+          - name: display_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__display_id') }}"
+            data_tests:
+              - not_null
+          - name: lab_test_priority_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_priority_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'labTestPriority'
+          - name: lab_test_laboratory_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_laboratory_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'labTestLaboratory'
+          - name: sample_time_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('lab_requests__sample_time_legacy') }}"
+          - name: requested_date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('lab_requests__requested_date_legacy') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_requests."
+            data_tests:
+              - not_null
+          - name: reason_for_cancellation
+            data_type: character varying(31)
+            description: "{{ doc('lab_requests__reason_for_cancellation') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - clinical
+                    - duplicate
+                    - entered-in-error
+                    - other
+                    - patient-discharged
+                    - patient-refused
+          - name: published_date
+            data_type: character(19)
+            description: "{{ doc('lab_requests__published_date') }}"
+          - name: department_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__department_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'departments')
+                  field: id
+          - name: lab_test_panel_request_id
+            data_type: uuid
+            description: "{{ doc('lab_requests__lab_test_panel_request_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_test_panel_requests')
+                  field: id
+          - name: lab_sample_site_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_sample_site_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'labSampleSite'
+          - name: specimen_type_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__specimen_type_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'specimenType'
+          - name: collected_by_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__collected_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
