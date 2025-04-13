@@ -13,6 +13,10 @@ describe('pauseAudit', () => {
 
   afterAll(() => ctx.close());
 
+  beforeEach(async () => {
+    await models.Program.destroy({ where: {}, force: true });
+  });
+
   it('should pause audit for a transaction when pause key is true', async () => {
     await models.Setting.set('audit.changes.enabled', true);
     const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
@@ -35,15 +39,15 @@ describe('pauseAudit', () => {
   });
   it('should pause audit when setting is disabled', async () => {
     await models.Setting.set('audit.changes.enabled', false);
-    const program3 = await models.Program.create({ code: 'test-3', name: 'Test Program 3' });
-    const program4 = await models.Program.create({ code: 'test-4', name: 'Test Program 4' });
+    const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
+    const program2 = await models.Program.create({ code: 'test-2', name: 'Test Program 2' });
 
     const changes = await sequelize.query(
       `SELECT * FROM logs.changes WHERE record_id IN (:programIds);`,
       {
         type: sequelize.QueryTypes.SELECT,
         replacements: {
-          programIds: [program3.id, program4.id],
+          programIds: [program1.id, program2.id],
         },
       },
     );
