@@ -1,8 +1,8 @@
 import { ID } from './ID';
 import { DateTimeString } from './DateString';
-import { IPatient, IUser } from '.';
-import { IProgramRegistry } from './IProgramRegistry';
+import { IUser } from '.';
 import { IProgramRegistryCondition } from './IProgramRegistryCondition';
+import { IPatientProgramRegistration } from './IPatientProgramRegistration';
 
 export interface IPatientProgramRegistrationCondition {
   id: ID;
@@ -11,11 +11,8 @@ export interface IPatientProgramRegistrationCondition {
   conditionCategory: string;
   reasonForChange?: string;
 
-  programRegistryId: ID;
-  programRegistry: IProgramRegistry;
-
-  patientId: ID;
-  patient: IPatient;
+  patientProgramRegistrationId: ID;
+  patientProgramRegistration: IPatientProgramRegistration;
 
   programRegistryConditionId?: ID;
   programRegistryCondition?: IProgramRegistryCondition;

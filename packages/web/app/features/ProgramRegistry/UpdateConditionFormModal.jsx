@@ -19,6 +19,13 @@ import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { useTranslation } from '../../contexts/Translation';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
+import { ConditionHistoryTable } from './ConditionHistoryTable';
+import Divider from '@material-ui/core/Divider';
+
+const StyledFormTable = styled(FormTable)`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+`;
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
@@ -156,8 +163,9 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
 
           return (
             <>
-              <FormTable columns={columns} data={[condition]} />
-              {/*Todo: Add Condition category history in https://linear.app/bes/issue/SAV-871/create-condition-view-history-modal */}
+              <StyledFormTable columns={columns} data={[condition]} />
+              <Divider />
+              <ConditionHistoryTable historyData={condition?.history} />
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
               <RecordedInErrorWarningModal
                 open={warningOpen}
