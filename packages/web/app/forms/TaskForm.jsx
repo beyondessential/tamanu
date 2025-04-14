@@ -278,7 +278,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     min={0}
                     component={NumberField}
                     onInput={preventInvalidNumber}
-                    data-testid='field-7vdy' />
+                    data-testid='field-7vdy'
                     onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
@@ -291,7 +291,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     label={<InvisibleTitle data-testid='invisibletitle-ioaf'>.</InvisibleTitle>}
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
-                    data-testid='field-tadr' />
+                    data-testid='field-tadr'
                     onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
