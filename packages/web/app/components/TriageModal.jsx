@@ -36,15 +36,15 @@ const DisplayIdLabel = styled.span`
   font-size: 16px;
   line-height: 21px;
   font-weight: 500;
-  color: ${props => props.theme.palette.primary.main};
+  color: ${(props) => props.theme.palette.primary.main};
 `;
 
 const DetailLabel = styled.span`
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 const DetailValue = styled.span`
-  color: ${props => props.theme.palette.text.primary};
+  color: ${(props) => props.theme.palette.text.primary};
   text-transform: capitalize;
 `;
 
@@ -66,7 +66,7 @@ export const TriageModal = React.memo(
       <React.Fragment key={name}>
         <DetailLabel data-testid={`detaillabel-l4mb-${name}`}>
           <TranslatedText
-            stringId={`general.localisedFields.${name}.label`}
+            stringId={`general.localisedField.${name}.label`}
             fallback={label}
             data-testid={`translatedtext-ef2v-${name}`} />:
         </DetailLabel>
