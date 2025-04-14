@@ -1,10 +1,7 @@
 import crypto from 'crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
-import {
-  FACT_CURRENT_SYNC_TICK,
-  FACT_LOOKUP_UP_TO_TICK,
-} from '@tamanu/constants/facts';
+import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
