@@ -80,7 +80,6 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^13.24.0",
-    "jscodeshift": "^17.3.0",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "yaml": "^2.2.1"
