@@ -32,12 +32,23 @@ export const globalSettings = {
   properties: {
     audit: {
       description: 'Audit settings',
+      highRisk: true,
       properties: {
         accesses: {
           description: 'Audit accesses',
           properties: {
             enabled: {
               description: 'Enable audit accesses',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        changes: {
+          description: 'Audit changes',
+          properties: {
+            enabled: {
+              description: 'Enable audit changes',
               type: yup.boolean(),
               defaultValue: false,
             },
