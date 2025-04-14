@@ -15,6 +15,7 @@ export const NON_SYNCING_TABLES = [
   'sync_lookup',
   'debug_logs',
   'sync_device_ticks',
+  'sync_lookup_ticks',
 ];
 
 export const NON_LOGGED_TABLES = [
@@ -27,6 +28,7 @@ export const NON_LOGGED_TABLES = [
   'sync_queued_devices',
   'sync_lookup',
   'sync_device_ticks',
+  'sync_lookup_ticks',
 
   // caches
   'user_localisation_caches',
