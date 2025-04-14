@@ -87,6 +87,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfo={record}
+            previousMarInfo={medicationAdministrationRecords[index - 1]}
             pauseRecords={pauseRecords}
           />
         );

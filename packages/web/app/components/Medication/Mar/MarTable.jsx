@@ -29,6 +29,7 @@ const MedicationContainer = styled.div`
 
 // Header row for the time slots
 const HeaderRow = styled.div`
+  padding-right: 5px;
   display: grid;
   grid-template-columns: minmax(50px, 1fr) repeat(
       ${props => props.columns},
@@ -44,6 +45,22 @@ const ScrollableContent = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
+  
+  /* Add these lines to handle scrollbar consistently across platforms */
+  scrollbar-gutter: stable;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${Colors.softText};
+    border-radius: 4px;
+  }
 `;
 
 const HeadingCell = styled.div`
@@ -121,7 +138,7 @@ const CurrentTimeOverlay = styled.div`
   width: ${MEDICATION_CELL_WIDTH - 1}px;
   height: ${p => p.$height || '100%'};
   z-index: 11;
-  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH}px;
+  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH + 5}px;
   border: 1px solid ${Colors.primary};
   pointer-events: none;
 `;
