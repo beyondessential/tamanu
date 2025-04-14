@@ -5,6 +5,7 @@ import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/database/
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
+import { insertChangelogRecords } from './insertChangelogRecords';
 
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
@@ -41,7 +42,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => ({
+    const recordsToSave = records.map((r) => ({
       ...r,
       data: { ...r.data, updatedAtSyncTick: -1 }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
@@ -53,7 +54,12 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     // 2. When a huge number of data is imported to sync and the facility syncs it down
     // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
+      // TODO would it be better to remove the .changelog from the records before inserting, keep
+      // things clean and tight?
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
+
+      const changelogRecords = batchOfRows.map((r) => r.changelog);
+      await insertChangelogRecords(sequelize, changelogRecords);
 
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
