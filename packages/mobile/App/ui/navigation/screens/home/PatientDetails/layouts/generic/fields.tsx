@@ -73,13 +73,15 @@ const GENERIC_ADDITIONAL_DATA_FIELDS = {
     ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
   ],
   OTHER_WITH_HIERARCHY: [
-    PATIENT_DATA_FIELDS.VILLAGE_ID,
-    ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
     ADDITIONAL_DATA_FIELDS.DIVISION_ID,
-    ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
+    ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
     ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+    PATIENT_DATA_FIELDS.VILLAGE_ID,
+    ADDITIONAL_DATA_FIELDS.CITY_TOWN,
+    ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
     ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
     ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
+    ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
   ],
 };
 
@@ -128,8 +130,8 @@ export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
     sectionKey: 'otherWithHierarchy',
     title: (
       <TranslatedText
-        stringId="patient.details.subheading.otherWithHierarchy"
-        fallback="Other information with hierarchy"
+        stringId="patient.details.subheading.otherInformation"
+        fallback="Other information"
       />
     ),
     fields: GENERIC_ADDITIONAL_DATA_FIELDS.OTHER_WITH_HIERARCHY,
