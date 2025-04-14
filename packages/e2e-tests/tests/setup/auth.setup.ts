@@ -1,7 +1,7 @@
 import { test as setup } from '../../fixtures/baseFixture';
 
 setup('authenticate', async ({ loginPage }) => {
-  setup.setTimeout(120000);
+  setup.setTimeout(70000);
 
   // Wait for sync
   await loginPage.page.waitForTimeout(60000);
