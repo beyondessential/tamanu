@@ -79,36 +79,38 @@ export default defineConfig({
   ],
 
   /* Automatically run your local servers and frontends before starting the tests if running tests against local environment */
-  ...(process.env.LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS === 'true' ? {
-    webServer: [
-      {
-        command: 'npm run start-dev --workspace=@tamanu/central-server',
-        port: 3000,
-        reuseExistingServer: !process.env.CI,
-        timeout: 240 * 1000,
-        stdout: 'pipe',
-      },
-      {
-        command: 'npm run start-dev --workspace=@tamanu/facility-server',
-        port: 4000,
-        reuseExistingServer: !process.env.CI,
-        timeout: 240 * 1000,
-        stdout: 'pipe',
-      },
-      {
-        command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
-        port: 5173,
-        reuseExistingServer: !process.env.CI,
-        timeout: 240 * 1000,
-        stdout: 'pipe',
-      },
-      {
-        command: 'npm run admin-start-dev --workspace @tamanu/web-frontend',
-        port: 5174,
-        reuseExistingServer: !process.env.CI,
-        timeout: 240 * 1000,
-        stdout: 'pipe',
-      },
-    ],
-  } : {}),
+  ...(process.env.LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS === 'true'
+    ? {
+        webServer: [
+          {
+            command: 'npm run start-dev --workspace=@tamanu/central-server',
+            port: 3000,
+            reuseExistingServer: true,
+            timeout: 240 * 1000,
+            stdout: 'pipe',
+          },
+          {
+            command: 'npm run start-dev --workspace=@tamanu/facility-server',
+            port: 4000,
+            reuseExistingServer: true,
+            timeout: 240 * 1000,
+            stdout: 'pipe',
+          },
+          {
+            command: 'npm run client-start-dev --workspace=@tamanu/web-frontend',
+            port: 5173,
+            reuseExistingServer: true,
+            timeout: 240 * 1000,
+            stdout: 'pipe',
+          },
+          {
+            command: 'npm run admin-start-dev --workspace @tamanu/web-frontend',
+            port: 5174,
+            reuseExistingServer: true,
+            timeout: 240 * 1000,
+            stdout: 'pipe',
+          },
+        ],
+      }
+    : {}),
 });
