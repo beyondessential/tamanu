@@ -11,7 +11,7 @@ import { useSettings } from '../../../../../contexts/Settings';
 export const GenericLocationFields = ({ filterByMandatory }) => {
   const { getSetting } = useSettings();
 
-  const isUsingHierarchyLogic = getSetting('features.useLocationHierarchy');
+  const isUsingLocationHierarchy = getSetting('features.useLocationHierarchy');
 
   const subdivisionSuggester = useSuggester('subdivision');
   const divisionSuggester = useSuggester('division');
@@ -27,7 +27,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />
       ),
     },
-    ...(isUsingHierarchyLogic
+    ...(isUsingLocationHierarchy
       ? {}
       : {
           subdivisionId: {
@@ -58,7 +58,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />
       ),
     },
-    ...(isUsingHierarchyLogic
+    ...(isUsingLocationHierarchy
       ? {}
       : {
           settlementId: {
@@ -143,7 +143,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
 
   return (
     <>
-      {isUsingHierarchyLogic && (
+      {isUsingLocationHierarchy && (
         <HierarchyFields
           relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
           leafNodeType={REFERENCE_TYPES.VILLAGE}
