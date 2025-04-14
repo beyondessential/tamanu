@@ -18,7 +18,7 @@ patientProgramRegistration.get(
     req.checkPermission('list', 'PatientProgramRegistration');
 
     const registrationData =
-      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+      await models.PatientProgramRegistration.getRegistrationsForPatient(
         params.patientId,
       );
 
@@ -183,7 +183,6 @@ patientProgramRegistration.get(
 
     const registration = await PatientProgramRegistration.findOne({
       where: {
-        isMostRecent: true,
         patientId,
         programRegistryId,
       },
