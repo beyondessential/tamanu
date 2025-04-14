@@ -27,30 +27,25 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.cityTown.label" fallback="City/town" />
       ),
     },
-    ...(isUsingLocationHierarchy
-      ? {}
-      : {
-          subdivisionId: {
-            component: AutocompleteField,
-            suggester: subdivisionSuggester,
-            label: (
-              <TranslatedText
-                stringId="general.localisedField.subdivisionId.label"
-                fallback="Sub division"
-              />
-            ),
-          },
-          divisionId: {
-            component: AutocompleteField,
-            suggester: divisionSuggester,
-            label: (
-              <TranslatedText
-                stringId="general.localisedField.divisionId.label"
-                fallback="Division"
-              />
-            ),
-          },
-        }),
+    ...(!isUsingLocationHierarchy && {
+      subdivisionId: {
+        component: AutocompleteField,
+        suggester: subdivisionSuggester,
+        label: (
+          <TranslatedText
+            stringId="general.localisedField.subdivisionId.label"
+            fallback="Sub division"
+          />
+        ),
+      },
+      divisionId: {
+        component: AutocompleteField,
+        suggester: divisionSuggester,
+        label: (
+          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
+        ),
+      },
+    }),
     countryId: {
       component: AutocompleteField,
       suggester: countrySuggester,
@@ -58,20 +53,18 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         <TranslatedText stringId="general.localisedField.countryId.label" fallback="Country" />
       ),
     },
-    ...(isUsingLocationHierarchy
-      ? {}
-      : {
-          settlementId: {
-            component: AutocompleteField,
-            suggester: settlementSuggester,
-            label: (
-              <TranslatedText
-                stringId="general.localisedField.settlementId.label"
-                fallback="Settlement"
-              />
-            ),
-          },
-        }),
+    ...(!isUsingLocationHierarchy && {
+      settlementId: {
+        component: AutocompleteField,
+        suggester: settlementSuggester,
+        label: (
+          <TranslatedText
+            stringId="general.localisedField.settlementId.label"
+            fallback="Settlement"
+          />
+        ),
+      },
+    }),
     medicalAreaId: {
       component: AutocompleteField,
       suggester: medicalAreaSuggester,
