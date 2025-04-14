@@ -252,7 +252,7 @@ export const globalSettings = {
             },
           },
         },
-        useLocationHierarchy: {
+        patientDetailsLocationHierarchy: {
           description: 'Use location hierarchy in patient details',
           type: yup.boolean(),
           defaultValue: false,

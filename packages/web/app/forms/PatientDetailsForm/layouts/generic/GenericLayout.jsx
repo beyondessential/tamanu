@@ -37,7 +37,7 @@ export const GenericPrimaryDetailsLayout = ({
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
-  const isUsingLocationHierarchy = getSetting('features.useLocationHierarchy');
+  const isUsingLocationHierarchy = getSetting('features.patientDetailsLocationHierarchy');
 
   return (
     <>
