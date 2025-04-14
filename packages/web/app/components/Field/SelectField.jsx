@@ -195,7 +195,7 @@ export const SelectInput = ({
           readOnly={isReadonly}
           components={{ Option, SingleValue }}
           {...props}
-          data-testid={`${dataTestId}-styledtextfield`} />
+          data-testid={`${dataTestId}-input`}/>
       </OuterLabelFieldWrapper>
     );
   }
@@ -230,7 +230,7 @@ export const SelectInput = ({
                 tabIndex={inputProps.tabIndex}
                 data-testid={`${dataTestId}-clearindicator`}/>
             ),
-            DropdownIndicator: () => <ExpandMoreIcon data-testid='expandmoreicon-h115' />,
+            DropdownIndicator: () => <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon-h115`} />,
           }}
           {...props}
           data-testid={`${dataTestId}-select`} />
@@ -298,8 +298,7 @@ export const StyledSelectField = props => (
   <StyledField
     {...props}
     className="styled-select-container"
-    classNamePrefix="styled-select"
-    data-testid='styledfield-0hre' />
+    classNamePrefix="styled-select"/>
 );
 
 SelectInput.propTypes = {

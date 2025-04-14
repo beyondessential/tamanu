@@ -324,7 +324,7 @@ export class AutocompleteInput extends Component {
   };
 
   renderContainer = option => {
-    const { size = 'medium', multiSection } = this.props;
+    const { size = 'medium', multiSection, ['data-testid']: dataTestId } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -333,14 +333,14 @@ export class AutocompleteInput extends Component {
         anchorEl={this.anchorEl}
         open={!!option.children}
         placement="bottom-start"
-        data-testid='suggestionscontainer-g6eb'>
+        data-testid={`${dataTestId}-suggestionscontainer`}>
         <SuggestionsList
           {...option.containerProps}
           size={size}
           $multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
-          data-testid='suggestionslist-g0gk'>
+          data-testid={`${dataTestId}-suggestionslist`}>
           {option.children}
         </SuggestionsList>
       </SuggestionsContainer>
@@ -361,6 +361,7 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
+      dataTestId,
       ...other
     } = inputProps;
     const { suggestions } = this.state;
@@ -371,25 +372,26 @@ export class AutocompleteInput extends Component {
         className={className}
         infoTooltip={infoTooltip}
         size={size}
-        data-testid='outerlabelfieldwrapper-cye7'>
+        data-testid={`${dataTestId}-outerlabelfieldwrapper`}>
         <StyledTextField
           variant="outlined"
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
+            'data-testid': `${dataTestId}-input`,
             endAdornment: (
               <>
                 {tag && (
                   <SelectTag
                     $background={tag.background}
                     $color={tag.color}
-                    data-testid='selecttag-0nyd'>
+                    data-testid={`${dataTestId}-selecttag`}>
                     {tag.label}
                   </SelectTag>
                 )}
                 {value && !disabled && (
-                  <StyledIconButton onClick={this.handleClearValue} data-testid='stylediconbutton-769n'>
-                    <StyledClearIcon data-testid='styledclearicon-26j6' />
+                  <StyledIconButton onClick={this.handleClearValue} data-testid={`${dataTestId}-clearbutton`}>
+                    <StyledClearIcon />
                   </StyledIconButton>
                 )}
                 <Icon
@@ -398,8 +400,8 @@ export class AutocompleteInput extends Component {
                     event.preventDefault();
                     this.anchorEl.click();
                   }}
-                  data-testid='icon-nvwe'>
-                  {suggestions.length > 0 ? <ExpandLessIcon data-testid='expandlessicon-ceh2' /> : <ExpandMoreIcon data-testid='expandmoreicon-a4eo' />}
+                 >
+                  {suggestions.length > 0 ? <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon`} /> : <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} />}
                 </Icon>
               </>
             ),
@@ -447,6 +449,7 @@ export class AutocompleteInput extends Component {
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
       multiSection,
+      ['data-testid']: dataTestId
     } = this.props;
 
     return (
@@ -478,9 +481,9 @@ export class AutocompleteInput extends Component {
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
+            dataTestId,
             inputRef,
-          }}
-          data-testid='autosuggest-1m4v' />
+          }} />
       </>
     );
   }
