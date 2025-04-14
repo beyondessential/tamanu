@@ -5,6 +5,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.is_audit_changes_enabled()
+    STABLE PARALLEL SAFE
     RETURNS boolean AS $$
     BEGIN
       IF get_session_config('${AUDIT_PAUSE_KEY}', 'false')::boolean THEN
