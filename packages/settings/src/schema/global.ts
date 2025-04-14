@@ -253,7 +253,6 @@ export const globalSettings = {
           },
         },
         useLocationHierarchy: {
-          // TODO: Feels like it should be somewhere else
           description: 'Use location hierarchy in patient details',
           type: yup.boolean(),
           defaultValue: false,
