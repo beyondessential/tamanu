@@ -84,7 +84,7 @@ export const TemplateView = () => {
             allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
             onSubmit={createTemplate}
             refreshTable={updateRefreshCount}
-            data-testid='newtemplateform-yuo4' />
+            data-testid='newtemplateform-y114' />
         </ContentContainer>
         <TemplateList
           refreshCount={refreshCount}

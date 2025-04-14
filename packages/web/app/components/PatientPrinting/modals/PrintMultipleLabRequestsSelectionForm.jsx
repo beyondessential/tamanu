@@ -40,7 +40,7 @@ const COLUMNS = [
     title: <TranslatedText
       stringId="general.requestDate.label"
       fallback="Request date"
-      data-testid='translatedtext-ot88' />,
+      data-testid='translatedtext-o288' />,
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} data-testid='datedisplay-6m7k' />,
   },

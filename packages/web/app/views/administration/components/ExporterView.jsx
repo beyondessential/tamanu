@@ -26,7 +26,7 @@ const ExportForm = ({
   buttonLabel,
   ExportButton = FormSubmitButton,
 }) => (
-  <StyledFormGrid columns={1} data-testid='styledformgrid-iit3'>
+  <StyledFormGrid columns={1} data-testid='styledformgrid-11t3'>
     {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
