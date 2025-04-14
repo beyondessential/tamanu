@@ -36,7 +36,7 @@ patientRelations.get(
       encounterType: `
         CASE
           ${ENCOUNTER_TYPE_VALUES.map(
-            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+            (value) => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
           ).join(' ')}
         END
       `,
@@ -104,7 +104,11 @@ patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patient
 patientRelations.get(
   '/:id/additionalData',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
 
     req.checkPermission('read', 'Patient');
 
@@ -114,6 +118,16 @@ patientRelations.get(
     });
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+
+    if (additionalDataRecord) {
+      await req.audit.access({
+        recordId: additionalDataRecord.id,
+        params,
+        model: models.PatientAdditionalData,
+        facilityId,
+      });
+    }
+
     res.send(recordData);
   }),
 );
@@ -413,7 +427,7 @@ patientRelations.get(
       },
     );
 
-    const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
+    const formattedData = results.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       count: results.length,

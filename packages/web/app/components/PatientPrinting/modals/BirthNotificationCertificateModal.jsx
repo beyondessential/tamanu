@@ -19,11 +19,10 @@ const useParent = (api, enabled, parentId) => {
     { enabled },
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', parentId],
-    () => api.get(`patient/${encodeURIComponent(parentId)}/additionalData`),
-    { enabled },
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(parentId);
 
   const { data: village, isLoading: isVillageLoading } = useQuery(
     ['village', parentData?.villageId],

@@ -15,7 +15,7 @@ surveyResponseAnswer.get(
   '/latest-answer/:dataElementCode',
   asyncHandler(async (req, res) => {
     const { models, query, params } = req;
-    const { patientId } = query;
+    const { patientId, facilityId } = query;
     const { dataElementCode } = params;
 
     req.checkPermission('read', 'SurveyResponse');
@@ -57,10 +57,17 @@ surveyResponseAnswer.get(
       models,
       [answer],
       [answer.ProgramDataElement.surveyScreenComponent],
-      { notTransformDate: true }
+      { notTransformDate: true },
     );
     answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
     answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
+
+    await req.audit.access({
+      recordId: answer.id,
+      params,
+      model: models.SurveyResponseAnswer,
+      facilityId,
+    });
 
     res.send(answer);
   }),
