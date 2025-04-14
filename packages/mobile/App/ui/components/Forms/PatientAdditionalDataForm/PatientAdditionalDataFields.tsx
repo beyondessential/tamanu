@@ -28,7 +28,7 @@ import { theme } from '~/ui/styled/theme';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
 import { ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
-import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -131,6 +131,7 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
+  isUsingHierarchyLogic: boolean,
 ): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
@@ -138,14 +139,14 @@ function getComponentForField(
   if (selectFields.includes(fieldName)) {
     return SelectField;
   }
+  if (isUsingHierarchyLogic && fieldName === PATIENT_DATA_FIELDS.VILLAGE_ID) {
+    return AddressHierarchyField;
+  }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
-  }
-  if (fieldName === ADDITIONAL_DATA_FIELDS.VILLAGE_ID) {
-    return AddressHierarchyField;
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
@@ -183,8 +184,10 @@ export const PatientAdditionalDataFields = ({
 
   if (loading) return [];
 
+  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+
   return padFields.map((field: string) => {
-    const Component = getComponentForField(field, customFieldIds);
+    const Component = getComponentForField(field, customFieldIds, isUsingHierarchyLogic);
     const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });

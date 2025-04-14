@@ -68,8 +68,6 @@ export const AdditionalInfo = ({
   // Check if patient additional data should be editable
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
-  console.log('patient', patient);
-
   // Add edit callback and map the inner 'fields' array
   const additionalSections = dataSections.map(
     ({ title, dataFields, fields: displayFields, sectionKey }) => {
