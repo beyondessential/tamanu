@@ -25,7 +25,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.birthCertificate.label"
           fallback="Birth certificate number"
-          data-testid='translatedtext-3fnd' />
+          data-testid='translatedtext-3f67' />
       ),
     },
     insurerId: {

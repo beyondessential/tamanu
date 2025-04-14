@@ -44,7 +44,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         <TranslatedText
           stringId="general.localisedField.maritalStatus.label"
           fallback="Marital status"
-          data-testid='translatedtext-tje7' />
+          data-testid='translatedtext-11e7' />
       ),
     },
     bloodType: {

@@ -406,7 +406,7 @@ export const MedicationForm = React.memo(
                 component={NumberField}
                 disabled={readOnly}
                 onInput={preventNegative}
-                data-testid='field-0pn9' />
+                data-testid='field-09n9' />
               {shouldShowDiscontinuationButton && (
                 <>
                   <DiscontinuePrintButtonRow data-testid='discontinueprintbuttonrow-kduu'>
@@ -545,7 +545,7 @@ export const MedicationForm = React.memo(
               setAwaitingPrint(false);
               setPrintModalOpen(false);
             }}
-            data-testid='printprescriptionmodal-2mye' />
+            data-testid='printprescriptionmodal-2m30' />
         )}
       </>
     );

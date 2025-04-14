@@ -30,7 +30,7 @@ const OuterLabelRequired = styled.span`
 
 const GeolocateQuestion = ({ text, component, required }) => {
   return (
-    <Box data-testid='box-mak4'>
+    <Box data-testid='box-m234'>
       <Typography
         style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}
         data-testid='typography-7mxf'>
