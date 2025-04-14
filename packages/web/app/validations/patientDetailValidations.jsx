@@ -398,7 +398,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
       yup
         .string()
         .translatedLabel(
-          <TranslatedText stringId="general.localisedField.passport.label" fallback="Passport" />,
+          <TranslatedText stringId="general.localisedField.passport.label.short" fallback="Passport" />,
         ),
       'Passport',
     ),
@@ -494,7 +494,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         .translatedLabel(
           <TranslatedText
             stringId="general.localisedField.placeOfBirth.label"
-            fallback="BirthLocation"
+            fallback="Birth location"
           />,
         ),
       'Birth location',
@@ -549,7 +549,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         .string()
         .translatedLabel(
           <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
+            stringId="general.localisedField.patientBillingTypeId.label.short"
             fallback="Type"
           />,
         ),

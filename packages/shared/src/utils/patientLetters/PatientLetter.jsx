@@ -45,8 +45,8 @@ const DetailsSection = ({ getLocalisation, data }) => {
               const value =
                 (accessor ? accessor(data, { getLocalisation, getTranslation }) : data[key]) || '';
               const label =
-                getTranslation(`general.localisedFields.${key}.label.short`) ||
-                getTranslation(`general.localisedFields.${key}.label`) ||
+                getTranslation(`general.localisedField.${key}.label.short`) ||
+                getTranslation(`general.localisedField.${key}.label`) ||
                 defaultLabel;
 
               return (
