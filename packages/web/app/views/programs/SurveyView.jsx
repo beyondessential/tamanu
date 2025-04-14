@@ -107,7 +107,7 @@ export const SurveyView = ({
         validationSchema={validationSchema}
         validateOnChange
         validateOnBlur
-        data-testid='form-12ot' />
+        data-testid='form-12o2' />
     </ProgramsPane>
   );
 };

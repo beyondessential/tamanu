@@ -72,7 +72,7 @@ export const PatientDetailsCard = ({ patient }) => (
             data-testid='translatedtext-hmo0' />
         }
         value={patient?.firstName}
-        data-testid='carditem-58iy' />
+        data-testid='carditem-5i8y' />
       <CardItem
         label={
           <TranslatedText

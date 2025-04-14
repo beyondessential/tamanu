@@ -26,7 +26,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
     <TranslatedText
       stringId="general.fallback.notApplicable"
       fallback="N/A"
-      data-testid='translatedtext-ist4' />,
+      data-testid='translatedtext-13t4' />,
   );
 
   useEffect(() => {

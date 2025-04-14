@@ -62,7 +62,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
       label: <TranslatedText
         stringId="vaccine.property.status.given"
         fallback="Given"
-        data-testid='translatedtext-2esy' />,
+        data-testid='translatedtext-2e3y' />,
       key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm

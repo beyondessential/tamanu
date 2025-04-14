@@ -69,7 +69,7 @@ export const StatisticsCard = React.memo(({ value, level, percentageIncrease, ti
   <Container data-testid={`container-qbh0-${level}`}>
     <Header background={color} data-testid={`header-2rlj-${level}`}>{title}</Header>
     <Body data-testid={`body-loon-${level}`}>
-      <Content data-testid={`content-3lke-${level}`}>
+      <Content data-testid={`content-3lk2-${level}`}>
         <ValueText color={color} data-testid={`valuetext-0dus-${level}`}>{value}</ValueText>
         <PercentageText percentage={percentageIncrease} data-testid={`percentagetext-9baf-${level}`}>
           {percentageIncrease > 0 ? <ArrowUpward data-testid={`arrowupward-rou4-${level}`} /> : <ArrowDownward data-testid={`arrowdownward-qnez-${level}`} />}

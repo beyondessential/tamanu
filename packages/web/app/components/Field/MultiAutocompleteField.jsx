@@ -137,7 +137,7 @@ const MultiValue = props => {
           onClick: () => clearValue(),
         },
       }}
-      data-testid='multivalue-5sur'></components.MultiValue>
+      data-testid='multivalue-5s3r'></components.MultiValue>
   );
 };
 

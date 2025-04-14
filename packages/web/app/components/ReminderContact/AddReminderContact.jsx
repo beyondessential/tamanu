@@ -118,7 +118,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   { patientName: `<span>${patientName}</span>` },
                 ),
               }}
-              data-testid='formsubheading-7slq'></FormSubHeading>
+              data-testid='formsubheading-72l1'></FormSubHeading>
             <StyledFormContainer data-testid='styledformcontainer-k7ln'>
               <LocalisedField
                 name="reminderContactName"

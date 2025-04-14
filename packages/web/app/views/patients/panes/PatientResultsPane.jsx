@@ -89,7 +89,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         ) : (
           <>
             {noResults && <NoResultsMessage data-testid='noresultsmessage-5zha' />}
-            {isInitialLoad && <LoadingIndicator height={400} data-testid='loadingindicator-2fo0' />}
+            {isInitialLoad && <LoadingIndicator height={400} data-testid='loadingindicator-a200' />}
             {dirty && (
               <PatientLabTestsTable
                 patient={patient}

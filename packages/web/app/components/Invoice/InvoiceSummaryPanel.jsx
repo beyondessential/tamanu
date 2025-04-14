@@ -318,7 +318,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             <BodyText
               sx={{ fontWeight: 400 }}
               color={Colors.darkestText}
-              data-testid='bodytext-5tbe'>
+              data-testid='bodytext-511e'>
               {typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>

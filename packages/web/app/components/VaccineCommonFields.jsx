@@ -306,7 +306,7 @@ export const DiseaseField = () => (
     label={<TranslatedText
       stringId="vaccine.disease.label"
       fallback="Disease"
-      data-testid='translatedtext-ue50' />}
+      data-testid='translatedtext-7e50' />}
     component={TextField}
     data-testid='field-gcfk' />
 );

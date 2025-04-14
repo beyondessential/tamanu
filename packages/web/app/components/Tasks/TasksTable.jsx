@@ -292,7 +292,7 @@ const AssignedToCell = ({ designations }) => {
   }
 
   return (
-    <TableTooltip title={designationNames.join(', ')} data-testid='tabletooltip-ove0'>
+    <TableTooltip title={designationNames.join(', ')} data-testid='tabletooltip-00e0'>
       <OverflowedBox ref={ref} data-testid='overflowedbox-m7gx'>{designationNames.join(', ')}</OverflowedBox>
     </TableTooltip>
   );
@@ -383,7 +383,7 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}
             data-testid='iconbutton-0wvd'>
-            <StyledCheckCircleIcon data-testid='styledcheckcircleicon-n1ot' />
+            <StyledCheckCircleIcon data-testid='styledcheckcircleicon-31o6' />
           </IconButton>
         </TableTooltip>
       )}

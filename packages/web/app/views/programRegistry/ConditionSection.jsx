@@ -110,7 +110,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
   const sortedData = sortBy(translatedData, c => c.translatedName);
 
   return (
-    <Container data-testid='container-e9ot'>
+    <Container data-testid='container-e92t'>
       <HeadingContainer data-testid='headingcontainer-63dn'>
         <Heading5 data-testid='heading5-qhuo'>
           <TranslatedText

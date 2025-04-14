@@ -37,7 +37,7 @@ const TriageCell = ({ arrivalTime, children }) => (
     arrow
     placement="top"
     data-testid='tooltip-dfw8'>
-    <ColourCell data-testid='colourcell-fo4k'>{children}</ColourCell>
+    <ColourCell data-testid='colourcell-1o42'>{children}</ColourCell>
   </Tooltip>
 );
 

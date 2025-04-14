@@ -19,7 +19,7 @@ export const FACILITY_MENU_ITEMS = [
     label: <TranslatedText
       stringId="sidebar.dashboard"
       fallback="Dashboard"
-      data-testid='translatedtext-thi6' />,
+      data-testid='translatedtext-t906' />,
     path: '/dashboard',
     icon: dashboardIcon,
     ability: { action: 'read' },

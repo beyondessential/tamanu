@@ -144,6 +144,6 @@ export const InvoiceItemsTable = ({ invoice }) => {
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
       data={invoice.items}
-      data-testid='datafetchingtable-66iy' />
+      data-testid='datafetchingtable-66i5' />
   );
 };

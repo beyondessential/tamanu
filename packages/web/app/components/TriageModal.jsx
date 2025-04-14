@@ -52,7 +52,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['firstName', 'First name'],
   ['lastName', 'Last name'],
   ['sex', 'Sex', ({ sex }) => <TranslatedSex sex={sex} data-testid='translatedsex-eirc' />],
-  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid='datedisplay-78pn' />],
+  ['dateOfBirth', 'Date of birth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid='datedisplay-78p2' />],
 ];
 
 export const TriageModal = React.memo(

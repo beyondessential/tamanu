@@ -118,7 +118,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
                     data-testid='translatedtext-mfuw' />
                 }
                 component={CheckField}
-                data-testid='field-8tak' />
+                data-testid='field-8t5k' />
             </FacilityCheckbox>
             <FacilityCheckbox marginTop="15px" data-testid='facilitycheckbox-zzya'>
               <Field
