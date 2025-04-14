@@ -451,8 +451,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
           }
           patient={patient}
           data-testid="tableheader-sd66"
-        />
-        hasPastAppointments={hasPastAppointments}
+          hasPastAppointments={hasPastAppointments}
         />
       </NoDataContainer>
     );

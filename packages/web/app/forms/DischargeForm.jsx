@@ -517,7 +517,6 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
 const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
   const { ability } = useAuth();
   const canWriteDischarge = ability.can('write', 'Discharge');
-  î;
   const onSave = async () => {
     await onSubmit({ ...values, isDischarged: false });
   };
