@@ -57,7 +57,7 @@ const FormFields = () => {
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateFilterUserPreferences = debounce(
-    values =>
+    (values) =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_FILTERS,
         value: omit(values, ['patientNameOrId']),
@@ -71,7 +71,7 @@ const FormFields = () => {
   }, [groupBy, setFieldValue]);
 
   return (
-    <Fieldset data-testid='fieldset-gbat'>
+    <Fieldset data-testid="fieldset-gbat">
       <Field
         component={SearchField}
         name="patientNameOrId"
@@ -79,17 +79,19 @@ const FormFields = () => {
           'scheduling.filter.placeholder.patientNameOrId',
           'Search patient name or ID',
         )}
-        data-testid='field-keyw' />
+        data-testid="field-keyw"
+      />
       {groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP && (
         <Field
           component={FilterField}
           endpoint="facilityLocationGroup"
           label={getTranslation('general.area.label', 'Area')}
           name="locationGroupId"
-          onChange={e =>
+          onChange={(e) =>
             updateFilterUserPreferences({ ...filters, locationGroupId: e.target.value })
           }
-          data-testid='field-fqlx' />
+          data-testid="field-fqlx"
+        />
       )}
       {groupBy === APPOINTMENT_GROUP_BY.CLINICIAN && (
         <Field
@@ -97,18 +99,20 @@ const FormFields = () => {
           endpoint="practitioner"
           label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
           name="clinicianId"
-          onChange={e => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
-          data-testid='field-0uvt' />
+          onChange={(e) => updateFilterUserPreferences({ ...filters, clinicianId: e.target.value })}
+          data-testid="field-0uvt"
+        />
       )}
       <Field
         component={FilterField}
         endpoint="appointmentType"
         label={getTranslation('general.type.label', 'Type')}
         name="appointmentTypeId"
-        onChange={e =>
+        onChange={(e) =>
           updateFilterUserPreferences({ ...filters, appointmentTypeId: e.target.value })
         }
-        data-testid='field-0jh8' />
+        data-testid="field-0jh8"
+      />
       <ResetButton
         onClick={() => {
           setValues(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
@@ -116,26 +120,29 @@ const FormFields = () => {
           updateFilterUserPreferences(OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE);
         }}
         type="reset"
-        data-testid='resetbutton-aw9o'>
+        data-testid="resetbutton-aw9o"
+      >
         <TranslatedText
           stringId="general.action.clear"
           fallback="Clear"
-          data-testid='translatedtext-1ml9' />
+          data-testid="translatedtext-1ml9"
+        />
       </ResetButton>
-      <FormListener data-testid='formlistener-eeyr' />
+      <FormListener data-testid="formlistener-eeyr" />
     </Fieldset>
   );
 };
 
-export const OutpatientAppointmentsFilter = props => {
+export const OutpatientAppointmentsFilter = (props) => {
   const { filters } = useOutpatientAppointmentsContext();
   return (
     <Form
       enableReinitialize
       initialValues={filters}
       onSubmit={async () => {}}
-      render={() => <FormFields data-testid='formfields-485s' />}
+      render={() => <FormFields data-testid="formfields-485s" />}
       {...props}
-      data-testid='form-eoaj' />
+      data-testid="form-eoaj"
+    />
   );
 };

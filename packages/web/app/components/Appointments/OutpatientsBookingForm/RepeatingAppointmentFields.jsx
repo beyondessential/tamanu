@@ -145,7 +145,7 @@ export const RepeatingAppointmentFields = ({
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
   const startTimeDate = useMemo(() => startTime && parseISO(startTime), [startTime]);
 
-  const handleChangeEndsMode = e => {
+  const handleChangeEndsMode = (e) => {
     const newModeValue = e.target.value;
     if (newModeValue === ENDS_MODES.ON) {
       handleResetRepeatUntilDate(startTimeDate);
@@ -159,7 +159,7 @@ export const RepeatingAppointmentFields = ({
     setEndsMode(newModeValue);
   };
 
-  const handleFrequencyChange = e => {
+  const handleFrequencyChange = (e) => {
     if (e.target.value === REPEAT_FREQUENCY.MONTHLY) {
       setFieldValue('schedule.nthWeekday', getWeekdayOrdinalPosition(startTimeDate));
     } else if (e.target.value === REPEAT_FREQUENCY.WEEKLY) {
@@ -177,8 +177,8 @@ export const RepeatingAppointmentFields = ({
   };
 
   return (
-    <Container readonly={readonly} data-testid='container-oyny'>
-      <Box display="flex" gap="0.5rem" height="100%" data-testid='box-7p2r'>
+    <Container readonly={readonly} data-testid="container-oyny">
+      <Box display="flex" gap="0.5rem" height="100%" data-testid="box-7p2r">
         <Field
           name="schedule.interval"
           min={1}
@@ -189,10 +189,12 @@ export const RepeatingAppointmentFields = ({
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
               fallback="Repeats every"
-              data-testid='translatedtext-66j4' />
+              data-testid="translatedtext-66j4"
+            />
           }
           component={StyledNumberField}
-          data-testid='field-4pka' />
+          data-testid="field-4pka"
+        />
         <Field
           placeholder=""
           name="schedule.frequency"
@@ -204,40 +206,46 @@ export const RepeatingAppointmentFields = ({
           TranslatedTextProps={{ casing: 'sentence' }}
           onChange={handleFrequencyChange}
           component={StyledTranslatedSelectField}
-          data-testid='field-rviq' />
+          data-testid="field-rviq"
+        />
       </Box>
-      <Box data-testid='box-8tzl'>
-        <SmallBodyText data-testid='smallbodytext-d2yg'>
+      <Box data-testid="box-8tzl">
+        <SmallBodyText data-testid="smallbodytext-d2yg">
           <RepeatCharacteristicsDescription
             startTimeDate={startTimeDate}
             frequency={frequency}
             interval={interval}
-            data-testid='repeatcharacteristicsdescription-trx2' />
+            data-testid="repeatcharacteristicsdescription-trx2"
+          />
         </SmallBodyText>
       </Box>
-      <FormControl variant="standard" data-testid='formcontrol-0213'>
-        <StyledFormLabel id="ends-radio" data-testid='styledformlabel-tyub'>
+      <FormControl variant="standard" data-testid="formcontrol-0213">
+        <StyledFormLabel id="ends-radio" data-testid="styledformlabel-tyub">
           <TranslatedText
             stringId="outpatientAppointment.repeating.ends.label"
             fallback="Ends"
-            data-testid='translatedtext-35ss' />
+            data-testid="translatedtext-35ss"
+          />
         </StyledFormLabel>
         <StyledRadioGroup
           aria-labelledby="ends-radio"
           onChange={handleChangeEndsMode}
           value={endsMode}
-          data-testid='styledradiogroup-e80y'>
-          <Box display="flex" alignItems="center" gap="10px" data-testid='box-cyxy'>
+          data-testid="styledradiogroup-e80y"
+        >
+          <Box display="flex" alignItems="center" gap="10px" data-testid="box-cyxy">
             <StyledFormControlLabel
               value={ENDS_MODES.ON}
-              control={<StyledRadio disabled={readonly} data-testid='styledradio-4bdi' />}
+              control={<StyledRadio disabled={readonly} data-testid="styledradio-4bdi" />}
               label={
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.on"
                   fallback="On"
-                  data-testid='translatedtext-8k67' />
+                  data-testid="translatedtext-8k67"
+                />
               }
-              data-testid='styledformcontrollabel-hndm' />
+              data-testid="styledformcontrollabel-hndm"
+            />
             <Field
               name="schedule.untilDate"
               disabled={readonly || endsMode !== ENDS_MODES.ON}
@@ -249,19 +257,22 @@ export const RepeatingAppointmentFields = ({
                 'yyyy-MM-dd',
               )}
               component={StyledDateField}
-              data-testid='field-4flf' />
+              data-testid="field-4flf"
+            />
           </Box>
-          <Box display="flex" alignItems="center" gap="10px" data-testid='box-824a'>
+          <Box display="flex" alignItems="center" gap="10px" data-testid="box-824a">
             <StyledFormControlLabel
               value={ENDS_MODES.AFTER}
-              control={<StyledRadio disabled={readonly} data-testid='styledradio-d7qf' />}
+              control={<StyledRadio disabled={readonly} data-testid="styledradio-d7qf" />}
               label={
                 <TranslatedText
                   stringId="outpatientAppointment.repeating.ends.option.after"
                   fallback="After"
-                  data-testid='translatedtext-3s0p' />
+                  data-testid="translatedtext-3s0p"
+                />
               }
-              data-testid='styledformcontrollabel-rdlk' />
+              data-testid="styledformcontrollabel-rdlk"
+            />
             <Field
               name="schedule.occurrenceCount"
               sx={{
@@ -275,12 +286,14 @@ export const RepeatingAppointmentFields = ({
               value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
               disabled={readonly || endsMode !== ENDS_MODES.AFTER}
               component={StyledNumberField}
-              data-testid='field-i9q9' />
-            <SmallBodyText color="textTertiary" data-testid='smallbodytext-ko4f'>
+              data-testid="field-i9q9"
+            />
+            <SmallBodyText color="textTertiary" data-testid="smallbodytext-ko4f">
               <TranslatedText
                 stringId="outpatientAppointment.repeating.occurrenceCount.label"
                 fallback="occurrences"
-                data-testid='translatedtext-1pqb' />
+                data-testid="translatedtext-1pqb"
+              />
             </SmallBodyText>
           </Box>
         </StyledRadioGroup>

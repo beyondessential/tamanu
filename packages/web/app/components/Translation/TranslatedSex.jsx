@@ -9,28 +9,32 @@ export const TranslatedSex = ({ sex }) => {
         <TranslatedText
           stringId="patient.property.sex.male"
           fallback="Male"
-          data-testid='translatedtext-nof4' />
+          data-testid="translatedtext-nof4"
+        />
       );
     case SEX_VALUE_INDEX.female.value:
       return (
         <TranslatedText
           stringId="patient.property.sex.female"
           fallback="Female"
-          data-testid='translatedtext-kbw0' />
+          data-testid="translatedtext-kbw0"
+        />
       );
     case SEX_VALUE_INDEX.other.value:
       return (
         <TranslatedText
           stringId="patient.property.sex.other"
           fallback="Other"
-          data-testid='translatedtext-1rnx' />
+          data-testid="translatedtext-1rnx"
+        />
       );
     default:
       return (
         <TranslatedText
           stringId="patient.property.sex.unknown"
           fallback="Unknown"
-          data-testid='translatedtext-hpei' />
+          data-testid="translatedtext-hpei"
+        />
       );
   }
 };

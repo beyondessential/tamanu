@@ -44,7 +44,7 @@ export const ArrayField = ({
   const [fields, setFields] = useState(initialState);
 
   return (
-    <FieldArray name={field.name} validateOnChange={false} data-testid='fieldarray-a1xx'>
+    <FieldArray name={field.name} validateOnChange={false} data-testid="fieldarray-a1xx">
       {({ remove }) => (
         <>
           {fields.map(({ id }, index) => {
@@ -54,27 +54,33 @@ export const ArrayField = ({
               <RemoveButton
                 color="primary"
                 onClick={() => {
-                  setFields(currentFields => currentFields.filter(x => x.id !== id));
+                  setFields((currentFields) => currentFields.filter((x) => x.id !== id));
                   remove(index);
                 }}
-                data-testid={`removebutton-qmfs-${index}`}>
+                data-testid={`removebutton-qmfs-${index}`}
+              >
                 <RemoveCircleOutline data-testid={`removecircleoutline-65ov-${index}`} />
               </RemoveButton>
             );
 
-            return <React.Fragment key={id} data-testid={`fragment-ie51-${index}`}>{renderField(index, DeleteButton)}</React.Fragment>;
+            return (
+              <React.Fragment key={id} data-testid={`fragment-ie51-${index}`}>
+                {renderField(index, DeleteButton)}
+              </React.Fragment>
+            );
           })}
 
           {/* Render the button to add another field below the array of fields */}
           {fields.length < maxFields && (
             <AddButton
-              startIcon={<AddCircleOutline data-testid='addcircleoutline-b8do' />}
+              startIcon={<AddCircleOutline data-testid="addcircleoutline-b8do" />}
               type="button"
               variant="text"
               onClick={() => {
-                setFields(currentFields => [...currentFields, { id: generate() }]);
+                setFields((currentFields) => [...currentFields, { id: generate() }]);
               }}
-              data-testid='addbutton-4ojv'>
+              data-testid="addbutton-4ojv"
+            >
               Add additional
             </AddButton>
           )}

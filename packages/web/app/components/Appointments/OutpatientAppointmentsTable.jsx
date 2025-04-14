@@ -164,9 +164,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {

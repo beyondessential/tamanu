@@ -3,7 +3,7 @@ import { FormSeparatorLine } from './FormSeparatorLine';
 
 export const FormSectionSeparator = React.memo(({ heading }) => (
   <>
-    <FormSeparatorLine data-testid='formseparatorline-ncc1' />
+    <FormSeparatorLine data-testid="formseparatorline-ncc1" />
     <div>
       <span>
         <b>{heading}</b>

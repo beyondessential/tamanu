@@ -54,10 +54,10 @@ export const MenuButton = React.memo(
     };
 
     const handleToggle = () => {
-      setOpen(prevOpen => !prevOpen);
+      setOpen((prevOpen) => !prevOpen);
     };
 
-    const handleClose = event => {
+    const handleClose = (event) => {
       if (anchorRef.current && anchorRef.current.contains(event.target)) {
         return;
       }
@@ -72,8 +72,9 @@ export const MenuButton = React.memo(
           disabled={disabled}
           onClick={handleToggle}
           ref={anchorRef}
-          data-testid='openbutton-d1ec'>
-          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid='icon-p0po' />
+          data-testid="openbutton-d1ec"
+        >
+          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid="icon-p0po" />
         </OpenButton>
         <Popper
           open={open}
@@ -82,17 +83,19 @@ export const MenuButton = React.memo(
           disablePortal
           placement={placement}
           style={{ zIndex: 10 }}
-          data-testid='popper-0e9z'>
+          data-testid="popper-0e9z"
+        >
           {() => (
-            <Paper id="menu-list-grow" variant="outlined" data-testid='paper-f59g'>
-              <ClickAwayListener onClickAway={handleClose} data-testid='clickawaylistener-dxm1'>
-                <List data-testid='list-i0ae'>
+            <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
+              <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-dxm1">
+                <List data-testid="list-i0ae">
                   {actions.filter(Boolean).map(({ action, label }, index) => (
                     <Item
                       disabled={!action}
                       key={label.props.fallback}
-                      onClick={event => handleClick(event, action)}
-                      data-testid={`item-8ybn-${index}`}>
+                      onClick={(event) => handleClick(event, action)}
+                      data-testid={`item-8ybn-${index}`}
+                    >
                       {label}
                     </Item>
                   ))}

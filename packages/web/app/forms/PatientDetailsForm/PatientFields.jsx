@@ -21,14 +21,15 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   // the plan is to reuse the survey question components for these fields
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map(o => ({ label: o, value: o }));
+    const fieldOptions = options.map((o) => ({ label: o, value: o }));
     return (
       <Field
         name={fieldName}
         component={SelectField}
         label={name}
         options={fieldOptions}
-        data-testid='field-32ps' />
+        data-testid="field-32ps"
+      />
     );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
@@ -38,17 +39,12 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         component={TextField}
         label={name}
         enablePasting
-        data-testid='field-gcal' />
+        data-testid="field-gcal"
+      />
     );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
-    return (
-      <Field
-        name={fieldName}
-        component={NumberField}
-        label={name}
-        data-testid='field-4rs2' />
-    );
+    return <Field name={fieldName} component={NumberField} label={name} data-testid="field-4rs2" />;
   }
   return <p>Unknown field type: {fieldType}</p>;
 };
@@ -58,15 +54,16 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
   return (
     <div>
       {groupedFieldDefs.map(([category, defs]) => (
-        <Fragment key={category} data-testid='fragment-e981'>
-          <StyledHeading data-testid='styledheading-5shc'>{category}</StyledHeading>
-          <StyledFormGrid data-testid='styledformgrid-kotn'>
-            {defs.map(f => (
+        <Fragment key={category} data-testid="fragment-e981">
+          <StyledHeading data-testid="styledheading-5shc">{category}</StyledHeading>
+          <StyledFormGrid data-testid="styledformgrid-kotn">
+            {defs.map((f) => (
               <PatientField
                 key={f.definitionId}
                 definition={f}
                 value={fieldValues ? fieldValues[f.definitionId] : ''}
-                data-testid={`patientfield-6i02-${f.definitionId}`} />
+                data-testid={`patientfield-6i02-${f.definitionId}`}
+              />
             ))}
           </StyledFormGrid>
         </Fragment>

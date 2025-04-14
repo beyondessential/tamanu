@@ -34,10 +34,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
   const { logo, watermark, footerImg, printedBy } = certificateData;
-  const {
-    data: additionalData,
-    isFetching: isAdditionalDataFetching,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isFetching: isAdditionalDataFetching } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const { title, subTitle } = getSetting('templates.letterhead');
   const { healthFacility } = getSetting('templates.vaccineCertificate');
@@ -52,14 +50,14 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     },
   );
   const vaccinations =
-    vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
+    vaccineData?.data.filter((vaccine) => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
   const createVaccineCertificateNotification = useCallback(
-    data =>
+    (data) =>
       api.post('certificateNotification', {
         type: VACCINATION_CERTIFICATE,
         requireSigning: false,
@@ -90,12 +88,16 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       width="md"
       printable
       onPrint={() => printPDF(VACCINE_CERTIFICATE_PDF_ID)}
-      additionalActions={<EmailButton
-        onEmail={createVaccineCertificateNotification}
-        data-testid='emailbutton-f55q' />}
-      data-testid='modal-377p'>
+      additionalActions={
+        <EmailButton
+          onEmail={createVaccineCertificateNotification}
+          data-testid="emailbutton-f55q"
+        />
+      }
+      data-testid="modal-377p"
+    >
       {isLoading ? (
-        <LoadingIndicator height="500px" data-testid='loadingindicator-skvx' />
+        <LoadingIndicator height="500px" data-testid="loadingindicator-skvx" />
       ) : (
         <WorkerRenderedPDFViewer
           id={VACCINE_CERTIFICATE_PDF_ID}
@@ -112,7 +114,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
-          data-testid='workerrenderedpdfviewer-e076' />
+          data-testid="workerrenderedpdfviewer-e076"
+        />
       )}
     </Modal>
   );

@@ -40,28 +40,35 @@ export const ModifyRepeatingAppointmentModal = ({
         <TranslatedText
           stringId="outpatientAppointment.modal.modifyRepeatingAppointment.title"
           fallback="Modify appointment"
-          data-testid='translatedtext-uqqm' />
+          data-testid="translatedtext-uqqm"
+        />
       }
       customContent={
-        <ContentWrapper data-testid='contentwrapper-3vhr'>
-          <BodyText mb={3} data-testid='bodytext-s636'>
+        <ContentWrapper data-testid="contentwrapper-3vhr">
+          <BodyText mb={3} data-testid="bodytext-s636">
             <TranslatedText
               stringId="outpatientAppointment.modal.modifyRepeatingAppointment.text"
               fallback="This is a repeating appointment. Would you like to modify this appointment only or this appointment and future appointments as well?"
-              data-testid='translatedtext-0kbo' />
+              data-testid="translatedtext-0kbo"
+            />
           </BodyText>
-          <RadioGroupWrapper data-testid='radiogroupwrapper-ekvd'>
+          <RadioGroupWrapper data-testid="radiogroupwrapper-ekvd">
             <ModifyModeRadioGroup
-              onChange={event => onChangeModifyMode(event.target.value)}
+              onChange={(event) => onChangeModifyMode(event.target.value)}
               value={modifyMode}
-              data-testid='modifymoderadiogroup-9f8m' />
+              data-testid="modifymoderadiogroup-9f8m"
+            />
           </RadioGroupWrapper>
         </ContentWrapper>
       }
-      confirmButtonText={<TranslatedText
-        stringId="general.action.continue"
-        fallback="Continue"
-        data-testid='translatedtext-fnmr' />}
-      data-testid='styledconfirmmodal-jzu3' />
+      confirmButtonText={
+        <TranslatedText
+          stringId="general.action.continue"
+          fallback="Continue"
+          data-testid="translatedtext-fnmr"
+        />
+      }
+      data-testid="styledconfirmmodal-jzu3"
+    />
   );
 };

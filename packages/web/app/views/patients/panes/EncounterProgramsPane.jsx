@@ -19,19 +19,21 @@ export const EncounterProgramsPane = React.memo(({ patient }) => {
     );
 
   return (
-    <TabPane data-testid='tabpane-sdew'>
-      <TableButtonRow variant="small" data-testid='tablebuttonrow-3f11'>
-        <Button onClick={handleNewSurvey} data-testid='button-zch8'>
+    <TabPane data-testid="tabpane-sdew">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-3f11">
+        <Button onClick={handleNewSurvey} data-testid="button-zch8">
           <TranslatedText
             stringId="program.action.newSurvey"
             fallback="New form"
-            data-testid='translatedtext-64xx' />
+            data-testid="translatedtext-64xx"
+          />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable
         endpoint={`encounter/${params.encounterId}/programResponses`}
         patient={patient}
-        data-testid='datafetchingprogramstable-7e8f' />
+        data-testid="datafetchingprogramstable-7e8f"
+      />
     </TabPane>
   );
 });

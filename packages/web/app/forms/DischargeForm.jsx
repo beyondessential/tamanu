@@ -127,7 +127,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: dischargeDraft?.dischargerId,
       dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes.map(n => n.content).join('\n\n'),
+      note: dischargeNotes.map((n) => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -143,7 +143,7 @@ const getMedicationsInitialValues = (medications, encounter) => {
   const medicationDraft = encounter?.dischargeDraft?.medications;
   const medicationsInitialValues = {};
 
-  medications.forEach(medication => {
+  medications.forEach((medication) => {
     const key = medication.id;
     medicationsInitialValues[key] = {
       isDischarge: medicationDraft?.[key]?.isDischarge ?? true,
@@ -201,7 +201,7 @@ const StyledCheckbox = styled(CheckControl)`
   font-size: 16px;
 `;
 const StyledTextSpan = styled.span`
-  color: ${props => (props.color ? props.color : Colors.darkText)};
+  color: ${(props) => (props.color ? props.color : Colors.darkText)};
 `;
 
 /*
@@ -395,7 +395,7 @@ const EncounterOverview = ({
   );
 };
 
-const DischargeFormScreen = props => {
+const DischargeFormScreen = (props) => {
   const {
     validateForm,
     onStepForward,
@@ -411,7 +411,7 @@ const DischargeFormScreen = props => {
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
-  const handleStepForward = async isSavedForm => {
+  const handleStepForward = async (isSavedForm) => {
     if (isSavedForm) {
       await onSubmit({ ...values, isDischarged: false });
       return;
@@ -443,7 +443,7 @@ const DischargeFormScreen = props => {
           <FormConfirmCancelBackRow
             onCancel={handleCancelAttempt}
             onConfirm={() => handleStepForward(false)}
-            CustomConfirmButton={props => (
+            CustomConfirmButton={(props) => (
               <ConditionalTooltip
                 visible={isDiagnosisEmpty}
                 title={
@@ -582,12 +582,12 @@ export const DischargeForm = ({
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
-    d => !['error', 'disproven'].includes(d.certainty),
+    (d) => !['error', 'disproven'].includes(d.certainty),
   );
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
-  const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
+  const activeMedications = encounter.medications?.filter((medication) => !medication.discontinued);
   const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
@@ -595,7 +595,7 @@ export const DischargeForm = ({
       if (isDischarged) {
         // Filter out medications that weren't marked
         const filteredMedications = {};
-        Object.keys(medications).forEach(id => {
+        Object.keys(medications).forEach((id) => {
           const medication = medications[id];
           if (medication.isDischarge) filteredMedications[id] = medication;
         });
@@ -611,7 +611,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter((n) => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
@@ -640,7 +640,7 @@ export const DischargeForm = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
-      FormScreen={props => (
+      FormScreen={(props) => (
         <DischargeFormScreen
           {...props}
           currentDiagnoses={currentDiagnoses}
@@ -653,7 +653,7 @@ export const DischargeForm = ({
       SummaryScreen={
         !showWarningScreen
           ? DischargeSummaryScreen
-          : props => (
+          : (props) => (
               <UnsavedChangesScreen
                 {...props}
                 showWarningScreen={showWarningScreen}

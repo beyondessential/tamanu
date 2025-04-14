@@ -2,7 +2,12 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  PATIENT_STATUS,
+  PATIENT_STATUS_COLORS,
+} from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
@@ -14,7 +19,7 @@ import { TranslatedReferenceData, TranslatedText } from '../../../components/Tra
 
 const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-left: 10px solid ${(props) => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
 `;
 
@@ -38,7 +43,7 @@ const Header = styled.div`
   justify-content: flex-start;
   align-items: center;
   padding: 18px 20px 18px 16px;
-  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-bottom: 1px solid ${(props) => PATIENT_STATUS_COLORS[props.patientStatus]};
 `;
 
 const Content = styled.div`
@@ -56,7 +61,7 @@ const Title = styled(Typography)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
   text-transform: capitalize;
 `;
 
@@ -64,7 +69,7 @@ const BoldTitle = styled(Title)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
+  color: ${(props) => props.theme.palette.text.primary};
   margin-right: 5px;
 `;
 
@@ -94,88 +99,106 @@ const ButtonRow = styled(Box)`
 `;
 
 const DataStatusMessage = ({ message }) => (
-  <NoVisitContainer data-testid='novisitcontainer-xlql'>
-    <Typography variant="h6" data-testid='typography-vg0z'>{message}</Typography>
+  <NoVisitContainer data-testid="novisitcontainer-xlql">
+    <Typography variant="h6" data-testid="typography-vg0z">
+      {message}
+    </Typography>
   </NoVisitContainer>
 );
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
 
-  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
+  const {
+    data: deathData,
+    error,
+    isLoading,
+  } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
 
   if (isLoading) {
-    return <DataStatusMessage message="Loading..." data-testid='datastatusmessage-yo4j' />;
+    return <DataStatusMessage message="Loading..." data-testid="datastatusmessage-yo4j" />;
   }
 
   if (error) {
-    return <DataStatusMessage message={error.message} data-testid='datastatusmessage-d4l9' />;
+    return <DataStatusMessage message={error.message} data-testid="datastatusmessage-d4l9" />;
   }
 
   return (
-    <Container patientStatus={PATIENT_STATUS.DECEASED} data-testid='container-dl1r'>
-      <Header patientStatus={PATIENT_STATUS.DECEASED} data-testid='header-ryg3'>
+    <Container patientStatus={PATIENT_STATUS.DECEASED} data-testid="container-dl1r">
+      <Header patientStatus={PATIENT_STATUS.DECEASED} data-testid="header-ryg3">
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           flex="1"
-          data-testid='box-5a71'>
-          <BoldTitle variant="h3" data-testid='boldtitle-eb0y'>Deceased</BoldTitle>
+          data-testid="box-5a71"
+        >
+          <BoldTitle variant="h3" data-testid="boldtitle-eb0y">
+            Deceased
+          </BoldTitle>
           <DeathCertificateModal
             patient={patient}
             deathData={deathData}
-            data-testid='deathcertificatemodal-ryj2' />
+            data-testid="deathcertificatemodal-ryj2"
+          />
         </Box>
       </Header>
-      <Content data-testid='content-y0fh'>
-        <ContentItem data-testid='contentitem-xxod'>
-          <ContentLabel data-testid='contentlabel-nvid'>Place of death:</ContentLabel>
-          <ContentText data-testid='contenttext-genv'>
+      <Content data-testid="content-y0fh">
+        <ContentItem data-testid="contentitem-xxod">
+          <ContentLabel data-testid="contentlabel-nvid">Place of death:</ContentLabel>
+          <ContentText data-testid="contenttext-genv">
             {(deathData?.outsideHealthFacility && 'Died outside health facility') ||
               (deathData?.facility?.name && (
                 <TranslatedReferenceData
                   fallback={deathData.facility.name}
                   value={deathData?.facility.id}
                   category="facility"
-                  data-testid='translatedreferencedata-c4cx' />
+                  data-testid="translatedreferencedata-c4cx"
+                />
               )) ||
               'Unknown'}
           </ContentText>
         </ContentItem>
-        <ContentItem data-testid='contentitem-sw3j'>
-          <ContentLabel data-testid='contentlabel-ybug'>
+        <ContentItem data-testid="contentitem-sw3j">
+          <ContentLabel data-testid="contentlabel-ybug">
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-testid='translatedtext-vg4s' />
+              data-testid="translatedtext-vg4s"
+            />
             :
           </ContentLabel>
-          <ContentText data-testid='contenttext-9p0g'>{deathData?.clinician?.displayName}</ContentText>
+          <ContentText data-testid="contenttext-9p0g">
+            {deathData?.clinician?.displayName}
+          </ContentText>
         </ContentItem>
-        <ContentItem style={{ gridColumn: '1/-1' }} data-testid='contentitem-evco'>
-          <ContentLabel data-testid='contentlabel-4c0x'>Underlying condition causing death:</ContentLabel>
-          <ContentText data-testid='contenttext-usv8'>
+        <ContentItem style={{ gridColumn: '1/-1' }} data-testid="contentitem-evco">
+          <ContentLabel data-testid="contentlabel-4c0x">
+            Underlying condition causing death:
+          </ContentLabel>
+          <ContentText data-testid="contenttext-usv8">
             {deathData?.causes?.primary?.condition.id ? (
               <TranslatedReferenceData
                 fallback={deathData?.causes?.primary?.condition.name}
                 value={deathData?.causes?.primary?.condition.id}
                 category={deathData?.causes?.primary?.condition.type}
-                data-testid='translatedreferencedata-a8fx' />
+                data-testid="translatedreferencedata-a8fx"
+              />
             ) : (
               <TranslatedText
                 stringId="general.fallback.notApplicable"
                 fallback="N/A"
-                data-testid='translatedtext-eotw' />
+                data-testid="translatedtext-eotw"
+              />
             )}
           </ContentText>
         </ContentItem>
-        <ContentItem data-testid='contentitem-ld97'>
-          <ContentLabel data-testid='contentlabel-yujn'>Date of death:</ContentLabel>
-          <ContentText data-testid='contenttext-08c1'>
-            <DateDisplay date={deathData?.dateOfDeath} data-testid='datedisplay-55sx' />
+        <ContentItem data-testid="contentitem-ld97">
+          <ContentLabel data-testid="contentlabel-yujn">Date of death:</ContentLabel>
+          <ContentText data-testid="contenttext-08c1">
+            <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
           </ContentText>
         </ContentItem>
       </Content>
@@ -188,43 +211,50 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
 
   if (patient.dateOfDeath) {
-    return <PatientDeathSummary patient={patient} data-testid='patientdeathsummary-uven' />;
+    return <PatientDeathSummary patient={patient} data-testid="patientdeathsummary-uven" />;
   }
 
   if (isLoading) {
     return (
       <DataStatusMessage
-        message={<TranslatedText
-          stringId="general.status.loading"
-          fallback="Loading..."
-          data-testid='translatedtext-jp7h' />}
-        data-testid='datastatusmessage-8kxn' />
+        message={
+          <TranslatedText
+            stringId="general.status.loading"
+            fallback="Loading..."
+            data-testid="translatedtext-jp7h"
+          />
+        }
+        data-testid="datastatusmessage-8kxn"
+      />
     );
   }
 
   if (error) {
-    return <DataStatusMessage message={error.message} data-testid='datastatusmessage-bwi6' />;
+    return <DataStatusMessage message={error.message} data-testid="datastatusmessage-bwi6" />;
   }
 
   if (!encounter) {
     return (
-      <NoVisitContainer data-testid='novisitcontainer-pf0x'>
-        <NoVisitTitle variant="h2" data-testid='novisittitle-4wsg'>
+      <NoVisitContainer data-testid="novisitcontainer-pf0x">
+        <NoVisitTitle variant="h2" data-testid="novisittitle-4wsg">
           <TranslatedText
             stringId="patient.encounterSummary.noCurrentVisit"
             fallback="No Current Visit"
-            data-testid='translatedtext-2oej' />
+            data-testid="translatedtext-2oej"
+          />
         </NoVisitTitle>
-        <ButtonRow data-testid='buttonrow-qss7'>
+        <ButtonRow data-testid="buttonrow-qss7">
           <ButtonWithPermissionCheck
             onClick={openCheckin}
             verb="create"
             noun="Encounter"
-            data-testid='buttonwithpermissioncheck-o4ea'>
+            data-testid="buttonwithpermissioncheck-o4ea"
+          >
             <TranslatedText
               stringId="patient.encounterSummary.adminOrCheckIn"
               fallback="Admit or check-in"
-              data-testid='translatedtext-rs08' />
+              data-testid="translatedtext-rs08"
+            />
           </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
@@ -245,15 +275,17 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   const patientStatus = getPatientStatus(encounterType);
 
   return (
-    <Container patientStatus={patientStatus} data-testid='container-2i3h'>
-      <Header patientStatus={patientStatus} data-testid='header-vf6f'>
-        <BoldTitle variant="h3" data-testid='boldtitle-r1hy'>
+    <Container patientStatus={patientStatus} data-testid="container-2i3h">
+      <Header patientStatus={patientStatus} data-testid="header-vf6f">
+        <BoldTitle variant="h3" data-testid="boldtitle-r1hy">
           <TranslatedText
             stringId="general.type.label"
             fallback="Type"
-            data-testid='translatedtext-xp21' />:
+            data-testid="translatedtext-xp21"
+          />
+          :
         </BoldTitle>
-        <Title variant="h3" data-testid='title-il13'>
+        <Title variant="h3" data-testid="title-il13">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
           {location?.facility?.name ? (
             <>
@@ -262,33 +294,36 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                 fallback={location?.facility.name}
                 value={location?.facility.id}
                 category="facility"
-                data-testid='translatedreferencedata-dbxs' />
+                data-testid="translatedreferencedata-dbxs"
+              />
             </>
           ) : (
             ''
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
-        <Button onClick={() => viewEncounter(id)} size="small" data-testid='button-t8zb'>
+        <Button onClick={() => viewEncounter(id)} size="small" data-testid="button-t8zb">
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
             fallback="View encounter"
-            data-testid='translatedtext-nqf5' />
+            data-testid="translatedtext-nqf5"
+          />
         </Button>
       </Header>
-      <Content data-testid='content-j9id'>
-        <ContentItem data-testid='contentitem-hcvt'>
-          <ContentLabel data-testid='contentlabel-tez6'>
+      <Content data-testid="content-j9id">
+        <ContentItem data-testid="contentitem-hcvt">
+          <ContentLabel data-testid="contentlabel-tez6">
             <TranslatedText
               stringId="patient.encounterSummary.currentAdmission"
               fallback="Current admission"
-              data-testid='translatedtext-6z2p' />
+              data-testid="translatedtext-6z2p"
+            />
             :
           </ContentLabel>
-          <ContentText data-testid='contenttext-nhhp'>{patientStatus}</ContentText>
+          <ContentText data-testid="contenttext-nhhp">{patientStatus}</ContentText>
         </ContentItem>
-        <ContentItem data-testid='contentitem-w27y'>
-          <ContentLabel data-testid='contentlabel-pwyp'>
+        <ContentItem data-testid="contentitem-w27y">
+          <ContentLabel data-testid="contentlabel-pwyp">
             <TranslatedText
               stringId="general.supervisingClinician.label"
               fallback="Supervising :clinician"
@@ -298,66 +333,74 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
                     stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                     casing="lower"
-                    data-testid='translatedtext-4bmp' />
+                    data-testid="translatedtext-4bmp"
+                  />
                 ),
               }}
-              data-testid='translatedtext-hnws' />
+              data-testid="translatedtext-hnws"
+            />
             :
           </ContentLabel>
-          <ContentText data-testid='contenttext-73tz'>{examiner?.displayName || '-'}</ContentText>
+          <ContentText data-testid="contenttext-73tz">{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
-        <ContentItem data-testid='contentitem-xmgk'>
-          <ContentLabel data-testid='contentlabel-zfve'>
+        <ContentItem data-testid="contentitem-xmgk">
+          <ContentLabel data-testid="contentlabel-zfve">
             <TranslatedText
               stringId="general.location.label"
               fallback="Location"
-              data-testid='translatedtext-sz4d' />:
+              data-testid="translatedtext-sz4d"
+            />
+            :
           </ContentLabel>
-          <ContentText data-testid='contenttext-yn8i'>{getFullLocationName(location)}</ContentText>
+          <ContentText data-testid="contenttext-yn8i">{getFullLocationName(location)}</ContentText>
         </ContentItem>
         {!getLocalisation('referralSourceId.hidden') && (
-          <ContentItem data-testid='contentitem-bsgv'>
-            <ContentLabel data-testid='contentlabel-p2o9'>
+          <ContentItem data-testid="contentitem-bsgv">
+            <ContentLabel data-testid="contentlabel-p2o9">
               <TranslatedText
                 stringId="general.localisedField.referralSourceId.label"
                 fallback="Referral source"
-                data-testid='translatedtext-xmmo' />
+                data-testid="translatedtext-xmmo"
+              />
               :
             </ContentLabel>
-            <ContentText data-testid='contenttext-di6y'>
+            <ContentText data-testid="contenttext-di6y">
               {referralSourceId ? (
                 <TranslatedReferenceData
                   category="referralSource"
                   fallback={referralSource?.name}
                   value={referralSourceId}
-                  data-testid='translatedreferencedata-reyt' />
+                  data-testid="translatedreferencedata-reyt"
+                />
               ) : (
                 referralSource?.name || '-'
               )}
             </ContentText>
           </ContentItem>
         )}
-        <ContentItem data-testid='contentitem-o4pq'>
-          <ContentLabel data-testid='contentlabel-ws92'>
+        <ContentItem data-testid="contentitem-o4pq">
+          <ContentLabel data-testid="contentlabel-ws92">
             <TranslatedText
               stringId="patient.encounterSummary.arrivalDate"
               fallback="Arrival date"
-              data-testid='translatedtext-dn4a' />
+              data-testid="translatedtext-dn4a"
+            />
             :
           </ContentLabel>
-          <ContentText data-testid='contenttext-nw17'>
-            <DateDisplay date={startDate} data-testid='datedisplay-5hsh' />
+          <ContentText data-testid="contenttext-nw17">
+            <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
           </ContentText>
         </ContentItem>
-        <ContentItem data-testid='contentitem-t8nz'>
-          <ContentLabel data-testid='contentlabel-p85w'>
+        <ContentItem data-testid="contentitem-t8nz">
+          <ContentLabel data-testid="contentlabel-p85w">
             <TranslatedText
               stringId="encounter.reasonForEncounter.label"
               fallback="Reason for encounter"
-              data-testid='translatedtext-5vij' />
+              data-testid="translatedtext-5vij"
+            />
             :
           </ContentLabel>
-          <ContentText data-testid='contenttext-wf93'>{reasonForEncounter}</ContentText>
+          <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
         </ContentItem>
       </Content>
     </Container>

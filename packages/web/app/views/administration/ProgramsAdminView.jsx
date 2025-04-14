@@ -33,11 +33,12 @@ export const ProgramsAdminView = () => {
         key: 'import',
         icon: 'fa fa-file-import',
         render: () => (
-          <TabContainer data-testid='tabcontainer-g2le'>
+          <TabContainer data-testid="tabcontainer-g2le">
             <ImporterView
               endpoint="program"
               setIsLoading={setIsLoading}
-              data-testid='importerview-0cyu' />
+              data-testid="importerview-0cyu"
+            />
           </TabContainer>
         ),
       },
@@ -46,8 +47,11 @@ export const ProgramsAdminView = () => {
         key: 'export',
         icon: 'fa fa-file-export',
         render: () => (
-          <TabContainer data-testid='tabcontainer-za63'>
-            <ProgramExporterView setIsLoading={setIsLoading} data-testid='programexporterview-mazu' />
+          <TabContainer data-testid="tabcontainer-za63">
+            <ProgramExporterView
+              setIsLoading={setIsLoading}
+              data-testid="programexporterview-mazu"
+            />
           </TabContainer>
         ),
       },
@@ -57,18 +61,23 @@ export const ProgramsAdminView = () => {
 
   return (
     <AdminViewContainer
-      title={<TranslatedText
-        stringId="admin.program.title"
-        fallback="Programs (aka forms)"
-        data-testid='translatedtext-52ok' />}
+      title={
+        <TranslatedText
+          stringId="admin.program.title"
+          fallback="Programs (aka forms)"
+          data-testid="translatedtext-52ok"
+        />
+      }
       showLoadingIndicator={isLoading}
-      data-testid='adminviewcontainer-w2w4'>
+      data-testid="adminviewcontainer-w2w4"
+    >
       <StyledTabDisplay
         tabs={tabs}
         currentTab={currentTab}
         onTabSelect={setCurrentTab}
         scrollable={false}
-        data-testid='styledtabdisplay-gnxw' />
+        data-testid="styledtabdisplay-gnxw"
+      />
     </AdminViewContainer>
   );
 };

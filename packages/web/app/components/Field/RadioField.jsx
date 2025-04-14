@@ -36,15 +36,15 @@ const StyledRadioGroup = styled(RadioGroup)`
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  flex: ${props => props.$fullWidth && 1};
+  flex: ${(props) => props.$fullWidth && 1};
   margin: 0 10px 0 0;
   border-radius: 3px;
   padding: 12px 20px;
   border: 1px solid
-    ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
-  ${props => (props.$color ? `border-color: ${props.$color}` : '')};
+    ${(props) => (props.selected ? props.theme.border.selected : props.theme.border.default)};
+  ${(props) => (props.$color ? `border-color: ${props.$color}` : '')};
   justify-content: center;
-  background: ${props =>
+  background: ${(props) =>
     props.selected ? props.theme.background.selected : props.theme.background.default};
 
   &:last-child {
@@ -54,7 +54,7 @@ const ControlLabel = styled(FormControlLabel)`
   .MuiButtonBase-root {
     padding: 0;
     margin-left: -5px;
-    color: ${props => (props.selected ? props.theme.color.selected : props.theme.color.default)};
+    color: ${(props) => (props.selected ? props.theme.color.selected : props.theme.color.default)};
 
     svg {
       font-size: 18px;
@@ -73,7 +73,7 @@ const ControlLabel = styled(FormControlLabel)`
     font-size: 14px;
     line-height: 16px;
     padding: 0 0 0 5px;
-    color: ${props => (props.selected ? props.theme.text.selected : props.theme.text.default)};
+    color: ${(props) => (props.selected ? props.theme.text.selected : props.theme.text.default)};
   }
 `;
 
@@ -95,8 +95,10 @@ const StyledLabelTitle = styled.p`
 
 const LabelWithDescription = ({ label, description }) => (
   <div>
-    <StyledLabelTitle data-testid='styledlabeltitle-y511'>{label}</StyledLabelTitle>
-    <StyledLabelDescription data-testid='styledlabeldescription-zze1'>{description}</StyledLabelDescription>
+    <StyledLabelTitle data-testid="styledlabeltitle-y511">{label}</StyledLabelTitle>
+    <StyledLabelDescription data-testid="styledlabeldescription-zze1">
+      {description}
+    </StyledLabelDescription>
   </div>
 );
 
@@ -119,7 +121,7 @@ export const RadioInput = ({
       return;
     }
 
-    const validOptions = options.filter(o => !o.disabled);
+    const validOptions = options.filter((o) => !o.disabled);
     if (validOptions.length === 1) {
       onChange({ target: { value: validOptions[0].value, name } });
     }
@@ -132,8 +134,9 @@ export const RadioInput = ({
       error={error}
       {...props}
       style={style}
-      data-testid='outerlabelfieldwrapper-ce71'>
-      <StyledFormControl error={error} {...props} data-testid='styledformcontrol-67x0'>
+      data-testid="outerlabelfieldwrapper-ce71"
+    >
+      <StyledFormControl error={error} {...props} data-testid="styledformcontrol-67x0">
         <StyledRadioGroup
           length={options.length}
           aria-label={name}
@@ -141,8 +144,9 @@ export const RadioInput = ({
           value={value || ''}
           error={error}
           {...props}
-          data-testid='styledradiogroup-13do'>
-          {options.map(option => (
+          data-testid="styledradiogroup-13do"
+        >
+          {options.map((option) => (
             <Fragment key={option.value}>
               {option.leftOptionalElement ?? null}
               <ControlLabel
@@ -159,14 +163,16 @@ export const RadioInput = ({
                         }
                       : {})}
                     disabled={option.disabled}
-                    data-testid={`radio-il3t-${option.value}`} />
+                    data-testid={`radio-il3t-${option.value}`}
+                  />
                 }
                 label={
                   option.description ? (
                     <LabelWithDescription
                       label={option.label}
                       description={option.description}
-                      data-testid={`labelwithdescription-cizd-${option.value}`} />
+                      data-testid={`labelwithdescription-cizd-${option.value}`}
+                    />
                   ) : (
                     option.label
                   )
@@ -185,11 +191,14 @@ export const RadioInput = ({
                       }
                     : DEFAULT_LABEL_THEME
                 }
-                data-testid={`controllabel-kkx2-${option.value}`} />
+                data-testid={`controllabel-kkx2-${option.value}`}
+              />
             </Fragment>
           ))}
         </StyledRadioGroup>
-        {helperText && <FormHelperText data-testid='formhelpertext-sz5u'>{helperText}</FormHelperText>}
+        {helperText && (
+          <FormHelperText data-testid="formhelpertext-sz5u">{helperText}</FormHelperText>
+        )}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
@@ -215,7 +224,8 @@ export const RadioField = ({ field, error, ...props }) => (
     onChange={field.onChange}
     error={error || undefined}
     {...props}
-    data-testid='radioinput-bn4o' />
+    data-testid="radioinput-bn4o"
+  />
 );
 
 export const TranslatedRadioField = ({ error, ...props }) => {
@@ -224,6 +234,7 @@ export const TranslatedRadioField = ({ error, ...props }) => {
       error={error || undefined}
       {...props}
       component={RadioInput}
-      data-testid='translatedenumfield-qh1t' />
+      data-testid="translatedenumfield-qh1t"
+    />
   );
 };

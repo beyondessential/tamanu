@@ -13,7 +13,7 @@ const COLORS = {
 };
 
 const ColoredBadge = styled.div`
-  background: ${p => p.color};
+  background: ${(p) => p.color};
   border-radius: 0.5rem;
   text-align: center;
 `;
@@ -41,5 +41,9 @@ export const SurveyResultBadge = ({ resultText }) => {
     return null;
   }
   const { color, strippedResultText } = separateColorText(resultText);
-  return <ColoredBadge color={color} data-testid='coloredbadge-y3r7'>{strippedResultText}</ColoredBadge>;
+  return (
+    <ColoredBadge color={color} data-testid="coloredbadge-y3r7">
+      {strippedResultText}
+    </ColoredBadge>
+  );
 };

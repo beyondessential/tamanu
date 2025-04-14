@@ -5,26 +5,28 @@ const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
 const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
 const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
-export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {
-  const { auth } = getState();
-  const { facilityId } = auth;
-  dispatch({ type: IMAGING_LOAD_START, id });
-  try {
-    const imagingRequest = await api.get(`imagingRequest/${id}`, { facilityId });
+export const reloadImagingRequest =
+  (id) =>
+  async (dispatch, getState, { api }) => {
+    const { auth } = getState();
+    const { facilityId } = auth;
+    dispatch({ type: IMAGING_LOAD_START, id });
+    try {
+      const imagingRequest = await api.get(`imagingRequest/${id}`, { facilityId });
 
-    const encounter = imagingRequest.encounters?.[0];
-    if (encounter) {
-      const patient = encounter.patient[0];
-      if (patient) {
-        dispatch(reloadPatient(patient.id));
+      const encounter = imagingRequest.encounters?.[0];
+      if (encounter) {
+        const patient = encounter.patient[0];
+        if (patient) {
+          dispatch(reloadPatient(patient.id));
+        }
       }
-    }
 
-    dispatch({ type: IMAGING_LOAD_FINISH, imagingRequest });
-  } catch (e) {
-    dispatch({ type: IMAGING_LOAD_ERROR, error: e });
-  }
-};
+      dispatch({ type: IMAGING_LOAD_FINISH, imagingRequest });
+    } catch (e) {
+      dispatch({ type: IMAGING_LOAD_ERROR, error: e });
+    }
+  };
 
 // reducers
 

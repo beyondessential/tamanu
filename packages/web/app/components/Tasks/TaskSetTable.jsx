@@ -62,7 +62,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.taskSetList"
         fallback="Task set list"
-        data-testid='translatedtext-jhvi' />
+        data-testid="translatedtext-jhvi"
+      />
     ),
     sortable: false,
   },
@@ -72,7 +73,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.assignedTo"
         fallback="Assigned to"
-        data-testid='translatedtext-qsbt' />
+        data-testid="translatedtext-qsbt"
+      />
     ),
     accessor: getDesignations,
     sortable: false,
@@ -83,7 +85,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.frequency"
         fallback="Frequency"
-        data-testid='translatedtext-zm16' />
+        data-testid="translatedtext-zm16"
+      />
     ),
     accessor: ({ taskTemplate }) => {
       const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
@@ -93,7 +96,8 @@ const COLUMNS = [
         <TranslatedText
           stringId="encounter.tasks.table.once"
           fallback="Once"
-          data-testid='translatedtext-wm2y' />
+          data-testid="translatedtext-wm2y"
+        />
       );
     },
     sortable: false,
@@ -104,9 +108,15 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.highPriority"
         fallback="High priority"
-        data-testid='translatedtext-65on' />
+        data-testid="translatedtext-65on"
+      />
     ),
-    accessor: ({ taskTemplate }) => (taskTemplate?.highPriority ? <StyledPriorityHighIcon data-testid='styledpriorityhighicon-0wlt' /> : ''),
+    accessor: ({ taskTemplate }) =>
+      taskTemplate?.highPriority ? (
+        <StyledPriorityHighIcon data-testid="styledpriorityhighicon-0wlt" />
+      ) : (
+        ''
+      ),
     sortable: false,
   },
 ];
@@ -125,6 +135,7 @@ export const TaskSetTable = ({ tasks }) => {
       orderBy={orderBy}
       order={order}
       customSort={customSort}
-      data-testid='styledtable-19bp' />
+      data-testid="styledtable-19bp"
+    />
   );
 };

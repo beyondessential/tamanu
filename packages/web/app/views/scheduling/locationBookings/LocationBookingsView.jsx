@@ -29,7 +29,8 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     <TranslatedText
       stringId="scheduling.locationBookings.title"
       fallback="Location bookings"
-      data-testid='translatedtext-y7nl' />
+      data-testid="translatedtext-y7nl"
+    />
   ),
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
@@ -73,7 +74,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async appointment => {
+  const openBookingForm = async (appointment) => {
     // “Useless” await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
@@ -85,7 +86,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const openCancelModal = appointment => {
+  const openCancelModal = (appointment) => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
@@ -113,29 +114,31 @@ export const LocationBookingsView = () => {
   const canViewAppointments = ability.can('listOrRead', 'Appointment');
 
   if (!canViewAppointments) {
-    return <NoPermissionScreen data-testid='nopermissionscreen-56z7' />;
+    return <NoPermissionScreen data-testid="nopermissionscreen-56z7" />;
   }
 
   return (
-    <Wrapper data-testid='wrapper-r1vl'>
-      <LocationBookingsTopBar data-testid='locationbookingstopbar-0w60'>
-        <LocationBookingsFilter data-testid='locationbookingsfilter-xdku' />
+    <Wrapper data-testid="wrapper-r1vl">
+      <LocationBookingsTopBar data-testid="locationbookingstopbar-0w60">
+        <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
-          <NewBookingButton onClick={handleNewBooking} data-testid='newbookingbutton-sl1p'>
-            <PlusIcon data-testid='plusicon-ufmc' />
+          <NewBookingButton onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
+            <PlusIcon data-testid="plusicon-ufmc" />
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
-              data-testid='translatedtext-feur' />
+              data-testid="translatedtext-feur"
+            />
           </NewBookingButton>
         )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
-        <EmptyStateLabel data-testid='emptystatelabel-5iov'>
+        <EmptyStateLabel data-testid="emptystatelabel-5iov">
           <TranslatedText
             stringId="locationBooking.calendar.noBookableLocations"
             fallback="No bookable locations"
-            data-testid='translatedtext-e6bf' />
+            data-testid="translatedtext-e6bf"
+          />
         </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
@@ -143,13 +146,15 @@ export const LocationBookingsView = () => {
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
-          data-testid='locationbookingscalendar-s3yu' />
+          data-testid="locationbookingscalendar-s3yu"
+        />
       )}
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
-        data-testid='cancellocationbookingmodal-4tih' />
+        data-testid="cancellocationbookingmodal-4tih"
+      />
       {selectedAppointment && (
         <LocationBookingDrawer
           initialValues={appointmentToFormValues(selectedAppointment)}
@@ -159,7 +164,8 @@ export const LocationBookingsView = () => {
           }
           open={isDrawerOpen}
           onClose={closeBookingForm}
-          data-testid='locationbookingdrawer-kv0j' />
+          data-testid="locationbookingdrawer-kv0j"
+        />
       )}
     </Wrapper>
   );

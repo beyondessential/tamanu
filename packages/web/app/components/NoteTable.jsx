@@ -31,7 +31,7 @@ const NoteContentContainer = styled.div`
   overflow: hidden;
   display: -webkit-box;
   white-space: pre-line;
-  ${props =>
+  ${(props) =>
     !props.$expanded
       ? `
     text-overflow: clip;
@@ -171,22 +171,24 @@ const NoteContent = ({
   }, [contentIsExpanded]);
 
   return (
-    <NoteRowContainer data-testid='noterowcontainer-h4rs'>
+    <NoteRowContainer data-testid="noterowcontainer-h4rs">
       {isNotFilteredByNoteType && (
-        <NoteHeaderContainer data-testid='noteheadercontainer-qu50'>
-          <NoteHeaderText data-testid='noteheadertext-e3kq'>
+        <NoteHeaderContainer data-testid="noteheadercontainer-qu50">
+          <NoteHeaderText data-testid="noteheadertext-e3kq">
             <TranslatedEnum
               value={note.noteType}
               enumValues={NOTE_TYPE_LABELS}
-              data-testid='translatedenum-9mbb' />
+              data-testid="translatedenum-9mbb"
+            />
           </NoteHeaderText>
         </NoteHeaderContainer>
       )}
-      <NoteBodyContainer data-testid='notebodycontainer-2rym'>
+      <NoteBodyContainer data-testid="notebodycontainer-2rym">
         <NoteContentContainer
           $expanded={contentIsExpanded}
           ref={noteContentContainerRef}
-          data-testid='notecontentcontainer-cgxg'>
+          data-testid="notecontentcontainer-cgxg"
+        >
           {note?.content?.split('\n').map((line, i) => {
             return (
               <span key={i}>
@@ -199,62 +201,77 @@ const NoteContent = ({
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
-            <StyledEditIcon onClick={() => handleEditNote(note)} data-testid='styledediticon-nmdz' />
+            <StyledEditIcon
+              onClick={() => handleEditNote(note)}
+              data-testid="styledediticon-nmdz"
+            />
           )}
       </NoteBodyContainer>
-      <NoteExpandControlContainer data-testid='noteexpandcontrolcontainer-nc8t'>
+      <NoteExpandControlContainer data-testid="noteexpandcontrolcontainer-nc8t">
         {contentIsClipped && !contentIsExpanded && (
-          <ReadMoreSpan onClick={handleReadMore} data-testid='readmorespan-dpwv'>
+          <ReadMoreSpan onClick={handleReadMore} data-testid="readmorespan-dpwv">
             ...
             <TranslatedText
               stringId="note.table.item.readMore"
               fallback="read more"
-              data-testid='translatedtext-fpqt' />
+              data-testid="translatedtext-fpqt"
+            />
           </ReadMoreSpan>
         )}
         {contentIsExpanded && (
-          <ShowLessSpan onClick={handleReadLess} data-testid='showlessspan-7kuw'>
+          <ShowLessSpan onClick={handleReadLess} data-testid="showlessspan-7kuw">
             {' '}
             <TranslatedText
               stringId="note.table.item.showLess"
               fallback="Show less"
-              data-testid='translatedtext-frql' />
+              data-testid="translatedtext-frql"
+            />
           </ShowLessSpan>
         )}
       </NoteExpandControlContainer>
-      <NoteFooterContainer data-testid='notefootercontainer-byhv'>
+      <NoteFooterContainer data-testid="notefootercontainer-byhv">
         {showNoteMetaPrefix && (
-          <NoteFooterTextElement data-testid='notefootertextelement-sujh'>
+          <NoteFooterTextElement data-testid="notefootertextelement-sujh">
             <TranslatedText
               stringId="general.lastUpdated.label"
               fallback="Last updated"
-              data-testid='translatedtext-ncvx' />:
+              data-testid="translatedtext-ncvx"
+            />
+            :
           </NoteFooterTextElement>
         )}
-        {noteAuthorName ? <NoteFooterTextElement data-testid='notefootertextelement-a9zz'>{noteAuthorName}</NoteFooterTextElement> : null}
+        {noteAuthorName ? (
+          <NoteFooterTextElement data-testid="notefootertextelement-a9zz">
+            {noteAuthorName}
+          </NoteFooterTextElement>
+        ) : null}
         {noteOnBehalfOfName && (
-          <NoteFooterTextElement data-testid='notefootertextelement-2ffz'>
+          <NoteFooterTextElement data-testid="notefootertextelement-2ffz">
             <TranslatedText
               stringId="note.table.onBehalfOfText"
               fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ noteOnBehalfOfName }}
-              data-testid='translatedtext-9x5v' />
+              data-testid="translatedtext-9x5v"
+            />
           </NoteFooterTextElement>
         )}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
-          data-testid='datedisplay-yaha' />
+          data-testid="datedisplay-yaha"
+        />
         {note.revisedById && (
           <EditedButtonContainer
             onClick={() => handleViewNoteChangeLog(note)}
-            data-testid='editedbuttoncontainer-1q1r'>
+            data-testid="editedbuttoncontainer-1q1r"
+          >
             <span>(</span>
-            <EditedButton data-testid='editedbutton-jn5i'>
+            <EditedButton data-testid="editedbutton-jn5i">
               <TranslatedText
                 stringId="note.table.footer.edited"
                 fallback="edited"
-                data-testid='translatedtext-ud3f' />
+                data-testid="translatedtext-ud3f"
+              />
             </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
@@ -278,24 +295,29 @@ const NoteTable = ({
   const [modalNote, setModalNote] = useState(null);
 
   const handleEditNote = useCallback(
-    note => {
+    (note) => {
       setModalTitle(
         note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
           <TranslatedText
             stringId="note.modal.updateTreatmentPlan.title"
             fallback="Update treatment plan"
-            data-testid='translatedtext-qmf7' />
+            data-testid="translatedtext-qmf7"
+          />
         ) : (
           <TranslatedText
             stringId="note.modal.edit.title"
             fallback="Edit note"
-            data-testid='translatedtext-ioxf' />
+            data-testid="translatedtext-ioxf"
+          />
         ),
       );
-      setModalCancelText(<TranslatedText
-        stringId="general.action.cancel"
-        fallback="Cancel"
-        data-testid='translatedtext-c0km' />);
+      setModalCancelText(
+        <TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid="translatedtext-c0km"
+        />,
+      );
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -304,11 +326,14 @@ const NoteTable = ({
   );
 
   const handleViewNoteChangeLog = useCallback(
-    note => {
-      setModalTitle(<TranslatedText
-        stringId="note.modal.changeLog.title"
-        fallback="Change Log"
-        data-testid='translatedtext-xmf3' />);
+    (note) => {
+      setModalTitle(
+        <TranslatedText
+          stringId="note.modal.changeLog.title"
+          fallback="Change Log"
+          data-testid="translatedtext-xmf3"
+        />,
+      );
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -321,7 +346,7 @@ const NoteTable = ({
       {
         key: 'content',
         title: 'Content',
-        accessor: note => (
+        accessor: (note) => (
           <NoteContent
             note={note}
             hasEncounterNoteWritePermission={hasEncounterNoteWritePermission}
@@ -329,7 +354,8 @@ const NoteTable = ({
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}
             isNotFilteredByNoteType={!noteType}
-            data-testid='notecontent-s6dd' />
+            data-testid="notecontent-s6dd"
+          />
         ),
         sortable: false,
       },
@@ -360,15 +386,18 @@ const NoteTable = ({
               <TranslatedText
                 stringId="general.action.close"
                 fallback="Close"
-                data-testid='translatedtext-3cqs' />
+                data-testid="translatedtext-3cqs"
+              />
             ) : (
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-testid='translatedtext-uimh' />
+                data-testid="translatedtext-uimh"
+              />
             )
           }
-          data-testid='notemodal-pvyd' />
+          data-testid="notemodal-pvyd"
+        />
       )}
       <DataFetchingTable
         lazyLoading
@@ -381,22 +410,25 @@ const NoteTable = ({
         elevated={false}
         noDataBackgroundColor={Colors.background}
         noDataMessage={
-          <NoDataMessage data-testid='nodatamessage-78ud'>
+          <NoDataMessage data-testid="nodatamessage-78ud">
             {noteType ? (
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
-                data-testid='translatedtext-tkm5' />
+                data-testid="translatedtext-tkm5"
+              />
             ) : (
               <TranslatedText
                 stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
-                data-testid='translatedtext-9ih8' />
+                data-testid="translatedtext-9ih8"
+              />
             )}
           </NoDataMessage>
         }
         rowStyle={rowStyle}
-        data-testid='datafetchingtable-qdej' />
+        data-testid="datafetchingtable-qdej"
+      />
     </>
   );
 };

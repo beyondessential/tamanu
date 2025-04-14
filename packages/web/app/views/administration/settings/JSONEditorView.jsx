@@ -45,7 +45,7 @@ const DefaultSettingsButton = styled(TextButton)`
   }
 `;
 
-const buildSettingsString = settings => {
+const buildSettingsString = (settings) => {
   if (Object.keys(settings).length === 0) return '';
   return JSON.stringify(settings, null, 2);
 };
@@ -58,7 +58,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
   const settingsViewString = buildSettingsString(values.settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
 
-  const updateSettingsEditString = value => {
+  const updateSettingsEditString = (value) => {
     setSettingsEditString(value);
     setJsonError(null);
   };
@@ -67,10 +67,10 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     updateSettingsEditString(buildSettingsString(values.settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
 
-  const onChangeSettings = newValue => updateSettingsEditString(newValue);
+  const onChangeSettings = (newValue) => updateSettingsEditString(newValue);
 
   // Convert settings string from editor into object and post to backend
-  const saveSettings = async event => {
+  const saveSettings = async (event) => {
     // Check if the JSON is valid and notify if not
     try {
       JSON.parse(settingsEditString);
@@ -97,51 +97,54 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     return null;
   }
   return (
-    <SettingsWrapper data-testid='settingswrapper-9xrm'>
-      <StyledTopBar data-testid='styledtopbar-0gcj'>
+    <SettingsWrapper data-testid="settingswrapper-9xrm">
+      <StyledTopBar data-testid="styledtopbar-0gcj">
         <DefaultSettingsButton
           onClick={() => setIsDefaultModalOpen(true)}
-          data-testid='defaultsettingsbutton-kn1k'>
-          <Settings data-testid='settings-3n10' />
+          data-testid="defaultsettingsbutton-kn1k"
+        >
+          <Settings data-testid="settings-3n10" />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
             fallback="View default :scope settings"
             replacements={{ scope }}
-            data-testid='translatedtext-dstj' />
+            data-testid="translatedtext-dstj"
+          />
         </DefaultSettingsButton>
-        <StyledButtonRow data-testid='styledbuttonrow-rzye'>
+        <StyledButtonRow data-testid="styledbuttonrow-rzye">
           {editMode ? (
             <>
-              <Button variant="outlined" onClick={turnOffEditMode} data-testid='button-uan3'>
+              <Button variant="outlined" onClick={turnOffEditMode} data-testid="button-uan3">
                 <TranslatedText
                   stringId="general.action.cancel"
                   fallback="Cancel"
-                  data-testid='translatedtext-jjde' />
+                  data-testid="translatedtext-jjde"
+                />
               </Button>
               <Button
                 onClick={saveSettings}
                 disabled={!hasSettingsChanged}
-                data-testid='button-n3bf'>
+                data-testid="button-n3bf"
+              >
                 <TranslatedText
                   stringId="general.action.save"
                   fallback="Save"
-                  data-testid='translatedtext-lajm' />
+                  data-testid="translatedtext-lajm"
+                />
               </Button>
             </>
           ) : (
-            <Button
-              onClick={turnOnEditMode}
-              disabled={!isEditorVisible}
-              data-testid='button-308n'>
+            <Button onClick={turnOnEditMode} disabled={!isEditorVisible} data-testid="button-308n">
               <TranslatedText
                 stringId="general.action.edit"
                 fallback="Edit"
-                data-testid='translatedtext-6xu9' />
+                data-testid="translatedtext-6xu9"
+              />
             </Button>
           )}
         </StyledButtonRow>
       </StyledTopBar>
-      <EditorWrapper data-testid='editorwrapper-80yu'>
+      <EditorWrapper data-testid="editorwrapper-80yu">
         <JSONEditor
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : settingsViewString}
@@ -149,13 +152,15 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           error={jsonError}
           placeholder="No settings found for this server/facility"
           fontSize={14}
-          data-testid='jsoneditor-y86r' />
+          data-testid="jsoneditor-y86r"
+        />
       </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
         onClose={() => setIsDefaultModalOpen(false)}
         scope={scope}
-        data-testid='defaultsettingsmodal-3lpj' />
+        data-testid="defaultsettingsmodal-3lpj"
+      />
     </SettingsWrapper>
   );
 });

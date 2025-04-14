@@ -31,39 +31,44 @@ const Label = styled(CertificateLabel)`
 
 export const DateFacilitySection = ({ encounter }) => {
   return (
-    <RowContainer data-testid='rowcontainer-q9yr'>
-      <Item data-testid='item-atdg'>
-        <Label name="Print date" data-testid='label-cg26'>
-          <DateDisplay date={getCurrentDateString()} data-testid='datedisplay-canb' />
+    <RowContainer data-testid="rowcontainer-q9yr">
+      <Item data-testid="item-atdg">
+        <Label name="Print date" data-testid="label-cg26">
+          <DateDisplay date={getCurrentDateString()} data-testid="datedisplay-canb" />
         </Label>
       </Item>
-      <Item data-testid='item-jyd5'>
+      <Item data-testid="item-jyd5">
         <LocalisedLabel
           label={
             <TranslatedText
               stringId="general.localisedField.facility.label"
               fallback="Facility"
-              data-testid='translatedtext-omgv' />
+              data-testid="translatedtext-omgv"
+            />
           }
-          data-testid='localisedlabel-9rey'>
+          data-testid="localisedlabel-9rey"
+        >
           {encounter?.location?.facility && (
             <TranslatedReferenceData
               fallback={encounter.location.facility.name}
               value={encounter.location.facility.id}
               category="facility"
-              data-testid='translatedreferencedata-i7b9' />
+              data-testid="translatedreferencedata-i7b9"
+            />
           )}
         </LocalisedLabel>
       </Item>
-      <Item data-testid='item-ora1'>
+      <Item data-testid="item-ora1">
         <LocalisedLabel
           label={
             <TranslatedText
               stringId="general.localisedField.locationId.label"
               fallback="Location"
-              data-testid='translatedtext-lxak' />
+              data-testid="translatedtext-lxak"
+            />
           }
-          data-testid='localisedlabel-81r9'>
+          data-testid="localisedlabel-81r9"
+        >
           {getFullLocationName(encounter?.location)}
         </LocalisedLabel>
       </Item>

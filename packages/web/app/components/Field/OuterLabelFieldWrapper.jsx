@@ -9,7 +9,7 @@ const OuterLabel = styled.div`
   margin-bottom: 4px;
   color: ${Colors.darkText};
   font-weight: 500;
-  font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
+  font-size: ${(props) => (props.size === 'small' ? '11px' : '14px')};
   line-height: 16px;
   letter-spacing: 0;
 `;
@@ -20,16 +20,13 @@ const OuterLabelRequired = styled.span`
 `;
 
 const Icon = styled.i`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   float: right;
   padding-top: 3px;
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip
-    classes={{ popper: props.className }}
-    {...props}
-    data-testid='tooltip-vm4x'>
+const StyledTooltip = styled((props) => (
+  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-vm4x">
     {props.children}
   </Tooltip>
 ))`
@@ -62,14 +59,8 @@ export const OuterLabelFieldWrapper = React.memo(
         </OuterLabel>
       )}
       {infoTooltip && (
-        <StyledTooltip
-          arrow
-          placement="top"
-          title={infoTooltip}
-          data-testid='styledtooltip-pmvq'>
-          <Icon
-            className="fa fa-info-circle"
-            color={Colors.softText} />
+        <StyledTooltip arrow placement="top" title={infoTooltip} data-testid="styledtooltip-pmvq">
+          <Icon className="fa fa-info-circle" color={Colors.softText} />
         </StyledTooltip>
       )}
       {children}

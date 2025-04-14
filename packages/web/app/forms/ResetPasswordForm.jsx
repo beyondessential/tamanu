@@ -36,50 +36,60 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
   const { getTranslation } = useTranslation();
 
   return (
-    <FormGrid columns={1} data-testid='formgrid-ls0i'>
+    <FormGrid columns={1} data-testid="formgrid-ls0i">
       <div>
-        <FormHeading data-testid='formheading-2yvj'>
+        <FormHeading data-testid="formheading-2yvj">
           <TranslatedText
             stringId="forgotPassword.heading"
             fallback="Forgot password"
-            data-testid='translatedtext-hq8e' />
+            data-testid="translatedtext-hq8e"
+          />
         </FormHeading>
-        <FormSubtext data-testid='formsubtext-51jy'>
+        <FormSubtext data-testid="formsubtext-51jy">
           <TranslatedText
             stringId="forgotPassword.message"
             fallback="Enter your email address below and we will send you a reset code."
-            data-testid='translatedtext-6vjp' />
+            data-testid="translatedtext-6vjp"
+          />
         </FormSubtext>
-        {!!errorMessage && <FormSubtext data-testid='formsubtext-bvu8'>{errorMessage}</FormSubtext>}
+        {!!errorMessage && <FormSubtext data-testid="formsubtext-bvu8">{errorMessage}</FormSubtext>}
       </div>
       <Field
         autoComplete="email"
         name="email"
         type="email"
-        label={<TranslatedText
-          stringId="forgotPassword.email.label"
-          fallback="Email"
-          data-testid='translatedtext-84fk' />}
+        label={
+          <TranslatedText
+            stringId="forgotPassword.email.label"
+            fallback="Email"
+            data-testid="translatedtext-84fk"
+          />
+        }
         required
         component={TextField}
         placeholder={getTranslation('forgotPassword.email.placeholder', 'Enter your email address')}
-        data-testid='field-b7t4' />
+        data-testid="field-b7t4"
+      />
       <ResetPasswordButton
         text={
           <TranslatedText
             stringId="forgotPassword.sendResetCode.label"
             fallback="Send reset code"
-            data-testid='translatedtext-q06s' />
+            data-testid="translatedtext-q06s"
+          />
         }
-        data-testid='resetpasswordbutton-up5b' />
+        data-testid="resetpasswordbutton-up5b"
+      />
       <BackToLoginButton
         onClick={onNavToLogin}
         variant="outlined"
-        data-testid='backtologinbutton-ml8w'>
+        data-testid="backtologinbutton-ml8w"
+      >
         <TranslatedText
           stringId="forgotPassword.backToLogin.label"
           fallback="Back to login"
-          data-testid='translatedtext-gn56' />
+          data-testid="translatedtext-gn56"
+        />
       </BackToLoginButton>
     </FormGrid>
   );
@@ -93,7 +103,8 @@ export const ResetPasswordForm = React.memo(
         errorMessage={errorMessage}
         onNavToLogin={onNavToLogin}
         setFieldError={setFieldError}
-        data-testid='resetpasswordformcomponent-83un' />
+        data-testid="resetpasswordformcomponent-83un"
+      />
     );
 
     if (success) {
@@ -114,7 +125,8 @@ export const ResetPasswordForm = React.memo(
             .required(getTranslation('validation.required.inline', '*Required')),
         })}
         showInlineErrorsOnly
-        data-testid='form-j4cb' />
+        data-testid="form-j4cb"
+      />
     );
   },
 );

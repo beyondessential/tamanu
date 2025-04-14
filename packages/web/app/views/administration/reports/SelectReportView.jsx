@@ -26,13 +26,18 @@ export const SelectReportView = () => {
     dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
   };
 
-  const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(
-    ['reportList'],
-    () => api.get('admin/reports'),
-  );
+  const {
+    data: reportList = [],
+    isLoading: isReportLoading,
+    error: reportError,
+  } = useQuery(['reportList'], () => api.get('admin/reports'));
 
   const showVersions = !!report?.id;
-  const { data: versionData, isLoading: areVersionsLoading, error: versionsError } = useQuery(
+  const {
+    data: versionData,
+    isLoading: areVersionsLoading,
+    error: versionsError,
+  } = useQuery(
     ['reportVersions', report?.id],
     () => api.get(`admin/reports/${report?.id}/versions`),
     {
@@ -41,22 +46,24 @@ export const SelectReportView = () => {
   );
 
   return (
-    <FlexContainer data-testid='flexcontainer-37gh'>
+    <FlexContainer data-testid="flexcontainer-37gh">
       <ReportTable
         data={reportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}
         error={reportError?.message}
-        data-testid='reporttable-3n12' />
+        data-testid="reporttable-3n12"
+      />
       {report && (
-        <VersionsTableContainer data-testid='versionstablecontainer-c1o5'>
+        <VersionsTableContainer data-testid="versionstablecontainer-c1o5">
           <VersionTable
             data={versionData}
             loading={areVersionsLoading}
             error={versionsError?.message}
             onRowClick={handleVersionClick}
-            data-testid='versiontable-pv9p' />
+            data-testid="versiontable-pv9p"
+          />
         </VersionsTableContainer>
       )}
     </FlexContainer>

@@ -30,5 +30,5 @@ export function PDFPage({ page, parentRef }) {
     page.render(renderContext);
   }, [page, parentRef]);
 
-  return <Page ref={canvasRef} data-testid='page-jwi7' />;
+  return <Page ref={canvasRef} data-testid="page-jwi7" />;
 }

@@ -36,16 +36,18 @@ export const PatientDetailPrintout = React.memo(
     const { name: villageName } = village;
 
     return (
-      <RowContainer data-testid='rowcontainer-9y2s'>
-        <ColumnContainer data-testid='columncontainer-ubl8'>
+      <RowContainer data-testid="rowcontainer-9y2s">
+        <ColumnContainer data-testid="columncontainer-ubl8">
           <LocalisedLabel
             label={
               <TranslatedText
                 stringId="general.localisedField.firstName.label"
                 fallback="First name"
-                data-testid='translatedtext-5rsj' />
+                data-testid="translatedtext-5rsj"
+              />
             }
-            data-testid='localisedlabel-ck4r'>
+            data-testid="localisedlabel-ck4r"
+          >
             {firstName}
           </LocalisedLabel>
           <LocalisedLabel
@@ -53,9 +55,11 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.lastName.label"
                 fallback="Last name"
-                data-testid='translatedtext-sdq1' />
+                data-testid="translatedtext-sdq1"
+              />
             }
-            data-testid='localisedlabel-0u8y'>
+            data-testid="localisedlabel-0u8y"
+          >
             {lastName}
           </LocalisedLabel>
           <LocalisedLabel
@@ -63,17 +67,23 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.dateOfBirth.label.short"
                 fallback="DOB"
-                data-testid='translatedtext-c4aq' />
+                data-testid="translatedtext-c4aq"
+              />
             }
-            data-testid='localisedlabel-w9cr'>
-            <DateDisplay date={dateOfBirth} data-testid='datedisplay-rkgk' />
+            data-testid="localisedlabel-w9cr"
+          >
+            <DateDisplay date={dateOfBirth} data-testid="datedisplay-rkgk" />
           </LocalisedLabel>
           <LocalisedLabel
-            label={<TranslatedText
-              stringId="general.localisedField.sex.label"
-              fallback="Sex"
-              data-testid='translatedtext-k745' />}
-            data-testid='localisedlabel-jn25'>
+            label={
+              <TranslatedText
+                stringId="general.localisedField.sex.label"
+                fallback="Sex"
+                data-testid="translatedtext-k745"
+              />
+            }
+            data-testid="localisedlabel-jn25"
+          >
             {capitaliseFirstLetter(sex)}
           </LocalisedLabel>
           <LocalisedLabel
@@ -81,21 +91,25 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.streetVillage.label"
                 fallback="Residential landmark"
-                data-testid='translatedtext-7ny2' />
+                data-testid="translatedtext-7ny2"
+              />
             }
-            data-testid='localisedlabel-ul5l'>
+            data-testid="localisedlabel-ul5l"
+          >
             {streetVillage}
           </LocalisedLabel>
         </ColumnContainer>
-        <ColumnContainer data-testid='columncontainer-sepd'>
+        <ColumnContainer data-testid="columncontainer-sepd">
           <LocalisedLabel
             label={
               <TranslatedText
                 stringId="general.localisedField.villageId.label"
                 fallback="Village"
-                data-testid='translatedtext-2qcn' />
+                data-testid="translatedtext-2qcn"
+              />
             }
-            data-testid='localisedlabel-o41l'>
+            data-testid="localisedlabel-o41l"
+          >
             {villageName}
           </LocalisedLabel>
           <LocalisedLabel
@@ -103,9 +117,11 @@ export const PatientDetailPrintout = React.memo(
               <TranslatedText
                 stringId="general.localisedField.displayId.label.short"
                 fallback="NHN"
-                data-testid='translatedtext-0d99' />
+                data-testid="translatedtext-0d99"
+              />
             }
-            data-testid='localisedlabel-c33w'>
+            data-testid="localisedlabel-c33w"
+          >
             {displayId}
           </LocalisedLabel>
           <PatientBarcode
@@ -113,7 +129,8 @@ export const PatientDetailPrintout = React.memo(
             barWidth={2}
             barHeight={60}
             margin={0}
-            data-testid='patientbarcode-ggzu' />
+            data-testid="patientbarcode-ggzu"
+          />
         </ColumnContainer>
       </RowContainer>
     );

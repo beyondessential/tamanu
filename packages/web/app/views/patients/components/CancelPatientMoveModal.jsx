@@ -20,15 +20,19 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
       endpoint="plannedLocation"
       open={open}
       onClose={onClose}
-      data-testid='modal-0l0v'>
-      <Container data-testid='container-vady'>
-        <LargeBodyText data-testid='largebodytext-jtqa'>Are you sure you want to cancel the planned patient move?</LargeBodyText>
+      data-testid="modal-0l0v"
+    >
+      <Container data-testid="container-vady">
+        <LargeBodyText data-testid="largebodytext-jtqa">
+          Are you sure you want to cancel the planned patient move?
+        </LargeBodyText>
       </Container>
       <ModalActionRow
         confirmText="Confirm"
         onConfirm={onCancelMove}
         onCancel={onClose}
-        data-testid='modalactionrow-aga7' />
+        data-testid="modalactionrow-aga7"
+      />
     </Modal>
   );
 });

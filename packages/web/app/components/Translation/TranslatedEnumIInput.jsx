@@ -37,6 +37,7 @@ export const TranslatedEnumField = ({
       options={filteredOptions}
       value={field ? field.value : value}
       name={field ? field.name : name}
-      {...props}/>
+      {...props}
+    />
   );
 };

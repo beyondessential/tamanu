@@ -38,14 +38,15 @@ const StyledTable = styled(Table)`
 export const DynamicColumnTable = React.memo(({ showFooterLegend, ...props }) => {
   return (
     <>
-      <StyledTable { ...props } data-testid='styledtable-03tr' />
+      <StyledTable {...props} data-testid="styledtable-03tr" />
       {showFooterLegend && (
         <Box
           textAlign="end"
           marginTop="8px"
           fontSize="9px"
           color={Colors.softText}
-          data-testid='box-q7pq'>
+          data-testid="box-q7pq"
+        >
           *Changed record
         </Box>
       )}

@@ -37,7 +37,7 @@ export const MultiStepForm = ({
   const totalSteps = steps.length;
   const isLastStep = stepNumber === totalSteps - 1;
 
-  const next = values => {
+  const next = (values) => {
     setSnapshot(values);
     const nextStep = Math.min(stepNumber + 1, totalSteps - 1);
     if (onChangeStep) {
@@ -46,7 +46,7 @@ export const MultiStepForm = ({
     setStepNumber(nextStep);
   };
 
-  const previous = values => {
+  const previous = (values) => {
     const prevStep = Math.max(stepNumber - 1, 0);
     if (onChangeStep) {
       onChangeStep(prevStep, values);
@@ -73,20 +73,22 @@ export const MultiStepForm = ({
       validationSchema={step.props.validationSchema}
       style={{ width: '100%' }}
       showInlineErrorsOnly
-      render={props => {
+      render={(props) => {
         return (
-          <FormGrid data-testid='formgrid-wses'>
+          <FormGrid data-testid="formgrid-wses">
             {React.cloneElement(step, props)}
-            <FormSeparatorLine data-testid='formseparatorline-01xj' />
-            <ButtonRow data-testid='buttonrow-40t7'>
+            <FormSeparatorLine data-testid="formseparatorline-01xj" />
+            <ButtonRow data-testid="buttonrow-40t7">
               {stepNumber > 0 && (
                 <StyledBackButton
                   onClick={() => previous(props.values)}
-                  data-testid='styledbackbutton-016f'>
+                  data-testid="styledbackbutton-016f"
+                >
                   <TranslatedText
                     stringId="general.action.back"
                     fallback="Back"
-                    data-testid='translatedtext-2o4t' />
+                    data-testid="translatedtext-2o4t"
+                  />
                 </StyledBackButton>
               )}
               <FormSubmitCancelRow
@@ -95,16 +97,19 @@ export const MultiStepForm = ({
                     <TranslatedText
                       stringId="general.action.next"
                       fallback="Next"
-                      data-testid='translatedtext-br7l' />
+                      data-testid="translatedtext-br7l"
+                    />
                   )
                 }
                 onCancel={onCancel}
-                data-testid='formsubmitcancelrow-aaiz' />
+                data-testid="formsubmitcancelrow-aaiz"
+              />
             </ButtonRow>
           </FormGrid>
         );
       }}
-      data-testid='form-pcjr' />
+      data-testid="form-pcjr"
+    />
   );
 };
 

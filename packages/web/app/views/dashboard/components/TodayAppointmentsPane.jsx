@@ -118,75 +118,85 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
-    .length;
+  const totalSeenAppointments = appointments.filter(
+    (appointment) => appointment.status === 'Seen',
+  ).length;
 
   const onViewAll = () => {
     history.push(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
   };
 
   return (
-    <Container showTasks={showTasks} data-testid='container-txmf'>
-      <TitleContainer data-testid='titlecontainer-z0q9'>
-        <Heading4 margin={0} data-testid='heading4-14lj'>
+    <Container showTasks={showTasks} data-testid="container-txmf">
+      <TitleContainer data-testid="titlecontainer-z0q9">
+        <Heading4 margin={0} data-testid="heading4-14lj">
           <TranslatedText
             stringId="dashboard.appointments.todayAppointments.title"
             fallback="Today's appointments"
-            data-testid='translatedtext-5ugr' />
+            data-testid="translatedtext-5ugr"
+          />
         </Heading4>
         {!!appointments.length && (
-          <ActionLink onClick={onViewAll} data-testid='actionlink-spki'>
+          <ActionLink onClick={onViewAll} data-testid="actionlink-spki">
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.viewAll"
               fallback="View all..."
-              data-testid='translatedtext-auyo' />
+              data-testid="translatedtext-auyo"
+            />
           </ActionLink>
         )}
       </TitleContainer>
       {!appointments.length ? (
-        <NoDataContainer data-testid='nodatacontainer-tj2u'>
-          <Box maxWidth={285} data-testid='box-vhaq'>
+        <NoDataContainer data-testid="nodatacontainer-tj2u">
+          <Box maxWidth={285} data-testid="box-vhaq">
             <TranslatedText
               stringId="dashboard.appointments.todayAppointments.noAppointments"
               fallback="You have no appointments scheduled for today. To view other appointments, visit"
-              data-testid='translatedtext-8waw' />
+              data-testid="translatedtext-8waw"
+            />
             <Link
               href={`#/appointments/outpatients`}
               style={{ textDecoration: 'underline', display: 'block' }}
-              data-testid='link-ojzi'>
+              data-testid="link-ojzi"
+            >
               <TranslatedText
                 stringId="dashboard.appointments.todayAppointments.outpatientAppointments"
                 fallback="Outpatient appointments"
-                data-testid='translatedtext-n8rw' />
+                data-testid="translatedtext-n8rw"
+              />
             </Link>
           </Box>
         </NoDataContainer>
       ) : (
         <>
-          <StyledContentContainer data-testid='styledcontentcontainer-rym9'>
-            <StyledProgressBarContainer data-testid='styledprogressbarcontainer-iqy2'>
+          <StyledContentContainer data-testid="styledcontentcontainer-rym9">
+            <StyledProgressBarContainer data-testid="styledprogressbarcontainer-iqy2">
               <Box
                 display={'flex'}
                 justifyContent={'space-between'}
                 fontSize={'14px'}
-                data-testid='box-174y'>
+                data-testid="box-174y"
+              >
                 <TranslatedText
                   stringId="dashboard.appointments.todayAppointments.seen"
                   fallback="Seen"
-                  data-testid='translatedtext-91gu' />
+                  data-testid="translatedtext-91gu"
+                />
                 <span>{`${totalSeenAppointments} / ${appointments.length}`}</span>
               </Box>
               <ProgressBar
                 percentage={Math.floor((totalSeenAppointments / (appointments.length || 1)) * 100)}
-                data-testid='progressbar-cva4' />
+                data-testid="progressbar-cva4"
+              />
             </StyledProgressBarContainer>
-            <AppointmentListContainer data-testid='appointmentlistcontainer-v5hv'>
+            <AppointmentListContainer data-testid="appointmentlistcontainer-v5hv">
               {appointments.map((appointment, index) => (
                 <StyledAppointmentTile
                   key={appointment.id}
                   appointment={appointment}
                   allowViewDetail={false}
-                  data-testid={`styledappointmenttile-8yd8-${index}`} />
+                  data-testid={`styledappointmenttile-8yd8-${index}`}
+                />
               ))}
             </AppointmentListContainer>
           </StyledContentContainer>

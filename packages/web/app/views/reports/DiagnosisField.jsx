@@ -11,6 +11,7 @@ export const DiagnosisField = ({ required, name, label }) => {
       component={AutocompleteField}
       suggester={diagnosisSuggester}
       required={required}
-      data-testid='field-pkb9' />
+      data-testid="field-pkb9"
+    />
   );
 };

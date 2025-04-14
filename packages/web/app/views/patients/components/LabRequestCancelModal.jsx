@@ -14,7 +14,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(
-      option => option.value === reasonForCancellation,
+      (option) => option.value === reasonForCancellation,
     )?.label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
 
@@ -50,6 +50,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       helperText="This reason will permanently delete the lab request record"
       bodyText="Please select reason for cancelling lab request and click 'Confirm'"
       onConfirm={onConfirmCancel}
-      data-testid='cancelmodal-8k1s' />
+      data-testid="cancelmodal-8k1s"
+    />
   );
 });

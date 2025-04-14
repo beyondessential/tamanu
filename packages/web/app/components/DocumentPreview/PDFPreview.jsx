@@ -33,7 +33,6 @@ export default function PDFPreview({
   scrollPage,
   setScrollPage,
 }) {
-
   const api = useApi();
   const [pages, setPages] = useState([]);
 
@@ -47,10 +46,10 @@ export default function PDFPreview({
         return;
       }
       const { data } = await api.get(`attachment/${attachmentId}`, { base64: true });
-      const raw = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+      const raw = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
       const loadingTask = pdfjsLib.getDocument(raw);
       loadingTask.promise.then(
-        async loadedPdf => {
+        async (loadedPdf) => {
           setPageCount(loadedPdf.numPages);
           const loadedPages = [];
           for (let pageIndex = 0; pageIndex < loadedPdf.numPages; ++pageIndex) {
@@ -58,7 +57,7 @@ export default function PDFPreview({
           }
           setPages(loadedPages);
         },
-        error => {
+        (error) => {
           throw new Error(error);
         },
       );
@@ -69,7 +68,7 @@ export default function PDFPreview({
   // Approximate current page number from scroll percent
   useEffect(() => {
     const node = scrollRef.current;
-    const reportScroll = e => {
+    const reportScroll = (e) => {
       setScrollPage(getScrollPage(e.target, pageCount));
     };
     if (node !== null) {
@@ -86,10 +85,10 @@ export default function PDFPreview({
   }, [scrollPage, setScrollPage, pageCount]);
 
   return (
-    <PDFDocument ref={scrollRef} data-testid='pdfdocument-qcy9'>
+    <PDFDocument ref={scrollRef} data-testid="pdfdocument-qcy9">
       {pages.map((p, i) => (
         // eslint-disable-next-line react/no-array-index-key
-        (<PDFPage page={p} key={i} parentRef={scrollRef} data-testid={`pdfpage-l9ek-${i}`} />)
+        <PDFPage page={p} key={i} parentRef={scrollRef} data-testid={`pdfpage-l9ek-${i}`} />
       ))}
     </PDFDocument>
   );

@@ -9,7 +9,9 @@ const COLUMNS = [
   {
     key: 'createdAt',
     title: 'Date & time',
-    accessor: ({ createdAt }) => <DateDisplay date={createdAt} showTime data-testid='datedisplay-0e5f' />,
+    accessor: ({ createdAt }) => (
+      <DateDisplay date={createdAt} showTime data-testid="datedisplay-0e5f" />
+    ),
   },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'updatedByDisplayName', title: 'Recorded by' },
@@ -40,21 +42,17 @@ export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   );
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="Status Log"
-      width="md"
-      data-testid='modal-ut08'>
+    <Modal open={open} onClose={onClose} title="Status Log" width="md" data-testid="modal-ut08">
       {isLoading ? (
-        <ModalLoader data-testid='modalloader-dxm4' />
+        <ModalLoader data-testid="modalloader-dxm4" />
       ) : (
         <StyledTable
           columns={COLUMNS}
           data={data?.data}
           allowExport={false}
           elevated={false}
-          data-testid='styledtable-ma21' />
+          data-testid="styledtable-ma21"
+        />
       )}
     </Modal>
   );

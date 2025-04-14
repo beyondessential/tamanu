@@ -9,7 +9,7 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, 
   const { writeAndViewEncounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   const changeEncounterType = useCallback(
-    async data => {
+    async (data) => {
       await writeAndViewEncounter(encounter.id, {
         ...data,
         submittedTime: getCurrentDateTimeString(),
@@ -25,13 +25,15 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, 
       title="Change encounter type"
       open={open}
       onClose={onClose}
-      data-testid='formmodal-k6jr'>
+      data-testid="formmodal-k6jr"
+    >
       <ChangeEncounterTypeForm
         onSubmit={changeEncounterType}
         onCancel={onClose}
         encounter={encounter}
         initialNewType={newType}
-        data-testid='changeencountertypeform-b0cj' />
+        data-testid="changeencountertypeform-b0cj"
+      />
     </FormModal>
   );
 });

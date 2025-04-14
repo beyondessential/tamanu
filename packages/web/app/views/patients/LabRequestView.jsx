@@ -62,7 +62,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${p => p.color || Colors.darkestText};
+  color: ${(p) => p.color || Colors.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -106,7 +106,8 @@ const MODALS = {
     <LabRequestPrintLabelModal
       {...props}
       labRequests={[labRequest]}
-      data-testid='labrequestprintlabelmodal-cdyn' />
+      data-testid="labrequestprintlabelmodal-cdyn"
+    />
   ),
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
@@ -118,20 +119,26 @@ const MODALS = {
 const Menu = ({ setModal, status, disabled }) => {
   const menuActions = [
     {
-      label: <TranslatedText
-        stringId="lab.action.printLabel"
-        fallback="Print label"
-        data-testid='translatedtext-gntp' />,
+      label: (
+        <TranslatedText
+          stringId="lab.action.printLabel"
+          fallback="Print label"
+          data-testid="translatedtext-gntp"
+        />
+      ),
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
-      label: <TranslatedText
-        stringId="lab.action.cancelRequest"
-        fallback="Cancel request"
-        data-testid='translatedtext-gas9' />,
+      label: (
+        <TranslatedText
+          stringId="lab.action.cancelRequest"
+          fallback="Cancel request"
+          data-testid="translatedtext-gas9"
+        />
+      ),
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -140,7 +147,8 @@ const Menu = ({ setModal, status, disabled }) => {
       disabled={disabled}
       status={status}
       actions={menuActions}
-      data-testid='menubutton-z3am' />
+      data-testid="menubutton-z3am"
+    />
   );
 };
 
@@ -166,23 +174,23 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
 
   const handleRefreshLabTestTable = () => {
-    setLabTestTableRefreshCount(oldVal => oldVal + 1);
+    setLabTestTableRefreshCount((oldVal) => oldVal + 1);
   };
 
-  const updateLabReq = async data => {
+  const updateLabReq = async (data) => {
     await updateLabRequest(labRequest.id, data);
     navigateToLabRequest(labRequest.id);
   };
 
-  const handleChangeModalId = id => {
+  const handleChangeModalId = (id) => {
     setModalId(id);
     setModalOpen(true);
   };
 
-  if (isLoading) return <LoadingIndicator data-testid='loadingindicator-tn29' />;
+  if (isLoading) return <LoadingIndicator data-testid="loadingindicator-tn29" />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
@@ -205,26 +213,35 @@ export const LabRequestView = () => {
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
       ? [
           {
-            label: <TranslatedText
-              stringId="lab.action.recordSample"
-              fallback="Record sample"
-              data-testid='translatedtext-jzdb' />,
+            label: (
+              <TranslatedText
+                stringId="lab.action.recordSample"
+                fallback="Record sample"
+                data-testid="translatedtext-jzdb"
+              />
+            ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
           },
         ]
       : [
           {
-            label: <TranslatedText
-              stringId="general.action.edit"
-              fallback="Edit"
-              data-testid='translatedtext-ezxm' />,
+            label: (
+              <TranslatedText
+                stringId="general.action.edit"
+                fallback="Edit"
+                data-testid="translatedtext-ezxm"
+              />
+            ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
           },
           {
-            label: <TranslatedText
-              stringId="lab.action.viewDetails"
-              fallback="View details"
-              data-testid='translatedtext-aep2' />,
+            label: (
+              <TranslatedText
+                stringId="lab.action.viewDetails"
+                fallback="View details"
+                data-testid="translatedtext-aep2"
+              />
+            ),
             action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
           },
         ];
@@ -235,71 +252,86 @@ export const LabRequestView = () => {
   };
 
   return (
-    <Container data-testid='container-pag3'>
-      <TopContainer data-testid='topcontainer-ikm7'>
-        <Heading2 data-testid='heading2-fg64'>
+    <Container data-testid="container-pag3">
+      <TopContainer data-testid="topcontainer-ikm7">
+        <Heading2 data-testid="heading2-fg64">
           <TranslatedText
             stringId="lab.view.title"
             fallback="Labs"
-            data-testid='translatedtext-d9t6' />
+            data-testid="translatedtext-d9t6"
+          />
         </Heading2>
         <LabRequestCard
           labRequest={labRequest}
           isReadOnly={areLabRequestsReadOnly}
           actions={
-            <Box display="flex" alignItems="center" data-testid='box-qy3e'>
+            <Box display="flex" alignItems="center" data-testid="box-qy3e">
               <OutlinedButton
                 disabled={isHidden}
                 onClick={() => {
                   handleChangeModalId(MODAL_IDS.PRINT);
                 }}
-                data-testid='outlinedbutton-fdjm'>
+                data-testid="outlinedbutton-fdjm"
+              >
                 <TranslatedText
                   stringId="lab.action.printRequest"
                   fallback="Print request"
-                  data-testid='translatedtext-7zng' />
+                  data-testid="translatedtext-7zng"
+                />
               </OutlinedButton>
               <Menu
                 setModal={handleChangeModalId}
                 status={labRequest.status}
                 disabled={isHidden}
-                data-testid='menu-pub2' />
+                data-testid="menu-pub2"
+              />
             </Box>
           }
-          data-testid='labrequestcard-y9cn' />
+          data-testid="labrequestcard-y9cn"
+        />
         <LabRequestNoteForm
           labRequestId={labRequest.id}
           isReadOnly={areLabRequestsReadOnly}
-          data-testid='labrequestnoteform-1bev' />
-        <FixedTileRow data-testid='fixedtilerow-xxmq'>
+          data-testid="labrequestnoteform-1bev"
+        />
+        <FixedTileRow data-testid="fixedtilerow-xxmq">
           <Tile
             Icon={() => <img src={TestCategoryIcon} alt="test category" />}
-            text={<TranslatedText
-              stringId="lab.testCategory.label"
-              fallback="Test Category"
-              data-testid='translatedtext-4nhr' />}
+            text={
+              <TranslatedText
+                stringId="lab.testCategory.label"
+                fallback="Test Category"
+                data-testid="translatedtext-4nhr"
+              />
+            }
             main={
               labRequest.category?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.category.name}
                   value={labRequest.category.id}
                   category="labTestCategory"
-                  data-testid='translatedreferencedata-hhx8' />
+                  data-testid="translatedreferencedata-hhx8"
+                />
               ) : (
                 '-'
               )
             }
-            data-testid='tile-gjdv' />
+            data-testid="tile-gjdv"
+          />
           <Tile
             Icon={Timelapse}
-            text={<TranslatedText
-              stringId="lab.view.tile.status.label"
-              fallback="Status"
-              data-testid='translatedtext-om89' />}
+            text={
+              <TranslatedText
+                stringId="lab.view.tile.status.label"
+                fallback="Status"
+                data-testid="translatedtext-om89"
+              />
+            }
             main={
               <TileTag
                 $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}
-                data-testid='tiletag-zdg8'>
+                data-testid="tiletag-zdg8"
+              >
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
               </TileTag>
             }
@@ -313,19 +345,23 @@ export const LabRequestView = () => {
                         <TranslatedText
                           stringId="lab.tooltip.cannotChangeStatus"
                           fallback="You cannot change the status of lab request without entering the sample details"
-                          data-testid='translatedtext-a4ay' />
+                          data-testid="translatedtext-a4ay"
+                        />
                       }
-                      data-testid='conditionaltooltip-2le1'>
+                      data-testid="conditionaltooltip-2le1"
+                    >
                       <LabelContainer
                         color={
                           labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                           Colors.softText
                         }
-                        data-testid='labelcontainer-mjji'>
+                        data-testid="labelcontainer-mjji"
+                      >
                         <TranslatedText
                           stringId="lab.action.changeStatus"
                           fallback="Change status"
-                          data-testid='translatedtext-kj5a' />
+                          data-testid="translatedtext-kj5a"
+                        />
                       </LabelContainer>
                     </ConditionalTooltip>
                   ),
@@ -336,19 +372,22 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.viewStatusLog"
                     fallback="View status log"
-                    data-testid='translatedtext-v5ab' />
+                    data-testid="translatedtext-v5ab"
+                  />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG),
               },
             ]}
-            data-testid='tile-pczb' />
+            data-testid="tile-pczb"
+          />
           <Tile
             Icon={() => <img src={BeakerIcon} alt="beaker" />}
             text={
               <TranslatedText
                 stringId="lab.view.tile.sampleTime.label"
                 fallback="Sample collected"
-                data-testid='translatedtext-b14b' />
+                data-testid="translatedtext-b14b"
+              />
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
@@ -357,24 +396,30 @@ export const LabRequestView = () => {
                   color={labRequest.sampleTime ? 'unset' : Colors.softText}
                   date={labRequest.sampleTime}
                   showTime
-                  data-testid='datedisplay-h6el' />
+                  data-testid="datedisplay-h6el"
+                />
               </>
             }
             actions={actions}
-            data-testid='tile-v8kr' />
+            data-testid="tile-v8kr"
+          />
           <Tile
             Icon={Business}
-            text={<TranslatedText
-              stringId="lab.laboratory.label"
-              fallback="Laboratory"
-              data-testid='translatedtext-e0i1' />}
+            text={
+              <TranslatedText
+                stringId="lab.laboratory.label"
+                fallback="Laboratory"
+                data-testid="translatedtext-e0i1"
+              />
+            }
             main={
               labRequest.laboratory?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.laboratory.name}
                   value={labRequest.laboratory.id}
                   category="labTestLaboratory"
-                  data-testid='translatedreferencedata-b4nb' />
+                  data-testid="translatedreferencedata-b4nb"
+                />
               ) : (
                 '-'
               )
@@ -386,25 +431,31 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.changeLaboratory"
                     fallback="Change laboratory"
-                    data-testid='translatedtext-x9gm' />
+                    data-testid="translatedtext-x9gm"
+                  />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
               },
             ]}
-            data-testid='tile-eeus' />
+            data-testid="tile-eeus"
+          />
           <Tile
             Icon={AssignmentLate}
-            text={<TranslatedText
-              stringId="lab.view.tile.priority.label"
-              fallback="Priority"
-              data-testid='translatedtext-okhs' />}
+            text={
+              <TranslatedText
+                stringId="lab.view.tile.priority.label"
+                fallback="Priority"
+                data-testid="translatedtext-okhs"
+              />
+            }
             main={
               labRequest.priority?.name ? (
                 <TranslatedReferenceData
                   fallback={labRequest.priority.name}
                   value={labRequest.priority.id}
                   category="labTestPriority"
-                  data-testid='translatedreferencedata-tqow' />
+                  data-testid="translatedreferencedata-tqow"
+                />
               ) : (
                 '-'
               )
@@ -416,34 +467,40 @@ export const LabRequestView = () => {
                   <TranslatedText
                     stringId="lab.action.changePriority"
                     fallback="Change priority"
-                    data-testid='translatedtext-epp5' />
+                    data-testid="translatedtext-epp5"
+                  />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
               },
             ]}
-            data-testid='tile-phsp' />
+            data-testid="tile-phsp"
+          />
         </FixedTileRow>
       </TopContainer>
-      <BottomContainer data-testid='bottomcontainer-7egh'>
-        <TableButtonRow variant="small" data-testid='tablebuttonrow-dosc'>
+      <BottomContainer data-testid="bottomcontainer-7egh">
+        <TableButtonRow variant="small" data-testid="tablebuttonrow-dosc">
           {hasAttachment && (
             <Button
               onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}
-              data-testid='button-sigg'>
+              data-testid="button-sigg"
+            >
               <TranslatedText
                 stringId="lab.action.viewReport"
                 fallback="View report"
-                data-testid='translatedtext-8zw9' />
+                data-testid="translatedtext-8zw9"
+              />
             </Button>
           )}
           {canEnterResults && (
             <Button
               onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
-              data-testid='button-oep6'>
+              data-testid="button-oep6"
+            >
               <TranslatedText
                 stringId="lab.action.enterResults"
                 fallback="Enter results"
-                data-testid='translatedtext-veq6' />
+                data-testid="translatedtext-veq6"
+              />
             </Button>
           )}
         </TableButtonRow>
@@ -451,7 +508,8 @@ export const LabRequestView = () => {
           labRequest={labRequest}
           patient={patient}
           refreshCount={labTestTableRefreshCount}
-          data-testid='labrequestresultstable-66qv' />
+          data-testid="labrequestresultstable-66qv"
+        />
       </BottomContainer>
       {modalId && (
         <ActiveModal
@@ -461,7 +519,8 @@ export const LabRequestView = () => {
           refreshLabTestTable={handleRefreshLabTestTable}
           open={modalOpen}
           onClose={closeModal}
-          data-testid='activemodal-26e9' />
+          data-testid="activemodal-26e9"
+        />
       )}
     </Container>
   );

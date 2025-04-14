@@ -78,7 +78,8 @@ export const EditReportView = () => {
           stringId="admin.report.notification.saveReportSuccess"
           fallback={`Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`}
           replacements={{ versionNumber: result.versionNumber, name: reportDefinition.name }}
-          data-testid='translatedtext-hjbe' />
+          data-testid="translatedtext-hjbe"
+        />,
       );
       queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
@@ -89,33 +90,36 @@ export const EditReportView = () => {
           stringId="admin.report.notification.saveReportFailed"
           fallback={`Failed to save version: ${err.message}`}
           replacements={{ message: err.message }}
-          data-testid='translatedtext-eu3y' />  
+          data-testid="translatedtext-eu3y"
+        />,
       );
     }
   };
 
   return (
-    <Container data-testid='container-y6i6'>
-      <StyledButton onClick={handleBack} data-testid='styledbutton-45ah'>
+    <Container data-testid="container-y6i6">
+      <StyledButton onClick={handleBack} data-testid="styledbutton-45ah">
         <TranslatedText
           stringId="general.action.back"
           fallback="Back"
-          data-testid='translatedtext-m17q' />
+          data-testid="translatedtext-m17q"
+        />
       </StyledButton>
       {isLoading ? (
-        <Box mt={2} data-testid='box-58sj'>
-          <LoadingIndicator height="400px" data-testid='loadingindicator-lyul' />
+        <Box mt={2} data-testid="box-58sj">
+          <LoadingIndicator height="400px" data-testid="loadingindicator-lyul" />
         </Box>
       ) : (
         <>
-          <Box mt={2} mb={2} data-testid='box-1f58'>
-            <VersionInfo version={version} data-testid='versioninfo-1dbs' />
+          <Box mt={2} mb={2} data-testid="box-1f58">
+            <VersionInfo version={version} data-testid="versioninfo-1dbs" />
           </Box>
           <ReportEditor
             isEdit
             onSubmit={handleSave}
             initialValues={getInitialValues(version, version.reportDefinition)}
-            data-testid='reporteditor-89qw' />
+            data-testid="reporteditor-89qw"
+          />
         </>
       )}
     </Container>

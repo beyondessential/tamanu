@@ -31,10 +31,10 @@ const StrongText = styled(Text)`
 
 export const GridTable = ({ data }) => {
   return (
-    <Table data-testid='table-n0rv'>
+    <Table data-testid="table-n0rv">
       {Object.entries(data).map(([key, value], index) => (
-        <Row key={key} data-testid='row-9a9y'>
-          <Cell data-testid='cell-xn4c'>
+        <Row key={key} data-testid="row-9a9y">
+          <Cell data-testid="cell-xn4c">
             <StrongText data-testid={`strongtext-yfz4-${index}`}>{key}</StrongText>
           </Cell>
           <Cell data-testid={`cell-x60j-${index}`}>

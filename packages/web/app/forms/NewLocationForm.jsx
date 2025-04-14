@@ -10,21 +10,26 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
   const renderForm = useCallback(
     ({ submitForm }) => (
-      <FormGrid data-testid='formgrid-9jpn'>
+      <FormGrid data-testid="formgrid-9jpn">
         <Field
           name="name"
-          label={<TranslatedText
-            string="general.locationName.label"
-            fallback="Location name"
-            data-testid='translatedtext-wlyu' />}
+          label={
+            <TranslatedText
+              string="general.locationName.label"
+              fallback="Location name"
+              data-testid="translatedtext-wlyu"
+            />
+          }
           component={TextField}
           required
-          data-testid='field-six5' />
+          data-testid="field-six5"
+        />
         <ModalFormActionRow
           confirmText="Create"
           onConfirm={submitForm}
           onCancel={onCancel}
-          data-testid='modalformactionrow-n1ko' />
+          data-testid="modalformactionrow-n1ko"
+        />
       </FormGrid>
     ),
     [onCancel],
@@ -43,9 +48,11 @@ export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
             <TranslatedText
               string="general.locationName.label"
               fallback="Location name"
-              data-testid='translatedtext-1fju' />,
+              data-testid="translatedtext-1fju"
+            />,
           ),
       })}
-      data-testid='form-n05j' />
+      data-testid="form-n05j"
+    />
   );
 });

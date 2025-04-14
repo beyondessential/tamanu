@@ -23,11 +23,12 @@ import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { TEMPLATE_TYPES } from '@tamanu/constants';
 
-const TallMultilineTextField = props => (
+const TallMultilineTextField = (props) => (
   <MultilineTextField
     style={{ minHeight: '156px' }}
     {...props}
-    data-testid='multilinetextfield-qfz7' />
+    data-testid="multilinetextfield-qfz7"
+  />
 );
 
 const FinaliseAndPrintButton = styled(OutlinedButton)`
@@ -52,13 +53,13 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const [templateLoading, setTemplateLoading] = useState(false);
 
   const onChangeTemplate = useCallback(
-    async templateId => {
+    async (templateId) => {
       if (!templateId) {
         return;
       }
       setTemplateLoading(true);
       const template = await api.get(`template/${templateId}`);
-      setValues(values => ({
+      setValues((values) => ({
         ...values,
         title: template.title,
         body: template.body,
@@ -71,81 +72,105 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
   return (
     <>
-      <FormGrid columns={2} nested data-testid='formgrid-z2jg'>
+      <FormGrid columns={2} nested data-testid="formgrid-z2jg">
         <Field
           name="clinicianId"
-          label={<TranslatedText
-            stringId="general.clinician.label"
-            fallback="Clinician"
-            data-testid='translatedtext-heei' />}
+          label={
+            <TranslatedText
+              stringId="general.clinician.label"
+              fallback="Clinician"
+              data-testid="translatedtext-heei"
+            />
+          }
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          data-testid='field-ytix' />
+          data-testid="field-ytix"
+        />
         <Field
           name="date"
-          label={<TranslatedText
-            stringId="general.date.label"
-            fallback="Date"
-            data-testid='translatedtext-qk9r' />}
+          label={
+            <TranslatedText
+              stringId="general.date.label"
+              fallback="Date"
+              data-testid="translatedtext-qk9r"
+            />
+          }
           required
           component={DateField}
           saveDateAsString
-          data-testid='field-idv4' />
+          data-testid="field-idv4"
+        />
       </FormGrid>
-      <StyledFormGrid columns={1} data-testid='styledformgrid-vdsg'>
+      <StyledFormGrid columns={1} data-testid="styledformgrid-vdsg">
         <Field
           name="templateId"
-          label={<TranslatedText
-            stringId="patientLetter.template.label"
-            fallback="Template"
-            data-testid='translatedtext-u6i4' />}
+          label={
+            <TranslatedText
+              stringId="patientLetter.template.label"
+              fallback="Template"
+              data-testid="translatedtext-u6i4"
+            />
+          }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
-          onChange={e => onChangeTemplate(e.target.value)}
-          data-testid='field-befh' />
+          onChange={(e) => onChangeTemplate(e.target.value)}
+          data-testid="field-befh"
+        />
         <Field
           name="title"
-          label={<TranslatedText
-            stringId="patientLetter.title.label"
-            fallback="Letter title"
-            data-testid='translatedtext-q7ng' />}
+          label={
+            <TranslatedText
+              stringId="patientLetter.title.label"
+              fallback="Letter title"
+              data-testid="translatedtext-q7ng"
+            />
+          }
           required
           component={TextField}
           disabled={templateLoading}
-          data-testid='field-f2bj' />
+          data-testid="field-f2bj"
+        />
         <Field
           name="body"
-          label={<TranslatedText
-            stringId="general.note.label"
-            fallback="Note"
-            data-testid='translatedtext-wpkj' />}
+          label={
+            <TranslatedText
+              stringId="general.note.label"
+              fallback="Note"
+              data-testid="translatedtext-wpkj"
+            />
+          }
           required
           component={TallMultilineTextField}
           disabled={templateLoading}
-          data-testid='field-d4xx' />
+          data-testid="field-d4xx"
+        />
       </StyledFormGrid>
-      <ModalGenericButtonRow data-testid='modalgenericbuttonrow-qbz5'>
+      <ModalGenericButtonRow data-testid="modalgenericbuttonrow-qbz5">
         <FinaliseAndPrintButton
-          onClick={e => submitForm(e, { printRequested: true })}
-          data-testid='finaliseandprintbutton-rtc8'>
+          onClick={(e) => submitForm(e, { printRequested: true })}
+          data-testid="finaliseandprintbutton-rtc8"
+        >
           <TranslatedText
             stringId="patientLetter.action.finaliseAndPrint"
             fallback="Finalise & Print"
-            data-testid='translatedtext-z4d9' />
+            data-testid="translatedtext-z4d9"
+          />
         </FinaliseAndPrintButton>
-        <Gap data-testid='gap-ud1x' />
-        <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-5nu1'>
+        <Gap data-testid="gap-ud1x" />
+        <OutlinedButton onClick={onCancel} data-testid="outlinedbutton-5nu1">
           <TranslatedText
             stringId="general.action.cancel"
             fallback="Cancel"
-            data-testid='translatedtext-ry4a' />
+            data-testid="translatedtext-ry4a"
+          />
         </OutlinedButton>
-        <Button onClick={submitForm} data-testid='button-4eqi'>
+        <Button onClick={submitForm} data-testid="button-4eqi">
           <TranslatedText
             stringId="general.action.finalise"
             fallback="Finalise"
-            data-testid='translatedtext-oeih' />
+            data-testid="translatedtext-oeih"
+          />
         </Button>
       </ModalGenericButtonRow>
     </>
@@ -173,23 +198,26 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
     [api, endpoint, onSubmit, patient, facilityId],
   );
 
-  const renderForm = props =>
+  const renderForm = (props) =>
     props.isSubmitting ? (
       <ModalLoader
         loadingText={
           <TranslatedText
             stringId="patientLetter.modal.create.loadingText"
             fallback="Please wait while we create your patient letter"
-            data-testid='translatedtext-md5j' />
+            data-testid="translatedtext-md5j"
+          />
         }
-        data-testid='modalloader-yb18' />
+        data-testid="modalloader-yb18"
+      />
     ) : (
       <>
-        <PatientDetailsCard patient={patient} data-testid='patientdetailscard-bf19' />
+        <PatientDetailsCard patient={patient} data-testid="patientdetailscard-bf19" />
         <PatientLetterFormContents
           onCancel={onCancel}
           {...props}
-          data-testid='patientletterformcontents-q29t' />
+          data-testid="patientletterformcontents-q29t"
+        />
       </>
     );
 
@@ -207,10 +235,13 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         date: yup
           .date()
           .required()
-          .translatedLabel(<TranslatedText
-          stringId="general.date.label"
-          fallback="Date"
-          data-testid='translatedtext-lqzd' />),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.date.label"
+              fallback="Date"
+              data-testid="translatedtext-lqzd"
+            />,
+          ),
         clinicianId: yup
           .string()
           .required()
@@ -218,7 +249,8 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-testid='translatedtext-pvkf' />,
+              data-testid="translatedtext-pvkf"
+            />,
           ),
         title: yup
           .string()
@@ -227,16 +259,21 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
             <TranslatedText
               stringId="patientLetter.title.label"
               fallback="Letter title"
-              data-testid='translatedtext-feou' />,
+              data-testid="translatedtext-feou"
+            />,
           ),
         body: yup
           .string()
           .required()
-          .translatedLabel(<TranslatedText
-          stringId="general.note.label"
-          fallback="Note"
-          data-testid='translatedtext-8f3k' />),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.note.label"
+              fallback="Note"
+              data-testid="translatedtext-8f3k"
+            />,
+          ),
       })}
-      data-testid='form-ouu3' />
+      data-testid="form-ouu3"
+    />
   );
 };

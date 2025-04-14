@@ -39,14 +39,7 @@ export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props 
     return null;
   }
 
-  return (
-    <Field
-      label={label}
-      name={name}
-      required={required}
-      {...props}
-   />
-  );
+  return <Field label={label} name={name} required={required} {...props} />;
 };
 
 export const useLocalisedSchema = () => {

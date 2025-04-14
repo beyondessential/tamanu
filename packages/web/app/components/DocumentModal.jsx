@@ -44,13 +44,17 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   return (
     <FormModal
       width="md"
-      title={<TranslatedText
-        stringId="document.modal.create.title"
-        fallback="Add document"
-        data-testid='translatedtext-q92n' />}
+      title={
+        <TranslatedText
+          stringId="document.modal.create.title"
+          fallback="Add document"
+          data-testid="translatedtext-q92n"
+        />
+      }
       open={open}
       onClose={handleClose}
-      data-testid='formmodal-6d25'>
+      data-testid="formmodal-6d25"
+    >
       <DocumentForm
         onSubmit={onSubmit}
         onStart={onStart}
@@ -58,7 +62,8 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         onCancel={handleClose}
         editedObject={document}
         endpoint={endpoint}
-        data-testid='documentform-pt4r' />
+        data-testid="documentform-pt4r"
+      />
     </FormModal>
   );
 });

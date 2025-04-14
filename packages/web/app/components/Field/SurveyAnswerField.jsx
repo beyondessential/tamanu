@@ -14,7 +14,10 @@ const Container = styled.div`
 export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState('');
 
-  const { data: answer } = useLatestAnswerForPatientQuery(patient.id, config?.source || config?.Source);
+  const { data: answer } = useLatestAnswerForPatientQuery(
+    patient.id,
+    config?.source || config?.Source,
+  );
 
   useEffect(() => {
     if (!answer) return;
@@ -27,13 +30,14 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   }, [field.name, answer]);
 
   return (
-    <Container data-testid='container-xmfz'>
+    <Container data-testid="container-xmfz">
       <div>{label}</div>
       <div>
         <SurveyAnswerResult
           answer={surveyResponseAnswer}
           type={answer?.ProgramDataElement?.type}
-          data-testid='surveyanswerresult-m2ey' />
+          data-testid="surveyanswerresult-m2ey"
+        />
       </div>
     </Container>
   );

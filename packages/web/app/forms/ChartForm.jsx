@@ -16,27 +16,24 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
   const { components = [] } = chartSurvey || {};
   const visibleComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
 
   const { ability } = useAuth();
   const canCreateChart = ability.can('create', 'Charting');
 
   if (isLoading) {
-    return <ModalLoader data-testid='modalloader-wncd' />;
+    return <ModalLoader data-testid="modalloader-wncd" />;
   }
 
   if (!canCreateChart) {
     return (
-      <Modal
-        title="Permission required"
-        open
-        onClose={onClose}
-        data-testid='modal-inaz'>
+      <Modal title="Permission required" open onClose={onClose} data-testid="modal-inaz">
         <ForbiddenErrorModalContents
           onConfirm={onClose}
           confirmText="Close"
-          data-testid='forbiddenerrormodalcontents-nafx' />
+          data-testid="forbiddenerrormodalcontents-nafx"
+        />
       </Modal>
     );
   }
@@ -47,11 +44,12 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
         title="Error: Cannot load chart form"
         errorMessage="Please contact an administrator to ensure the Chart form is configured correctly."
         error={error}
-        data-testid='errormessage-k6hd' />
+        data-testid="errormessage-k6hd"
+      />
     );
   }
 
-  const handleSubmit = async data => onSubmit({ survey: chartSurvey, ...data });
+  const handleSubmit = async (data) => onSubmit({ survey: chartSurvey, ...data });
 
   return (
     <Form
@@ -61,27 +59,32 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       validateOnBlur
       render={({ submitForm, values, setFieldValue }) => (
         <>
-        <SurveyScreen
-          allComponents={visibleComponents}
-          patient={patient}
-          cols={2}
-          values={values}
-          setFieldValue={setFieldValue}
-          submitButton={
-            <FormSubmitCancelRow
-              confirmText={<TranslatedText
-                stringId="general.action.record"
-                fallback="Record"
-                data-testid='translatedtext-6dm3' />}
-              onConfirm={submitForm}
-              onCancel={onClose}
-              data-testid='formsubmitcancelrow-1ah9' />
-          }
-          data-testid='surveyscreen-ek46' />
+          <SurveyScreen
+            allComponents={visibleComponents}
+            patient={patient}
+            cols={2}
+            values={values}
+            setFieldValue={setFieldValue}
+            submitButton={
+              <FormSubmitCancelRow
+                confirmText={
+                  <TranslatedText
+                    stringId="general.action.record"
+                    fallback="Record"
+                    data-testid="translatedtext-6dm3"
+                  />
+                }
+                onConfirm={submitForm}
+                onCancel={onClose}
+                data-testid="formsubmitcancelrow-1ah9"
+              />
+            }
+            data-testid="surveyscreen-ek46"
+          />
         </>
-        
       )}
-      data-testid='form-v82r' />
+      data-testid="form-v82r"
+    />
   );
 });
 

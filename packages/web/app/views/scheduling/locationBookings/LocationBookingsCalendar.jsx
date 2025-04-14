@@ -21,7 +21,7 @@ import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 import { partitionAppointmentsByLocation } from './utils';
 
-const getDisplayableDates = date => {
+const getDisplayableDates = (date) => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
   return eachDayOfInterval({ start, end });
@@ -74,11 +74,12 @@ const Carousel = styled.div`
 `;
 
 const emptyStateMessage = (
-  <EmptyState data-testid='emptystate-1ili'>
+  <EmptyState data-testid="emptystate-1ili">
     <TranslatedText
       stringId="locationBooking.calendar.noMatchingBookings"
       fallback="No bookings to display. Please try adjusting the search filters."
-      data-testid='translatedtext-yptm' />
+      data-testid="translatedtext-yptm"
+    />
   </EmptyState>
 );
 
@@ -115,21 +116,19 @@ export const LocationBookingsCalendar = ({
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const filteredLocations = areNonLocationFiltersActive
-    ? locations?.filter(location => appointmentsByLocation[location.id])
+    ? locations?.filter((location) => appointmentsByLocation[location.id])
     : locations;
 
   return (
     <>
-      <Carousel
-        className={APPOINTMENT_CALENDAR_CLASS}
-        {...props}
-        data-testid='carousel-sitm'>
-        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid='root-nqxn'>
+      <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
+        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
           <LocationBookingsCalendarHeader
             monthOf={monthOf}
             setMonthOf={setMonthOf}
             displayedDates={displayedDates}
-            data-testid='locationbookingscalendarheader-yzb4' />
+            data-testid="locationbookingscalendarheader-yzb4"
+          />
           <LocationBookingsCalendarBody
             appointmentsByLocation={appointmentsByLocation}
             displayedDates={displayedDates}
@@ -137,7 +136,8 @@ export const LocationBookingsCalendar = ({
             locationsQuery={locationsQuery}
             openBookingForm={openBookingForm}
             openCancelModal={openCancelModal}
-            data-testid='locationbookingscalendarbody-4f9q' />
+            data-testid="locationbookingscalendarbody-4f9q"
+          />
         </CarouselGrid.Root>
       </Carousel>
       {filteredLocations?.length === 0 && emptyStateMessage}

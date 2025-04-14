@@ -25,20 +25,22 @@ const Text = styled(Typography)`
 `;
 
 const DeleteEntryButton = ({ disabled, onClick }) => (
-  <Box display="flex" alignSelf="start" marginTop="18px" data-testid='box-bp7f'>
+  <Box display="flex" alignSelf="start" marginTop="18px" data-testid="box-bp7f">
     <IconButton
       color="primary"
       edge="start"
       disabled={disabled}
       onClick={onClick}
       disableRipple
-      data-testid='iconbutton-o9qe'>
-      <DeleteOutlineIcon fontSize="small" data-testid='deleteoutlineicon-cb9o' />
-      <Text data-testid='text-pcnu'>
+      data-testid="iconbutton-o9qe"
+    >
+      <DeleteOutlineIcon fontSize="small" data-testid="deleteoutlineicon-cb9o" />
+      <Text data-testid="text-pcnu">
         <TranslatedText
           stringId="encounter.vitals.action.deleteEntry"
           fallback="Delete entry"
-          data-testid='translatedtext-y4vi' />
+          data-testid="translatedtext-y4vi"
+        />
       </Text>
     </IconButton>
   </Box>
@@ -75,24 +77,26 @@ const LogTextSmall = styled(Typography)`
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   const { date, newValue, reasonForChange, userDisplayName } = logData;
-  const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
+  const reasonForChangeOption = vitalEditReasons.find((option) => option.value === reasonForChange);
   const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
   return (
-    <LogContainer data-testid='logcontainer-7d64'>
-      <LogText data-testid='logtext-bgs3'>
+    <LogContainer data-testid="logcontainer-7d64">
+      <LogText data-testid="logtext-bgs3">
         {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
       </LogText>
       {reasonForChange && (
-        <LogText data-testid='logtext-kd9w'>
+        <LogText data-testid="logtext-kd9w">
           <TranslatedText
             stringId="encounter.vitals.editReason.label"
             fallback="Reason for change to record"
-            data-testid='translatedtext-2rlu' />
+            data-testid="translatedtext-2rlu"
+          />
           : {reasonForChangeLabel}
         </LogText>
       )}
-      <LogTextSmall data-testid='logtextsmall-2hok'>
-        {userDisplayName} <DateDisplay date={date} showTime shortYear data-testid='datedisplay-tviy' />
+      <LogTextSmall data-testid="logtextsmall-2hok">
+        {userDisplayName}{' '}
+        <DateDisplay date={date} showTime shortYear data-testid="datedisplay-tviy" />
       </LogTextSmall>
     </LogContainer>
   );
@@ -118,13 +122,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     encounterType: encounter.encounterType,
   });
   const handleDeleteEntry = useCallback(
-    setFieldValue => {
+    (setFieldValue) => {
       setFieldValue(valueName, '');
       setIsDeleted(true);
     },
     [valueName],
   );
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     const newShapeData = {
       date: getCurrentDateTimeString(),
     };
@@ -151,7 +155,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
-  const validateFn = values => {
+  const validateFn = (values) => {
     const errors = {};
     if (values[valueName] === initialValue) {
       errors[valueName] = 'New value cannot be the same as previous value.';
@@ -167,16 +171,18 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       formType={FORM_TYPES.EDIT_FORM}
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
-        <FormGrid columns={4} data-testid='formgrid-yjyh'>
+        <FormGrid columns={4} data-testid="formgrid-yjyh">
           <SurveyQuestion
             component={dataPoint.component}
             disabled={isDeleted}
-            data-testid='surveyquestion-2f43' />
+            data-testid="surveyquestion-2f43"
+          />
           {showDeleteEntryButton && (
             <DeleteEntryButton
               disabled={isDeleted}
               onClick={() => handleDeleteEntry(setFieldValue)}
-              data-testid='deleteentrybutton-xq4v' />
+              data-testid="deleteentrybutton-xq4v"
+            />
           )}
           <Field
             required={mandatoryVitalEditReason}
@@ -185,20 +191,26 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               <TranslatedText
                 stringId="encounter.vitals.editReason.label"
                 fallback="Reason for change to record"
-                data-testid='translatedtext-3919' />
+                data-testid="translatedtext-3919"
+              />
             }
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
-            data-testid='field-fvqv' />
-          <FormSeparatorLine data-testid='formseparatorline-fvhu' />
+            data-testid="field-fvqv"
+          />
+          <FormSeparatorLine data-testid="formseparatorline-fvhu" />
           <OuterLabelFieldWrapper
-            label={<TranslatedText
-              stringId="encounter.vitals.history.label"
-              fallback="History"
-              data-testid='translatedtext-98dr' />}
+            label={
+              <TranslatedText
+                stringId="encounter.vitals.history.label"
+                fallback="History"
+                data-testid="translatedtext-98dr"
+              />
+            }
             style={{ gridColumn: '1 / -1' }}
-            data-testid='outerlabelfieldwrapper-u60n'>
+            data-testid="outerlabelfieldwrapper-u60n"
+          >
             <Box
               height="162px"
               overflow="auto"
@@ -206,27 +218,34 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               bgcolor="white"
               border="1px solid #dedede"
               borderRadius="3px"
-              data-testid='box-mzpp'>
+              data-testid="box-mzpp"
+            >
               {dataPoint.historyLogs.map((log, index) => (
                 <HistoryLog
                   key={log.date}
                   vitalLabel={vitalLabel}
                   vitalEditReasons={vitalEditReasons}
                   logData={log}
-                  data-testid={`historylog-obnm-${index}`} />
+                  data-testid={`historylog-obnm-${index}`}
+                />
               ))}
             </Box>
           </OuterLabelFieldWrapper>
           <FormSubmitCancelRow
             onCancel={handleClose}
             onConfirm={submitForm}
-            confirmText={<TranslatedText
-              stringId="general.action.save"
-              fallback="Save"
-              data-testid='translatedtext-ghq4' />}
-            data-testid='formsubmitcancelrow-bdsb' />
+            confirmText={
+              <TranslatedText
+                stringId="general.action.save"
+                fallback="Save"
+                data-testid="translatedtext-ghq4"
+              />
+            }
+            data-testid="formsubmitcancelrow-bdsb"
+          />
         </FormGrid>
       )}
-      data-testid='form-e7pg' />
+      data-testid="form-e7pg"
+    />
   );
 };

@@ -12,16 +12,19 @@ export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, on
         <TranslatedText
           stringId="imaging.modal.printMultiple.title"
           fallback="Print imaging request/s"
-          data-testid='translatedtext-7l2l' />
+          data-testid="translatedtext-7l2l"
+        />
       }
       width="md"
       open={open}
       onClose={onClose}
-      data-testid='formmodal-742i'>
+      data-testid="formmodal-742i"
+    >
       <PrintMultipleImagingRequestsSelectionForm
         encounter={encounter}
         onClose={onClose}
-        data-testid='printmultipleimagingrequestsselectionform-t4lp' />
+        data-testid="printmultipleimagingrequestsselectionform-t4lp"
+      />
     </FormModal>
   );
 };

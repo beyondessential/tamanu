@@ -41,7 +41,7 @@ const mainButtonStyles = `
   }
 
   &.MuiButton-outlinedPrimary {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${(props) => props.theme.palette.primary.main};
     border-right-color: transparent;
   }
 
@@ -81,11 +81,11 @@ const MenuButton = styled(MuiButton)`
   }
 
   &.MuiButton-outlinedPrimary {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${(props) => props.theme.palette.primary.main};
     border-left: none;
 
     .MuiButton-label {
-      border-left: 1px solid ${props => props.theme.palette.primary.main};
+      border-left: 1px solid ${(props) => props.theme.palette.primary.main};
     }
   }
 
@@ -105,7 +105,7 @@ const MenuButton = styled(MuiButton)`
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
   z-index: 1500; // This needs to be higher than the modal z-index (1300) to be visible in modals
-  min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
+  min-width: ${(props) => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 
 const MenuList = styled(MuiMenuList)`
@@ -162,9 +162,10 @@ export const DropdownButton = React.memo(
           disableElevation
           disabled={disabled}
           style={{ borderColor: Colors.primary }}
-          onClick={event => handleClick(event, 0)}
-          data-testid='mainbuttoncomponent-xdka'>
-          {!hasPermission && <LockIcon data-testid='lockicon-5h0e' />}
+          onClick={(event) => handleClick(event, 0)}
+          data-testid="mainbuttoncomponent-xdka"
+        >
+          {!hasPermission && <LockIcon data-testid="lockicon-5h0e" />}
           {mainAction.label}
         </MainButtonComponent>
       );
@@ -173,11 +174,7 @@ export const DropdownButton = React.memo(
     const isOpen = anchorEl && !disabled && hasPermission;
 
     return (
-      <Container
-        style={style}
-        className={className}
-        ref={anchorRef}
-        data-testid='container-v3a1'>
+      <Container style={style} className={className} ref={anchorRef} data-testid="container-v3a1">
         <ButtonGroup
           variant={variant}
           size={size}
@@ -185,31 +182,35 @@ export const DropdownButton = React.memo(
           disableElevation
           style={{ width: '100%' }}
           disabled={disabled || !hasPermission}
-          data-testid='buttongroup-ym83'>
+          data-testid="buttongroup-ym83"
+        >
           <MainButtonComponent
-            onClick={event => handleClick(event, 0)}
-            data-testid='mainbuttoncomponent-06gp'>
-            {!hasPermission && <LockIcon data-testid='lockicon-mdm4' />}
+            onClick={(event) => handleClick(event, 0)}
+            data-testid="mainbuttoncomponent-06gp"
+          >
+            {!hasPermission && <LockIcon data-testid="lockicon-mdm4" />}
             {mainAction.label}
           </MainButtonComponent>
-          <MenuButton onClick={handleToggle} data-testid='menubutton-dc8o'>
-            <KeyboardArrowDownIcon data-testid='keyboardarrowdownicon-8dwd' />
+          <MenuButton onClick={handleToggle} data-testid="menubutton-dc8o">
+            <KeyboardArrowDownIcon data-testid="keyboardarrowdownicon-8dwd" />
           </MenuButton>
         </ButtonGroup>
         <Popper
           open={isOpen ?? false}
           anchorEl={anchorEl}
           placement="bottom-start"
-          data-testid='popper-zc8s'>
-          <Paper elevation={0} variant="outlined" data-testid='paper-0i9j'>
-            <ClickAwayListener onClickAway={handleClose} data-testid='clickawaylistener-b7hr'>
-              <MenuList data-testid='menulist-sze7'>
+          data-testid="popper-zc8s"
+        >
+          <Paper elevation={0} variant="outlined" data-testid="paper-0i9j">
+            <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-b7hr">
+              <MenuList data-testid="menulist-sze7">
                 {otherActions.map((action, index) => (
                   <MenuItem
                     key={action.label}
                     disabled={!action.onClick}
-                    onClick={event => handleClick(event, index + 1)}
-                    data-testid={`menuitem-0qdd-${index}`}>
+                    onClick={(event) => handleClick(event, index + 1)}
+                    data-testid={`menuitem-0qdd-${index}`}
+                  >
                     {action.label}
                   </MenuItem>
                 ))}
@@ -227,7 +228,8 @@ export const FormSubmitDropdownButton = ({ ...props }) => {
     <DropdownButton
       MainButtonComponent={FormMainButton}
       {...props}
-      data-testid='dropdownbutton-chfi' />
+      data-testid="dropdownbutton-chfi"
+    />
   );
 };
 

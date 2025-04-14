@@ -126,7 +126,7 @@ export class TamanuApi extends ApiClient {
       deviceId: getDeviceId(),
     });
 
-    this.interceptors.request.use(config => {
+    this.interceptors.request.use((config) => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
       return config;
@@ -167,14 +167,7 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const {
-      token,
-      localisation,
-      server,
-      availableFacilities,
-      permissions,
-      role,
-    } = output;
+    const { token, localisation, server, availableFacilities, permissions, role } = output;
     saveToLocalStorage({
       token,
       localisation,

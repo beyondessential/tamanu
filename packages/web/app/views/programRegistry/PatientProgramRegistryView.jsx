@@ -52,15 +52,13 @@ export const PatientProgramRegistryView = () => {
     patientId,
     programRegistryId,
   );
-  const {
-    data: programRegistryConditions = [],
-    isLoading: conditionsLoading,
-  } = useProgramRegistryConditionsQuery(data?.programRegistryId);
+  const { data: programRegistryConditions = [], isLoading: conditionsLoading } =
+    useProgramRegistryConditionsQuery(data?.programRegistryId);
 
   const patientRoutes = usePatientRoutes();
 
   if (isLoading || conditionsLoading) {
-    return <LoadingIndicator data-testid='loadingindicator-izzm' />;
+    return <LoadingIndicator data-testid="loadingindicator-izzm" />;
   }
 
   if (isError) {
@@ -69,57 +67,65 @@ export const PatientProgramRegistryView = () => {
         <TranslatedText
           stringId="programRegistry.registryNotFoundMessage"
           fallback="Program registry not found."
-          data-testid='translatedtext-bj29' />
+          data-testid="translatedtext-bj29"
+        />
       </p>
     );
   }
 
-  const conditionOptions = programRegistryConditions.map(x => ({
+  const conditionOptions = programRegistryConditions.map((x) => ({
     label: x.name,
     value: x.id,
   }));
 
   return (
     <>
-      <PatientNavigation patientRoutes={patientRoutes} data-testid='patientnavigation-j8qg' />
-      <ViewHeader data-testid='viewheader-4dtc'>
+      <PatientNavigation patientRoutes={patientRoutes} data-testid="patientnavigation-j8qg" />
+      <ViewHeader data-testid="viewheader-4dtc">
         <h1>
           <TranslatedReferenceData
             fallback={data.programRegistry.name}
             value={data.programRegistry.id}
             category="programRegistry"
-            data-testid='translatedreferencedata-890x' />
+            data-testid="translatedreferencedata-890x"
+          />
         </h1>
         <RegistrationStatusIndicator
           style={{ height: '10px', width: '10px' }}
           patientProgramRegistration={data}
-          data-testid='registrationstatusindicator-7uco' />
+          data-testid="registrationstatusindicator-7uco"
+        />
       </ViewHeader>
-      <Container data-testid='container-i17a'>
-        <Row data-testid='row-7bbb'>
+      <Container data-testid="container-i17a">
+        <Row data-testid="row-7bbb">
           <DisplayPatientRegDetails
             patientProgramRegistration={data}
-            data-testid='displaypatientregdetails-wtse' />
+            data-testid="displaypatientregdetails-wtse"
+          />
         </Row>
-        <ProgramStatusAndConditionContainer data-testid='programstatusandconditioncontainer-hjoo'>
+        <ProgramStatusAndConditionContainer data-testid="programstatusandconditioncontainer-hjoo">
           <ProgramRegistryStatusHistory
             patientProgramRegistration={data}
             programRegistryConditions={conditionOptions}
-            data-testid='programregistrystatushistory-zrim' />
+            data-testid="programregistrystatushistory-zrim"
+          />
           <ConditionSection
             patientProgramRegistration={data}
             programRegistryConditions={conditionOptions}
-            data-testid='conditionsection-ld8c' />
+            data-testid="conditionsection-ld8c"
+          />
         </ProgramStatusAndConditionContainer>
-        <Row data-testid='row-5cpu'>
+        <Row data-testid="row-5cpu">
           <PatientProgramRegistrationSelectSurvey
             patientProgramRegistration={data}
-            data-testid='patientprogramregistrationselectsurvey-afbi' />
+            data-testid="patientprogramregistrationselectsurvey-afbi"
+          />
         </Row>
-        <Row data-testid='row-50rl'>
+        <Row data-testid="row-50rl">
           <PatientProgramRegistryFormHistory
             patientProgramRegistration={data}
-            data-testid='patientprogramregistryformhistory-8lqp' />
+            data-testid="patientprogramregistryformhistory-8lqp"
+          />
         </Row>
       </Container>
     </>

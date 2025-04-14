@@ -56,5 +56,5 @@ export const Customisations = ({ children }) => {
   const Component = ComponentList[componentVersion]?.[componentName];
 
   if (!Component) return children;
-  return <Component {...props} data-testid='component-84o8' />;
+  return <Component {...props} data-testid="component-84o8" />;
 };

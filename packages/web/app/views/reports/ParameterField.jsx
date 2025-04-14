@@ -45,7 +45,7 @@ export const FIELD_TYPES_SUPPORTING_FILTER_BY_SELECTED_FACILITY = [
 const useReportSuggesterOptions = (parameters, suggesterOptions = {}) => {
   // Get name of facility select field if it exists
   const facilityField = useMemo(
-    () => parameters.find(param => param.parameterField === 'FacilityField'),
+    () => parameters.find((param) => param.parameterField === 'FacilityField'),
     [parameters],
   );
   const [{ value: facilityIdValue }] = useField(facilityField?.name || 'facilityId');
@@ -65,7 +65,8 @@ const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, parameters, ..
       baseQueryParameters={baseQueryParameters}
       name={name}
       {...props}
-      data-testid='field-u0dj' />
+      data-testid="field-u0dj"
+    />
   );
 };
 
@@ -84,24 +85,17 @@ const ParameterAutocompleteField = ({
       suggester={suggester}
       name={name}
       {...props}
-      data-testid='field-fbkj' />
+      data-testid="field-fbkj"
+    />
   );
 };
 
 const ParameterSelectField = ({ name, ...props }) => (
-  <Field
-    component={BaseSelectField}
-    name={name}
-    {...props}
-    data-testid='field-ozoi' />
+  <Field component={BaseSelectField} name={name} {...props} data-testid="field-ozoi" />
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (
-  <Field
-    component={BaseMultiselectField}
-    name={name}
-    {...props}
-    data-testid='field-qy3y' />
+  <Field component={BaseMultiselectField} name={name} {...props} data-testid="field-qy3y" />
 );
 
 const EmptyField = styled.div``;
@@ -144,6 +138,7 @@ export const ParameterField = ({
       parameterValues={values}
       parameters={parameters}
       {...props}
-      data-testid='parameterfieldcomponent-r4ff' />
+      data-testid="parameterfieldcomponent-r4ff"
+    />
   );
 };

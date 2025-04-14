@@ -25,21 +25,27 @@ const Dot = styled.div`
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: ${props => props.$color};
+  background: ${(props) => props.$color};
   margin-right: 14px;
 `;
 export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => {
-  const dataTestIdSuffix = path.replace(/\//g, '-')
+  const dataTestIdSuffix = path.replace(/\//g, '-');
   return (
-  <SecondaryListItem
-    button
-    to={path}
-    disabled={disabled}
-    selected={isCurrent}
-    onClick={onClick}
-    data-test-class="secondary-sidebar-item"
-    data-testid={`secondarylistitem${dataTestIdSuffix}`}>
-    {color && <Dot $color={color} />}
-    <SecondaryItemText disableTypography primary={label} data-testid={`secondaryitemtext-${dataTestIdSuffix}`} />
-  </SecondaryListItem>
-)};
+    <SecondaryListItem
+      button
+      to={path}
+      disabled={disabled}
+      selected={isCurrent}
+      onClick={onClick}
+      data-test-class="secondary-sidebar-item"
+      data-testid={`secondarylistitem${dataTestIdSuffix}`}
+    >
+      {color && <Dot $color={color} />}
+      <SecondaryItemText
+        disableTypography
+        primary={label}
+        data-testid={`secondaryitemtext-${dataTestIdSuffix}`}
+      />
+    </SecondaryListItem>
+  );
+};

@@ -28,27 +28,33 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.idLabels"
         fallback="Multiple ID labels"
-        data-testid='translatedtext-35ln' />
+        data-testid="translatedtext-35ln"
+      />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.idLabels.caption"
         fallback="A4 sheet of multiple patient identification labels"
-        data-testid='translatedtext-0v5t' />
+        data-testid="translatedtext-0v5t"
+      />
     ),
     icon: MultilabelIdIcon,
     component: PatientStickerLabelPage,
   },
   idcard: {
-    label: <TranslatedText
-      stringId="patientDetails.print.action.idCard"
-      fallback="ID Card"
-      data-testid='translatedtext-nq3p' />,
+    label: (
+      <TranslatedText
+        stringId="patientDetails.print.action.idCard"
+        fallback="ID Card"
+        data-testid="translatedtext-nq3p"
+      />
+    ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.idCard.caption"
         fallback="Patient identification card"
-        data-testid='translatedtext-mxwh' />
+        data-testid="translatedtext-mxwh"
+      />
     ),
     icon: IdCardIcon,
     component: PatientIDCardPage,
@@ -58,13 +64,15 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.covid19TestCertificate"
         fallback="Test certificate - COVID-19"
-        data-testid='translatedtext-bymj' />
+        data-testid="translatedtext-bymj"
+      />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.covid19TestCertificate.caption"
         fallback="Patient COVID-19 test certificate"
-        data-testid='translatedtext-phl1' />
+        data-testid="translatedtext-phl1"
+      />
     ),
     icon: TestCertificateCovid19Icon,
     component: CovidTestCertificateModal,
@@ -74,30 +82,34 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.covid19ClearanceCertificate"
         fallback="Clearance certificate - COVID-19"
-        data-testid='translatedtext-xyy2' />
+        data-testid="translatedtext-xyy2"
+      />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.covid19ClearanceCertificate.caption"
         fallback="Patient COVID-19 clearance certificate"
-        data-testid='translatedtext-op82' />
+        data-testid="translatedtext-op82"
+      />
     ),
     icon: ClearanceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
-    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
+    condition: (getSetting) => getSetting('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: (
       <TranslatedText
         stringId="patientDetails.print.action.birthNotification"
         fallback="Birth notification"
-        data-testid='translatedtext-w370' />
+        data-testid="translatedtext-w370"
+      />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.birthNotification.caption"
         fallback="Patient birth notification document"
-        data-testid='translatedtext-3roq' />
+        data-testid="translatedtext-3roq"
+      />
     ),
     icon: BirthNotificationIcon,
     component: BirthNotificationCertificateModal,
@@ -107,13 +119,15 @@ const PRINT_OPTIONS = {
       <TranslatedText
         stringId="patientDetails.print.action.internationalPatientSummary"
         fallback="International Patient Summary"
-        data-testid='translatedtext-seoq' />
+        data-testid="translatedtext-seoq"
+      />
     ),
     caption: (
       <TranslatedText
         stringId="patientDetails.print.action.internationalPatientSummary.caption"
         fallback="Email International Patient Summary QR Code"
-        data-testid='translatedtext-y3mu' />
+        data-testid="translatedtext-y3mu"
+      />
     ),
     icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
@@ -125,19 +139,20 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
 
-  const isVisible = condition => !condition || condition(getSetting, ability);
+  const isVisible = (condition) => !condition || condition(getSetting, ability);
 
   return (
     <div className={className}>
-      <Header data-testid='header-cdy6'>Identification</Header>
-      <StyledPrintOptionsRow data-testid='styledprintoptionsrow-h1bq'>
+      <Header data-testid="header-cdy6">Identification</Header>
+      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-h1bq">
         {isVisible(PRINT_OPTIONS.idcard.condition) && (
           <PrintOption
             label={PRINT_OPTIONS.idcard.label}
             caption={PRINT_OPTIONS.idcard.caption}
             onPress={() => setCurrentlyPrinting('idcard')}
             icon={PRINT_OPTIONS.idcard.icon}
-            data-testid='printoption-8zrr' />
+            data-testid="printoption-8zrr"
+          />
         )}
         {isVisible(PRINT_OPTIONS.barcode.condition) && (
           <PrintOption
@@ -145,19 +160,21 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
             caption={PRINT_OPTIONS.barcode.caption}
             onPress={() => setCurrentlyPrinting('barcode')}
             icon={PRINT_OPTIONS.barcode.icon}
-            data-testid='printoption-nbx2' />
+            data-testid="printoption-nbx2"
+          />
         )}
       </StyledPrintOptionsRow>
-      <StyledDivider data-testid='styleddivider-ek66' />
-      <Header data-testid='header-ibnn'>Certificates</Header>
-      <StyledPrintOptionsRow data-testid='styledprintoptionsrow-mkeg'>
+      <StyledDivider data-testid="styleddivider-ek66" />
+      <Header data-testid="header-ibnn">Certificates</Header>
+      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-mkeg">
         {isVisible(PRINT_OPTIONS.birthNotification.condition) && (
           <PrintOption
             label={PRINT_OPTIONS.birthNotification.label}
             caption={PRINT_OPTIONS.birthNotification.caption}
             onPress={() => setCurrentlyPrinting('birthNotification')}
             icon={PRINT_OPTIONS.birthNotification.icon}
-            data-testid='printoption-ihof' />
+            data-testid="printoption-ihof"
+          />
         )}
         {isVisible(PRINT_OPTIONS.covidTestCert.condition) && (
           <PrintOption
@@ -165,17 +182,19 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
             caption={PRINT_OPTIONS.covidTestCert.caption}
             onPress={() => setCurrentlyPrinting('covidTestCert')}
             icon={PRINT_OPTIONS.covidTestCert.icon}
-            data-testid='printoption-a9l2' />
+            data-testid="printoption-a9l2"
+          />
         )}
       </StyledPrintOptionsRow>
-      <StyledPrintOptionsRow data-testid='styledprintoptionsrow-wp1y'>
+      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-wp1y">
         {isVisible(PRINT_OPTIONS.covidClearanceCert.condition) && (
           <PrintOption
             label={PRINT_OPTIONS.covidClearanceCert.label}
             caption={PRINT_OPTIONS.covidClearanceCert.caption}
             onPress={() => setCurrentlyPrinting('covidClearanceCert')}
             icon={PRINT_OPTIONS.covidClearanceCert.icon}
-            data-testid='printoption-fpqg' />
+            data-testid="printoption-fpqg"
+          />
         )}
         {isVisible(PRINT_OPTIONS.ipsQrCode.condition) && (
           <PrintOption
@@ -183,7 +202,8 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
             caption={PRINT_OPTIONS.ipsQrCode.caption}
             onPress={() => setCurrentlyPrinting('ipsQrCode')}
             icon={PRINT_OPTIONS.ipsQrCode.icon}
-            data-testid='printoption-ssmc' />
+            data-testid="printoption-ssmc"
+          />
         )}
       </StyledPrintOptionsRow>
     </div>
@@ -281,10 +301,10 @@ const PrintOptionButton = styled(Button)`
 `;
 
 const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
-  <PrintOptionButton color="default" onClick={onPress} data-testid='printoptionbutton-mdni'>
+  <PrintOptionButton color="default" onClick={onPress} data-testid="printoptionbutton-mdni">
     <div className="Container">
       <div className="Icon">
-        <Icon data-testid='icon-z3qm' />
+        <Icon data-testid="icon-z3qm" />
       </div>
       <div className="Title">
         <div className="Heading">{label}</div>
@@ -315,7 +335,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   const api = useApi();
 
   const setCurrentlyPrinting = useCallback(
-    async type => {
+    async (type) => {
       setPrintType(type);
       setImageData('');
       if (type === 'idcard') {
@@ -349,10 +369,12 @@ export const PrintPatientDetailsModal = ({ patient }) => {
           onClose={closeModal}
           fullWidth={false}
           width={false}
-          data-testid='modal-bsas'>
+          data-testid="modal-bsas"
+        >
           <StyledPrintOptionContainer
             setCurrentlyPrinting={setCurrentlyPrinting}
-            data-testid='styledprintoptioncontainer-e9vr' />
+            data-testid="styledprintoptioncontainer-e9vr"
+          />
         </Modal>
       );
     }
@@ -371,31 +393,35 @@ export const PrintPatientDetailsModal = ({ patient }) => {
               <TranslatedText
                 stringId="patientDetails.print.idCard.modal.submitting.title"
                 fallback="Working"
-                data-testid='translatedtext-sqfg' />
+                data-testid="translatedtext-sqfg"
+              />
             }
             open
-            data-testid='modal-2oz0'>
+            data-testid="modal-2oz0"
+          >
             <div>
               <TranslatedText
                 stringId="patientDetails.print.idCard.modal.submitting.loading"
                 fallback="Preparing ID card..."
-                data-testid='translatedtext-4b5u' />
+                data-testid="translatedtext-4b5u"
+              />
             </div>
           </Modal>
         );
       }
       props.imageData = imageData;
     }
-    return <Component {...props} data-testid='component-z2f2' />;
+    return <Component {...props} data-testid="component-z2f2" />;
   })();
 
   return (
     <>
-      <Button size="small" onClick={openModal} data-testid='button-kdtv'>
+      <Button size="small" onClick={openModal} data-testid="button-kdtv">
         <TranslatedText
           stringId="patient.detailsSidebar.action.printIdForms"
           fallback="ID forms"
-          data-testid='translatedtext-wcdb' />
+          data-testid="translatedtext-wcdb"
+        />
       </Button>
       {mainComponent}
     </>

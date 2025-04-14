@@ -4,10 +4,10 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 const LoadingIconContainer = styled.div`
   display: grid;
-  width: ${props => props.width || '100%'};
-  height: ${props => props.height || '100vh'};
-  background: ${props => props.backgroundColor || '#cecece'};
-  opacity: ${props => props.opacity || 0.5};
+  width: ${(props) => props.width || '100%'};
+  height: ${(props) => props.height || '100vh'};
+  background: ${(props) => props.backgroundColor || '#cecece'};
+  opacity: ${(props) => props.opacity || 0.5};
   overflow: hidden;
   z-index: 1200; // high but below a modal's z-index of 1300
   grid-template-columns: repeat(3, 1fr);
@@ -27,7 +27,8 @@ export const LoadingIndicator = React.memo(({ backgroundColor, opacity, height, 
     height={height}
     width={width}
     opacity={opacity}
-    data-testid='loadingiconcontainer-v3bb'>
-    <CircularProgress size={size || '5rem'} data-testid='circularprogress-gchq' />
+    data-testid="loadingiconcontainer-v3bb"
+  >
+    <CircularProgress size={size || '5rem'} data-testid="circularprogress-gchq" />
   </LoadingIconContainer>
 ));

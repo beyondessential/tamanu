@@ -13,7 +13,8 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.primaryContactNumber.label"
           fallback="Primary contact number"
-          data-testid='translatedtext-zl5y' />
+          data-testid="translatedtext-zl5y"
+        />
       ),
     },
     secondaryContactNumber: {
@@ -23,7 +24,8 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.secondaryContactNumber.label"
           fallback="Secondary contact number"
-          data-testid='translatedtext-5q80' />
+          data-testid="translatedtext-5q80"
+        />
       ),
     },
     emergencyContactName: {
@@ -32,7 +34,8 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.emergencyContactName.label"
           fallback="Emergency contact name"
-          data-testid='translatedtext-pjg8' />
+          data-testid="translatedtext-pjg8"
+        />
       ),
     },
     emergencyContactNumber: {
@@ -42,7 +45,8 @@ export const GenericContactFields = ({ filterByMandatory }) => {
         <TranslatedText
           stringId="general.localisedField.emergencyContactNumber.label"
           fallback="Emergency contact number"
-          data-testid='translatedtext-e6vf' />
+          data-testid="translatedtext-e6vf"
+        />
       ),
     },
   };
@@ -50,6 +54,7 @@ export const GenericContactFields = ({ filterByMandatory }) => {
     <ConfiguredMandatoryPatientFields
       fields={CONTACT_FIELDS}
       filterByMandatory={filterByMandatory}
-      data-testid='configuredmandatorypatientfields-0kxw' />
+      data-testid="configuredmandatorypatientfields-0kxw"
+    />
   );
 };

@@ -12,7 +12,7 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
 
   const createIPSRequest = useCallback(
-    async data => {
+    async (data) => {
       try {
         setConfirmDisabled(true);
         await api.post(`patient/${patient.id}/ipsRequest`, {
@@ -32,13 +32,15 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
       title="International Patient Summary"
       open={open}
       onClose={() => setOpen(false)}
-      data-testid='formmodal-iuvu'>
+      data-testid="formmodal-iuvu"
+    >
       <IPSQRCodeForm
         patient={patient}
         onSubmit={createIPSRequest}
         confirmDisabled={confirmDisabled}
         onCancel={() => setOpen(false)}
-        data-testid='ipsqrcodeform-36mj' />
+        data-testid="ipsqrcodeform-36mj"
+      />
     </FormModal>
   );
 });

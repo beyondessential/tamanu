@@ -27,7 +27,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.timeOfBirth.label"
           fallback="Time of birth"
-          data-testid='translatedtext-ji7u' />
+          data-testid="translatedtext-ji7u"
+        />
       ),
     },
     gestationalAgeEstimate: {
@@ -38,7 +39,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.gestationalAgeEstimate.label"
           fallback="Gestational age (weeks)"
-          data-testid='translatedtext-9vhb' />
+          data-testid="translatedtext-9vhb"
+        />
       ),
     },
     registeredBirthPlace: {
@@ -48,7 +50,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.registeredBirthPlace.label"
           fallback="Place of birth"
-          data-testid='translatedtext-yzpn' />
+          data-testid="translatedtext-yzpn"
+        />
       ),
     },
     birthFacilityId: {
@@ -59,7 +62,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthFacilityId.label"
           fallback="Name of health facility (if applicable)"
-          data-testid='translatedtext-dwju' />
+          data-testid="translatedtext-dwju"
+        />
       ),
     },
     attendantAtBirth: {
@@ -69,7 +73,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.attendantAtBirth.label"
           fallback="Attendant at birth"
-          data-testid='translatedtext-m4fi' />
+          data-testid="translatedtext-m4fi"
+        />
       ),
     },
     nameOfAttendantAtBirth: {
@@ -79,7 +84,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.nameOfAttendantAtBirth.label"
           fallback="Name of attendant"
-          data-testid='translatedtext-zlcg' />
+          data-testid="translatedtext-zlcg"
+        />
       ),
     },
     birthDeliveryType: {
@@ -89,7 +95,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthDeliveryType.label"
           fallback="Delivery type"
-          data-testid='translatedtext-jj08' />
+          data-testid="translatedtext-jj08"
+        />
       ),
     },
     birthType: {
@@ -99,7 +106,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthType.label"
           fallback="Single/Plural birth"
-          data-testid='translatedtext-f37p' />
+          data-testid="translatedtext-f37p"
+        />
       ),
       prefix: 'localisedField.property.birthType',
     },
@@ -110,7 +118,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthWeight.label"
           fallback="Birth weight (kg)"
-          data-testid='translatedtext-qbv4' />
+          data-testid="translatedtext-qbv4"
+        />
       ),
     },
     birthLength: {
@@ -120,7 +129,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthLength.label"
           fallback="Birth length (cm)"
-          data-testid='translatedtext-cx9n' />
+          data-testid="translatedtext-cx9n"
+        />
       ),
     },
     apgarScoreOneMinute: {
@@ -130,7 +140,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreOneMinute.label"
           fallback="Apgar score at 1 min"
-          data-testid='translatedtext-f0zx' />
+          data-testid="translatedtext-f0zx"
+        />
       ),
     },
     apgarScoreFiveMinutes: {
@@ -140,7 +151,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreFiveMinutes.label"
           fallback="Apgar score at 5 min"
-          data-testid='translatedtext-80p2' />
+          data-testid="translatedtext-80p2"
+        />
       ),
     },
     apgarScoreTenMinutes: {
@@ -150,7 +162,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreTenMinutes.label"
           fallback="Apgar score at 10 min"
-          data-testid='translatedtext-gr51' />
+          data-testid="translatedtext-gr51"
+        />
       ),
     },
   };
@@ -159,6 +172,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
     <ConfiguredMandatoryPatientFields
       fields={BIRTH_FIELDS}
       filterByMandatory={filterByMandatory}
-      data-testid='configuredmandatorypatientfields-dsxk' />
+      data-testid="configuredmandatorypatientfields-dsxk"
+    />
   );
 };

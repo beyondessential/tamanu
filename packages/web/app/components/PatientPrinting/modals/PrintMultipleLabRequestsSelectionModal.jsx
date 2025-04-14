@@ -12,17 +12,20 @@ export const PrintMultipleLabRequestsSelectionModal = ({ encounter, open, onClos
         <TranslatedText
           stringId="lab.modal.printMultiple.title"
           fallback="Print lab requests"
-          data-testid='translatedtext-vbgj' />
+          data-testid="translatedtext-vbgj"
+        />
       }
       width="xl"
       open={open}
       onClose={onClose}
       fullWidth={false}
-      data-testid='formmodal-945u'>
+      data-testid="formmodal-945u"
+    >
       <PrintMultipleLabRequestsSelectionForm
         encounter={encounter}
         onClose={onClose}
-        data-testid='printmultiplelabrequestsselectionform-4zkc' />
+        data-testid="printmultiplelabrequestsselectionform-4zkc"
+      />
     </FormModal>
   );
 };

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 
-const transformVitalDataToChartData = vitalQuery => {
+const transformVitalDataToChartData = (vitalQuery) => {
   const { data: vitalDataAndCount = {} } = vitalQuery;
   const { data: vitalData = [] } = vitalDataAndCount;
 

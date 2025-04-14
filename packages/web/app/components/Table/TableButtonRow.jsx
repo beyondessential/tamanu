@@ -5,19 +5,16 @@ import { PropTypes } from 'prop-types';
 const Row = styled.div`
   display: flex;
   align-items: center;
-  justify-content: ${props => `${props.$justifyContent || 'flex-end'};`};
-  margin-bottom: ${props => (props.$variant === 'small' ? ' 18px' : '36px')};
+  justify-content: ${(props) => `${props.$justifyContent || 'flex-end'};`};
+  margin-bottom: ${(props) => (props.$variant === 'small' ? ' 18px' : '36px')};
 
   button {
-    margin-left: ${props => (props.$variant === 'small' ? ' 10px' : '16px')};
+    margin-left: ${(props) => (props.$variant === 'small' ? ' 10px' : '16px')};
   }
 `;
 
 export const TableButtonRow = ({ children, variant, justifyContent }) => (
-  <Row
-    $variant={variant}
-    $justifyContent={justifyContent}
-    data-testid='row-v55c'>
+  <Row $variant={variant} $justifyContent={justifyContent} data-testid="row-v55c">
     {children}
   </Row>
 );

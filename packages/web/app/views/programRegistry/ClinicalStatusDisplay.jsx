@@ -13,10 +13,12 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
         <TranslatedText
           stringId="programRegistry.currentStatus.tooltip"
           fallback="Current status"
-          data-testid='translatedtext-ms05' />
+          data-testid="translatedtext-ms05"
+        />
       }
-      data-testid='themedtooltip-ldih'>
-      <TableCellTag $color={color} $position="initial" data-testid='tablecelltag-02cm'>
+      data-testid="themedtooltip-ldih"
+    >
+      <TableCellTag $color={color} $position="initial" data-testid="tablecelltag-02cm">
         <TranslatedReferenceData
           fallback={clinicalStatus?.name}
           value={clinicalStatus?.id}
@@ -25,9 +27,11 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
             <TranslatedText
               stringId="programRegistry.currentStatus.placeholder"
               fallback="n/a"
-              data-testid='translatedtext-wq0e' />
+              data-testid="translatedtext-wq0e"
+            />
           }
-          data-testid='translatedreferencedata-habj' />
+          data-testid="translatedreferencedata-habj"
+        />
       </TableCellTag>
     </ThemedTooltip>
   );

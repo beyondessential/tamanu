@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
 
-const useLocationSuggestion = locationId => {
+const useLocationSuggestion = (locationId) => {
   const api = useApi();
   // Get the last selected location id to determine its location group
   const id = Array.isArray(locationId) ? locationId[locationId.length - 1] : locationId;
@@ -88,13 +88,13 @@ export const LocationInput = React.memo(
       }
     }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
-    const handleChangeCategory = event => {
+    const handleChangeCategory = (event) => {
       setGroupId(event.target.value);
       setLocationId('');
       onChange({ target: { value: '', name } });
     };
 
-    const handleChange = async event => {
+    const handleChange = async (event) => {
       setLocationId(event.target.value);
       onChange({ target: { value: event.target.value, name } });
     };
@@ -126,7 +126,8 @@ export const LocationInput = React.memo(
           size={size}
           helperText={helperText}
           error={error}
-          data-testid='autocompleteinput-0tiu' />
+          data-testid="autocompleteinput-0tiu"
+        />
         <LocationAutocompleteInput
           label={label}
           disabled={locationSelectIsDisabled || disabled}
@@ -140,7 +141,8 @@ export const LocationInput = React.memo(
           className={className}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
-          size={size} />
+          size={size}
+        />
       </>
     );
   },
@@ -175,27 +177,31 @@ export const LocationField = React.memo(({ field, ...props }) => {
       value={field.value || ''}
       onChange={field.onChange}
       {...props}
-      data-testid='locationinput-cvpu' />
+      data-testid="locationinput-cvpu"
+    />
   );
 });
 
-export const LocalisedLocationField = React.memo(props => {
+export const LocalisedLocationField = React.memo((props) => {
   return (
     <LocationField
       label={
         <TranslatedText
           stringId="general.localisedField.locationId.label"
           fallback="Location"
-          data-testid='translatedtext-2nxr' />
+          data-testid="translatedtext-2nxr"
+        />
       }
       locationGroupLabel={
         <TranslatedText
           stringId="general.localisedField.locationGroupId.label"
           fallback="Area"
-          data-testid='translatedtext-lqc7' />
+          data-testid="translatedtext-lqc7"
+        />
       }
       {...props}
-      data-testid='locationfield-wf9f' />
+      data-testid="locationfield-wf9f"
+    />
   );
 });
 
@@ -214,17 +220,19 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text {...props} data-testid='text-voq8'>This location is reserved by another patient. Please ensure the bed is available before
-                confirming.
-              </Text>
+      <Text {...props} data-testid="text-voq8">
+        This location is reserved by another patient. Please ensure the bed is available before
+        confirming.
+      </Text>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text {...props} data-testid='text-heyi'>This location is occupied by another patient. Please ensure the bed is available before
-                confirming.
-              </Text>
+      <Text {...props} data-testid="text-heyi">
+        This location is occupied by another patient. Please ensure the bed is available before
+        confirming.
+      </Text>
     );
   }
 

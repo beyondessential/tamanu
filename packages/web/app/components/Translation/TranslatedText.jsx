@@ -28,7 +28,8 @@ export const TranslatedText = ({ stringId, fallback, replacements, casing }) => 
         stringId={stringId}
         replacements={replacements}
         fallback={fallback}
-        data-testid='debugtooltip-kuf4'>
+        data-testid="debugtooltip-kuf4"
+      >
         {translation}
       </DebugTooltip>
     );

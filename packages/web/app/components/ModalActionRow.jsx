@@ -17,8 +17,8 @@ export const makeModalRow = (Component, includeLeftPadding = true) => {
   `;
 
   return ({ className = '', ...props }) => (
-    <FullWidthRow className={className} data-testid='fullwidthrow-6g6y'>
-      <Row {...props} data-testid='row-vpng' />
+    <FullWidthRow className={className} data-testid="fullwidthrow-6g6y">
+      <Row {...props} data-testid="row-vpng" />
     </FullWidthRow>
   );
 };

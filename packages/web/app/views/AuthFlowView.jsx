@@ -25,7 +25,7 @@ const SplashImage = styled.div`
   max-width: 50vw;
   width: 50vw;
   height: inherit;
-  background-image: url(${props => splashImages[props.brandId]});
+  background-image: url(${(props) => splashImages[props.brandId]});
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center right;
@@ -100,39 +100,44 @@ export const AuthFlowView = ({ children }) => {
   const brandId = getBrandId();
 
   return (
-    <Container data-testid='container-blhb'>
-      <ContentContainer data-testid='contentcontainer-hiui'>
-        <SyncHealthNotificationComponent data-testid='synchealthnotificationcomponent-lgpq' />
+    <Container data-testid="container-blhb">
+      <ContentContainer data-testid="contentcontainer-hiui">
+        <SyncHealthNotificationComponent data-testid="synchealthnotificationcomponent-lgpq" />
         <LogoContainer
           onClick={() => {
             window.location.reload();
             dispatch(restartPasswordResetFlow());
           }}
-          data-testid='logocontainer-4v5o'>
-          <LogoDark size="140px" data-testid='logodark-rd0a' />
+          data-testid="logocontainer-4v5o"
+        >
+          <LogoDark size="140px" data-testid="logodark-rd0a" />
         </LogoContainer>
-        <FormContainer data-testid='formcontainer-5jm3'>{children}</FormContainer>
+        <FormContainer data-testid="formcontainer-5jm3">{children}</FormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink
             href={supportUrl}
             target="_blank"
             rel="noreferrer"
-            data-testid='supportdesktoplink-ame2'>
+            data-testid="supportdesktoplink-ame2"
+          >
             <TranslatedText
               stringId="externalLink.supportCentre"
               fallback="Support centre"
-              data-testid='translatedtext-3n2u' />
-            <Launch style={{ marginLeft: '3px', fontSize: '12px' }} data-testid='launch-rkkw' />
+              data-testid="translatedtext-3n2u"
+            />
+            <Launch style={{ marginLeft: '3px', fontSize: '12px' }} data-testid="launch-rkkw" />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText title={FULL_VERSION} data-testid='desktopversiontext-55do'>
+        <DesktopVersionText title={FULL_VERSION} data-testid="desktopversiontext-55do">
           <TranslatedText
             stringId="login.version"
             fallback="Version"
-            data-testid='translatedtext-pfqb' /> {agentVersion}
+            data-testid="translatedtext-pfqb"
+          />{' '}
+          {agentVersion}
         </DesktopVersionText>
       </ContentContainer>
-      <SplashImage brandId={brandId} data-testid='splashimage-p5ox' />
+      <SplashImage brandId={brandId} data-testid="splashimage-p5ox" />
     </Container>
   );
 };

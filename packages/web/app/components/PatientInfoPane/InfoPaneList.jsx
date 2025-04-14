@@ -69,7 +69,7 @@ const getItems = (isIssuesPane, response) => {
   const warnings = items.filter(shouldShowIssueInWarningModal);
   const sortedIssues = [
     ...warnings,
-    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
+    ...items.filter((issue) => !shouldShowIssueInWarningModal(issue)),
   ];
 
   return { items: sortedIssues, warnings };
@@ -105,12 +105,12 @@ export const InfoPaneList = ({
     () => setAddEditState({ adding: !adding, editKey: null }),
     [adding],
   );
-  const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
+  const handleRowClick = useCallback((id) => setAddEditState({ adding: false, editKey: id }), []);
   const handleCloseForm = useCallback(() => setAddEditState({ adding: false, editKey: null }), []);
 
-  const Wrapper = props =>
+  const Wrapper = (props) =>
     behavior === 'collapse' ? (
-      <Collapse in={adding} {...props} data-testid='collapse-qeou' />
+      <Collapse in={adding} {...props} data-testid="collapse-qeou" />
     ) : (
       <FormModal
         width="md"
@@ -119,40 +119,44 @@ export const InfoPaneList = ({
         onClose={handleCloseForm}
         {...props}
         overrideContentPadding={overrideContentPadding}
-        data-testid='formmodal-afjc' />
+        data-testid="formmodal-afjc"
+      />
     );
 
   const addForm = (
-    <Wrapper data-testid='wrapper-f4zl'>
+    <Wrapper data-testid="wrapper-f4zl">
       <InfoPaneAddEditForm
         Form={Form}
         endpoint={endpoint}
         onClose={handleCloseForm}
         id={paneId}
         items={items}
-        data-testid='infopaneaddeditform-2igo' />
+        data-testid="infopaneaddeditform-2igo"
+      />
     </Wrapper>
   );
 
   const EditForm = CustomEditForm || InfoPaneAddEditForm;
   return (
     <>
-      {isIssuesPane && <PatientAlert alerts={warnings} data-testid='patientalert-hboj' />}
+      {isIssuesPane && <PatientAlert alerts={warnings} data-testid="patientalert-hboj" />}
       <TitleContainer
         data-test-id={`info-pane-${kebabCase(title)}`}
-        data-testid='titlecontainer-mr2j'>
-        <TitleText data-testid='titletext-rvdl'>{title}</TitleText>
+        data-testid="titlecontainer-mr2j"
+      >
+        <TitleText data-testid="titletext-rvdl">{title}</TitleText>
         {!readonly && (
           <AddButton
             onClick={handleAddButtonClick}
-            endIcon={<AddCircleIcon data-testid='addcircleicon-m4ab' />}
+            endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
             data-test-class="add-button-section"
-            data-testid='addbutton-b0ln'>
+            data-testid="addbutton-b0ln"
+          >
             Add
           </AddButton>
         )}
       </TitleContainer>
-      <DataList data-testid='datalist-073t'>
+      <DataList data-testid="datalist-073t">
         {error && error.message}
         {!error &&
           items.map((item, index) => {
@@ -161,18 +165,24 @@ export const InfoPaneList = ({
             if (behavior === 'collapse') {
               return (
                 <React.Fragment key={id}>
-                  <Collapse in={editKey !== id} data-testid='collapse-dhai'>
+                  <Collapse in={editKey !== id} data-testid="collapse-dhai">
                     {ListItemComponent ? (
                       <ListItemComponent
                         item={item}
                         handleRowClick={handleRowClick}
                         ListItem={ListItem}
-                        data-testid={`listitemcomponent-5xs4-${index}`} />
+                        data-testid={`listitemcomponent-5xs4-${index}`}
+                      />
                     ) : (
-                      <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-adip-${index}`}>{name}</ListItem>
+                      <ListItem
+                        onClick={() => handleRowClick(id)}
+                        data-testid={`listitem-adip-${index}`}
+                      >
+                        {name}
+                      </ListItem>
                     )}
                   </Collapse>
-                  <Collapse in={editKey === id} data-testid='collapse-0a33'>
+                  <Collapse in={editKey === id} data-testid="collapse-0a33">
                     <EditForm
                       Form={Form}
                       endpoint={endpoint}
@@ -180,22 +190,29 @@ export const InfoPaneList = ({
                       onClose={handleCloseForm}
                       id={paneId}
                       items={items}
-                      data-testid='editform-r0ss' />
+                      data-testid="editform-r0ss"
+                    />
                   </Collapse>
                 </React.Fragment>
               );
             }
 
             return (
-              <React.Fragment key={id} data-testid='fragment-kg9n'>
+              <React.Fragment key={id} data-testid="fragment-kg9n">
                 {ListItemComponent ? (
                   <ListItemComponent
                     item={item}
                     handleRowClick={handleRowClick}
                     ListItem={ListItem}
-                    data-testid={`listitemcomponent-p5xe-${index}`} />
+                    data-testid={`listitemcomponent-p5xe-${index}`}
+                  />
                 ) : (
-                  <ListItem onClick={() => handleRowClick(id)} data-testid={`listitem-fx30${index}`}>{name}</ListItem>
+                  <ListItem
+                    onClick={() => handleRowClick(id)}
+                    data-testid={`listitem-fx30${index}`}
+                  >
+                    {name}
+                  </ListItem>
                 )}
                 <FormModal
                   width="md"
@@ -203,14 +220,16 @@ export const InfoPaneList = ({
                   open={editKey === id}
                   onClose={handleCloseForm}
                   overrideContentPadding={overrideContentPadding}
-                  data-testid='formmodal-p7ky'>
+                  data-testid="formmodal-p7ky"
+                >
                   <EditForm
                     Form={Form}
                     endpoint={endpoint}
                     item={item}
                     handleRowClick={handleRowClick}
                     ListItem={ListItem}
-                    data-testid='editform-b1y6' />
+                    data-testid="editform-b1y6"
+                  />
                 </FormModal>
               </React.Fragment>
             );

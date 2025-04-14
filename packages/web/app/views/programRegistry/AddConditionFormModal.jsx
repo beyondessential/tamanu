@@ -39,7 +39,7 @@ export const AddConditionFormModal = ({
   const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
 
-  const submit = async data => {
+  const submit = async (data) => {
     await api.post(
       `patient/${encodeURIComponent(
         patientProgramRegistration.patientId,
@@ -60,11 +60,13 @@ export const AddConditionFormModal = ({
         <TranslatedText
           stringId="programRegistry.modal.addCondition.title"
           fallback="Add related condition"
-          data-testid='translatedtext-7okc' />
+          data-testid="translatedtext-7okc"
+        />
       }
       open={open}
       onClose={onClose}
-      data-testid='modal-dk9s'>
+      data-testid="modal-dk9s"
+    >
       <Form
         showInlineErrorsOnly
         onSubmit={submit}
@@ -73,14 +75,15 @@ export const AddConditionFormModal = ({
           const handleCancel = () => onClose();
           return (
             <div>
-              <StyledFormGrid columns={1} data-testid='styledformgrid-cwx3'>
+              <StyledFormGrid columns={1} data-testid="styledformgrid-cwx3">
                 <Field
                   name="programRegistryConditionId"
                   label={
                     <TranslatedText
                       stringId="programRegistry.relatedCondition.label"
                       fallback="Related condition"
-                      data-testid='translatedtext-63ek' />
+                      data-testid="translatedtext-63ek"
+                    />
                   }
                   component={AutocompleteField}
                   options={differenceBy(
@@ -88,15 +91,18 @@ export const AddConditionFormModal = ({
                     patientProgramRegistrationConditions,
                     'value',
                   )}
-                  data-testid='field-e7et' />
+                  data-testid="field-e7et"
+                />
               </StyledFormGrid>
               <FormSeparatorLine
                 style={{ marginTop: '60px', marginBottom: '30px' }}
-                data-testid='formseparatorline-fh25' />
+                data-testid="formseparatorline-fh25"
+              />
               <ConfirmCancelRow
                 onConfirm={submitForm}
                 onCancel={handleCancel}
-                data-testid='confirmcancelrow-z6iu' />
+                data-testid="confirmcancelrow-z6iu"
+              />
             </div>
           );
         }}
@@ -105,7 +111,8 @@ export const AddConditionFormModal = ({
             getTranslation('validation.required.inline', '*Required'),
           ),
         })}
-        data-testid='form-j1h4' />
+        data-testid="form-j1h4"
+      />
     </Modal>
   );
 };

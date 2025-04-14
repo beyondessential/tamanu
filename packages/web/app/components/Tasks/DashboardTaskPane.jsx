@@ -63,7 +63,7 @@ export const DashboardTaskPane = React.memo(() => {
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = e => {
+  const onLocationIdChange = (e) => {
     const { value } = e.target;
 
     const newParams = value
@@ -76,7 +76,7 @@ export const DashboardTaskPane = React.memo(() => {
     });
   };
 
-  const onHighPriorityOnlyChange = e => {
+  const onHighPriorityOnlyChange = (e) => {
     const { checked } = e.target;
 
     const newParams = checked
@@ -90,16 +90,17 @@ export const DashboardTaskPane = React.memo(() => {
   };
 
   return (
-    <TabPane data-testid='tabpane-s00l'>
-      <TopBar data-testid='topbar-r96r'>
-        <Heading4 whiteSpace="nowrap" data-testid='heading4-ng7b'>
+    <TabPane data-testid="tabpane-s00l">
+      <TopBar data-testid="topbar-r96r">
+        <Heading4 whiteSpace="nowrap" data-testid="heading4-ng7b">
           <TranslatedText
             stringId="dashboard.tasks.upcomingTasks.title"
             fallback="Upcoming tasks"
-            data-testid='translatedtext-0dpr' />
+            data-testid="translatedtext-0dpr"
+          />
         </Heading4>
-        <ActionRow data-testid='actionrow-iw9x'>
-          <FilterGrid data-testid='filtergrid-t0gc'>
+        <ActionRow data-testid="actionrow-iw9x">
+          <FilterGrid data-testid="filtergrid-t0gc">
             <LocationInput
               name="locationId"
               onChange={onLocationIdChange}
@@ -108,34 +109,40 @@ export const DashboardTaskPane = React.memo(() => {
                 <TranslatedText
                   stringId="general.localisedField.locationId.label"
                   fallback="Location"
-                  data-testid='translatedtext-u95d' />
+                  data-testid="translatedtext-u95d"
+                />
               }
               locationGroupLabel={
                 <TranslatedText
                   stringId="general.localisedField.locationGroupId.label"
                   fallback="Area"
-                  data-testid='translatedtext-kbsm' />
+                  data-testid="translatedtext-kbsm"
+                />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
               isMulti={true}
-              data-testid='locationinput-aabz' />
+              data-testid="locationinput-aabz"
+            />
             <StyledCheckInput
               label={
                 <TranslatedText
                   stringId="dashboard.tasks.table.highPriorityOnly.label"
                   fallback="High priority only"
-                  data-testid='translatedtext-crsm' />
+                  data-testid="translatedtext-crsm"
+                />
               }
               value={clinicianDashboardTaskingTableFilter.highPriority}
               onChange={onHighPriorityOnlyChange}
-              data-testid='styledcheckinput-fzec' />
+              data-testid="styledcheckinput-fzec"
+            />
           </FilterGrid>
         </ActionRow>
       </TopBar>
       <DashboardTasksTable
         searchParameters={clinicianDashboardTaskingTableFilter}
-        data-testid='dashboardtaskstable-lyo3' />
+        data-testid="dashboardtaskstable-lyo3"
+      />
     </TabPane>
   );
 });

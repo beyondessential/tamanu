@@ -10,7 +10,7 @@ import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 
 const Text = styled(BodyText)`
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
   margin-top: 10px;
   margin-bottom: 40px;
 `;
@@ -26,7 +26,7 @@ const BedIcon = styled(SingleBedIcon)`
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
-    color: ${props => props.theme.palette.primary.main};
+    color: ${(props) => props.theme.palette.primary.main};
   }
 `;
 
@@ -64,24 +64,23 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
     submit({ locationId: plannedLocation.id });
   };
   return (
-    <Modal
-      title="Finalise patient move"
-      open={open}
-      onClose={onClose}
-      data-testid='modal-v19s'>
-      <Text data-testid='text-oexz'>Please confirm the location details below to finalise the patient move.</Text>
-      <Container data-testid='container-c12u'>
+    <Modal title="Finalise patient move" open={open} onClose={onClose} data-testid="modal-v19s">
+      <Text data-testid="text-oexz">
+        Please confirm the location details below to finalise the patient move.
+      </Text>
+      <Container data-testid="container-c12u">
         <Box
           display="flex"
           flexDirection="column"
           alignItems="center"
           py={1}
-          data-testid='box-f8a6'>
-          <BedIcon data-testid='bedicon-5mw8' />
-          <Dot data-testid='dot-f4o0' />
-          <Dot data-testid='dot-v34s' />
-          <Dot data-testid='dot-ww01' />
-          <BedIcon color="primary" data-testid='bedicon-xy5f' />
+          data-testid="box-f8a6"
+        >
+          <BedIcon data-testid="bedicon-5mw8" />
+          <Dot data-testid="dot-f4o0" />
+          <Dot data-testid="dot-v34s" />
+          <Dot data-testid="dot-ww01" />
+          <BedIcon color="primary" data-testid="bedicon-xy5f" />
         </Box>
         <Box
           display="flex"
@@ -89,11 +88,12 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           alignItems="stretch"
           justifyContent="space-between"
           ml={2}
-          data-testid='box-476j'>
-          <Card data-testid='card-enqf'>
+          data-testid="box-476j"
+        >
+          <Card data-testid="card-enqf">
             Current location: <span>{getFullLocationName(location)}</span>
           </Card>
-          <Card className="active" data-testid='card-rmih'>
+          <Card className="active" data-testid="card-rmih">
             New location: <span>{getFullLocationName(plannedLocation)}</span>
           </Card>
         </Box>
@@ -102,7 +102,8 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
         confirmText="Confirm"
         onConfirm={onConfirmMove}
         onCancel={onClose}
-        data-testid='modalactionrow-1fvh' />
+        data-testid="modalactionrow-1fvh"
+      />
     </Modal>
   );
 });

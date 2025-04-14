@@ -35,7 +35,7 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  * Returns the bookable time slots for the provided date, or `null` if the date is invalid. If the
  * booking slot settings are still pending, returns `undefined`.
  */
-export const useBookingSlots = date => {
+export const useBookingSlots = (date) => {
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
 
@@ -55,12 +55,13 @@ export const useBookingSlots = date => {
   );
 
   const slotContaining = useCallback(
-    time => slots?.find(slot => isWithinIntervalExcludingEnd(time, slot)),
+    (time) => slots?.find((slot) => isWithinIntervalExcludingEnd(time, slot)),
     [slots],
   );
-  const endOfSlotContaining = useCallback(time => slotContaining(time)?.end ?? null, [
-    slotContaining,
-  ]);
+  const endOfSlotContaining = useCallback(
+    (time) => slotContaining(time)?.end ?? null,
+    [slotContaining],
+  );
 
   return {
     isPending,

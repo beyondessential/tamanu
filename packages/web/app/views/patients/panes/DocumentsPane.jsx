@@ -6,7 +6,12 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { ButtonWithPermissionCheck, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  ContentPane,
+  OutlinedButton,
+  TableButtonRow,
+} from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useDocumentActions } from '../../../hooks/useDocumentActions';
@@ -33,7 +38,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const openDocumentPreview = useCallback(
-    document => {
+    (document) => {
       setSelectedDocument(document);
       setModalStatus(MODAL_STATES.DOCUMENT_PREVIEW_OPEN);
     },
@@ -43,28 +48,35 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
   return (
     <>
-      {!isFromEncounter && <DocumentsSearchBar
-        setSearchParameters={setSearchParameters}
-        data-testid='documentssearchbar-hoyg' />}
-      <PaneWrapper data-testid='panewrapper-vhzo'>
-        <TableButtonRow variant="small" data-testid='tablebuttonrow-khuv'>
+      {!isFromEncounter && (
+        <DocumentsSearchBar
+          setSearchParameters={setSearchParameters}
+          data-testid="documentssearchbar-hoyg"
+        />
+      )}
+      <PaneWrapper data-testid="panewrapper-vhzo">
+        <TableButtonRow variant="small" data-testid="tablebuttonrow-khuv">
           <OutlinedButton
             onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
-            data-testid='outlinedbutton-me4h'>
+            data-testid="outlinedbutton-me4h"
+          >
             <TranslatedText
               stringId="document.action.openPatientLetter"
               fallback="Patient letter"
-              data-testid='translatedtext-ws2i' />
+              data-testid="translatedtext-ws2i"
+            />
           </OutlinedButton>
           <ButtonWithPermissionCheck
             verb="create"
             noun="DocumentMetadata"
             onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-            data-testid='buttonwithpermissioncheck-slv7'>
+            data-testid="buttonwithpermissioncheck-slv7"
+          >
             <TranslatedText
               stringId="document.action.addDocument"
               fallback="Add document"
-              data-testid='translatedtext-yhxu' />
+              data-testid="translatedtext-yhxu"
+            />
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable
@@ -74,7 +86,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           refreshTable={updateRefreshCount}
           onDownload={onDownload}
           openDocumentPreview={openDocumentPreview}
-          data-testid='documentstable-mcc0' />
+          data-testid="documentstable-mcc0"
+        />
       </PaneWrapper>
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
@@ -83,18 +96,21 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         refreshTable={updateRefreshCount}
         openDocumentPreview={openDocumentPreview}
         patient={patient}
-        data-testid='patientlettermodal-v1gh' />
+        data-testid="patientlettermodal-v1gh"
+      />
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={closeModal}
         endpoint={documentMetadataEndpoint}
         refreshTable={updateRefreshCount}
-        data-testid='documentmodal-ug9z' />
+        data-testid="documentmodal-ug9z"
+      />
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
         onClose={closeModal}
         document={selectedDocument}
-        data-testid='documentpreviewmodal-6yk3' />
+        data-testid="documentpreviewmodal-6yk3"
+      />
     </>
   );
 });

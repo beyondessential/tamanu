@@ -27,37 +27,46 @@ export const ChartInstanceInfoSection = ({
     gridRowGap={10}
     elevated={false}
     contentMarginBottom={20}
-    data-testid='styledinfocard-vd5f'>
+    data-testid="styledinfocard-vd5f"
+  >
     <InfoCardItem
       fontSize={14}
       label={
         <ChartInstanceInfoLabel
           stringId="complexChartInstance.location"
           fallback="Location:"
-          data-testid='chartinstanceinfolabel-2vmu' />
+          data-testid="chartinstanceinfolabel-2vmu"
+        />
       }
       value={location}
-      data-testid='infocarditem-1nxo' />
+      data-testid="infocarditem-1nxo"
+    />
     <InfoCardItem
       fontSize={14}
       label={
         <ChartInstanceInfoLabel
           stringId="complexChartInstance.date"
           fallback="Date & time of onset:"
-          data-testid='chartinstanceinfolabel-xn1c' />
+          data-testid="chartinstanceinfolabel-xn1c"
+        />
       }
       value={date || '-'}
-      data-testid='infocarditem-czi0' />
+      data-testid="infocarditem-czi0"
+    />
 
     {isTypeVisible ? (
       <InfoCardItem
         fontSize={14}
-        label={<ChartInstanceInfoLabel
-          stringId="complexChartInstance.type"
-          fallback="Type:"
-          data-testid='chartinstanceinfolabel-m3or' />}
+        label={
+          <ChartInstanceInfoLabel
+            stringId="complexChartInstance.type"
+            fallback="Type:"
+            data-testid="chartinstanceinfolabel-m3or"
+          />
+        }
         value={type || '-'}
-        data-testid='infocarditem-ql06' />
+        data-testid="infocarditem-ql06"
+      />
     ) : null}
 
     {isSubtypeVisible ? (
@@ -67,10 +76,12 @@ export const ChartInstanceInfoSection = ({
           <ChartInstanceInfoLabel
             stringId="complexChartInstance.subtype"
             fallback="Sub type:"
-            data-testid='chartinstanceinfolabel-p5wn' />
+            data-testid="chartinstanceinfolabel-p5wn"
+          />
         }
         value={subtype || '-'}
-        data-testid='infocarditem-8nk8' />
+        data-testid="infocarditem-8nk8"
+      />
     ) : null}
   </StyledInfoCard>
 );

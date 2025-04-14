@@ -14,5 +14,7 @@ const StyledAvatar = styled(Avatar)`
 export const PatientInitialsIcon = memo(({ patient }) => {
   const first = patient.firstName ? patient.firstName.substring(0, 1) : '';
   const last = patient.lastName ? patient.lastName.substring(0, 1) : '';
-  return <StyledAvatar color="primary" data-testid='styledavatar-lm84'>{`${first}${last}`}</StyledAvatar>;
+  return (
+    <StyledAvatar color="primary" data-testid="styledavatar-lm84">{`${first}${last}`}</StyledAvatar>
+  );
 }); // TODO add sync status symbol

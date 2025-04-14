@@ -17,7 +17,7 @@ export const usePatientProgramRegistryConditionsQuery = (
   );
 };
 
-export const useProgramRegistryConditionsQuery = programRegistryId => {
+export const useProgramRegistryConditionsQuery = (programRegistryId) => {
   const api = useApi();
   return useQuery(['programRegistryConditions', programRegistryId], () =>
     api
@@ -25,6 +25,6 @@ export const useProgramRegistryConditionsQuery = programRegistryId => {
         orderBy: 'name',
         order: 'ASC',
       })
-      .then(response => response.data),
+      .then((response) => response.data),
   );
 };

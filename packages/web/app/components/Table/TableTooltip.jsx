@@ -9,7 +9,8 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
     arrow
     placement={placement}
     {...props}
-    data-testid='tooltip-5on2'>
+    data-testid="tooltip-5on2"
+  >
     {children}
   </Tooltip>
 ))`

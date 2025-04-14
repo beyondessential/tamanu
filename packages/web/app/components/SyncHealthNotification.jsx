@@ -46,7 +46,7 @@ export const SyncHealthNotificationComponent = () => {
   if (!message) return null;
 
   return (
-    <Container data-testid='container-jeb9'>
+    <Container data-testid="container-jeb9">
       <h3>Sync Health: Unable to sync</h3>
       <p>{`${message}`}</p>
     </Container>

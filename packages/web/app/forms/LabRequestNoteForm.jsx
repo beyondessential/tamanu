@@ -43,7 +43,7 @@ const ListItem = styled.li`
 `;
 
 const Caption = styled.span`
-  color: ${props => props.theme.palette.text.tertiary};
+  color: ${(props) => props.theme.palette.text.tertiary};
   margin-left: 6px;
 `;
 
@@ -66,14 +66,14 @@ const buttonStyle = css`
   padding-right: 8px;
   min-width: auto;
   background: none;
-  color: ${props =>
+  color: ${(props) =>
     props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
-  text-decoration: ${props => (props.$underline ? 'underline' : 'none')};
+  text-decoration: ${(props) => (props.$underline ? 'underline' : 'none')};
 
   &.MuiButton-root:hover {
     background: none;
     text-decoration: underline;
-    color: ${props => props.theme.palette.primary.main};
+    color: ${(props) => props.theme.palette.primary.main};
   }
 `;
 
@@ -116,16 +116,21 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   );
 
   return (
-    <Container data-testid='container-6gfs'>
-      <NotesIcon color="primary" style={{ marginTop: 4 }} data-testid='notesicon-4qul' />
-      <Box flex="1" ml={1} data-testid='box-7r5l'>
-        <List data-testid='list-19gk'>
+    <Container data-testid="container-6gfs">
+      <NotesIcon color="primary" style={{ marginTop: 4 }} data-testid="notesicon-4qul" />
+      <Box flex="1" ml={1} data-testid="box-7r5l">
+        <List data-testid="list-19gk">
           {isSuccess &&
             notes.data?.map((note, index) => (
               <ListItem key={note.id} data-testid={`listitem-bd73-${index}`}>
                 {note.content}
                 <Caption data-testid={`caption-gjgp-${index}`}>
-                  {note.author?.displayName} <DateDisplay date={note.date} showTime data-testid={`datedisplay-ju3f-${index}`} />
+                  {note.author?.displayName}{' '}
+                  <DateDisplay
+                    date={note.date}
+                    showTime
+                    data-testid={`datedisplay-ju3f-${index}`}
+                  />
                 </Caption>
               </ListItem>
             ))}
@@ -139,33 +144,43 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
             render={({ values }) => {
               const formSubmitIsDisabled = !values.content?.trim();
               return active ? (
-                <Box display="flex" alignItems="center" data-testid='box-hygn'>
+                <Box display="flex" alignItems="center" data-testid="box-hygn">
                   <NotesInput
                     label=""
                     name="content"
                     component={TextField}
                     autoFocus
-                    data-testid='notesinput-zirf' />
-                  <CancelAddNoteButton onClick={() => setActive(false)} data-testid='canceladdnotebutton-1p1s'>Cancel</CancelAddNoteButton>
+                    data-testid="notesinput-zirf"
+                  />
+                  <CancelAddNoteButton
+                    onClick={() => setActive(false)}
+                    data-testid="canceladdnotebutton-1p1s"
+                  >
+                    Cancel
+                  </CancelAddNoteButton>
                   <SubmitNoteButton
                     $underline
                     disabled={formSubmitIsDisabled}
                     text="Save"
-                    data-testid='submitnotebutton-3s84' />
+                    data-testid="submitnotebutton-3s84"
+                  />
                 </Box>
               ) : (
                 <ShowAddNoteFormButton
                   $underline
                   onClick={() => setActive(true)}
-                  data-testid='showaddnoteformbutton-thpi'>
+                  data-testid="showaddnoteformbutton-thpi"
+                >
                   <TranslatedText
                     stringId="general.action.addNote"
                     fallback="Add note"
-                    data-testid='translatedtext-6ric' />
+                    data-testid="translatedtext-6ric"
+                  />
                 </ShowAddNoteFormButton>
               );
             }}
-            data-testid='form-7jdi' />
+            data-testid="form-7jdi"
+          />
         )}
       </Box>
     </Container>

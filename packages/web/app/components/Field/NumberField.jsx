@@ -11,15 +11,12 @@ export const NumberInput = ({ min, max, step, inputProps = {}, ...props }) => (
       step,
       ...inputProps,
     }}
-    type="number"/>
+    type="number"
+  />
 );
 
 export const NumberField = ({ field, ...props }) => (
-  <NumberInput
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
-    {...props} />
+  <NumberInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
 NumberInput.propTypes = {

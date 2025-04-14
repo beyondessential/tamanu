@@ -39,7 +39,7 @@ const StyledStepButton = styled(StepButton)`
     transform: translateY(-50%);
     left: 0;
     right: 0;
-    background: ${props =>
+    background: ${(props) =>
       props.$isActive ? props.theme.palette.primary.main : props.theme.palette.text.secondary};
     height: 6px;
   }
@@ -50,14 +50,16 @@ export const FormStepper = ({ screenIndex, handleStep, screenReactElements }) =>
     nonLinear
     activeStep={screenIndex}
     connector={null}
-    data-testid='styledstepper-6u8v'>
+    data-testid="styledstepper-6u8v"
+  >
     {screenReactElements.map(({ key }, index) => (
       <StyledStep key={key} data-testid={`styledstep-pr7d-${index}`}>
         <StyledStepButton
           onClick={handleStep(index)}
           icon={null}
           $isActive={screenIndex >= index}
-          data-testid={`styledstepbutton-nucr-${index}`} />
+          data-testid={`styledstepbutton-nucr-${index}`}
+        />
       </StyledStep>
     ))}
   </StyledStepper>

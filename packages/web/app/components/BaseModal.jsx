@@ -40,11 +40,11 @@ const Dialog = styled(MuiDialog)`
 const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
-    ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
+    ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
 `;
 
 const ModalContainer = styled.div`
-  background: ${props => props.$color};
+  background: ${(props) => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
 
@@ -135,37 +135,45 @@ export const BaseModal = memo(
         onClose={onDialogClose}
         transitionDuration={MODAL_TRANSITION_DURATION}
         {...props}
-        data-testid='dialog-g9qi'>
-        <ModalTitle data-testid='modaltitle-ojhf'>
-          <VerticalCenteredText data-testid='verticalcenteredtext-ni4s'>{title}</VerticalCenteredText>
-          <Box flexShrink={0} data-testid='box-okdu'>
+        data-testid="dialog-g9qi"
+      >
+        <ModalTitle data-testid="modaltitle-ojhf">
+          <VerticalCenteredText data-testid="verticalcenteredtext-ni4s">
+            {title}
+          </VerticalCenteredText>
+          <Box flexShrink={0} data-testid="box-okdu">
             {additionalActions}
             {printable && (
               <StyledButton
                 color="primary"
                 variant="outlined"
                 onClick={handlePrint}
-                startIcon={<PrintIcon data-testid='printicon-mgui' />}
+                startIcon={<PrintIcon data-testid="printicon-mgui" />}
                 size="small"
-                data-testid='styledbutton-z2pp'>
+                data-testid="styledbutton-z2pp"
+              >
                 <TranslatedText
                   stringId="general.action.print"
                   fallback="Print"
-                  data-testid='translatedtext-0ush' />
+                  data-testid="translatedtext-0ush"
+                />
               </StyledButton>
             )}
             {cornerExitButton && (
-              <IconButton onClick={onClose} disabled={!isClosable} data-testid='iconbutton-eull'>
-                <CloseIcon data-testid='closeicon-z1u6' />
+              <IconButton onClick={onClose} disabled={!isClosable} data-testid="iconbutton-eull">
+                <CloseIcon data-testid="closeicon-z1u6" />
               </IconButton>
             )}
           </Box>
         </ModalTitle>
-        <ModalContainer $color={color} data-testid='modalcontainer-uc2n'>
+        <ModalContainer $color={color} data-testid="modalcontainer-uc2n">
           <ModalContent
             $overrideContentPadding={overrideContentPadding}
-            data-testid='modalcontent-bk4w'>{children}</ModalContent>
-          <DialogActions data-testid='dialogactions-jkc6'>{actions}</DialogActions>
+            data-testid="modalcontent-bk4w"
+          >
+            {children}
+          </ModalContent>
+          <DialogActions data-testid="dialogactions-jkc6">{actions}</DialogActions>
         </ModalContainer>
         {fixedBottomRow && bottomRowContent}
       </Dialog>
@@ -182,13 +190,13 @@ const Loader = styled(Box)`
     font-weight: 500;
     font-size: 16px;
     line-height: 21px;
-    color: ${props => props.theme.palette.text.secondary};
+    color: ${(props) => props.theme.palette.text.secondary};
   }
 `;
 
 export const ModalLoader = ({ loadingText }) => (
-  <Loader data-testid='loader-kayp'>
-    <CircularProgress size="5rem" data-testid='circularprogress-1eqo' />
-    {loadingText && <Typography data-testid='typography-winh'>{loadingText}</Typography>}
+  <Loader data-testid="loader-kayp">
+    <CircularProgress size="5rem" data-testid="circularprogress-1eqo" />
+    {loadingText && <Typography data-testid="typography-winh">{loadingText}</Typography>}
   </Loader>
 );

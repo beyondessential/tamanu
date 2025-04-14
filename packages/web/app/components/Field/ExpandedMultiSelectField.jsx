@@ -41,11 +41,11 @@ export const ExpandedMultiSelectField = ({
   const currentList = useMemo(() => (field ? field.value : propsValue) || [], [field, propsValue]);
   const onChange = field ? field.onChange : propsOnChange;
   const toggle = useCallback(
-    e => {
+    (e) => {
       const { name: optionName, checked } = e.target;
       const newList = checked
         ? [...currentList, optionName]
-        : currentList.filter(item => item !== optionName);
+        : currentList.filter((item) => item !== optionName);
       onChange({ target: { name: fieldName, value: newList } });
     },
     [currentList, onChange, fieldName],
@@ -53,20 +53,21 @@ export const ExpandedMultiSelectField = ({
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <ScrollingContainer data-testid='scrollingcontainer-3esm'>
-        <MultiSelectItem key="select_all" data-testid='multiselectitem-2l13'>
+      <ScrollingContainer data-testid="scrollingcontainer-3esm">
+        <MultiSelectItem key="select_all" data-testid="multiselectitem-2l13">
           <CheckInput
             label={selectAllOptionLabel}
             value={currentList.length === options.length}
-            onChange={e => {
+            onChange={(e) => {
               const { checked } = e.target;
-              const newList = checked ? options.map(option => option.value) : [];
+              const newList = checked ? options.map((option) => option.value) : [];
               onChange({ target: { name: fieldName, value: newList } });
             }}
-            data-testid='checkinput-21pv' />
+            data-testid="checkinput-21pv"
+          />
         </MultiSelectItem>
-        <OptionsContainer data-testid='optionscontainer-zwx2'>
-          {options.map(option => {
+        <OptionsContainer data-testid="optionscontainer-zwx2">
+          {options.map((option) => {
             const { value, label: optionLabel } = option;
 
             return (
@@ -77,7 +78,8 @@ export const ExpandedMultiSelectField = ({
                   label={optionLabel}
                   value={currentList.includes(value)}
                   onChange={toggle}
-                  data-testid={`checkinput-67l8-${value}`} />
+                  data-testid={`checkinput-67l8-${value}`}
+                />
               </MultiSelectItem>
             );
           })}

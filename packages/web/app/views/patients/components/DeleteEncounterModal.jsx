@@ -17,13 +17,15 @@ export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient
       title="Delete encounter record"
       onClose={onClose}
       open={open}
-      data-testid='modal-lsi1'>
+      data-testid="modal-lsi1"
+    >
       <DeleteEncounterForm
         encounterToDelete={encounterToDelete}
         onCancel={onClose}
         onSubmit={onSubmit}
         patient={patient}
-        data-testid='deleteencounterform-5p2w' />
+        data-testid="deleteencounterform-5p2w"
+      />
     </Modal>
   );
 };

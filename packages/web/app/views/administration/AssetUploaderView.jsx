@@ -32,7 +32,7 @@ export const AssetUploaderView = memo(() => {
 
   const api = useApi();
 
-  const convertToBase64 = file =>
+  const convertToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -42,7 +42,7 @@ export const AssetUploaderView = memo(() => {
         const base64Data = reader.result.split('base64,').pop();
         return resolve(base64Data);
       };
-      reader.onerror = conversionError => reject(conversionError);
+      reader.onerror = (conversionError) => reject(conversionError);
     });
 
   const onSubmitUpload = useCallback(
@@ -82,55 +82,73 @@ export const AssetUploaderView = memo(() => {
             <TranslatedText
               stringId="asset.validation.name.path"
               fallback="Asset name"
-              data-testid='translatedtext-2hxu' />,
+              data-testid="translatedtext-2hxu"
+            />,
           ),
         file: yup
           .string()
-          .required(<TranslatedText
-          stringId="general.file.label"
-          fallback="File"
-          data-testid='translatedtext-ycx1' />),
+          .required(
+            <TranslatedText
+              stringId="general.file.label"
+              fallback="File"
+              data-testid="translatedtext-ycx1"
+            />,
+          ),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer
           title="Asset upload"
           showLoadingIndicator={isSubmitting}
-          data-testid='adminviewcontainer-hr7o'>
-          <ContentPane data-testid='contentpane-411j'>
-            <FormGrid columns={1} data-testid='formgrid-zaox'>
+          data-testid="adminviewcontainer-hr7o"
+        >
+          <ContentPane data-testid="contentpane-411j">
+            <FormGrid columns={1} data-testid="formgrid-zaox">
               <Field
                 component={TranslatedSelectField}
                 enumValues={ASSET_NAME_LABELS}
-                label={<TranslatedText
-                  stringId="asset.name.label"
-                  fallback="Select asset"
-                  data-testid='translatedtext-ybv1' />}
+                label={
+                  <TranslatedText
+                    stringId="asset.name.label"
+                    fallback="Select asset"
+                    data-testid="translatedtext-ybv1"
+                  />
+                }
                 name="name"
                 required
-                data-testid='field-jmah' />
+                data-testid="field-jmah"
+              />
               <Field
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
-                label={<TranslatedText
-                  stringId="asset.file.label"
-                  fallback="Select file"
-                  data-testid='translatedtext-h8lv' />}
+                label={
+                  <TranslatedText
+                    stringId="asset.file.label"
+                    fallback="Select file"
+                    data-testid="translatedtext-h8lv"
+                  />
+                }
                 name="file"
                 required
-                data-testid='field-g8gn' />
-              <ButtonRow data-testid='buttonrow-07rz'>
+                data-testid="field-g8gn"
+              />
+              <ButtonRow data-testid="buttonrow-07rz">
                 <LargeSubmitButton
-                  text={<TranslatedText
-                    stringId="general.action.import"
-                    fallback="Import"
-                    data-testid='translatedtext-08ti' />}
-                  data-testid='largesubmitbutton-oizs' />
+                  text={
+                    <TranslatedText
+                      stringId="general.action.import"
+                      fallback="Import"
+                      data-testid="translatedtext-08ti"
+                    />
+                  }
+                  data-testid="largesubmitbutton-oizs"
+                />
               </ButtonRow>
-              <ResultDisplay result={result} data-testid='resultdisplay-a96v' />
+              <ResultDisplay result={result} data-testid="resultdisplay-a96v" />
             </FormGrid>
           </ContentPane>
         </AdminViewContainer>
       )}
-      data-testid='form-f4c8' />
+      data-testid="form-f4c8"
+    />
   );
 });

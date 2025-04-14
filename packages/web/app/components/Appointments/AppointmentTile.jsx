@@ -32,28 +32,29 @@ const Tile = styled(UnstyledHtmlButton)`
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.625rem;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 
   &:hover {
     background-color: var(--bg-darker);
   }
 
-  ${({ $color = Colors.blue, $selected = false }) =>
-    css`
-      --bg-lighter: oklch(from ${$color} l c h / 10%);
-      --bg-darker: oklch(from ${$color} l c h / 20%);
-      @supports not (color: oklch(from black l c h)) {
-        // These work only with six-digit hex colours
-        --bg-lighter: ${$color}1a;
-        --bg-darker: ${$color}33;
-      }
+  ${({ $color = Colors.blue, $selected = false }) => css`
+    --bg-lighter: oklch(from ${$color} l c h / 10%);
+    --bg-darker: oklch(from ${$color} l c h / 20%);
+    @supports not (color: oklch(from black l c h)) {
+      // These work only with six-digit hex colours
+      --bg-lighter: ${$color}1a;
+      --bg-darker: ${$color}33;
+    }
 
-      ${$selected &&
-        css`
-          background-color: var(--bg-darker);
-          border-color: ${$color};
-        `}
+    ${$selected &&
+    css`
+      background-color: var(--bg-darker);
+      border-color: ${$color};
     `}
+  `}
 `;
 
 const Time = styled.time`
@@ -61,7 +62,9 @@ const Time = styled.time`
 `;
 
 const Timestamp = ({ date }) => (
-  <Time dateTime={date.toISOString()} data-testid='time-no0k'>{format(date, 'h:mmaaa')}</Time>
+  <Time dateTime={date.toISOString()} data-testid="time-no0k">
+    {format(date, 'h:mmaaa')}
+  </Time>
 );
 
 const Label = styled.span`
@@ -69,7 +72,7 @@ const Label = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  ${props =>
+  ${(props) =>
     props.$strikethrough &&
     css`
       text-decoration-line: line-through;
@@ -121,7 +124,7 @@ export const AppointmentTile = ({
 
   const tileText = (
     <>
-      {!hideTime && <Timestamp date={startTime} data-testid='timestamp-icgz' />}
+      {!hideTime && <Timestamp date={startTime} data-testid="timestamp-icgz" />}
       {getPatientNameAsString(patient)}
     </>
   );
@@ -135,10 +138,14 @@ export const AppointmentTile = ({
           ref={ref}
           onClick={() => allowViewDetail && setOpen(true)}
           {...props}
-          data-testid={`tile-owfj-${testIdPrefix}`}>
+          data-testid={`tile-owfj-${testIdPrefix}`}
+        >
           <Label
             $strikethrough={status === APPOINTMENT_STATUSES.NO_SHOW}
-            data-testid={`label-u6qm-${testIdPrefix}`}>{tileText}</Label>
+            data-testid={`label-u6qm-${testIdPrefix}`}
+          >
+            {tileText}
+          </Label>
           <IconGroup data-testid={`icongroup-78rn-${testIdPrefix}`}>
             {isHighPriority && (
               <HighPriorityIcon
@@ -146,7 +153,8 @@ export const AppointmentTile = ({
                 aria-hidden={undefined}
                 htmlColor={Colors.alert}
                 style={{ fontSize: 15 }}
-                data-testid={`highpriorityicon-c3ug-${testIdPrefix}`} />
+                data-testid={`highpriorityicon-c3ug-${testIdPrefix}`}
+              />
             )}
             {isOvernightLocationBooking && (
               <OvernightIcon
@@ -154,13 +162,15 @@ export const AppointmentTile = ({
                 aria-hidden={undefined}
                 htmlColor={Colors.primary}
                 style={{ fontSize: 15 }}
-                data-testid={`overnighticon-wbfe-${testIdPrefix}`} />
+                data-testid={`overnighticon-wbfe-${testIdPrefix}`}
+              />
             )}
             <StatusIndicator
               appointmentStatus={status}
               width={15}
               height={15}
-              data-testid={`statusindicator-4cq0-${testIdPrefix}`} />
+              data-testid={`statusindicator-4cq0-${testIdPrefix}`}
+            />
           </IconGroup>
         </Tile>
       </ThemedTooltip>
@@ -175,7 +185,8 @@ export const AppointmentTile = ({
         actions={actions}
         // px conversions of height / width from CarouselComponents
         preventOverflowPadding={isLocationBooking && { top: 64, left: 184 }}
-        data-testid={`appointmentdetailpopper-b4ww-${testIdPrefix}`} />
+        data-testid={`appointmentdetailpopper-b4ww-${testIdPrefix}`}
+      />
     </>
   );
 };

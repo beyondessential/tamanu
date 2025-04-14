@@ -31,7 +31,13 @@ const StyledDivider = styled(Divider)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendingContacts, successContactIds }) => {
+export const RemoveReminderContact = ({
+  selectedContact,
+  onBack,
+  onClose,
+  pendingContacts,
+  successContactIds,
+}) => {
   const api = useApi();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -45,40 +51,47 @@ export const RemoveReminderContact = ({ selectedContact, onBack, onClose, pendin
 
   return (
     <>
-      <StyledHeading data-testid='styledheading-ffp8'>
+      <StyledHeading data-testid="styledheading-ffp8">
         <TranslatedText
           stringId="patient.details.removeReminderContact.confirmation"
           fallback="Would you like to remove the below contact?"
-          data-testid='translatedtext-lg2y' />
+          data-testid="translatedtext-lg2y"
+        />
       </StyledHeading>
-      <StyledSubHeading data-testid='styledsubheading-m0c6'>
+      <StyledSubHeading data-testid="styledsubheading-m0c6">
         <TranslatedText
           stringId="patient.details.removeReminderContact.description"
           fallback="You can add the contact again at any time."
-          data-testid='translatedtext-fbqb' />
+          data-testid="translatedtext-fbqb"
+        />
       </StyledSubHeading>
       <ContactDetails
         selectedContact={selectedContact}
         isRemoveModal
         pendingContacts={pendingContacts}
         successContactIds={successContactIds}
-        data-testid='contactdetails-lsll' />
-      <StyledFullWidthContainer data-testid='styledfullwidthcontainer-i1t0'>
-        <StyledDivider data-testid='styleddivider-yv34' />
+        data-testid="contactdetails-lsll"
+      />
+      <StyledFullWidthContainer data-testid="styledfullwidthcontainer-i1t0">
+        <StyledDivider data-testid="styleddivider-yv34" />
       </StyledFullWidthContainer>
       <FormConfirmCancelBackRow
         onBack={onBack}
         onConfirm={handleDeleteContact}
         onCancel={onClose}
         confirmText={
-          !isDeleting
-          ? <TranslatedText
-            stringId="general.action.remove"
-            fallback="Remove"
-            data-testid='translatedtext-o1p3' />
-          : <CircularProgress size={16} color="#fff" data-testid='circularprogress-9m64' />
+          !isDeleting ? (
+            <TranslatedText
+              stringId="general.action.remove"
+              fallback="Remove"
+              data-testid="translatedtext-o1p3"
+            />
+          ) : (
+            <CircularProgress size={16} color="#fff" data-testid="circularprogress-9m64" />
+          )
         }
-        data-testid='formconfirmcancelbackrow-2d10' />
+        data-testid="formconfirmcancelbackrow-2d10"
+      />
     </>
   );
 };

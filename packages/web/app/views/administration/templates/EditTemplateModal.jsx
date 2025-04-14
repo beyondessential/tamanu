@@ -10,17 +10,14 @@ export const EditTemplateModal = ({
   onDelete,
   allowInputTitleType,
 }) => (
-  <FormModal
-    title="Template"
-    open={open}
-    onClose={onClose}
-    data-testid='formmodal-dpo8'>
+  <FormModal title="Template" open={open} onClose={onClose} data-testid="formmodal-dpo8">
     <EditTemplateForm
       onSubmit={onSubmit}
       editedObject={template}
       onDelete={onDelete}
       onClose={onClose}
       allowInputTitleType={allowInputTitleType}
-      data-testid='edittemplateform-aqzt' />
+      data-testid="edittemplateform-aqzt"
+    />
   </FormModal>
 );

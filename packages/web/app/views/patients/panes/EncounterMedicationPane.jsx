@@ -14,7 +14,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
 
   return (
-    <TabPane data-testid='tabpane-u787'>
+    <TabPane data-testid="tabpane-u787">
       <MedicationModal
         open={createMedicationModalOpen}
         encounterId={encounter.id}
@@ -23,13 +23,15 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           setCreateMedicationModalOpen(false);
           await loadEncounter(encounter.id);
         }}
-        data-testid='medicationmodal-s2hv' />
+        data-testid="medicationmodal-s2hv"
+      />
       <PrintMultipleMedicationSelectionModal
         encounter={encounter}
         open={printMedicationModalOpen}
         onClose={() => setPrintMedicationModalOpen(false)}
-        data-testid='printmultiplemedicationselectionmodal-1zpq' />
-      <TableButtonRow variant="small" data-testid='tablebuttonrow-dl51'>
+        data-testid="printmultiplemedicationselectionmodal-1zpq"
+      />
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-dl51">
         <ButtonWithPermissionCheck
           onClick={() => setPrintMedicationModalOpen(true)}
           disabled={readonly}
@@ -37,25 +39,32 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           noun="EncounterMedication"
           variant="outlined"
           color="primary"
-          data-testid='buttonwithpermissioncheck-hbja'>
+          data-testid="buttonwithpermissioncheck-hbja"
+        >
           <TranslatedText
             stringId="general.action.print"
             fallback="Print"
-            data-testid='translatedtext-1vxa' />
+            data-testid="translatedtext-1vxa"
+          />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setCreateMedicationModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterMedication"
-          data-testid='buttonwithpermissioncheck-cagj'>
+          data-testid="buttonwithpermissioncheck-cagj"
+        >
           <TranslatedText
             stringId="medication.action.newPrescription"
             fallback="New prescription"
-            data-testid='translatedtext-pikt' />
+            data-testid="translatedtext-pikt"
+          />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <EncounterMedicationTable encounterId={encounter.id} data-testid='encountermedicationtable-gs0p' />
+      <EncounterMedicationTable
+        encounterId={encounter.id}
+        data-testid="encountermedicationtable-gs0p"
+      />
     </TabPane>
   );
 });

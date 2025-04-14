@@ -30,25 +30,31 @@ const OuterLabelRequired = styled.span`
 
 const GeolocateQuestion = ({ text, component, required }) => {
   return (
-    <Box data-testid='box-m234'>
+    <Box data-testid="box-m234">
       <Typography
         style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}
-        data-testid='typography-7mxf'>
+        data-testid="typography-7mxf"
+      >
         {text}
-        {required && <OuterLabelRequired data-testid='outerlabelrequired-uroc'>*</OuterLabelRequired>}
+        {required && (
+          <OuterLabelRequired data-testid="outerlabelrequired-uroc">*</OuterLabelRequired>
+        )}
       </Typography>
       <Typography
         style={{ fontSize: '14px', color: Colors.darkText }}
-        data-testid='typography-kjjb'>
+        data-testid="typography-kjjb"
+      >
         {component.detail}
       </Typography>
       <Typography
         style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
-        data-testid='typography-x1r4'>
+        data-testid="typography-x1r4"
+      >
         <TranslatedText
           stringId="program.modal.surveyResponse.geolocateNotSupported"
           fallback="The Geolocate question type is not supported by Tamanu Desktop. Please complete the form on Tamanu Mobile if required."
-          data-testid='translatedtext-rwls' />
+          data-testid="translatedtext-rwls"
+        />
       </Typography>
     </Box>
   );
@@ -58,7 +64,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   const text = component.text || component.dataElement.defaultText;
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
-    return <Text data-testid='text-lag8'>{`${text} ${component.detail}`}</Text>;
+    return <Text data-testid="text-lag8">{`${text} ${component.detail}`}</Text>;
   }
 
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
@@ -67,12 +73,13 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
         text={text}
         component={component}
         required={required}
-        data-testid='geolocatequestion-lmkf' />
+        data-testid="geolocatequestion-lmkf"
+      />
     );
   }
 
   if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded) {
-    return <FullWidthCol data-testid='fullwidthcol-6f9p'>{FieldComponent}</FullWidthCol>;
+    return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 
   return null;
@@ -102,7 +109,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const tooltip = getTooltip(type, configObject, getTranslation);
 
   if (!FieldComponent) {
-    return <Text data-testid='text-k0tb'>{text}</Text>;
+    return <Text data-testid="text-k0tb">{text}</Text>;
   }
 
   const WrapperFieldComponent = tooltip ? FieldWithTooltip : Field;
@@ -119,7 +126,8 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       helperText={detail}
       required={required}
       disabled={disabled}
-      data-testid='wrapperfieldcomponent-mkjr' />
+      data-testid="wrapperfieldcomponent-mkjr"
+    />
   );
 
   const customComponent = getCustomComponentForQuestion(component, required, fieldComponent);

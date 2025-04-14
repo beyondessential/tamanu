@@ -13,12 +13,14 @@ export const LabTestLaboratoryField = ({ name = 'labTestLaboratory', label, requ
           <TranslatedText
             stringId="report.generate.parameter.labTestLaboratory.label"
             fallback="Lab Test Laboratory"
-            data-testid='translatedtext-e2hg' />
+            data-testid="translatedtext-e2hg"
+          />
         )
       }
       component={AutocompleteField}
       suggester={labTestLaboratorySuggester}
       required={required}
-      data-testid='field-g4c9' />
+      data-testid="field-g4c9"
+    />
   );
 };

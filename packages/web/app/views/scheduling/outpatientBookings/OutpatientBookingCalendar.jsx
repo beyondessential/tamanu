@@ -119,27 +119,29 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 export const HeadCell = ({ title, count }) => (
   <>
-    <HeadCellWrapper data-testid='headcellwrapper-zp1o'>
-      <HeadCellTextWrapper data-testid='headcelltextwrapper-pgoj'>
-        <ThemedTooltip title={title} data-testid='themedtooltip-rz38'>
-          <HeadCellText data-testid='headcelltext-m9ej'>{title}</HeadCellText>
+    <HeadCellWrapper data-testid="headcellwrapper-zp1o">
+      <HeadCellTextWrapper data-testid="headcelltextwrapper-pgoj">
+        <ThemedTooltip title={title} data-testid="themedtooltip-rz38">
+          <HeadCellText data-testid="headcelltext-m9ej">{title}</HeadCellText>
         </ThemedTooltip>
       </HeadCellTextWrapper>
     </HeadCellWrapper>
-    <AppointmentCountLabel data-testid='appointmentcountlabel-pnn0'>
+    <AppointmentCountLabel data-testid="appointmentcountlabel-pnn0">
       {Number.isInteger(count) && (
         <>
-          <AppointmentCount data-testid='appointmentcount-d4z0'>{count}</AppointmentCount>&nbsp;
+          <AppointmentCount data-testid="appointmentcount-d4z0">{count}</AppointmentCount>&nbsp;
           {count === 1 ? (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation"
               fallback="appt"
-              data-testid='translatedtext-8hjq' />
+              data-testid="translatedtext-8hjq"
+            />
           ) : (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
               fallback="appts"
-              data-testid='translatedtext-rpon' />
+              data-testid="translatedtext-rpon"
+            />
           )}
         </>
       )}
@@ -173,40 +175,44 @@ export const OutpatientBookingCalendar = ({
           <TranslatedText
             stringId="appointments.action.emailReminder.success"
             fallback="Email successfully sent"
-            data-testid='translatedtext-jxz5' />,
+            data-testid="translatedtext-jxz5"
+          />,
         ),
       onError: () =>
         toast.error(
           <TranslatedText
             stringId="appointments.action.emailReminder.error"
             fallback="Error sending email"
-            data-testid='translatedtext-ov72' />,
+            data-testid="translatedtext-ov72"
+          />,
         ),
     },
   );
 
   if (isLoading) {
-    return <LoadingSkeleton data-testid='loadingskeleton-2rfj' />;
+    return <LoadingSkeleton data-testid="loadingskeleton-2rfj" />;
   }
 
   if (error) {
     return (
-      <ErrorText data-testid='errortext-9qcv'>
+      <ErrorText data-testid="errortext-9qcv">
         <TranslatedText
           stringId="appointments.outpatientCalendar.error"
           fallback="Failed to load appointments. Please try again."
-          data-testid='translatedtext-f5nc' />
+          data-testid="translatedtext-f5nc"
+        />
       </ErrorText>
     );
   }
 
   if (headData.length === 0) {
     return (
-      <StatusText data-testid='statustext-0wes'>
+      <StatusText data-testid="statustext-0wes">
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
           fallback="No appointments to display. Please try adjusting the search filters."
-          data-testid='translatedtext-irve' />
+          data-testid="translatedtext-irve"
+        />
       </StatusText>
     );
   }
@@ -220,7 +226,8 @@ export const OutpatientBookingCalendar = ({
       width="100%"
       overflow="auto"
       flex={1}
-      data-testid='box-8llp'>
+      data-testid="box-8llp"
+    >
       {headData?.map((cell, cellIndex) => {
         const appointments = cellData[cell.id];
         const title =
@@ -229,17 +236,15 @@ export const OutpatientBookingCalendar = ({
               category="locationGroup"
               value={cell.id}
               fallback={cell.name}
-              data-testid={`translatedreferencedata-5vst-${cell.code}`} />
+              data-testid={`translatedreferencedata-5vst-${cell.code}`}
+            />
           ) : (
             cell.displayName
           );
         return (
-          <ColumnWrapper className="column-wrapper" key={cell.id} data-testid='columnwrapper-u5rp'>
-            <HeadCell
-              title={title}
-              count={appointments?.length || 0}
-              data-testid='headcell-9w0q' />
-            <AppointmentColumnWrapper data-testid='appointmentcolumnwrapper-yxim'>
+          <ColumnWrapper className="column-wrapper" key={cell.id} data-testid="columnwrapper-u5rp">
+            <HeadCell title={title} count={appointments?.length || 0} data-testid="headcell-9w0q" />
+            <AppointmentColumnWrapper data-testid="appointmentcolumnwrapper-yxim">
               {appointments.map((a, appointmentIndex) => (
                 <AppointmentTile
                   key={a.id}
@@ -254,7 +259,8 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.newAppointment"
                                 fallback="New appointment"
-                                data-testid={`translatedtext-fn6p-${cellIndex}-${appointmentIndex}`} />
+                                data-testid={`translatedtext-fn6p-${cellIndex}-${appointmentIndex}`}
+                              />
                             ),
                             action: () => onCreateFromExisting(a),
                           },
@@ -263,7 +269,8 @@ export const OutpatientBookingCalendar = ({
                               <TranslatedText
                                 stringId="appointments.action.emailAppointment"
                                 fallback="Email appointment"
-                                data-testid={`translatedtext-1xgj-${cellIndex}-${appointmentIndex}`} />
+                                data-testid={`translatedtext-1xgj-${cellIndex}-${appointmentIndex}`}
+                              />
                             ),
                             action: () =>
                               setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
@@ -271,20 +278,25 @@ export const OutpatientBookingCalendar = ({
                         ]
                       : []
                   }
-                  testIdPrefix={`${cellIndex}-${appointmentIndex}`} />
+                  testIdPrefix={`${cellIndex}-${appointmentIndex}`}
+                />
               ))}
             </AppointmentColumnWrapper>
           </ColumnWrapper>
         );
       })}
       <FormModal
-        title={<TranslatedText
-          stringId="patient.email.title"
-          fallback="Enter email address"
-          data-testid='translatedtext-topi' />}
+        title={
+          <TranslatedText
+            stringId="patient.email.title"
+            fallback="Enter email address"
+            data-testid="translatedtext-topi"
+          />
+        }
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
-        data-testid='formmodal-vx6o'>
+        data-testid="formmodal-vx6o"
+      >
         <EmailAddressConfirmationForm
           onSubmit={async ({ email }) => {
             await sendAppointmentEmail(email);
@@ -292,7 +304,8 @@ export const OutpatientBookingCalendar = ({
           }}
           onCancel={() => setEmailModalState(null)}
           emailOverride={emailModalState?.email}
-          data-testid='emailaddressconfirmationform-yhdd' />
+          data-testid="emailaddressconfirmationform-yhdd"
+        />
       </FormModal>
     </Box>
   );

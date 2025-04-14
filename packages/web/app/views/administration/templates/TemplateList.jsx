@@ -7,21 +7,25 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
 
-export const TemplateList = React.memo(props => (
+export const TemplateList = React.memo((props) => (
   <DataFetchingTable
     endpoint={TEMPLATE_ENDPOINT}
     columns={[
       {
         key: 'type',
-        title: <TranslatedText
-          stringId="general.type.label"
-          fallback="Type"
-          data-testid='translatedtext-vrku' />,
-        accessor: record => (
+        title: (
+          <TranslatedText
+            stringId="general.type.label"
+            fallback="Type"
+            data-testid="translatedtext-vrku"
+          />
+        ),
+        accessor: (record) => (
           <TranslatedEnum
             value={record.type}
             enumValues={TEMPLATE_TYPE_LABELS}
-            data-testid='translatedenum-kmfz' />
+            data-testid="translatedenum-kmfz"
+          />
         ),
         sortable: false,
       },
@@ -31,16 +35,20 @@ export const TemplateList = React.memo(props => (
           <TranslatedText
             stringId="patientLetterTemplate.templateName.label"
             fallback="Template name"
-            data-testid='translatedtext-phs6' />
+            data-testid="translatedtext-phs6"
+          />
         ),
         sortable: false,
       },
       {
         key: 'title',
-        title: <TranslatedText
-          stringId="general.localisedField.title.label"
-          fallback="Title"
-          data-testid='translatedtext-9glj' />,
+        title: (
+          <TranslatedText
+            stringId="general.localisedField.title.label"
+            fallback="Title"
+            data-testid="translatedtext-9glj"
+          />
+        ),
         sortable: false,
       },
       {
@@ -49,9 +57,12 @@ export const TemplateList = React.memo(props => (
           <TranslatedText
             stringId="admin.template.table.column.createdOn"
             fallback="Created on"
-            data-testid='translatedtext-w1zn' />
+            data-testid="translatedtext-w1zn"
+          />
         ),
-        accessor: ({ dateCreated }) => <DateDisplay date={dateCreated} data-testid='datedisplay-lyfl' />,
+        accessor: ({ dateCreated }) => (
+          <DateDisplay date={dateCreated} data-testid="datedisplay-lyfl" />
+        ),
         sortable: false,
       },
       {
@@ -60,17 +71,21 @@ export const TemplateList = React.memo(props => (
           <TranslatedText
             stringId="admin.template.table.column.createdBy"
             fallback="Created by"
-            data-testid='translatedtext-o5kk' />
+            data-testid="translatedtext-o5kk"
+          />
         ),
         accessor: getDisplayName,
         sortable: false,
       },
       {
         key: 'body',
-        title: <TranslatedText
-          stringId="admin.template.content.label"
-          fallback="Contents"
-          data-testid='translatedtext-v93w' />,
+        title: (
+          <TranslatedText
+            stringId="admin.template.content.label"
+            fallback="Contents"
+            data-testid="translatedtext-v93w"
+          />
+        ),
         maxWidth: 200,
         sortable: false,
       },
@@ -79,8 +94,10 @@ export const TemplateList = React.memo(props => (
       <TranslatedText
         stringId="admin.template.table.noData"
         fallback="No templates found"
-        data-testid='translatedtext-wgb7' />
+        data-testid="translatedtext-wgb7"
+      />
     }
     {...props}
-    data-testid='datafetchingtable-jb8p' />
+    data-testid="datafetchingtable-jb8p"
+  />
 ));

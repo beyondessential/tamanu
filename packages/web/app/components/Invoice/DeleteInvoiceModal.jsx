@@ -31,21 +31,25 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) 
         <TranslatedText
           stringId="invoice.modal.deleteInvoice.title"
           fallback="Delete invoice"
-          data-testid='translatedtext-kiqe' />
+          data-testid="translatedtext-kiqe"
+        />
       }
       open={open}
       onClose={onClose}
-      data-testid='modal-x36w'>
-      <ContentText data-testid='contenttext-sweo'>
+      data-testid="modal-x36w"
+    >
+      <ContentText data-testid="contenttext-sweo">
         <TranslatedText
           stringId="invoice.modal.deleteInvoice.warningText"
           fallback="Are you sure you would like to delete this invoice? This cannot be undone."
-          data-testid='translatedtext-t12l' />
+          data-testid="translatedtext-t12l"
+        />
       </ContentText>
       <ModalActionRow
         onConfirm={deleteInvoice}
         onDelete={onClose}
-        data-testid='modalactionrow-7iph' />
+        data-testid="modalactionrow-7iph"
+      />
     </Modal>
   );
 };

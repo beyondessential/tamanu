@@ -15,13 +15,14 @@ const FormModalComponent = memo(({ children, ...props }) => {
   }, [hasFormSubmission]);
 
   return (
-    <BaseModal {...props} isClosable={isClosable} data-testid='basemodal-ufzv'>
+    <BaseModal {...props} isClosable={isClosable} data-testid="basemodal-ufzv">
       {showNotUsingFormWarning && (
         <Alert
           severity="warning"
           onClose={() => setShowNotUsingFormWarning(false)}
-          data-testid='alert-64xp'>
-          <AlertTitle data-testid='alerttitle-f5qb'>
+          data-testid="alert-64xp"
+        >
+          <AlertTitle data-testid="alerttitle-f5qb">
             DEV Warning: This Form Modal does not contain a Form. Please use generic Modal instead
           </AlertTitle>
         </Alert>
@@ -33,8 +34,8 @@ const FormModalComponent = memo(({ children, ...props }) => {
 
 export const FormModal = memo(({ ...props }) => {
   return (
-    <FormSubmissionProvider data-testid='formsubmissionprovider-2ow3'>
-      <FormModalComponent {...props} data-testid='formmodalcomponent-m2oc' />
+    <FormSubmissionProvider data-testid="formsubmissionprovider-2ow3">
+      <FormModalComponent {...props} data-testid="formmodalcomponent-m2oc" />
     </FormSubmissionProvider>
   );
 });

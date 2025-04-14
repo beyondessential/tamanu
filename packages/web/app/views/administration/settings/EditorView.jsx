@@ -51,7 +51,7 @@ const UNCATEGORISED_KEY = 'uncategorised';
 
 export const formatSettingName = (name, path) => name || capitalize(startCase(path));
 
-const recursiveJsonParse = obj => {
+const recursiveJsonParse = (obj) => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
   return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -69,7 +69,7 @@ const recursiveJsonParse = obj => {
   }, {});
 };
 
-const prepareSchema = scope => {
+const prepareSchema = (scope) => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
   // If there are any top-level settings, move them to an uncategorised category
@@ -109,7 +109,7 @@ const getSubCategoryOptions = (schema, category) => {
     : null;
 };
 
-const getCategoryOptions = schema =>
+const getCategoryOptions = (schema) =>
   Object.entries(schema.properties)
     .map(([key, value]) => ({
       value: key,
@@ -134,10 +134,10 @@ export const EditorView = memo(
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-    const subCategoryOptions = useMemo(() => getSubCategoryOptions(scopedSchema, category), [
-      category,
-      scopedSchema,
-    ]);
+    const subCategoryOptions = useMemo(
+      () => getSubCategoryOptions(scopedSchema, category),
+      [category, scopedSchema],
+    );
     const schemaForCategory = useMemo(
       () => getSchemaForCategory(scopedSchema, category, subCategory),
       [scopedSchema, category, subCategory],
@@ -150,7 +150,7 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
-    const handleChangeCategory = async e => {
+    const handleChangeCategory = async (e) => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
@@ -161,11 +161,11 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = e => {
+    const handleChangeSubcategory = (e) => {
       setSubCategory(e.target.value);
     };
 
-    const getSettingPath = path =>
+    const getSettingPath = (path) =>
       `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
         subCategory ? `${subCategory}.` : ''
       }${path}`;
@@ -176,9 +176,9 @@ export const EditorView = memo(
       setFieldValue('settings', updatedSettings);
     };
 
-    const getSettingValue = path => get(values.settings, getSettingPath(path));
+    const getSettingValue = (path) => get(values.settings, getSettingPath(path));
 
-    const saveSettings = async event => {
+    const saveSettings = async (event) => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
       delete parsedSettings.uncategorised;
@@ -191,9 +191,9 @@ export const EditorView = memo(
 
     return (
       <>
-        <SettingsWrapper data-testid='settingswrapper-bfnb'>
-          <CategoryOptions p={2} data-testid='categoryoptions-0h2x'>
-            <Box display="flex" alignItems="center" data-testid='box-e25e'>
+        <SettingsWrapper data-testid="settingswrapper-bfnb">
+          <CategoryOptions p={2} data-testid="categoryoptions-0h2x">
+            <Box display="flex" alignItems="center" data-testid="box-e25e">
               <StyledSelectInput
                 required
                 placeholder=""
@@ -201,58 +201,67 @@ export const EditorView = memo(
                   <TranslatedText
                     stringId="admin.settings.category.label"
                     fallback="Select category"
-                    data-testid='translatedtext-65vi' />
+                    data-testid="translatedtext-65vi"
+                  />
                 }
                 value={category}
                 onChange={handleChangeCategory}
                 options={categoryOptions}
-                data-testid='styledselectinput-kvyx' />
+                data-testid="styledselectinput-kvyx"
+              />
               {subCategoryOptions && (
-                <Box ml={2} data-testid='box-o82k'>
+                <Box ml={2} data-testid="box-o82k">
                   <StyledDynamicSelectField
                     label={
                       <TranslatedText
                         stringId="admin.settings.subCategory.label"
                         fallback="Select sub-category"
-                        data-testid='translatedtext-i0zl' />
+                        data-testid="translatedtext-i0zl"
+                      />
                     }
                     placeholder=""
                     value={subCategory}
                     onChange={handleChangeSubcategory}
                     options={subCategoryOptions}
-                    data-testid='styleddynamicselectfield-d62r' />
+                    data-testid="styleddynamicselectfield-d62r"
+                  />
                 </Box>
               )}
             </Box>
-            <ButtonGroup data-testid='buttongroup-oe3l'>
+            <ButtonGroup data-testid="buttongroup-oe3l">
               <OutlinedButton
                 onClick={() => resetForm()}
                 disabled={!dirty}
-                data-testid='outlinedbutton-mhaq'>
+                data-testid="outlinedbutton-mhaq"
+              >
                 <TranslatedText
                   stringId="admin.settings.action.clearChanges"
                   fallback="Clear changes"
-                  data-testid='translatedtext-pj7p' />
+                  data-testid="translatedtext-pj7p"
+                />
               </OutlinedButton>
               <Button
                 onClick={saveSettings}
                 disabled={!dirty || isSubmitting}
-                data-testid='button-s1z4'>
+                data-testid="button-s1z4"
+              >
                 <TranslatedText
                   stringId="admin.settings.action.saveChanges"
                   fallback="Save changes"
-                  data-testid='translatedtext-yd0s' />
+                  data-testid="translatedtext-yd0s"
+                />
               </Button>
             </ButtonGroup>
           </CategoryOptions>
-          <Divider data-testid='divider-tp55' />
+          <Divider data-testid="divider-tp55" />
           {category && (
-            <CategoriesWrapper p={2} data-testid='categorieswrapper-0ae4'>
+            <CategoriesWrapper p={2} data-testid="categorieswrapper-0ae4">
               <Category
                 schema={schemaForCategory}
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
-                data-testid='category-cbjk' />
+                data-testid="category-cbjk"
+              />
             </CategoriesWrapper>
           )}
         </SettingsWrapper>

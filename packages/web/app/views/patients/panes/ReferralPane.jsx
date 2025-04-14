@@ -14,16 +14,17 @@ export const ReferralPane = React.memo(({ patient }) => {
   const handleNewReferral = () =>
     dispatch(push(`/patients/${params.category}/${params.patientId}/referrals/new`));
   return (
-    <ContentPane data-testid='contentpane-ztqm'>
-      <TableButtonRow variant="small" data-testid='tablebuttonrow-4sww'>
-        <Button onClick={handleNewReferral} data-testid='button-u28m'>
+    <ContentPane data-testid="contentpane-ztqm">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-4sww">
+        <Button onClick={handleNewReferral} data-testid="button-u28m">
           <TranslatedText
             stringId="patient.referral.action.create"
             fallback="New referral"
-            data-testid='translatedtext-93j1' />
+            data-testid="translatedtext-93j1"
+          />
         </Button>
       </TableButtonRow>
-      <ReferralTable patientId={patient.id} data-testid='referraltable-6sz8' />
+      <ReferralTable patientId={patient.id} data-testid="referraltable-6sz8" />
     </ContentPane>
   );
 });

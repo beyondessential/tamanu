@@ -74,15 +74,12 @@ const TextColumns = styled.div`
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
-  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
-    false,
-  );
-  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] = useState(
-    false,
-  );
-  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] = useState(
-    false,
-  );
+  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] =
+    useState(false);
+  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] =
+    useState(false);
+  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] =
+    useState(false);
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
@@ -91,17 +88,23 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
   let actions = [
     {
-      label: <TranslatedText
-        stringId="general.action.remove"
-        fallback="Remove"
-        data-testid='translatedtext-c6f1' />,
+      label: (
+        <TranslatedText
+          stringId="general.action.remove"
+          fallback="Remove"
+          data-testid="translatedtext-c6f1"
+        />
+      ),
       action: () => setOpenRemoveProgramRegistryFormModal(true),
     },
     {
-      label: <TranslatedText
-        stringId="general.action.delete"
-        fallback="Delete"
-        data-testid='translatedtext-0d1d' />,
+      label: (
+        <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid="translatedtext-0d1d"
+        />
+      ),
       action: () => setOpenDeleteProgramRegistryFormModal(true),
     },
   ];
@@ -109,17 +112,23 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   if (isRemoved)
     actions = [
       {
-        label: <TranslatedText
-          stringId="general.action.activate"
-          fallback="Activate"
-          data-testid='translatedtext-t1yc' />,
+        label: (
+          <TranslatedText
+            stringId="general.action.activate"
+            fallback="Activate"
+            data-testid="translatedtext-t1yc"
+          />
+        ),
         action: () => setOpenActivateProgramRegistryFormModal(true),
       },
       {
-        label: <TranslatedText
-          stringId="general.action.delete"
-          fallback="Delete"
-          data-testid='translatedtext-fdyq' />,
+        label: (
+          <TranslatedText
+            stringId="general.action.delete"
+            fallback="Delete"
+            data-testid="translatedtext-fdyq"
+          />
+        ),
         action: () => setOpenDeleteProgramRegistryFormModal(true),
       },
     ];
@@ -127,23 +136,29 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   if (isDeleted)
     actions = [
       {
-        label: <TranslatedText
-          stringId="general.action.activate"
-          fallback="Activate"
-          data-testid='translatedtext-5shb' />,
+        label: (
+          <TranslatedText
+            stringId="general.action.activate"
+            fallback="Activate"
+            data-testid="translatedtext-5shb"
+          />
+        ),
         action: () => setOpenActivateProgramRegistryFormModal(true),
       },
       {
-        label: <TranslatedText
-          stringId="general.action.remove"
-          fallback="Remove"
-          data-testid='translatedtext-odoc' />,
+        label: (
+          <TranslatedText
+            stringId="general.action.remove"
+            fallback="Remove"
+            data-testid="translatedtext-odoc"
+          />
+        ),
         action: () => setOpenRemoveProgramRegistryFormModal(true),
       },
     ];
 
   return (
-    <DisplayContainer data-testid='displaycontainer-ulkb'>
+    <DisplayContainer data-testid="displaycontainer-ulkb">
       <div
         style={{
           display: 'flex',
@@ -152,33 +167,37 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           justifyContent: 'flex-start',
         }}
       >
-        <LogoContainer data-testid='logocontainer-jly9'>
+        <LogoContainer data-testid="logocontainer-jly9">
           <Avatar
             src={programsIcon}
             style={{ height: '22px', width: '22px', margin: '5px' }}
-            data-testid='avatar-5k1g' />
+            data-testid="avatar-5k1g"
+          />
         </LogoContainer>
-        <TextColumnsContainer data-testid='textcolumnscontainer-makj'>
-          <TextColumns data-testid='textcolumns-vdil'>
+        <TextColumnsContainer data-testid="textcolumnscontainer-makj">
+          <TextColumns data-testid="textcolumns-vdil">
             <div>
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"
                 fallback="Date of registration"
-                data-testid='translatedtext-wjnn' />
+                data-testid="translatedtext-wjnn"
+              />
               :
             </div>
             <div>
               <TranslatedText
                 stringId="programRegistry.registeredBy.label"
                 fallback="Registered by"
-                data-testid='translatedtext-0vpo' />
+                data-testid="translatedtext-0vpo"
+              />
               :
             </div>
           </TextColumns>
-          <TextColumns style={{ fontWeight: 500 }} data-testid='textcolumns-z5en'>
+          <TextColumns style={{ fontWeight: 500 }} data-testid="textcolumns-z5en">
             <DateDisplay
               date={patientProgramRegistration.registrationDate}
-              data-testid='datedisplay-z920' />
+              data-testid="datedisplay-z920"
+            />
             <div>
               {patientProgramRegistration.registrationClinician
                 ? patientProgramRegistration.registrationClinician.displayName
@@ -188,38 +207,42 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         </TextColumnsContainer>
         {isRemoved && (
           <>
-            <DividerVertical data-testid='dividervertical-vh04' />
-            <TextColumnsContainer data-testid='textcolumnscontainer-i1ke'>
-              <TextColumns data-testid='textcolumns-6zla'>
+            <DividerVertical data-testid="dividervertical-vh04" />
+            <TextColumnsContainer data-testid="textcolumnscontainer-i1ke">
+              <TextColumns data-testid="textcolumns-6zla">
                 <div>
                   <TranslatedText
                     stringId="programRegistry.dateRemoved.label"
                     fallback="Date removed"
-                    data-testid='translatedtext-6czg' />
+                    data-testid="translatedtext-6czg"
+                  />
                   :
                 </div>
                 <div>
                   <TranslatedText
                     stringId="programRegistry.removedBy.label"
                     fallback="Removed by"
-                    data-testid='translatedtext-txyo' />
+                    data-testid="translatedtext-txyo"
+                  />
                   :
                 </div>
               </TextColumns>
-              <TextColumns style={{ fontWeight: 500 }} data-testid='textcolumns-kho7'>
+              <TextColumns style={{ fontWeight: 500 }} data-testid="textcolumns-kho7">
                 <DateDisplay
                   date={patientProgramRegistration.dateRemoved}
-                  data-testid='datedisplay-4rsh' />
+                  data-testid="datedisplay-4rsh"
+                />
                 <div>{patientProgramRegistration.removedBy?.displayName}</div>
               </TextColumns>
             </TextColumnsContainer>
           </>
         )}
 
-        <DividerVertical data-testid='dividervertical-7rex' />
+        <DividerVertical data-testid="dividervertical-7rex" />
         <ClinicalStatusDisplay
           clinicalStatus={patientProgramRegistration.clinicalStatus}
-          data-testid='clinicalstatusdisplay-0l56' />
+          data-testid="clinicalstatusdisplay-0l56"
+        />
       </div>
       <div
         style={{
@@ -234,28 +257,33 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             <TranslatedText
               stringId="programRegistry.patientInactive.tooltip"
               fallback="Patient must be active"
-              data-testid='translatedtext-3uno' />
+              data-testid="translatedtext-3uno"
+            />
           }
           visible={isRemoved}
-          data-testid='conditionaltooltip-80xi'>
+          data-testid="conditionaltooltip-80xi"
+        >
           <OutlinedButton
             onClick={() => setOpenChangeStatusFormModal(true)}
             disabled={isRemoved}
-            data-testid='outlinedbutton-ixex'>
+            data-testid="outlinedbutton-ixex"
+          >
             <TranslatedText
               stringId="general.action.changeStatus"
               fallback="Change status"
-              data-testid='translatedtext-hexl' />
+              data-testid="translatedtext-hexl"
+            />
           </OutlinedButton>
         </ConditionalTooltip>
         <ChangeStatusFormModal
           patientProgramRegistration={patientProgramRegistration}
           open={openChangeStatusFormModal}
           onClose={() => setOpenChangeStatusFormModal(false)}
-          data-testid='changestatusformmodal-ltyf' />
-        <MenuContainer data-testid='menucontainer-3144'>
+          data-testid="changestatusformmodal-ltyf"
+        />
+        <MenuContainer data-testid="menucontainer-3144">
           <div className="menu">
-            <MenuButton actions={actions} data-testid='menubutton-uze1' />
+            <MenuButton actions={actions} data-testid="menubutton-uze1" />
           </div>
         </MenuContainer>
       </div>
@@ -263,12 +291,14 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={() => setOpenActivateProgramRegistryFormModal(false)}
-        data-testid='activatepatientprogramregistry-so3s' />
+        data-testid="activatepatientprogramregistry-so3s"
+      />
       <RemoveProgramRegistryFormModal
         open={openRemoveProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={() => setOpenRemoveProgramRegistryFormModal(false)}
-        data-testid='removeprogramregistryformmodal-56dt' />
+        data-testid="removeprogramregistryformmodal-56dt"
+      />
       <DeleteProgramRegistryFormModal
         open={openDeleteProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
@@ -276,7 +306,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           setOpenDeleteProgramRegistryFormModal(false);
           if (success) navigateToPatient(patientProgramRegistration.patientId);
         }}
-        data-testid='deleteprogramregistryformmodal-dhyr' />
+        data-testid="deleteprogramregistryformmodal-dhyr"
+      />
     </DisplayContainer>
   );
 };

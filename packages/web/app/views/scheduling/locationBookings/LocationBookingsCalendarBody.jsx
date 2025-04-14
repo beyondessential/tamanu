@@ -26,14 +26,15 @@ export const BookingsCell = ({
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
-      onClick={e => {
+      onClick={(e) => {
         if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
       }}
       $selected={isSelected}
       $clickable={canCreateBooking}
-      data-testid='cell-dp5l'>
+      data-testid="cell-dp5l"
+    >
       {appointments?.map((a, index) => (
         <AppointmentTile
           appointment={a}
@@ -42,7 +43,8 @@ export const BookingsCell = ({
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}
-          data-testid={`appointmenttile-b6vn-${index}`} />
+          data-testid={`appointmenttile-b6vn-${index}`}
+        />
       ))}
     </CarouselGrid.Cell>
   );
@@ -59,20 +61,22 @@ export const BookingsRow = ({
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
-    <CarouselGrid.Row data-testid='row-m8yc'>
-      <CarouselGrid.RowHeaderCell data-testid='rowheadercell-qiko'>
+    <CarouselGrid.Row data-testid="row-m8yc">
+      <CarouselGrid.RowHeaderCell data-testid="rowheadercell-qiko">
         <TranslatedReferenceData
           category="locationGroup"
           value={locationGroup.id}
           fallback={locationGroup.name}
-          data-testid='translatedreferencedata-7cuw' />{' '}
+          data-testid="translatedreferencedata-7cuw"
+        />{' '}
         <TranslatedReferenceData
           category="location"
           value={location.id}
           fallback={location.name}
-          data-testid='translatedreferencedata-1gpj' />
+          data-testid="translatedreferencedata-1gpj"
+        />
       </CarouselGrid.RowHeaderCell>
-      {dates.map(d => (
+      {dates.map((d) => (
         <BookingsCell
           appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}
           date={d}
@@ -80,7 +84,8 @@ export const BookingsRow = ({
           location={location}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
-          data-testid={`bookingscell-5t8x-${d.valueOf()}`} />
+          data-testid={`bookingscell-5t8x-${d.valueOf()}`}
+        />
       ))}
     </CarouselGrid.Row>
   );
@@ -94,11 +99,12 @@ export const LocationBookingsCalendarBody = ({
   openBookingForm,
   openCancelModal,
 }) => {
-  if (locationsQuery.isLoading) return <SkeletonRows colCount={displayedDates.length} data-testid='skeletonrows-munx' />;
+  if (locationsQuery.isLoading)
+    return <SkeletonRows colCount={displayedDates.length} data-testid="skeletonrows-munx" />;
 
   if (filteredLocations?.length === 0) return null;
 
-  return filteredLocations?.map(location => (
+  return filteredLocations?.map((location) => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}
@@ -106,6 +112,7 @@ export const LocationBookingsCalendarBody = ({
       location={location}
       openBookingForm={openBookingForm}
       openCancelModal={openCancelModal}
-      data-testid={`bookingsrow-t3ka-${location.code}`} />
+      data-testid={`bookingsrow-t3ka-${location.code}`}
+    />
   ));
 };

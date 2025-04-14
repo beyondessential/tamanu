@@ -36,34 +36,34 @@ const WrongPermissionInner = styled(MessageInner)`
 `;
 
 const NoResultsMessage = () => (
-  <MessageContainer data-testid='messagecontainer-ybo1'>
-    <MessageInner data-testid='messageinner-mmlt'>
+  <MessageContainer data-testid="messagecontainer-ybo1">
+    <MessageInner data-testid="messageinner-mmlt">
       <TranslatedText
         stringId="patient.lab.results.table.noData"
         fallback="This patient has no lab results to display. Once lab results are available they will be
       displayed here."
-        data-testid='translatedtext-rj1j' />
+        data-testid="translatedtext-rj1j"
+      />
     </MessageInner>
   </MessageContainer>
 );
 
 const WrongPermissionMessage = () => (
-  <MessageContainer data-testid='messagecontainer-u1qz'>
-    <WrongPermissionInner data-testid='wrongpermissioninner-gdjv'>
+  <MessageContainer data-testid="messagecontainer-u1qz">
+    <WrongPermissionInner data-testid="wrongpermissioninner-gdjv">
       <TranslatedText
         stringId="patient.lab.results.table.noPermission"
         fallback="You do not have permission to view lab results"
-        data-testid='translatedtext-4jzf' />
+        data-testid="translatedtext-4jzf"
+      />
     </WrongPermissionInner>
   </MessageContainer>
 );
 
 export const PatientResultsPane = React.memo(({ patient }) => {
   const { ability } = useAuth();
-  const {
-    labResultParameters: searchParameters,
-    setLabResultParameters: setSearchParameters,
-  } = usePatientSearchParameters();
+  const { labResultParameters: searchParameters, setLabResultParameters: setSearchParameters } =
+    usePatientSearchParameters();
 
   const { data, isLoading } = usePatientLabTestResultsQuery(patient.id, {
     ...searchParameters,
@@ -82,14 +82,15 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         searchParameters={searchParameters}
         setSearchParameters={setSearchParameters}
         patientId={patient?.id}
-        data-testid='resultssearchbar-rh35' />
-      <ContentPane data-testid='contentpane-o96w'>
+        data-testid="resultssearchbar-rh35"
+      />
+      <ContentPane data-testid="contentpane-o96w">
         {!canViewLabRequestResults ? (
-          <WrongPermissionMessage data-testid='wrongpermissionmessage-1s22' />
+          <WrongPermissionMessage data-testid="wrongpermissionmessage-1s22" />
         ) : (
           <>
-            {noResults && <NoResultsMessage data-testid='noresultsmessage-5zha' />}
-            {isInitialLoad && <LoadingIndicator height={400} data-testid='loadingindicator-a200' />}
+            {noResults && <NoResultsMessage data-testid="noresultsmessage-5zha" />}
+            {isInitialLoad && <LoadingIndicator height={400} data-testid="loadingindicator-a200" />}
             {dirty && (
               <PatientLabTestsTable
                 patient={patient}
@@ -97,7 +98,8 @@ export const PatientResultsPane = React.memo(({ patient }) => {
                 labTests={data?.data}
                 count={data?.count}
                 isLoading={isLoading}
-                data-testid='patientlabteststable-9cgh' />
+                data-testid="patientlabteststable-9cgh"
+              />
             )}
           </>
         )}

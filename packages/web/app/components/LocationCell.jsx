@@ -18,21 +18,21 @@ export const LocationCell = ({
           value={locationId}
           fallback={locationName}
           category={category}
-          data-testid='translatedreferencedata-ne0n' />
+          data-testid="translatedreferencedata-ne0n"
+        />
       ) : (
         locationName
       )}
       {plannedLocationName && (
-        <Typography
-          style={{ fontSize: 12, color: Colors.darkText }}
-          data-testid='typography-nnh6'>
+        <Typography style={{ fontSize: 12, color: Colors.darkText }} data-testid="typography-nnh6">
           (Planned -{' '}
           {
             <TranslatedReferenceData
               value={plannedLocationId}
               fallback={plannedLocationName}
               category={category}
-              data-testid='translatedreferencedata-cvff' />
+              data-testid="translatedreferencedata-cvff"
+            />
           }
           )
         </Typography>
@@ -56,6 +56,7 @@ export const LocationGroupCell = ({
       plannedLocationId={plannedLocationGroupId}
       category="locationGroup"
       style={style}
-      data-testid='locationcell-dk36' />
+      data-testid="locationcell-dk36"
+    />
   );
 };

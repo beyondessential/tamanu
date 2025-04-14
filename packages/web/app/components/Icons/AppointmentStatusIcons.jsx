@@ -15,7 +15,7 @@ export const CheckIconFilled = ({
   height = 24,
   ...props
 }) => (
-  <Svg width={width} height={height} {...props} data-testid='svg-w2ve'>
+  <Svg width={width} height={height} {...props} data-testid="svg-w2ve">
     <path
       d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
       fill="white"
@@ -33,7 +33,7 @@ export const CheckIconOutlined = ({
   height = 24,
   ...props
 }) => (
-  <Svg width={width} height={height} {...props} data-testid='svg-zwwq'>
+  <Svg width={width} height={height} {...props} data-testid="svg-zwwq">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -50,7 +50,7 @@ export const CircleIconDashed = ({
   height = 24,
   ...props
 }) => (
-  <Svg width={width} height={height} {...props} data-testid='svg-ofal'>
+  <Svg width={width} height={height} {...props} data-testid="svg-ofal">
     <circle cx={12} cy={12} r={9} stroke={htmlColor} strokeWidth={2} strokeDasharray="4 4" />
   </Svg>
 );
@@ -61,7 +61,7 @@ export const CircleIconOutlined = ({
   height = 24,
   ...props
 }) => (
-  <Svg width={width} height={height} {...props} data-testid='svg-5vtx'>
+  <Svg width={width} height={height} {...props} data-testid="svg-5vtx">
     <circle cx={12} cy={12} r={9} stroke={htmlColor} />
   </Svg>
 );
@@ -72,7 +72,7 @@ export const CrossIconFilled = ({
   height = 24,
   ...props
 }) => (
-  <Svg width={width} height={height} {...props} data-testid='svg-0vac'>
+  <Svg width={width} height={height} {...props} data-testid="svg-0vac">
     <circle cx={12} cy={12} r={9} fill={htmlColor} />
     <path
       d="M15.5355 14.6517L12.8839 12L15.5355 9.34835C15.8007 9.08318 15.8007 8.72963 15.5355 8.46447C15.2704 8.1993 14.9168 8.1993 14.6517 8.46447L12 11.1161L9.34835 8.46447C9.08318 8.1993 8.72963 8.1993 8.46447 8.46447C8.1993 8.72963 8.1993 9.08318 8.46447 9.34835L11.1161 12L8.46447 14.6517C8.1993 14.9168 8.1993 15.2704 8.46447 15.5355C8.72963 15.8007 9.08318 15.8007 9.34835 15.5355L12 12.8839L14.6517 15.5355C14.9168 15.8007 15.2704 15.8007 15.5355 15.5355C15.8007 15.2704 15.8007 14.9168 15.5355 14.6517Z"

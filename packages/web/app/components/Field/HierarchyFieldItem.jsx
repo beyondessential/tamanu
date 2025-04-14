@@ -24,6 +24,7 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
       component={AutocompleteField}
       suggester={suggester}
       disabled={!isFirstLevel && !parentId}
-      {...fieldData} />
+      {...fieldData}
+    />
   );
 };

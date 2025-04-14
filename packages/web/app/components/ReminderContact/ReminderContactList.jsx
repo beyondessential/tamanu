@@ -22,7 +22,14 @@ const StyledAddContactButton = styled(Button)`
   }
 `;
 
-export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, onRetry, successContactIds, onRemoveContact }) => {
+export const ReminderContactList = ({
+  onClose,
+  onAddContact,
+  pendingContacts,
+  onRetry,
+  successContactIds,
+  onRemoveContact,
+}) => {
   const { ability } = useAuth();
   const canAddReminderContacts = ability.can('write', 'Patient');
 
@@ -33,29 +40,36 @@ export const ReminderContactList = ({ onClose, onAddContact, pendingContacts, on
         onRetry={onRetry}
         successContactIds={successContactIds}
         onRemoveContact={onRemoveContact}
-        data-testid='contactdetails-6in2' />
+        data-testid="contactdetails-6in2"
+      />
       {canAddReminderContacts && (
         <StyledAddContactButton
           variant="outlined"
           color="primary"
           size="small"
           onClick={onAddContact}
-          data-testid='styledaddcontactbutton-rrqt'>
-          <PlusIcon fill={Colors.primary} data-testid='plusicon-fts6' />
+          data-testid="styledaddcontactbutton-rrqt"
+        >
+          <PlusIcon fill={Colors.primary} data-testid="plusicon-fts6" />
           <TranslatedText
             stringId="patient.details.reminderContacts.action.add"
             fallback="Add contact"
-            data-testid='translatedtext-e4pr' />
+            data-testid="translatedtext-e4pr"
+          />
         </StyledAddContactButton>
       )}
       <ModalCancelRow
-        confirmText={<TranslatedText
-          stringId="general.action.close"
-          fallback="Close"
-          data-testid='translatedtext-cirh' />}
+        confirmText={
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-cirh"
+          />
+        }
         confirmColor="primary"
         onConfirm={onClose}
-        data-testid='modalcancelrow-hpiv' />
+        data-testid="modalcancelrow-hpiv"
+      />
     </>
   );
 };

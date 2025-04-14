@@ -55,26 +55,31 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
       size="small"
       variant="contained"
       disableElevation
-      data-testid='muibuttongroup-6w6p'>
+      data-testid="muibuttongroup-6w6p"
+    >
       <MuiButton
         disabled={disabled}
         onClick={onClickTrue}
         color={yesColor}
-        data-testid='muibutton-ys2a'>
+        data-testid="muibutton-ys2a"
+      >
         <TranslatedText
           stringId="general.action.yes"
           fallback="Yes"
-          data-testid='translatedtext-3qw1' />
+          data-testid="translatedtext-3qw1"
+        />
       </MuiButton>
       <MuiButton
         disabled={disabled}
         onClick={onClickFalse}
         color={noColor}
-        data-testid='muibutton-bif9'>
+        data-testid="muibutton-bif9"
+      >
         <TranslatedText
           stringId="general.action.no"
           fallback="No"
-          data-testid='translatedtext-02o7' />
+          data-testid="translatedtext-02o7"
+        />
       </MuiButton>
     </MuiButtonGroup>
   );
@@ -87,18 +92,24 @@ export const NullableBooleanInput = React.memo(
       error={error}
       className={className}
       ref={inputRef}
-      data-testid='formcontrol-aoaf'>
+      data-testid="formcontrol-aoaf"
+    >
       <ControlLabel
         labelPlacement="top"
-        control={<NullableBooleanControl {...props} data-testid='nullablebooleancontrol-y1ik' />}
+        control={<NullableBooleanControl {...props} data-testid="nullablebooleancontrol-y1ik" />}
         label={
           <div>
             {label}
             {required && <RequiredLabel>*</RequiredLabel>}
           </div>
         }
-        data-testid='controllabel-q0hy' />
-      {helperText && <StyledFormHelperText data-testid='styledformhelpertext-y0km'>{helperText}</StyledFormHelperText>}
+        data-testid="controllabel-q0hy"
+      />
+      {helperText && (
+        <StyledFormHelperText data-testid="styledformhelpertext-y0km">
+          {helperText}
+        </StyledFormHelperText>
+      )}
     </FormControl>
   ),
 );
@@ -108,7 +119,8 @@ export const NullableBooleanField = React.memo(({ field, ...props }) => (
     name={field.name}
     value={field.value}
     onChange={field.onChange}
-    {...props} />
+    {...props}
+  />
 ));
 
 NullableBooleanInput.propTypes = {

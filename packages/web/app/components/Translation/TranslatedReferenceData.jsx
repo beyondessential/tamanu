@@ -12,7 +12,8 @@ export const TranslatedReferenceData = ({ category, value, fallback, placeholder
     <TranslatedText
       stringId={getReferenceDataStringId(value, category)}
       fallback={`${fallback}`}
-      data-testid='translatedtext-w3hp' />
+      data-testid="translatedtext-w3hp"
+    />
   ) : (
     placeholder
   );

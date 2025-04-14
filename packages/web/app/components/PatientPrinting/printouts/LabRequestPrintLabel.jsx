@@ -10,8 +10,8 @@ const Container = styled.div`
   font-size: 0;
 
   @media print {
-    width: ${props => props.$printWidth}mm;
-    height: ${props => props.$printWidth / 2}mm;
+    width: ${(props) => props.$printWidth}mm;
+    height: ${(props) => props.$printWidth / 2}mm;
   }
 `;
 
@@ -83,45 +83,38 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
     specimenType = null,
   } = data;
   return (
-    <Container $printWidth={printWidth} data-testid='container-gx0i'>
-      <FlexContainer data-testid='flexcontainer-24kt'>
-        <TextContainer data-testid='textcontainer-8y44'>
+    <Container $printWidth={printWidth} data-testid="container-gx0i">
+      <FlexContainer data-testid="flexcontainer-24kt">
+        <TextContainer data-testid="textcontainer-8y44">
           <svg viewBox="0 0 200 120">
-            <Item
-              x="0"
-              y="15"
-              label="Patient Name"
-              value={patientName}
-              data-testid='item-asx7' />
-            <Item x="0" y="30" label="Patient ID" value={patientId} data-testid='item-r5xk' />
+            <Item x="0" y="15" label="Patient Name" value={patientName} data-testid="item-asx7" />
+            <Item x="0" y="30" label="Patient ID" value={patientId} data-testid="item-r5xk" />
             <Item
               x="0"
               y="45"
               label="DOB"
               value={DateDisplay.stringFormat(patientDateOfBirth)}
-              data-testid='item-krnm' />
-            <Item x="0" y="60" label="Test ID" value={testId} data-testid='item-vcco' />
+              data-testid="item-krnm"
+            />
+            <Item x="0" y="60" label="Test ID" value={testId} data-testid="item-vcco" />
             <Item
               x="0"
               y="75"
               label="Date collected"
               value={DateDisplay.stringFormat(date)}
-              data-testid='item-nxfc' />
-            <Item
-              x="0"
-              y="90"
-              label="Lab category"
-              value={labCategory}
-              data-testid='item-l6d8' />
+              data-testid="item-nxfc"
+            />
+            <Item x="0" y="90" label="Lab category" value={labCategory} data-testid="item-l6d8" />
             <Item
               x="0"
               y="105"
               label="Specimen type"
               value={specimenType}
-              data-testid='item-og2q' />
+              data-testid="item-og2q"
+            />
           </svg>
         </TextContainer>
-        <BarcodeContainer data-testid='barcodecontainer-yq9a'>
+        <BarcodeContainer data-testid="barcodecontainer-yq9a">
           <Barcode
             value={testId}
             width={2}
@@ -129,7 +122,8 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
             margin={0}
             font="Roboto"
             fontSize={24}
-            data-testid='barcode-s8j3' />
+            data-testid="barcode-s8j3"
+          />
         </BarcodeContainer>
       </FlexContainer>
     </Container>

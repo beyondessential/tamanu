@@ -6,7 +6,7 @@ const CardCell = styled.div`
   font-size: 14px;
   line-height: 18px;
   margin-bottom: 2px;
-  color: ${props => props.theme.palette.text.tertiary};
+  color: ${(props) => props.theme.palette.text.tertiary};
 `;
 
 const CardLabel = styled.span`
@@ -15,13 +15,13 @@ const CardLabel = styled.span`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 export const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props} data-testid='cardcell-19pz'>
-    <CardLabel data-testid='cardlabel-p9c2'>{label}:</CardLabel>
-    <CardValue data-testid='cardvalue-7q3b'>{value}</CardValue>
+  <CardCell {...props} data-testid="cardcell-19pz">
+    <CardLabel data-testid="cardlabel-p9c2">{label}:</CardLabel>
+    <CardValue data-testid="cardvalue-7q3b">{value}</CardValue>
   </CardCell>
 );
 

@@ -8,7 +8,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-const getDuration = startTime => {
+const getDuration = (startTime) => {
   const time = new Date() - new Date(startTime);
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
@@ -32,12 +32,14 @@ const TriageCell = ({ arrivalTime, children }) => (
         stringId="patientList.triage.table.waitTime.arrivalTime.toolTip"
         fallback="Arrival time: :arrivalTime"
         replacements={{ arrivalTime }}
-        data-testid='translatedtext-z21d' />
+        data-testid="translatedtext-z21d"
+      />
     }
     arrow
     placement="top"
-    data-testid='tooltip-dfw8'>
-    <ColourCell data-testid='colourcell-1o42'>{children}</ColourCell>
+    data-testid="tooltip-dfw8"
+  >
+    <ColourCell data-testid="colourcell-1o42">{children}</ColourCell>
   </Tooltip>
 );
 
@@ -62,35 +64,38 @@ export const TriageWaitTimeCell = React.memo(
     switch (encounterType) {
       case ENCOUNTER_TYPES.TRIAGE:
         return (
-          <TriageCell arrivalTime={assumedArrivalTime} data-testid='triagecell-xrcr'>
+          <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-xrcr">
             <div>{getDuration(assumedArrivalTime)}</div>
             <div>
               <TranslatedText
                 stringId="patientList.triage.table.waitTime.cell.triageTime"
                 fallback="Triage at :triageDate"
                 replacements={{ triageDate: format(new Date(triageTime), 'h:mma') }}
-                data-testid='translatedtext-wovf' />
+                data-testid="translatedtext-wovf"
+              />
             </div>
           </TriageCell>
         );
       case ENCOUNTER_TYPES.OBSERVATION:
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
-          <TriageCell arrivalTime={assumedArrivalTime} data-testid='triagecell-fk2v'>
+          <TriageCell arrivalTime={assumedArrivalTime} data-testid="triagecell-fk2v">
             <TranslatedText
               stringId="patientList.triage.table.waitTime.cell.closedTime"
               fallback="Seen at :triageDate"
               replacements={{ triageDate: format(new Date(closedTime), 'h:mma') }}
-              data-testid='translatedtext-hfkc' />
+              data-testid="translatedtext-hfkc"
+            />
           </TriageCell>
         );
       default:
         return (
-          <PlainCell data-testid='plaincell-c92q'>
+          <PlainCell data-testid="plaincell-c92q">
             <TranslatedText
               stringId="patientList.triage.table.waitTime.cell.admitted"
               fallback="Admitted"
-              data-testid='translatedtext-mxyw' />
+              data-testid="translatedtext-mxyw"
+            />
           </PlainCell>
         );
     }

@@ -20,7 +20,7 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
     <ConfirmModal
       title="Delete document"
       subText={
-        <SubText data-testid='subtext-vqro'>
+        <SubText data-testid="subtext-vqro">
           This action is irreversible.
           <br />
           <br />
@@ -31,6 +31,7 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
-      data-testid='confirmmodal-w304' />
+      data-testid="confirmmodal-w304"
+    />
   );
 };

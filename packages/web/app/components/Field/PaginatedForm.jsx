@@ -13,35 +13,35 @@ import { TranslatedText } from '../Translation/TranslatedText';
 
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
-    <Typography variant="h6" gutterBottom data-testid='typography-cq81'>
+    <Typography variant="h6" gutterBottom data-testid="typography-cq81">
       <TranslatedText
         stringId="paginatedForm.summary.heading"
         fallback="Form complete"
-        data-testid='translatedtext-wmic' />
+        data-testid="translatedtext-wmic"
+      />
     </Typography>
-    <Typography data-testid='typography-nw54'>
+    <Typography data-testid="typography-nw54">
       <TranslatedText
         stringId="paginatedForm.summary.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
-        data-testid='translatedtext-4bu5' />
+        data-testid="translatedtext-4bu5"
+      />
     </Typography>
     <div>
-      <ButtonRow data-testid='buttonrow-4ggp'>
-        <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-64dj'>
+      <ButtonRow data-testid="buttonrow-4ggp">
+        <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-64dj">
           <TranslatedText
             stringId="general.action.previous"
             fallback="Prev"
-            data-testid='translatedtext-01cw' />
+            data-testid="translatedtext-01cw"
+          />
         </OutlinedButton>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={submitForm}
-          data-testid='button-5uyu'>
+        <Button color="primary" variant="contained" onClick={submitForm} data-testid="button-5uyu">
           <TranslatedText
             stringId="general.action.complete"
             fallback="Complete"
-            data-testid='translatedtext-6ww1' />
+            data-testid="translatedtext-6ww1"
+          />
         </Button>
       </ButtonRow>
     </div>
@@ -54,22 +54,20 @@ const StyledAlert = styled(Alert)`
 
 const DefaultSuccessScreen = ({ onClose }) => (
   <div>
-    <StyledAlert severity="success" data-testid='styledalert-nkjs'>
+    <StyledAlert severity="success" data-testid="styledalert-nkjs">
       <TranslatedText
         stringId="paginatedForm.success.heading"
         fallback="Your response has been successfully submitted."
-        data-testid='translatedtext-jbfk' />
+        data-testid="translatedtext-jbfk"
+      />
     </StyledAlert>
-    <ButtonRow data-testid='buttonrow-wjfv'>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={onClose}
-        data-testid='button-swbr'>
+    <ButtonRow data-testid="buttonrow-wjfv">
+      <Button variant="contained" color="primary" onClick={onClose} data-testid="button-swbr">
         <TranslatedText
           stringId="general.action.ok"
           fallback="Ok"
-          data-testid='translatedtext-xxgi' />
+          data-testid="translatedtext-xxgi"
+        />
       </Button>
     </ButtonRow>
   </div>
@@ -103,35 +101,36 @@ export const DefaultFormScreen = ({
     <>
       {updatedScreenReactElement}
       {customBottomRow || (
-        <Box
-          mt={4}
-          display="flex"
-          justifyContent="space-between"
-          data-testid='box-bdm6'>
+        <Box mt={4} display="flex" justifyContent="space-between" data-testid="box-bdm6">
           <OutlinedButton
             onClick={hasStepBack ? onStepBack : undefined}
             disabled={!hasStepBack}
-            data-testid='outlinedbutton-1z74'>
+            data-testid="outlinedbutton-1z74"
+          >
             <TranslatedText
               stringId="general.action.back"
               fallback="Back"
-              data-testid='translatedtext-bdnx' />
+              data-testid="translatedtext-bdnx"
+            />
           </OutlinedButton>
           <Button
             color="primary"
             variant="contained"
             onClick={onStepForward}
-            data-testid='button-ysmw'>
+            data-testid="button-ysmw"
+          >
             {isLast ? (
               <TranslatedText
                 stringId="general.action.submit"
                 fallback="Submit"
-                data-testid='translatedtext-tt94' />
+                data-testid="translatedtext-tt94"
+              />
             ) : (
               <TranslatedText
                 stringId="general.action.continue"
                 fallback="Continue"
-                data-testid='translatedtext-ybx9' />
+                data-testid="translatedtext-ybx9"
+              />
             )}
           </Button>
         </Box>
@@ -151,7 +150,7 @@ export const usePaginatedForm = () => {
     setScreenIndex(screenIndex + 1);
   };
 
-  const handleStep = step => () => {
+  const handleStep = (step) => () => {
     setScreenIndex(step);
   };
 
@@ -185,18 +184,18 @@ export const PaginatedForm = ({
   const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
-  const onSubmitForm = async data => {
+  const onSubmitForm = async (data) => {
     await onSubmit(data);
     setFormState(FORM_STATES.SUCCESS);
   };
 
   if (formState === FORM_STATES.SUCCESS) {
-    return <SuccessScreen onClose={onCancel} data-testid='successscreen-dbhr' />;
+    return <SuccessScreen onClose={onCancel} data-testid="successscreen-dbhr" />;
   }
 
   const formScreenReactElements = React.Children.toArray(children);
   const allQuestionReactElements = formScreenReactElements
-    .map(s => React.Children.toArray(s.props.children))
+    .map((s) => React.Children.toArray(s.props.children))
     .flat();
   const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
@@ -220,7 +219,8 @@ export const PaginatedForm = ({
                   screenIndex={screenIndex}
                   handleStep={handleStep}
                   screenReactElements={formScreenReactElements}
-                  data-testid='formstepper-xzaa' />
+                  data-testid="formstepper-xzaa"
+                />
               )}
               <FormScreen
                 screenReactElement={screenReactElement}
@@ -236,14 +236,15 @@ export const PaginatedForm = ({
                 onCancel={onCancel}
                 validateForm={validateForm}
                 setStatus={setStatus}
-                data-testid='formscreen-89c8' />
+                data-testid="formscreen-89c8"
+              />
             </>
           );
         }
 
-        const submitVisibleValues = event => {
+        const submitVisibleValues = (event) => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map((q) => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 
@@ -257,10 +258,12 @@ export const PaginatedForm = ({
             onStepBack={onStepBack}
             submitForm={submitVisibleValues}
             onCancel={onCancel}
-            data-testid='summaryscreen-fypd' />
+            data-testid="summaryscreen-fypd"
+          />
         );
       }}
       {...formProps}
-      data-testid='form-jiq7' />
+      data-testid="form-jiq7"
+    />
   );
 };

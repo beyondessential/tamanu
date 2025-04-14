@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { CarouselComponents as CalendarGrid } from './CarouselComponents';
 
 const SkeletonRowHeaderCell = () => (
-  <CalendarGrid.RowHeaderCell data-testid='rowheadercell-mht9'>
-    <Skeleton animation="wave" variant="text" width="8em" data-testid='skeleton-l9w9' />
-    <Skeleton animation="wave" variant="text" width="5em" data-testid='skeleton-42iz' />
+  <CalendarGrid.RowHeaderCell data-testid="rowheadercell-mht9">
+    <Skeleton animation="wave" variant="text" width="8em" data-testid="skeleton-l9w9" />
+    <Skeleton animation="wave" variant="text" width="5em" data-testid="skeleton-42iz" />
   </CalendarGrid.RowHeaderCell>
 );
 
@@ -23,7 +23,7 @@ const SkeletonBodyCell = styled(Skeleton).attrs({
 
 const SkeletonRow = ({ colCount }) => (
   <CalendarGrid.Row data-testid={`row-ehpg-${colCount}`}>
-    <SkeletonRowHeaderCell data-testid='skeletonrowheadercell-mts6' />
+    <SkeletonRowHeaderCell data-testid="skeletonrowheadercell-mts6" />
     {Array.from({ length: colCount }).map((_, i) => (
       <SkeletonBodyCell key={i} data-testid={`skeletonbodycell-uelj-${i}`} />
     ))}

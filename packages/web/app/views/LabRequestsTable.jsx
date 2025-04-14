@@ -32,7 +32,8 @@ export const LabRequestsTable = React.memo(
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-              data-testid='translatedtext-n6rk' />
+              data-testid="translatedtext-n6rk"
+            />
           ),
           accessor: getPatientDisplayId,
         },
@@ -61,7 +62,7 @@ export const LabRequestsTable = React.memo(
     }, [isPublishedTable]);
     const dispatch = useDispatch();
 
-    const selectLab = async lab => {
+    const selectLab = async (lab) => {
       await loadEncounter(lab.encounterId);
 
       if (lab.patientId) {
@@ -94,7 +95,8 @@ export const LabRequestsTable = React.memo(
           order: 'desc',
           orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',
         }}
-        data-testid='searchtablewithpermissioncheck-yyx3' />
+        data-testid="searchtablewithpermissioncheck-yyx3"
+      />
     );
   },
 );

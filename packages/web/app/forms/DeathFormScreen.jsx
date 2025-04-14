@@ -30,7 +30,7 @@ export const DeathFormScreen = ({
   onCancel,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { children } = screenReactElement.props;
   const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
@@ -47,15 +47,15 @@ export const DeathFormScreen = ({
   };
 
   // Inject special value to be used in form validation and only keep specific fields
-  const handleSubmit = event => {
+  const handleSubmit = (event) => {
     const { clinicianId, timeOfDeath } = values;
     setValues({ clinicianId, timeOfDeath, isPartialWorkflow: true });
     submitForm(event);
   };
 
   const toggleSummary = () => {
-    setShowStepper(prev => !prev);
-    setShowSummary(prev => !prev);
+    setShowStepper((prev) => !prev);
+    setShowSummary((prev) => !prev);
   };
 
   if (showSummary) {
@@ -64,27 +64,37 @@ export const DeathFormScreen = ({
         onCancel={onCancel}
         onStepBack={toggleSummary}
         submitForm={handleSubmit}
-        data-testid='summaryscreenone-5hou' />
+        data-testid="summaryscreenone-5hou"
+      />
     );
   }
 
   return (
     <>
       {updatedScreenReactElement}
-      <Actions mt={4} data-testid='actions-oa9q'>
-        <Box data-testid='box-43gs'>
+      <Actions mt={4} data-testid="actions-oa9q">
+        <Box data-testid="box-43gs">
           {showSaveAndClose && (
-            <OutlinedButton onClick={toggleSummary} data-testid='outlinedbutton-nyjb'>Save and close</OutlinedButton>
+            <OutlinedButton onClick={toggleSummary} data-testid="outlinedbutton-nyjb">
+              Save and close
+            </OutlinedButton>
           )}
-          {showBackButton && <OutlinedButton onClick={onStepBack} data-testid='outlinedbutton-mj9c'>Back</OutlinedButton>}
+          {showBackButton && (
+            <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-mj9c">
+              Back
+            </OutlinedButton>
+          )}
         </Box>
-        <Box data-testid='box-itrv'>
-          <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-nsd2'>Cancel</OutlinedButton>
+        <Box data-testid="box-itrv">
+          <OutlinedButton onClick={onCancel} data-testid="outlinedbutton-nsd2">
+            Cancel
+          </OutlinedButton>
           <Button
             color="primary"
             variant="contained"
             onClick={onStepForward}
-            data-testid='button-ok5z'>
+            data-testid="button-ok5z"
+          >
             {isLast ? 'Submit' : 'Continue'}
           </Button>
         </Box>

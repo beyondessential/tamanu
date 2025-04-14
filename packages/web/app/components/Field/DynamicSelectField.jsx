@@ -18,15 +18,8 @@ export const DynamicSelectField = ({ field, options, suggester, ...props }) => {
   }, [options, suggester]);
 
   return selectOptions.length > SELECT_OPTIONS_LIMIT ? (
-    <AutocompleteInput
-      suggester={suggester}
-      options={selectOptions}
-      {...props}
-      {...field} />
+    <AutocompleteInput suggester={suggester} options={selectOptions} {...props} {...field} />
   ) : (
-    <SelectInput
-      options={selectOptions}
-      {...props}
-      {...field}/>
+    <SelectInput options={selectOptions} {...props} {...field} />
   );
 };

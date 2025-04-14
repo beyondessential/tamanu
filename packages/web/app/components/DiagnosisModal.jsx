@@ -8,7 +8,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const onSaveDiagnosis = async data => {
+  const onSaveDiagnosis = async (data) => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
     } else {
@@ -23,19 +23,24 @@ export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...
 
   return (
     <FormModal
-      title={<TranslatedText
-        stringId="diagnosis.modal.title"
-        fallback="Diagnosis"
-        data-testid='translatedtext-o76o' />}
+      title={
+        <TranslatedText
+          stringId="diagnosis.modal.title"
+          fallback="Diagnosis"
+          data-testid="translatedtext-o76o"
+        />
+      }
       open={!!diagnosis}
       onClose={onClose}
-      data-testid='formmodal-kov5'>
+      data-testid="formmodal-kov5"
+    >
       <DiagnosisForm
         onCancel={onClose}
         diagnosis={diagnosis}
         onSave={onSaveDiagnosis}
         {...props}
-        data-testid='diagnosisform-1rdr' />
+        data-testid="diagnosisform-1rdr"
+      />
     </FormModal>
   );
 });

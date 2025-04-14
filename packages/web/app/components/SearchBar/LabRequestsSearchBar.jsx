@@ -58,24 +58,32 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         <>
           <Field
             name="locationGroupId"
-            label={<TranslatedText
-              stringId="general.area.label"
-              fallback="Area"
-              data-testid='translatedtext-6pqs' />}
+            label={
+              <TranslatedText
+                stringId="general.area.label"
+                fallback="Area"
+                data-testid="translatedtext-6pqs"
+              />
+            }
             component={AutocompleteField}
             suggester={locationGroupSuggester}
             size="small"
-            data-testid='field-5dyf' />
+            data-testid="field-5dyf"
+          />
           <Field
             name="departmentId"
-            label={<TranslatedText
-              stringId="general.department.label"
-              fallback="Department"
-              data-testid='translatedtext-w8ao' />}
+            label={
+              <TranslatedText
+                stringId="general.department.label"
+                fallback="Department"
+                data-testid="translatedtext-w8ao"
+              />
+            }
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"
-            data-testid='field-r8d2' />
+            data-testid="field-r8d2"
+          />
           {publishedStatus ? (
             <Field
               name="publishedDate"
@@ -83,52 +91,63 @@ export const LabRequestsSearchBar = ({ statuses }) => {
                 <TranslatedText
                   stringId="lab.results.table.column.completedDate"
                   fallback="Completed"
-                  data-testid='translatedtext-v0cq' />
+                  data-testid="translatedtext-v0cq"
+                />
               }
               saveDateAsString
               component={DateField}
-              data-testid='field-ifhe' />
+              data-testid="field-ifhe"
+            />
           ) : (
             <>
               <LocalisedField
                 name="laboratory"
-                label={<TranslatedText
-                  stringId="lab.laboratory.label"
-                  fallback="Laboratory"
-                  data-testid='translatedtext-tt4b' />}
+                label={
+                  <TranslatedText
+                    stringId="lab.laboratory.label"
+                    fallback="Laboratory"
+                    data-testid="translatedtext-tt4b"
+                  />
+                }
                 component={SuggesterSelectField}
                 endpoint="labTestLaboratory"
                 size="small"
-                data-testid='localisedfield-myai' />
+                data-testid="localisedfield-myai"
+              />
               <LocalisedField
                 name="priority"
                 label={
                   <TranslatedText
                     stringId="general.localisedField.priority.label"
                     fallback="Priority"
-                    data-testid='translatedtext-ph6s' />
+                    data-testid="translatedtext-ph6s"
+                  />
                 }
                 component={SuggesterSelectField}
                 endpoint="labTestPriority"
                 size="small"
-                data-testid='localisedfield-zh5y' />
+                data-testid="localisedfield-zh5y"
+              />
             </>
           )}
-          <FacilityCheckbox data-testid='facilitycheckbox-k5oo'>
+          <FacilityCheckbox data-testid="facilitycheckbox-k5oo">
             <Field
               name="allFacilities"
               label={
                 <TranslatedText
                   stringId="lab.allFacilities.label"
                   fallback="Include all facilities"
-                  data-testid='translatedtext-0q1s' />
+                  data-testid="translatedtext-0q1s"
+                />
               }
               component={CheckField}
-              data-testid='field-2zdm' />
+              data-testid="field-2zdm"
+            />
           </FacilityCheckbox>
         </>
       }
-      data-testid='customisablesearchbarwithpermissioncheck-29hw'>
+      data-testid="customisablesearchbarwithpermissioncheck-29hw"
+    >
       <>
         <LocalisedField
           name="displayId"
@@ -136,92 +155,118 @@ export const LabRequestsSearchBar = ({ statuses }) => {
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
-              data-testid='translatedtext-fajs' />
+              data-testid="translatedtext-fajs"
+            />
           }
           component={SearchField}
-          data-testid='localisedfield-5eui' />
+          data-testid="localisedfield-5eui"
+        />
         <LocalisedField
           name="firstName"
           label={
             <TranslatedText
               stringId="general.localisedField.firstName.label"
               fallback="First name"
-              data-testid='translatedtext-2q54' />
+              data-testid="translatedtext-2q54"
+            />
           }
           component={SearchField}
-          data-testid='localisedfield-w99c' />
+          data-testid="localisedfield-w99c"
+        />
         <LocalisedField
           name="lastName"
           label={
             <TranslatedText
               stringId="general.localisedField.lastName.label"
               fallback="Last name"
-              data-testid='translatedtext-ow8a' />
+              data-testid="translatedtext-ow8a"
+            />
           }
           component={SearchField}
-          data-testid='localisedfield-3lzc' />
+          data-testid="localisedfield-3lzc"
+        />
         <Field
           name="requestId"
-          label={<TranslatedText
-            stringId="lab.requestId.label"
-            fallback="Test ID"
-            data-testid='translatedtext-8b9r' />}
+          label={
+            <TranslatedText
+              stringId="lab.requestId.label"
+              fallback="Test ID"
+              data-testid="translatedtext-8b9r"
+            />
+          }
           component={SearchField}
-          data-testid='field-jpmb' />
+          data-testid="field-jpmb"
+        />
         <Field
           name="category"
-          label={<TranslatedText
-            stringId="lab.testCategory.label"
-            fallback="Test category"
-            data-testid='translatedtext-iate' />}
+          label={
+            <TranslatedText
+              stringId="lab.testCategory.label"
+              fallback="Test category"
+              data-testid="translatedtext-iate"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="labTestCategory"
           size="small"
-          data-testid='field-84q8' />
+          data-testid="field-84q8"
+        />
         <Field
           name="labTestPanelId"
-          label={<TranslatedText
-            stringId="lab.panel.label"
-            fallback="Panel"
-            data-testid='translatedtext-6w50' />}
+          label={
+            <TranslatedText
+              stringId="lab.panel.label"
+              fallback="Panel"
+              data-testid="translatedtext-6w50"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="labTestPanel"
           size="small"
-          data-testid='field-vqdd' />
+          data-testid="field-vqdd"
+        />
         <LocalisedField
           name="requestedDateFrom"
           label={
             <TranslatedText
               stringId="general.localisedField.requestedDateFrom.label"
               fallback="Requested from"
-              data-testid='translatedtext-0gk7' />
+              data-testid="translatedtext-0gk7"
+            />
           }
           saveDateAsString
           component={DateField}
           $joined
-          data-testid='localisedfield-vo15' />
+          data-testid="localisedfield-vo15"
+        />
         <LocalisedField
           name="requestedDateTo"
           label={
             <TranslatedText
               stringId="general.localisedField.requestedDateTo.label"
               fallback="Requested to"
-              data-testid='translatedtext-l4xg' />
+              data-testid="translatedtext-l4xg"
+            />
           }
           saveDateAsString
           component={DateField}
-          data-testid='localisedfield-kswp' />
+          data-testid="localisedfield-kswp"
+        />
         {publishedStatus ? (
           <LocalisedField
             name="laboratory"
-            label={<TranslatedText
-              stringId="lab.laboratory.label"
-              fallback="Laboratory"
-              data-testid='translatedtext-zw6f' />}
+            label={
+              <TranslatedText
+                stringId="lab.laboratory.label"
+                fallback="Laboratory"
+                data-testid="translatedtext-zw6f"
+              />
+            }
             component={SuggesterSelectField}
             endpoint="labTestLaboratory"
             size="small"
-            data-testid='localisedfield-7jda' />
+            data-testid="localisedfield-7jda"
+          />
         ) : (
           <LocalisedField
             name="status"
@@ -229,12 +274,13 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               <TranslatedText
                 stringId="general.localisedField.status.label"
                 fallback="Status"
-                data-testid='translatedtext-763d' />
+                data-testid="translatedtext-763d"
+              />
             }
             component={TranslatedSelectField}
-            transformOptions={options =>
+            transformOptions={(options) =>
               options.filter(
-                option =>
+                (option) =>
                   ![
                     LAB_REQUEST_STATUSES.PUBLISHED,
                     LAB_REQUEST_STATUSES.DELETED,
@@ -246,7 +292,8 @@ export const LabRequestsSearchBar = ({ statuses }) => {
             }
             enumValues={LAB_REQUEST_STATUS_LABELS}
             size="small"
-            data-testid='localisedfield-2it8' />
+            data-testid="localisedfield-2it8"
+          />
         )}
       </>
     </CustomisableSearchBarWithPermissionCheck>

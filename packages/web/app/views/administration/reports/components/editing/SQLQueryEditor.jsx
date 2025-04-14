@@ -25,15 +25,15 @@ const AceEditor = styled(BaseAceEditor)`
 `;
 
 const IGNORED_MESSAGES = ['$01 is not defined'];
-export const SQLQueryEditor = props => {
+export const SQLQueryEditor = (props) => {
   const { getTranslation } = useTranslation();
 
   const [originalHighlightList, setOriginalHighlightList] = useState([]);
   const [annotations, setAnnotations] = useState({});
-  const shouldIgnoreErrorMessage = errorMessage => {
+  const shouldIgnoreErrorMessage = (errorMessage) => {
     return IGNORED_MESSAGES.includes(errorMessage);
   };
-  const validateQuery = query => {
+  const validateQuery = (query) => {
     // need to do this to add nextline \n
     const queryArray = query.replaceAll(':', '-').split('\n');
     const sqlQuery = queryArray.join('\n');
@@ -81,13 +81,16 @@ export const SQLQueryEditor = props => {
   return (
     <AceEditor
       name={editorName}
-      placeholder={getTranslation("general.placeholder.sqlExample", "Example: SELECT * FROM tablename")}
+      placeholder={getTranslation(
+        'general.placeholder.sqlExample',
+        'Example: SELECT * FROM tablename',
+      )}
       mode={mode}
       theme="xcode"
       showPrintMargin={false}
       width="auto"
       value={value}
-      onChange={newQuery => {
+      onChange={(newQuery) => {
         validateQuery(newQuery);
         onChange(newQuery);
       }}
@@ -96,17 +99,17 @@ export const SQLQueryEditor = props => {
         $useWorker: false,
       }}
       setOptions={{ enableLiveAutocompletion: true, enableBasicAutocompletion: true }}
-      onLoad={editor => {
+      onLoad={(editor) => {
         const { $keywordList: sqlKeywordList } = editor.session.$mode.$highlightRules;
         setOriginalHighlightList(sqlKeywordList);
       }}
-      onFocus={editor => {
-        const customKeywordList = customKeywords.map(key => ({
+      onFocus={(editor) => {
+        const customKeywordList = customKeywords.map((key) => ({
           caption: `:${key}`,
           value: `:${key}`,
           meta: 'custom-parameter',
         }));
-        const sqlKeywordList = originalHighlightList.map(key => ({
+        const sqlKeywordList = originalHighlightList.map((key) => ({
           caption: `${key}`,
           value: `${key}`,
           meta: 'keyword',
@@ -131,7 +134,8 @@ export const SQLQueryEditor = props => {
           className: 'error-marker',
         },
       ]}
-      data-testid='aceeditor-c6e7' />
+      data-testid="aceeditor-c6e7"
+    />
   );
 };
 

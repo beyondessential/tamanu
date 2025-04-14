@@ -17,7 +17,8 @@ const getTitle = ({ source, name }) =>
     <TranslatedText
       stringId="patient.modal.patientLetter.title"
       fallback="Patient letter"
-      data-testid='translatedtext-841k' />
+      data-testid="translatedtext-841k"
+    />
   ) : (
     name
   );
@@ -27,28 +28,30 @@ const DownloadButton = ({ onClick }) => {
     <Button
       variant="outlined"
       size="small"
-      startIcon={<GetAppIcon data-testid='getappicon-h47t' />}
+      startIcon={<GetAppIcon data-testid="getappicon-h47t" />}
       onClick={onClick}
-      data-testid='button-54bc'>
+      data-testid="button-54bc"
+    >
       <TranslatedText
         stringId="general.action.download"
         fallback="Download"
-        data-testid='translatedtext-llev' />
+        data-testid="translatedtext-llev"
+      />
     </Button>
   );
 };
 
 const Subtitle = styled(Typography)`
   font-size: 12px;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 const Preview = ({ documentType, attachmentId, ...props }) => {
   if (documentType === SUPPORTED_DOCUMENT_TYPES.PDF) {
-    return <PDFPreview attachmentId={attachmentId} {...props} data-testid='pdfpreview-l5hp' />;
+    return <PDFPreview attachmentId={attachmentId} {...props} data-testid="pdfpreview-l5hp" />;
   }
   if (documentType === SUPPORTED_DOCUMENT_TYPES.JPEG) {
-    return <PhotoPreview attachmentId={attachmentId} data-testid='photopreview-6876' />;
+    return <PhotoPreview attachmentId={attachmentId} data-testid="photopreview-6876" />;
   }
   return (
     <TranslatedText
@@ -57,7 +60,8 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
       replacements={{
         documentType,
       }}
-      data-testid='translatedtext-1mzr' />
+      data-testid="translatedtext-1mzr"
+    />
   );
 };
 
@@ -76,7 +80,7 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
       title={
         <div>
           {getTitle(document)}
-          <Subtitle data-testid='subtitle-y9og'>
+          <Subtitle data-testid="subtitle-y9og">
             {documentType === SUPPORTED_DOCUMENT_TYPES.PDF ? (
               <TranslatedText
                 stringId="document.modal.preview.pageCount"
@@ -85,24 +89,29 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
                   scrollPage,
                   pageCount: pageCount ?? '‒', // figure dash
                 }}
-                data-testid='translatedtext-4zew' />
+                data-testid="translatedtext-4zew"
+              />
             ) : null}
           </Subtitle>
         </div>
       }
       printable={document.source !== DOCUMENT_SOURCES.UPLOADED}
       onPrint={onHandlePrint}
-      additionalActions={[<DownloadButton
-        onClick={onHandleDownload}
-        key="Download"
-        data-testid='downloadbutton-m97w' />]}
+      additionalActions={[
+        <DownloadButton
+          onClick={onHandleDownload}
+          key="Download"
+          data-testid="downloadbutton-m97w"
+        />,
+      ]}
       width="md"
       overrideContentPadding
       onClose={() => {
         setScrollPage(1);
         onClose();
       }}
-      data-testid='modal-lnv7'>
+      data-testid="modal-lnv7"
+    >
       <Preview
         documentType={documentType}
         attachmentId={attachmentId}
@@ -110,7 +119,8 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
         setPageCount={setPageCount}
         scrollPage={scrollPage}
         setScrollPage={setScrollPage}
-        data-testid='preview-f4tk' />
+        data-testid="preview-f4tk"
+      />
     </Modal>
   );
 };

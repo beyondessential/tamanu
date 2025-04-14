@@ -18,12 +18,14 @@ export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
       title={title}
       onClose={handleClose}
       open={open}
-      data-testid='formmodal-ufqb'>
+      data-testid="formmodal-ufqb"
+    >
       <EditVitalCellForm
         vitalLabel={vitalLabel}
         dataPoint={dataPoint}
         handleClose={handleClose}
-        data-testid='editvitalcellform-h4wy' />
+        data-testid="editvitalcellform-h4wy"
+      />
     </FormModal>
   );
 };

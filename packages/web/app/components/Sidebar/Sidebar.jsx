@@ -24,15 +24,15 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: ${Colors.primaryDark};
-  min-width: ${props => (props.$retracted ? '60px' : '260px')};
-  max-width: ${props => (props.$retracted ? '86px' : '280px')};
+  min-width: ${(props) => (props.$retracted ? '60px' : '260px')};
+  max-width: ${(props) => (props.$retracted ? '86px' : '280px')};
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
-  transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
+  transition: ${(props) => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
     color: ${Colors.white};
@@ -43,9 +43,9 @@ const HeaderContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: ${props => (props.$retracted ? 'center' : 'space-between')};
+  justify-content: ${(props) => (props.$retracted ? 'center' : 'space-between')};
   height: 72px;
-  padding: 16px 0 14px ${props => (props.$retracted ? '0' : '13px')};
+  padding: 16px 0 14px ${(props) => (props.$retracted ? '0' : '13px')};
 `;
 
 const RetractExtendButton = styled(IconButton)`
@@ -72,7 +72,7 @@ const RetractedLogo = styled(LogoLightNoText)``;
 const Footer = styled.div`
   margin-top: auto;
   padding-bottom: 3px;
-  padding-right: ${props => (props.$retracted ? '0' : '10px')};
+  padding-right: ${(props) => (props.$retracted ? '0' : '10px')};
 `;
 
 const UserInfo = styled.div`
@@ -80,8 +80,8 @@ const UserInfo = styled.div`
   color: white;
   min-height: 65px;
   align-items: center;
-  justify-content: ${props => (props.$retracted ? 'center' : 'default')};
-  transition: ${props => props.theme.transitions.create('justify-content')};
+  justify-content: ${(props) => (props.$retracted ? 'center' : 'default')};
+  transition: ${(props) => props.theme.transitions.create('justify-content')};
   margin-top: 5px;
   margin-bottom: 5px;
 `;
@@ -91,8 +91,8 @@ const StyledUserInfoContent = styled(Box)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background-color: ${props => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
-  transition: ${props => props.theme.transitions.create('background-color')};
+  background-color: ${(props) => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
+  transition: ${(props) => props.theme.transitions.create('background-color')};
   margin-left: 5px;
 `;
 
@@ -109,8 +109,8 @@ const ConnectedTo = styled(Typography)`
 `;
 
 const StyledHiddenSyncAvatar = styled(HiddenSyncAvatar)`
-  margin-right: ${props => (props.$retracted ? '0' : '12px')};
-  cursor: ${props => (props.$retracted ? 'pointer' : 'default')};
+  margin-right: ${(props) => (props.$retracted ? '0' : '12px')};
+  cursor: ${(props) => (props.$retracted ? 'pointer' : 'default')};
 `;
 
 const Version = styled.div`
@@ -139,14 +139,14 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
-const getInitials = string =>
+const getInitials = (string) =>
   string
     .match(/\b(\w)/g)
     .slice(0, 2)
     .join('');
 
 const permissionCheck = (...items) => {
-  const ability = { ...items.map(item => item.ability) };
+  const ability = { ...items.map((item) => item.ability) };
   if (!ability.subject || !ability.action) {
     return true;
   }
@@ -172,7 +172,7 @@ export const Sidebar = React.memo(({ items }) => {
   const dispatch = useDispatch();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = newPath => dispatch(push(newPath));
+  const onPathChanged = (newPath) => dispatch(push(newPath));
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {
@@ -209,7 +209,8 @@ export const Sidebar = React.memo(({ items }) => {
         <TranslatedText
           stringId="general.meta.centralServer"
           fallback="Central admin server"
-          data-testid='translatedtext-rv78' />
+          data-testid="translatedtext-rv78"
+        />
       );
     }
     return (
@@ -217,38 +218,41 @@ export const Sidebar = React.memo(({ items }) => {
         fallback={facility.name}
         value={facility.id}
         category="facility"
-        data-testid='translatedreferencedata-4bgq' />
+        data-testid="translatedreferencedata-4bgq"
+      />
     );
   }, [facility, isFacilityLoading]);
 
   return (
-    <Container $retracted={isRetracted} data-testid='container-wiqr'>
-      <HeaderContainer $retracted={isRetracted} data-testid='headercontainer-rg0x'>
+    <Container $retracted={isRetracted} data-testid="container-wiqr">
+      <HeaderContainer $retracted={isRetracted} data-testid="headercontainer-rg0x">
         {isRetracted ? (
           <>
-            <RetractedLogo height="31px" data-testid='retractedlogo-h4sf' />
+            <RetractedLogo height="31px" data-testid="retractedlogo-h4sf" />
             <ExtendButton
               onClick={handleExtendButtonClick}
               color="secondary"
               size="medium"
-              data-testid='extendbutton-c1vl'>
-              <NavigateNext data-testid='navigatenext-q9ro' />
+              data-testid="extendbutton-c1vl"
+            >
+              <NavigateNext data-testid="navigatenext-q9ro" />
             </ExtendButton>
           </>
         ) : (
           <>
-            <ExtendedLogo height="31px" data-testid='extendedlogo-cc0l' />
+            <ExtendedLogo height="31px" data-testid="extendedlogo-cc0l" />
             <RetractButton
               onClick={handleRetractButtonClick}
               color="secondary"
               size="medium"
-              data-testid='retractbutton-f6p7'>
-              <NavigateBefore data-testid='navigatebefore-ffig' />
+              data-testid="retractbutton-f6p7"
+            >
+              <NavigateBefore data-testid="navigatebefore-ffig" />
             </RetractButton>
           </>
         )}
       </HeaderContainer>
-      <List component="nav" data-testid='list-zolh'>
+      <List component="nav" data-testid="list-zolh">
         {items.map((item, i) => {
           const commonProps = {
             retracted: isRetracted,
@@ -266,11 +270,17 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
-          const dataTestIdSuffix = item.path.replace(/\//g, '-')
+          const dataTestIdSuffix = item.path.replace(/\//g, '-');
 
           if (item.Component) {
             const { Component } = item;
-            return <Component {...commonProps} key={item.key} data-testid={`component-itt0${dataTestIdSuffix}`} />;
+            return (
+              <Component
+                {...commonProps}
+                key={item.key}
+                data-testid={`component-itt0${dataTestIdSuffix}`}
+              />
+            );
           }
 
           if (!item.children) {
@@ -281,16 +291,27 @@ export const Sidebar = React.memo(({ items }) => {
                 isCurrent={currentPath.includes(item.path)}
                 disabled={!permissionCheck(item)}
                 onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-                data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`} />
+                data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`}
+              />
             );
           }
 
           if (isRetracted) {
-            return <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`} />;
+            return (
+              <PrimarySidebarItem
+                key={item.path}
+                {...commonProps}
+                data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
+              />
+            );
           }
           return (
-            <PrimarySidebarItem key={item.path} {...commonProps} data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}>
-              {item.children.map(child => (
+            <PrimarySidebarItem
+              key={item.path}
+              {...commonProps}
+              data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
+            >
+              {item.children.map((child) => (
                 <SecondarySidebarItem
                   key={child.path}
                   path={child.path}
@@ -299,47 +320,51 @@ export const Sidebar = React.memo(({ items }) => {
                   label={child.label}
                   disabled={!permissionCheck(child, item)}
                   onClick={() => onPathChanged(child.path)}
-                  data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`} />
+                  data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                />
               ))}
             </PrimarySidebarItem>
           );
         })}
       </List>
-      <Footer $retracted={isRetracted} data-testid='footer-ymwe'>
-        <StyledDivider $invisible={isRetracted} data-testid='styleddivider-hx9s' />
-        <UserInfo $retracted={isRetracted} data-testid='userinfo-covo'>
+      <Footer $retracted={isRetracted} data-testid="footer-ymwe">
+        <StyledDivider $invisible={isRetracted} data-testid="styleddivider-hx9s" />
+        <UserInfo $retracted={isRetracted} data-testid="userinfo-covo">
           <StyledHiddenSyncAvatar
             $retracted={isRetracted}
             onClick={isRetracted ? extendSidebar : undefined}
-            data-testid='styledhiddensyncavatar-0pir'>
+            data-testid="styledhiddensyncavatar-0pir"
+          >
             {initials}
           </StyledHiddenSyncAvatar>
           {!isRetracted && (
             <>
-              <StyledUserInfoContent flex={1} data-testid='styleduserinfocontent-2x2p'>
-                <UserName data-testid='username-p59p'>{currentUser?.displayName}</UserName>
-                <Box display="flex" justifyContent="space-between" data-testid='box-idqw'>
-                  <ConnectedTo data-testid='connectedto-6awb'>
+              <StyledUserInfoContent flex={1} data-testid="styleduserinfocontent-2x2p">
+                <UserName data-testid="username-p59p">{currentUser?.displayName}</UserName>
+                <Box display="flex" justifyContent="space-between" data-testid="box-idqw">
+                  <ConnectedTo data-testid="connectedto-6awb">
                     {roleName} <br /> {connectionName}
                   </ConnectedTo>
                 </Box>
               </StyledUserInfoContent>
-              <KebabMenu data-testid='kebabmenu-65zk' />
+              <KebabMenu data-testid="kebabmenu-65zk" />
             </>
           )}
         </UserInfo>
         {!isRetracted && (
           <>
-            <StyledDivider $invisible={isRetracted} data-testid='styleddivider-seqb' />
+            <StyledDivider $invisible={isRetracted} data-testid="styleddivider-seqb" />
             <StyledMetadataBox
               display="flex"
               justifyContent="space-between"
-              data-testid='styledmetadatabox-u53t'>
-              <Version title={FULL_VERSION} data-testid='version-oxic'>
+              data-testid="styledmetadatabox-u53t"
+            >
+              <Version title={FULL_VERSION} data-testid="version-oxic">
                 <TranslatedText
                   stringId="general.meta.version"
                   fallback="Version"
-                  data-testid='translatedtext-7m4p' />{' '}
+                  data-testid="translatedtext-7m4p"
+                />{' '}
                 {api.agentVersion}
               </Version>
               <LogoutButton
@@ -347,11 +372,13 @@ export const Sidebar = React.memo(({ items }) => {
                 onClick={onLogout}
                 id="logout"
                 data-test-id="siderbar-logout-item"
-                data-testid='logoutbutton-4zn4'>
+                data-testid="logoutbutton-4zn4"
+              >
                 <TranslatedText
                   stringId="auth.action.logout"
                   fallback="Log out"
-                  data-testid='translatedtext-sasg' />
+                  data-testid="translatedtext-sasg"
+                />
               </LogoutButton>
             </StyledMetadataBox>
           </>

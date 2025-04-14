@@ -35,7 +35,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
     }
   };
 
-  const onSaveSubmit = async data => {
+  const onSaveSubmit = async (data) => {
     const medicationSubmission = await api.post('medication', {
       ...data,
       encounterId,
@@ -53,17 +53,20 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
           <TranslatedText
             stringId="medication.modal.prescribe.title"
             fallback="Prescribe medication"
-            data-testid='translatedtext-93od' />
+            data-testid="translatedtext-93od"
+          />
         ) : (
           <TranslatedText
             stringId="medication.modal.details.title"
             fallback="Medication details"
-            data-testid='translatedtext-8rur' />
+            data-testid="translatedtext-8rur"
+          />
         )
       }
       open={open}
       onClose={onClose}
-      data-testid='formmodal-a7ba'>
+      data-testid="formmodal-a7ba"
+    >
       <MedicationForm
         onSubmit={readOnly ? onDiscontinueSubmit : onSaveSubmit}
         medication={medication}
@@ -78,7 +81,8 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
         onDiscontinue={onDiscontinue}
         shouldDiscontinue={shouldDiscontinue}
         drugSuggester={drugSuggester}
-        data-testid='medicationform-cc6b' />
+        data-testid="medicationform-cc6b"
+      />
     </FormModal>
   );
 };

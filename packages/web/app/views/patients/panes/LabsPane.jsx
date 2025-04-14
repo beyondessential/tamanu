@@ -11,18 +11,20 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
   return (
-    <TabPane data-testid='tabpane-zm0o'>
+    <TabPane data-testid="tabpane-zm0o">
       <LabRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
         onClose={() => setNewRequestModalOpen(false)}
-        data-testid='labrequestmodal-axnl' />
+        data-testid="labrequestmodal-axnl"
+      />
       <PrintMultipleLabRequestsSelectionModal
         encounter={encounter}
         open={printRequestsModalOpen}
         onClose={() => setPrintRequestsModalOpen(false)}
-        data-testid='printmultiplelabrequestsselectionmodal-hccp' />
-      <TableButtonRow variant="small" data-testid='tablebuttonrow-yf2d'>
+        data-testid="printmultiplelabrequestsselectionmodal-hccp"
+      />
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-yf2d">
         <ButtonWithPermissionCheck
           onClick={() => setPrintRequestsModalOpen(true)}
           disabled={readonly}
@@ -31,11 +33,13 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           variant="outlined"
           color="primary"
           size="small"
-          data-testid='buttonwithpermissioncheck-hjef'>
+          data-testid="buttonwithpermissioncheck-hjef"
+        >
           <TranslatedText
             stringId="lab.action.print"
             fallback="Print"
-            data-testid='translatedtext-923g' />
+            data-testid="translatedtext-923g"
+          />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
@@ -43,14 +47,19 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="LabRequest"
           size="small"
-          data-testid='buttonwithpermissioncheck-kcrs'>
+          data-testid="buttonwithpermissioncheck-kcrs"
+        >
           <TranslatedText
             stringId="lab.action.create"
             fallback="New lab request"
-            data-testid='translatedtext-5yxa' />
+            data-testid="translatedtext-5yxa"
+          />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <EncounterLabRequestsTable encounterId={encounter.id} data-testid='encounterlabrequeststable-hd7x' />
+      <EncounterLabRequestsTable
+        encounterId={encounter.id}
+        data-testid="encounterlabrequeststable-hd7x"
+      />
     </TabPane>
   );
 });

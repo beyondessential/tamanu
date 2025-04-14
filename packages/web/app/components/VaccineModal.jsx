@@ -22,7 +22,7 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const currentUser = useSelector(getCurrentUser);
 
   const handleCreateVaccine = useCallback(
-    async data => {
+    async (data) => {
       const dataToSubmit = { ...data };
       if (currentTabKey === VACCINE_RECORDING_TYPES.GIVEN && data.givenElsewhere && data.givenBy) {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
@@ -53,16 +53,19 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   );
 
   const getScheduledVaccines = useCallback(
-    async query => api.get(`patient/${patientId}/scheduledVaccines`, query),
+    async (query) => api.get(`patient/${patientId}/scheduledVaccines`, query),
     [api, patientId],
   );
 
   const TABS = [
     {
-      label: <TranslatedText
-        stringId="vaccine.property.status.given"
-        fallback="Given"
-        data-testid='translatedtext-2e3y' />,
+      label: (
+        <TranslatedText
+          stringId="vaccine.property.status.given"
+          fallback="Given"
+          data-testid="translatedtext-2e3y"
+        />
+      ),
       key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm
@@ -72,14 +75,18 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
           existingValues={vaccineRecord}
-          data-testid='vaccineform-0k3p' />
+          data-testid="vaccineform-0k3p"
+        />
       ),
     },
     {
-      label: <TranslatedText
-        stringId="vaccine.property.status.notGiven"
-        fallback="Not given"
-        data-testid='translatedtext-ju96' />,
+      label: (
+        <TranslatedText
+          stringId="vaccine.property.status.notGiven"
+          fallback="Not given"
+          data-testid="translatedtext-ju96"
+        />
+      ),
       key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm
@@ -89,26 +96,32 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
           existingValues={vaccineRecord}
-          data-testid='vaccineform-e7qk' />
+          data-testid="vaccineform-e7qk"
+        />
       ),
     },
   ];
 
   return (
     <FormModal
-      title={<TranslatedText
-        stringId="vaccine.modal.create.title"
-        fallback="Record vaccine"
-        data-testid='translatedtext-w6y6' />}
+      title={
+        <TranslatedText
+          stringId="vaccine.modal.create.title"
+          fallback="Record vaccine"
+          data-testid="translatedtext-w6y6"
+        />
+      }
       open={open}
       onClose={onClose}
       width="md"
-      data-testid='formmodal-82as'>
+      data-testid="formmodal-82as"
+    >
       <SegmentTabDisplay
         tabs={TABS}
         currentTabKey={currentTabKey}
         onTabSelect={setCurrentTabKey}
-        data-testid='segmenttabdisplay-c1t9' />
+        data-testid="segmenttabdisplay-c1t9"
+      />
     </FormModal>
   );
 };

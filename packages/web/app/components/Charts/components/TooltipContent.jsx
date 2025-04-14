@@ -17,7 +17,7 @@ const FlexRow = styled.div`
 `;
 
 const ValueWrapper = styled(FlexRow)`
-  align-items: ${props => (props.$alignItem ? props.$alignItem : 'center')}};
+  align-items: ${(props) => (props.$alignItem ? props.$alignItem : 'center')}};
   gap: 5px;
   font-size: 11px;
 `;
@@ -38,23 +38,23 @@ const CustomDotWrapper = styled.div`
 const DateTimeHeader = ({ name }) => {
   return (
     <span>
-      {formatShortest(name)} <TimeText data-testid='timetext-356k'>{formatTime(name)}</TimeText>
+      {formatShortest(name)} <TimeText data-testid="timetext-356k">{formatTime(name)}</TimeText>
     </span>
   );
 };
 
-export const TooltipContent = props => {
+export const TooltipContent = (props) => {
   const { name, description, visualisationConfig, dotColor, value } = props;
   const { config = {} } = visualisationConfig;
 
   return (
-    <Wrapper data-testid='wrapper-qw8e'>
-      <DateTimeHeader name={name} data-testid='datetimeheader-5q4l' />
-      <ValueWrapper $alignItem="baseline" data-testid='valuewrapper-wm8x'>
-        <CustomDotWrapper data-testid='customdotwrapper-brji'>
-          <CustomDot payload={{ dotColor }} data-testid='customdot-fvmx' />
+    <Wrapper data-testid="wrapper-qw8e">
+      <DateTimeHeader name={name} data-testid="datetimeheader-5q4l" />
+      <ValueWrapper $alignItem="baseline" data-testid="valuewrapper-wm8x">
+        <CustomDotWrapper data-testid="customdotwrapper-brji">
+          <CustomDot payload={{ dotColor }} data-testid="customdot-fvmx" />
         </CustomDotWrapper>
-        <FlexColumn data-testid='flexcolumn-edqa'>
+        <FlexColumn data-testid="flexcolumn-edqa">
           <span>{formatValue(value, config)}</span>
           <span>{description}</span>
         </FlexColumn>
@@ -63,26 +63,20 @@ export const TooltipContent = props => {
   );
 };
 
-export const InwardArrowVectorTooltipContent = props => {
-  const {
-    name,
-    description,
-    secondDescription,
-    visualisationConfig,
-    dotColor,
-    inwardArrowVector,
-  } = props;
+export const InwardArrowVectorTooltipContent = (props) => {
+  const { name, description, secondDescription, visualisationConfig, dotColor, inwardArrowVector } =
+    props;
   const { config = {} } = visualisationConfig;
   const { unit = '' } = config;
 
   return (
-    <Wrapper data-testid='wrapper-vh8r'>
-      <DateTimeHeader name={name} data-testid='datetimeheader-wory' />
-      <ValueWrapper $alignItem="center" data-testid='valuewrapper-2kd9'>
-        <CustomDotWrapper data-testid='customdotwrapper-e54l'>
-          <InwardArrowVectorIcon color={dotColor} data-testid='inwardarrowvectoricon-196q' />
+    <Wrapper data-testid="wrapper-vh8r">
+      <DateTimeHeader name={name} data-testid="datetimeheader-wory" />
+      <ValueWrapper $alignItem="center" data-testid="valuewrapper-2kd9">
+        <CustomDotWrapper data-testid="customdotwrapper-e54l">
+          <InwardArrowVectorIcon color={dotColor} data-testid="inwardarrowvectoricon-196q" />
         </CustomDotWrapper>
-        <FlexColumn data-testid='flexcolumn-fnm2'>
+        <FlexColumn data-testid="flexcolumn-fnm2">
           <span>{`${inwardArrowVector.top}/${inwardArrowVector.bottom} ${unit}`}</span>
           <span>{description}</span>
           <span>{secondDescription}</span>

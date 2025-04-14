@@ -31,7 +31,11 @@ const COLUMNS = [
     minWidth: 100,
     sortable: false,
     accessor: ({ allowedFacilities }) =>
-      allowedFacilities === 'ALL' ? 'All facilities' : allowedFacilities.length ? allowedFacilities.join(', ') : 'None',
+      allowedFacilities === 'ALL'
+        ? 'All facilities'
+        : allowedFacilities.length
+          ? allowedFacilities.join(', ')
+          : 'None',
   },
 ];
 
@@ -41,7 +45,8 @@ const UserTable = React.memo(({ ...props }) => (
     columns={COLUMNS}
     noDataMessage="No users found"
     {...props}
-    data-testid='datafetchingtable-3ziq' />
+    data-testid="datafetchingtable-3ziq"
+  />
 ));
 
 export const UserAdminView = React.memo(() => {
@@ -56,24 +61,26 @@ export const UserAdminView = React.memo(() => {
   }, []);
 
   return (
-    <PageContainer data-testid='pagecontainer-c8xe'>
-      <TopBar title="Users" data-testid='topbar-kj0y'>
+    <PageContainer data-testid="pagecontainer-c8xe">
+      <TopBar title="Users" data-testid="topbar-kj0y">
         <Button
           color="primary"
           variant="outlined"
           onClick={showCreatingUserModal}
-          data-testid='button-bxa9'>
+          data-testid="button-bxa9"
+        >
           Add new user
         </Button>
       </TopBar>
-      <UserTable fetchOptions={{}} data-testid='usertable-mpss' />
+      <UserTable fetchOptions={{}} data-testid="usertable-mpss" />
       <NewRecordModal
         title="Create new user"
         endpoint={USERS_ENDPOINT}
         open={creatingUser}
         onCancel={hideCreatingUserModal}
         Form={NewUserForm}
-        data-testid='newrecordmodal-9boc' />
+        data-testid="newrecordmodal-9boc"
+      />
     </PageContainer>
   );
 });

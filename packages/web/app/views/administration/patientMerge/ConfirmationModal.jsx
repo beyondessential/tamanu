@@ -10,7 +10,7 @@ const Red = styled.p`
 
 const ConfirmInstructions = () => (
   <div>
-    <Red data-testid='red-pjak'>Confirm merging of patients - this action is irreversible.</Red>
+    <Red data-testid="red-pjak">Confirm merging of patients - this action is irreversible.</Red>
     <p>
       {`Merging patients can't be undone. Please allow 24 hours for this change to be synced
       throughout the entire system.`}
@@ -30,21 +30,15 @@ export const ConfirmationModal = ({ mergePlan, onCancel, onBack, onConfirm }) =>
   };
 
   const actions = (
-    <ButtonRow data-testid='buttonrow-cnys'>
-      <OutlinedButton disabled={inProgress} onClick={onBack} data-testid='outlinedbutton-9yl7'>
+    <ButtonRow data-testid="buttonrow-cnys">
+      <OutlinedButton disabled={inProgress} onClick={onBack} data-testid="outlinedbutton-9yl7">
         Back
       </OutlinedButton>
-      <Spacer data-testid='spacer-dcca' />
-      <OutlinedButton
-        disabled={inProgress}
-        onClick={onCancel}
-        data-testid='outlinedbutton-veiz'>
+      <Spacer data-testid="spacer-dcca" />
+      <OutlinedButton disabled={inProgress} onClick={onCancel} data-testid="outlinedbutton-veiz">
         Cancel
       </OutlinedButton>
-      <Button
-        disabled={inProgress}
-        onClick={onConfirmClicked}
-        data-testid='button-hjoz'>
+      <Button disabled={inProgress} onClick={onConfirmClicked} data-testid="button-hjoz">
         Confirm
       </Button>
     </ButtonRow>
@@ -55,17 +49,20 @@ export const ConfirmationModal = ({ mergePlan, onCancel, onBack, onConfirm }) =>
       actions={actions}
       open
       onClose={onCancel}
-      data-testid='modal-qq9u'>
-      <ConfirmInstructions data-testid='confirminstructions-mhpf' />
+      data-testid="modal-qq9u"
+    >
+      <ConfirmInstructions data-testid="confirminstructions-mhpf" />
       <PatientSummary
         heading="Patient to keep"
         patient={mergePlan.keepPatient}
         selected
-        data-testid='patientsummary-7kbg' />
+        data-testid="patientsummary-7kbg"
+      />
       <PatientSummary
         heading="Patient to merge"
         patient={mergePlan.removePatient}
-        data-testid='patientsummary-cpc6' />
+        data-testid="patientsummary-cpc6"
+      />
     </Modal>
   );
 };

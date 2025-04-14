@@ -8,7 +8,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 export const PatientLetterModal = React.memo(
   ({ open, onClose, endpoint, refreshTable, patient, openDocumentPreview }) => {
     const onSubmit = useCallback(
-      documentToOpen => {
+      (documentToOpen) => {
         refreshTable();
         onClose();
         if (documentToOpen) {
@@ -25,17 +25,20 @@ export const PatientLetterModal = React.memo(
           <TranslatedText
             stringId="patient.modal.patientLetter.title"
             fallback="Patient letter"
-            data-testid='translatedtext-wnph' />
+            data-testid="translatedtext-wnph"
+          />
         }
         open={open}
         onClose={onClose}
-        data-testid='formmodal-dbal'>
+        data-testid="formmodal-dbal"
+      >
         <PatientLetterForm
           patient={patient}
           onSubmit={onSubmit}
           onCancel={onClose}
           endpoint={endpoint}
-          data-testid='patientletterform-en61' />
+          data-testid="patientletterform-en61"
+        />
       </FormModal>
     );
   },

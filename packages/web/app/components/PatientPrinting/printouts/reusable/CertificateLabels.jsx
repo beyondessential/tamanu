@@ -3,14 +3,14 @@ import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 
 export const CertificateLabel = ({ name, children, className }) => (
-  <Typography className={className} data-testid='typography-p24r'>
+  <Typography className={className} data-testid="typography-p24r">
     <strong>{name}: </strong>
     {children}
   </Typography>
 );
 
 export const LocalisedCertificateLabel = ({ children, className, label }) => (
-  <Typography className={className} data-testid='typography-pdom'>
+  <Typography className={className} data-testid="typography-pdom">
     <strong>{label}: </strong>
     {children}
   </Typography>

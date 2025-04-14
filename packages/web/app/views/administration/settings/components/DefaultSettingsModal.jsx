@@ -43,14 +43,12 @@ export const DefaultSettingsModal = React.memo(({ scope, open, onClose }) => {
       onClose={onClose}
       width="lg"
       title={`Default ${scope} settings`}
-      data-testid='styledmodal-f4p5'>
-      <Description data-testid='description-rsez'>
+      data-testid="styledmodal-f4p5"
+    >
+      <Description data-testid="description-rsez">
         These are the fallback values for keys not defined in {scope} settings
       </Description>
-      <JSONEditor
-        value={defaultSettingsForScope}
-        editMode={false}
-        data-testid='jsoneditor-cy0m' />
+      <JSONEditor value={defaultSettingsForScope} editMode={false} data-testid="jsoneditor-cy0m" />
     </StyledModal>
   );
 });

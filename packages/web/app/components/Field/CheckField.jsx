@@ -53,17 +53,32 @@ const ControlCheck = styled(CheckControl)`
 `;
 
 export const CheckInput = React.memo(
-  ({ label, value, className, style, error, helperText, ['data-testid']: dataTestId, ...props }) => (
-    <FormControl
-      style={style}
-      className={className}
-      error={error}>
+  ({
+    label,
+    value,
+    className,
+    style,
+    error,
+    helperText,
+    ['data-testid']: dataTestId,
+    ...props
+  }) => (
+    <FormControl style={style} className={className} error={error}>
       <FormControlLabel
-        control={<ControlCheck value={value} {...props} inputProps={{ 'data-testid': `${dataTestId}-controlcheck` }} />}
+        control={
+          <ControlCheck
+            value={value}
+            {...props}
+            inputProps={{ 'data-testid': `${dataTestId}-controlcheck` }}
+          />
+        }
         style={style}
         label={label}
-        $color={error ? Colors.alert : null} />
-      {helperText && <FormHelperText data-testid='formhelpertext-2d0o'>{helperText}</FormHelperText>}
+        $color={error ? Colors.alert : null}
+      />
+      {helperText && (
+        <FormHelperText data-testid="formhelpertext-2d0o">{helperText}</FormHelperText>
+      )}
     </FormControl>
   ),
 );
@@ -74,7 +89,8 @@ export const CheckField = React.memo(({ field, ...props }) => (
     value={field.value}
     onChange={field.onChange}
     {...props}
-    data-testid='checkinput-x2e3' />
+    data-testid="checkinput-x2e3"
+  />
 ));
 
 CheckInput.propTypes = {

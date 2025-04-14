@@ -16,21 +16,19 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
   const api = useApi();
-  const { data: imagingRequestsData, error, isLoading } = useQuery(
-    ['imagingRequests', encounter.id],
-    async () => {
-      const result = await api.get(
-        `encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
-        {
-          includeNotes: 'true',
-          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-          orderBy: 'requestedDate',
-          order: 'ASC',
-        },
-      );
-      return result.data;
-    },
-  );
+  const {
+    data: imagingRequestsData,
+    error,
+    isLoading,
+  } = useQuery(['imagingRequests', encounter.id], async () => {
+    const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/imagingRequests`, {
+      includeNotes: 'true',
+      status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+      orderBy: 'requestedDate',
+      order: 'ASC',
+    });
+    return result.data;
+  });
 
   const { selectedRows, selectableColumn } = useSelectableColumn(imagingRequestsData, {
     columnKey: COLUMN_KEYS.SELECTED,
@@ -51,13 +49,15 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         imagingRequests={selectedRows}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
-        data-testid='multipleimagingrequestsprintoutmodal-cky3' />
+        data-testid="multipleimagingrequestsprintoutmodal-cky3"
+      />
       <PrintMultipleSelectionTable
         label={
           <TranslatedText
             stringId="imaging.modal.printMultiple.selectText"
             fallback="Select the imaging requests you would like to print"
-            data-testid='translatedtext-7iz8' />
+            data-testid="translatedtext-7iz8"
+          />
         }
         headerColor={Colors.white}
         columns={columns}
@@ -69,24 +69,33 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
           <TranslatedText
             stringId="imaging.modal.printMultiple.table.noData"
             fallback="No imaging requests found"
-            data-testid='translatedtext-i7d3' />
+            data-testid="translatedtext-i7d3"
+          />
         }
         allowExport={false}
-        data-testid='printmultipleselectiontable-hh3u' />
-      <FormDivider data-testid='formdivider-i5wy' />
+        data-testid="printmultipleselectiontable-hh3u"
+      />
+      <FormDivider data-testid="formdivider-i5wy" />
       <ConfirmCancelRow
-        cancelText={<TranslatedText
-          stringId="general.action.close"
-          fallback="Close"
-          data-testid='translatedtext-mu2y' />}
-        confirmText={<TranslatedText
-          stringId="general.action.print"
-          fallback="Print"
-          data-testid='translatedtext-4k0b' />}
+        cancelText={
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-mu2y"
+          />
+        }
+        confirmText={
+          <TranslatedText
+            stringId="general.action.print"
+            fallback="Print"
+            data-testid="translatedtext-4k0b"
+          />
+        }
         confirmDisabled={selectedRows.length === 0}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
-        data-testid='confirmcancelrow-8zqu' />
+        data-testid="confirmcancelrow-8zqu"
+      />
     </>
   );
 });

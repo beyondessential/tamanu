@@ -23,15 +23,21 @@ const DateTimePicker = ({
   required = false,
   timePickerVariant,
 
-  datePickerLabel = <TranslatedText
-    stringId="general.date.label"
-    fallback="Date"
-    data-testid='translatedtext-7fay' />,
+  datePickerLabel = (
+    <TranslatedText
+      stringId="general.date.label"
+      fallback="Date"
+      data-testid="translatedtext-7fay"
+    />
+  ),
   datePickerName,
-  timePickerLabel = <TranslatedText
-    stringId="general.time.label"
-    fallback="Time"
-    data-testid='translatedtext-irhj' />,
+  timePickerLabel = (
+    <TranslatedText
+      stringId="general.time.label"
+      fallback="Time"
+      data-testid="translatedtext-irhj"
+    />
+  ),
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
@@ -39,7 +45,7 @@ const DateTimePicker = ({
   const isValidDate = isValid(parseISO(dateFieldValue));
 
   /** Keep startDate synchronised with date field for non-overnight bookings */
-  const flushChangeToDateField = e => {
+  const flushChangeToDateField = (e) => {
     if (datePickerName === 'startDate') {
       setFieldValue('date', e.target.value);
     }
@@ -81,23 +87,25 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={minDate}
         name={datePickerName}
-        onChange={e => {
+        onChange={(e) => {
           flushChangeToDateField(e);
           onChange?.(e);
         }}
         required={required}
         helperText={
           hasConflict && (
-            <ErrorSpan data-testid='errorspan-xkp6'>
+            <ErrorSpan data-testid="errorspan-xkp6">
               <TranslatedText
                 stringId="locationBooking.timePicker.locationNotAvailableWarning"
                 fallback="Location not available"
-                data-testid='translatedtext-2lnp' />
+                data-testid="translatedtext-2lnp"
+              />
             </ErrorSpan>
           )
         }
         saveDateAsString
-        data-testid='field-84i5' />
+        data-testid="field-84i5"
+      />
       <TimeSlotPicker
         date={isValidDate ? dateFieldValue : null}
         disabled={disabled || !isValidDate || hasConflict}
@@ -106,38 +114,47 @@ const DateTimePicker = ({
         name={timePickerName}
         required={required}
         variant={timePickerVariant}
-        data-testid='timeslotpicker-2c95' />
+        data-testid="timeslotpicker-2c95"
+      />
     </>
   );
 };
 
 export const StartDateTimePicker = styled(DateTimePicker).attrs({
-  datePickerLabel: <TranslatedText
-    stringId="general.startDate.label"
-    fallback="Start date"
-    data-testid='translatedtext-ibtg' />,
+  datePickerLabel: (
+    <TranslatedText
+      stringId="general.startDate.label"
+      fallback="Start date"
+      data-testid="translatedtext-ibtg"
+    />
+  ),
   datePickerName: 'startDate',
   timePickerLabel: (
     <TranslatedText
       stringId="general.bookingStartTime.label"
       fallback="Booking start time"
-      data-testid='translatedtext-wzo0' />
+      data-testid="translatedtext-wzo0"
+    />
   ),
   timePickerName: 'startTime',
   timePickerVariant: 'start',
 })``;
 
 export const EndDateTimePicker = styled(DateTimePicker).attrs({
-  datePickerLabel: <TranslatedText
-    stringId="general.endDate.label"
-    fallback="End date"
-    data-testid='translatedtext-zqk0' />,
+  datePickerLabel: (
+    <TranslatedText
+      stringId="general.endDate.label"
+      fallback="End date"
+      data-testid="translatedtext-zqk0"
+    />
+  ),
   datePickerName: 'endDate',
   timePickerLabel: (
     <TranslatedText
       stringId="general.bookingEndTime.label"
       fallback="Booking end time"
-      data-testid='translatedtext-ez36' />
+      data-testid="translatedtext-ez36"
+    />
   ),
   timePickerName: 'endTime',
   timePickerVariant: 'end',

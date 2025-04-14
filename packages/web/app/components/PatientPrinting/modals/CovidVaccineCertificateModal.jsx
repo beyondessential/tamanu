@@ -33,10 +33,10 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
       includeNotGiven: false,
     },
   );
-  const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
+  const vaccinations = vaccineData?.data.filter((vaccine) => vaccine.certifiable) || [];
 
   const createCovidVaccineCertificateNotification = useCallback(
-    data =>
+    (data) =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
         requireSigning: true,
@@ -60,14 +60,15 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
       width="md"
       printable
       onPrint={() => printPDF('covid-vaccine-certificate')}
-      additionalActions={<EmailButton
-        onEmail={createCovidVaccineCertificateNotification}
-        data-testid='emailbutton-g2xn' />}
-      data-testid='modal-twv1'>
-      <PDFLoader
-        isLoading={isLoading}
-        id="covid-vaccine-certificate"
-        data-testid='pdfloader-fwkb'>
+      additionalActions={
+        <EmailButton
+          onEmail={createCovidVaccineCertificateNotification}
+          data-testid="emailbutton-g2xn"
+        />
+      }
+      data-testid="modal-twv1"
+    >
+      <PDFLoader isLoading={isLoading} id="covid-vaccine-certificate" data-testid="pdfloader-fwkb">
         <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
@@ -78,7 +79,8 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
-          data-testid='covidvaccinecertificate-s2dc' />
+          data-testid="covidvaccinecertificate-s2dc"
+        />
       </PDFLoader>
     </Modal>
   );

@@ -36,6 +36,7 @@ export const AppointmentStatusIndicator = ({ appointmentStatus, ...props }) => {
       aria-label={appointmentStatus}
       htmlColor={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
       {...props}
-      data-testid='iconcomponent-95h6' />
+      data-testid="iconcomponent-95h6"
+    />
   );
 };

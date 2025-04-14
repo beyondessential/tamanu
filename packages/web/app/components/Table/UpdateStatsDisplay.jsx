@@ -21,11 +21,12 @@ const ErrorText = styled(SmallText)`
 `;
 
 const StatsError = () => (
-  <ErrorText color="error" data-testid='errortext-ogx7'>
+  <ErrorText color="error" data-testid="errortext-ogx7">
     <TranslatedText
       stringId="table.refreshSchedule.error"
       fallback="Error loading stats"
-      data-testid='translatedtext-r19d' />
+      data-testid="translatedtext-r19d"
+    />
   </ErrorText>
 );
 
@@ -39,7 +40,7 @@ export const UpdateStatsDisplay = ({
   const { getTranslation } = useTranslation();
 
   const dateAsDistanceToNow = useCallback(
-    date =>
+    (date) =>
       formatDistanceToNow(new Date(date), {
         addSuffix: getTranslation('schedule.distanceFromNow.suffix', 'ago'),
       }),
@@ -60,28 +61,26 @@ export const UpdateStatsDisplay = ({
 
   if (!lastUpdated) return null;
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="flex-end"
-      data-testid='box-yq69'>
+    <Box display="flex" flexDirection="column" alignItems="flex-end" data-testid="box-yq69">
       {error ? (
-        <StatsError data-testid='statserror-vs5g' />
+        <StatsError data-testid="statserror-vs5g" />
       ) : (
         <>
-          <SmallText color="textTertiary" data-testid='smalltext-jilp'>
+          <SmallText color="textTertiary" data-testid="smalltext-jilp">
             <TranslatedText
               stringId="table.refreshSchedule.lastUpdated"
               fallback="Last updated: :lastUpdated"
               replacements={{ lastUpdated }}
-              data-testid='translatedtext-egj4' />
+              data-testid="translatedtext-egj4"
+            />
           </SmallText>
-          <SoftText data-testid='softtext-o3x9'>
+          <SoftText data-testid="softtext-o3x9">
             <TranslatedText
               stringId="table.refreshSchedule.schedule"
               fallback="Updated :schedule"
               replacements={{ schedule: parsedSchedule.toLowerCase() }}
-              data-testid='translatedtext-un1s' />
+              data-testid="translatedtext-un1s"
+            />
           </SoftText>
         </>
       )}

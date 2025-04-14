@@ -65,19 +65,22 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <TranslatedText
           stringId="programRegistry.modal.deleteRegistry.title"
           fallback="Delete record"
-          data-testid='translatedtext-wf34' />
+          data-testid="translatedtext-wf34"
+        />
       }
       width="sm"
       open={open}
       onClose={onClose}
       overrideContentPadding
-      data-testid='modal-3c9i'>
-      <Text data-testid='text-pbir'>
+      data-testid="modal-3c9i"
+    >
+      <Text data-testid="text-pbir">
         <p className="header">
           <TranslatedText
             stringId="programRegistry.modal.deleteRegistry.header"
             fallback="Confirm patient registry deletion"
-            data-testid='translatedtext-qnqn' />
+            data-testid="translatedtext-qnqn"
+          />
         </p>
         <p className="desc">
           <TranslatedText
@@ -89,17 +92,20 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
                 programRegistry?.name,
               ),
             }}
-            data-testid='translatedtext-8t72' />
+            data-testid="translatedtext-8t72"
+          />
         </p>
       </Text>
       <FormSeparatorLine
         style={{ marginTop: '30px', marginBottom: '30px' }}
-        data-testid='formseparatorline-v3k3' />
+        data-testid="formseparatorline-v3k3"
+      />
       <ConfirmCancelRow
         style={{ padding: '0px 50px' }}
         onConfirm={deleteProgramRegistry}
         onCancel={onClose}
-        data-testid='confirmcancelrow-8fmy' />
+        data-testid="confirmcancelrow-8fmy"
+      />
     </Modal>
   );
 };

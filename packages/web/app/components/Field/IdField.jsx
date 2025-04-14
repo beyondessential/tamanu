@@ -40,17 +40,21 @@ const Text = styled.p`
 `;
 
 export const IdInput = ({ value, name, onChange, regenerateId }) => (
-  <IdControl data-testid='idcontrol-460s'>
-    <Id data-test-class="id-field-div" data-testid='id-8niy'>{value || ''}</Id>
+  <IdControl data-testid="idcontrol-460s">
+    <Id data-test-class="id-field-div" data-testid="id-8niy">
+      {value || ''}
+    </Id>
     <RegenerateId
       onClick={() => onChange({ target: { value: regenerateId(), name } })}
-      data-testid='regenerateid-ksy8'>
-      <Autorenew data-testid='autorenew-phar' />
-      <Text data-testid='text-o0rh'>
+      data-testid="regenerateid-ksy8"
+    >
+      <Autorenew data-testid="autorenew-phar" />
+      <Text data-testid="text-o0rh">
         <TranslatedText
           stringId="patient.id.regenerate"
           fallback="Regenerate"
-          data-testid='translatedtext-4xk9' />
+          data-testid="translatedtext-4xk9"
+        />
       </Text>
     </RegenerateId>
   </IdControl>
@@ -62,7 +66,8 @@ export const IdField = ({ field, regenerateId }) => (
     value={field.value}
     onChange={field.onChange}
     regenerateId={regenerateId}
-    data-testid='idinput-fwhx' />
+    data-testid="idinput-fwhx"
+  />
 );
 
 IdInput.propTypes = {

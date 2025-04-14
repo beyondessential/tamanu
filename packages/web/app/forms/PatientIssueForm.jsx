@@ -12,37 +12,49 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
   <Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
-      <FormGrid columns={1} data-testid='formgrid-vv7x'>
+      <FormGrid columns={1} data-testid="formgrid-vv7x">
         <Field
           name="type"
-          label={<TranslatedText
-            stringId="general.type.label"
-            fallback="Type"
-            data-testid='translatedtext-wu6v' />}
+          label={
+            <TranslatedText
+              stringId="general.type.label"
+              fallback="Type"
+              data-testid="translatedtext-wu6v"
+            />
+          }
           component={TranslatedSelectField}
           enumValues={PATIENT_ISSUE_LABELS}
           required
-          data-testid='field-lwpd' />
+          data-testid="field-lwpd"
+        />
         <Field
           name="note"
-          label={<TranslatedText
-            stringId="general.notes.label"
-            fallback="Notes"
-            data-testid='translatedtext-qh5p' />}
+          label={
+            <TranslatedText
+              stringId="general.notes.label"
+              fallback="Notes"
+              data-testid="translatedtext-qh5p"
+            />
+          }
           component={TextField}
           multiline
           minRows={2}
-          data-testid='field-nj3s' />
+          data-testid="field-nj3s"
+        />
         <Field
           name="recordedDate"
-          label={<TranslatedText
-            stringId="general.recordedDate.label"
-            fallback="Date recorded"
-            data-testid='translatedtext-fz1o' />}
+          label={
+            <TranslatedText
+              stringId="general.recordedDate.label"
+              fallback="Date recorded"
+              data-testid="translatedtext-fz1o"
+            />
+          }
           component={DateField}
           saveDateAsString
           required
-          data-testid='field-urg2' />
+          data-testid="field-urg2"
+        />
         <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
@@ -51,15 +63,18 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
               <TranslatedText
                 stringId="general.action.save"
                 fallback="Save"
-                data-testid='translatedtext-bail' />
+                data-testid="translatedtext-bail"
+              />
             ) : (
               <TranslatedText
                 stringId="general.action.add"
                 fallback="Add"
-                data-testid='translatedtext-x6gk' />
+                data-testid="translatedtext-x6gk"
+              />
             )
           }
-          data-testid='formsubmitcancelrow-x2a0' />
+          data-testid="formsubmitcancelrow-x2a0"
+        />
       </FormGrid>
     )}
     initialValues={{
@@ -72,10 +87,13 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       note: yup
         .string()
         .required()
-        .translatedLabel(<TranslatedText
-        stringId="general.note.label"
-        fallback="Note"
-        data-testid='translatedtext-dx2i' />),
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.note.label"
+            fallback="Note"
+            data-testid="translatedtext-dx2i"
+          />,
+        ),
       recordedDate: yup
         .date()
         .required()
@@ -83,8 +101,10 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           <TranslatedText
             stringId="general.recordedDate.label"
             fallback="Date recorded"
-            data-testid='translatedtext-kysq' />,
+            data-testid="translatedtext-kysq"
+          />,
         ),
     })}
-    data-testid='form-3mvk' />
+    data-testid="form-3mvk"
+  />
 );

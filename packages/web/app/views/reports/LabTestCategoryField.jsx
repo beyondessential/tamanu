@@ -12,12 +12,18 @@ export const LabTestCategoryField = ({
   <Field
     name={name}
     includeAllOption={includeAllOption}
-    label={label ?? <TranslatedText
-      stringId="lab.testCategory.label"
-      fallback="Test category"
-      data-testid='translatedtext-s7gi' />}
+    label={
+      label ?? (
+        <TranslatedText
+          stringId="lab.testCategory.label"
+          fallback="Test category"
+          data-testid="translatedtext-s7gi"
+        />
+      )
+    }
     component={SuggesterSelectField}
     endpoint="nonSensitiveLabTestCategory"
     required={required}
-    data-testid='field-ahpl' />
+    data-testid="field-ahpl"
+  />
 );

@@ -20,7 +20,7 @@ export const DeleteProgramResponseModal = ({ open, onClose, surveyResponseToDele
     <ConfirmModal
       title="Delete program form"
       subText={
-        <SubText data-testid='subtext-u6n1'>
+        <SubText data-testid="subtext-u6n1">
           This action is irreversible.
           <br />
           <br />
@@ -31,6 +31,7 @@ export const DeleteProgramResponseModal = ({ open, onClose, surveyResponseToDele
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
-      data-testid='confirmmodal-sg1c' />
+      data-testid="confirmmodal-sg1c"
+    />
   );
 };

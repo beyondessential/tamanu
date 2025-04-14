@@ -17,7 +17,7 @@ export const FacilityField = ({
   const fieldsToClear = useMemo(
     () =>
       parameters
-        .filter(param =>
+        .filter((param) =>
           FIELD_TYPES_SUPPORTING_FILTER_BY_SELECTED_FACILITY.includes(param.parameterField),
         )
         .map(({ name }) => name),
@@ -38,6 +38,7 @@ export const FacilityField = ({
       onChange={handleClearAssociatedFields}
       suggester={facilitySuggester}
       required={required}
-      data-testid='field-5biw' />
+      data-testid="field-5biw"
+    />
   );
 };

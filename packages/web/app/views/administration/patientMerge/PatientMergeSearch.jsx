@@ -40,16 +40,20 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
 
   return (
     <div>
-      <Row data-testid='row-3s8f'>
+      <Row data-testid="row-3s8f">
         <TextInput
           label={label}
           value={searchText}
-          onChange={e => setSearchText(e.target.value)}
-          data-testid='textinput-8k3u' />
-        <Button onClick={onClick} data-testid='button-ozwr'><TranslatedText
-          stringId='admin.patientMerge.action.get'
-          fallback='Get'
-          data-testid='translatedtext-0el5' /></Button>
+          onChange={(e) => setSearchText(e.target.value)}
+          data-testid="textinput-8k3u"
+        />
+        <Button onClick={onClick} data-testid="button-ozwr">
+          <TranslatedText
+            stringId="admin.patientMerge.action.get"
+            fallback="Get"
+            data-testid="translatedtext-0el5"
+          />
+        </Button>
       </Row>
       {error && (
         <pre>
@@ -59,7 +63,8 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
       <PatientSummary
         heading="Patient"
         patient={currentPatient || {}}
-        data-testid='patientsummary-gc2y' />
+        data-testid="patientsummary-gc2y"
+      />
     </div>
   );
 };
@@ -77,39 +82,46 @@ export const PatientMergeSearch = ({ onBeginMerge }) => {
   const [firstPatient, setFirstPatient] = useState();
   const [secondPatient, setSecondPatient] = useState();
   return (
-    <MergeFrame data-testid='mergeframe-c33t'>
+    <MergeFrame data-testid="mergeframe-c33t">
       <h3>
         <TranslatedText
           stringId="admin.patientMerge.title"
           fallback="Select patients to merge"
-          data-testid='translatedtext-3g37' />
+          data-testid="translatedtext-3g37"
+        />
       </h3>
       <PatientFetcher
         label={
           <TranslatedText
             stringId="admin.patientMerge.firstPatient.label"
             fallback="First patient display ID"
-            data-testid='translatedtext-d3o0' />
+            data-testid="translatedtext-d3o0"
+          />
         }
         onPatientFound={setFirstPatient}
-        data-testid='patientfetcher-6jfb' />
+        data-testid="patientfetcher-6jfb"
+      />
       <PatientFetcher
         label={
           <TranslatedText
             stringId="admin.patientMerge.secondPatient.label"
             fallback="Second patient display ID"
-            data-testid='translatedtext-8wqd' />
+            data-testid="translatedtext-8wqd"
+          />
         }
         onPatientFound={setSecondPatient}
-        data-testid='patientfetcher-rta7' />
+        data-testid="patientfetcher-rta7"
+      />
       <Button
         disabled={!(firstPatient && secondPatient)}
         onClick={() => onBeginMerge(firstPatient, secondPatient)}
-        data-testid='button-tnip'>
+        data-testid="button-tnip"
+      >
         <TranslatedText
           stringId="admin.patientMerge.action.merge"
           fallback="Merge"
-          data-testid='translatedtext-dd21' />
+          data-testid="translatedtext-dd21"
+        />
       </Button>
     </MergeFrame>
   );

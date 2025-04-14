@@ -13,7 +13,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const api = useApi();
   const { facilityId } = useAuth();
   const onSubmit = useCallback(
-    async data => {
+    async (data) => {
       try {
         const newPatient = await api.post('patient', {
           ...data,
@@ -29,19 +29,24 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   );
   return (
     <FormModal
-      title={<TranslatedText
-        stringId="patient.modal.create.title"
-        fallback="Add new patient"
-        data-testid='translatedtext-q61s' />}
+      title={
+        <TranslatedText
+          stringId="patient.modal.create.title"
+          fallback="Add new patient"
+          data-testid="translatedtext-q61s"
+        />
+      }
       onClose={onCancel}
       open={open}
-      data-testid='formmodal-jc02'>
+      data-testid="formmodal-jc02"
+    >
       <NewPatientForm
         generateId={generateId}
         onCancel={onCancel}
         onSubmit={onSubmit}
         {...formProps}
-        data-testid='newpatientform-4lx2' />
+        data-testid="newpatientform-4lx2"
+      />
     </FormModal>
   );
 };

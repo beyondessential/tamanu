@@ -81,7 +81,7 @@ export const DateInput = ({
   }, [onChange, name]);
 
   const onValueChange = useCallback(
-    event => {
+    (event) => {
       if (event.target.validity?.badInput) {
         // if the user starts editing the field by typing e.g. a '0' in the month field, until they
         // type another digit the resulting string is an invalid date
@@ -122,7 +122,7 @@ export const DateInput = ({
     [onChange, format, name, saveDateAsString, type, clearValue],
   );
 
-  const onKeyDown = event => {
+  const onKeyDown = (event) => {
     if (event.key === 'Backspace') {
       clearValue();
     }
@@ -132,14 +132,14 @@ export const DateInput = ({
     }
   };
 
-  const onArrowChange = addDaysAmount => {
+  const onArrowChange = (addDaysAmount) => {
     const date = parse(currentText, format, new Date());
     const newDate = formatDate(addDays(date, addDaysAmount), format);
 
     onValueChange({ target: { value: newDate } });
   };
 
-  const handleBlur = e => {
+  const handleBlur = (e) => {
     // if the final input is invalid, clear the component value
     if (!e.target.value) {
       clearValue();
@@ -190,11 +190,11 @@ export const DateInput = ({
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min, ...inputProps },
-        'data-testid': `${dataTestId}-input`
+        'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
-     />
+    />
   );
 
   const remountingDateField = (
@@ -205,60 +205,49 @@ export const DateInput = ({
         inputProps,
       }}
       style={{ color: Colors.softText }}
-      {...props} />
+      {...props}
+    />
   );
 
   const activeDateField = isRemounting ? remountingDateField : normalDateField;
 
   const ContainerWithArrows = ({ children }) => (
-    <Box display="flex" alignContent="center" data-testid='box-13xp'>
-      <DefaultIconButton onClick={() => onArrowChange(-1)} data-testid='defaulticonbutton-1fiy'>
-        <KeyboardArrowLeftIcon data-testid='keyboardarrowlefticon-fn4i' />
+    <Box display="flex" alignContent="center" data-testid="box-13xp">
+      <DefaultIconButton onClick={() => onArrowChange(-1)} data-testid="defaulticonbutton-1fiy">
+        <KeyboardArrowLeftIcon data-testid="keyboardarrowlefticon-fn4i" />
       </DefaultIconButton>
       {children}
-      <DefaultIconButton onClick={() => onArrowChange(1)} data-testid='defaulticonbutton-rmeh'>
-        <KeyboardArrowRightIcon data-testid='keyboardarrowrighticon-9tyl' />
+      <DefaultIconButton onClick={() => onArrowChange(1)} data-testid="defaulticonbutton-rmeh">
+        <KeyboardArrowRightIcon data-testid="keyboardarrowrighticon-9tyl" />
       </DefaultIconButton>
     </Box>
   );
 
-  return arrows ? <ContainerWithArrows data-testid='containerwitharrows-nuzt'>{activeDateField}</ContainerWithArrows> : activeDateField;
+  return arrows ? (
+    <ContainerWithArrows data-testid="containerwitharrows-nuzt">
+      {activeDateField}
+    </ContainerWithArrows>
+  ) : (
+    activeDateField
+  );
 };
 
-export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
+export const TimeInput = (props) => <DateInput type="time" format="HH:mm" {...props} />;
 
-export const DateTimeInput = props => (
-  <DateInput
-    type="datetime-local"
-    format="yyyy-MM-dd'T'HH:mm"
-    max="9999-12-31T00:00"
-    {...props}
-/>
+export const DateTimeInput = (props) => (
+  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
 );
 
 export const DateField = ({ field, ...props }) => (
-  <DateInput
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
-    {...props}/>
+  <DateInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
 export const TimeField = ({ field, ...props }) => (
-  <TimeInput
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
-    {...props}/>
+  <TimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
 export const DateTimeField = ({ field, ...props }) => (
-  <DateTimeInput
-    name={field.name}
-    value={field.value}
-    onChange={field.onChange}
-    {...props}
- />
+  <DateTimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
 
 DateInput.propTypes = {

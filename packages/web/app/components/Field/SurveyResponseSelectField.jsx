@@ -20,7 +20,7 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
   const { source } = config;
 
   useEffect(() => {
-    api.get(`/patient/${patient.id}/programResponses`, { surveyId: source }).then(resultData => {
+    api.get(`/patient/${patient.id}/programResponses`, { surveyId: source }).then((resultData) => {
       setOptions(
         resultData.data
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
@@ -38,6 +38,7 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
       onChange={field.onChange}
       value={field.value}
       options={options}
-      data-testid='selectinput-ra3s' />
+      data-testid="selectinput-ra3s"
+    />
   );
 };

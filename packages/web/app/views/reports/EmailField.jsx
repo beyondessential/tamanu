@@ -3,21 +3,22 @@ import * as Yup from 'yup';
 import { Field, TextField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const parseEmails = commaSeparatedEmails =>
+export const parseEmails = (commaSeparatedEmails) =>
   commaSeparatedEmails
     .split(/[;,]/)
-    .map(email => email.trim())
-    .filter(email => email);
+    .map((email) => email.trim())
+    .filter((email) => email);
 
 const emailSchema = Yup.string().email();
 
-const validateCommaSeparatedEmails = async emails => {
+const validateCommaSeparatedEmails = async (emails) => {
   if (!emails) {
     return (
       <TranslatedText
         stringId="report.generate.email.validation.atLeastOneRequired"
         fallback="At least 1 email address is required"
-        data-testid='translatedtext-d30q' />
+        data-testid="translatedtext-d30q"
+      />
     );
   }
   const emailList = parseEmails(emails);
@@ -28,7 +29,8 @@ const validateCommaSeparatedEmails = async emails => {
         stringId="report.generate.email.validation.invalid"
         fallback=":emails is invalid."
         replacements={{ emails }}
-        data-testid='translatedtext-2eas' />
+        data-testid="translatedtext-2eas"
+      />
     );
   }
 
@@ -40,7 +42,8 @@ const validateCommaSeparatedEmails = async emails => {
           stringId="report.generate.email.validation.invalid"
           fallback=":email is invalid."
           replacements={{ email: emailList[i] }}
-          data-testid='translatedtext-icj6' />
+          data-testid="translatedtext-icj6"
+        />
       );
     }
   }
@@ -55,7 +58,8 @@ export const EmailField = (props = {}) => (
       <TranslatedText
         stringId="report.generate.emailList.label"
         fallback="Email to (separate emails with a comma)"
-        data-testid='translatedtext-a13h' />
+        data-testid="translatedtext-a13h"
+      />
     }
     component={TextField}
     placeholder="example@example.com"
@@ -64,5 +68,6 @@ export const EmailField = (props = {}) => (
     validate={validateCommaSeparatedEmails}
     required
     {...props}
-    data-testid='field-n61m' />
+    data-testid="field-n61m"
+  />
 );

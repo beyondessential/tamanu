@@ -131,9 +131,9 @@ const StatusIndicator = styled.div`
   width: 5px;
   height: 44px;
   border-radius: 10px;
-  background-color: ${p =>
+  background-color: ${(p) =>
     p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
-  ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
+  ${(p) => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -161,18 +161,19 @@ const StyledMenuButton = styled(MenuButton)`
 const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
-    <DateWrapper data-testid='datewrapper-5lb0'>
+    <DateWrapper data-testid="datewrapper-5lb0">
       <div>
-        <StatusIndicator patientStatus={patientStatus} data-testid='statusindicator-c389' />
-        <DateDisplay date={startDate} data-testid='datedisplay-kvmn' />
+        <StatusIndicator patientStatus={patientStatus} data-testid="statusindicator-c389" />
+        <DateDisplay date={startDate} data-testid="datedisplay-kvmn" />
         &nbsp;&ndash;{' '}
         {endDate ? (
-          <DateDisplay date={endDate} data-testid='datedisplay-k7rd' />
+          <DateDisplay date={endDate} data-testid="datedisplay-k7rd" />
         ) : (
           <TranslatedText
             stringId="general.date.current"
             fallback="Current"
-            data-testid='translatedtext-kxsz' />
+            data-testid="translatedtext-kxsz"
+          />
         )}
       </div>
     </DateWrapper>
@@ -180,16 +181,19 @@ const getDate = ({ startDate, endDate, encounterType }) => {
 };
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 const getReasonForEncounter = ({ reasonForEncounter }) => (
-  <ReasonForEncounterWrapper data-testid='reasonforencounterwrapper-7vsk'>{reasonForEncounter}</ReasonForEncounterWrapper>
+  <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
+    {reasonForEncounter}
+  </ReasonForEncounterWrapper>
 );
 const getFacility = ({ facilityName, facilityId }) => (
-  <FacilityWrapper data-testid='facilitywrapper-s4m4'>
+  <FacilityWrapper data-testid="facilitywrapper-s4m4">
     {facilityId ? (
       <TranslatedReferenceData
         category="facility"
         fallback={facilityName}
         value={facilityId}
-        data-testid='translatedreferencedata-o3fw' />
+        data-testid="translatedreferencedata-o3fw"
+      />
     ) : (
       { facilityName }
     )}
@@ -214,11 +218,12 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   if (!isSyncing) return null;
 
   return (
-    <SyncWarning data-testid='syncwarning-5go9'>
+    <SyncWarning data-testid="syncwarning-5go9">
       <TranslatedText
         stringId="patient.history.syncWarning"
         fallback="Patient is being synced, so records might not be fully updated."
-        data-testid='translatedtext-upt5' />
+        data-testid="translatedtext-upt5"
+      />
     </SyncWarning>
   );
 };
@@ -233,10 +238,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
 
   const actions = [
     {
-      label: <TranslatedText
-        stringId="general.action.delete"
-        fallback="Delete"
-        data-testid='translatedtext-yzqv' />,
+      label: (
+        <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid="translatedtext-yzqv"
+        />
+      ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
@@ -249,40 +257,56 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const columns = [
     {
       key: 'startDate',
-      title: <TranslatedText
-        stringId="general.date.label"
-        fallback="Date"
-        data-testid='translatedtext-wank' />,
+      title: (
+        <TranslatedText
+          stringId="general.date.label"
+          fallback="Date"
+          data-testid="translatedtext-wank"
+        />
+      ),
       accessor: getDate,
     },
     {
       key: 'encounterType',
-      title: <TranslatedText
-        stringId="encounter.type.label"
-        fallback="Type"
-        data-testid='translatedtext-sj3a' />,
+      title: (
+        <TranslatedText
+          stringId="encounter.type.label"
+          fallback="Type"
+          data-testid="translatedtext-sj3a"
+        />
+      ),
       accessor: getType,
     },
     {
       key: 'facilityName',
-      title: <TranslatedText
-        stringId="general.table.column.facilityName"
-        fallback="Facility"
-        data-testid='translatedtext-w2dq' />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.facilityName"
+          fallback="Facility"
+          data-testid="translatedtext-w2dq"
+        />
+      ),
       accessor: getFacility,
       CellComponent: LimitedLinesCell,
     },
     {
       key: 'locationGroupName',
-      title: <TranslatedText
-        stringId="general.table.column.area"
-        fallback="Area"
-        data-testid='translatedtext-joqe' />,
-      accessor: props => (
+      title: (
+        <TranslatedText
+          stringId="general.table.column.area"
+          fallback="Area"
+          data-testid="translatedtext-joqe"
+        />
+      ),
+      accessor: (props) => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
-        (<TranslationContext.Provider value={translationContext} data-testid='provider-s1e7'>
-          <LocationGroupCell style={{ minWidth: 45 }} {...props} data-testid='locationgroupcell-loyq' />
-        </TranslationContext.Provider>)
+        <TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
+          <LocationGroupCell
+            style={{ minWidth: 45 }}
+            {...props}
+            data-testid="locationgroupcell-loyq"
+          />
+        </TranslationContext.Provider>
       ),
       CellComponent: LimitedLinesCell,
     },
@@ -292,7 +316,8 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         <TranslatedText
           stringId="encounter.reasonForEncounter.label"
           fallback="Reason for encounter"
-          data-testid='translatedtext-3qx2' />
+          data-testid="translatedtext-3qx2"
+        />
       ),
       accessor: getReasonForEncounter,
       sortable: false,
@@ -312,61 +337,71 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         <MenuContainer
           className="menu-container"
           onMouseEnter={() => setSelectedEncounterData(data)}
-          data-testid='menucontainer-ox22'>
-          <StyledMenuButton actions={actions} data-testid='styledmenubutton-rtq7' />
+          data-testid="menucontainer-ox22"
+        >
+          <StyledMenuButton actions={actions} data-testid="styledmenubutton-rtq7" />
         </MenuContainer>
       ),
     });
   }
 
   if (!patient.markedForSync) {
-    return <MarkPatientForSync patient={patient} data-testid='markpatientforsync-t5tf' />;
+    return <MarkPatientForSync patient={patient} data-testid="markpatientforsync-t5tf" />;
   }
   return (
     <>
       <SyncWarningBanner
         patient={patient}
         onRefresh={updateRefreshCount}
-        data-testid='syncwarningbanner-hi4l' />
+        data-testid="syncwarningbanner-hi4l"
+      />
       <StyledTable
         columns={columns}
-        onRowClick={row => onItemClick(row.id)}
+        onRowClick={(row) => onItemClick(row.id)}
         noDataMessage={
-          <Box mx="auto" p="40px" data-testid='box-t8fy'>
+          <Box mx="auto" p="40px" data-testid="box-t8fy">
             <TranslatedText
               stringId="patient.history.table.noDataMessage"
               fallback="No encounter records to display"
-              data-testid='translatedtext-1759' />
+              data-testid="translatedtext-1759"
+            />
           </Box>
         }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
         TableHeader={
-          <Heading4 mt="15px" mb="15px" data-testid='heading4-ssa1'>
+          <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
             <TranslatedText
               stringId="patient.history.table.encounterHistory"
               fallback="Encounter history"
-              data-testid='translatedtext-nmkf' />
+              data-testid="translatedtext-nmkf"
+            />
           </Heading4>
         }
-        ExportButton={props => (
+        ExportButton={(props) => (
           <ThemedTooltip
-            title={<TranslatedText
-              stringId="general.action.export"
-              fallback="Export"
-              data-testid='translatedtext-nap8' />}
-            data-testid='themedtooltip-0jfc'>
+            title={
+              <TranslatedText
+                stringId="general.action.export"
+                fallback="Export"
+                data-testid="translatedtext-nap8"
+              />
+            }
+            data-testid="themedtooltip-0jfc"
+          >
             <StyledIconButton
               size="small"
               variant="outlined"
               {...props}
-              data-testid='stylediconbutton-bjog'>
-              <GetAppIcon data-testid='getappicon-ccvs' />
+              data-testid="stylediconbutton-bjog"
+            >
+              <GetAppIcon data-testid="getappicon-ccvs" />
             </StyledIconButton>
           </ThemedTooltip>
         )}
-        data-testid='styledtable-6fdu' />
+        data-testid="styledtable-6fdu"
+      />
       <DeleteEncounterModal
         open={modalOpen}
         encounterToDelete={selectedEncounterData}
@@ -376,7 +411,8 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
           updateRefreshCount();
         }}
-        data-testid='deleteencountermodal-0psi' />
+        data-testid="deleteencountermodal-0psi"
+      />
     </>
   );
 };

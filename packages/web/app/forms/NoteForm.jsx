@@ -25,9 +25,10 @@ export const NoteForm = ({
 }) => {
   const { currentUser } = useAuth();
 
-  const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
-    setNoteContent,
-  ]);
+  const handleNoteContentChange = useCallback(
+    (e) => setNoteContent(e.target.value),
+    [setNoteContent],
+  );
 
   const renderForm = ({ submitForm, values, setValues }) => {
     if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
@@ -38,9 +39,9 @@ export const NoteForm = ({
         onCancel,
       };
       return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <EditTreatmentPlanNoteForm {...props} data-testid='edittreatmentplannoteform-2i5e' />
+        <EditTreatmentPlanNoteForm {...props} data-testid="edittreatmentplannoteform-2i5e" />
       ) : (
-        <EditNoteForm {...props} data-testid='editnoteform-4rft' />
+        <EditNoteForm {...props} data-testid="editnoteform-4rft" />
       );
     }
 
@@ -50,9 +51,12 @@ export const NoteForm = ({
         onCancel,
       };
       return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <TreatmentPlanNoteChangelogForm {...props} data-testid='treatmentplannotechangelogform-pmzk' />
+        <TreatmentPlanNoteChangelogForm
+          {...props}
+          data-testid="treatmentplannotechangelogform-pmzk"
+        />
       ) : (
-        <NoteChangelogForm {...props} data-testid='notechangelogform-iv9k' />
+        <NoteChangelogForm {...props} data-testid="notechangelogform-iv9k" />
       );
     }
 
@@ -65,7 +69,8 @@ export const NoteForm = ({
         noteTypeCountByType={noteTypeCountByType}
         values={values}
         setValues={setValues}
-        data-testid='createnoteform-d2fj' />
+        data-testid="createnoteform-d2fj"
+      />
     );
   };
 
@@ -88,17 +93,23 @@ export const NoteForm = ({
           .string()
           .oneOf(Object.values(NOTE_TYPES))
           .required()
-          .translatedLabel(<TranslatedText
-          stringId="note.noteType.label"
-          fallback="Note type"
-          data-testid='translatedtext-1t9l' />),
+          .translatedLabel(
+            <TranslatedText
+              stringId="note.noteType.label"
+              fallback="Note type"
+              data-testid="translatedtext-1t9l"
+            />,
+          ),
         date: yup
           .date()
           .required()
-          .translatedLabel(<TranslatedText
-          stringId="general.date.label"
-          fallback="Date"
-          data-testid='translatedtext-hdxx' />),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.date.label"
+              fallback="Date"
+              data-testid="translatedtext-hdxx"
+            />,
+          ),
         content: yup
           .string()
           .required()
@@ -106,7 +117,8 @@ export const NoteForm = ({
             <TranslatedText
               stringId="note.validation.content.path"
               fallback="Content"
-              data-testid='translatedtext-pnq4' />,
+              data-testid="translatedtext-pnq4"
+            />,
           ),
         writtenById: foreignKey().translatedLabel(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
@@ -114,16 +126,19 @@ export const NoteForm = ({
             <TranslatedText
               stringId="validation.rule.updatedByOnBehalfOf"
               fallback="Updated by (or on behalf of)"
-              data-testid='translatedtext-2ibl' />
+              data-testid="translatedtext-2ibl"
+            />
           ) : (
             <TranslatedText
               stringId="validation.rule.createdByOnBehalfOf"
               fallback="Created by (or on behalf of)"
-              data-testid='translatedtext-1gy9' />
+              data-testid="translatedtext-1gy9"
+            />
           ),
         ),
       })}
-      data-testid='form-jsgj' />
+      data-testid="form-jsgj"
+    />
   );
 };
 

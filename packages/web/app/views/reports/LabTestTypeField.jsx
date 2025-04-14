@@ -10,7 +10,7 @@ import {
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
 
-export const useLabTestTypes = labTestCategoryId => {
+export const useLabTestTypes = (labTestCategoryId) => {
   const api = useApi();
   const query = useQuery(
     ['labTestType', { labTestCategoryId }],
@@ -33,23 +33,30 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
   return (
     <Field
       name={name}
-      label={label ?? <TranslatedText
-        stringId="lab.testType.label"
-        fallback="Test type"
-        data-testid='translatedtext-91oa' />}
+      label={
+        label ?? (
+          <TranslatedText
+            stringId="lab.testType.label"
+            fallback="Test type"
+            data-testid="translatedtext-91oa"
+          />
+        )
+      }
       component={MultiselectField}
       required={required}
-      options={data.map(type => ({
+      options={data.map((type) => ({
         value: type.id,
         label: (
           <TranslatedReferenceData
             value={type.id}
             fallback={type.name}
             category="labTestType"
-            data-testid={`translatedreferencedata-8hnu-${type.code}`} />
+            data-testid={`translatedreferencedata-8hnu-${type.code}`}
+          />
         ),
         searchString: getTranslation(getReferenceDataStringId(type.id, 'labTestType'), type.name),
       }))}
-      data-testid='field-llpe' />
+      data-testid="field-llpe"
+    />
   );
 };

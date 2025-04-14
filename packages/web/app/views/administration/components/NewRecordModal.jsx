@@ -7,19 +7,20 @@ import { FORM_TYPES } from '../../../constants';
 export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
   const api = useApi();
   const onSubmit = useCallback(
-    async data => {
+    async (data) => {
       await api.post(endpoint, data);
       onCancel();
     },
     [api, endpoint, onCancel],
   );
   return (
-    <FormModal title={title} open={open} onClose={onCancel} data-testid='formmodal-t9up'>
+    <FormModal title={title} open={open} onClose={onCancel} data-testid="formmodal-t9up">
       <Form
         formType={FORM_TYPES.CREATE_FORM}
         onSubmit={onSubmit}
         onCancel={onCancel}
-        data-testid='form-3g87' />
+        data-testid="form-3g87"
+      />
     </FormModal>
   );
 };

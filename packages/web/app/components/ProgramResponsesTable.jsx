@@ -11,11 +11,13 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 
-const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid='datedisplay-2zgy' />;
+const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
-const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} data-testid='surveyresultbadge-jz0m' />;
+const getResults = ({ resultText }) => (
+  <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />
+);
 
 export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
   const { ability } = useAuth();
@@ -24,7 +26,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
-  const onSelectResponse = useCallback(surveyResponse => {
+  const onSelectResponse = useCallback((surveyResponse) => {
     setSelectedResponseId(surveyResponse.id);
     setSelectedResponse(surveyResponse);
   }, []);
@@ -32,17 +34,23 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
 
   const actions = [
     {
-      label: <TranslatedText
-        stringId="general.action.print"
-        fallback="Print"
-        data-testid='translatedtext-0hvt' />,
+      label: (
+        <TranslatedText
+          stringId="general.action.print"
+          fallback="Print"
+          data-testid="translatedtext-0hvt"
+        />
+      ),
       action: () => setPrintModalOpen(true),
     },
     {
-      label: <TranslatedText
-        stringId="general.action.delete"
-        fallback="Delete"
-        data-testid='translatedtext-ulmz' />,
+      label: (
+        <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid="translatedtext-ulmz"
+        />
+      ),
       action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
@@ -59,40 +67,53 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         <TranslatedText
           stringId="program.table.column.submittedDate"
           fallback="Date submitted"
-          data-testid='translatedtext-lwrk' />
+          data-testid="translatedtext-lwrk"
+        />
       ),
       accessor: getDate,
     },
     {
       key: 'submittedBy',
-      title: <TranslatedText
-        stringId="program.table.column.submittedBy"
-        fallback="Submitted by"
-        data-testid='translatedtext-rw7b' />,
+      title: (
+        <TranslatedText
+          stringId="program.table.column.submittedBy"
+          fallback="Submitted by"
+          data-testid="translatedtext-rw7b"
+        />
+      ),
       accessor: getSubmittedBy,
     },
     {
       key: 'programName',
-      title: <TranslatedText
-        stringId="program.table.column.programName"
-        fallback="Program"
-        data-testid='translatedtext-2c9j' />,
+      title: (
+        <TranslatedText
+          stringId="program.table.column.programName"
+          fallback="Program"
+          data-testid="translatedtext-2c9j"
+        />
+      ),
       accessor: getProgramName,
     },
     {
       key: 'surveyName',
-      title: <TranslatedText
-        stringId="program.table.column.surveyName"
-        fallback="Survey"
-        data-testid='translatedtext-p7xy' />,
+      title: (
+        <TranslatedText
+          stringId="program.table.column.surveyName"
+          fallback="Survey"
+          data-testid="translatedtext-p7xy"
+        />
+      ),
       accessor: getSurveyName,
     },
     {
       key: 'resultText',
-      title: <TranslatedText
-        stringId="program.table.column.resultText"
-        fallback="Results"
-        data-testid='translatedtext-fgtk' />,
+      title: (
+        <TranslatedText
+          stringId="program.table.column.resultText"
+          fallback="Results"
+          data-testid="translatedtext-fgtk"
+        />
+      ),
       accessor: getResults,
     },
   ];
@@ -107,7 +128,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       sortable: false,
       CellComponent: ({ data }) => (
         <div onMouseEnter={() => setSelectedResponse(data)}>
-          <MenuButton actions={actions} data-testid='menubutton-oi3b' />
+          <MenuButton actions={actions} data-testid="menubutton-oi3b" />
         </div>
       ),
     });
@@ -119,7 +140,8 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         surveyResponseId={selectedResponseId}
         onClose={cancelResponse}
         onPrint={() => setPrintModalOpen(true)}
-        data-testid='surveyresponsedetailsmodal-lsuo' />
+        data-testid="surveyresponsedetailsmodal-lsuo"
+      />
       <SurveyResponsesPrintModal
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
@@ -127,7 +149,8 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         surveyResponseId={selectedResponse?.id}
         title={selectedResponse?.surveyName}
         submittedBy={selectedResponse?.submittedBy}
-        data-testid='surveyresponsesprintmodal-ima2' />
+        data-testid="surveyresponsesprintmodal-ima2"
+      />
       <DataFetchingTable
         endpoint={endpoint}
         columns={columns}
@@ -139,12 +162,14 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
           <TranslatedText
             stringId="program.table.noData"
             fallback="No program responses found"
-            data-testid='translatedtext-vm80' />
+            data-testid="translatedtext-vm80"
+          />
         }
         onRowClick={onSelectResponse}
         elevated={false}
         refreshCount={refreshCount}
-        data-testid='datafetchingtable-58ck' />
+        data-testid="datafetchingtable-58ck"
+      />
       <DeleteProgramResponseModal
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}
@@ -153,7 +178,8 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
           setDeleteModalOpen(false);
           updateRefreshCount();
         }}
-        data-testid='deleteprogramresponsemodal-8539' />
+        data-testid="deleteprogramresponsemodal-8539"
+      />
     </>
   );
 };

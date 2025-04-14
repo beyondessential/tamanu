@@ -25,7 +25,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();
 
-  const onSubmit = async values => {
+  const onSubmit = async (values) => {
     markTaskCompleted(
       {
         ...values,
@@ -47,51 +47,63 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
         <div>
-          <FormGrid data-testid='formgrid-z4yb'>
+          <FormGrid data-testid="formgrid-z4yb">
             <Field
               name="completedByUserId"
               label={
                 <TranslatedText
                   stringId="task.form.completedBy.label"
                   fallback="Completed by"
-                  data-testid='translatedtext-ozw5' />
+                  data-testid="translatedtext-ozw5"
+                />
               }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              data-testid='field-4r4u' />
+              data-testid="field-4r4u"
+            />
             <Field
               name="completedTime"
               label={
                 <TranslatedText
                   stringId="task.form.completedTime.label"
                   fallback="Completed date & time"
-                  data-testid='translatedtext-ty14' />
+                  data-testid="translatedtext-ty14"
+                />
               }
               required
               saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTimeString()}
-              data-testid='field-el3t' />
+              data-testid="field-el3t"
+            />
             <Field
               name="completedNote"
-              label={<TranslatedText
-                stringId="general.notes.label"
-                fallback="Notes"
-                data-testid='translatedtext-g3lg' />}
+              label={
+                <TranslatedText
+                  stringId="general.notes.label"
+                  fallback="Notes"
+                  data-testid="translatedtext-g3lg"
+                />
+              }
               component={TextField}
-              data-testid='field-kvze' />
+              data-testid="field-kvze"
+            />
           </FormGrid>
-          <Divider style={{ margin: '32px -32px 30px -32px' }} data-testid='divider-k0fj' />
+          <Divider style={{ margin: '32px -32px 30px -32px' }} data-testid="divider-k0fj" />
           <FormSubmitCancelRow
             onCancel={onClose}
             onConfirm={submitForm}
-            confirmText={<TranslatedText
-              stringId="general.action.confirm"
-              fallback="Confirm"
-              data-testid='translatedtext-h8ty' />}
+            confirmText={
+              <TranslatedText
+                stringId="general.action.confirm"
+                fallback="Confirm"
+                data-testid="translatedtext-h8ty"
+              />
+            }
             confirmDisabled={isLoading}
-            data-testid='formsubmitcancelrow-v41o' />
+            data-testid="formsubmitcancelrow-v41o"
+          />
         </div>
       )}
       validationSchema={yup.object().shape({
@@ -102,7 +114,8 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             <TranslatedText
               stringId="task.form.completedBy.label"
               fallback="Completed by"
-              data-testid='translatedtext-943b' />,
+              data-testid="translatedtext-943b"
+            />,
           ),
         completedTime: yup
           .date()
@@ -111,7 +124,8 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             <TranslatedText
               stringId="task.form.completedTime.label"
               fallback="Completed date & time"
-              data-testid='translatedtext-fu46' />,
+              data-testid="translatedtext-fu46"
+            />,
           )
           .max(
             getCurrentDateTimeString(),
@@ -126,6 +140,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         completedTime: getCurrentDateTimeString(),
         completedByUserId: currentUser?.id,
       }}
-      data-testid='form-fiov' />
+      data-testid="form-fiov"
+    />
   );
 };

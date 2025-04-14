@@ -14,7 +14,7 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
   const { encounter, writeAndViewEncounter } = useEncounter();
   const clinicianSuggester = useSuggester('practitioner');
   const onSubmit = useCallback(
-    async data => {
+    async (data) => {
       await writeAndViewEncounter(encounter.id, data);
       navigateToEncounter(encounter.id);
     },
@@ -33,19 +33,23 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
                 casing="lower"
-                data-testid='translatedtext-1lfz' />
+                data-testid="translatedtext-1lfz"
+              />
             ),
           }}
-          data-testid='translatedtext-8saz' />
+          data-testid="translatedtext-8saz"
+        />
       }
       open={open}
       onClose={onClose}
-      data-testid='formmodal-359z'>
+      data-testid="formmodal-359z"
+    >
       <ChangeClinicianForm
         clinicianSuggester={clinicianSuggester}
         onSubmit={onSubmit}
         onCancel={onClose}
-        data-testid='changeclinicianform-e6jb' />
+        data-testid="changeclinicianform-e6jb"
+      />
     </FormModal>
   );
 });

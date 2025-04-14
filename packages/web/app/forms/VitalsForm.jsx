@@ -27,8 +27,8 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const { encounter } = useEncounter();
   const { components = [] } = vitalsSurvey || {};
   const currentComponents = components
-    .filter(c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
-    .map(c =>
+    .filter((c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
+    .map((c) =>
       c.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded
         ? { ...c, validationCriteria: JSON.stringify({ mandatory: true }) }
         : c,
@@ -45,7 +45,8 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
               <TranslatedText
                 stringId="general.recordedDate.label"
                 fallback="Date recorded"
-                data-testid='translatedtext-6iti' />,
+                data-testid="translatedtext-6iti"
+              />,
             )
             .required(),
         }),
@@ -56,20 +57,17 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const canCreateVitals = ability.can('create', 'Vitals');
 
   if (isLoading) {
-    return <ModalLoader data-testid='modalloader-328q' />;
+    return <ModalLoader data-testid="modalloader-328q" />;
   }
 
   if (!canCreateVitals) {
     return (
-      <Modal
-        title="Permission required"
-        open
-        onClose={onClose}
-        data-testid='modal-08wo'>
+      <Modal title="Permission required" open onClose={onClose} data-testid="modal-08wo">
         <ForbiddenErrorModalContents
           onConfirm={onClose}
           confirmText="Close"
-          data-testid='forbiddenerrormodalcontents-5ntb' />
+          data-testid="forbiddenerrormodalcontents-5ntb"
+        />
       </Modal>
     );
   }
@@ -80,11 +78,12 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         title="Error: Cannot load vitals form"
         errorMessage="Please contact an administrator to ensure the Vitals form is configured correctly."
         error={error}
-        data-testid='errormessage-s5wr' />
+        data-testid="errormessage-s5wr"
+      />
     );
   }
 
-  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
+  const handleSubmit = async (data) => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -97,7 +96,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
         ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
       }}
-      validate={values => {
+      validate={(values) => {
         if (
           Object.entries(values)
             .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
@@ -117,18 +116,24 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           setFieldValue={setFieldValue}
           submitButton={
             <FormSubmitCancelRow
-              confirmText={<TranslatedText
-                stringId="general.action.record"
-                fallback="Record"
-                data-testid='translatedtext-rn5f' />}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.record"
+                  fallback="Record"
+                  data-testid="translatedtext-rn5f"
+                />
+              }
               onConfirm={submitForm}
               onCancel={onClose}
-              data-testid='formsubmitcancelrow-vzf5' />
+              data-testid="formsubmitcancelrow-vzf5"
+            />
           }
           encounterType={encounterType}
-          data-testid='surveyscreen-k85n' />
+          data-testid="surveyscreen-k85n"
+        />
       )}
-      data-testid='form-b7c4' />
+      data-testid="form-b7c4"
+    />
   );
 });
 

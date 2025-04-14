@@ -10,7 +10,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit, emailOverride }) => {
   const { getTranslation } = useTranslation();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
 
   return (
     <Form
@@ -31,33 +31,41 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit, em
       })}
       suppressErrorDialog
       render={({ submitForm }) => (
-        <FormGrid columns={1} data-testid='formgrid-763z'>
+        <FormGrid columns={1} data-testid="formgrid-763z">
           <Field
             name="email"
-            label={<TranslatedText
-              stringId="patient.email.label"
-              fallback="Patient email"
-              data-testid='translatedtext-wrvj' />}
+            label={
+              <TranslatedText
+                stringId="patient.email.label"
+                fallback="Patient email"
+                data-testid="translatedtext-wrvj"
+              />
+            }
             component={TextField}
             required
-            data-testid='field-lyau' />
+            data-testid="field-lyau"
+          />
           <Field
             name="confirmEmail"
             label={
               <TranslatedText
                 stringId="patient.confirmEmail.label"
                 fallback="Confirm patient email"
-                data-testid='translatedtext-jrc0' />
+                data-testid="translatedtext-jrc0"
+              />
             }
             component={TextField}
             required
-            data-testid='field-3kaf' />
+            data-testid="field-3kaf"
+          />
           <FormSubmitCancelRow
             onConfirm={submitForm}
             onCancel={onCancel}
-            data-testid='formsubmitcancelrow-un2f' />
+            data-testid="formsubmitcancelrow-un2f"
+          />
         </FormGrid>
       )}
-      data-testid='form-xx8p' />
+      data-testid="form-xx8p"
+    />
   );
 });

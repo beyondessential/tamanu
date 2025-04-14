@@ -14,19 +14,21 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
     dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
 
   return (
-    <ContentPane data-testid='contentpane-8dfj'>
-      <TableButtonRow variant="small" data-testid='tablebuttonrow-iyka'>
-        <Button onClick={handleNewSurvey} data-testid='button-i54d'>
+    <ContentPane data-testid="contentpane-8dfj">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-iyka">
+        <Button onClick={handleNewSurvey} data-testid="button-i54d">
           <TranslatedText
             stringId="program.action.newSurvey"
             fallback="New form"
-            data-testid='translatedtext-865f' />
+            data-testid="translatedtext-865f"
+          />
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable
         endpoint={endpoint}
         patient={patient}
-        data-testid='datafetchingprogramstable-uytn' />
+        data-testid="datafetchingprogramstable-uytn"
+      />
     </ContentPane>
   );
 });

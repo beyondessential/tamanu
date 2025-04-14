@@ -132,9 +132,7 @@ const getDate = ({ startTime, endTime }) => {
   return (
     <ThemedTooltip
       title={
-        <Box
-          style={{ textTransform: 'lowercase', fontWeight: 400 }}
-          data-testid='box-q74p'>
+        <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
           {isOvernight ? (
             `${formatShortestStartTime} - ${formatShortestEndTime}`
           ) : (
@@ -145,14 +143,15 @@ const getDate = ({ startTime, endTime }) => {
           )}
         </Box>
       }
-      data-testid='themedtooltip-euoy'>
-      <DateText data-testid='datetext-z14b'>
+      data-testid="themedtooltip-euoy"
+    >
+      <DateText data-testid="datetext-z14b">
         {!isOvernight
           ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
           : `${formatShortestStartTime} - ${formatShortestEndTime}`}
         {isOvernight && (
-          <OvernightIcon data-testid='overnighticon-2qtt'>
-            <Brightness2Icon fontSize="inherit" data-testid='brightness2icon-gxv2' />
+          <OvernightIcon data-testid="overnighticon-2qtt">
+            <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />
           </OvernightIcon>
         )}
       </DateText>
@@ -160,7 +159,11 @@ const getDate = ({ startTime, endTime }) => {
   );
 };
 
-const getStatus = ({ status }) => <StatusBadge $status={status} data-testid='statusbadge-qn43'>{status}</StatusBadge>;
+const getStatus = ({ status }) => (
+  <StatusBadge $status={status} data-testid="statusbadge-qn43">
+    {status}
+  </StatusBadge>
+);
 
 const COLUMNS = [
   {
@@ -169,7 +172,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.date"
         fallback="Date"
-        data-testid='translatedtext-okjz' />
+        data-testid="translatedtext-okjz"
+      />
     ),
     accessor: getDate,
   },
@@ -179,10 +183,13 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.area"
         fallback="Area"
-        data-testid='translatedtext-a21s' />
+        data-testid="translatedtext-a21s"
+      />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-1mrf' />,
+    CellComponent: (props) => (
+      <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-1mrf" />
+    ),
   },
   {
     key: 'location',
@@ -190,11 +197,14 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.location"
         fallback="Location"
-        data-testid='translatedtext-5h9k' />
+        data-testid="translatedtext-5h9k"
+      />
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-bdup' />,
+    CellComponent: (props) => (
+      <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-bdup" />
+    ),
   },
   {
     key: 'clinician',
@@ -202,10 +212,13 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.clinician"
         fallback="Clinician"
-        data-testid='translatedtext-oqsz' />
+        data-testid="translatedtext-oqsz"
+      />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-f99y' />,
+    CellComponent: (props) => (
+      <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-f99y" />
+    ),
   },
   {
     key: 'bookingType',
@@ -213,10 +226,13 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.type"
         fallback="Booking type"
-        data-testid='translatedtext-fan7' />
+        data-testid="translatedtext-fan7"
+      />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine data-testid='limitedlinescell-hk2s' />,
+    CellComponent: (props) => (
+      <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-hk2s" />
+    ),
   },
   {
     key: 'status',
@@ -224,7 +240,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="bookings.modal.pastBookings.table.column.status"
         fallback="Status"
-        data-testid='translatedtext-4wq8' />
+        data-testid="translatedtext-4wq8"
+      />
     ),
     accessor: getStatus,
   },
@@ -255,13 +272,15 @@ export const PastBookingsModal = ({ onClose, patient }) => {
         <TranslatedText
           stringId="bookings.modal.pastBookings.title"
           fallback="Past bookings"
-          data-testid='translatedtext-q5v2' />
+          data-testid="translatedtext-q5v2"
+        />
       }
       open
       onClose={onClose}
       width="lg"
-      data-testid='styledmodal-e8gv'>
-      <Container data-testid='container-nscl'>
+      data-testid="styledmodal-e8gv"
+    >
+      <Container data-testid="container-nscl">
         <StyledTable
           isLoading={isLoading}
           data={bookings}
@@ -269,7 +288,8 @@ export const PastBookingsModal = ({ onClose, patient }) => {
           order={order}
           orderBy={orderBy}
           onChangeOrderBy={onChangeOrderBy}
-          data-testid='styledtable-sdrx' />
+          data-testid="styledtable-sdrx"
+        />
       </Container>
     </StyledModal>
   );

@@ -43,7 +43,7 @@ export const ScopeSelectorFields = React.memo(
       },
     );
 
-    const facilityOptions = facilitiesArray.map(facility => ({
+    const facilityOptions = facilitiesArray.map((facility) => ({
       label: facility.name,
       value: facility.id,
     }));
@@ -52,30 +52,38 @@ export const ScopeSelectorFields = React.memo(
       <>
         <ScopeSelectInput
           name="scope"
-          label={<TranslatedText
-            stringId="admin.settings.scope.label"
-            fallback="Scope"
-            data-testid='translatedtext-8bro' />}
+          label={
+            <TranslatedText
+              stringId="admin.settings.scope.label"
+              fallback="Scope"
+              data-testid="translatedtext-8bro"
+            />
+          }
           options={SCOPE_OPTIONS}
           value={scope}
           onChange={onScopeChange}
           isClearable={false}
           error={!!error}
-          data-testid='scopeselectinput-zxel' />
+          data-testid="scopeselectinput-zxel"
+        />
         {scope === SETTINGS_SCOPES.FACILITY && (
           <ScopeDynamicSelectInput
             name="facilityId"
             options={facilityOptions}
-            label={<TranslatedText
-              stringId="general.facility.label"
-              fallback="Facility"
-              data-testid='translatedtext-yz34' />}
+            label={
+              <TranslatedText
+                stringId="general.facility.label"
+                fallback="Facility"
+                data-testid="translatedtext-yz34"
+              />
+            }
             value={facilityId}
             onChange={onFacilityChange}
             required
             isClearable={false}
             error={!!error}
-            data-testid='scopedynamicselectinput-z7sz' />
+            data-testid="scopedynamicselectinput-z7sz"
+          />
         )}
       </>
     );

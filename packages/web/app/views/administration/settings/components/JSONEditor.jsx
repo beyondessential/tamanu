@@ -13,7 +13,7 @@ const THEMES = {
 };
 
 const StyledJSONEditor = styled(AceEditor)`
-  border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
+  border: 1px solid ${(p) => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
   z-index: 0;
   .error-marker {
@@ -70,7 +70,7 @@ export const JSONEditor = React.memo(
       }
     }, [error, value]);
 
-    const onLoad = editor => {
+    const onLoad = (editor) => {
       // Disable the "undo" command (Ctrl+Z)
       editor.commands.addCommand({
         name: 'undo',
@@ -99,7 +99,8 @@ export const JSONEditor = React.memo(
         markers={marker ? [marker] : null}
         wrapEnabled={!editMode}
         {...props}
-        data-testid='styledjsoneditor-t3jl' />
+        data-testid="styledjsoneditor-t3jl"
+      />
     );
   },
 );

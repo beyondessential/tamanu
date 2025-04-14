@@ -110,7 +110,8 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-8jmd' /> || {},
+      accessor: ({ date }) =>
+        <DateDisplay date={date} showDate showTime data-testid="datedisplay-8jmd" /> || {},
       style: { width: '30%' },
     },
   ],
@@ -131,7 +132,8 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime data-testid='datedisplay-7isg' /> || {},
+      accessor: ({ date }) =>
+        <DateDisplay date={date} showDate showTime data-testid="datedisplay-7isg" /> || {},
       style: { width: '30%' },
     },
   ],
@@ -148,7 +150,8 @@ const COLUMNS = {
                 fallback={diagnosis.name}
                 value={diagnosis.id}
                 category="diagnosis"
-                data-testid='translatedreferencedata-nbvb' />
+                data-testid="translatedreferencedata-nbvb"
+              />
             </span>
             <span> {diagnosis.code}</span>
           </>
@@ -164,7 +167,8 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-hynw' /> || {},
+      accessor: ({ date }) =>
+        <DateDisplay date={date} showDate data-testid="datedisplay-hynw" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -181,7 +185,8 @@ const COLUMNS = {
                 fallback={procedureType.name}
                 value={procedureType.id}
                 category={procedureType.type}
-                data-testid='translatedreferencedata-rjcy' />
+                data-testid="translatedreferencedata-rjcy"
+              />
             </span>
             <span> {procedureType.code}</span>
           </>
@@ -191,7 +196,8 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-deyp' /> || {},
+      accessor: ({ date }) =>
+        <DateDisplay date={date} showDate data-testid="datedisplay-deyp" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -215,13 +221,15 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate data-testid='datedisplay-db0y' /> || {},
+      accessor: ({ requestDate }) =>
+        <DateDisplay date={requestDate} showDate data-testid="datedisplay-db0y" /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate data-testid='datedisplay-sl34' /> || {},
+      accessor: ({ completedDate }) =>
+        <DateDisplay date={completedDate} showDate data-testid="datedisplay-sl34" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -236,10 +244,13 @@ const COLUMNS = {
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
-      accessor: ({ id }) => <ImagingRequestData
-        imagingRequestId={id}
-        dataType="areas"
-        data-testid='imagingrequestdata-ntts' />,
+      accessor: ({ id }) => (
+        <ImagingRequestData
+          imagingRequestId={id}
+          dataType="areas"
+          data-testid="imagingrequestdata-ntts"
+        />
+      ),
       style: { width: '20%' },
     },
     {
@@ -251,16 +262,21 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate data-testid='datedisplay-wkf6' />,
+      accessor: ({ requestedDate }) => (
+        <DateDisplay date={requestedDate} showDate data-testid="datedisplay-wkf6" />
+      ),
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ id }) => <ImagingRequestData
-        imagingRequestId={id}
-        dataType="completedDate"
-        data-testid='imagingrequestdata-wnn7' />,
+      accessor: ({ id }) => (
+        <ImagingRequestData
+          imagingRequestId={id}
+          dataType="completedDate"
+          data-testid="imagingrequestdata-wnn7"
+        />
+      ),
       style: { width: '20%' },
     },
   ],
@@ -275,7 +291,8 @@ const COLUMNS = {
             fallback={medication.name}
             value={medication.id}
             category={medication.type}
-            data-testid='translatedreferencedata-2n2s' />
+            data-testid="translatedreferencedata-2n2s"
+          />
         ),
       style: { width: '20%' },
     },
@@ -300,7 +317,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid='datedisplay-2lth' />,
+      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid="datedisplay-2lth" />,
       style: { width: '20%' },
     },
   ],
@@ -328,45 +345,56 @@ export const EncounterRecord = React.memo(
     const { title, subTitle, logo } = certificateData;
 
     return (
-      <ShiftedCertificateWrapper data-testid='shiftedcertificatewrapper-khpm'>
+      <ShiftedCertificateWrapper data-testid="shiftedcertificatewrapper-khpm">
         <PrintLetterhead
           title={title}
           subTitle={subTitle}
           logoSrc={logo}
           pageTitle="Patient Encounter Record"
-          data-testid='printletterhead-k8x1' />
-        <SummaryHeading data-testid='summaryheading-pwt1'>Patient details</SummaryHeading>
-        <Divider data-testid='divider-xaef' />
-        <RowContainer data-testid='rowcontainer-atcx'>
+          data-testid="printletterhead-k8x1"
+        />
+        <SummaryHeading data-testid="summaryheading-pwt1">Patient details</SummaryHeading>
+        <Divider data-testid="divider-xaef" />
+        <RowContainer data-testid="rowcontainer-atcx">
           <div>
-            <DisplayValue name="Patient name" data-testid='displayvalue-jxjj'>
+            <DisplayValue name="Patient name" data-testid="displayvalue-jxjj">
               {firstName} {lastName}
             </DisplayValue>
-            <LocalisedDisplayValue name="dateOfBirth" data-testid='localiseddisplayvalue-268h'>
+            <LocalisedDisplayValue name="dateOfBirth" data-testid="localiseddisplayvalue-268h">
               <DateDisplay
                 date={dateOfBirth}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-0c0e' />
+                data-testid="datedisplay-0c0e"
+              />
             </LocalisedDisplayValue>
-            <LocalisedDisplayValue name="sex" data-testid='localiseddisplayvalue-8h2t'>{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="sex" data-testid="localiseddisplayvalue-8h2t">
+              {capitaliseFirstLetter(sex)}
+            </LocalisedDisplayValue>
           </div>
           <div>
-            <LocalisedDisplayValue name="displayId" data-testid='localiseddisplayvalue-7d40'>{displayId}</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="streetVillage" data-testid='localiseddisplayvalue-rq0r'>{pad.streetVillage}</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="villageName" data-testid='localiseddisplayvalue-sfqy'>{village}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="displayId" data-testid="localiseddisplayvalue-7d40">
+              {displayId}
+            </LocalisedDisplayValue>
+            <LocalisedDisplayValue name="streetVillage" data-testid="localiseddisplayvalue-rq0r">
+              {pad.streetVillage}
+            </LocalisedDisplayValue>
+            <LocalisedDisplayValue name="villageName" data-testid="localiseddisplayvalue-sfqy">
+              {village}
+            </LocalisedDisplayValue>
           </div>
         </RowContainer>
-        <SummaryHeading data-testid='summaryheading-kk2c'>Encounter Details</SummaryHeading>
-        <Divider data-testid='divider-mt1l' />
-        <RowContainer data-testid='rowcontainer-hbq1'>
+        <SummaryHeading data-testid="summaryheading-kk2c">Encounter Details</SummaryHeading>
+        <Divider data-testid="divider-mt1l" />
+        <RowContainer data-testid="rowcontainer-hbq1">
           <div>
-            <LocalisedDisplayValue name="facility" data-testid='localiseddisplayvalue-aqgr'>
+            <LocalisedDisplayValue name="facility" data-testid="localiseddisplayvalue-aqgr">
               <TranslatedReferenceData
                 fallback={location.facility.name}
                 value={location.facility.id}
                 category="facility"
-                data-testid='translatedreferencedata-76fg' />
+                data-testid="translatedreferencedata-76fg"
+              />
             </LocalisedDisplayValue>
             <DisplayValue
               name={
@@ -379,13 +407,16 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                        data-testid='translatedtext-2t0s' />
+                        data-testid="translatedtext-2t0s"
+                      />
                     ),
                   }}
-                  data-testid='translatedtext-dxkf' />
+                  data-testid="translatedtext-dxkf"
+                />
               }
               size="10px"
-              data-testid='displayvalue-3aa2'>
+              data-testid="displayvalue-3aa2"
+            >
               {examiner.displayName}
             </DisplayValue>
             <DisplayValue
@@ -399,114 +430,129 @@ export const EncounterRecord = React.memo(
                         stringId="general.localisedField.clinician.label.short"
                         fallback="Clinician"
                         casing="lower"
-                        data-testid='translatedtext-0nh8' />
+                        data-testid="translatedtext-0nh8"
+                      />
                     ),
                   }}
-                  data-testid='translatedtext-1llw' />
+                  data-testid="translatedtext-1llw"
+                />
               }
               size="10px"
-              data-testid='displayvalue-3u1y'>
+              data-testid="displayvalue-3u1y"
+            >
               {discharge?.discharger?.displayName}
             </DisplayValue>
-            <DisplayValue name="Reason for encounter" size="10px" data-testid='displayvalue-s62a'>
+            <DisplayValue name="Reason for encounter" size="10px" data-testid="displayvalue-s62a">
               {reasonForEncounter}
             </DisplayValue>
           </div>
           <div>
-            <DisplayValue name="Discharging department" size="10px" data-testid='displayvalue-tr66'>
+            <DisplayValue name="Discharging department" size="10px" data-testid="displayvalue-tr66">
               <TranslatedReferenceData
                 fallback={department.name}
                 value={department.id}
                 category="department"
-                data-testid='translatedreferencedata-qn59' />
+                data-testid="translatedreferencedata-qn59"
+              />
             </DisplayValue>
-            <DisplayValue name="Date of admission" size="10px" data-testid='displayvalue-w117'>
+            <DisplayValue name="Date of admission" size="10px" data-testid="displayvalue-w117">
               <DateDisplay
                 date={startDate}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-rnzz' />
+                data-testid="datedisplay-rnzz"
+              />
             </DisplayValue>
-            <DisplayValue name="Date of discharge" size="10px" data-testid='displayvalue-k7iz'>
+            <DisplayValue name="Date of discharge" size="10px" data-testid="displayvalue-k7iz">
               <DateDisplay
                 date={endDate}
                 showDate={false}
                 showExplicitDate
-                data-testid='datedisplay-abwy' />
+                data-testid="datedisplay-abwy"
+              />
             </DisplayValue>
           </div>
         </RowContainer>
         {encounterTypeHistory.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-iwfx'>Encounter Types</TableHeading>
+            <TableHeading data-testid="tableheading-iwfx">Encounter Types</TableHeading>
             <CompactListTable
               data={encounterTypeHistory}
               columns={COLUMNS.encounterTypes}
-              data-testid='compactlisttable-8a6c' />
+              data-testid="compactlisttable-8a6c"
+            />
           </>
         ) : null}
         {locationHistory.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-6b2f'>Locations</TableHeading>
+            <TableHeading data-testid="tableheading-6b2f">Locations</TableHeading>
             <CompactListTable
               data={locationHistory}
               columns={COLUMNS.locations}
-              data-testid='compactlisttable-92zm' />
+              data-testid="compactlisttable-92zm"
+            />
           </>
         ) : null}
         {diagnoses.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-st4a'>Diagnoses</TableHeading>
+            <TableHeading data-testid="tableheading-st4a">Diagnoses</TableHeading>
             <CompactListTable
               data={diagnoses}
               columns={COLUMNS.diagnoses}
-              data-testid='compactlisttable-t9bs' />
+              data-testid="compactlisttable-t9bs"
+            />
           </>
         ) : null}
         {procedures.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-5x1d'>Procedures</TableHeading>
+            <TableHeading data-testid="tableheading-5x1d">Procedures</TableHeading>
             <CompactListTable
               data={procedures}
               columns={COLUMNS.procedures}
-              data-testid='compactlisttable-mkvu' />
+              data-testid="compactlisttable-mkvu"
+            />
           </>
         ) : null}
         {labRequests.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-aq73'>Lab Requests</TableHeading>
+            <TableHeading data-testid="tableheading-aq73">Lab Requests</TableHeading>
             <CompactListTable
               data={labRequests}
               columns={COLUMNS.labRequests}
-              data-testid='compactlisttable-0b6z' />
+              data-testid="compactlisttable-0b6z"
+            />
           </>
         ) : null}
         {imagingRequests.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-m9v4'>Imaging Requests</TableHeading>
+            <TableHeading data-testid="tableheading-m9v4">Imaging Requests</TableHeading>
             <CompactListTable
               data={imagingRequests}
               columns={COLUMNS.imagingRequests}
-              data-testid='compactlisttable-c6f4' />
+              data-testid="compactlisttable-c6f4"
+            />
           </>
         ) : null}
         {medications.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-h9xk'>Medications</TableHeading>
+            <TableHeading data-testid="tableheading-h9xk">Medications</TableHeading>
             <CompactListTable
               data={medications}
               columns={COLUMNS.medications}
-              data-testid='compactlisttable-8k89' />
+              data-testid="compactlisttable-8k89"
+            />
           </>
         ) : null}
         {notes.length > 0 ? (
           <>
-            <TableHeading data-testid='tableheading-3225'>Notes</TableHeading>
-            <Table data-testid='table-oqy4'>
+            <TableHeading data-testid="tableheading-3225">Notes</TableHeading>
+            <Table data-testid="table-oqy4">
               {notes.map((note, index) => (
                 <Row key={note.id} data-testid={`row-6q5a-${index}`}>
                   <RowContent data-testid={`rowcontent-yeda-${index}`}>
-                    <BoldText data-testid={`boldtext-wzyl-${index}`}>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                    <BoldText data-testid={`boldtext-wzyl-${index}`}>
+                      {NOTE_TYPE_LABELS[note.noteType]}
+                    </BoldText>
                     <ChildNote data-testid={`childnote-wtgf-${index}`}>{note.content}</ChildNote>
                     <NoteMeta data-testid={`notemeta-q7d7-${index}`}>
                       <span>
@@ -516,7 +562,11 @@ export const EncounterRecord = React.memo(
                       {note.onBehalfOf ? (
                         <span>on behalf of {note.onBehalfOf.displayName} </span>
                       ) : null}
-                      <DateDisplay date={note.date} showTime data-testid={`datedisplay-zlgm-${index}`} />
+                      <DateDisplay
+                        date={note.date}
+                        showTime
+                        data-testid={`datedisplay-zlgm-${index}`}
+                      />
                     </NoteMeta>
                   </RowContent>
                 </Row>

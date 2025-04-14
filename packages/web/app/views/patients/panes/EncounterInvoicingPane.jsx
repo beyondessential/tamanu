@@ -57,7 +57,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const { data: invoice } = useEncounterInvoiceQuery(encounter.id);
 
-  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
+  const handleOpenInvoiceModal = (type) => setOpenInvoiceModal(type);
 
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
@@ -67,21 +67,22 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   return (
     <>
       {invoice ? (
-        <TabPane data-testid='tabpane-3i52'>
-          <InvoiceContainer data-testid='invoicecontainer-8sm4'>
-            <InvoiceTopBar data-testid='invoicetopbar-96rq'>
-              <InvoiceHeading data-testid='invoiceheading-f1vs'>
-                <InvoiceTitle data-testid='invoicetitle-6asf'>
+        <TabPane data-testid="tabpane-3i52">
+          <InvoiceContainer data-testid="invoicecontainer-8sm4">
+            <InvoiceTopBar data-testid="invoicetopbar-96rq">
+              <InvoiceHeading data-testid="invoiceheading-f1vs">
+                <InvoiceTitle data-testid="invoicetitle-6asf">
                   <TranslatedText
                     stringId="invoice.invoiceNumber"
                     fallback="Invoice number"
-                    data-testid='translatedtext-8m4h' />
+                    data-testid="translatedtext-8m4h"
+                  />
                   {`: ${invoice.displayId}`}
                 </InvoiceTitle>
-                <InvoiceStatus status={invoice.status} data-testid='invoicestatus-qb63' />
+                <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
               {(cancelable || deletable) && (
-                <ActionsPane data-testid='actionspane-l9ey'>
+                <ActionsPane data-testid="actionspane-l9ey">
                   <ThreeDotMenu
                     items={[
                       {
@@ -89,7 +90,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                           <TranslatedText
                             stringId="invoice.modal.editInvoice.cancelInvoice"
                             fallback="Cancel invoice"
-                            data-testid='translatedtext-n7tk' />
+                            data-testid="translatedtext-n7tk"
+                          />
                         ),
                         onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
                         hidden: !cancelable,
@@ -99,38 +101,44 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                           <TranslatedText
                             stringId="invoice.modal.editInvoice.deleteInvoice"
                             fallback="Delete invoice"
-                            data-testid='translatedtext-d2ou' />
+                            data-testid="translatedtext-d2ou"
+                          />
                         ),
                         onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
                         hidden: !deletable,
                       },
                     ]}
-                    data-testid='threedotmenu-5t9u' />
+                    data-testid="threedotmenu-5t9u"
+                  />
                   <Button
                     onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
-                    data-testid='button-2zyp'>
+                    data-testid="button-2zyp"
+                  >
                     <TranslatedText
                       stringId="invoice.action.edit"
                       fallback="Edit invoice"
-                      data-testid='translatedtext-6nrc' />
+                      data-testid="translatedtext-6nrc"
+                    />
                   </Button>
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceItemsTable invoice={invoice} data-testid='invoiceitemstable-86zi' />
+            <InvoiceItemsTable invoice={invoice} data-testid="invoiceitemstable-86zi" />
           </InvoiceContainer>
-          <InvoiceSummaryPanel invoice={invoice} data-testid='invoicesummarypanel-40qi' />
+          <InvoiceSummaryPanel invoice={invoice} data-testid="invoicesummarypanel-40qi" />
         </TabPane>
       ) : (
-        <EmptyPane data-testid='emptypane-cjxo'>
+        <EmptyPane data-testid="emptypane-cjxo">
           {ability.can('create', 'Invoice') && (
             <Button
               onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
-              data-testid='button-j06y'>
+              data-testid="button-j06y"
+            >
               <TranslatedText
                 stringId="invoice.action.create"
                 fallback="Create invoice"
-                data-testid='translatedtext-um8m' />
+                data-testid="translatedtext-um8m"
+              />
             </Button>
           )}
         </EmptyPane>
@@ -141,7 +149,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           initialInvoice={invoice}
           encounterId={encounter.id}
           onClose={() => setOpenInvoiceModal()}
-          data-testid='invoicemodalgroup-rx7c' />
+          data-testid="invoicemodalgroup-rx7c"
+        />
       )}
     </>
   );

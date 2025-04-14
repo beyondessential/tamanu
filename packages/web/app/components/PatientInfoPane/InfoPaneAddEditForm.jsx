@@ -24,7 +24,7 @@ const getSuggesters = (id, items) => {
       return {
         practitioner: {},
         carePlan: {
-          filterer: ({ code }) => !items.some(c => c.carePlan.code === code),
+          filterer: ({ code }) => !items.some((c) => c.carePlan.code === code),
         },
       };
     default:
@@ -35,9 +35,9 @@ const getSuggesters = (id, items) => {
 export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, items }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const onSubmit = useCallback(
-    async data => {
+    async (data) => {
       if (data.id) {
         // don't need to include patientId as the existing record will already have it
         await api.put(`${endpoint}/${data.id}`, data);
@@ -63,13 +63,14 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
   );
 
   return (
-    <FormContainer data-testid='formcontainer-37wg'>
+    <FormContainer data-testid="formcontainer-37wg">
       <Form
         onCancel={onClose}
         editedObject={item}
         onSubmit={onSubmit}
         {...suggesters}
-        data-testid='form-d074' />
+        data-testid="form-d074"
+      />
     </FormContainer>
   );
 });

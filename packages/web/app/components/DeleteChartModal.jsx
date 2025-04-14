@@ -7,30 +7,39 @@ import { TranslatedText } from './Translation/TranslatedText';
 export const DeleteChartModal = ({ open, onClose, handleDeleteChart }) => {
   return (
     <ConfirmModal
-      title={<TranslatedText
-        stringId="chart.modal.delete.title"
-        fallback="Delete chart"
-        data-testid='translatedtext-wkr6' />}
+      title={
+        <TranslatedText
+          stringId="chart.modal.delete.title"
+          fallback="Delete chart"
+          data-testid="translatedtext-wkr6"
+        />
+      }
       subText={
         <TranslatedText
           stringId="chart.modal.delete.text"
           fallback="Are you sure you want to delete this chart?"
-          data-testid='translatedtext-h9v3' />
+          data-testid="translatedtext-h9v3"
+        />
       }
       open={open}
       onCancel={onClose}
       onConfirm={handleDeleteChart}
-      cancelButtonText={<TranslatedText
-        stringId="chart.modal.action.cancel"
-        fallback="Cancel"
-        data-testid='translatedtext-zsgg' />}
+      cancelButtonText={
+        <TranslatedText
+          stringId="chart.modal.action.cancel"
+          fallback="Cancel"
+          data-testid="translatedtext-zsgg"
+        />
+      }
       confirmButtonText={
         <TranslatedText
           stringId="chart.modal.action.delete"
           fallback="Delete chart"
-          data-testid='translatedtext-1n8h' />
+          data-testid="translatedtext-1n8h"
+        />
       }
-      data-testid='confirmmodal-muvq' />
+      data-testid="confirmmodal-muvq"
+    />
   );
 };
 

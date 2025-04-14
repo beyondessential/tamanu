@@ -7,7 +7,7 @@ export const SingleVitalChartView = () => {
   const { chartKeys, visualisationConfigs, dateRange, isInMultiChartsView } = useVitalChartData();
   const chartKey = chartKeys[0];
   const VitalChartComponent = getVitalChartComponent(chartKey);
-  const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
+  const visualisationConfig = visualisationConfigs.find((config) => config.key === chartKey);
 
   return (
     <VitalChartComponent
@@ -15,6 +15,7 @@ export const SingleVitalChartView = () => {
       visualisationConfig={visualisationConfig}
       dateRange={dateRange}
       isInMultiChartsView={isInMultiChartsView}
-      data-testid='vitalchartcomponent-84pc' />
+      data-testid="vitalchartcomponent-84pc"
+    />
   );
 };

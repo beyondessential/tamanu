@@ -12,25 +12,31 @@ import { useTranslation } from '../contexts/Translation';
 export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => {
   const { getTranslation } = useTranslation();
   const renderForm = ({ submitForm }) => (
-    <FormGrid columns={1} data-testid='formgrid-srim'>
+    <FormGrid columns={1} data-testid="formgrid-srim">
       <Field
         name="reasonForEncounter"
         label={
           <TranslatedText
             stringId="encounter.reasonForEncounter.label"
             fallback="Reason for encounter"
-            data-testid='translatedtext-88j1' />
+            data-testid="translatedtext-88j1"
+          />
         }
         component={TextField}
-        data-testid='field-0ywv' />
+        data-testid="field-0ywv"
+      />
       <ModalActionRow
-        confirmText={<TranslatedText
-          stringId="general.action.confirm"
-          fallback="Confirm"
-          data-testid='translatedtext-0taz' />}
+        confirmText={
+          <TranslatedText
+            stringId="general.action.confirm"
+            fallback="Confirm"
+            data-testid="translatedtext-0taz"
+          />
+        }
         onConfirm={submitForm}
         onCancel={onCancel}
-        data-testid='modalactionrow-eo6d' />
+        data-testid="modalactionrow-eo6d"
+      />
     </FormGrid>
   );
 
@@ -56,7 +62,8 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
             ),
           ),
       })}
-      data-testid='form-20qr' />
+      data-testid="form-20qr"
+    />
   );
 };
 

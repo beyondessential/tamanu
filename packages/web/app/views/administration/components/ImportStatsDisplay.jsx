@@ -11,7 +11,7 @@ export const ImportStatsDisplay = ({ stats = {} }) => {
   return (
     <table>
       {rows}
-      <tr data-testid='tr-gh3g'>
+      <tr data-testid="tr-gh3g">
         <td>TOTAL</td>
         <td>{total}</td>
       </tr>

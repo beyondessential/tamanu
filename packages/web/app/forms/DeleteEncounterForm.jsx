@@ -65,29 +65,32 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
       render={({ submitForm }) => {
         return (
           <div>
-            <StyledFormGrid columns={2} data-testid='styledformgrid-zmie'>
-              <GridItem data-testid='griditem-lnay'>
-                <GridContent data-testid='gridcontent-pjkx'>
-                  <Label data-testid='label-ecib'>Date</Label>
-                  <Value data-testid='value-h3um'>
-                    <DateDisplay date={startDate} data-testid='datedisplay-nbbl' /> - <DateDisplay date={endDate} data-testid='datedisplay-miju' />
+            <StyledFormGrid columns={2} data-testid="styledformgrid-zmie">
+              <GridItem data-testid="griditem-lnay">
+                <GridContent data-testid="gridcontent-pjkx">
+                  <Label data-testid="label-ecib">Date</Label>
+                  <Value data-testid="value-h3um">
+                    <DateDisplay date={startDate} data-testid="datedisplay-nbbl" /> -{' '}
+                    <DateDisplay date={endDate} data-testid="datedisplay-miju" />
                   </Value>
-                  <Label data-testid='label-0frx'>Type</Label>
-                  <Value data-testid='value-t2jy'>{currentType}</Value>
+                  <Label data-testid="label-0frx">Type</Label>
+                  <Value data-testid="value-t2jy">{currentType}</Value>
                 </GridContent>
               </GridItem>
-              <GridItem data-testid='griditem-umla'>
+              <GridItem data-testid="griditem-umla">
                 <div>
-                  <Label data-testid='label-g7t4'>Facility</Label>
-                  <Value data-testid='value-qh5l'>{facilityName}</Value>
-                  <Label data-testid='label-bt8n'>Reason for encounter</Label>
-                  <Value data-testid='value-zj1h'>{reasonForEncounter}</Value>
+                  <Label data-testid="label-g7t4">Facility</Label>
+                  <Value data-testid="value-qh5l">{facilityName}</Value>
+                  <Label data-testid="label-bt8n">Reason for encounter</Label>
+                  <Value data-testid="value-zj1h">{reasonForEncounter}</Value>
                 </div>
               </GridItem>
             </StyledFormGrid>
-            <WarningWrapper data-testid='warningwrapper-jc2f'>
-              <WarningTitle data-testid='warningtitle-7dbu'>Confirm encounter deletion</WarningTitle>
-              <Paragraph data-testid='paragraph-85nv'>
+            <WarningWrapper data-testid="warningwrapper-jc2f">
+              <WarningTitle data-testid="warningtitle-7dbu">
+                Confirm encounter deletion
+              </WarningTitle>
+              <Paragraph data-testid="paragraph-85nv">
                 This action will delete the encounter record and all its corresponding data. This
                 includes all notes, diagnoses, procedures and all other information associated with
                 this encounter.
@@ -101,12 +104,14 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
                 label={shortLabel}
                 name="patientDisplayId"
                 autoComplete="off"
-                data-testid='nhnfield-n1nu' />
+                data-testid="nhnfield-n1nu"
+              />
             </WarningWrapper>
             <ConfirmCancelRow
               onCancel={onCancel}
               onConfirm={submitForm}
-              data-testid='confirmcancelrow-h4wb' />
+              data-testid="confirmcancelrow-h4wb"
+            />
           </div>
         );
       }}
@@ -119,6 +124,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
           .required(`${shortLabel} is required`),
       })}
       onSubmit={onSubmit}
-      data-testid='form-g0r3' />
+      data-testid="form-g0r3"
+    />
   );
 };

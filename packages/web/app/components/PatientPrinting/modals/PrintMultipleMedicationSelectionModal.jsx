@@ -12,16 +12,19 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
           fallback="Print prescriptions"
-          data-testid='translatedtext-rrc8' />
+          data-testid="translatedtext-rrc8"
+        />
       }
       width="md"
       open={open}
       onClose={onClose}
-      data-testid='formmodal-i302'>
+      data-testid="formmodal-i302"
+    >
       <PrintMultipleMedicationSelectionForm
         encounter={encounter}
         onClose={onClose}
-        data-testid='printmultiplemedicationselectionform-xffp' />
+        data-testid="printmultiplemedicationselectionform-xffp"
+      />
     </FormModal>
   );
 };

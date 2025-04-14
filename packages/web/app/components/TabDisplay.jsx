@@ -31,13 +31,13 @@ const StyledTab = styled(Tab)`
 `;
 
 const Icon = styled.i`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   margin-right: 5px;
 `;
 
 export const TabDisplay = React.memo(
   ({ tabs, currentTab, onTabSelect, className, scrollable = true, ...tabProps }) => {
-    const currentTabData = tabs.find(t => t.key === currentTab);
+    const currentTabData = tabs.find((t) => t.key === currentTab);
     if (!currentTabData) {
       return null;
     }
@@ -49,22 +49,25 @@ export const TabDisplay = React.memo(
           <Icon
             className={icon}
             color={currentTabData.key === key ? Colors.primary : Colors.softText}
-            data-testid={`icon-r0ru-${key}`} />
+            data-testid={`icon-r0ru-${key}`}
+          />
         }
         style={{ minWidth: 'auto' }}
         label={label}
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
-        data-testid={`styledtab-yhha-${key}`} />
+        data-testid={`styledtab-yhha-${key}`}
+      />
     ));
     return (
-      <TabBar className={className} data-testid='tabbar-bg0b'>
+      <TabBar className={className} data-testid="tabbar-bg0b">
         <TabContainer
           variant={scrollable ? 'scrollable' : 'fixed'}
           scrollButtons={scrollable ? 'on' : 'off'}
           value={currentTab}
-          data-testid='tabcontainer-4j73'>
+          data-testid="tabcontainer-4j73"
+        >
           {buttons}
         </TabContainer>
         {currentTabData.render({ ...tabProps })}

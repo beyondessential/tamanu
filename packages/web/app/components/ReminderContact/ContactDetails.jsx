@@ -32,9 +32,9 @@ const StyledTextButton = styled(TextButton)`
   }
 `;
 
-const StyledContactListTable = props => {
+const StyledContactListTable = (props) => {
   const Component = styled(DataFetchingTable)`
-    display: ${props => (props.isEmpty ? 'none' : 'block')};
+    display: ${(props) => (props.isEmpty ? 'none' : 'block')};
     margin-bottom: 28px;
     border-radius: 5px;
     border: 1px solid ${Colors.outline};
@@ -71,7 +71,7 @@ const StyledContactListTable = props => {
       border-bottom: none;
     }
   `;
-  return <Component {...props} data-testid='component-pg7n' />;
+  return <Component {...props} data-testid="component-pg7n" />;
 };
 
 const RowActionLink = styled.a`
@@ -80,10 +80,10 @@ const RowActionLink = styled.a`
 `;
 
 const ColoredText = styled.span`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
 `;
 
-const ContactDetailTable = props => {
+const ContactDetailTable = (props) => {
   const Component = styled(Table)`
     border: 1px solid ${Colors.outline};
     box-shadow: none;
@@ -116,7 +116,7 @@ const ContactDetailTable = props => {
     }
   `;
 
-  return <Component {...props} data-testid='component-71a1' />;
+  return <Component {...props} data-testid="component-71a1" />;
 };
 
 const CONNECTION_STATUS = {
@@ -128,9 +128,17 @@ const CONNECTION_STATUS = {
 const ColoredCellText = ({ children, status }) => {
   switch (status) {
     case CONNECTION_STATUS.FAILED:
-      return <ColoredText color={Colors.alert} data-testid='coloredtext-cjh3'>{children}</ColoredText>;
+      return (
+        <ColoredText color={Colors.alert} data-testid="coloredtext-cjh3">
+          {children}
+        </ColoredText>
+      );
     case CONNECTION_STATUS.PENDING:
-      return <ColoredText color={Colors.softText} data-testid='coloredtext-y6os'>{children}</ColoredText>;
+      return (
+        <ColoredText color={Colors.softText} data-testid="coloredtext-y6os">
+          {children}
+        </ColoredText>
+      );
     default:
       return <span>{children}</span>;
   }
@@ -146,7 +154,7 @@ export const ContactDetails = ({
 }) => {
   const { socket } = useSocket();
   const { getTranslation } = useTranslation();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -155,7 +163,7 @@ export const ContactDetails = ({
   const canRemoveReminderContacts = ability.can('write', 'Patient');
 
   const unsubscribersListener = useCallback(() => {
-    setRefreshCount(prev => prev + 1);
+    setRefreshCount((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
@@ -185,7 +193,8 @@ export const ContactDetails = ({
           <TranslatedText
             stringId="patient.details.reminderContacts.status.failed"
             fallback="Failed"
-            data-testid='translatedtext-kfgw' />
+            data-testid="translatedtext-kfgw"
+          />
         );
         break;
       case CONNECTION_STATUS.PENDING:
@@ -194,7 +203,8 @@ export const ContactDetails = ({
             stringId="patient.details.reminderContacts.status.pending"
             fallback=":method pending"
             replacements={{ method }}
-            data-testid='translatedtext-16ho' />
+            data-testid="translatedtext-16ho"
+          />
         );
         break;
       case CONNECTION_STATUS.SUCCESS:
@@ -202,11 +212,16 @@ export const ContactDetails = ({
           <TranslatedText
             stringId={`patient.details.reminderContacts.method.${method}`}
             fallback={method}
-            data-testid='translatedtext-0k1c' />
+            data-testid="translatedtext-0k1c"
+          />
         );
         break;
     }
-    return <ColoredCellText status={status} data-testid='coloredcelltext-4are'>{methodText}</ColoredCellText>;
+    return (
+      <ColoredCellText status={status} data-testid="coloredcelltext-4are">
+        {methodText}
+      </ColoredCellText>
+    );
   };
 
   const columns = [
@@ -216,13 +231,15 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contact"
           fallback="Contact"
-          data-testid='translatedtext-e3ae' />
+          data-testid="translatedtext-e3ae"
+        />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, name }) => (
         <ColoredCellText
           status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}
-          data-testid='coloredcelltext-6v2b'>
+          data-testid="coloredcelltext-6v2b"
+        >
           {name}
         </ColoredCellText>
       ),
@@ -233,13 +250,15 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.relationship"
           fallback="Relationship"
-          data-testid='translatedtext-w0tz' />
+          data-testid="translatedtext-w0tz"
+        />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, relationship }) => (
         <ColoredCellText
           status={getStatus(pendingContacts[id]?.isTimerStarted, id, connectionDetails)}
-          data-testid='coloredcelltext-nyki'>
+          data-testid="coloredcelltext-nyki"
+        >
           {relationship.name}
         </ColoredCellText>
       ),
@@ -250,7 +269,8 @@ export const ContactDetails = ({
         <TranslatedText
           stringId="patient.details.reminderContacts.field.contactMethod"
           fallback="Contact method"
-          data-testid='translatedtext-yndp' />
+          data-testid="translatedtext-yndp"
+        />
       ),
       sortable: false,
       accessor: ({ id, connectionDetails, method }) =>
@@ -262,13 +282,17 @@ export const ContactDetails = ({
             key: '',
             title: '',
             sortable: false,
-            accessor: data => {
+            accessor: (data) => {
               return (
-                <StyledTextButton onClick={() => onRemoveContact(data)} data-testid='styledtextbutton-6f20'>
+                <StyledTextButton
+                  onClick={() => onRemoveContact(data)}
+                  data-testid="styledtextbutton-6f20"
+                >
                   <TranslatedText
                     stringId="patient.details.reminderContacts.action.remove"
                     fallback="Remove"
-                    data-testid='translatedtext-6z4r' />
+                    data-testid="translatedtext-6z4r"
+                  />
                 </StyledTextButton>
               );
             },
@@ -281,14 +305,15 @@ export const ContactDetails = ({
             key: '',
             title: '',
             sortable: false,
-            accessor: row =>
+            accessor: (row) =>
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
-                <RowActionLink onClick={() => onRetry(row)} data-testid='rowactionlink-pfr5'>
+                <RowActionLink onClick={() => onRetry(row)} data-testid="rowactionlink-pfr5">
                   <TranslatedText
                     stringId="general.action.retry"
                     fallback="Retry"
-                    data-testid='translatedtext-qhg3' />
+                    data-testid="translatedtext-qhg3"
+                  />
                 </RowActionLink>
               ) : (
                 ''
@@ -304,7 +329,8 @@ export const ContactDetails = ({
         columns={columns}
         allowExport={false}
         data={[selectedContact]}
-        data-testid='contactdetailtable-p940' />
+        data-testid="contactdetailtable-p940"
+      />
     );
   }
 
@@ -319,7 +345,8 @@ export const ContactDetails = ({
               { replacements: { patientName: `<span>${patientName}</span>` } },
             ),
           }}
-          data-testid='styledtext-r6fj'></StyledText>
+          data-testid="styledtext-r6fj"
+        ></StyledText>
       ) : (
         <StyledText
           dangerouslySetInnerHTML={{
@@ -329,7 +356,8 @@ export const ContactDetails = ({
               { replacements: { patientName: `<span>${patientName}</span>` } },
             ),
           }}
-          data-testid='styledtext-rxy4'></StyledText>
+          data-testid="styledtext-rxy4"
+        ></StyledText>
       )}
       <StyledContactListTable
         columns={columns}
@@ -340,7 +368,8 @@ export const ContactDetails = ({
         onDataFetched={onDataFetched}
         isEmpty={isEmpty}
         refreshCount={refreshCount}
-        data-testid='styledcontactlisttable-hj3q' />
+        data-testid="styledcontactlisttable-hj3q"
+      />
     </>
   );
 };

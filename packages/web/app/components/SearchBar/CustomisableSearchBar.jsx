@@ -79,10 +79,10 @@ export const CustomisableSearchBar = ({
   hasPermission = true,
 }) => {
   const switchExpandValue = useCallback(() => {
-    setIsExpanded(previous => !previous);
+    setIsExpanded((previous) => !previous);
   }, [setIsExpanded]);
 
-  const handleSubmit = values => {
+  const handleSubmit = (values) => {
     onSearch({ ...values });
   };
 
@@ -90,20 +90,22 @@ export const CustomisableSearchBar = ({
     <Form
       onSubmit={handleSubmit}
       render={({ clearForm, values }) => (
-        <Container data-testid='container-ntc5'>
-          <CustomisableSearchBarGrid data-testid='customisablesearchbargrid-c6rk'>
+        <Container data-testid="container-ntc5">
+          <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-c6rk">
             {children}
-            <ActionsContainer data-testid='actionscontainer-3pm7'>
+            <ActionsContainer data-testid="actionscontainer-3pm7">
               {showExpandButton && (
                 <ThemedTooltip
                   title={isExpanded ? 'Hide advanced search' : 'Advanced search'}
-                  data-testid='themedtooltip-arue'>
+                  data-testid="themedtooltip-arue"
+                >
                   <IconButton
                     onClick={() => {
                       switchExpandValue();
                     }}
                     color="primary"
-                    data-testid='iconbutton-zrkv'>
+                    data-testid="iconbutton-zrkv"
+                  >
                     <img
                       src={isExpanded ? doubleUp : doubleDown}
                       alt={`${isExpanded ? 'hide' : 'show'} advanced search`}
@@ -114,11 +116,13 @@ export const CustomisableSearchBar = ({
               <SearchButton
                 type="submit"
                 hasPermission={hasPermission}
-                data-testid='searchbutton-nt24'>
+                data-testid="searchbutton-nt24"
+              >
                 <TranslatedText
                   stringId="general.action.search"
                   fallback="Search"
-                  data-testid='translatedtext-am6o' />
+                  data-testid="translatedtext-am6o"
+                />
               </SearchButton>
               <ClearButton
                 onClick={() => {
@@ -129,21 +133,28 @@ export const CustomisableSearchBar = ({
                   // state rather than the previous state
                   setTimeout(() => clearForm(), 0);
                 }}
-                data-testid='clearbutton-z9x3'>
+                data-testid="clearbutton-z9x3"
+              >
                 <TranslatedText
                   stringId="general.action.clear"
                   fallback="Clear"
-                  data-testid='translatedtext-vpib' />
+                  data-testid="translatedtext-vpib"
+                />
               </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
-          {isExpanded && <CustomisableSearchBarGrid data-testid='customisablesearchbargrid-q5qy'>{hiddenFields}</CustomisableSearchBarGrid>}
+          {isExpanded && (
+            <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-q5qy">
+              {hiddenFields}
+            </CustomisableSearchBarGrid>
+          )}
         </Container>
       )}
       initialValues={initialValues}
       enableReinitialize
       formType={FORM_TYPES.SEARCH_FORM}
-      data-testid='form-ufk0' />
+      data-testid="form-ufk0"
+    />
   );
 };
 

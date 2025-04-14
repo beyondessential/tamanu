@@ -12,13 +12,14 @@ const FullScreenContainer = styled(Grid)`
 `;
 
 export const Preloader = () => (
-  <Fade in timeout={{ enter: 500, exit: 200 }} data-testid='fade-zuhf'>
+  <Fade in timeout={{ enter: 500, exit: 200 }} data-testid="fade-zuhf">
     <FullScreenContainer
       justify="center"
       alignItems="center"
       container
       item
-      data-testid='fullscreencontainer-rh8v'>
+      data-testid="fullscreencontainer-rh8v"
+    >
       <img width="80" src={preloaderSrc} alt="Loading..." />
     </FullScreenContainer>
   </Fade>

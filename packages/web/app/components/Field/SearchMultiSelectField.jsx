@@ -106,12 +106,12 @@ export const SearchMultiSelectInput = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchValue, setSearchValue] = useState('');
 
-  const handleOpen = event => setAnchorEl(event.currentTarget);
+  const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const handleSelectOption = optionValue => {
+  const handleSelectOption = (optionValue) => {
     const newSelected = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue) // remove if already selected
+      ? value.filter((v) => v !== optionValue) // remove if already selected
       : [...value, optionValue]; // add if not selected
 
     onChange({ target: { value: newSelected, name } });
@@ -131,14 +131,16 @@ export const SearchMultiSelectInput = ({
         $open={Boolean(anchorEl)}
         variant="outlined"
         onClick={handleOpen}
-        {...props}>
+        {...props}
+      >
         {label} {value.length > 0 ? `(${value.length})` : ''}
       </StyledInputButton>
       <StyledMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        data-testid={`styledmenu-j04h-${name}`}>
+        data-testid={`styledmenu-j04h-${name}`}
+      >
         <SearchContainer data-testid={`searchcontainer-4ydp-${name}`}>
           {shouldShowSearch && (
             <StyledTextInput
@@ -152,35 +154,54 @@ export const SearchMultiSelectInput = ({
               placeholder={`Search ${label.toLowerCase()}`}
               style={{ paddingInlineStart: 0 }}
               value={searchValue}
-              onChange={e => setSearchValue(e.target.value)}
+              onChange={(e) => setSearchValue(e.target.value)}
               size="small"
-              data-testid={`styledtextinput-ryvy-${name}`} />
+              data-testid={`styledtextinput-ryvy-${name}`}
+            />
           )}
           <StyledTextButton onClick={handleClear} data-testid={`styledtextbutton-mth0-${name}`}>
             <TranslatedText
               stringId="general.action.clear"
               fallback="Clear"
-              data-testid={`translatedtext-hxyt-${name}`} />
+              data-testid={`translatedtext-hxyt-${name}`}
+            />
           </StyledTextButton>
         </SearchContainer>
 
         <OptionsContainer data-testid={`optionscontainer-nneh-${name}`}>
           {options.length > 0 ? (
             options
-              .filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
+              .filter((option) => option.label.toLowerCase().includes(searchValue.toLowerCase()))
               .sort((a, b) => a.label.localeCompare(b.label))
-              .map(option => (
+              .map((option) => (
                 <StyledMenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
-                  data-testid={`styledmenuitem-8ebf-${name}-${option.value}`}>
+                  data-testid={`styledmenuitem-8ebf-${name}-${option.value}`}
+                >
                   <Checkbox
                     checked={value.includes(option.value)}
-                    icon={<CheckboxIconUnchecked width={15} height={15} data-testid={`checkboxiconunchecked-aqdj-${option.value}`} />}
-                    checkedIcon={<CheckboxIconChecked width={15} height={15} data-testid={`checkboxiconchecked-1zsb-${option.value}`} />}
+                    icon={
+                      <CheckboxIconUnchecked
+                        width={15}
+                        height={15}
+                        data-testid={`checkboxiconunchecked-aqdj-${option.value}`}
+                      />
+                    }
+                    checkedIcon={
+                      <CheckboxIconChecked
+                        width={15}
+                        height={15}
+                        data-testid={`checkboxiconchecked-1zsb-${option.value}`}
+                      />
+                    }
                     sx={{ padding: 0 }}
-                    data-testid={`checkbox-hyuw-${name}-${option.value}`} />
-                  <ListItemText primary={option.label} data-testid={`listitemtext-pqs6-${name}-${option.value}`} />
+                    data-testid={`checkbox-hyuw-${name}-${option.value}`}
+                  />
+                  <ListItemText
+                    primary={option.label}
+                    data-testid={`listitemtext-pqs6-${name}-${option.value}`}
+                  />
                 </StyledMenuItem>
               ))
           ) : (
@@ -188,7 +209,8 @@ export const SearchMultiSelectInput = ({
               <TranslatedText
                 stringId="general.search.noDataMessage"
                 fallback="No options found"
-                data-testid={`translatedtext-lpri-${name}`} />
+                data-testid={`translatedtext-lpri-${name}`}
+              />
             </MenuItem>
           )}
         </OptionsContainer>
@@ -205,7 +227,8 @@ export const SearchMultiSelectField = ({ field, options, label, ...props }) => (
     label={label}
     options={options}
     {...props}
-    data-testid={`searchmultiselectinput-ptb5-${field.name}`} />
+    data-testid={`searchmultiselectinput-ptb5-${field.name}`}
+  />
 );
 
 export const SuggesterSearchMultiSelectField = ({

@@ -30,7 +30,7 @@ const Column = styled.div`
 const CardCell = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${props => props.theme.palette.text.tertiary};
+  color: ${(props) => props.theme.palette.text.tertiary};
   margin-bottom: 20px;
 
   &:last-child {
@@ -44,62 +44,76 @@ const CardLabel = styled.div`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props} data-testid='cardcell-kiqd'>
-    <CardLabel data-testid='cardlabel-ew60'>{label}</CardLabel>
-    <CardValue data-testid='cardvalue-xte9'>{value}</CardValue>
+  <CardCell {...props} data-testid="cardcell-kiqd">
+    <CardLabel data-testid="cardlabel-ew60">{label}</CardLabel>
+    <CardValue data-testid="cardvalue-xte9">{value}</CardValue>
   </CardCell>
 );
 
 export const PatientDetailsCard = ({ patient }) => (
-  <Card mb={4} data-testid='card-z5eu'>
-    <Column data-testid='column-ka13'>
+  <Card mb={4} data-testid="card-z5eu">
+    <Column data-testid="column-ka13">
       <CardItem
-        label={<TranslatedText
-          stringId="general.patientId.label"
-          fallback="Patient ID"
-          data-testid='translatedtext-dxyi' />}
+        label={
+          <TranslatedText
+            stringId="general.patientId.label"
+            fallback="Patient ID"
+            data-testid="translatedtext-dxyi"
+          />
+        }
         value={patient?.displayId}
-        data-testid='carditem-ij6h' />
+        data-testid="carditem-ij6h"
+      />
       <CardItem
         label={
           <TranslatedText
             stringId="general.localisedField.firstName.label"
             fallback="First name"
-            data-testid='translatedtext-hmo0' />
+            data-testid="translatedtext-hmo0"
+          />
         }
         value={patient?.firstName}
-        data-testid='carditem-5i8y' />
+        data-testid="carditem-5i8y"
+      />
       <CardItem
         label={
           <TranslatedText
             stringId="general.localisedField.lastName.label"
             fallback="Last name"
-            data-testid='translatedtext-6wf8' />
+            data-testid="translatedtext-6wf8"
+          />
         }
         value={patient?.lastName}
-        data-testid='carditem-2zmk' />
+        data-testid="carditem-2zmk"
+      />
     </Column>
-    <Column data-testid='column-tjs7'>
+    <Column data-testid="column-tjs7">
       <CardItem
         label={
           <TranslatedText
             stringId="patient.detail.card.dateOfBirth.label.short"
             fallback="DOB"
-            data-testid='translatedtext-0qfs' />
+            data-testid="translatedtext-0qfs"
+          />
         }
-        value={<DateDisplay date={patient?.dateOfBirth} data-testid='datedisplay-h1tz' />}
-        data-testid='carditem-mm6v' />
+        value={<DateDisplay date={patient?.dateOfBirth} data-testid="datedisplay-h1tz" />}
+        data-testid="carditem-mm6v"
+      />
       <CardItem
-        label={<TranslatedText
-          stringId="general.localisedField.sex.label"
-          fallback="Sex"
-          data-testid='translatedtext-75mt' />}
+        label={
+          <TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid="translatedtext-75mt"
+          />
+        }
         value={SEX_VALUE_INDEX[patient?.sex]?.label}
-        data-testid='carditem-i7lc' />
+        data-testid="carditem-i7lc"
+      />
     </Column>
   </Card>
 );

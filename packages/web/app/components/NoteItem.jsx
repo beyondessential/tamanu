@@ -72,12 +72,9 @@ const StyledNoteItemLogMetadata = styled.div`
 const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
-const StyledTooltip = styled(props => (
-  <ClickAwayListener onClickAway={props.onClickAway} data-testid='clickawaylistener-ttee'>
-    <Tooltip
-      classes={{ popper: props.className }}
-      {...props}
-      data-testid='tooltip-o9f3'>
+const StyledTooltip = styled((props) => (
+  <ClickAwayListener onClickAway={props.onClickAway} data-testid="clickawaylistener-ttee">
+    <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-o9f3">
       {props.children}
     </Tooltip>
   </ClickAwayListener>
@@ -115,7 +112,9 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
         <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-5hu9${index}`} />
       </StyledNoteItemLogMetadata>
 
-      <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>{noteItem.content}</StyledNoteItemLogContent>
+      <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>
+        {noteItem.content}
+      </StyledNoteItemLogContent>
       <br />
     </div>
   ));
@@ -128,26 +127,30 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
   const { currentUser } = useAuth();
 
   return (
-    <StyledNoteItemSecondaryWrapper data-testid='stylednoteitemsecondarywrapper-vit4'>
+    <StyledNoteItemSecondaryWrapper data-testid="stylednoteitemsecondarywrapper-vit4">
       {!isEditing && (hasPermission || currentUser.id === noteItem.authorId) && (
-        <StyledEditIcon onClick={onEditClick} data-testid='styledediticon-s5ol' />
+        <StyledEditIcon onClick={onEditClick} data-testid="styledediticon-s5ol" />
       )}
       <br />
       <>
         <span>{noteItem.author?.displayName || ''} </span>
         {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
-        <DateDisplay date={noteItem.date} showTime data-testid='datedisplay-zaes' />
+        <DateDisplay date={noteItem.date} showTime data-testid="datedisplay-zaes" />
         {noteItem?.noteItems?.length > 0 && (
           <>
             <span> (edited) </span>
             <StyledTooltip
               open={isTooltipOpen}
               onClickAway={() => setTooltipOpen(false)}
-              title={<ItemTooltip childNoteItems={noteItem.noteItems} data-testid='itemtooltip-bv1t' />}
-              data-testid='styledtooltip-egfj'>
+              title={
+                <ItemTooltip childNoteItems={noteItem.noteItems} data-testid="itemtooltip-bv1t" />
+              }
+              data-testid="styledtooltip-egfj"
+            >
               <StyledViewChangeLogWrapper
                 onClick={() => setTooltipOpen(true)}
-                data-testid='styledviewchangelogwrapper-bl80'>
+                data-testid="styledviewchangelogwrapper-bl80"
+              >
                 View change log
               </StyledViewChangeLogWrapper>
             </StyledTooltip>
@@ -170,25 +173,29 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
 
   return (
     <>
-      {index !== 0 && <Divider data-testid='divider-hyr6' />}
-      <ListItem ref={lastNoteItemRef} data-testid='listitem-ynmh'>
+      {index !== 0 && <Divider data-testid="divider-hyr6" />}
+      <ListItem ref={lastNoteItemRef} data-testid="listitem-ynmh">
         {isEditing ? (
-          <EditTextWrapper data-testid='edittextwrapper-e5gj'>
+          <EditTextWrapper data-testid="edittextwrapper-e5gj">
             <TextInput
               style={{ width: '100%' }}
               fullWidth
               value={content}
               multiline
-              onChange={event => setContent(event.target.value)}
-              data-testid='textinput-l960' />
-            <StyledSaveText onClick={handleDone} data-testid='styledsavetext-y7f6'>Save</StyledSaveText>
+              onChange={(event) => setContent(event.target.value)}
+              data-testid="textinput-l960"
+            />
+            <StyledSaveText onClick={handleDone} data-testid="styledsavetext-y7f6">
+              Save
+            </StyledSaveText>
             <StyledCancelText
               onClick={() => {
                 // resetting note item content
                 setContent(noteItem.content);
                 setIsEditing(!isEditing);
               }}
-              data-testid='styledcanceltext-s95j'>
+              data-testid="styledcanceltext-s95j"
+            >
               Cancel
             </StyledCancelText>
           </EditTextWrapper>
@@ -196,17 +203,19 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
           <StyledListItemText
             primary={
               <>
-                <NoteItemMain noteItem={noteItem} data-testid='noteitemmain-4p45' />
+                <NoteItemMain noteItem={noteItem} data-testid="noteitemmain-4p45" />
                 <NoteItemSecondaryWithPermission
                   noteItem={noteItem}
                   isEditing={isEditing}
                   onEditClick={() => setIsEditing(!isEditing)}
                   verb="write"
                   noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
-                  data-testid='noteitemsecondarywithpermission-w8d2' />
+                  data-testid="noteitemsecondarywithpermission-w8d2"
+                />
               </>
             }
-            data-testid='styledlistitemtext-dxed' />
+            data-testid="styledlistitemtext-dxed"
+          />
         )}
       </ListItem>
     </>

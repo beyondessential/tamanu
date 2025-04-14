@@ -52,22 +52,26 @@ const StyledFormControlLabel = styled(FormControlLabel)`
 `;
 
 export const SwitchInput = ({ label, disabled, value, className, ...props }) => {
-  const handleChange = event => {
+  const handleChange = (event) => {
     event.target.value = event.target.checked;
     props.onChange(event);
   };
   return (
     <StyledFormControlLabel
-      control={<StyledSwitch
-        value={value}
-        checked={!!value}
-        {...props}
-        onChange={handleChange}
-        data-testid='styledswitch-wyw7' />}
+      control={
+        <StyledSwitch
+          value={value}
+          checked={!!value}
+          {...props}
+          onChange={handleChange}
+          data-testid="styledswitch-wyw7"
+        />
+      }
       label={label}
       disabled={disabled}
       className={className}
-      data-testid='styledformcontrollabel-y8xy' />
+      data-testid="styledformcontrollabel-y8xy"
+    />
   );
 };
 
@@ -77,5 +81,6 @@ export const SwitchField = ({ field, ...props }) => (
     value={field.value}
     onChange={field.onChange}
     {...props}
-    data-testid='switchinput-bt2i' />
+    data-testid="switchinput-bt2i"
+  />
 );

@@ -41,9 +41,13 @@ export const PatientMergeView = ({ fetchPatient }) => {
 
   let modal = null;
   if (mergeError) {
-    modal = <MergeErrorModal error={mergeError} onClose={reset} data-testid='mergeerrormodal-l8ey' />;
+    modal = (
+      <MergeErrorModal error={mergeError} onClose={reset} data-testid="mergeerrormodal-l8ey" />
+    );
   } else if (result) {
-    modal = <MergeResultModal result={result} onClose={reset} data-testid='mergeresultmodal-qq2y' />;
+    modal = (
+      <MergeResultModal result={result} onClose={reset} data-testid="mergeresultmodal-qq2y" />
+    );
   } else if (mergePlan) {
     modal = (
       <ConfirmationModal
@@ -51,7 +55,8 @@ export const PatientMergeView = ({ fetchPatient }) => {
         onBack={() => setMergePlan(null)}
         onCancel={clear}
         onConfirm={() => onMergePatients(mergePlan)}
-        data-testid='confirmationmodal-yp95' />
+        data-testid="confirmationmodal-yp95"
+      />
     );
   } else if (patients) {
     modal = (
@@ -60,7 +65,8 @@ export const PatientMergeView = ({ fetchPatient }) => {
         secondPatient={patients[1]}
         onCancel={clear}
         onSelectPlan={setMergePlan}
-        data-testid='keeppatientdecisionform-50km' />
+        data-testid="keeppatientdecisionform-50km"
+      />
     );
   }
 
@@ -70,7 +76,8 @@ export const PatientMergeView = ({ fetchPatient }) => {
         key={regenKey}
         fetchPatient={fetchPatient}
         onBeginMerge={(a, b) => setPatients([a, b])}
-        data-testid='patientmergesearch-hlg1' />
+        data-testid="patientmergesearch-hlg1"
+      />
       {modal}
     </>
   );

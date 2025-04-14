@@ -25,14 +25,15 @@ const useColumns = () => {
         <TranslatedText
           stringId="patientList.triage.table.column.waitTime"
           fallback="Wait time"
-          data-testid='translatedtext-xy39' />
+          data-testid="translatedtext-xy39"
+        />
       ),
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
       cellColor: ({ score, encounterType }) => {
         switch (encounterType) {
           case 'triage':
-            return triageCategories.find(c => c.level === parseInt(score))?.color;
+            return triageCategories.find((c) => c.level === parseInt(score))?.color;
           default:
             return ADMITTED_PRIORITY_COLOR;
         }
@@ -46,14 +47,16 @@ const useColumns = () => {
         <TranslatedText
           stringId="patientList.triage.table.column.chiefComplaint"
           fallback="Chief complaint"
-          data-testid='translatedtext-ziou' />
+          data-testid="translatedtext-ziou"
+        />
       ),
-      accessor: row => (
+      accessor: (row) => (
         <TranslatedReferenceData
           value={row.chiefComplaintId}
           fallback={row.chiefComplaint}
           category="triageReason"
-          data-testid='translatedreferencedata-4x0j' />
+          data-testid="translatedreferencedata-4x0j"
+        />
       ),
     },
     {
@@ -62,16 +65,20 @@ const useColumns = () => {
         <TranslatedText
           stringId="general.localisedField.displayId.label.short"
           fallback="NHN"
-          data-testid='translatedtext-1wg9' />
+          data-testid="translatedtext-1wg9"
+        />
       ),
     },
     {
       key: 'patientName',
-      title: <TranslatedText
-        stringId="general.patient.label"
-        fallback="Patient"
-        data-testid='translatedtext-h868' />,
-      accessor: row => `${row.firstName} ${row.lastName}`,
+      title: (
+        <TranslatedText
+          stringId="general.patient.label"
+          fallback="Patient"
+          data-testid="translatedtext-h868"
+        />
+      ),
+      accessor: (row) => `${row.firstName} ${row.lastName}`,
     },
     {
       key: 'dateOfBirth',
@@ -79,32 +86,42 @@ const useColumns = () => {
         <TranslatedText
           stringId="general.localisedField.dateOfBirth.label.short"
           fallback="DOB"
-          data-testid='translatedtext-daoi' />
+          data-testid="translatedtext-daoi"
+        />
       ),
-      accessor: row => <DateDisplay date={row.dateOfBirth} data-testid='datedisplay-gy0v' />,
+      accessor: (row) => <DateDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
     },
     {
       key: 'sex',
-      title: <TranslatedText
-        stringId="general.localisedField.sex.label"
-        fallback="Sex"
-        data-testid='translatedtext-qa0c' />,
-      accessor: row => <TranslatedSex sex={row.sex} data-testid='translatedsex-wqbc' />,
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.sex.label"
+          fallback="Sex"
+          data-testid="translatedtext-qa0c"
+        />
+      ),
+      accessor: (row) => <TranslatedSex sex={row.sex} data-testid="translatedsex-wqbc" />,
     },
     {
       key: 'locationGroupName',
-      title: <TranslatedText
-        stringId="general.table.column.area"
-        fallback="Area"
-        data-testid='translatedtext-u3wm' />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.area"
+          fallback="Area"
+          data-testid="translatedtext-u3wm"
+        />
+      ),
       accessor: LocationGroupCell,
     },
     {
       key: 'locationName',
-      title: <TranslatedText
-        stringId="general.location.label"
-        fallback="Location"
-        data-testid='translatedtext-2uc7' />,
+      title: (
+        <TranslatedText
+          stringId="general.location.label"
+          fallback="Location"
+          data-testid="translatedtext-2uc7"
+        />
+      ),
       accessor: LocationCell,
     },
   ];
@@ -117,7 +134,7 @@ export const TriageTable = React.memo(() => {
   const dispatch = useDispatch();
   const columns = useColumns();
 
-  const viewEncounter = async triage => {
+  const viewEncounter = async (triage) => {
     await dispatch(reloadPatient(triage.patientId));
     await loadEncounter(triage.encounterId);
     dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
@@ -134,9 +151,11 @@ export const TriageTable = React.memo(() => {
         <TranslatedText
           stringId="patientList.table.noData"
           fallback="No patients found"
-          data-testid='translatedtext-vbj4' />
+          data-testid="translatedtext-vbj4"
+        />
       }
       onRowClick={viewEncounter}
-      data-testid='datafetchingtablewithpermissioncheck-7800' />
+      data-testid="datafetchingtablewithpermissioncheck-7800"
+    />
   );
 });

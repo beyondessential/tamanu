@@ -16,39 +16,51 @@ import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramR
 export const FACILITY_MENU_ITEMS = [
   {
     key: 'dashboard',
-    label: <TranslatedText
-      stringId="sidebar.dashboard"
-      fallback="Dashboard"
-      data-testid='translatedtext-t906' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.dashboard"
+        fallback="Dashboard"
+        data-testid="translatedtext-t906"
+      />
+    ),
     path: '/dashboard',
     icon: dashboardIcon,
     ability: { action: 'read' },
   },
   {
     key: 'patients',
-    label: <TranslatedText
-      stringId="sidebar.patients"
-      fallback="Patients"
-      data-testid='translatedtext-ew4j' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.patients"
+        fallback="Patients"
+        data-testid="translatedtext-ew4j"
+      />
+    ),
     path: '/patients',
     icon: patientIcon,
     ability: { subject: 'patient' },
     children: [
       {
-        label: <TranslatedText
-          stringId="sidebar.patients.all"
-          fallback="All patients"
-          data-testid='translatedtext-7oku' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.patients.all"
+            fallback="All patients"
+            data-testid="translatedtext-7oku"
+          />
+        ),
         color: Colors.blue,
         path: '/patients/all',
         key: 'patientsAll',
         ability: { action: 'read' },
       },
       {
-        label: <TranslatedText
-          stringId="sidebar.patients.inpatients"
-          fallback="Inpatients"
-          data-testid='translatedtext-tjv8' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.patients.inpatients"
+            fallback="Inpatients"
+            data-testid="translatedtext-tjv8"
+          />
+        ),
         color: Colors.green,
         path: '/patients/inpatient',
         key: 'patientsInpatients',
@@ -59,7 +71,8 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.patients.emergency"
             fallback="Emergency patients"
-            data-testid='translatedtext-sn91' />
+            data-testid="translatedtext-sn91"
+          />
         ),
         color: Colors.orange,
         path: '/patients/emergency',
@@ -67,10 +80,13 @@ export const FACILITY_MENU_ITEMS = [
         ability: { action: 'read' },
       },
       {
-        label: <TranslatedText
-          stringId="sidebar.patients.outpatients"
-          fallback="Outpatients"
-          data-testid='translatedtext-433j' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.patients.outpatients"
+            fallback="Outpatients"
+            data-testid="translatedtext-433j"
+          />
+        ),
         color: '#F9BA5B',
         path: '/patients/outpatient',
         key: 'patientsOutpatients',
@@ -80,10 +96,13 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'scheduling',
-    label: <TranslatedText
-      stringId="sidebar.scheduling"
-      fallback="Scheduling"
-      data-testid='translatedtext-46ib' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.scheduling"
+        fallback="Scheduling"
+        data-testid="translatedtext-46ib"
+      />
+    ),
     path: '/appointments',
     icon: scheduleIcon,
     ability: { subject: 'appointment' },
@@ -93,7 +112,8 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.scheduling.outpatientAppointments"
             fallback="Outpatient appointments"
-            data-testid='translatedtext-xdqn' />
+            data-testid="translatedtext-xdqn"
+          />
         ),
         path: '/appointments/outpatients',
         key: 'schedulingOutpatients',
@@ -106,7 +126,8 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.scheduling.locations"
             fallback="Location bookings"
-            data-testid='translatedtext-mrfi' />
+            data-testid="translatedtext-mrfi"
+          />
         ),
         ability: { action: 'read' },
       },
@@ -114,19 +135,25 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'medication',
-    label: <TranslatedText
-      stringId="sidebar.medication"
-      fallback="Medication"
-      data-testid='translatedtext-6sgi' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.medication"
+        fallback="Medication"
+        data-testid="translatedtext-6sgi"
+      />
+    ),
     path: '/medication-requests',
     icon: medicationIcon,
     ability: { subject: 'medication' },
     children: [
       {
-        label: <TranslatedText
-          stringId="sidebar.medication.requests"
-          fallback="Requests"
-          data-testid='translatedtext-mech' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.medication.requests"
+            fallback="Requests"
+            data-testid="translatedtext-mech"
+          />
+        ),
         path: '/medication-requests/all',
         key: 'medicationAll',
         ability: { action: 'read' },
@@ -135,28 +162,37 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'imaging',
-    label: <TranslatedText
-      stringId="sidebar.imaging"
-      fallback="Imaging"
-      data-testid='translatedtext-5sly' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.imaging"
+        fallback="Imaging"
+        data-testid="translatedtext-5sly"
+      />
+    ),
     path: '/imaging-requests',
     icon: radiologyIcon,
     ability: { subject: 'imaging' },
     children: [
       {
-        label: <TranslatedText
-          stringId="sidebar.imaging.active"
-          fallback="Active requests"
-          data-testid='translatedtext-qsu2' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.imaging.active"
+            fallback="Active requests"
+            data-testid="translatedtext-qsu2"
+          />
+        ),
         path: '/imaging-requests/active',
         key: 'imagingActive',
         ability: { action: 'read' },
       },
       {
-        label: <TranslatedText
-          stringId="sidebar.imaging.completed"
-          fallback="Completed"
-          data-testid='translatedtext-wssk' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.imaging.completed"
+            fallback="Completed"
+            data-testid="translatedtext-wssk"
+          />
+        ),
         path: '/imaging-requests/completed',
         key: 'imagingCompleted',
         ability: { action: 'read' },
@@ -165,25 +201,33 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'labs',
-    label: <TranslatedText stringId="sidebar.labs" fallback="Labs" data-testid='translatedtext-9bsv' />,
+    label: (
+      <TranslatedText stringId="sidebar.labs" fallback="Labs" data-testid="translatedtext-9bsv" />
+    ),
     path: '/lab-requests',
     icon: labsIcon,
     ability: { subject: 'lab' },
     children: [
       {
-        label: <TranslatedText
-          stringId="sidebar.labs.active"
-          fallback="Active requests"
-          data-testid='translatedtext-lhz4' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.labs.active"
+            fallback="Active requests"
+            data-testid="translatedtext-lhz4"
+          />
+        ),
         path: '/lab-requests/all',
         key: 'labsAll',
         ability: { action: 'read' },
       },
       {
-        label: <TranslatedText
-          stringId="sidebar.labs.published"
-          fallback="Published"
-          data-testid='translatedtext-gtx9' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.labs.published"
+            fallback="Published"
+            data-testid="translatedtext-gtx9"
+          />
+        ),
         path: '/lab-requests/published',
         key: 'labsPublished',
         ability: { action: 'read' },
@@ -192,10 +236,13 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'immunisations',
-    label: <TranslatedText
-      stringId="sidebar.immunisations"
-      fallback="Immunisation"
-      data-testid='translatedtext-sko8' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.immunisations"
+        fallback="Immunisation"
+        data-testid="translatedtext-sko8"
+      />
+    ),
     path: '/immunisations',
     icon: vaccineIcon,
     ability: { action: 'read' },
@@ -205,7 +252,8 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.immunisations.register"
             fallback="Immunisation register"
-            data-testid='translatedtext-ygf1' />
+            data-testid="translatedtext-ygf1"
+          />
         ),
         path: '/immunisations/all',
         key: 'immunisationsAll',
@@ -214,10 +262,13 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'programRegistry',
-    label: <TranslatedText
-      stringId="sidebar.programRegistry"
-      fallback="Program Registry"
-      data-testid='translatedtext-h6s3' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.programRegistry"
+        fallback="Program Registry"
+        data-testid="translatedtext-h6s3"
+      />
+    ),
     path: '/program-registry',
     icon: programsIcon,
     Component: ProgramRegistrySidebarItem,
@@ -226,19 +277,25 @@ export const FACILITY_MENU_ITEMS = [
   },
   {
     key: 'facilityAdmin',
-    label: <TranslatedText
-      stringId="sidebar.facilityAdmin"
-      fallback="Facility admin"
-      data-testid='translatedtext-vs86' />,
+    label: (
+      <TranslatedText
+        stringId="sidebar.facilityAdmin"
+        fallback="Facility admin"
+        data-testid="translatedtext-vs86"
+      />
+    ),
     path: '/facility-admin',
     ability: { action: 'read', subject: 'patient' },
     divider: true,
     children: [
       {
-        label: <TranslatedText
-          stringId="sidebar.facilityAdmin.reports"
-          fallback="Reports"
-          data-testid='translatedtext-yyc2' />,
+        label: (
+          <TranslatedText
+            stringId="sidebar.facilityAdmin.reports"
+            fallback="Reports"
+            data-testid="translatedtext-yyc2"
+          />
+        ),
         key: 'reports',
         path: '/facility-admin/reports',
       },
@@ -247,7 +304,8 @@ export const FACILITY_MENU_ITEMS = [
           <TranslatedText
             stringId="sidebar.facilityAdmin.bedManagement"
             fallback="Bed management"
-            data-testid='translatedtext-zp56' />
+            data-testid="translatedtext-zp56"
+          />
         ),
         key: 'bedManagement',
         path: '/facility-admin/bed-management',

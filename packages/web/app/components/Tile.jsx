@@ -33,7 +33,7 @@ const Text = styled(Typography)`
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
-  color: ${props => props.theme.palette.text.tertiary};
+  color: ${(props) => props.theme.palette.text.tertiary};
   margin-bottom: 4px;
 `;
 
@@ -44,16 +44,15 @@ const Main = styled.div`
 `;
 
 export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...props }) => (
-  <Container {...props} data-testid='container-uk3i'>
-    <Header data-testid='header-7mhd'>
-      <Icon color="primary" data-testid='icon-34xt' />
-      {actions && !isReadOnly && <MenuButton
-        actions={actions}
-        iconDirection="horizontal"
-        data-testid='menubutton-cvj1' />}
+  <Container {...props} data-testid="container-uk3i">
+    <Header data-testid="header-7mhd">
+      <Icon color="primary" data-testid="icon-34xt" />
+      {actions && !isReadOnly && (
+        <MenuButton actions={actions} iconDirection="horizontal" data-testid="menubutton-cvj1" />
+      )}
     </Header>
-    <Text data-testid='text-u1af'>{text}</Text>
-    <Main data-testid='main-vs6r'>{main}</Main>
+    <Text data-testid="text-u1af">{text}</Text>
+    <Main data-testid="main-vs6r">{main}</Main>
   </Container>
 ));
 
@@ -100,8 +99,8 @@ const OverflowContainer = styled.div`
 `;
 
 export const TileTooltip = React.memo(({ text, ...props }) => (
-  <Tooltip title={text} placement="top" {...props} data-testid='tooltip-qkyg'>
-    <OverflowContainer data-testid='overflowcontainer-0mhi'>{text}</OverflowContainer>
+  <Tooltip title={text} placement="top" {...props} data-testid="tooltip-qkyg">
+    <OverflowContainer data-testid="overflowcontainer-0mhi">{text}</OverflowContainer>
   </Tooltip>
 ));
 

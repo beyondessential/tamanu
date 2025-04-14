@@ -17,16 +17,14 @@ import { useSettings } from '../../../contexts/Settings';
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
   const { watermark, logo, footerImg, printedBy } = certificateData;
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
   const { data: labTestsResponse, isLoading: isLabTestsLoading } = useCovidLabTestQuery(
     patient.id,
     CertificateTypes.clearance,
@@ -35,7 +33,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
-    data =>
+    (data) =>
       api.post('certificateNotification', {
         type: COVID_19_CLEARANCE_CERTIFICATE,
         requireSigning: false,
@@ -55,12 +53,12 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('clearance-certificate')}
-      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} data-testid='emailbutton-mrlf' />}
-      data-testid='modal-uom3'>
-      <PDFLoader
-        isLoading={isLoading}
-        id="clearance-certificate"
-        data-testid='pdfloader-54mr'>
+      additionalActions={
+        <EmailButton onEmail={createCovidTestCertNotification} data-testid="emailbutton-mrlf" />
+      }
+      data-testid="modal-uom3"
+    >
+      <PDFLoader isLoading={isLoading} id="clearance-certificate" data-testid="pdfloader-54mr">
         <CovidLabCertificate
           patient={patientData}
           labs={labTestsResponse?.data}
@@ -71,7 +69,8 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.clearance}
-          data-testid='covidlabcertificate-au78' />
+          data-testid="covidlabcertificate-au78"
+        />
       </PDFLoader>
     </Modal>
   );

@@ -33,35 +33,41 @@ const EncounterOptionButton = ({ label, image, onClick }) => (
     variant="contained"
     color="default"
     onClick={onClick}
-    data-testid='encounteroptiontypebutton-haqi'>
-    <TypeImage alt={label} src={image} data-testid='typeimage-c71v' />
+    data-testid="encounteroptiontypebutton-haqi"
+  >
+    <TypeImage alt={label} src={image} data-testid="typeimage-c71v" />
     {label}
   </EncounterOptionTypeButton>
 );
 
 export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEncounterType }) => {
-  const items = ENCOUNTER_OPTIONS
-    .filter(option => !option.hideFromMenu)
-    .map(({ label, value, image }) => (
+  const items = ENCOUNTER_OPTIONS.filter((option) => !option.hideFromMenu).map(
+    ({ label, value, image }) => (
       <EncounterOptionButton
         key={value}
         label={label}
         value={value}
         image={image}
         onClick={() => onSelectEncounterType(value)}
-        data-testid={`encounteroptionbutton-6ubf-${value}`} />
-    ));
+        data-testid={`encounteroptionbutton-6ubf-${value}`}
+      />
+    ),
+  );
 
   return (
     <Modal
-      title={<TranslatedText
-        stringId="patient.modal.admit.title"
-        fallback="Admit or check-in"
-        data-testid='translatedtext-505w' />}
+      title={
+        <TranslatedText
+          stringId="patient.modal.admit.title"
+          fallback="Admit or check-in"
+          data-testid="translatedtext-505w"
+        />
+      }
       open={open}
       onClose={onClose}
-      data-testid='modal-8456'>
-      <SelectorGrid data-testid='selectorgrid-000c'>{items}</SelectorGrid>
+      data-testid="modal-8456"
+    >
+      <SelectorGrid data-testid="selectorgrid-000c">{items}</SelectorGrid>
     </Modal>
   );
 });

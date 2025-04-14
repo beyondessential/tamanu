@@ -28,23 +28,25 @@ const CenteredLink = styled(Link)`
 
 const StyledField = styled(Field)`
   .MuiFormControl-root {
-    background: ${props => (props.disabled ? Colors.outline : 'inherit')};
+    background: ${(props) => (props.disabled ? Colors.outline : 'inherit')};
   }
 `;
 
 const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
-  <ButtonRow data-testid='buttonrow-28tq'>
-    <CenteredLink onClick={onClear} data-testid='centeredlink-2t4o'>
+  <ButtonRow data-testid="buttonrow-28tq">
+    <CenteredLink onClick={onClear} data-testid="centeredlink-2t4o">
       <TranslatedText
         stringId="general.action.clear"
         fallback="Clear"
-        data-testid='translatedtext-wsdn' />
+        data-testid="translatedtext-wsdn"
+      />
     </CenteredLink>
-    <ConfirmButton color="primary" onClick={onConfirm} data-testid='confirmbutton-f4r3'>
+    <ConfirmButton color="primary" onClick={onConfirm} data-testid="confirmbutton-f4r3">
       <TranslatedText
         stringId="general.action.confirm"
         fallback="Confirm"
-        data-testid='translatedtext-mn0b' />
+        data-testid="translatedtext-mn0b"
+      />
     </ConfirmButton>
   </ButtonRow>
 ));
@@ -55,56 +57,69 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
 
     return (
       <>
-        <FormGrid columns={2} data-testid='formgrid-g4zl'>
+        <FormGrid columns={2} data-testid="formgrid-g4zl">
           <Field
             name="type"
-            label={<TranslatedText
-              stringId="general.type.label"
-              fallback="Type"
-              data-testid='translatedtext-aajp' />}
+            label={
+              <TranslatedText
+                stringId="general.type.label"
+                fallback="Type"
+                data-testid="translatedtext-aajp"
+              />
+            }
             component={TranslatedSelectField}
             enumValues={TEMPLATE_TYPE_LABELS}
             required
             onChange={() => resetForm({ values: {} })}
-            data-testid='field-c9h8' />
+            data-testid="field-c9h8"
+          />
           <Field
             name="name"
             label={
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
-                data-testid='translatedtext-dn5r' />
+                data-testid="translatedtext-dn5r"
+              />
             }
             component={TextField}
             required
-            data-testid='field-9vo0' />
+            data-testid="field-9vo0"
+          />
         </FormGrid>
-        <SmallGridSpacer data-testid='smallgridspacer-eo6v' />
-        <FormGrid columns={1} nested data-testid='formgrid-hze3'>
+        <SmallGridSpacer data-testid="smallgridspacer-eo6v" />
+        <FormGrid columns={1} nested data-testid="formgrid-hze3">
           <StyledField
             name="title"
             label={
               <TranslatedText
                 stringId="general.localisedField.title.label"
                 fallback="Title"
-                data-testid='translatedtext-ab1d' />
+                data-testid="translatedtext-ab1d"
+              />
             }
             component={TextField}
             disabled={disabledTitle}
-            data-testid='styledfield-bw43' />
+            data-testid="styledfield-bw43"
+          />
           <Field
             name="body"
-            label={<TranslatedText
-              stringId="admin.template.content.label"
-              fallback="Contents"
-              data-testid='translatedtext-kz5f' />}
+            label={
+              <TranslatedText
+                stringId="admin.template.content.label"
+                fallback="Contents"
+                data-testid="translatedtext-kz5f"
+              />
+            }
             component={TallMultilineTextField}
-            data-testid='field-znq6' />
+            data-testid="field-znq6"
+          />
         </FormGrid>
         <ConfirmClearRow
           onConfirm={submitForm}
           onClear={resetForm}
-          data-testid='confirmclearrow-kixd' />
+          data-testid="confirmclearrow-kixd"
+        />
       </>
     );
   };
@@ -118,10 +133,13 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
         type: yup
           .string()
           .required()
-          .translatedLabel(<TranslatedText
-          stringId="general.type.label"
-          fallback="Type"
-          data-testid='translatedtext-2lpr' />),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.type.label"
+              fallback="Type"
+              data-testid="translatedtext-2lpr"
+            />,
+          ),
         name: yup
           .string()
           .required()
@@ -129,11 +147,13 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
             <TranslatedText
               stringId="patientLetterTemplate.templateName.label"
               fallback="Template name"
-              data-testid='translatedtext-7pbt' />,
+              data-testid="translatedtext-7pbt"
+            />,
           ),
         title: yup.string(),
         body: yup.string(),
       })}
-      data-testid='form-kfhg' />
+      data-testid="form-kfhg"
+    />
   );
 });

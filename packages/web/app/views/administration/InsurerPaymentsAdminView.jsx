@@ -6,6 +6,7 @@ export const InsurerPaymentsAdminView = () => (
     title="Insurer Payments"
     endpoint="insurerPayments"
     // no export required for insurer payments
-    buildTabs={importTab => [importTab]}
-    data-testid='importexportview-n1ke' />
+    buildTabs={(importTab) => [importTab]}
+    data-testid="importexportview-n1ke"
+  />
 );

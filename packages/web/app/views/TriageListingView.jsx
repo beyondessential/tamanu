@@ -12,20 +12,24 @@ const Section = styled.div`
 `;
 
 export const TriageListingView = () => (
-  <PageContainer data-testid='pagecontainer-mjc9'>
+  <PageContainer data-testid="pagecontainer-mjc9">
     <TopBar
-      title={<TranslatedText
-        stringId="patientList.triage.title"
-        fallback="Emergency patients"
-        data-testid='translatedtext-zm2d' />}
-      data-testid='topbar-nnv9' />
-    <Section data-testid='section-deaj'>
-      <ContentPane data-testid='contentpane-cymj'>
-        <TriageDashboard data-testid='triagedashboard-iokz' />
+      title={
+        <TranslatedText
+          stringId="patientList.triage.title"
+          fallback="Emergency patients"
+          data-testid="translatedtext-zm2d"
+        />
+      }
+      data-testid="topbar-nnv9"
+    />
+    <Section data-testid="section-deaj">
+      <ContentPane data-testid="contentpane-cymj">
+        <TriageDashboard data-testid="triagedashboard-iokz" />
       </ContentPane>
     </Section>
-    <ContentPane data-testid='contentpane-egho'>
-      <TriageTable data-testid='triagetable-xgik' />
+    <ContentPane data-testid="contentpane-egho">
+      <TriageTable data-testid="triagetable-xgik" />
     </ContentPane>
   </PageContainer>
 );

@@ -10,17 +10,15 @@ const ContentText = styled.div`
 
 export const ConfirmPaidModal = ({ open, onClose, onConfirm }) => {
   return (
-    <Modal width="sm" open={open} onClose={onClose} data-testid='modal-092j'>
-      <ContentText data-testid='contenttext-rh3t'>
+    <Modal width="sm" open={open} onClose={onClose} data-testid="modal-092j">
+      <ContentText data-testid="contenttext-rh3t">
         <TranslatedText
           stringId="invoice.modal.confirmPaid.warningText"
           fallback="This payment will set this invoice as 'Paid' and no changes will be possible after this. Are you sure you wish to record this payment?"
-          data-testid='translatedtext-czn7' />
+          data-testid="translatedtext-czn7"
+        />
       </ContentText>
-      <ModalActionRow
-        onConfirm={onConfirm}
-        onCancel={onClose}
-        data-testid='modalactionrow-q1r8' />
+      <ModalActionRow onConfirm={onConfirm} onCancel={onClose} data-testid="modalactionrow-q1r8" />
     </Modal>
   );
 };

@@ -21,14 +21,20 @@ export const ConfirmModal = ({
   subText,
   width = 'sm',
   ConfirmButton = OutlinedButton,
-  confirmButtonText = <TranslatedText
-    stringId="general.action.confirm"
-    fallback="Confirm"
-    data-testid='translatedtext-40y7' />,
-  cancelButtonText = <TranslatedText
-    stringId="general.action.cancel"
-    fallback="Cancel"
-    data-testid='translatedtext-ki9e' />,
+  confirmButtonText = (
+    <TranslatedText
+      stringId="general.action.confirm"
+      fallback="Confirm"
+      data-testid="translatedtext-40y7"
+    />
+  ),
+  cancelButtonText = (
+    <TranslatedText
+      stringId="general.action.cancel"
+      fallback="Cancel"
+      data-testid="translatedtext-ki9e"
+    />
+  ),
   className,
   customContent,
 }) => (
@@ -38,17 +44,20 @@ export const ConfirmModal = ({
     title={title}
     open={open}
     onClose={onCancel}
-    data-testid='modal-dgog'>
+    data-testid="modal-dgog"
+  >
     {customContent || (
-      <Content data-testid='content-cpjk'>
+      <Content data-testid="content-cpjk">
         <h3>{text}</h3>
         <p>{subText}</p>
       </Content>
     )}
-    <ConfirmRowDivider data-testid='confirmrowdivider-f8hm' />
-    <ButtonRow data-testid='buttonrow-5x0v'>
-      <OutlinedButton onClick={onCancel} data-testid='outlinedbutton-p957'>{cancelButtonText}</OutlinedButton>
-      <ConfirmButton variant="contained" onClick={onConfirm} data-testid='confirmbutton-y3tb'>
+    <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
+    <ButtonRow data-testid="buttonrow-5x0v">
+      <OutlinedButton onClick={onCancel} data-testid="outlinedbutton-p957">
+        {cancelButtonText}
+      </OutlinedButton>
+      <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
         {confirmButtonText}
       </ConfirmButton>
     </ButtonRow>

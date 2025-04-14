@@ -11,7 +11,7 @@ import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
-  status => status !== APPOINTMENT_STATUSES.CANCELLED,
+  (status) => status !== APPOINTMENT_STATUSES.CANCELLED,
 );
 
 const ChipGroup = styled(ToggleButtonGroup)`
@@ -24,14 +24,15 @@ const ChipGroup = styled(ToggleButtonGroup)`
 `;
 
 const PlaceholderStatusSelector = () => (
-  <ChipGroup exclusive role="radiogroup" data-testid='chipgroup-2hf3'>
-    {NONCANCELLED_APPOINTMENT_STATUSES.map(status => (
+  <ChipGroup exclusive role="radiogroup" data-testid="chipgroup-2hf3">
+    {NONCANCELLED_APPOINTMENT_STATUSES.map((status) => (
       <AppointmentStatusChip
         appointmentStatus={status}
         disabled
         key={status}
         selected={false}
-        data-testid={`appointmentstatuschip-2imj-${status}`} />
+        data-testid={`appointmentstatuschip-2imj-${status}`}
+      />
     ))}
   </ChipGroup>
 );
@@ -43,21 +44,24 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
         <TranslatedText
           stringId="scheduling.action.changeStatus.success"
           fallback="Appointment status updated"
-          data-testid='translatedtext-v67n' />,
+          data-testid="translatedtext-v67n"
+        />,
       ),
     onError: () =>
       toast.error(
         <TranslatedText
           stringId="scheduling.action.changeStatus.error"
           fallback="Couldn’t update appointment status"
-          data-testid='translatedtext-fqje' />,
+          data-testid="translatedtext-fqje"
+        />,
       ),
   });
 
-  if (!appointment.status) return <PlaceholderStatusSelector data-testid='placeholderstatusselector-j033' />;
+  if (!appointment.status)
+    return <PlaceholderStatusSelector data-testid="placeholderstatusselector-j033" />;
 
   const updateAppointmentStatus = debounce(
-    async newStatus => await updateAppointment({ status: newStatus }),
+    async (newStatus) => await updateAppointment({ status: newStatus }),
     200,
   );
 
@@ -71,8 +75,9 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
       role="radiogroup"
       value={appointment.status}
       {...props}
-      data-testid='chipgroup-ldt5'>
-      {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
+      data-testid="chipgroup-ldt5"
+    >
+      {NONCANCELLED_APPOINTMENT_STATUSES.map((status) => {
         const isSelected = status === appointment.status;
         return (
           <AppointmentStatusChip
@@ -81,7 +86,8 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
             key={status}
             selected={isSelected}
             value={status}
-            data-testid={`appointmentstatuschip-05sr-${status}`} />
+            data-testid={`appointmentstatuschip-05sr-${status}`}
+          />
         );
       })}
     </ChipGroup>

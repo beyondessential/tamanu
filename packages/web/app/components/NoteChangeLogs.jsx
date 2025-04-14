@@ -36,19 +36,25 @@ export const NoteChangeLogs = ({ note = {} }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText
-        stringId="note.changeLog.label"
-        fallback="Change log"
-        data-testid='translatedtext-llzr' />}
-      data-testid='outerlabelfieldwrapper-pwpg'>
+      label={
+        <TranslatedText
+          stringId="note.changeLog.label"
+          fallback="Change log"
+          data-testid="translatedtext-llzr"
+        />
+      }
+      data-testid="outerlabelfieldwrapper-pwpg"
+    >
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
-        data-testid='styledbox-vgh1'>
+        data-testid="styledbox-vgh1"
+      >
         {changeLogNotes.map((changeLogNote, index) => (
           <NoteChangeLog
             key={changeLogNote.id}
             note={changeLogNote}
-            data-testid={`notechangelog-4wb2-${index}`} />
+            data-testid={`notechangelog-4wb2-${index}`}
+          />
         ))}
       </StyledBox>
     </OuterLabelFieldWrapper>

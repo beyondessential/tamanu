@@ -35,7 +35,8 @@ const InfoPopupLabel = React.memo(() => (
       <TranslatedText
         stringId="patient.modal.triage.triageScore.label"
         fallback="Triage score"
-        data-testid='translatedtext-0xff' />
+        data-testid="translatedtext-0xff"
+      />
     </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
@@ -52,10 +53,12 @@ const triageClinicianLabel = (
           stringId="general.localisedField.clinician.label.short"
           fallback="Clinician"
           casing="lower"
-          data-testid='translatedtext-49q5' />
+          data-testid="translatedtext-49q5"
+        />
       ),
     }}
-    data-testid='translatedtext-74wy' />
+    data-testid="translatedtext-74wy"
+  />
 );
 
 export const TriageForm = ({
@@ -77,40 +80,45 @@ export const TriageForm = ({
 
   const renderForm = ({ submitForm, values }) => {
     return (
-      <FormGrid data-testid='formgrid-edou'>
+      <FormGrid data-testid="formgrid-edou">
         <Field
           name="arrivalTime"
           label={
             <TranslatedText
               stringId="patient.modal.triage.arrivalTime.label"
               fallback="Arrival date & time"
-              data-testid='translatedtext-zyga' />
+              data-testid="translatedtext-zyga"
+            />
           }
           component={DateTimeField}
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
           helperText="If different from triage time"
           saveDateAsString
-          data-testid='field-mhav' />
+          data-testid="field-mhav"
+        />
         <Field
           name="triageTime"
           label={
             <TranslatedText
               stringId="patient.modal.triage.triageDateTime.label"
               fallback="Triage date & time"
-              data-testid='translatedtext-wjwo' />
+              data-testid="translatedtext-wjwo"
+            />
           }
           required
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
           component={DateTimeField}
           saveDateAsString
-          data-testid='field-9hxy' />
+          data-testid="field-9hxy"
+        />
         <Field
           name="locationId"
           component={LocalisedLocationField}
           required
-          data-testid='field-ipih' />
+          data-testid="field-ipih"
+        />
         <LocationAvailabilityWarningMessage
           locationId={values?.locationId}
           style={{
@@ -119,57 +127,66 @@ export const TriageForm = ({
             marginTop: '-1.2rem',
             fontSize: '12px',
           }}
-          data-testid='locationavailabilitywarningmessage-3gl4' />
+          data-testid="locationavailabilitywarningmessage-3gl4"
+        />
         <LocalisedField
           name="arrivalModeId"
           label={
             <TranslatedText
               stringId="general.localisedField.arrivalModeId.label"
               fallback="Arrival mode"
-              data-testid='translatedtext-7qdb' />
+              data-testid="translatedtext-7qdb"
+            />
           }
           component={SuggesterSelectField}
           endpoint="arrivalMode"
-          data-testid='localisedfield-hjex' />
+          data-testid="localisedfield-hjex"
+        />
         <Field
           name="score"
-          label={<InfoPopupLabel data-testid='infopopuplabel-5isv' />}
+          label={<InfoPopupLabel data-testid="infopopuplabel-5isv" />}
           component={RadioField}
           fullWidth
-          options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
+          options={triageCategories?.map((x) => ({ value: x.level.toString(), ...x })) || []}
           style={{ gridColumn: '1/-1' }}
-          data-testid='field-4vw2' />
-        <FormGrid columns={1} style={{ gridColumn: '1 / -1' }} data-testid='formgrid-96e8'>
+          data-testid="field-4vw2"
+        />
+        <FormGrid columns={1} style={{ gridColumn: '1 / -1' }} data-testid="formgrid-96e8">
           <Field
             name="chiefComplaintId"
             label={
               <TranslatedText
                 stringId="patient.modal.triage.chiefComplaint.label"
                 fallback="Chief complaint"
-                data-testid='translatedtext-tdrb' />
+                data-testid="translatedtext-tdrb"
+              />
             }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
             required
-            data-testid='field-a7cu' />
+            data-testid="field-a7cu"
+          />
           <Field
             name="secondaryComplaintId"
             label={
               <TranslatedText
                 stringId="patient.modal.triage.secondaryComplaint.label"
                 fallback="Secondary complaint"
-                data-testid='translatedtext-1xyf' />
+                data-testid="translatedtext-1xyf"
+              />
             }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
-            data-testid='field-1ktz' />
-          <Box mt={1} mb={2} data-testid='box-78hi'>
+            data-testid="field-1ktz"
+          />
+          <Box mt={1} mb={2} data-testid="box-78hi">
             <Field
               name="vitals"
               patient={patient}
               component={NestedVitalsModal}
               encounterType={ENCOUNTER_TYPES.TRIAGE}
-              data-testid='field-6t8l' />
+              data-testid="field-6t8l"
+            />
           </Box>
         </FormGrid>
         <Field
@@ -178,20 +195,25 @@ export const TriageForm = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          data-testid='field-388u' />
+          data-testid="field-388u"
+        />
         <ModalFormActionRow
-          confirmText={<TranslatedText
-            stringId="general.action.submit"
-            fallback="Submit"
-            data-testid='translatedtext-lvb6' />}
+          confirmText={
+            <TranslatedText
+              stringId="general.action.submit"
+              fallback="Submit"
+              data-testid="translatedtext-lvb6"
+            />
+          }
           onConfirm={submitForm}
           onCancel={onCancel}
-          data-testid='modalformactionrow-8t8n' />
+          data-testid="modalformactionrow-8t8n"
+        />
       </FormGrid>
     );
   };
 
-  const onSubmit = async values => {
+  const onSubmit = async (values) => {
     // Convert the vitals to a surveyResponse submission format
     let updatedVitals = null;
     if (values.vitals) {
@@ -262,14 +284,16 @@ export const TriageForm = ({
           <TranslatedText
             stringId="patient.modal.triage.chiefComplaint.label"
             fallback="Chief complaint"
-            data-testid='translatedtext-5pa3' />,
+            data-testid="translatedtext-5pa3"
+          />,
         ),
         practitionerId: foreignKey().translatedLabel(triageClinicianLabel),
         locationId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="general.localisedField.locationId.label"
             fallback="Location"
-            data-testid='translatedtext-77o5' />,
+            data-testid="translatedtext-77o5"
+          />,
         ),
         score: yup
           .string()
@@ -278,9 +302,11 @@ export const TriageForm = ({
             <TranslatedText
               stringId="patient.modal.triage.triageScore.label"
               fallback="Triage score"
-              data-testid='translatedtext-h7i8' />,
+              data-testid="translatedtext-h7i8"
+            />,
           ),
       })}
-      data-testid='form-icik' />
+      data-testid="form-icik"
+    />
   );
 };

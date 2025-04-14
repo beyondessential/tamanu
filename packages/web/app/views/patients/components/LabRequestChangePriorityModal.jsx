@@ -16,29 +16,30 @@ export const LabRequestChangePriorityModal = React.memo(
     };
 
     return (
-      <FormModal
-        open={open}
-        onClose={onClose}
-        title="Change priority"
-        data-testid='formmodal-60sp'>
-        <FormGrid columns={1} data-testid='formgrid-qnfm'>
+      <FormModal open={open} onClose={onClose} title="Change priority" data-testid="formmodal-60sp">
+        <FormGrid columns={1} data-testid="formgrid-qnfm">
           <AutocompleteInput
-            label={<TranslatedText
-              stringId="lab.priority.label"
-              fallback="Priority"
-              data-testid='translatedtext-nlwg' />}
+            label={
+              <TranslatedText
+                stringId="lab.priority.label"
+                fallback="Priority"
+                data-testid="translatedtext-nlwg"
+              />
+            }
             name="priority"
             suggester={suggester}
             value={priorityId}
             onChange={({ target: { value } }) => {
               setPriorityId(value);
             }}
-            data-testid='autocompleteinput-lob3' />
+            data-testid="autocompleteinput-lob3"
+          />
           <ModalActionRow
             confirmText="Confirm"
             onConfirm={updateLab}
             onCancel={onClose}
-            data-testid='modalactionrow-3tr8' />
+            data-testid="modalactionrow-3tr8"
+          />
         </FormGrid>
       </FormModal>
     );

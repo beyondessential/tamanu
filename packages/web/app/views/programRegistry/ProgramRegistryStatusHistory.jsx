@@ -11,7 +11,7 @@ import { useTableSorting } from '../../components/Table/useTableSorting';
 import { TranslatedText } from '../../components';
 
 const Container = styled.div`
-  width: ${p => (p.fullWidth ? '100%' : '70%')};
+  width: ${(p) => (p.fullWidth ? '100%' : '70%')};
   background-color: ${Colors.white};
   padding: 13px 15px 30px 20px;
   display: flex;
@@ -43,15 +43,18 @@ export const ProgramRegistryStatusHistory = ({
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(
-      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
+      (row) => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
     );
     return [
       {
         key: 'clinicalStatusId',
-        title: <TranslatedText
-          stringId="programRegistry.clinicalStatus.label"
-          fallback="Status"
-          data-testid='translatedtext-j9xr' />,
+        title: (
+          <TranslatedText
+            stringId="programRegistry.clinicalStatus.label"
+            fallback="Status"
+            data-testid="translatedtext-j9xr"
+          />
+        ),
         sortable: false,
         CellComponent: ClinicalStatusCell,
       },
@@ -61,10 +64,11 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.recordedBy"
             fallback="Recorded By"
-            data-testid='translatedtext-d9i8' />
+            data-testid="translatedtext-d9i8"
+          />
         ),
         sortable: false,
-        accessor: row => row.clinician.displayName,
+        accessor: (row) => row.clinician.displayName,
       },
       {
         key: 'date',
@@ -72,10 +76,11 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.dateRecorded"
             fallback="Date recorded"
-            data-testid='translatedtext-qbi6' />
+            data-testid="translatedtext-qbi6"
+          />
         ),
         sortable: true,
-        accessor: row => <DateDisplay date={row.date} data-testid='datedisplay-pdhy' />,
+        accessor: (row) => <DateDisplay date={row.date} data-testid="datedisplay-pdhy" />,
       },
       ...(removedOnce
         ? [
@@ -85,10 +90,13 @@ export const ProgramRegistryStatusHistory = ({
                 <TranslatedText
                   stringId="programRegistry.registrationDate.label"
                   fallback="Date of registration"
-                  data-testid='translatedtext-r94y' />
+                  data-testid="translatedtext-r94y"
+                />
               ),
               sortable: false,
-              accessor: row => <DateDisplay date={row?.registrationDate} data-testid='datedisplay-qzxv' />,
+              accessor: (row) => (
+                <DateDisplay date={row?.registrationDate} data-testid="datedisplay-qzxv" />
+              ),
             },
           ]
         : []),
@@ -96,14 +104,13 @@ export const ProgramRegistryStatusHistory = ({
   }, [data]);
 
   return (
-    <Container
-      fullWidth={programRegistryConditions?.length === 0}
-      data-testid='container-w0dp'>
-      <Heading5 style={{ marginBottom: '13px' }} data-testid='heading5-hypy'>
+    <Container fullWidth={programRegistryConditions?.length === 0} data-testid="container-w0dp">
+      <Heading5 style={{ marginBottom: '13px' }} data-testid="heading5-hypy">
         <TranslatedText
           stringId="programRegistry.statusHistory.title"
           fallback="Program status history"
-          data-testid='translatedtext-tv8y' />
+          data-testid="translatedtext-tv8y"
+        />
       </Heading5>
       <Table
         isBodyScrollable
@@ -121,7 +128,8 @@ export const ProgramRegistryStatusHistory = ({
           <TranslatedText
             stringId="programRegistry.statusHistory.noDataMessage"
             fallback="No Program registry clinical status found"
-            data-testid='translatedtext-hkca' />
+            data-testid="translatedtext-hkca"
+          />
         }
         elevated={false}
         isLoading={isLoading}
@@ -129,7 +137,8 @@ export const ProgramRegistryStatusHistory = ({
         customSort={customSort}
         orderBy={orderBy}
         order={order}
-        data-testid='table-4kcd' />
+        data-testid="table-4kcd"
+      />
     </Container>
   );
 };

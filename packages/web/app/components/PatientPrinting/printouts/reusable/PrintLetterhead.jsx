@@ -41,13 +41,21 @@ const PageTitle = styled(Typography)`
 
 export const PrintLetterhead = ({ title, subTitle, logoSrc, pageTitle }) => (
   <>
-    <Header data-testid='header-gfu1'>
-      {logoSrc && <LogoImage src={logoSrc} data-testid='logoimage-xufa' />}
-      <HeaderText data-testid='headertext-u17p'>
-        <Typography variant="h3" data-testid='typography-17ld'>{title}</Typography>
-        <Typography variant="h3" data-testid='typography-lzgx'>{subTitle}</Typography>
+    <Header data-testid="header-gfu1">
+      {logoSrc && <LogoImage src={logoSrc} data-testid="logoimage-xufa" />}
+      <HeaderText data-testid="headertext-u17p">
+        <Typography variant="h3" data-testid="typography-17ld">
+          {title}
+        </Typography>
+        <Typography variant="h3" data-testid="typography-lzgx">
+          {subTitle}
+        </Typography>
       </HeaderText>
     </Header>
-    {pageTitle && <PageTitle variant="h3" data-testid='pagetitle-3kw8'>{pageTitle}</PageTitle>}
+    {pageTitle && (
+      <PageTitle variant="h3" data-testid="pagetitle-3kw8">
+        {pageTitle}
+      </PageTitle>
+    )}
   </>
 );

@@ -5,17 +5,14 @@ export const MergeResultModal = ({ result, onClose }) => {
   const { updates = {} } = result;
 
   const actions = (
-    <ButtonRow data-testid='buttonrow-l9vl'>
-      <Button onClick={onClose} data-testid='button-3gs0'>OK</Button>
+    <ButtonRow data-testid="buttonrow-l9vl">
+      <Button onClick={onClose} data-testid="button-3gs0">
+        OK
+      </Button>
     </ButtonRow>
   );
   return (
-    <Modal
-      title="Merge patients"
-      actions={actions}
-      open
-      onClose={onClose}
-      data-testid='modal-yazr'>
+    <Modal title="Merge patients" actions={actions} open onClose={onClose} data-testid="modal-yazr">
       <p>
         <strong>Merge successful.</strong> Records updated:
       </p>

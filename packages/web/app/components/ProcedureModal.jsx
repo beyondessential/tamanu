@@ -48,21 +48,25 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
               <TranslatedText
                 stringId="general.action.edit"
                 fallback="Edit"
-                data-testid='translatedtext-l65z' />
+                data-testid="translatedtext-l65z"
+              />
             ) : (
               <TranslatedText
                 stringId="general.action.new"
                 fallback="New"
-                data-testid='translatedtext-c8x5' />
+                data-testid="translatedtext-c8x5"
+              />
             ),
           }}
-          data-testid='translatedtext-om64' />
+          data-testid="translatedtext-om64"
+        />
       }
       open={!!editedProcedure}
       onClose={onClose}
-      data-testid='formmodal-otam'>
+      data-testid="formmodal-otam"
+    >
       <ProcedureForm
-        onSubmit={async data => {
+        onSubmit={async (data) => {
           const actualDateTime = getActualDateTime(data.date, data.startTime);
           const updatedData = {
             ...data,
@@ -85,7 +89,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
         practitionerSuggester={practitionerSuggester}
         procedureSuggester={procedureSuggester}
         anaestheticSuggester={anaestheticSuggester}
-        data-testid='procedureform-euca' />
+        data-testid="procedureform-euca"
+      />
     </FormModal>
   );
 };
