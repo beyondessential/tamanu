@@ -228,10 +228,9 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    // Move to keep patient and reset isMostRecent to false
+    // Move to keep patient
     await unwantedRegistration.update({
       patientId: keepPatientId,
-      isMostRecent: false,
     });
 
     // Soft delete the registration
