@@ -13,8 +13,6 @@ import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
 import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
-import { usePausesPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
-import { useEncounter } from '../../contexts/Encounter';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -94,12 +92,12 @@ const DiscontinuedDivider = styled.div`
   background-color: ${Colors.midText};
 `;
 
-const getIsMissed = (timeSlot, selectedDate) => {
+const getIsMissed = ({ timeSlot, selectedDate }) => {
   const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return new Date() > endDate;
 };
 
-const getIsFuture = (hasRecord, timeSlot, selectedDate) => {
+const getIsFuture = ({ hasRecord, timeSlot, selectedDate }) => {
   const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord) {
     return startDate > new Date();
@@ -107,47 +105,41 @@ const getIsFuture = (hasRecord, timeSlot, selectedDate) => {
   return startDate > addHours(new Date(), 2);
 };
 
-const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
+const getIsEnd = ({ endDate, administeredAt, timeSlot, selectedDate }) => {
   if (administeredAt) {
     return new Date(endDate) < new Date(administeredAt);
   }
-  const currentEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date(endDate) < currentEndDate;
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(endDate) < endDateOfSlot;
 };
 
-const getIsPaused = (pauseRecords, administeredAt, timeSlot, selectedDate) => {
+const getIsPaused = ({
+  pauseRecords,
+  administeredAt,
+  timeSlot,
+  selectedDate,
+  isRecordedStatus,
+}) => {
   if (!pauseRecords?.length) return false;
 
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
 
   return pauseRecords.some(pauseRecord => {
     const pauseStartDate = new Date(pauseRecord.pauseStartDate);
     const pauseEndDate = new Date(pauseRecord.pauseEndDate);
 
-    if (administeredAt) {
+    if (administeredAt && isRecordedStatus) {
       const administeredAtDate = new Date(administeredAt);
       return pauseStartDate <= administeredAtDate && pauseEndDate >= administeredAtDate;
     }
 
-    return pauseStartDate <= endDate && pauseEndDate >= startDate;
+    return pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
   });
 };
 
-const getIsPausedThenDiscontinued = (
-  pauseRecords,
-  discontinuedDate,
-  administeredAt,
-  timeSlot,
-  selectedDate,
-) => {
-  const isPaused = getIsPaused(pauseRecords, administeredAt, timeSlot, selectedDate);
-  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-
-  return (
-    isPaused && isDiscontinued && new Date(discontinuedDate).getTime() - startDate.getTime() > 0
-  );
+const getIsPausedThenDiscontinued = () => {
+  return false;
 };
 
 export const MarStatus = ({
@@ -157,30 +149,30 @@ export const MarStatus = ({
   timeSlot,
   marInfo,
   medication,
+  pauseRecords,
 }) => {
   const { administeredAt, status } = marInfo || {};
-  const { doseAmount, isPrn, units, discontinuedDate, endDate, id: prescriptionId, isVariableDose } =
-    medication || {};
-
-  const { encounter } = useEncounter();
-  const { data: pauseRecords } = usePausesPrescriptionQuery(prescriptionId, encounter?.id, {
-    marDate: selectedDate,
-  });
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
   const containerRef = useRef(null);
-  const isMissed = getIsMissed(timeSlot, selectedDate);
-  const isFuture = getIsFuture(!!administeredAt, timeSlot, selectedDate);
-  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
-  const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
-  const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
-  const isPausedThenDiscontinued = getIsPausedThenDiscontinued(
-    pauseRecords?.data,
-    discontinuedDate,
+  const isMissed = getIsMissed({ timeSlot, selectedDate });
+  const isFuture = getIsFuture({ hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isDiscontinued = getIsEnd({
+    endDate: discontinuedDate,
     administeredAt,
     timeSlot,
     selectedDate,
-  );
+  });
+  const isEnd = getIsEnd({ endDate, administeredAt, timeSlot, selectedDate });
+  const isPaused = getIsPaused({
+    pauseRecords: pauseRecords?.data,
+    isRecordedStatus: !!status,
+    administeredAt,
+    timeSlot,
+    selectedDate,
+  });
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued();
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -205,6 +197,7 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
+    if (!marInfo) return null;
     let color = Colors.green;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
@@ -269,7 +262,7 @@ export const MarStatus = ({
         </Box>
       );
     }
-    if (administeredAt) {
+    if (marInfo) {
       if (isFuture) {
         return (
           <Box maxWidth={73}>
@@ -335,7 +328,7 @@ export const MarStatus = ({
         isPaused={isPaused}
       >
         {isPausedThenDiscontinued && <DiscontinuedDivider />}
-        {administeredAt && !isDiscontinued && renderStatus()}
+        {renderStatus()}
         <SelectedOverlay isSelected={isSelected} isFuture={isFuture} />
       </StatusContainer>
     </ConditionalTooltip>

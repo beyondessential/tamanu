@@ -37,15 +37,15 @@ medication.post(
       );
     }
 
+    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
+      data.durationValue = null;
+      data.durationUnit = null;
+    }
+
     if (data.durationValue && data.durationUnit) {
       data.endDate = add(new Date(data.startDate), {
         [data.durationUnit]: data.durationValue,
       });
-    }
-
-    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
-      data.durationValue = null;
-      data.durationUnit = null;
     }
 
     const prescription = await Prescription.create(data);

@@ -228,7 +228,7 @@ encounterRelations.get(
         where: {
           administeredAt: {
             [Op.gte]: startOfMarDate,
-            [Op.lt]: endOfMarDate,
+            [Op.lte]: endOfMarDate,
           },
         },
         required: false,
@@ -243,11 +243,11 @@ encounterRelations.get(
           {
             [Op.or]: [
               { discontinuedDate: { [Op.is]: null } },
-              { discontinuedDate: { [Op.gte]: startOfMarDate } },
+              { discontinuedDate: { [Op.gt]: startOfMarDate } },
             ],
           },
           {
-            [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: startOfMarDate } }],
+            [Op.or]: [{ endDate: null }, { endDate: { [Op.gt]: startOfMarDate } }],
           },
         ],
       };

@@ -66,7 +66,10 @@ const TimeSlotHeaderContainer = styled.div`
   align-items: center;
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
-  ${props => props.isCurrentTimeSlot ? `background: #EBF0F5; color: ${Colors.primary};` : `color: ${Colors.midText};`}
+  ${props =>
+    props.isCurrentTimeSlot
+      ? `background: #EBF0F5; color: ${Colors.primary};`
+      : `color: ${Colors.midText};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -189,17 +192,19 @@ export const MarTable = ({ selectedDate }) => {
     const prnHeader = prnHeaderRef.current;
 
     // Common observer configuration
-    const observerOptions = { 
-      threshold: 0, 
-      rootMargin: '-105px 0px 0px 0px' 
+    const observerOptions = {
+      threshold: 0,
+      rootMargin: '-105px 0px 0px 0px',
     };
 
     // Helper function to create consistent observers
     const createHeaderObserver = headerElement => {
       return new IntersectionObserver(([entry]) => {
-        headerElement.style.position = entry.isIntersecting 
-          ? 'sticky' 
-          : (entry.boundingClientRect.top < 105 ? 'static' : headerElement.style.position);
+        headerElement.style.position = entry.isIntersecting
+          ? 'sticky'
+          : entry.boundingClientRect.top < 105
+          ? 'static'
+          : headerElement.style.position;
       }, observerOptions);
     };
 
@@ -222,11 +227,7 @@ export const MarTable = ({ selectedDate }) => {
     <Container>
       {isSameDay(selectedDate, new Date()) && (
         <CurrentTimeOverlay
-          $index={
-            findAdministrationTimeSlotFromIdealTime(
-              `${format(new Date(), 'HH')}:${format(new Date(), 'mm')}`,
-            ).index
-          }
+          $index={findAdministrationTimeSlotFromIdealTime(new Date()).index}
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
           $height={overlayHeight}
         />

@@ -6,6 +6,10 @@ import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import type { Encounter } from './Encounter';
+import {
+  findAdministrationTimeSlotFromIdealTime,
+  getDateFromTimeString,
+} from '@tamanu/shared/utils/medication';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -136,6 +140,33 @@ export class MedicationAdministrationRecord extends Model {
           [Op.in]: encounterPrescriptions.map(
             (encounterPrescription) => encounterPrescription.prescriptionId,
           ),
+        },
+        status: null,
+      },
+      transaction,
+    });
+  }
+
+  static async onPrescriptionDiscontinued(
+    prescription: Prescription,
+    transaction?: Transaction | null,
+  ) {
+    const { models } = this.sequelize;
+
+    const discontinuedTimeSlot = findAdministrationTimeSlotFromIdealTime(
+      prescription.discontinuedDate!,
+    ).timeSlot;
+
+    const timeLineToDeleteMar = getDateFromTimeString(
+      discontinuedTimeSlot!.startTime,
+      new Date(prescription.startDate),
+    );
+
+    await models.MedicationAdministrationRecord.destroy({
+      where: {
+        prescriptionId: prescription.id,
+        administeredAt: {
+          [Op.gte]: timeLineToDeleteMar,
         },
         status: null,
       },

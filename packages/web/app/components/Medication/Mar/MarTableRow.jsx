@@ -8,6 +8,8 @@ import { useTranslation } from '../../../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
 import { findAdministrationTimeSlotFromIdealTime } from '@tamanu/shared/utils/medication';
+import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
+import { useEncounter } from '../../../contexts/Encounter';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -16,9 +18,7 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
     const administeredAt = new Date(record.administeredAt);
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(
-      `${administeredAt.getHours()}:${administeredAt.getMinutes()}`,
-    ).index;
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(administeredAt).index;
     result[windowIndex] = record;
   });
 
@@ -45,6 +45,11 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     displayPharmacyNotesInMar,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { encounter } = useEncounter();
+
+  const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
+    marDate: selectedDate,
+  });
 
   return (
     <>
@@ -82,6 +87,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfo={record}
+            pauseRecords={pauseRecords}
           />
         );
       })}
