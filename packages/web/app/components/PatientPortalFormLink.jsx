@@ -38,6 +38,8 @@ const FormName = styled.p`
 
 const StatusChip = styled(PatientPortalFormStatusChip)`
   grid-area: --chip;
+  inline-size: fit-content;
+  align-self: flex-start;
 `;
 
 const Chevron = styled(ChevronRight)`
@@ -46,13 +48,12 @@ const Chevron = styled(ChevronRight)`
 
 export const PatientPortalFormLink = ({ form, patientId, ...props }) => {
   return (
-
     <Link to={`/patient-portal/${patientId}/survey/${form.id}`}>
-    <ListItem {...props}>
-      <FormName>{form.name}</FormName>
-      {form.status && <StatusChip status={form.status} />}
-      <Chevron />
-    </ListItem>
-  </Link>
-  )
+      <ListItem {...props}>
+        <FormName>{form.name}</FormName>
+        {form.status && <StatusChip status={form.status} />}
+        <Chevron />
+      </ListItem>
+    </Link>
+  );
 };
