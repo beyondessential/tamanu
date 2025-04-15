@@ -49,7 +49,7 @@ const WelcomeText = styled.h1`
   }
 `;
 
-const Content = styled.div`
+const Content = styled.main`
   flex: 1;
   padding: 24px 26px;
   background: ${Colors.white};
@@ -62,6 +62,8 @@ const OutstandingCount = styled.h1`
   font-weight: 400;
   margin: 0 0 24px 0;
 `;
+
+const AccordionDetail = styled.details.attrs({ name: 'accordion' })``;
 
 const WaveEmoji = () => (
   <span role="img" aria-label="wave">
@@ -127,18 +129,48 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <PatientPortalFormList forms={forms} patientId={patientId} />
+
+        <AccordionDetail>
+          <summary>Patient details</summary>
+          {patient && (
+            <PatientPortalKVCard
+              dict={{
+                'First Name': patient.firstName,
+                'Last Name': patient.lastName,
+                'Date of Birth': patient.dateOfBirth,
+                Sex: patient.sex,
+                'Patient ID': patient.displayId,
+              }}
+            />
+          )}
+        </AccordionDetail>
+
+        <AccordionDetail>
+          <summary>Ongoing conditions</summary>
+          <ul>
+            <li>Basal ganglia haemorrhage</li>
+            <li>Diabetes</li>
+          </ul>
+        </AccordionDetail>
+
+        <AccordionDetail>
+          <summary>Allergies</summary>
+          <ul>
+            <li>Penicillin (rash)</li>
+            <li>Aspirin (anaphylaxis)</li>
+          </ul>
+        </AccordionDetail>
+
+        <AccordionDetail>
+          <summary>Medications</summary>
+          Here be medications
+        </AccordionDetail>
+
+        <AccordionDetail>
+          <summary>Vaccinations</summary>
+          Here be vaccine things
+        </AccordionDetail>
       </Content>
-      {patient && (
-        <PatientPortalKVCard
-          dict={{
-            'First Name': patient.firstName,
-            'Last Name': patient.lastName,
-            'Date of Birth': patient.dateOfBirth,
-            Sex: patient.sex,
-            'Patient ID': patient.displayId,
-          }}
-        />
-      )}
     </Container>
   );
 };
