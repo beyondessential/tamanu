@@ -18,18 +18,20 @@ const Table = styled.table`
   column-gap: 20px;
   display: grid;
   font-size: 14px;
-  grid-template-columns: minmax(min-content, 70px) minmax(0, 1fr);
+  grid-template-columns: minmax(min-content, 1fr) minmax(0, 3fr);
   margin: 0;
   padding: 0;
 
   tr {
     display: grid;
+    grid-column: 1 / -1;
     grid-template-columns: subgrid;
   }
 
   &,
   * {
     border: none;
+    text-align: start;
   }
 `;
 
@@ -42,6 +44,7 @@ const Value = styled.td`
 `;
 
 export const KeyValueDisplayCard = ({ dict, formStatus, ...props }) => {
+  console.log(dict);
   return (
     <Card {...props}>
       <Table>
