@@ -63,6 +63,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [api],
   );
 
+  const assignSurveyToPatient = useCallback(
+    async id => {
+      await api.post(`survey/${encodeURIComponent(id)}/assign`, {
+        encounterId: encounter.id,
+      });
+      navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+    },
+    [api, encounter, navigateToEncounter],
+  );
+
   const unsetSurvey = useCallback(() => {
     setSurvey(null);
   }, []);
@@ -156,6 +166,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             }
           />
           <SurveySelector
+            onAssign={assignSurveyToPatient}
             onSubmit={setSelectedSurvey}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
