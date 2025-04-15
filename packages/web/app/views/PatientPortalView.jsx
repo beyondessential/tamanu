@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
 import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
-import { KeyValueDisplayCard } from '../components/PatientPortalKVCard';
+import { PatientPortalKVCard } from '../components/PatientPortalKVCard';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -114,12 +114,11 @@ export const PatientPortalView = () => {
     },
   );
 
-  const { data: allergies } = useQuery(
-    [`allergies`, patientId],
-    () => api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
+  const { data: allergies } = useQuery([`allergies`, patientId], () =>
+    api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
   );
 
-  console.log((allergies, encounter))
+  console.log((allergies, encounter));
 
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
@@ -169,12 +168,12 @@ export const PatientPortalView = () => {
         </FormList>
       </Content>
       {patient && (
-        <KeyValueDisplayCard
+        <PatientPortalKVCard
           dict={{
             'First Name': patient.firstName,
             'Last Name': patient.lastName,
             'Date of Birth': patient.dateOfBirth,
-            'Sex': patient.sex,
+            Sex: patient.sex,
             'Patient ID': patient.displayId,
           }}
         />

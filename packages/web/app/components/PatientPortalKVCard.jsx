@@ -49,7 +49,7 @@ const Value = styled.td`
   font-weight: 500;
 `;
 
-export const KeyValueDisplayCard = ({ dict, formStatus, ...props }) => {
+export const PatientPortalKVCard = ({ dict, formStatus, ...props }) => {
   const hasData = dict !== null && typeof dict === 'object';
 
   return (
