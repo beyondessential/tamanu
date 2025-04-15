@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
@@ -99,6 +99,7 @@ const WaveEmoji = () => (
 export const PatientPortalView = () => {
   const { patientId } = useParams();
   const api = useApi();
+  const history = useHistory();
   const { data: patient } = useQuery(['patient-portal', patientId], () =>
     api.get(`patient/${encodeURIComponent(patientId)}`),
   );
@@ -117,13 +118,13 @@ export const PatientPortalView = () => {
   // Placeholder form data - this should come from your API
   const forms = [
     {
-      id: 1,
-      title: 'General pre-admission patient form',
+      id: 'program-naurueye-nauexam',
+      title: 'Eye Exams',
       status: 'outstanding',
     },
     {
-      id: 2,
-      title: 'Exiting condition pre-admission form',
+      id: 'program-naurumch-nauinfass',
+      title: 'Infant Assessment 0-2months',
       status: 'completed',
     },
   ];
@@ -150,7 +151,10 @@ export const PatientPortalView = () => {
         <FormList>
           {/* TODO: Replace with <PatientPortalFormList forms={forms} /> */}
           {forms.map(form => (
-            <FormItem key={form.id}>
+            <FormItem
+              key={form.id}
+              onClick={() => history.push(`/patient-portal/${patientId}/survey/${form.id}`)}
+            >
               <FormTitle>{form.title}</FormTitle>
               <PatientPortalFormStatusChip status={form.status} />
             </FormItem>
