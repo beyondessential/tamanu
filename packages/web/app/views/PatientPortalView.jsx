@@ -119,7 +119,7 @@ export const PatientPortalView = () => {
     () => api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
   );
 
-  console.log((allergies, encounter))
+  console.log((allergies))
 
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API

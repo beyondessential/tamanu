@@ -44,7 +44,6 @@ const Value = styled.td`
 `;
 
 export const KeyValueDisplayCard = ({ dict, formStatus, ...props }) => {
-  console.log(dict);
   return (
     <Card {...props}>
       <Table>

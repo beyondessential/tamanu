@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { useQuery } from '@tanstack/react-query';
 import { Colors } from '../constants';
 import { LogoLight } from '../components/Logo';
 import { Form, Field, DateField, FormSubmitButton } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useApi } from '../api';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -90,15 +93,42 @@ export const PatientPortalLoginView = () => {
   const history = useHistory();
   const { getTranslation } = useTranslation();
   const [error, setError] = useState(null);
+  const api = useApi();
+
+  const { data: patient, isLoading } = useQuery(
+    ['patient-portal', patientId],
+    () => api.get(`patient/${encodeURIComponent(patientId)}`),
+  );
 
   const handleSubmit = async (values) => {
     try {
-      // TODO: Implement actual login logic here using values.dateOfBirth
-      history.push(`/patient-portal/${patientId}`);
+      if (!patient) {
+        setError('Patient not found');
+        return;
+      }
+
+      // Compare the entered date of birth with the patient's actual date of birth
+      const enteredDate = new Date(values.dateOfBirth);
+      const patientDate = new Date(patient.dateOfBirth);
+
+      // Compare only the date part (ignore time)
+      if (
+        enteredDate.getFullYear() === patientDate.getFullYear() &&
+        enteredDate.getMonth() === patientDate.getMonth() &&
+        enteredDate.getDate() === patientDate.getDate()
+      ) {
+        history.push(`/patient-portal/${patientId}`);
+      } else {
+        setError('Invalid date of birth. Please try again.');
+      }
     } catch (err) {
-      setError('Invalid date of birth. Please try again.');
+      setError('An error occurred. Please try again.');
     }
   };
+
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
   return (
     <Container>
