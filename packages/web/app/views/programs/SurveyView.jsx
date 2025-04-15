@@ -10,14 +10,14 @@ import { SurveyScreenPaginator } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
-  background: ${props => props.theme.palette.primary.main};
+  background: ${props => props.theme.palette.white};
   text-align: center;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
-  color: ${Colors.white};
+  color: ${Colors.midText};
 `;
 
 export const SurveyView = ({

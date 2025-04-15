@@ -63,26 +63,30 @@ export const SurveyScreenPaginator = ({
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
-  if (screenIndex <= maxIndex) {
-    const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
+  const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
 
-    return (
-      <SurveyScreen
-        values={values}
-        setFieldValue={setFieldValue}
-        patient={patient}
-        allComponents={currentComponents}
-        screenComponents={screenComponents}
-        onStepForward={onStepForward}
-        onStepBack={screenIndex > 0 ? onStepBack : onCancel}
-        validateForm={validateForm}
-        setErrors={setErrors}
-        errors={errors}
-        status={status}
-        setStatus={setStatus}
-      />
-    );
+  let surveyScreenProps = {
+    values,
+    setFieldValue,
+    patient,
+    allComponents: currentComponents,
+    screenComponents,
+    onStepForward,
+    onStepBack: screenIndex > 0 ? onStepBack : onCancel,
+    validateForm,
+    setErrors,
+    errors,
+    status,
+    setStatus,
+  };
+  if (screenIndex === maxIndex) {
+    surveyScreenProps = {
+      ...surveyScreenProps,
+      submitButton: (
+        <FormSubmitButton text="Submit" color="primary" variant="contained" onClick={onSurveyComplete} />
+      ),
+    };
   }
 
-  return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
+  return <SurveyScreen {...surveyScreenProps} />;
 };
