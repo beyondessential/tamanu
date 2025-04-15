@@ -166,6 +166,10 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
+encounterRelations.get(
+  '/:id/assignedSurveys',
+  simpleGetList('EncounterAssignedSurvey', 'encounterId'),
+);
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
