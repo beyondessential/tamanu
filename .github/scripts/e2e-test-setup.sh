@@ -50,6 +50,8 @@ EOF
 
     npm run --workspace @tamanu/central-server start migrate
     npm run --workspace @tamanu/central-server start provision provisioning.json5
+    nohup npm run --workspace @tamanu/central-server start > central.log 
+    curl --retry 8 --retry-all-errors localhost:3000
 }
 
 e2e_test_setup_setup_facility() {
@@ -76,6 +78,15 @@ e2e_test_setup_setup_facility() {
 	EOF
 
     npm run --workspace @tamanu/facility-server start migrate
+    nohup npm run --workspace @tamanu/facility-server start > facility.log
+    curl --retry 8 --retry-all-errors localhost:4000
+}
+
+e2e_test_setup_print_server_logs() {
+    echo "Central server logs:"
+    tail -n 100 central.log
+    echo "Facility server logs:"
+    tail -n 100 facility.log
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
