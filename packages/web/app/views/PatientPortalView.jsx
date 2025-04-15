@@ -56,12 +56,6 @@ const Content = styled.div`
   margin-top: -20px;
 `;
 
-const FormList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
 const OutstandingCount = styled.h1`
   color: ${Colors.darkestText};
   font-size: 15px;
@@ -132,9 +126,7 @@ export const PatientPortalView = () => {
           You have {outstandingForms.length} outstanding{' '}
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
-        <FormList>
-          <PatientPortalFormList forms={forms} patientId={patientId} />
-        </FormList>
+        <PatientPortalFormList forms={forms} patientId={patientId} />
       </Content>
       {patient && (
         <PatientPortalKVCard
