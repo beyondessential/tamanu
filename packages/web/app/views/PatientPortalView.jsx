@@ -1,12 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
 import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
 import { KeyValueDisplayCard } from '../components/PatientPortalKVCard';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../api';
+import { Colors } from '../constants';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -155,8 +155,12 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <FormList>
+          {/* TODO: Replace with <PatientPortalFormList forms={forms} /> */}
           {forms.map(form => (
-            <FormItem key={form.id}>
+            <FormItem
+              key={form.id}
+              onClick={() => history.push(`/patient-portal/${patientId}/survey/${form.id}`)}
+            >
               <FormTitle>{form.title}</FormTitle>
               <PatientPortalFormStatusChip status={form.status} />
             </FormItem>
