@@ -22,6 +22,8 @@ import { UserActivityMonitor } from './components/UserActivityMonitor';
 import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
+import PatientPortalRoutes from './routes/PatientPortalRoutes';
+import PatientPortal from './views/patientPortal/PatientPortal';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
@@ -47,6 +49,7 @@ export const RoutingFacilityApp = React.memo(() => {
         <Route path="/program-registry" component={ProgramRegistryRoutes} />
         <Route path="/immunisations" component={ImmunisationRoutes} />
         <Route path="/facility-admin" component={FacilityAdminRoutes} />
+        <Route path="/patient-portal" component={PatientPortal} />
       </Switch>
     </App>
   );
