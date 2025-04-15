@@ -72,6 +72,7 @@ const WaveEmoji = () => (
 export const PatientPortalView = () => {
   const { patientId } = useParams();
   const api = useApi();
+
   const { data: patient } = useQuery(['patient-portal', patientId], () =>
     api.get(`patient/${encodeURIComponent(patientId)}`),
   );
@@ -96,13 +97,13 @@ export const PatientPortalView = () => {
   // Placeholder form data - this should come from your API
   const forms = [
     {
-      id: 1,
-      name: 'General pre-admission patient form',
+      id: 'program-naurueye-nauexam',
+      name: 'Eye Exams',
       status: 'outstanding',
     },
     {
-      id: 2,
-      name: 'Exiting condition pre-admission form',
+      id: 'program-naurumch-nauinfass',
+      name: 'Infant Assessment 0-2months',
       status: 'completed',
     },
   ];
@@ -127,7 +128,6 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <PatientPortalFormList forms={forms} patientId={patientId} />
-      </Content>
       {patient && (
         <PatientPortalKVCard
           dict={{
@@ -139,6 +139,7 @@ export const PatientPortalView = () => {
           }}
         />
       )}
+      </Content>
     </Container>
   );
 };
