@@ -1,11 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
 import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../api';
+import { Colors } from '../constants';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -99,34 +99,33 @@ const WaveEmoji = () => (
 export const PatientPortalView = () => {
   const { patientId } = useParams();
   const api = useApi();
-  const { data: patient } = useQuery(
-    ['patient-portal', patientId],
-    () => api.get(`patient/${encodeURIComponent(patientId)}`)
-  )
+  const { data: patient } = useQuery(['patient-portal', patientId], () =>
+    api.get(`patient/${encodeURIComponent(patientId)}`),
+  );
 
-  const {data: encounter} = useQuery(
+  const { data: encounter } = useQuery(
     ['encounter', patientId],
     () => api.get(`patient/${encodeURIComponent(patientId)}/encounters`),
     {
-      select: (data) => {
-        return data.data[0]
-      }
-    }
-  )
+      select: data => {
+        return data.data[0];
+      },
+    },
+  );
 
-  const patientName = patient?.firstName
+  const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
   const forms = [
     {
       id: 1,
       title: 'General pre-admission patient form',
-      status: 'outstanding'
+      status: 'outstanding',
     },
     {
       id: 2,
       title: 'Exiting condition pre-admission form',
-      status: 'completed'
-    }
+      status: 'completed',
+    },
   ];
 
   const outstandingForms = forms.filter(form => form.status === 'outstanding');
@@ -139,13 +138,14 @@ export const PatientPortalView = () => {
         </LogoContainer>
         <WelcomeContainer>
           <WelcomeText>
-            Welcome to Tamanu  <span>{patientName}</span> <WaveEmoji />
+            Welcome to Tamanu <span>{patientName}</span> <WaveEmoji />
           </WelcomeText>
         </WelcomeContainer>
       </Header>
       <Content>
         <OutstandingCount>
-          You have {outstandingForms.length} outstanding {outstandingForms.length === 1 ? 'item' : 'items'} to complete
+          You have {outstandingForms.length} outstanding{' '}
+          {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <FormList>
           {forms.map(form => (
