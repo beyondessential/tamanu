@@ -1,5 +1,6 @@
 export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+  NOT_SUBMITTED: 'NOT_SUBMITTED',
 };
 
 export const FORM_TYPES = {
