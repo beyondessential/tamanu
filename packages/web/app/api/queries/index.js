@@ -16,3 +16,4 @@ export * from './useTranslationLanguagesQuery';
 export * from './useTelegramBotInfoQuery';
 export * from './useChartSurveysQuery';
 export * from './useEncounterChartsQuery';
+export * from './usePatientAllergiesQuery';

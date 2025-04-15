@@ -2,6 +2,7 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { PatientPortalMobileSurveyResponseForm } from '../views/patientPortal/PatientPortalMobileSurveyResponseForm';
 import { PatientPortalSurveysList } from '../views/patientPortal/PatientPortalSurveysList';
+import { PatientPortal } from '../views/patientPortal/PatientPortal';
 
 export const PatientPortalRoutes = React.memo(({ match }) => (
   <Switch>
@@ -10,7 +11,8 @@ export const PatientPortalRoutes = React.memo(({ match }) => (
       path={`${match.path}/surveys/:surveyId`}
       component={PatientPortalMobileSurveyResponseForm}
     />
-    {/* Redirect to surveys list when no specific route is matched */}
-    <Redirect to={`${match.path}/surveys`} />
+    <Route path="/patient-portal" element={<PatientPortal />} />
+    {/* Redirect to patient portal home when no specific route is matched */}
+    <Redirect to={`/patient-portal`} />
   </Switch>
 ));
