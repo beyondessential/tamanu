@@ -119,6 +119,7 @@ export const PatientPortalLoginForm = React.memo(() => {
   return (
     <Form
       onSubmit={async () => {
+        // hacky as and jumpy
         dispatch(setFacilityId('facility-1'));
         dispatch(login('admin@tamanu.io', 'admin'));
         dispatch(push(`/patient-portal/patient/${patient.id}/encounter/${encounterId}`));
