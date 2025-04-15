@@ -5,6 +5,10 @@ import styled from 'styled-components';
 
 import { PatientPortalFormStatusChip } from './PatientPortalFormStatusChip';
 
+const StyledLink = styled(Link)`
+  text-decoration: none !important;
+`;
+
 const ListItem = styled.li`
   align-items: center;
   display: grid;
@@ -21,11 +25,6 @@ const ListItem = styled.li`
 
   &:last-child {
     border-block-end: 1px solid #dedede;
-  }
-
-  &,
-  *:not(u) {
-    text-decoration: none;
   }
 `;
 
@@ -48,12 +47,12 @@ const Chevron = styled(ChevronRight)`
 
 export const PatientPortalFormLink = ({ form, patientId, ...props }) => {
   return (
-    <Link to={`/patient-portal/${patientId}/survey/${form.id}`}>
+    <StyledLink to={`/patient-portal/${patientId}/survey/${form.id}`}>
       <ListItem {...props}>
         <FormName>{form.name}</FormName>
         {form.status && <StatusChip status={form.status} />}
         <Chevron />
       </ListItem>
-    </Link>
+    </StyledLink>
   );
 };
