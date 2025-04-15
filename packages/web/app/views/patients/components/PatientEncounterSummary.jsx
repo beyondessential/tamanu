@@ -185,7 +185,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   const copyPatientPortalLink = async () => {
     try {
       const baseUrl = window.location.origin;
-      const fullUrl = `${baseUrl}/patient-portal/login/${encounter.id}`;
+      const fullUrl = `${baseUrl}/#/patient-portal/login/${encounter.id}`;
       await navigator.clipboard.writeText(fullUrl);
       toast.success(
         <TranslatedText
