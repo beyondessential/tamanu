@@ -14,13 +14,11 @@ import {
   LoadingStatusPage,
   UnavailableStatusPage,
   UnsupportedBrowserStatusPage,
-  MobileStatusPage,
   SingleTabStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
-import { PatientPortalLoginForm } from './views/patientPortal/LoginScreen';
 
 const AppContainer = styled.div`
   display: flex;
@@ -51,36 +49,26 @@ export function App({ sidebar, children }) {
     chromium: '>=100',
     edge: '>=100',
   });
-  const platformType = browser.getPlatformType();
-  const isDesktop = platformType === 'desktop';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
   if (!isDebugMode) {
     // Skip browser/platform check in debug mode
-    if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChromish) return <UnsupportedBrowserStatusPage />;
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
 
-  // Check if we're on the patient portal route
-  const isPatientPortal = window.location.href.includes('/patient-portal/');
-  if (isPatientPortal) {
-    const encounterId = window.location.href
-      .split('/patient-portal/')[1]
-      .replace(/[^a-zA-Z0-9-]/g, '');
-    console.log('Encounter ID:', encounterId);
-    return <PatientPortalLoginForm encounterId={encounterId} />;
-  }
-
   // Only check for login and facility selection if not on patient portal
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
+  // Check if we're on the patient portal route
+  const isPatientPortal = window.location.href.includes('/patient-portal/');
+
   return (
     <AppContainer>
-      {sidebar}
+      {!isPatientPortal && sidebar}
       <PromiseErrorBoundary>
         <ErrorBoundary errorKey={currentRoute}>
           <AppContentsContainer>

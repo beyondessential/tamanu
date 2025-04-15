@@ -6,6 +6,7 @@ import { AppointmentsAccordion } from './components/AppointmentsAccordion';
 import { MedicationsAccordion } from './components/MedicationsAccordion';
 import { VaccinesAccordion } from './components/VaccinesAccordion';
 import { PatientDetailsAccordion } from './components/PatientDetailsAccordion';
+import { SurveyList } from './components/SurveyList';
 
 export const PatientPortal = () => {
   const styles = {
@@ -31,6 +32,8 @@ export const PatientPortal = () => {
           Patient Portal
         </Typography>
       </Box>
+
+      <SurveyList />
 
       <Paper sx={styles.paper}>
         <AppointmentsAccordion />

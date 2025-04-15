@@ -126,11 +126,14 @@ export const MobileSurveyScreen = ({
   setStatus,
   encounterType,
   title = 'Complete form',
+  isSubmitting = false,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
 
   const validateAndSubmit = async () => {
+    if (isSubmitting) return;
+
     const formErrors = await validateForm();
 
     // Only include visible elements
@@ -143,7 +146,7 @@ export const MobileSurveyScreen = ({
 
     if (pageErrors.length === 0) {
       setErrors({});
-      onSubmit();
+      onSubmit(values);
       setStatus({});
     } else {
       // Use formik status prop to track if the user has attempted to submit the form
@@ -193,7 +196,7 @@ export const MobileSurveyScreen = ({
     <Container>
       <Header>
         {onStepBack && (
-          <BackButton onClick={onStepBack}>
+          <BackButton onClick={onStepBack} disabled={isSubmitting}>
             <ArrowBackIcon />
           </BackButton>
         )}
@@ -205,8 +208,16 @@ export const MobileSurveyScreen = ({
       </ContentContainer>
 
       <SubmitButtonContainer>
-        <StyledSubmitButton color="primary" variant="contained" onClick={validateAndSubmit}>
-          <TranslatedText stringId="general.action.submit" fallback="Submit" />
+        <StyledSubmitButton
+          color="primary"
+          variant="contained"
+          onClick={validateAndSubmit}
+          disabled={isSubmitting}
+        >
+          <TranslatedText
+            stringId={isSubmitting ? 'general.status.submitting' : 'general.action.submit'}
+            fallback={isSubmitting ? 'Submitting...' : 'Submit'}
+          />
         </StyledSubmitButton>
       </SubmitButtonContainer>
     </Container>
