@@ -175,14 +175,19 @@ encounterRelations.get(
     const results = await db.query(
       `
         SELECT
-          eas.*,
-          s.name as survey_name
+          eas.survey_id,
+          eas.encounter_id,
+          max(s.name) as survey_name,
+          max(sr.end_time) as completed_at,
+          bool_or(sr.end_time is not null) as completed
         FROM
           encounter_assigned_surveys eas
-          LEFT JOIN surveys s ON s.id = eas.survey_id
+        JOIN surveys s ON s.id = eas.survey_id
+        LEFT JOIN survey_responses sr ON s.id = sr.survey_id and sr.encounter_id = eas.encounter_id
         WHERE
           eas.encounter_id = :encounterId
           AND eas.deleted_at IS NULL
+        GROUP BY eas.id, eas.survey_id, eas.encounter_id
       `,
       {
         replacements: { encounterId },
