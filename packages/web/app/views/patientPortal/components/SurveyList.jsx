@@ -80,7 +80,7 @@ const useSurveys = () => {
       // Mock data - would normally come from an API call
       const mockSurveys = [
         {
-          id: 'program-demncdprimaryscreening-cvdscreeningref',
+          id: 'program-demoimmunisation-demoaefi',
           name: 'General pre-admission patient form',
           status: 'Outstanding',
         },
