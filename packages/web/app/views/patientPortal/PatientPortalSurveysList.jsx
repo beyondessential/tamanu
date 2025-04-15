@@ -60,17 +60,17 @@ export const PatientPortalSurveysList = () => {
   // This would be replaced with real data from an API call
   const mockSurveys = [
     {
-      id: 'survey1',
+      id: 'program-demncdprimaryscreening-cvdscreeningref',
       name: 'General pre-admission patient form',
       description: 'Please complete this form before your admission',
     },
     {
-      id: 'survey2',
+      id: 'program-demncdprimaryscreening-cvdscreeningref',
       name: 'Medication history',
       description: 'Please provide information about your current medications',
     },
     {
-      id: 'survey3',
+      id: 'program-demncdprimaryscreening-cvdscreeningref',
       name: 'Medical history',
       description: 'Please provide information about your medical history',
     },
