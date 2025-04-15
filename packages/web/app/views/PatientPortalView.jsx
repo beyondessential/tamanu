@@ -7,6 +7,7 @@ import { LogoDark } from '../components/Logo';
 import { PatientPortalFormList } from '../components/PatientPortalFormList';
 import { PatientPortalKVCard } from '../components/PatientPortalKVCard';
 import { Colors } from '../constants';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -89,7 +90,7 @@ export const PatientPortalView = () => {
     api.get(`patient/${encodeURIComponent(patientId)}`),
   );
 
-  const { data: encounter } = useQuery(
+  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
     ['encounter', patientId],
     () => api.get(`patient/${encodeURIComponent(patientId)}/encounters`),
     {
@@ -135,6 +136,10 @@ export const PatientPortalView = () => {
 
   const outstandingForms = forms.filter(form => form.status === 'outstanding');
 
+  if (isEncounterLoading) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <Container>
       <Header>
@@ -152,7 +157,7 @@ export const PatientPortalView = () => {
           You have {outstandingForms.length} outstanding{' '}
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
-        <PatientPortalFormList forms={forms} patientId={patientId} />
+        <PatientPortalFormList forms={forms} patientId={patientId} encounterId={encounter?.id} />
 
         <Details>
           <summary>Patient details</summary>
