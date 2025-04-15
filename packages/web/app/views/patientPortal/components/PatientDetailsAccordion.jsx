@@ -16,8 +16,10 @@ const fields = [
 ];
 
 export const PatientDetailsAccordion = ({ patientId }) => {
-  const { data: patient } = usePatientDataQuery(patientId);
-  const { data: village } = useReferenceDataQuery(patient?.villageId);
+  const { data: patient, isLoading: isPatientDataLoading } = usePatientDataQuery(patientId);
+  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
+
+  if (isPatientDataLoading || isVillageLoading) return;
 
   const patientDetails = {
     ...patient,

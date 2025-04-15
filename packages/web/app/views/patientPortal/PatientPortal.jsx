@@ -43,7 +43,7 @@ export const PatientPortal = () => {
         <PatientDetailsAccordion patientId={patientId} />
         <OngoingConditions patientId={patientId} />
         <Allergies patientId={patientId} />
-        <MedicationsAccordion patientId={patientId} />
+        <MedicationsAccordion encounterId={encounterId} />
         <VaccinesAccordion patientId={patientId} />
       </Paper>
     </Container>
