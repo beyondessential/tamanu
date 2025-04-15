@@ -16,8 +16,8 @@ export const MarView = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSelectedDate(
-        set(selectedDate, { hours: new Date().getHours(), minutes: new Date().getMinutes() }),
+      setSelectedDate(prev =>
+        set(prev, { hours: new Date().getHours(), minutes: new Date().getMinutes() }),
       );
     }, 60000); // Update every minute
     return () => clearInterval(timer);
