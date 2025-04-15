@@ -7,6 +7,7 @@ import { Colors } from '../../constants';
 import * as yup from 'yup';
 import { useEncounterDataQuery } from '../../api/queries';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
+import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -103,8 +104,9 @@ const LoginScreen = () => {
   );
 };
 
-export const PatientPortalLoginForm = React.memo(({ encounterId }) => {
-  const renderForm = () => <LoginScreen encounterId={encounterId} />;
+export const PatientPortalLoginForm = React.memo(() => {
+  const { encounterId } = useParams();
+
   const { data: encounter } = useEncounterDataQuery(encounterId);
   const { data: patient } = usePatientDataQuery(encounter?.patientId);
 
@@ -117,7 +119,7 @@ export const PatientPortalLoginForm = React.memo(({ encounterId }) => {
           console.log('date of birth does not match');
         }
       }}
-      render={renderForm}
+      render={() => <LoginScreen encounterId={encounterId} />}
       initialValues={{
         dateOfBirth: '',
       }}
