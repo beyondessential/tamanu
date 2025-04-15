@@ -3,11 +3,11 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { LogoDark } from '../components/Logo';
 import { PatientPortalFormList } from '../components/PatientPortalFormList';
 import { PatientPortalKVCard } from '../components/PatientPortalKVCard';
 import { Colors } from '../constants';
-import { LoadingIndicator } from '../components/LoadingIndicator';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -67,12 +67,38 @@ const OutstandingCount = styled.h1`
 const Details = styled.details`
   padding-block: 1rem;
   padding-inline: 0.5rem;
+`;
 
-  > summary {
-    color: #666;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.3;
+const Summary = styled.summary`
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+
+  &::marker {
+    content: '';
+  }
+
+  &::after {
+    content: '';
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMS40Njk3IDcuNzE5NjdDMTEuNzYyNiA3LjQyNjc4IDEyLjIzNzQgNy40MjY3OCAxMi41MzAzIDcuNzE5NjdMMjAuMDMwMyAxNS4yMTk3QzIwLjMyMzIgMTUuNTEyNiAyMC4zMjMyIDE1Ljk4NzQgMjAuMDMwMyAxNi4yODAzQzE5LjczNzQgMTYuNTczMiAxOS4yNjI2IDE2LjU3MzIgMTguOTY5NyAxNi4yODAzTDEyIDkuMzEwNjZMNS4wMzAzMyAxNi4yODAzQzQuNzM3NDQgMTYuNTczMiA0LjI2MjU2IDE2LjU3MzIgMy45Njk2NyAxNi4yODAzQzMuNjc2NzggMTUuOTg3NCAzLjY3Njc4IDE1LjUxMjYgMy45Njk2NyAxNS4yMTk3TDExLjQ2OTcgNy43MTk2N1oiIGZpbGw9IiM2NjY2NjYiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIwLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K');
+    height: 1em;
+    width: 1em;
+
+    @supports not (anchor-name: none) {
+      inset-block-start: 50%;
+      inset-inline-end: 0;
+    }
+    @supports (anchor-name: none) {
+      position-anchor: --summary;
+      position-area: center end;
+      position: absolute;
+    }
+  }
+
+  details[open] &::after {
+    transform: rotate(0.5turn);
   }
 `;
 
@@ -110,16 +136,17 @@ export const PatientPortalView = () => {
     },
   );
 
-  const {data: ongoingConditionNames = []} = useQuery([`condition`, patientId], () =>
-    api.get(`patient/${encodeURIComponent(patientId)}/conditions`),
+  const { data: ongoingConditionNames = [] } = useQuery(
+    [`condition`, patientId],
+    () => api.get(`patient/${encodeURIComponent(patientId)}/conditions`),
     {
       select: data => {
-        return data.data.map(({ condition }) => condition.name)
-      }
-    }
-  )
+        return data.data.map(({ condition }) => condition.name);
+      },
+    },
+  );
 
-    const { data: medications = [] } = useQuery(
+  const { data: medications = [] } = useQuery(
     [`medications`, patientId],
     () => api.get(`encounter/${encounter?.id}/medications`),
     {
@@ -171,7 +198,7 @@ export const PatientPortalView = () => {
         <PatientPortalFormList forms={forms} patientId={patientId} encounterId={encounter?.id} />
 
         <Details>
-          <summary>Patient details</summary>
+          <Summary>Patient details</Summary>
           {patient && (
             <PatientPortalKVCard
               dict={{
@@ -186,7 +213,7 @@ export const PatientPortalView = () => {
         </Details>
 
         <Details>
-          <summary>Ongoing conditions</summary>
+          <Summary>Ongoing conditions</Summary>
           <ul>
             {ongoingConditionNames.map(name => (
               <li key={name}>{name}</li>
@@ -195,7 +222,7 @@ export const PatientPortalView = () => {
         </Details>
 
         <Details>
-          <summary>Allergies</summary>
+          <Summary>Allergies</Summary>
           <ul>
             {allergyNames.map(name => (
               <li key={name}>{name}</li>
@@ -205,25 +232,23 @@ export const PatientPortalView = () => {
 
         <Details>
           <summary>Medications</summary>
-
-            {medications.map(medication => (
-              <PatientPortalKVCard
-                key={medication.id}
-                dict={{
-                  'Medication': medication.medication.name,
-                  'Dose': medication.quantity,
-                  'Frequency': medication.qtyMorning,
-                  'Route': medication.route,
-                  'Date Started': medication.date,
-                  'Prescriber': medication.prescriber.displayName,
-                }}
-              />
-            ))}
-
+          {medications.map((medication, i) => (
+            <PatientPortalKVCard
+              dict={{
+                Medication: medication.medication.name,
+                Dose: medication.quantity,
+                Frequency: medication.qtyMorning,
+                Route: medication.route,
+                'Date Started': medication.date,
+                Prescriber: medication.prescriber.displayName,
+              }}
+              key={i}
+            />
+          ))}
         </Details>
 
         <Details>
-          <summary>Vaccinations</summary>
+          <Summary>Vaccinations</Summary>
           Here be vaccine things
         </Details>
       </Content>
