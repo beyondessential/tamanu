@@ -3,7 +3,7 @@ import { Box, Typography, Container, Paper } from '@mui/material';
 import OngoingConditions from './components/OngoingConditions';
 import Allergies from './components/Allergies';
 
-const PatientPortal = () => {
+export const PatientPortal = () => {
   const styles = {
     container: {
       maxWidth: '100%',
@@ -60,5 +60,3 @@ const PatientPortal = () => {
     </Container>
   );
 };
-
-export default PatientPortal;
