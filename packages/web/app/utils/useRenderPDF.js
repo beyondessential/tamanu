@@ -5,8 +5,12 @@ import Worker from '../workers/pdf.worker?worker';
 
 export const pdfWorker = wrap(new Worker());
 
-export const useRenderPDF = props => {
-  const { data: url, isFetching, error } = useQuery(
+export const useRenderPDF = (props) => {
+  const {
+    data: url,
+    isFetching,
+    error,
+  } = useQuery(
     ['renderPDF', props.id, ...(props.queryDeps || [])],
     () => pdfWorker.renderPDFInWorker(props),
     {

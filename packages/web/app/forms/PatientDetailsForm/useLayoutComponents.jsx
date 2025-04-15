@@ -9,5 +9,5 @@ export const useLayoutComponents = () => {
     PrimaryDetails: GenericPrimaryDetailsLayout,
     SecondaryDetails: GenericSecondaryDetailsLayout,
     PatientFields: GenericPatientFieldLayout,
-  }
+  };
 };

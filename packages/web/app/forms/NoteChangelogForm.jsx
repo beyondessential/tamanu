@@ -19,6 +19,7 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
     <WrittenByText
       noteAuthorName={createdByAuthorName}
       noteOnBehalfOfName={createdByOnBehalfOfName}
+      data-testid="writtenbytext-h3bz"
     />
   );
 
@@ -26,20 +27,44 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={
+          <TranslatedEnum
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+            data-testid="translatedenum-jp2c"
+          />
+        }
         date={note.revisedBy?.date || note.date}
-        dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
+        dateLabel={
+          <TranslatedText
+            stringId="note.dateTime.label"
+            fallback="Date & time"
+            data-testid="translatedtext-oxfk"
+          />
+        }
         writtenByLabel={
-          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+          <TranslatedText
+            stringId="note.writtenBy.label"
+            fallback="Written by (or on behalf of)"
+            data-testid="translatedtext-opy6"
+          />
         }
         writtenBy={writtenBy}
+        data-testid="noteinfosection-ijyf"
       />
       <br />
-      <NoteChangeLogs note={note} />
-      <StyledDivider />
+      <NoteChangeLogs note={note} data-testid="notechangelogs-dqo4" />
+      <StyledDivider data-testid="styleddivider-5vl0" />
       <ConfirmCancelRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-a0v8"
+          />
+        }
         onConfirm={onCancel}
+        data-testid="confirmcancelrow-c5u5"
       />
     </>
   );

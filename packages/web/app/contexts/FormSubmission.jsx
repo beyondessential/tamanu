@@ -8,9 +8,8 @@ const FormSubmissionContext = createContext({
 });
 
 export const useFormSubmission = () => {
-  const { isClosable, setIsClosable, hasFormSubmission, setHasFormSubmission } = useContext(
-    FormSubmissionContext,
-  );
+  const { isClosable, setIsClosable, hasFormSubmission, setHasFormSubmission } =
+    useContext(FormSubmissionContext);
   return { isClosable, setIsClosable, hasFormSubmission, setHasFormSubmission };
 };
 

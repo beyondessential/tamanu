@@ -7,11 +7,11 @@ export const useMarkAsRead = (id) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: body => {
+    mutationFn: (body) => {
       api.put(`notifications/markAsRead/${id}`, body);
       queryClient.invalidateQueries(['notifications', {}]);
     },
-    onError: error => notifyError(error.message),
+    onError: (error) => notifyError(error.message),
   });
 };
 
@@ -20,10 +20,10 @@ export const useMarkAllAsRead = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: body => {
-      api.put('notifications/markAllAsRead', body)
+    mutationFn: (body) => {
+      api.put('notifications/markAllAsRead', body);
       queryClient.invalidateQueries(['notifications', {}]);
     },
-    onError: error => notifyError(error.message),
+    onError: (error) => notifyError(error.message),
   });
 };

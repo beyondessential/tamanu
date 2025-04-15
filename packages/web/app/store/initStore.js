@@ -11,7 +11,7 @@ import { patientReducer } from './patient';
 import { specialModalsReducer } from './specialModals';
 import { IS_DEVELOPMENT } from '../utils/env';
 
-export const createReducers = history => ({
+export const createReducers = (history) => ({
   router: connectRouter(history),
   auth: authReducer,
   patient: patientReducer,

@@ -8,8 +8,8 @@ import { getBrandId } from '../utils';
 
 const LogoImage = styled.img`
   display: inline-block;
-  width: ${p => p.size || 'auto'};
-  height: ${p => p.height || 'auto'};
+  width: ${(p) => p.size || 'auto'};
+  height: ${(p) => p.height || 'auto'};
 `;
 
 const logos = {
@@ -22,9 +22,9 @@ const logos = {
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
   const brandId = getBrandId();
-  
+
   const src = logos[brandId]?.[type] ?? logos[BRAND_IDS.TAMANU][type];
-  
+
   return (
     <LogoImage
       src={src}
@@ -32,16 +32,38 @@ const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
       height={height}
       className={className}
       onClick={onClick ? onClick : null}
+      data-testid="logoimage-tqik"
     />
   );
 };
 
 export const LogoLight = ({ size, height, className, onClick }) => (
-  <Logo size={size} height={height} className={className} onClick={onClick} type="light" />
+  <Logo
+    size={size}
+    height={height}
+    className={className}
+    onClick={onClick}
+    type="light"
+    data-testid="logo-fuep"
+  />
 );
 export const LogoDark = ({ size, height, className, onClick }) => (
-  <Logo size={size} height={height} className={className} onClick={onClick} type="dark" />
+  <Logo
+    size={size}
+    height={height}
+    className={className}
+    onClick={onClick}
+    type="dark"
+    data-testid="logo-1lsz"
+  />
 );
 export const LogoLightNoText = ({ size, height, className, onClick }) => (
-  <Logo size={size} height={height} className={className} onClick={onClick} type="lightNoText" />
+  <Logo
+    size={size}
+    height={height}
+    className={className}
+    onClick={onClick}
+    type="lightNoText"
+    data-testid="logo-yuto"
+  />
 );

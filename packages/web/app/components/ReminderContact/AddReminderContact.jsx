@@ -62,11 +62,11 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
   const { getTranslation } = useTranslation();
   const api = useApi();
 
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
 
   const patientName = joinNames(patient);
 
-  const onSubmit = async values => {
+  const onSubmit = async (values) => {
     const body = {
       name: values.reminderContactName,
       relationshipId: values.reminderContactRelationship,
@@ -89,6 +89,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
             <TranslatedText
               stringId="patient.details.addReminderContact.label.contactName"
               fallback="Contact name"
+              data-testid="translatedtext-n83s"
             />,
           ),
         reminderContactRelationship: yup
@@ -98,16 +99,18 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
             <TranslatedText
               stringId="patient.details.addReminderContact.label.relationship"
               fallback="Relationship"
+              data-testid="translatedtext-4hna"
             />,
           ),
       })}
       render={({ submitForm }) => {
         return (
           <>
-            <FormHeading>
+            <FormHeading data-testid="formheading-mxsn">
               <TranslatedText
                 stringId="patient.details.addReminderContact.heading"
                 fallback="Please provide details below to add a new contact."
+                data-testid="translatedtext-rlo2"
               />
             </FormHeading>
             <FormSubHeading
@@ -118,8 +121,9 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   { patientName: `<span>${patientName}</span>` },
                 ),
               }}
+              data-testid="formsubheading-72l1"
             ></FormSubHeading>
-            <StyledFormContainer>
+            <StyledFormContainer data-testid="styledformcontainer-k7ln">
               <LocalisedField
                 name="reminderContactName"
                 component={TextField}
@@ -127,6 +131,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   <TranslatedText
                     stringId="patient.details.addReminderContact.label.contactName"
                     fallback="Contact name"
+                    data-testid="translatedtext-ljbl"
                   />
                 }
                 placeholder={getTranslation(
@@ -134,6 +139,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   'Contact Name',
                 )}
                 required
+                data-testid="localisedfield-ebu2"
               />
 
               <LocalisedField
@@ -144,6 +150,7 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   <TranslatedText
                     stringId="patient.details.addReminderContact.label.relationship"
                     fallback="Relationship"
+                    data-testid="translatedtext-w75a"
                   />
                 }
                 placeholder={getTranslation(
@@ -151,17 +158,18 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                   'Select',
                 )}
                 required
+                data-testid="localisedfield-2jnt"
               />
             </StyledFormContainer>
-
-            <FormFooterText>
+            <FormFooterText data-testid="formfootertext-6chs">
               <TranslatedText
                 stringId="patient.details.addReminderContact.qrCodeInstruction"
                 fallback="Connect using the QR code on the following screen."
+                data-testid="translatedtext-5mbe"
               />
             </FormFooterText>
-            <StyledFullWidthContainer>
-              <StyledDivider />
+            <StyledFullWidthContainer data-testid="styledfullwidthcontainer-o6wk">
+              <StyledDivider data-testid="styleddivider-gy3h" />
             </StyledFullWidthContainer>
             <FormConfirmCancelBackRow
               onBack={onBack}
@@ -171,12 +179,15 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
                 <TranslatedText
                   stringId="patient.details.addReminderContact.action.confirm"
                   fallback="Confirm & connect"
+                  data-testid="translatedtext-1c51"
                 />
               }
+              data-testid="formconfirmcancelbackrow-4y98"
             />
           </>
         );
       }}
+      data-testid="form-r9qu"
     />
   );
 };

@@ -1,10 +1,10 @@
 module.exports = class Buffer {
-  static isBuffer(){
+  static isBuffer() {
     return true;
   }
-  static from(){
+  static from() {
     return {
-      toString: () => 'test'
-    }
+      toString: () => 'test',
+    };
   }
-}
+};

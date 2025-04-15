@@ -24,20 +24,20 @@ export const CreateNoteForm = ({
   const api = useApi();
 
   const onChangeNoteType = useCallback(() => {
-    setValues(values => ({
+    setValues((values) => ({
       ...values,
       template: null,
     }));
   }, []);
 
   const onChangeTemplate = useCallback(
-    async templateId => {
+    async (templateId) => {
       if (!templateId) {
         return;
       }
       const template = await api.get(`template/${templateId}`);
 
-      setValues(values => ({
+      setValues((values) => ({
         ...values,
         content: template.body,
       }));
@@ -47,26 +47,51 @@ export const CreateNoteForm = ({
 
   return (
     <>
-      <StyledFormGrid columns={4}>
+      <StyledFormGrid columns={4} data-testid="styledformgrid-zicy">
         <NoteTypeField
           required
           noteTypeCountByType={noteTypeCountByType}
           onChange={onChangeNoteType}
+          data-testid="notetypefield-tx5s"
         />
-        <NoteTemplateField noteType={values.noteType} onChangeTemplate={onChangeTemplate} />
-        <WrittenByField required />
-        <NoteDateTimeField required />
+        <NoteTemplateField
+          noteType={values.noteType}
+          onChangeTemplate={onChangeTemplate}
+          data-testid="notetemplatefield-jvkn"
+        />
+        <WrittenByField required data-testid="writtenbyfield-6za7" />
+        <NoteDateTimeField required data-testid="notedatetimefield-5v7c" />
       </StyledFormGrid>
       <NoteContentField
-        label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
+        label={
+          <TranslatedText
+            stringId="note.modal.addNote.label"
+            fallback="Add note"
+            data-testid="translatedtext-dyln"
+          />
+        }
         onChange={onNoteContentChange}
+        data-testid="notecontentfield-hjsv"
       />
-      <StyledDivider />
+      <StyledDivider data-testid="styleddivider-zyya" />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText={<TranslatedText stringId="note.action.addNote" fallback="Add note" />}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        confirmText={
+          <TranslatedText
+            stringId="note.action.addNote"
+            fallback="Add note"
+            data-testid="translatedtext-n2dw"
+          />
+        }
+        cancelText={
+          <TranslatedText
+            stringId="general.action.cancel"
+            fallback="Cancel"
+            data-testid="translatedtext-nrsx"
+          />
+        }
         onCancel={onCancel}
+        data-testid="formsubmitcancelrow-6cnr"
       />
     </>
   );

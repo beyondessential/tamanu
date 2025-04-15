@@ -45,21 +45,32 @@ export const ResultsSearchBar = React.memo(
       baseQueryParameters: { patientId },
     });
     return (
-      <Container>
-        <Heading3 mb={2}>
-          <TranslatedText stringId="patient.lab.results.search.title" fallback="Lab results" />
+      <Container data-testid="container-j780">
+        <Heading3 mb={2} data-testid="heading3-b7on">
+          <TranslatedText
+            stringId="patient.lab.results.search.title"
+            fallback="Lab results"
+            data-testid="translatedtext-iv76"
+          />
         </Heading3>
-        <Fields>
+        <Fields data-testid="fields-z2wd">
           <StyledAutoCompleteInput
             name="category"
-            label={<TranslatedText stringId="lab.testCategory.label" fallback="Test category" />}
+            label={
+              <TranslatedText
+                stringId="lab.testCategory.label"
+                fallback="Test category"
+                data-testid="translatedtext-5opn"
+              />
+            }
             disabled={disabled}
             suggester={categorySuggester}
             value={searchParameters.categoryId}
-            onChange={event => {
+            onChange={(event) => {
               const categoryId = event.target.value;
               setSearchParameters(categoryId ? { categoryId } : {});
             }}
+            data-testid="styledautocompleteinput-ar0l"
           />
           <StyledAutoCompleteInput
             name="panel"
@@ -67,15 +78,17 @@ export const ResultsSearchBar = React.memo(
               <TranslatedText
                 stringId="patient.lab.results.search.panel.label"
                 fallback="Test panel"
+                data-testid="translatedtext-py06"
               />
             }
             disabled={disabled}
             value={searchParameters.panelId}
             suggester={panelSuggester}
-            onChange={event => {
+            onChange={(event) => {
               const panelId = event.target.value;
               setSearchParameters(panelId ? { panelId } : {});
             }}
+            data-testid="styledautocompleteinput-mu8z"
           />
         </Fields>
       </Container>

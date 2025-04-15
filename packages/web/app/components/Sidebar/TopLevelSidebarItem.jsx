@@ -33,9 +33,9 @@ const TopLevelItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
-  color: ${props => (props.$invisible ? 'transparent' : '')};
-  max-height: ${props => (props.$invisible ? '18px' : 'default')};
-  transition: ${props => props.theme.transitions.create(['color', 'max-height'])};
+  color: ${(props) => (props.$invisible ? 'transparent' : '')};
+  max-height: ${(props) => (props.$invisible ? '18px' : 'default')};
+  transition: ${(props) => props.theme.transitions.create(['color', 'max-height'])};
 `;
 
 const ListDivider = styled(Divider)`
@@ -63,10 +63,16 @@ export const TopLevelSidebarItem = ({
   onClick,
   divider,
   retracted,
-}) => (
+}) => {
+  const testIdSuffix = path.split('/').pop();
   <>
-    {divider && <ListDivider />}
-    <StyledTooltip title={retracted ? label : ''} placement="top-end" arrow>
+    {divider && <ListDivider data-testid={`listdivider-19k7-${testIdSuffix}`} />}
+    <StyledTooltip
+      title={retracted ? label : ''}
+      placement="top-end"
+      arrow
+      data-testid={`styledtooltip-85bn-${testIdSuffix}`}
+    >
       <TopLevelListItem
         button
         to={path}
@@ -74,10 +80,23 @@ export const TopLevelSidebarItem = ({
         selected={isCurrent}
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
+        data-testid={`toplevellistitem-a957-${testIdSuffix}`}
       >
-        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} />}
-        <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
+        {isValidElement(icon) ? (
+          icon
+        ) : (
+          <SidebarTopLevelIcon
+            src={icon || administrationIcon}
+            data-testid={`sidebartoplevelicon-hioy-${testIdSuffix}`}
+          />
+        )}
+        <TopLevelItemText
+          disableTypography
+          primary={label}
+          $invisible={retracted}
+          data-testid={`toplevelitemtext-52i5-${testIdSuffix}`}
+        />
       </TopLevelListItem>
     </StyledTooltip>
-  </>
-);
+  </>;
+};

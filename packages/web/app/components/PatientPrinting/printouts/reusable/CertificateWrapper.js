@@ -17,7 +17,7 @@ export const CertificateWrapper = styled.div`
     bottom: 0;
     left: 0;
     opacity: 0.05;
-    background-image: ${props => (props.watermarkSrc ? `url("${props.watermarkSrc}")` : '')};
+    background-image: ${(props) => (props.watermarkSrc ? `url("${props.watermarkSrc}")` : '')};
     background-position: center;
     background-repeat: no-repeat;
   }

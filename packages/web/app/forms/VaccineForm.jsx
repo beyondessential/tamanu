@@ -62,10 +62,10 @@ export const VaccineForm = ({
   const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
   const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
 
-  const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.value === vaccineLabel), [
-    vaccineLabel,
-    vaccineOptions,
-  ]);
+  const selectedVaccine = useMemo(
+    () => vaccineOptions.find((v) => v.value === vaccineLabel),
+    [vaccineLabel, vaccineOptions],
+  );
 
   const { currentUser } = useAuth();
 
@@ -78,12 +78,13 @@ export const VaccineForm = ({
         }
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
-          availableScheduledVaccines.map(vaccine => ({
+          availableScheduledVaccines.map((vaccine) => ({
             label: (
               <TranslatedReferenceData
                 fallback={vaccine.label}
                 value={vaccine.id}
                 category="scheduledVaccine"
+                data-testid={`translatedreferencedata-e94b-${vaccine.code}`}
               />
             ),
             value: vaccine.label,
@@ -97,14 +98,21 @@ export const VaccineForm = ({
   }, [category, getScheduledVaccines, editMode]);
 
   if (isLoadingCurrentEncounter || isLoadingPatientData) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-dpow" />;
   }
 
   if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
-        title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
+        title={
+          <TranslatedText
+            stringId="vaccine.loadError"
+            fallback="Cannot load vaccine form"
+            data-testid="translatedtext-eumt"
+          />
+        }
         errorMessage={currentEncounterError?.message || patientDataError?.message}
+        data-testid="errormessage-9m9j"
       />
     );
   }
@@ -122,6 +130,7 @@ export const VaccineForm = ({
         <TranslatedText
           stringId="vaccine.minDateError"
           fallback="Date cannot be prior to patient date of birth"
+          data-testid="translatedtext-nkib"
         />,
         (value, context) => {
           if (!value) return true;
@@ -139,8 +148,12 @@ export const VaccineForm = ({
       )
       .test(
         'max',
-        <TranslatedText stringId="vaccine.maxDateError" fallback="Date cannot be in the future" />,
-        value => {
+        <TranslatedText
+          stringId="vaccine.maxDateError"
+          fallback="Date cannot be in the future"
+          data-testid="translatedtext-rure"
+        />,
+        (value) => {
           if (!value) return true;
           const maxDate = new Date();
           const date = parse(value, ISO9075_DATE_FORMAT, new Date());
@@ -165,11 +178,8 @@ export const VaccineForm = ({
   const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
     category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     vaccineLabel: yup.string().when('category', {
-      is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
-      then: yup
-        .string()
-        .nullable()
-        .required(REQUIRED_INLINE_ERROR_MESSAGE),
+      is: (categoryValue) => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
+      then: yup.string().nullable().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
     vaccineName: yup.string().when('category', {
@@ -178,7 +188,7 @@ export const VaccineForm = ({
       otherwise: yup.string().nullable(),
     }),
     scheduledVaccineId: yup.string().when('category', {
-      is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
+      is: (categoryValue) => categoryValue !== VACCINE_CATEGORIES.OTHER,
       then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     }),
@@ -219,7 +229,7 @@ export const VaccineForm = ({
 
   return (
     <Form
-      onSubmit={async data => onSubmit({ ...data, category })}
+      onSubmit={async (data) => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
       formType={editMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
@@ -246,8 +256,10 @@ export const VaccineForm = ({
           currentUser={currentUser}
           vaccineConsentEnabled={vaccineConsentEnabled}
           initialValues={initialValues}
+          data-testid="vaccineformcomponent-djg3"
         />
       )}
+      data-testid="form-c1bs"
     />
   );
 };
@@ -288,9 +300,16 @@ const VaccineFormComponent = ({
       values={values}
       patientId={patientId}
       setValues={setValues}
+      data-testid="vaccinegivenform-8mmv"
     />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
+    <VaccineNotGivenForm
+      {...props}
+      resetForm={resetForm}
+      submitForm={submitForm}
+      values={values}
+      data-testid="vaccinenotgivenform-8wpb"
+    />
   );
 };
 

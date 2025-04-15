@@ -15,18 +15,24 @@ const StyledBodyText = styled(BodyText)`
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: (
-      <TranslatedText stringId="lab.testSelect.individual.subheading" fallback="Select tests" />
+      <TranslatedText
+        stringId="lab.testSelect.individual.subheading"
+        fallback="Select tests"
+        data-testid="translatedtext-rk4l"
+      />
     ),
     instructions: (
       <>
         <TranslatedText
           stringId="lab.testSelect.individual.instructionLine1"
           fallback="Please select the test or tests you would like to request below and add any relevant notes."
+          data-testid="translatedtext-9b03"
         />
         {'\n'}
         <TranslatedText
           stringId="lab.testSelect.individual.instructionLine2"
           fallback="You can filter test by category using the field below."
+          data-testid="translatedtext-rwjv"
         />
       </>
     ),
@@ -35,18 +41,24 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: (
-      <TranslatedText stringId="lab.testSelect.panel.subheading" fallback="Select panel" />
+      <TranslatedText
+        stringId="lab.testSelect.panel.subheading"
+        fallback="Select panel"
+        data-testid="translatedtext-t0mp"
+      />
     ),
     instructions: (
       <TranslatedText
         stringId="lab.testSelect.panel.instruction"
         fallback="Please select the panel or panels you would like to request below and add any relevant notes."
+        data-testid="translatedtext-9045"
       />
     ),
     label: (
       <TranslatedText
         stringId="lab.testSelect.panel.label"
         fallback="Select the test panel or panels"
+        data-testid="translatedtext-tole"
       />
     ),
     selectableName: 'panel',
@@ -58,18 +70,24 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: (
-      <TranslatedText stringId="lab.testSelect.superSet.subheading" fallback="Select superset" />
+      <TranslatedText
+        stringId="lab.testSelect.superSet.subheading"
+        fallback="Select superset"
+        data-testid="translatedtext-7fho"
+      />
     ),
     instructions: (
       <>
         <TranslatedText
           stringId="lab.testSelect.superset.instructionLine1"
           fallback="Please select the superset you would like to request below and add any relevant notes."
+          data-testid="translatedtext-vg31"
         />
         ,{'\n'}
         <TranslatedText
           stringId="lab.testSelect.superset.instructionLine2"
           fallback="You can also remove or add additional panels to your request."
+          data-testid="translatedtext-f06l"
         />
       </>
     ),
@@ -77,7 +95,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
 };
 
-export const LabRequestFormScreen2 = props => {
+export const LabRequestFormScreen2 = (props) => {
   const {
     values: { requestFormType },
     onSelectionChange,
@@ -91,7 +109,14 @@ export const LabRequestFormScreen2 = props => {
     const getKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
     const grouped = uniqBy(selectedObjects, getKey).map(({ category = {}, id, name }) => ({
       categoryId: category.id,
-      categoryName: <TranslatedReferenceData fallback={category.name} value={category.id} category={category.type} />,
+      categoryName: (
+        <TranslatedReferenceData
+          fallback={category.name}
+          value={category.id}
+          category={category.type}
+          data-testid={`translatedreferencedata-obh3-${category.code}`}
+        />
+      ),
       ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
     }));
     onSelectionChange(grouped);
@@ -100,8 +125,12 @@ export const LabRequestFormScreen2 = props => {
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
-        <Heading3 mb="12px">{subheading}</Heading3>
-        <StyledBodyText color="textTertiary">{instructions}</StyledBodyText>
+        <Heading3 mb="12px" data-testid="heading3-keat">
+          {subheading}
+        </Heading3>
+        <StyledBodyText color="textTertiary" data-testid="styledbodytext-8egc">
+          {instructions}
+        </StyledBodyText>
         <Field
           name={fieldName}
           labelConfig={fieldConfig}
@@ -110,15 +139,23 @@ export const LabRequestFormScreen2 = props => {
           onChange={handleSelectionChange}
           required
           {...props}
+          data-testid="field-0id0"
         />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="notes"
-          label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+          label={
+            <TranslatedText
+              stringId="general.notes.label"
+              fallback="Notes"
+              data-testid="translatedtext-nr6q"
+            />
+          }
           component={TextField}
           multiline
           minRows={3}
+          data-testid="field-3t0x"
         />
       </div>
     </>

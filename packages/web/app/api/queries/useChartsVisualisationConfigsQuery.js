@@ -20,4 +20,3 @@ export const useChartsVisualisationConfigsQuery = () => {
 
   return getVisualisationConfig(patientData, surveyData, restOfQuery);
 };
-

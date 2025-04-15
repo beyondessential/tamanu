@@ -29,9 +29,10 @@ const Error = ({ errorMessage }) => (
       <TranslatedText
         stringId="sidebar.avatar.notification.manualSyncFailed"
         fallback="Manual sync failed"
+        data-testid="translatedtext-mkoe"
       />
     </b>
-    <ErrorMessage>{errorMessage}</ErrorMessage>
+    <ErrorMessage data-testid="errormessage-xwdx">{errorMessage}</ErrorMessage>
   </div>
 );
 
@@ -55,14 +56,14 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const api = useApi();
 
   const handleEvent = useCallback(
-    async cb => {
+    async (cb) => {
       if (loading) return;
       setLoading(true);
 
       try {
         await cb();
       } catch (error) {
-        toast.error(<Error errorMessage={error.message} />);
+        toast.error(<Error errorMessage={error.message} data-testid="error-20o6" />);
       } finally {
         setLoading(false);
       }
@@ -70,13 +71,14 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
     [loading],
   );
 
-  const handleClick = async event => {
+  const handleClick = async (event) => {
     if (event.shiftKey) {
       handleEvent(async () => {
         toast.info(
           <TranslatedText
             stringId="sidebar.avatar.notification.startingManualSync"
             fallback="Starting manual sync..."
+            data-testid="translatedtext-9n4z"
           />,
         );
         const { message } = await api.post(`sync/run`);
@@ -85,6 +87,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
             stringId="sidebar.avatar.notification.manualSync"
             fallback={`Manual sync: ${message}`}
             replacements={{ message }}
+            data-testid="translatedtext-d5we"
           />,
         );
       });
@@ -101,6 +104,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
               <TranslatedText
                 stringId="sidebar.avatar.notification.facilityNotSync"
                 fallback="Facility server has not synced since last restart."
+                data-testid="translatedtext-7nk1"
               />
             </div>,
           );
@@ -113,6 +117,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
                 stringId="sidebar.avatar.notification.facilityLastSync"
                 fallback={`Facility server last synced ${ago} ago (took ${took}).`}
                 replacements={{ ago, took }}
+                data-testid="translatedtext-pcrn"
               />
             </div>,
           );
@@ -125,6 +130,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
                 stringId="sidebar.notification.currentSyncRunning"
                 fallback={`Current sync has been running for ${duration}.`}
                 replacements={{ duration }}
+                data-testid="translatedtext-ln10"
               />
             </div>,
           );
@@ -140,8 +146,12 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   };
 
   return (
-    <StyledAvatar onClick={handleClick} {...props}>
-      {loading ? <CustomCircularProgress size={20} /> : children}
+    <StyledAvatar onClick={handleClick} {...props} data-testid="styledavatar-uo6d">
+      {loading ? (
+        <CustomCircularProgress size={20} data-testid="customcircularprogress-eggw" />
+      ) : (
+        children
+      )}
     </StyledAvatar>
   );
 };

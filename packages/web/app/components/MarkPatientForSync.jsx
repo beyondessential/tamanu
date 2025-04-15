@@ -40,9 +40,18 @@ export const MarkPatientForSync = ({ patient }) => {
     syncState.addSyncingPatient(patientId, result.updatedAtSyncTick);
   }, [patientId, dispatch, api, syncState, facilityId]);
   return (
-    <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
-      <MarkPatientForSyncIcon />
-      <TranslatedText stringId="patient.action.markForSync" fallback="Sync patient records" />
+    <MarkPatientForSyncButton
+      onClick={onMarkPatientForSync}
+      variant="text"
+      color="default"
+      data-testid="markpatientforsyncbutton-r8n7"
+    >
+      <MarkPatientForSyncIcon data-testid="markpatientforsyncicon-1inl" />
+      <TranslatedText
+        stringId="patient.action.markForSync"
+        fallback="Sync patient records"
+        data-testid="translatedtext-4aj2"
+      />
     </MarkPatientForSyncButton>
   );
 };

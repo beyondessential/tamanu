@@ -16,7 +16,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const api = useApi();
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -27,15 +27,13 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     patient.id,
     CertificateTypes.test,
   );
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
-    data =>
+    (data) =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requireSigning: false,
@@ -55,9 +53,12 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('test-certificate')}
-      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
+      additionalActions={
+        <EmailButton onEmail={createCovidTestCertNotification} data-testid="emailbutton-16lj" />
+      }
+      data-testid="modal-4kfs"
     >
-      <PDFLoader isLoading={isLoading} id="test-certificate">
+      <PDFLoader isLoading={isLoading} id="test-certificate" data-testid="pdfloader-xaua">
         <CovidLabCertificate
           patient={patientData}
           labs={labTestsResponse?.data}
@@ -68,6 +69,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.test}
+          data-testid="covidlabcertificate-203o"
         />
       </PDFLoader>
     </Modal>

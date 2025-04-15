@@ -44,13 +44,16 @@ export const CoreComplexChartData = ({
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
   const { encounter } = useEncounter();
-  const { data } = useEncounterChartsQuery(
-    encounter.id,
-    selectedSurveyId,
-  );
+  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId);
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid="translatedtext-3r78"
+        />
+      ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Charting');
@@ -69,23 +72,29 @@ export const CoreComplexChartData = ({
         open={open}
         onClose={() => setModalOpen(false)}
         handleDeleteChart={handleDeleteChart}
+        data-testid="deletechartmodal-tg82"
       />
-      <CoreComplexChartDataRow role="group">
-        <CoreComplexChartInfoWrapper>
-          <CoreComplexChartSingleInfoWrapper>
-            <CoreComplexChartInfoHeader>
+      <CoreComplexChartDataRow role="group" data-testid="corecomplexchartdatarow-df90">
+        <CoreComplexChartInfoWrapper data-testid="corecomplexchartinfowrapper-zn2k">
+          <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-qen9">
+            <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-a7s5">
               <TranslatedText
                 stringId="complexChartInstance.date"
                 fallback="Date & time of onset:"
+                data-testid="translatedtext-moh0"
               />
             </CoreComplexChartInfoHeader>
             <>{date}</>
           </CoreComplexChartSingleInfoWrapper>
 
           {isTypeVisible ? (
-            <CoreComplexChartSingleInfoWrapper>
-              <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.type" fallback="Type:" />
+            <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-2jla">
+              <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-4k95">
+                <TranslatedText
+                  stringId="complexChartInstance.type"
+                  fallback="Type:"
+                  data-testid="translatedtext-4z04"
+                />
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -93,15 +102,19 @@ export const CoreComplexChartData = ({
           ) : null}
 
           {isSubtypeVisible ? (
-            <CoreComplexChartSingleInfoWrapper>
-              <CoreComplexChartInfoHeader>
-                <TranslatedText stringId="complexChartInstance.subtype" fallback="Sub type:" />
+            <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-h7z6">
+              <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-bgio">
+                <TranslatedText
+                  stringId="complexChartInstance.subtype"
+                  fallback="Sub type:"
+                  data-testid="translatedtext-9x05"
+                />
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        { data.length === 0 ? <MenuButton actions={actions} /> : null}
+        {data.length === 0 ? <MenuButton actions={actions} data-testid="menubutton-ypvb" /> : null}
       </CoreComplexChartDataRow>
     </>
   );

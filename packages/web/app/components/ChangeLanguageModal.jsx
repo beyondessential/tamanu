@@ -17,7 +17,7 @@ const LanguageSelectorContainer = styled.div`
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
-    color: ${Colors.midText}};
+    color: ${Colors.midText};
   }
 `;
 
@@ -41,7 +41,7 @@ const customStyles = {
     ...(state.isSelected && { borderColor: Colors.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: provided => ({
+  menu: (provided) => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -72,7 +72,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel>
+        <LanguageOptionLabel data-testid={`languageoptionlabel-99kx-${language}`}>
           {countryCode && isISO31661Alpha2(countryCode) && (
             <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
           )}
@@ -83,7 +83,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     };
   });
 
-  const handleLanguageChange = event => {
+  const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
   };
 
@@ -94,21 +94,35 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="general.language.change" fallback="Change language" />}
+      title={
+        <TranslatedText
+          stringId="general.language.change"
+          fallback="Change language"
+          data-testid="translatedtext-0de4"
+        />
+      }
       open={open}
       onClose={onClose}
       {...props}
+      data-testid="modal-b06c"
     >
-      <LanguageSelectorContainer>
+      <LanguageSelectorContainer data-testid="languageselectorcontainer-2x22">
         <SelectInput
           options={languageOptions}
-          label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+          label={
+            <TranslatedText
+              stringId="login.languageSelector.label"
+              fallback="Language"
+              data-testid="translatedtext-upsy"
+            />
+          }
           isClearable={false}
           error={!!error}
           customStyleObject={customStyles}
           name="Language"
           value={language}
           onChange={handleLanguageChange}
+          data-testid="selectinput-9ajj"
         />
       </LanguageSelectorContainer>
       <ModalActionRow
@@ -116,6 +130,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
         onConfirm={onConfirmLanguageChange}
         onCancel={onClose}
         cancelText="Cancel"
+        data-testid="modalactionrow-x0mn"
       />
     </Modal>
   );

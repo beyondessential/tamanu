@@ -1,10 +1,10 @@
-import { useMemo } from "react";
-import { 
+import { useMemo } from 'react';
+import {
   calculateInvoiceLinesDiscountableTotal,
-  calculateInvoiceLinesNonDiscountableTotal 
-} from "../utils";
+  calculateInvoiceLinesNonDiscountableTotal,
+} from '../utils';
 
-export const useInvoiceLineTotals = lines => {
+export const useInvoiceLineTotals = (lines) => {
   const discountableTotal = useMemo(() => {
     return calculateInvoiceLinesDiscountableTotal(lines);
   }, [lines]);
@@ -12,5 +12,5 @@ export const useInvoiceLineTotals = lines => {
     return calculateInvoiceLinesNonDiscountableTotal(lines);
   }, [lines]);
 
-  return { discountableTotal, nonDiscountableTotal }
+  return { discountableTotal, nonDiscountableTotal };
 };

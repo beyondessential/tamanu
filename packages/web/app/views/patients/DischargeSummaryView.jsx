@@ -38,38 +38,38 @@ export const DischargeSummaryView = React.memo(() => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { encounter } = useEncounter();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: village } = useReferenceDataQuery(patient?.villageId);
   const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischargeQuery(encounter);
 
-  const { data: patientConditions, isFetching: isLoadingPatientConditions } = usePatientConditionsQuery(
-    patient.id,
-  );
+  const { data: patientConditions, isFetching: isLoadingPatientConditions } =
+    usePatientConditionsQuery(patient.id);
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
-    return <Redirect to="/patients/all" />;
+    return <Redirect to="/patients/all" data-testid="redirect-imzj" />;
   }
 
   const isLoading =
     isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching;
 
   return (
-    <Container>
-      <NavContainer>
+    <Container data-testid="container-ogda">
+      <NavContainer data-testid="navcontainer-03e6">
         <Button
           variant="outlined"
           color="primary"
           size="small"
           onClick={() => printPDF('discharge-summary')}
-          startIcon={<PrintIcon />}
+          startIcon={<PrintIcon data-testid="printicon-fci3" />}
+          data-testid="button-n2yc"
         >
           Print Summary
         </Button>
       </NavContainer>
-      <PDFLoader isLoading={isLoading} id="discharge-summary">
+      <PDFLoader isLoading={isLoading} id="discharge-summary" data-testid="pdfloader-mj0p">
         <DischargeSummaryPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -79,6 +79,7 @@ export const DischargeSummaryView = React.memo(() => {
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
+          data-testid="dischargesummaryprintout-zgjd"
         />
       </PDFLoader>
     </Container>

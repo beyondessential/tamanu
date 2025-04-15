@@ -13,8 +13,19 @@ export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
   }, [onClose]);
 
   return (
-    <FormModal width="sm" title={title} onClose={handleClose} open={open}>
-      <EditVitalCellForm vitalLabel={vitalLabel} dataPoint={dataPoint} handleClose={handleClose} />
+    <FormModal
+      width="sm"
+      title={title}
+      onClose={handleClose}
+      open={open}
+      data-testid="formmodal-ufqb"
+    >
+      <EditVitalCellForm
+        vitalLabel={vitalLabel}
+        dataPoint={dataPoint}
+        handleClose={handleClose}
+        data-testid="editvitalcellform-h4wy"
+      />
     </FormModal>
   );
 };

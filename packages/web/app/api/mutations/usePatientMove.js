@@ -9,7 +9,7 @@ export const usePatientMove = (encounterId, onClose) => {
 
   return useMutation({
     mutationKey: ['patientMove', encounterId],
-    mutationFn: async data => {
+    mutationFn: async (data) => {
       await api.put(`encounter/${encounterId}`, {
         ...data,
         submittedTime: getCurrentDateTimeString(),

@@ -30,12 +30,17 @@ export const VitalChartsModal = React.memo(() => {
       onClose={() => {
         setVitalChartModalOpen(false);
       }}
+      data-testid="modal-uu1i"
     >
-      <Box display="flex" justifyContent="space-between">
-        <DateTimeSelector dateRange={dateRange} setDateRange={setDateRange} />
-        {isInMultiChartsView && <VitalMultiChartFilter />}
+      <Box display="flex" justifyContent="space-between" data-testid="box-o9cm">
+        <DateTimeSelector
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          data-testid="datetimeselector-6pwn"
+        />
+        {isInMultiChartsView && <VitalMultiChartFilter data-testid="vitalmultichartfilter-4l9z" />}
       </Box>
-      <ViewComponent />
+      <ViewComponent data-testid="viewcomponent-43k1" />
     </Modal>
   );
 });

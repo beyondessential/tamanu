@@ -24,11 +24,11 @@ export const useAuth = () => {
     // Excluding serverAlive query which only should fire on first load
     queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
     resetNoteContext();
-    history.push('/')
+    history.push('/');
   };
 
   return {
-    ...useSelector(state => ({
+    ...useSelector((state) => ({
       currentUser: state.auth.user,
       ability: state.auth.ability,
       facilityId: state.auth.facilityId,

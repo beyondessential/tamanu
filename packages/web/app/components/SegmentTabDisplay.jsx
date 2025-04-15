@@ -56,7 +56,7 @@ const StyledTab = styled(Tab)`
 export const SegmentTabDisplay = React.memo(
   ({ tabs, currentTabKey, onTabSelect, className, scrollable, ...tabProps }) => {
     delete tabProps.singleTabStyle;
-    const currentTabData = tabs.find(t => t.key === currentTabKey);
+    const currentTabData = tabs.find((t) => t.key === currentTabKey);
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab
         key={key}
@@ -64,11 +64,16 @@ export const SegmentTabDisplay = React.memo(
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
+        data-testid={`styledtab-gibh-${key}`}
       />
     ));
     return (
-      <TabBar className={className}>
-        <TabContainer scrollButtons={scrollable ? 'on' : 'off'} value={currentTabKey}>
+      <TabBar className={className} data-testid="tabbar-a9vw">
+        <TabContainer
+          scrollButtons={scrollable ? 'on' : 'off'}
+          value={currentTabKey}
+          data-testid="tabcontainer-vwij"
+        >
           {buttons}
         </TabContainer>
         <div>{currentTabData.render({ ...tabProps })}</div>

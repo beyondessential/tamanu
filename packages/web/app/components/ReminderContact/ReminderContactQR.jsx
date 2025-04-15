@@ -48,7 +48,7 @@ const ErrorMessage = styled.div`
 
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { data: botInfo, isFetching, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
@@ -75,10 +75,11 @@ export const ReminderContactQR = ({ contact, onClose }) => {
 
   return (
     <>
-      <StyledHeaderText>
+      <StyledHeaderText data-testid="styledheadertext-wbfn">
         <TranslatedText
           stringId="patient.details.reminderContactQr.title"
           fallback="Scan QR code below"
+          data-testid="translatedtext-4sg8"
         />
       </StyledHeaderText>
       <StyledText
@@ -89,22 +90,31 @@ export const ReminderContactQR = ({ contact, onClose }) => {
             { replacements: { patientName: `<span>${patientName}</span>` } },
           ),
         }}
+        data-testid="styledtext-4inx"
       ></StyledText>
-      <StyledText>
+      <StyledText data-testid="styledtext-r1m5">
         <TranslatedText
           stringId="patient.details.reminderContactQr.subDescription"
           fallback="They will receive a confirmation message from Telegram once their account is successfully registered."
+          data-testid="translatedtext-7tyx"
         />
       </StyledText>
-      <StyledQrContainer>
+      <StyledQrContainer data-testid="styledqrcontainer-izsj">
         {!isFetching && qrCodeURL && <img src={qrCodeURL} alt="QR Code" />}
-        {isFetching && <CircularProgress />}
-        {isError && <ErrorMessage>{error.message}</ErrorMessage>}
+        {isFetching && <CircularProgress data-testid="circularprogress-16lk" />}
+        {isError && <ErrorMessage data-testid="errormessage-iznx">{error.message}</ErrorMessage>}
       </StyledQrContainer>
       <ModalCancelRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-c8qp"
+          />
+        }
         confirmColor="primary"
         onConfirm={onClose}
+        data-testid="modalcancelrow-5way"
       />
     </>
   );

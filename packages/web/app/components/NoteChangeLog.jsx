@@ -31,7 +31,7 @@ const StyledNoteChangeLogInfoWrapper = styled.div`
 const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
 
 const NoteChangeLogInfo = ({ note }) => (
-  <StyledNoteChangeLogInfoWrapper>
+  <StyledNoteChangeLogInfoWrapper data-testid="stylednotechangeloginfowrapper-zbh3">
     <>
       <span>{note.author?.displayName || ''} </span>
       {note.onBehalfOf ? (
@@ -40,24 +40,26 @@ const NoteChangeLogInfo = ({ note }) => (
             stringId="note.table.onBehalfOfText"
             fallback="on behalf of :changeOnBehalfOfName"
             replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
+            data-testid="translatedtext-89o7"
           />{' '}
         </span>
       ) : null}
-      <DateDisplay date={note.date} showTime />
+      <DateDisplay date={note.date} showTime data-testid="datedisplay-o9yj" />
     </>
   </StyledNoteChangeLogInfoWrapper>
 );
 
 export const NoteChangeLog = ({ note }) => (
-  <ListItem>
+  <ListItem data-testid="listitem-bgup">
     <StyledListItemText
       primary={
         <>
-          <NoteChangeLogInfo note={note} />
-          <NoteChangeLogMain note={note} />
-          <StyledDivider />
+          <NoteChangeLogInfo note={note} data-testid="notechangeloginfo-wopx" />
+          <NoteChangeLogMain note={note} data-testid="notechangelogmain-eq78" />
+          <StyledDivider data-testid="styleddivider-0nzu" />
         </>
       }
+      data-testid="styledlistitemtext-jvqh"
     />
   </ListItem>
 );

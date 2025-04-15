@@ -19,7 +19,7 @@ export const ProgramRegistrySidebarItem = ({
   path,
 }) => {
   const dispatch = useDispatch();
-  const onPathChanged = newPath => dispatch(push(newPath));
+  const onPathChanged = (newPath) => dispatch(push(newPath));
   const currentPath = useSelector(getCurrentRoute);
 
   const { data: programRegistries, isLoading, isError } = useListOfProgramRegistryQuery();
@@ -28,9 +28,10 @@ export const ProgramRegistrySidebarItem = ({
 
   return (
     <PrimarySidebarItem
-      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
+      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted, path }}
+      data-testid="primarysidebaritem-kx7z"
     >
-      {programRegistries.data.map(({ id, name }) => {
+      {programRegistries.data.map(({ id, name }, index) => {
         const secondaryPath = `${path}/${id}?name=${name}`;
         return !retracted ? (
           <SecondarySidebarItem
@@ -39,10 +40,16 @@ export const ProgramRegistrySidebarItem = ({
             isCurrent={currentPath.includes(secondaryPath)}
             color=""
             label={
-              <TranslatedReferenceData value={id} fallback={name} category="programRegistry" />
+              <TranslatedReferenceData
+                value={id}
+                fallback={name}
+                category="programRegistry"
+                data-testid={`translatedreferencedata-2dpm-${index}`}
+              />
             }
             disabled={false}
             onClick={() => onPathChanged(secondaryPath)}
+            data-testid={`secondarysidebaritem-3uo3-${index}`}
           />
         ) : null;
       })}

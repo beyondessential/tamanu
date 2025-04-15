@@ -3,7 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { BaseSelectField } from '../../../components';
 
-export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportName = null, ...props }) => {
+export const ReportSelectField = ({
+  includeNameChangeEvent,
+  setSelectedReportName = null,
+  ...props
+}) => {
   delete props.error;
   delete props.helperText;
 
@@ -19,9 +23,9 @@ export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportNam
   return (
     <BaseSelectField
       {...props}
-      onChange={event => {
+      onChange={(event) => {
         const { value } = event.target;
-        const name = reportData.find(report => report.id === value)?.name;
+        const name = reportData.find((report) => report.id === value)?.name;
         if (setSelectedReportName) setSelectedReportName(name);
 
         if (includeNameChangeEvent) {
@@ -33,11 +37,12 @@ export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportNam
       options={options}
       error={!!fetchError || props.error}
       helperText={fetchError?.message || props.helperText}
+      data-testid="baseselectfield-i6c5"
     />
   );
 };
 
-export const VersionSelectField = props => {
+export const VersionSelectField = (props) => {
   const api = useApi();
   const {
     form: {
@@ -67,9 +72,9 @@ export const VersionSelectField = props => {
   return (
     <BaseSelectField
       {...props}
-      onChange={event => {
+      onChange={(event) => {
         const { value } = event.target;
-        const { versionNumber } = versionData.find(version => version.id === value);
+        const { versionNumber } = versionData.find((version) => version.id === value);
         setSelectedVersionNumber(versionNumber);
 
         props.field.onChange(event);
@@ -77,6 +82,7 @@ export const VersionSelectField = props => {
       options={options}
       error={!!fetchError || props.error}
       helperText={fetchError?.message || props.helperText}
+      data-testid="baseselectfield-043k"
     />
   );
 };

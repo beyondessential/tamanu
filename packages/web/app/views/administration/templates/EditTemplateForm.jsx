@@ -22,19 +22,29 @@ const Gap = styled.div`
 `;
 
 const UneditedActions = ({ onClose, onDelete }) => (
-  <ModalGenericButtonRow>
-    <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
-    <Gap />
-    <Button onClick={onClose}>Close</Button>
+  <ModalGenericButtonRow data-testid="modalgenericbuttonrow-wtwk">
+    <DeleteButton onClick={onDelete} data-testid="deletebutton-wijz">
+      Delete template
+    </DeleteButton>
+    <Gap data-testid="gap-4ju1" />
+    <Button onClick={onClose} data-testid="button-9i89">
+      Close
+    </Button>
   </ModalGenericButtonRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
-  <ModalGenericButtonRow>
-    <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
-    <Gap />
-    <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
-    <Button onClick={onSave}>Save</Button>
+  <ModalGenericButtonRow data-testid="modalgenericbuttonrow-946p">
+    <DeleteButton onClick={onDelete} data-testid="deletebutton-bd75">
+      Delete template
+    </DeleteButton>
+    <Gap data-testid="gap-0nns" />
+    <OutlinedButton onClick={onClose} data-testid="outlinedbutton-j2h3">
+      Cancel
+    </OutlinedButton>
+    <Button onClick={onSave} data-testid="button-g2un">
+      Save
+    </Button>
   </ModalGenericButtonRow>
 );
 
@@ -42,39 +52,62 @@ export const EditTemplateForm = memo(
   ({ onSubmit, editedObject, onDelete, onClose, allowInputTitleType }) => {
     const renderForm = ({ submitForm, dirty, values }) => (
       <>
-        <FormGrid columns={2}>
+        <FormGrid columns={2} data-testid="formgrid-1pcw">
           <Field
             name="name"
             label={
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
+                data-testid="translatedtext-my1a"
               />
             }
             component={TextField}
             required
+            data-testid="field-dpsu"
           />
           <Field
             name="title"
             label={
-              <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />
+              <TranslatedText
+                stringId="general.localisedField.title.label"
+                fallback="Title"
+                data-testid="translatedtext-drlt"
+              />
             }
             component={TextField}
             disabled={!allowInputTitleType.includes(values.type)}
+            data-testid="field-8a47"
           />
         </FormGrid>
-        <SmallGridSpacer />
-        <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
+        <SmallGridSpacer data-testid="smallgridspacer-7w05" />
+        <FormGrid columns={1} nested style={{ marginBottom: '42px' }} data-testid="formgrid-b2ge">
           <Field
             name="body"
-            label={<TranslatedText stringId="admin.template.content.label" fallback="Contents" />}
+            label={
+              <TranslatedText
+                stringId="admin.template.content.label"
+                fallback="Contents"
+                data-testid="translatedtext-cj4v"
+              />
+            }
             component={TallMultilineTextField}
+            data-testid="field-g5t4"
           />
         </FormGrid>
         {dirty ? (
-          <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} />
+          <EditedActions
+            onDelete={onDelete}
+            onSave={submitForm}
+            onClose={onClose}
+            data-testid="editedactions-5ior"
+          />
         ) : (
-          <UneditedActions onDelete={onDelete} onClose={onClose} />
+          <UneditedActions
+            onDelete={onDelete}
+            onClose={onClose}
+            data-testid="uneditedactions-wyml"
+          />
         )}
       </>
     );
@@ -93,11 +126,13 @@ export const EditTemplateForm = memo(
               <TranslatedText
                 stringId="patientLetterTemplate.templateName.label"
                 fallback="Template name"
+                data-testid="translatedtext-64ya"
               />,
             ),
           title: yup.string(),
           body: yup.string(),
         })}
+        data-testid="form-pvft"
       />
     );
   },

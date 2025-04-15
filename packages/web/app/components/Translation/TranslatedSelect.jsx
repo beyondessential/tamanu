@@ -39,14 +39,27 @@ const TranslatedSelectInput = ({
       value={field ? field.value : value}
       name={field ? field.name : name}
       {...props}
+      data-testid="inputcomponent-c7e9"
     />
   );
 };
 
-export const TranslatedSelectField = props => {
-  return <TranslatedSelectInput {...props} component={SelectInput} />;
+export const TranslatedSelectField = (props) => {
+  return (
+    <TranslatedSelectInput
+      {...props}
+      component={SelectInput}
+      data-testid="translatedselectinput-d25a"
+    />
+  );
 };
 
-export const TranslatedMultiSelectField = props => {
-  return <TranslatedSelectInput {...props} component={MultiselectInput} />;
+export const TranslatedMultiSelectField = (props) => {
+  return (
+    <TranslatedSelectInput
+      {...props}
+      component={MultiselectInput}
+      data-testid="translatedselectinput-db37"
+    />
+  );
 };

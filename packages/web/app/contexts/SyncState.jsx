@@ -26,8 +26,8 @@ export const SyncStateProvider = ({ children }) => {
   );
 
   const isPatientSyncing = useCallback(
-    patientId => {
-      return currentSyncingPatients.some(p => p.patientId === patientId);
+    (patientId) => {
+      return currentSyncingPatients.some((p) => p.patientId === patientId);
     },
     [currentSyncingPatients],
   );
@@ -45,8 +45,8 @@ export const SyncStateProvider = ({ children }) => {
       //    above point has also finished - meaning that all the records of that
       //    patient have been pulled down (we can check this by checking if
       //    lastSuccessfulSyncPull > lastSuccessfulSyncPush)
-      const hasPushedAndPulled = p => lastPush > Number(p.tick) && lastPull > lastPush;
-      setCurrentSyncingPatients(currentSyncingPatients.filter(p => !hasPushedAndPulled(p)));
+      const hasPushedAndPulled = (p) => lastPush > Number(p.tick) && lastPull > lastPush;
+      setCurrentSyncingPatients(currentSyncingPatients.filter((p) => !hasPushedAndPulled(p)));
     },
     [currentSyncingPatients],
   );

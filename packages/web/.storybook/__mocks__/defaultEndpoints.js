@@ -175,7 +175,7 @@ export const defaultEndpoints = {
     return fakeLocations;
   },
   'suggestions/location/:id': (data, id) => {
-    return fakeLocations.find(x => x.id === id);
+    return fakeLocations.find((x) => x.id === id);
   },
   'suggestions/labTestLaboratory/all': () => Array.from({ length: 10 }, fakeLabTestLaboratory),
   'suggestions/labTestPriority/all': () => Array.from({ length: 10 }, fakeLabTestPriority),
@@ -183,5 +183,5 @@ export const defaultEndpoints = {
   'suggestions/labTestMethod/all': () => fakeMethods,
   'suggestions/lessThanSevenCities': () => sixCities,
   'suggestions/moreThanSevenCities': ({ q = '' }) =>
-    eightCities.filter(city => city.name.toLowerCase().startsWith(q.toLowerCase())),
+    eightCities.filter((city) => city.name.toLowerCase().startsWith(q.toLowerCase())),
 };

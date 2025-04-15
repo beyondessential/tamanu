@@ -86,8 +86,8 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)}>
-    <HeadCellWrapper>
+  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-5w9x">
+    <HeadCellWrapper data-testid="headcellwrapper-jcsy">
       <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
       <div>{DateDisplay.stringFormat(value, formatTime)}</div>
     </HeadCellWrapper>
@@ -132,12 +132,14 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
       open={isClamped && tooltipOpen}
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}
+      data-testid="tabletooltip-fs9r"
     >
       <LimitedLinesCellWrapper
         ref={contentRef}
         maxLines={maxLines}
         maxWidth={maxWidth}
         isOneLine={isOneLine}
+        data-testid="limitedlinescellwrapper-imvw"
       >
         {value}
       </LimitedLinesCellWrapper>
@@ -151,11 +153,11 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   const tooltip =
     normalRange && `Normal range ${normalRange.min}${unit} – ${normalRange.max}${unit}`;
   return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <CellWrapper>{value}</CellWrapper>
+    <TableTooltip title={tooltip} data-testid="tabletooltip-0d49">
+      <CellWrapper data-testid="cellwrapper-27nt">{value}</CellWrapper>
     </TableTooltip>
   ) : (
-    <CellWrapper>{value}</CellWrapper>
+    <CellWrapper data-testid="cellwrapper-wc2u">{value}</CellWrapper>
   );
 });
 
@@ -181,11 +183,22 @@ export const RangeValidatedCell = React.memo(
     );
 
     const cell = (
-      <CellContainer onClick={onClick} severity={severity} {...props}>
-        <ValueWrapper value={formattedValue} />
+      <CellContainer
+        onClick={onClick}
+        severity={severity}
+        {...props}
+        data-testid="cellcontainer-4zzh"
+      >
+        <ValueWrapper value={formattedValue} data-testid="valuewrapper-nbfj" />
       </CellContainer>
     );
 
-    return tooltip ? <TableTooltip title={tooltip}>{cell}</TableTooltip> : cell;
+    return tooltip ? (
+      <TableTooltip title={tooltip} data-testid="tabletooltip-vgtq">
+        {cell}
+      </TableTooltip>
+    ) : (
+      cell
+    );
   },
 );

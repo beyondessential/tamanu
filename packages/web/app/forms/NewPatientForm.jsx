@@ -80,14 +80,14 @@ export const NewPatientForm = memo(
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-    const isRequiredPatientData = fieldName =>
+    const isRequiredPatientData = (fieldName) =>
       getSetting(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;
     }
 
-    const handleSubmit = async data => {
+    const handleSubmit = async (data) => {
       const newData = { ...data };
       newData.patientRegistryType = patientRegistryType;
 
@@ -100,10 +100,19 @@ export const NewPatientForm = memo(
 
     const renderForm = ({ submitForm, values, setValues }) => (
       <>
-        <IdBannerContainer>
-          <RandomPatientButton setValues={setValues} generateId={generateId} />
-          <IdBanner>
-            <Field name="displayId" component={IdField} regenerateId={generateId} />
+        <IdBannerContainer data-testid="idbannercontainer-0ghp">
+          <RandomPatientButton
+            setValues={setValues}
+            generateId={generateId}
+            data-testid="randompatientbutton-q71o"
+          />
+          <IdBanner data-testid="idbanner-x5bf">
+            <Field
+              name="displayId"
+              component={IdField}
+              regenerateId={generateId}
+              data-testid="field-u69a"
+            />
           </IdBanner>
         </IdBannerContainer>
         <StyledRadioField
@@ -111,7 +120,7 @@ export const NewPatientForm = memo(
             name: 'newPatient',
             label: 'New patient action',
             value: patientRegistryType,
-            onChange: event => setPatientRegistryType(event.target?.value),
+            onChange: (event) => setPatientRegistryType(event.target?.value),
           }}
           options={[
             {
@@ -120,6 +129,7 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.newPatient"
                   fallback="Create new patient"
+                  data-testid="translatedtext-kswe"
                 />
               ),
             },
@@ -129,56 +139,80 @@ export const NewPatientForm = memo(
                 <TranslatedText
                   stringId="patient.newPatientAction.option.birthRegistry"
                   fallback="Register birth"
+                  data-testid="translatedtext-h9jt"
                 />
               ),
             },
           ]}
           style={{ gridColumn: '1 / -1' }}
+          data-testid="styledradiofield-rxta"
         />
         <PrimaryDetails
           registeredBirthPlace={values.registeredBirthPlace}
           isRequiredPatientData={isRequiredPatientData}
           values={values}
           patientRegistryType={patientRegistryType}
+          data-testid="primarydetails-kiso"
         />
-        <AdditionalInformationRow>
+        <AdditionalInformationRow data-testid="additionalinformationrow-ab5o">
           {collapseAdditionalFields && (
             <div>
               {isExpanded ? (
-                <StyledImageButton onClick={() => setExpanded(false)}>
+                <StyledImageButton
+                  onClick={() => setExpanded(false)}
+                  data-testid="styledimagebutton-yauj"
+                >
                   <img alt="Minus button" src={minusCircle} />
                 </StyledImageButton>
               ) : (
-                <StyledImageButton onClick={() => setExpanded(true)}>
+                <StyledImageButton
+                  onClick={() => setExpanded(true)}
+                  data-testid="styledimagebutton-8ihm"
+                >
                   <img alt="Plus button" src={plusCircle} />
                 </StyledImageButton>
               )}
               <TranslatedText
                 stringId="patient.additionalInformation.label"
                 fallback="Add additional information"
+                data-testid="translatedtext-svf7"
               />
               <span>
                 {' '}
                 <TranslatedText
                   stringId="patient.additionalInformation.exampleText"
                   fallback="(religion, occupation, blood type...)"
+                  data-testid="translatedtext-nfg6"
                 />
               </span>
             </div>
           )}
         </AdditionalInformationRow>
-        <Collapse in={!collapseAdditionalFields || isExpanded} style={{ gridColumn: 'span 2' }}>
+        <Collapse
+          in={!collapseAdditionalFields || isExpanded}
+          style={{ gridColumn: 'span 2' }}
+          data-testid="collapse-pfyt"
+        >
           <SecondaryDetails
             patientRegistryType={patientRegistryType}
             registeredBirthPlace={values.registeredBirthPlace}
+            data-testid="secondarydetails-heuw"
           />
           {isLoading ? (
-            <LoadingIndicator />
+            <LoadingIndicator data-testid="loadingindicator-joxa" />
           ) : (
-            <PatientFields fieldDefinitions={fieldDefinitions?.data} />
+            <PatientFields
+              fieldDefinitions={fieldDefinitions?.data}
+              data-testid="patientfields-6e9u"
+            />
           )}
         </Collapse>
-        <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalFormActionRow
+          confirmText="Confirm"
+          onConfirm={submitForm}
+          onCancel={onCancel}
+          data-testid="modalformactionrow-h4kx"
+        />
       </>
     );
 
@@ -196,6 +230,7 @@ export const NewPatientForm = memo(
           getTranslation,
           getSetting,
         )}
+        data-testid="form-60mo"
       />
     );
   },

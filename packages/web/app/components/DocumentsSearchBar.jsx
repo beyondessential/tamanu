@@ -29,7 +29,7 @@ const HeaderBar = styled.div`
   h3 {
     font-size: 1rem;
     font-weight: 500;
-    color: ${props => props.theme.palette.text.primary};
+    color: ${(props) => props.theme.palette.text.primary};
   }
 `;
 
@@ -49,42 +49,71 @@ const SubmitButton = styled(FormSubmitButton)`
 `;
 
 export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  const handleSubmit = async values => {
+  const handleSubmit = async (values) => {
     setSearchParameters(values);
   };
 
   return (
-    <Container>
-      <HeaderBar>
-        <Typography variant="h3">
-          <TranslatedText stringId="patient.document.search.title" fallback="Documents search" />
+    <Container data-testid="container-4eoo">
+      <HeaderBar data-testid="headerbar-53or">
+        <Typography variant="h3" data-testid="typography-yb47">
+          <TranslatedText
+            stringId="patient.document.search.title"
+            fallback="Documents search"
+            data-testid="translatedtext-mra0"
+          />
         </Typography>
       </HeaderBar>
       <Form
         onSubmit={handleSubmit}
         render={({ clearForm, values }) => (
-          <CustomFormGrid columns={5}>
+          <CustomFormGrid columns={5} data-testid="customformgrid-mdsr">
             <Field
               name="type"
-              label={<TranslatedText stringId="document.type.label" fallback="Type" />}
+              label={
+                <TranslatedText
+                  stringId="document.type.label"
+                  fallback="Type"
+                  data-testid="translatedtext-nwvc"
+                />
+              }
               component={DynamicSelectField}
               options={DOCUMENT_TYPE_OPTIONS}
               size="small"
+              data-testid="field-3mst"
             />
             <Field
               name="documentOwner"
-              label={<TranslatedText stringId="document.owner.label" fallback="Owner" />}
+              label={
+                <TranslatedText
+                  stringId="document.owner.label"
+                  fallback="Owner"
+                  data-testid="translatedtext-527k"
+                />
+              }
               component={SearchField}
               size="small"
+              data-testid="field-keq3"
             />
             <Field
               name="departmentName"
-              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              label={
+                <TranslatedText
+                  stringId="general.department.label"
+                  fallback="Department"
+                  data-testid="translatedtext-3z2r"
+                />
+              }
               component={SearchField}
               size="small"
+              data-testid="field-l56i"
             />
-            <SubmitButton type="submit" size="small">
-              <TranslatedText stringId="general.action.search" fallback="Search" />
+            <SubmitButton type="submit" size="small" data-testid="submitbutton-fljj">
+              <TranslatedText
+                stringId="general.action.search"
+                fallback="Search"
+                data-testid="translatedtext-wdts"
+              />
             </SubmitButton>
             <ClearButton
               onClick={() => {
@@ -93,11 +122,17 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
                 clearForm();
               }}
               size="small"
+              data-testid="clearbutton-esac"
             >
-              <TranslatedText stringId="general.action.clearSearch" fallback="Clear" />
+              <TranslatedText
+                stringId="general.action.clearSearch"
+                fallback="Clear"
+                data-testid="translatedtext-ie7q"
+              />
             </ClearButton>
           </CustomFormGrid>
         )}
+        data-testid="form-p5qy"
       />
     </Container>
   );

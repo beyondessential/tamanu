@@ -7,14 +7,19 @@ import { MUI_SPACING_UNIT as spacing } from '../constants';
 
 // workaround for https://github.com/styled-components/styled-components/issues/1198
 const ContainerChild = styled(Paper)`
-  padding: ${props => (props.nopadding ? 0 : `${spacing * 2}px ${spacing * 3}px`)};
+  padding: ${(props) => (props.nopadding ? 0 : `${spacing * 2}px ${spacing * 3}px`)};
   box-shadow: none !important;
-  min-height: ${props => (props.autoheight ? 'auto' : 'calc(100vh - 70px)')};
+  min-height: ${(props) => (props.autoheight ? 'auto' : 'calc(100vh - 70px)')};
   flex-grow: 1;
 `;
 
 export const Container = ({ autoHeight, noPadding, ...props }) => (
-  <ContainerChild autoheight={autoHeight ? 1 : 0} nopadding={noPadding ? 1 : 0} {...props} />
+  <ContainerChild
+    autoheight={autoHeight ? 1 : 0}
+    nopadding={noPadding ? 1 : 0}
+    {...props}
+    data-testid="containerchild-d2ob"
+  />
 );
 
 Container.propTypes = {
@@ -28,9 +33,11 @@ Container.defaultProps = {
 };
 
 export const TabHeader = ({ children }) => (
-  <Grid container spacing={spacing} style={{ marginBottom: spacing }}>
-    <Grid item xs />
-    <Grid item>{children}</Grid>
+  <Grid container spacing={spacing} style={{ marginBottom: spacing }} data-testid="grid-2gbg">
+    <Grid item xs data-testid="grid-zoi5" />
+    <Grid item data-testid="grid-hqdu">
+      {children}
+    </Grid>
   </Grid>
 );
 
@@ -50,8 +57,14 @@ export const ButtonGroup = styled.div`
 `;
 
 export const BottomBar = ({ children }) => (
-  <Grid container item justify="flex-end" style={{ marginTop: spacing * 3 }}>
-    <ButtonGroup>{children}</ButtonGroup>
+  <Grid
+    container
+    item
+    justify="flex-end"
+    style={{ marginTop: spacing * 3 }}
+    data-testid="grid-wbih"
+  >
+    <ButtonGroup data-testid="buttongroup-b2qz">{children}</ButtonGroup>
   </Grid>
 );
 
@@ -68,12 +81,15 @@ export const SubHeader = ({ title, children }) => (
       backgroundColor: grey[200],
       padding: spacing,
     }}
+    data-testid="grid-gv9j"
   >
-    <Grid item xs>
-      <Typography variant="h6">{title}</Typography>
+    <Grid item xs data-testid="grid-hr9k">
+      <Typography variant="h6" data-testid="typography-0ty1">
+        {title}
+      </Typography>
     </Grid>
     {children && (
-      <Grid container item xs justify="flex-end">
+      <Grid container item xs justify="flex-end" data-testid="grid-inxu">
         {children}
       </Grid>
     )}

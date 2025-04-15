@@ -21,7 +21,7 @@ export const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
     return data.sort(order === 'asc' ? ascComparator : descComparator);
   };
 
-  const onChangeOrderBy = sortKey => {
+  const onChangeOrderBy = (sortKey) => {
     setOrderBy(sortKey);
     const isDesc = orderBy === sortKey && order === 'desc';
     setOrder(isDesc ? 'asc' : 'desc');

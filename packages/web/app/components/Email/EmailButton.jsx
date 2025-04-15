@@ -15,23 +15,32 @@ export const EmailButton = ({ onEmail }) => {
         onClick={() => {
           setOpenModal(true);
         }}
-        startIcon={<EmailIcon />}
+        startIcon={<EmailIcon data-testid="emailicon-7w1w" />}
         size="small"
+        data-testid="button-6qgc"
       >
         Email
       </Button>
       <FormModal
-        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        title={
+          <TranslatedText
+            stringId="patient.email.title"
+            fallback="Enter email address"
+            data-testid="translatedtext-2nar"
+          />
+        }
         open={openModal}
         onClose={() => setOpenModal(false)}
+        data-testid="formmodal-4vq0"
       >
         <EmailAddressConfirmationForm
-          onSubmit={async data => {
+          onSubmit={async (data) => {
             if (!openModal) return;
             await onEmail(data);
             setOpenModal(false);
           }}
           onCancel={() => setOpenModal(false)}
+          data-testid="emailaddressconfirmationform-a6dk"
         />
       </FormModal>
     </>

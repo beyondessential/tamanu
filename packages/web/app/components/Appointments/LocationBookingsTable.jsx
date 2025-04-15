@@ -179,9 +179,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {
@@ -235,20 +235,25 @@ const MenuContainer = styled.div`
 `;
 
 const TableHeader = ({ title, openPastBookingsModal }) => (
-  <TableTitleContainer>
-    <Box component={'span'} fontSize="16px" fontWeight={500}>
+  <TableTitleContainer data-testid="tabletitlecontainer-hxpa">
+    <Box component={'span'} fontSize="16px" fontWeight={500} data-testid="box-y2q5">
       {title}
     </Box>
-    <ViewPastBookingsButton component={'span'} onClick={openPastBookingsModal}>
+    <ViewPastBookingsButton
+      component={'span'}
+      onClick={openPastBookingsModal}
+      data-testid="viewpastbookingsbutton-ye4j"
+    >
       <TranslatedText
         stringId="patient.bookings.table.viewPastBookings"
         fallback="View past bookings"
+        data-testid="translatedtext-cked"
       />
     </ViewPastBookingsButton>
   </TableTitleContainer>
 );
 
-const getFormattedTime = time => {
+const getFormattedTime = (time) => {
   return formatTime(time).replace(' ', '');
 };
 
@@ -266,9 +271,9 @@ const getDate = ({ startTime, endTime }) => {
     dateTimeString = `${formatShortest(startTime)} - ${formatShortest(endTime)}`;
   }
   return (
-    <DateText>
+    <DateText data-testid="datetext-jp36">
       <div>{dateTimeString}</div>
-      {isOvernight && <OvernightIcon />}
+      {isOvernight && <OvernightIcon data-testid="overnighticon-qh8z" />}
     </DateText>
   );
 };
@@ -276,11 +281,11 @@ const getDate = ({ startTime, endTime }) => {
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
-    <CustomCellContainer ref={ref} maxWidth={$maxWidth}>
+    <CustomCellContainer ref={ref} maxWidth={$maxWidth} data-testid="customcellcontainer-13tg">
       {!isOverflowing ? (
         value
       ) : (
-        <TableTooltip title={value}>
+        <TableTooltip title={value} data-testid="tabletooltip-g9dp">
           <div>{value}</div>
         </TableTooltip>
       )}
@@ -302,7 +307,7 @@ export const LocationBookingsTable = ({ patient }) => {
     after: '1970-01-01 00:00',
     rowsPerPage: 1,
   });
-  
+
   const hasPastBookings = (pastBookingsQuery.data?.data?.length || 0) > 0;
 
   // Query for future bookings
@@ -325,7 +330,13 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid="translatedtext-bq2v"
+        />
+      ),
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -340,23 +351,43 @@ export const LocationBookingsTable = ({ patient }) => {
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId="patient.bookings.table.column.date" fallback="Date" />,
+      title: (
+        <TranslatedText
+          stringId="patient.bookings.table.column.date"
+          fallback="Date"
+          data-testid="translatedtext-u5j4"
+        />
+      ),
       accessor: ({ startTime, endTime }) => getDate({ startTime, endTime }),
     },
     {
       key: 'bookingArea',
-      title: <TranslatedText stringId="patient.bookings.table.column.area" fallback="Area" />,
+      title: (
+        <TranslatedText
+          stringId="patient.bookings.table.column.area"
+          fallback="Area"
+          data-testid="translatedtext-jc2m"
+        />
+      ),
       accessor: ({ location }) => location?.locationGroup?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={243} />,
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={243} data-testid="customcellcomponent-7qqa" />
+      ),
     },
     {
       key: 'location',
       title: (
-        <TranslatedText stringId="patient.bookings.table.column.location" fallback="Location" />
+        <TranslatedText
+          stringId="patient.bookings.table.column.location"
+          fallback="Location"
+          data-testid="translatedtext-jjpp"
+        />
       ),
       accessor: ({ location }) => location?.name,
       sortable: false,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={158} />,
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={158} data-testid="customcellcomponent-rxc7" />
+      ),
     },
     {
       key: 'bookingType',
@@ -364,10 +395,13 @@ export const LocationBookingsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.bookings.table.column.bookingType"
           fallback="Booking type"
+          data-testid="translatedtext-1adp"
         />
       ),
       accessor: ({ bookingType }) => bookingType?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={100} />,
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={100} data-testid="customcellcomponent-3p9q" />
+      ),
     },
     ...(canWriteAppointment
       ? [
@@ -380,8 +414,9 @@ export const LocationBookingsTable = ({ patient }) => {
               <MenuContainer
                 className="menu-container"
                 onMouseEnter={() => setSelectedAppointment(data)}
+                data-testid="menucontainer-32u9"
               >
-                <StyledMenuButton actions={actions} />
+                <StyledMenuButton actions={actions} data-testid="styledmenubutton-y69e" />
               </MenuContainer>
             ),
           },
@@ -390,27 +425,30 @@ export const LocationBookingsTable = ({ patient }) => {
   ];
 
   const hasAnyBookings = hasPastBookings || appointments.length > 0;
-  
+
   if (!hasAnyBookings) {
     return null;
   }
 
   if (!appointments.length && !isLoading) {
     return (
-      <NoDataContainer>
+      <NoDataContainer data-testid="nodatacontainer-t8nv">
         <TableHeader
           title={
             <TranslatedText
               stringId="patient.bookings.table.noData"
               fallback="No location bookings"
+              data-testid="translatedtext-61nq"
             />
           }
           openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
+          data-testid="tableheader-8w1t"
         />
         {isViewPastBookingsModalOpen && (
           <PastBookingsModal
             patient={patient}
             onClose={() => setIsViewPastBookingsModalOpen(false)}
+            data-testid="pastbookingsmodal-tbm1"
           />
         )}
       </NoDataContainer>
@@ -430,9 +468,11 @@ export const LocationBookingsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.bookings.table.title"
                 fallback="Location bookings"
+                data-testid="translatedtext-40uc"
               />
             }
             openPastBookingsModal={() => setIsViewPastBookingsModalOpen(true)}
+            data-testid="tableheader-z0zh"
             hasPastBookings={hasPastBookings}
           />
         }
@@ -440,16 +480,19 @@ export const LocationBookingsTable = ({ patient }) => {
         orderBy={orderBy}
         order={order}
         onChangeOrderBy={onChangeOrderBy}
+        data-testid="styledtable-9ee7"
       />
       <CancelLocationBookingModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+        data-testid="cancellocationbookingmodal-3ewr"
       />
       {isViewPastBookingsModalOpen && (
         <PastBookingsModal
           patient={patient}
           onClose={() => setIsViewPastBookingsModalOpen(false)}
+          data-testid="pastbookingsmodal-x4ug"
         />
       )}
     </ContentPane>

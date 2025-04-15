@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useImagingRequestQuery = imagingRequestId => {
+export const useImagingRequestQuery = (imagingRequestId) => {
   const api = useApi();
 
   return useQuery(['imagingRequest', imagingRequestId], () =>

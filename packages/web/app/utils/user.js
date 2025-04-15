@@ -12,7 +12,7 @@ export function getUserInitials(username) {
  * @param data {{ firstName: string, lastName: string }}
  * @returns {string}
  */
-export const joinNames = data => [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
+export const joinNames = (data) => [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
 
 export const Genders = {
   FEMALE: 'female',

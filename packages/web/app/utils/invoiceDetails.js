@@ -1,4 +1,4 @@
-export const getInvoiceLineCode = row => {
+export const getInvoiceLineCode = (row) => {
   const itemType = row?.invoiceLineType?.itemType;
   switch (itemType) {
     // case INVOICE_LINE_TYPES.PROCEDURE_TYPE:

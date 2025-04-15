@@ -23,10 +23,18 @@ const COLUMNS = [
   {
     key: 'error',
     title: 'Error',
-    accessor: data => <ErrorText>{data.errors.join(', ')}</ErrorText>,
+    accessor: (data) => (
+      <ErrorText data-testid="errortext-fu31">{data.errors.join(', ')}</ErrorText>
+    ),
   },
 ];
 
 export const ImportErrorsTable = ({ errors }) => (
-  <Table rowIdKey="row" columns={COLUMNS} noDataMessage="All good!" data={errors} />
+  <Table
+    rowIdKey="row"
+    columns={COLUMNS}
+    noDataMessage="All good!"
+    data={errors}
+    data-testid="table-rhdl"
+  />
 );

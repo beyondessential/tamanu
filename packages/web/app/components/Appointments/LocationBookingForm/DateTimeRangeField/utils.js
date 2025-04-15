@@ -1,7 +1,7 @@
 import { isValid, parseISO } from 'date-fns';
 import { isEqual } from 'lodash';
 
-export const appointmentToInterval = appointment => {
+export const appointmentToInterval = (appointment) => {
   const { startTime, endTime } = appointment;
   if (!startTime || !endTime) return null;
 
@@ -14,7 +14,7 @@ export const appointmentToInterval = appointment => {
   return { start, end };
 };
 
-export const idOfTimeSlot = timeSlot => timeSlot.start.valueOf();
+export const idOfTimeSlot = (timeSlot) => timeSlot.start.valueOf();
 
 export const isSameArrayMinusHead = (testArr, referenceArr) => {
   if (testArr.length !== referenceArr.length - 1) return false;

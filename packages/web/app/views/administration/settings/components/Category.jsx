@@ -52,8 +52,12 @@ const CategoryTitle = memo(({ name, path, description }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
-    <ThemedTooltip disableHoverListener={!description} title={description}>
-      <StyledHeading>{categoryTitle}</StyledHeading>
+    <ThemedTooltip
+      disableHoverListener={!description}
+      title={description}
+      data-testid="themedtooltip-j5ux"
+    >
+      <StyledHeading data-testid="styledheading-js44">{categoryTitle}</StyledHeading>
     </ThemedTooltip>
   );
 });
@@ -66,15 +70,17 @@ const SettingName = memo(({ name, path, description, disabled }) => (
         <TranslatedText
           stringId="admin.settings.highRiskSettingTooltip"
           fallback="User does not required permissions to update this setting"
+          data-testid="translatedtext-2xq4"
         />
       ) : (
         description
       )
     }
+    data-testid="themedtooltip-2qoa"
   >
-    <SettingNameLabel color={disabled && 'textTertiary'}>
+    <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
       {formatSettingName(name, path.split('.').pop())}
-      {disabled && <StyledLockIcon />}
+      {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
     </SettingNameLabel>
   </ThemedTooltip>
 ));
@@ -98,18 +104,30 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
 
   return (
-    <Wrapper>
-      <CategoryTitle name={schema.name} path={path} description={schema.description} />
+    <Wrapper data-testid="wrapper-sc1t">
+      <CategoryTitle
+        name={schema.name}
+        path={path}
+        description={schema.description}
+        data-testid="categorytitle-0pic"
+      />
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
+        const testIdSuffix = newPath.replace(/\./g, '-');
         const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
-          <SettingLine key={newPath}>
-            <SettingName disabled={disabled} path={newPath} name={name} description={description} />
+          <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
+            <SettingName
+              disabled={disabled}
+              path={newPath}
+              name={name}
+              description={description}
+              data-testid={`settingname-g0r7-${testIdSuffix}`}
+            />
             <SettingInput
               typeSchema={type}
               value={getSettingValue(newPath)}
@@ -118,6 +136,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
+              data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
         ) : (
@@ -128,6 +147,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
             handleChangeSetting={handleChangeSetting}
+            data-testid={`category-9y74-${testIdSuffix}`}
           />
         );
       })}

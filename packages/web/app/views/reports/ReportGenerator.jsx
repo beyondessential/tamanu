@@ -13,13 +13,20 @@ const ContentContainer = styled.div`
 `;
 
 export const ReportGenerator = () => (
-  <PageContainer>
+  <PageContainer data-testid="pagecontainer-keoo">
     <TopBar
-      title={<TranslatedText stringId="report.generate.title" fallback="Report generator" />}
+      title={
+        <TranslatedText
+          stringId="report.generate.title"
+          fallback="Report generator"
+          data-testid="translatedtext-e09x"
+        />
+      }
+      data-testid="topbar-gwfj"
     />
-    <ContentPane>
-      <ContentContainer>
-        <ReportGeneratorForm />
+    <ContentPane data-testid="contentpane-6qc7">
+      <ContentContainer data-testid="contentcontainer-3wed">
+        <ReportGeneratorForm data-testid="reportgeneratorform-w6qz" />
       </ContentContainer>
     </ContentPane>
   </PageContainer>

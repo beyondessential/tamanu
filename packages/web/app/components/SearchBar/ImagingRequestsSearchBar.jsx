@@ -73,11 +73,16 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               <LocalisedField
                 name="requestedById"
                 label={
-                  <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />
+                  <TranslatedText
+                    stringId="general.requestedBy.label"
+                    fallback="Requested by"
+                    data-testid="translatedtext-m18i"
+                  />
                 }
                 saveDateAsString
                 component={AutocompleteField}
                 suggester={requesterSuggester}
+                data-testid="localisedfield-11ir"
               />
             </>
           )}
@@ -87,18 +92,27 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
               <TranslatedText
                 stringId="general.localisedField.locationGroupId.label"
                 fallback="Area"
+                data-testid="translatedtext-69k8"
               />
             }
             component={AutocompleteField}
             suggester={areaSuggester}
             size="small"
+            data-testid="localisedfield-6j6s"
           />
           <Field
             name="departmentId"
-            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+            label={
+              <TranslatedText
+                stringId="general.department.label"
+                fallback="Department"
+                data-testid="translatedtext-6sqs"
+              />
+            }
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"
+            data-testid="field-e4ux"
           />
           {isCompletedTable && (
             <>
@@ -108,58 +122,90 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
                   <TranslatedText
                     stringId="general.localisedField.completedAt.label"
                     fallback="Completed"
+                    data-testid="translatedtext-9d9x"
                   />
                 }
                 saveDateAsString
                 component={DateField}
+                data-testid="localisedfield-uyji"
               />
             </>
           )}
-          <FacilityCheckbox>
-            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+          <FacilityCheckbox data-testid="facilitycheckbox-n935">
+            <Field
+              name="allFacilities"
+              label="Include all facilities"
+              component={CheckField}
+              data-testid="field-kjb7"
+            />
           </FacilityCheckbox>
         </>
       }
+      data-testid="customisablesearchbarwithpermissioncheck-ms2k"
     >
       <LocalisedField
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid="translatedtext-nxx3"
+          />
         }
         component={SearchField}
+        data-testid="localisedfield-vd9v"
       />
       <LocalisedField
         name="firstName"
         label={
-          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+          <TranslatedText
+            stringId="general.localisedField.firstName.label"
+            fallback="First name"
+            data-testid="translatedtext-voml"
+          />
         }
         component={SearchField}
+        data-testid="localisedfield-osnn"
       />
       <LocalisedField
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          <TranslatedText
+            stringId="general.localisedField.lastName.label"
+            fallback="Last name"
+            data-testid="translatedtext-yg45"
+          />
         }
         component={SearchField}
+        data-testid="localisedfield-8a2o"
       />
       <LocalisedField
         name="requestId"
         label={
-          <TranslatedText stringId="general.localisedField.requestId.label" fallback="Request ID" />
+          <TranslatedText
+            stringId="general.localisedField.requestId.label"
+            fallback="Request ID"
+            data-testid="translatedtext-fi1s"
+          />
         }
         component={SearchField}
+        data-testid="localisedfield-2h4s"
       />
       {!isCompletedTable && (
         <LocalisedField
           name="status"
           label={
-            <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
+            <TranslatedText
+              stringId="general.localisedField.status.label"
+              fallback="Status"
+              data-testid="translatedtext-om0e"
+            />
           }
           component={TranslatedSelectField}
           enumValues={IMAGING_REQUEST_STATUS_LABELS}
-          transformOptions={options =>
+          transformOptions={(options) =>
             options.filter(
-              option =>
+              (option) =>
                 ![
                   IMAGING_REQUEST_STATUS_TYPES.DELETED,
                   IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
@@ -169,17 +215,23 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             )
           }
           size="small"
+          data-testid="localisedfield-uvlh"
         />
       )}
-      {isCompletedTable && <Spacer />}
+      {isCompletedTable && <Spacer data-testid="spacer-4852" />}
       <LocalisedField
         name="imagingType"
         label={
-          <TranslatedText stringId="general.localisedField.imagingType.label" fallback="Type" />
+          <TranslatedText
+            stringId="general.localisedField.imagingType.label"
+            fallback="Type"
+            data-testid="translatedtext-lk4e"
+          />
         }
         component={SelectField}
         options={imagingTypeOptions}
         size="small"
+        data-testid="localisedfield-82mw"
       />
       <LocalisedField
         name="requestedDateFrom"
@@ -187,10 +239,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           <TranslatedText
             stringId="general.localisedField.requestedDateFrom.label"
             fallback="Requested from"
+            data-testid="translatedtext-cjc4"
           />
         }
         saveDateAsString
         component={DateField}
+        data-testid="localisedfield-8ov6"
       />
       <LocalisedField
         name="requestedDateTo"
@@ -198,30 +252,44 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           <TranslatedText
             stringId="general.localisedField.requestedDateTo.label"
             fallback="Requested to"
+            data-testid="translatedtext-g07s"
           />
         }
         saveDateAsString
         component={DateField}
+        data-testid="localisedfield-ehah"
       />
       {!isCompletedTable && (
         <LocalisedField
           name="priority"
           label={
-            <TranslatedText stringId="general.localisedField.priority.label" fallback="Priority" />
+            <TranslatedText
+              stringId="general.localisedField.priority.label"
+              fallback="Priority"
+              data-testid="translatedtext-860e"
+            />
           }
           component={SelectField}
           options={imagingPriorities}
           size="small"
           prefix="imaging.property.priority"
+          data-testid="localisedfield-jz6w"
         />
       )}
       {isCompletedTable && (
         <LocalisedField
           name="requestedById"
-          label={<TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />}
+          label={
+            <TranslatedText
+              stringId="general.requestedBy.label"
+              fallback="Requested by"
+              data-testid="translatedtext-e0qn"
+            />
+          }
           component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
+          data-testid="localisedfield-ic9b"
         />
       )}
     </CustomisableSearchBarWithPermissionCheck>

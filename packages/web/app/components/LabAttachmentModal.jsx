@@ -18,6 +18,7 @@ export const LabAttachmentModal = ({ open, onClose, labRequest = {} }) => {
       open={open}
       onClose={onClose}
       document={document}
+      data-testid="documentpreviewmodal-2brc"
     />
   );
 };

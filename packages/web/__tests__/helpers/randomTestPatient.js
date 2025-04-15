@@ -3,18 +3,14 @@ import { ENCOUNTER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const chance = new Chance();
 
-const randomObjectValue = obj => {
+const randomObjectValue = (obj) => {
   const values = Object.values(obj);
   return chance.pickone(values);
 };
 const randomEncounterType = () => randomObjectValue(ENCOUNTER_TYPES);
 const randomVisibilityStatus = () => randomObjectValue(VISIBILITY_STATUSES);
 
-const randomIsoDobString = () =>
-  chance
-    .birthday()
-    .toISOString()
-    .slice(0, 10);
+const randomIsoDobString = () => chance.birthday().toISOString().slice(0, 10);
 
 export const randomNhn = () =>
   chance.string({ alpha: true, casing: 'upper', length: 4 }) +

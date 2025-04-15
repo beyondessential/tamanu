@@ -43,7 +43,7 @@ export const TemplateView = () => {
   );
 
   const onEditTemplate = useCallback(
-    async data => {
+    async (data) => {
       await api.put(`${TEMPLATE_ENDPOINT}/${data.id}`, {
         createdById: currentUser.id,
         ...data,
@@ -63,7 +63,7 @@ export const TemplateView = () => {
   }, [api, updateRefreshCount, editingTemplate?.id]);
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="pagecontainer-sslq">
       <EditTemplateModal
         open={!!editingTemplate}
         template={editingTemplate}
@@ -71,17 +71,32 @@ export const TemplateView = () => {
         onClose={() => setEditingTemplate(null)}
         onDelete={onDeleteTemplate}
         allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
+        data-testid="edittemplatemodal-pqg9"
       />
-      <TopBar title={<TranslatedText stringId="admin.template.title" fallback="Templates" />} />
-      <ContentPane>
-        <ContentContainer>
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="admin.template.title"
+            fallback="Templates"
+            data-testid="translatedtext-ymk6"
+          />
+        }
+        data-testid="topbar-lv3u"
+      />
+      <ContentPane data-testid="contentpane-y13i">
+        <ContentContainer data-testid="contentcontainer-clq8">
           <NewTemplateForm
             allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
             onSubmit={createTemplate}
             refreshTable={updateRefreshCount}
+            data-testid="newtemplateform-y114"
           />
         </ContentContainer>
-        <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
+        <TemplateList
+          refreshCount={refreshCount}
+          onRowClick={setEditingTemplate}
+          data-testid="templatelist-77lv"
+        />
       </ContentPane>
     </PageContainer>
   );

@@ -14,10 +14,8 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
 
-  const {
-    data: additionalData,
-    isFetching: isAdditionalDataFetching,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isFetching: isAdditionalDataFetching } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -35,6 +33,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <TranslatedText
             stringId="death.modal.deathCertificate.title"
             fallback="Cause of death certificate"
+            data-testid="translatedtext-q14d"
           />
         }
         open={isOpen}
@@ -42,21 +41,33 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         width="md"
         printable
         onPrint={() => printPDF('death-certificate-printout')}
+        data-testid="modal-zmo8"
       >
-        <PDFLoader isLoading={isLoading} id="death-certificate-printout">
+        <PDFLoader
+          isLoading={isLoading}
+          id="death-certificate-printout"
+          data-testid="pdfloader-cas2"
+        >
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             language={storedLanguage}
             translations={translations}
+            data-testid="deathcertificateprintout-l7w8"
           />
         </PDFLoader>
       </Modal>
-      <Button variant="contained" color="primary" onClick={() => setIsOpen(true)}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setIsOpen(true)}
+        data-testid="button-9v7x"
+      >
         <TranslatedText
           stringId="death.action.viewDeathCertificate"
           fallback="View death certificate"
+          data-testid="translatedtext-gawt"
         />
       </Button>
     </>

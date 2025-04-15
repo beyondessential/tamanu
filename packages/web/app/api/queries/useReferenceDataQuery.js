@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useReferenceDataQuery = referenceDataId => {
+export const useReferenceDataQuery = (referenceDataId) => {
   const api = useApi();
   return useQuery(
     ['referenceData', referenceDataId],

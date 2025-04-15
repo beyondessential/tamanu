@@ -6,9 +6,9 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
   const { getSetting } = useSettings();
 
   const fieldsToShow = useMemo(() => {
-    const checkCondition = fieldName =>
+    const checkCondition = (fieldName) =>
       !fields[fieldName].condition || fields[fieldName].condition();
-    const checkMandatory = fieldName => {
+    const checkMandatory = (fieldName) => {
       const requiredConfiguration = getSetting(`fields.${fieldName}.requiredPatientData`);
       return (
         !isBoolean(filterByMandatory) ||
@@ -18,8 +18,8 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     };
 
     return Object.keys(fields)
-      .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
-      .map(fieldName => {
+      .filter((fieldName) => checkMandatory(fieldName) && checkCondition(fieldName))
+      .map((fieldName) => {
         // eslint-disable-next-line no-unused-vars
         const { condition, ...rest } = fields[fieldName];
         return {

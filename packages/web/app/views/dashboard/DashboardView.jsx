@@ -132,26 +132,32 @@ const TopBar = ({ subtitle }) => {
   );
 
   return (
-    <TopBarContainer>
+    <TopBarContainer data-testid="topbarcontainer-v4hx">
       <div>
-        <Heading1 margin={0}>
+        <Heading1 margin={0} data-testid="heading1-2w7n">
           <TranslatedText
             stringId="view.dashboard.topbar.title"
             fallback="Hi :username!  👋"
             replacements={{ username: currentUser?.displayName }}
+            data-testid="translatedtext-o43s"
           />
         </Heading1>
-        <Heading5 margin={0}>{subtitle}</Heading5>
+        <Heading5 margin={0} data-testid="heading5-iho5">
+          {subtitle}
+        </Heading5>
       </div>
-      <IconButton onClick={() => setNotificationOpen(true)}>
-        <NotificationIcon />
-        {!!notifications.unreadNotifications?.length && <NotificationIndicator />}
+      <IconButton onClick={() => setNotificationOpen(true)} data-testid="iconbutton-1sk8">
+        <NotificationIcon data-testid="notificationicon-h7mw" />
+        {!!notifications.unreadNotifications?.length && (
+          <NotificationIndicator data-testid="notificationindicator-yrhl" />
+        )}
       </IconButton>
       <NotificationDrawer
         open={notificationOpen}
         onClose={() => setNotificationOpen(false)}
         notifications={notifications}
         isLoading={isLoading}
+        data-testid="notificationdrawer-kdja"
       />
     </TopBarContainer>
   );
@@ -165,44 +171,56 @@ const WelcomePane = ({ patientPerPage }) => {
   );
 
   let subtitle = (
-    <TranslatedText stringId="view.dashboard.welcome.title" fallback="Welcome to Tamanu!" />
+    <TranslatedText
+      stringId="view.dashboard.welcome.title"
+      fallback="Welcome to Tamanu!"
+      data-testid="translatedtext-dw8d"
+    />
   );
   if (recentlyViewedPatients.length) {
     subtitle = (
       <TranslatedText
         stringId="view.dashboard.welcome.subtitle.noPermissions"
         fallback="Take a moment to review new notifications."
+        data-testid="translatedtext-0vha"
       />
     );
   }
 
   return (
-    <WelcomePageContainer>
-      <TopBar subtitle={subtitle} />
-      <WelcomePaneContainer>
-        <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
-        <WelcomeSection>
-          <WelcomeMessage>
-            <Heading1>
+    <WelcomePageContainer data-testid="welcomepagecontainer-gsx9">
+      <TopBar subtitle={subtitle} data-testid="topbar-e90j" />
+      <WelcomePaneContainer data-testid="welcomepanecontainer-2y20">
+        <RecentlyViewedPatientsList
+          isDashboard
+          patientPerPage={patientPerPage}
+          data-testid="recentlyviewedpatientslist-54q4"
+        />
+        <WelcomeSection data-testid="welcomesection-0pog">
+          <WelcomeMessage data-testid="welcomemessage-g6r8">
+            <Heading1 data-testid="heading1-jdty">
               <TranslatedText
                 stringId="view.dashboard.welcome.title"
                 fallback="Welcome to Tamanu!"
+                data-testid="translatedtext-hhz4"
               />
             </Heading1>
-            <WelcomeText>
+            <WelcomeText data-testid="welcometext-qzhq">
               <TranslatedText
                 stringId="view.dashboard.welcome.subtitle"
                 fallback="Take a moment to have a look around using the left hand menu."
+                data-testid="translatedtext-yd6a"
               />
             </WelcomeText>
-            <WelcomeText mt={4} color={Colors.darkText}>
+            <WelcomeText mt={4} color={Colors.darkText} data-testid="welcometext-f8pf">
               <TranslatedText
                 stringId="view.dashboard.welcome.description"
                 fallback="This is the Tamanu Dashboard. At the moment you do not have permission to view appointments, bookings or tasks, so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect."
+                data-testid="translatedtext-7sbq"
               />
             </WelcomeText>
           </WelcomeMessage>
-          <WelcomeImage src={welcomingSrc} />
+          <WelcomeImage src={welcomingSrc} data-testid="welcomeimage-gw9i" />
         </WelcomeSection>
       </WelcomePaneContainer>
     </WelcomePageContainer>
@@ -237,13 +255,14 @@ export const DashboardView = () => {
   const showWelcomeMessage = !showTasks && !showAppointments && !showBookings;
 
   if (showWelcomeMessage) {
-    return <WelcomePane patientPerPage={patientPerPage} />;
+    return <WelcomePane patientPerPage={patientPerPage} data-testid="welcomepane-ryx6" />;
   }
 
   let subtitle = (
     <TranslatedText
       stringId="view.dashboard.topbar.subtitle.full"
       fallback="Take a moment to review new notifications, upcoming tasks and scheduling during your shift."
+      data-testid="translatedtext-cz4r"
     />
   );
   if (!showTasks) {
@@ -251,6 +270,7 @@ export const DashboardView = () => {
       <TranslatedText
         stringId="view.dashboard.topbar.subtitle.noTasks"
         fallback="Take a moment to review new notifications and upcoming scheduling during your shift."
+        data-testid="translatedtext-85qf"
       />
     );
   } else if (!showAppointments && !showBookings) {
@@ -258,22 +278,34 @@ export const DashboardView = () => {
       <TranslatedText
         stringId="view.dashboard.topbar.subtitle.noAppointments"
         fallback="Take a moment to review new notifications and upcoming tasks during your shift."
+        data-testid="translatedtext-g4fj"
       />
     );
   }
 
   return (
-    <PageContainer>
-      <TopBar subtitle={subtitle} />
-      <DashboardLayout showTasks={showTasks}>
-        <PatientsTasksContainer showTasks={showTasks}>
-          <RecentlyViewedPatientsList isDashboard patientPerPage={patientPerPage} />
-          {showTasks && <DashboardTaskPane />}
+    <PageContainer data-testid="pagecontainer-d57g">
+      <TopBar subtitle={subtitle} data-testid="topbar-fwya" />
+      <DashboardLayout showTasks={showTasks} data-testid="dashboardlayout-fufu">
+        <PatientsTasksContainer showTasks={showTasks} data-testid="patientstaskscontainer-mqob">
+          <RecentlyViewedPatientsList
+            isDashboard
+            patientPerPage={patientPerPage}
+            data-testid="recentlyviewedpatientslist-10ri"
+          />
+          {showTasks && <DashboardTaskPane data-testid="dashboardtaskpane-42x7" />}
         </PatientsTasksContainer>
         {(showAppointments || showBookings) && (
-          <SchedulePanesContainer showTasks={showTasks}>
-            {showAppointments && <TodayAppointmentsPane showTasks={showTasks} />}
-            {showBookings && <TodayBookingsPane showTasks={showTasks} />}
+          <SchedulePanesContainer showTasks={showTasks} data-testid="schedulepanescontainer-tiyj">
+            {showAppointments && (
+              <TodayAppointmentsPane
+                showTasks={showTasks}
+                data-testid="todayappointmentspane-qzx2"
+              />
+            )}
+            {showBookings && (
+              <TodayBookingsPane showTasks={showTasks} data-testid="todaybookingspane-o3zb" />
+            )}
           </SchedulePanesContainer>
         )}
       </DashboardLayout>

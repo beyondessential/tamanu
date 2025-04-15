@@ -21,10 +21,10 @@ const SECTION_TITLES = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
 };
 
-const useLabRequestsQuery = labRequestIds => {
+const useLabRequestsQuery = (labRequestIds) => {
   const api = useApi();
   const queries = useQueries({
-    queries: labRequestIds.map(labRequestId => {
+    queries: labRequestIds.map((labRequestId) => {
       return {
         queryKey: ['labRequest', labRequestId],
         queryFn: () => api.get(`labRequest/${labRequestId}`),
@@ -48,7 +48,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
     baseQueryParameters: { filterByFacility: true },
   });
 
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     const { notes, ...rest } = data;
     const response = await api.post('labRequest', {
       ...rest,
@@ -61,7 +61,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
         content: notes,
       },
     });
-    setNewLabRequestIds(response.map(request => request.id));
+    setNewLabRequestIds(response.map((request) => request.id));
   };
 
   const handleClose = async () => {
@@ -89,6 +89,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       departmentSuggester={departmentSuggester}
       specimenTypeSuggester={specimenTypeSuggester}
       labSampleSiteSuggester={labSampleSiteSuggester}
+      data-testid="labrequestmultistepform-4yb0"
     />
   );
 
@@ -99,6 +100,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
         labRequests={newLabRequests}
         requestFormType={requestFormType}
         onClose={handleClose}
+        data-testid="labrequestsummarypane-uhfv"
       />
     );
   }
@@ -112,11 +114,13 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
           replacements={{
             modalSectionTitle: requestFormType ? `| ${SECTION_TITLES[requestFormType]}` : ' ',
           }}
+          data-testid="translatedtext-2ldh"
         />
       }
       open={open}
       onClose={handleClose}
       minHeight={800}
+      data-testid="styledmodal-bqm5"
     >
       {ModalBody}
     </StyledModal>

@@ -4,7 +4,7 @@ import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getDatesAndRecords } from './useEncounterChartsQuery';
 
-export const useVitalsQuery = encounterId => {
+export const useVitalsQuery = (encounterId) => {
   const api = useApi();
   const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
     api.get(

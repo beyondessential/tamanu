@@ -20,15 +20,22 @@ const validationSchema = yup.object().shape({
     .string()
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
     .required()
-    .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
+    .translatedLabel(
+      <TranslatedText
+        stringId="general.status.label"
+        fallback="Status"
+        data-testid="translatedtext-mdbk"
+      />,
+    ),
   sampleTime: yup.string().when('status', {
-    is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    is: (status) => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     then: yup
       .string()
       .translatedLabel(
         <TranslatedText
           stringId="lab.modal.changeStatus.sampleDateTime.label"
           fallback="Sample date & time"
+          data-testid="translatedtext-iquc"
         />,
       )
       .required(),
@@ -39,13 +46,18 @@ const validationSchema = yup.object().shape({
 
 export const LabRequestChangeStatusModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
-    const updateLabStatus = async formValues => {
+    const updateLabStatus = async (formValues) => {
       await updateLabReq(formValues);
       onClose();
     };
 
     return (
-      <FormModal open={open} onClose={onClose} title="Change lab request status">
+      <FormModal
+        open={open}
+        onClose={onClose}
+        title="Change lab request status"
+        data-testid="formmodal-79e2"
+      >
         <Form
           onSubmit={updateLabStatus}
           initialValues={labRequest}
@@ -53,7 +65,7 @@ export const LabRequestChangeStatusModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           render={({ values, submitForm }) => {
-            const shouldIncludeOption = option =>
+            const shouldIncludeOption = (option) =>
               (![
                 LAB_REQUEST_STATUSES.DELETED,
                 LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -64,14 +76,21 @@ export const LabRequestChangeStatusModal = React.memo(
                 option.value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
             return (
-              <FormGrid columns={1}>
+              <FormGrid columns={1} data-testid="formgrid-9tm6">
                 <Field
-                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+                  label={
+                    <TranslatedText
+                      stringId="general.status.label"
+                      fallback="Status"
+                      data-testid="translatedtext-bs5g"
+                    />
+                  }
                   name="status"
                   enumValues={LAB_REQUEST_STATUS_LABELS}
-                  transformOptions={options => options.filter(shouldIncludeOption)}
+                  transformOptions={(options) => options.filter(shouldIncludeOption)}
                   component={TranslatedSelectField}
                   required
+                  data-testid="field-ruix"
                 />
                 {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                   values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (
@@ -82,17 +101,26 @@ export const LabRequestChangeStatusModal = React.memo(
                           <TranslatedText
                             stringId="lab.modal.changeStatus.sampleDateTime.label"
                             fallback="Sample date & time"
+                            data-testid="translatedtext-lkfl"
                           />
                         }
                         required
                         component={DateTimeField}
                         saveDateAsString
+                        data-testid="field-81ia"
                       />
                       <Field
                         name="labSampleSiteId"
-                        label={<TranslatedText stringId="lab.site.label" fallback="Site" />}
+                        label={
+                          <TranslatedText
+                            stringId="lab.site.label"
+                            fallback="Site"
+                            data-testid="translatedtext-ei3x"
+                          />
+                        }
                         component={SuggesterSelectField}
                         endpoint="labSampleSite"
+                        data-testid="field-bqq5"
                       />
                     </>
                   )}
@@ -100,10 +128,12 @@ export const LabRequestChangeStatusModal = React.memo(
                   confirmText="Confirm"
                   onCancel={onClose}
                   onConfirm={submitForm}
+                  data-testid="formsubmitcancelrow-4wm0"
                 />
               </FormGrid>
             );
           }}
+          data-testid="form-90ij"
         />
       </FormModal>
     );

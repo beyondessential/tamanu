@@ -12,7 +12,7 @@ export const useLocationBookingMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    payload =>
+    (payload) =>
       isEdit
         ? api.put(
             `${BASE_URL}/${payload.id}${skipConflictCheck ? '?skipConflictCheck=true' : ''}`,

@@ -23,7 +23,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    value => {
+    (value) => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -47,7 +47,7 @@ export const LabRequestProvider = ({ children }) => {
   const api = useApi();
 
   const loadLabRequest = useCallback(
-    async labRequestId => {
+    async (labRequestId) => {
       setIsLoading(true);
       const data = await api.get(`labRequest/${labRequestId}`);
       setLabRequest({ ...data });

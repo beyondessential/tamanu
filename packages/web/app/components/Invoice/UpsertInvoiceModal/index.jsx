@@ -107,6 +107,7 @@ export const UpsertInvoiceModal = ({
             onClose={onClose}
             handleSkip={isCreating ? () => handleUpsertInvoice() : undefined}
             isSubmitting={isSubmitting}
+            data-testid="invoicediscounttypeselector-pjza"
           />
         );
       case ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
@@ -116,6 +117,7 @@ export const UpsertInvoiceModal = ({
             onClose={onClose}
             handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE_SELECTOR)}
             isSubmitting={isSubmitting}
+            data-testid="invoicediscountassessmentform-pupv"
           />
         );
       case ACTIVE_VIEW.DISCOUNT_MANUAL:
@@ -130,6 +132,7 @@ export const UpsertInvoiceModal = ({
                 ? { ...invoice.discount, percentage: invoice.discount.percentage * 100 }
                 : undefined
             }
+            data-testid="invoicediscountmanualform-vb6v"
           />
         );
       default:
@@ -142,13 +145,22 @@ export const UpsertInvoiceModal = ({
       width="sm"
       title={
         isCreating ? (
-          <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
+          <TranslatedText
+            stringId="invoice.action.create"
+            fallback="Create invoice"
+            data-testid="translatedtext-5612"
+          />
         ) : (
-          <TranslatedText stringId="invoice.action.update" fallback="Update invoice" />
+          <TranslatedText
+            stringId="invoice.action.update"
+            fallback="Update invoice"
+            data-testid="translatedtext-3d6k"
+          />
         )
       }
       open={open}
       onClose={onClose}
+      data-testid="modal-urvo"
     >
       {renderActiveView()}
     </Modal>

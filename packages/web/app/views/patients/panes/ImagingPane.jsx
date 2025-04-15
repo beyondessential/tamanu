@@ -12,36 +12,48 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
 
   // TODO: should these be ButtonWithPermissionCheck?
   return (
-    <TabPane>
+    <TabPane data-testid="tabpane-oxfj">
       <ImagingRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
         onClose={() => setNewRequestModalOpen(false)}
+        data-testid="imagingrequestmodal-p374"
       />
       <PrintMultipleImagingRequestsSelectionModal
         encounter={encounter}
         open={printRequestsModalOpen}
         onClose={() => setPrintRequestsModalOpen(false)}
+        data-testid="printmultipleimagingrequestsselectionmodal-tm3j"
       />
-      <TableButtonRow variant="small">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-4ald">
         <Button
           onClick={() => setPrintRequestsModalOpen(true)}
           disabled={readonly}
           variant="outlined"
           color="primary"
+          data-testid="button-21bg"
         >
-          <TranslatedText stringId="general.action.print" fallback="Print" />
+          <TranslatedText
+            stringId="general.action.print"
+            fallback="Print"
+            data-testid="translatedtext-iujx"
+          />
         </Button>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="ImagingRequest"
+          data-testid="buttonwithpermissioncheck-14hy"
         >
-          <TranslatedText stringId="imaging.action.create" fallback="New imaging request" />
+          <TranslatedText
+            stringId="imaging.action.create"
+            fallback="New imaging request"
+            data-testid="translatedtext-hml5"
+          />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <ImagingRequestsTable encounterId={encounter.id} />
+      <ImagingRequestsTable encounterId={encounter.id} data-testid="imagingrequeststable-csir" />
     </TabPane>
   );
 });

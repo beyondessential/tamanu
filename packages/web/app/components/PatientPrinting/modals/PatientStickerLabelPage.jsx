@@ -6,7 +6,7 @@ import { useSettings } from '../../../contexts/Settings';
 
 export const PatientStickerLabelPage = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const measures = getSetting('printMeasures.stickerLabelPage');
   return (
     <Modal
@@ -15,9 +15,10 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('patient-label-printout')}
+      data-testid="modal-ncnz"
     >
-      <PDFLoader id="patient-label-printout">
-        <IDLabelPrintout patient={patient} measures={measures} />
+      <PDFLoader id="patient-label-printout" data-testid="pdfloader-di0q">
+        <IDLabelPrintout patient={patient} measures={measures} data-testid="idlabelprintout-m146" />
       </PDFLoader>
     </Modal>
   );

@@ -22,7 +22,7 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
     <ConfirmModal
       title="Delete referral"
       subText={
-        <SubText>
+        <SubText data-testid="subtext-k8va">
           This action is irreversible.
           <br />
           <br />
@@ -33,6 +33,7 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
+      data-testid="confirmmodal-dy1r"
     />
   );
 };

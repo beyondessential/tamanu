@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 const registerTranslatedLabelMethod = (translations = {}) => {
-  yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
+  yup.addMethod(yup.mixed, 'translatedLabel', function (translatedTextComponent) {
     if (!translations) return this.label(translatedTextComponent.props.fallback);
     const { stringId, fallback } = translatedTextComponent.props;
     const templateString = translations[stringId] || fallback;
@@ -24,7 +24,7 @@ export function registerYup(translations = {}) {
   const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
     mixed: {
-      required: function({ path }) {
+      required: function ({ path }) {
         return defaultMessage.replace(':path', path);
       },
     },

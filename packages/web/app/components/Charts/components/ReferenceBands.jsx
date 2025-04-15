@@ -20,7 +20,7 @@ const calculateBandsStartPointAndHeight = ({
   });
 };
 
-export const ReferenceBands = props => {
+export const ReferenceBands = (props) => {
   const {
     x,
     y: startPointY,

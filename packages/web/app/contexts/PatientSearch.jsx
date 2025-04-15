@@ -12,7 +12,7 @@ export const PatientSearchKeys = {
  * Hook to set and retrieve patient search parameters
  * @param {string} key - namespace key, to allow multiple search boxes
  */
-export const usePatientSearch = key => {
+export const usePatientSearch = (key) => {
   if (!PatientSearchKeys[key]) {
     // since `key` is intended to be a constant, it should never be an unknown value
     // this is an exceptional case
@@ -21,7 +21,7 @@ export const usePatientSearch = key => {
   const { allSearchParameters, setAllSearchParameters } = useContext(PatientSearchContext);
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    value => {
+    (value) => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,

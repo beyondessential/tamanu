@@ -16,7 +16,7 @@ const Container = styled.div`
 
 const Header = styled.div`
   color: ${Colors.white};
-  background: ${props => props.background};
+  background: ${(props) => props.background};
   text-align: center;
   font-weight: 500;
   font-size: 16px;
@@ -37,7 +37,7 @@ const Content = styled.div`
 `;
 
 const ValueText = styled.span`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   font-size: 48px;
   line-height: 32px;
 `;
@@ -46,7 +46,7 @@ const PercentageText = styled.div`
   color: ${Colors.midText};
   font-size: 18px;
   align-self: center;
-  display: ${props => props.percentage === 0 && 'none'};
+  display: ${(props) => props.percentage === 0 && 'none'};
 
   svg {
     font-size: 28px;
@@ -65,24 +65,40 @@ const FooterContainer = styled.div`
   }
 `;
 
-export const StatisticsCard = React.memo(({ value, percentageIncrease, title, color, Footer }) => (
-  <Container>
-    <Header background={color}>{title}</Header>
-    <Body>
-      <Content>
-        <ValueText color={color}>{value}</ValueText>
-        <PercentageText percentage={percentageIncrease}>
-          {percentageIncrease > 0 ? <ArrowUpward /> : <ArrowDownward />}
-          <span>{Math.abs(percentageIncrease)}%</span>
-        </PercentageText>
-      </Content>
-      {Footer && <FooterContainer>{Footer}</FooterContainer>}
-    </Body>
-  </Container>
-));
+export const StatisticsCard = React.memo(
+  ({ value, level, percentageIncrease, title, color, Footer }) => (
+    <Container data-testid={`container-qbh0-${level}`}>
+      <Header background={color} data-testid={`header-2rlj-${level}`}>
+        {title}
+      </Header>
+      <Body data-testid={`body-loon-${level}`}>
+        <Content data-testid={`content-3lk2-${level}`}>
+          <ValueText color={color} data-testid={`valuetext-0dus-${level}`}>
+            {value}
+          </ValueText>
+          <PercentageText
+            percentage={percentageIncrease}
+            data-testid={`percentagetext-9baf-${level}`}
+          >
+            {percentageIncrease > 0 ? (
+              <ArrowUpward data-testid={`arrowupward-rou4-${level}`} />
+            ) : (
+              <ArrowDownward data-testid={`arrowdownward-qnez-${level}`} />
+            )}
+            <span>{Math.abs(percentageIncrease)}%</span>
+          </PercentageText>
+        </Content>
+        {Footer && (
+          <FooterContainer data-testid={`footercontainer-pozz-${level}`}>{Footer}</FooterContainer>
+        )}
+      </Body>
+    </Container>
+  ),
+);
 
 StatisticsCard.propTypes = {
   title: PropTypes.node.isRequired,
+  level: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
   percentageIncrease: PropTypes.number,
   Footer: PropTypes.node,

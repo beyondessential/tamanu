@@ -11,7 +11,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
 export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const handleChange = newValues => {
+  const handleChange = (newValues) => {
     const newSelectedChartType = newValues.target.value;
 
     setSelectedChartTypeId(newSelectedChartType);
@@ -29,6 +29,7 @@ export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, cha
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
+      data-testid="styledtranslatedselectfield-vwze"
     />
   );
 };

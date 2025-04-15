@@ -29,7 +29,7 @@ export const ChartModal = ({
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
 
   return (
-    <FormModal title={title} open={open} onClose={onClose} width="md">
+    <FormModal title={title} open={open} onClose={onClose} width="md" data-testid="formmodal-git8">
       {isRecordingChartEntry ? (
         <StyledChartInstanceInfoSection
           location={chartInstanceName}
@@ -38,6 +38,7 @@ export const ChartModal = ({
           subtype={chartSubtype}
           isTypeVisible={isTypeVisible}
           isSubtypeVisible={isSubtypeVisible}
+          data-testid="styledchartinstanceinfosection-390k"
         />
       ) : null}
       <ChartForm
@@ -45,6 +46,7 @@ export const ChartModal = ({
         onSubmit={onSubmit}
         patient={patient}
         chartSurveyId={chartSurveyId}
+        data-testid="chartform-78ya"
       />
     </FormModal>
   );

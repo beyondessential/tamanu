@@ -10,7 +10,7 @@ const useDisplayIdValidation = (label, fieldName = 'displayId') => {
   const { getSetting } = useSettings();
   const pattern = getSetting('fields.displayId.pattern');
   const regex = pattern ? new RegExp(pattern) : null;
-  return value =>
+  return (value) =>
     value !== initialValues[fieldName] && regex && !regex.test(value)
       ? `Invalid ${label}`
       : undefined;
@@ -29,6 +29,7 @@ export const DisplayIdField = ({ required }) => {
       required={required}
       validate={validateFn}
       enablePasting
+      data-testid="localisedfield-a0ac"
     />
   );
 };

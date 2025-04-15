@@ -25,13 +25,13 @@ export const useSuggesterOptions = ({
           : JSON.parse(field.value)
         : [field.value];
 
-      values.forEach(value => {
+      values.forEach((value) => {
         api
           .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`, {
             language: getCurrentLanguageCode(),
           })
           .then(({ id, name }) => {
-            setInitialOptions(prev => [...prev, { value: id, label: name }]);
+            setInitialOptions((prev) => [...prev, { value: id, label: name }]);
           });
       });
     }
@@ -47,7 +47,7 @@ export const useSuggesterOptions = ({
         language: getCurrentLanguageCode(),
         ...baseQueryParameters,
       })
-      .then(resultData => {
+      .then((resultData) => {
         setOptions(
           unionBy(
             initialOptions,

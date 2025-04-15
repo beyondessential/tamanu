@@ -13,7 +13,7 @@ const ThreeDotMenuItem = styled(MenuItem)`
   margin-left: 4px;
   margin-right: 4px;
   white-space: normal;
-  ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
+  ${(props) => (props.$color ? `color: ${props.$color};` : '')} :hover {
     background: ${Colors.veryLightBlue};
   }
 `;
@@ -34,7 +34,7 @@ export const ThreeDotMenu = ({ items }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const onOpenKebabMenu = event => {
+  const onOpenKebabMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -42,15 +42,15 @@ export const ThreeDotMenu = ({ items }) => {
     setAnchorEl(null);
   };
 
-  const handleAction = item => {
+  const handleAction = (item) => {
     item.onClick?.();
     handleCloseKebabMenu();
   };
 
   return (
     <>
-      <StyledIconButton onClick={onOpenKebabMenu}>
-        <MoreVert />
+      <StyledIconButton onClick={onOpenKebabMenu} data-testid="stylediconbutton-szh8">
+        <MoreVert data-testid="morevert-kusc" />
       </StyledIconButton>
       <StyledMenu
         anchorEl={anchorEl}
@@ -65,6 +65,7 @@ export const ThreeDotMenu = ({ items }) => {
           vertical: 'top',
           horizontal: 'right',
         }}
+        data-testid="styledmenu-7k45"
       >
         {items.map(
           (item, index) =>
@@ -73,6 +74,7 @@ export const ThreeDotMenu = ({ items }) => {
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
+                data-testid={`menuitem-${index}`}
               >
                 {item.label}
               </ThreeDotMenuItem>

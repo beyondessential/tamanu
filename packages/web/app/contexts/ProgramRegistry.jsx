@@ -12,7 +12,7 @@ export const useProgramRegistryContext = () => useContext(ProgramRegistryContext
 export const ProgramRegistryProvider = ({ children }) => {
   const [programRegistryId, setProgramRegistryId] = useState(null);
   const api = useApi();
-  const setProgramRegistryIdByProgramId = async programId => {
+  const setProgramRegistryIdByProgramId = async (programId) => {
     if (!programId) {
       setProgramRegistryId(null);
       return;

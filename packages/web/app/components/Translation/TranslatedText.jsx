@@ -24,7 +24,12 @@ export const TranslatedText = ({ stringId, fallback, replacements, casing }) => 
   const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)
     return (
-      <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
+      <DebugTooltip
+        stringId={stringId}
+        replacements={replacements}
+        fallback={fallback}
+        data-testid="debugtooltip-kuf4"
+      >
         {translation}
       </DebugTooltip>
     );

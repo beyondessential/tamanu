@@ -11,7 +11,7 @@ export const CustomTooltip = ({ payload, useInwardArrowVector }) => {
       ? InwardArrowVectorTooltipContent
       : DefaultTooltipContent;
 
-    return <TooltipContent {...measureConfigs} />;
+    return <TooltipContent {...measureConfigs} data-testid="tooltipcontent-1pq0" />;
   }
 
   return null;

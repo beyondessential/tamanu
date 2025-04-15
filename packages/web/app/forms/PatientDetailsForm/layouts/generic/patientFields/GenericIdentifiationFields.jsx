@@ -9,7 +9,7 @@ import { useSuggester } from '../../../../../api';
 import { useSettings } from '../../../../../contexts/Settings';
 
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const insurerSuggester = useSuggester('insurer');
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
@@ -25,6 +25,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.birthCertificate.label"
           fallback="Birth certificate number"
+          data-testid="translatedtext-3f67"
         />
       ),
     },
@@ -35,6 +36,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.insurer.label"
           fallback="Insurer"
+          data-testid="translatedtext-b91c"
         />
       ),
       condition: () => !!enablePatientInsurer,
@@ -45,6 +47,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.insurerPolicyNumber.label"
           fallback="Insurance policy number"
+          data-testid="translatedtext-kpjh"
         />
       ),
       condition: () => !!enablePatientInsurer,
@@ -56,6 +59,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.drivingLicense.label"
           fallback="Driving license number"
+          data-testid="translatedtext-pcri"
         />
       ),
     },
@@ -65,6 +69,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         <TranslatedText
           stringId="general.localisedField.passport.label"
           fallback="Passport number"
+          data-testid="translatedtext-nmaa"
         />
       ),
     },
@@ -74,6 +79,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
     <ConfiguredMandatoryPatientFields
       fields={IDENTIFICATION_FIELDS}
       filterByMandatory={filterByMandatory}
+      data-testid="configuredmandatorypatientfields-y6v9"
     />
   );
 };

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { isErrorUnknownAllow404s } from '../TamanuApi';
 
-export const useEncounterInvoiceQuery = encounterId => {
+export const useEncounterInvoiceQuery = (encounterId) => {
   const api = useApi();
 
   return useQuery(
@@ -15,7 +15,7 @@ export const useEncounterInvoiceQuery = encounterId => {
   );
 };
 
-export const useInvoiceTotalOutstandingBalanceQuery = patientId => {
+export const useInvoiceTotalOutstandingBalanceQuery = (patientId) => {
   const api = useApi();
 
   return useQuery(

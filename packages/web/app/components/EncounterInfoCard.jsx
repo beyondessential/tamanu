@@ -6,7 +6,7 @@ const CardHeader = styled.div`
   border-bottom: 1px solid ${Colors.softOutline};
   padding-bottom: 10px;
   margin-bottom: 15px;
-  color: ${props => props.theme.palette.text.tertiary};
+  color: ${(props) => props.theme.palette.text.tertiary};
   font-size: 16px;
 `;
 
@@ -20,11 +20,11 @@ const CardBody = styled.div`
 const CardCell = styled.div`
   display: flex;
   align-items: baseline;
-  font-size: ${props => props.$fontSize}px;
+  font-size: ${(props) => props.$fontSize}px;
   line-height: 18px;
   position: relative;
-  color: ${props => props.theme.palette.text.tertiary};
-  white-space: ${props => props.$whiteSpace ? props.$whiteSpace : 'nowrap'};
+  color: ${(props) => props.theme.palette.text.tertiary};
+  white-space: ${(props) => (props.$whiteSpace ? props.$whiteSpace : 'nowrap')};
 `;
 
 const CardIcon = styled.img`
@@ -35,12 +35,12 @@ const CardIcon = styled.img`
 
 const CardLabel = styled.span`
   white-space: nowrap;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 const CardValue = styled.span`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
+  color: ${(props) => props.theme.palette.text.primary};
   width: 100%;
   vertical-align: bottom;
 `;
@@ -49,8 +49,8 @@ const Card = styled.div`
   background: white;
   box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
   border-bottom: 1px solid ${Colors.softOutline};
-  padding: ${props => `${props.$contentPadding ?? 32}px`};
-  padding-top: ${props => `${props.$paddingTop ?? props.$contentPadding}px`};
+  padding: ${(props) => `${props.$contentPadding ?? 32}px`};
+  padding-top: ${(props) => `${props.$paddingTop ?? props.$contentPadding}px`};
   ${CardLabel} {
     ${({ $inlineValues }) => ($inlineValues ? 'margin-right: 5px' : 'margin-bottom: 8px')};
     &:first-child:after {
@@ -67,15 +67,15 @@ const CardEntry = styled.div`
 `;
 
 const InfoCardEntry = ({ label, value }) => (
-  <CardEntry>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
+  <CardEntry data-testid="cardentry-bzr3">
+    <CardLabel data-testid="cardlabel-0v8z">{label}</CardLabel>
+    <CardValue data-testid="cardvalue-1v8z">{value}</CardValue>
   </CardEntry>
 );
 
 export const EncounterInfoCardHeader = ({ label, value, ...props }) => (
-  <CardHeader {...props}>
-    <InfoCardEntry label={label} value={value} />
+  <CardHeader {...props} data-testid="cardheader-g3z5">
+    <InfoCardEntry label={label} value={value} data-testid="infocardentry-s893" />
   </CardHeader>
 );
 
@@ -93,9 +93,10 @@ export const EncounterInfoCardItem = ({
     $fontSize={fontSize}
     $borderHeight={borderHeight}
     {...props}
+    data-testid="cardcell-ns7j"
   >
-    <CardIcon src={icon}/>
-    <InfoCardEntry label={label} value={value} icon={icon} />
+    <CardIcon src={icon} data-testid="cardicon-rfic" />
+    <InfoCardEntry label={label} value={value} icon={icon} data-testid="infocardentry-09z6" />
   </CardCell>
 );
 
@@ -108,13 +109,16 @@ export const EncounterInfoCard = ({
   headerContent = null,
   numberOfColumns = 2,
 }) => (
-  <Card 
-    $elevated={elevated} 
-    $inlineValues={inlineValues} 
-    $contentPadding={contentPadding} 
+  <Card
+    $elevated={elevated}
+    $inlineValues={inlineValues}
+    $contentPadding={contentPadding}
     $paddingTop={paddingTop}
+    data-testid="card-664y"
   >
     {headerContent}
-    <CardBody $numberOfColumns={numberOfColumns}>{children}</CardBody>
+    <CardBody $numberOfColumns={numberOfColumns} data-testid="cardbody-m456">
+      {children}
+    </CardBody>
   </Card>
 );

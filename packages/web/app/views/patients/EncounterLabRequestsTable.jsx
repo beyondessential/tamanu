@@ -18,36 +18,70 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 const columns = [
   {
     key: 'requestId',
-    title: <TranslatedText stringId="lab.table.column.testId" fallback="Test ID" />,
+    title: (
+      <TranslatedText
+        stringId="lab.table.column.testId"
+        fallback="Test ID"
+        data-testid="translatedtext-a3ga"
+      />
+    ),
     sortable: false,
     accessor: getRequestId,
   },
   {
     key: 'category.name',
-    title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
+    title: (
+      <TranslatedText
+        stringId="lab.testCategory.label"
+        fallback="Test category"
+        data-testid="translatedtext-7vec"
+      />
+    ),
     accessor: getRequestType,
   },
   {
     key: 'requestedDate',
     title: (
-      <TranslatedText stringId="lab.table.column.requestedDate" fallback="Requested at time" />
+      <TranslatedText
+        stringId="lab.table.column.requestedDate"
+        fallback="Requested at time"
+        data-testid="translatedtext-1lzv"
+      />
     ),
     accessor: getDateWithTimeTooltip,
   },
   {
     key: 'displayName',
-    title: <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />,
+    title: (
+      <TranslatedText
+        stringId="general.requestedBy.label"
+        fallback="Requested by"
+        data-testid="translatedtext-9k8h"
+      />
+    ),
     accessor: getRequestedBy,
     sortable: false,
   },
   {
     key: 'priority.name',
-    title: <TranslatedText stringId="lab.table.column.priority" fallback="Priority" />,
+    title: (
+      <TranslatedText
+        stringId="lab.table.column.priority"
+        fallback="Priority"
+        data-testid="translatedtext-pha3"
+      />
+    ),
     accessor: getPriority,
   },
   {
     key: 'status',
-    title: <TranslatedText stringId="lab.table.column.status" fallback="Status" />,
+    title: (
+      <TranslatedText
+        stringId="lab.table.column.status"
+        fallback="Status"
+        data-testid="translatedtext-n009"
+      />
+    ),
     accessor: getStatus,
     maxWidth: 200,
   },
@@ -58,7 +92,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const dispatch = useDispatch();
   const { loadLabRequest } = useLabRequest();
 
-  const selectLab = async lab => {
+  const selectLab = async (lab) => {
     if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
     await loadLabRequest(lab.id);
     dispatch(
@@ -71,10 +105,15 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
       endpoint={`encounter/${encounterId}/labRequests`}
       columns={columns}
       noDataMessage={
-        <TranslatedText stringId="lab.table.noData" fallback="No lab requests found" />
+        <TranslatedText
+          stringId="lab.table.noData"
+          fallback="No lab requests found"
+          data-testid="translatedtext-uv5q"
+        />
       }
       onRowClick={selectLab}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      data-testid="datafetchingtable-1jgd"
     />
   );
 });

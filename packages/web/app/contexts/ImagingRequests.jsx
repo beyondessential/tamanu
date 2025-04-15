@@ -18,7 +18,7 @@ export const useImagingRequestsQuery = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    value => {
+    (value) => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,

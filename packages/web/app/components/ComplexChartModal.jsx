@@ -28,9 +28,9 @@ export const ComplexChartModal = ({
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-  
+
   return (
-    <FormModal title={title} open={open} onClose={onClose}>
+    <FormModal title={title} open={open} onClose={onClose} data-testid="formmodal-mbvq">
       {complexChartFormMode === COMPLEX_CHART_FORM_MODES.RECORD_CHART_ENTRY ? (
         <StyledChartInstanceInfoSection
           location={chartInstanceName}
@@ -39,6 +39,7 @@ export const ComplexChartModal = ({
           subtype={chartSubtype}
           isTypeVisible={isTypeVisible}
           isSubtypeVisible={isSubtypeVisible}
+          data-testid="styledchartinstanceinfosection-y5ji"
         />
       ) : null}
       <ChartForm
@@ -46,6 +47,7 @@ export const ComplexChartModal = ({
         onSubmit={onSubmit}
         patient={patient}
         chartSurveyId={chartSurveyId}
+        data-testid="chartform-iquz"
       />
     </FormModal>
   );

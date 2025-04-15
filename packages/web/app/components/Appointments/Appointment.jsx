@@ -12,7 +12,7 @@ import { DateDisplay } from '../DateDisplay';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
+  <Tooltip {...props} classes={{ popper: className }} data-testid="tooltip-fig9" />
 ))`
   z-index: 1200; // make it less than the dialog, which is 1300
 
@@ -31,9 +31,11 @@ const StyledTooltip = styled(({ className, ...props }) => (
 `;
 
 const statusIcons = {
-  [APPOINTMENT_STATUSES.CONFIRMED]: <RadioButtonUncheckedIcon />,
-  [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon />,
-  [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon />,
+  [APPOINTMENT_STATUSES.CONFIRMED]: (
+    <RadioButtonUncheckedIcon data-testid="radiobuttonuncheckedicon-1lg3" />
+  ),
+  [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon data-testid="checkcircleicon-pngg" />,
+  [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon data-testid="cancelicon-txb5" />,
 };
 
 export const Appointment = ({ appointment, onUpdated }) => {
@@ -52,18 +54,25 @@ export const Appointment = ({ appointment, onUpdated }) => {
       disableTouchListener
       interactive
       title={
-        <AppointmentDetail appointment={appointment} onUpdated={onUpdated} onClose={closeDetail} />
+        <AppointmentDetail
+          appointment={appointment}
+          onUpdated={onUpdated}
+          onClose={closeDetail}
+          data-testid="appointmentdetail-egpz"
+        />
       }
+      data-testid="styledtooltip-olng"
     >
       <StyledAppointment
         className={`status-${status}`}
-        onClick={() => setDetailOpen(open => !open)}
+        onClick={() => setDetailOpen((open) => !open)}
+        data-testid="styledappointment-ii9x"
       >
         <div>
-          <Box paddingTop="2px">
-            <PatientNameDisplay patient={patient} />
+          <Box paddingTop="2px" data-testid="box-yclc">
+            <PatientNameDisplay patient={patient} data-testid="patientnamedisplay-stqd" />
           </Box>
-          <DateDisplay date={startTime} showDate={false} showTime />
+          <DateDisplay date={startTime} showDate={false} showTime data-testid="datedisplay-klcg" />
         </div>
         <div className="icon">{statusIcons[status]}</div>
       </StyledAppointment>

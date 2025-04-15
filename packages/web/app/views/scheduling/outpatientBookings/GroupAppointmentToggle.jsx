@@ -56,14 +56,14 @@ const AnimatedBackground = styled('div')`
 `;
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
-export const GroupByAppointmentToggle = props => {
+export const GroupByAppointmentToggle = (props) => {
   const { groupBy, setGroupBy } = useOutpatientAppointmentsContext();
   const { facilityId } = useAuth();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const updateGroupByUserPreferences = debounce(
-    newGroupBy =>
+    (newGroupBy) =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_GROUP_BY,
         value: newGroupBy,
@@ -85,15 +85,29 @@ export const GroupByAppointmentToggle = props => {
   if (!groupBy) return null;
 
   return (
-    <Wrapper onClick={handleChange} role="radiogroup" {...props}>
-      <AnimatedBackground $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
-        <TranslatedText stringId="outpatientAppointments.groupByToggle.area" fallback="Area" />
+    <Wrapper onClick={handleChange} role="radiogroup" {...props} data-testid="wrapper-k0ja">
+      <AnimatedBackground
+        $toggled={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}
+        data-testid="animatedbackground-dhom"
+      />
+      <ToggleButton
+        aria-checked={groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP}
+        data-testid="togglebutton-dqnx"
+      >
+        <TranslatedText
+          stringId="outpatientAppointments.groupByToggle.area"
+          fallback="Area"
+          data-testid="translatedtext-gxyg"
+        />
       </ToggleButton>
-      <ToggleButton aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}>
+      <ToggleButton
+        aria-checked={groupBy === APPOINTMENT_GROUP_BY.CLINICIAN}
+        data-testid="togglebutton-i33i"
+      >
         <TranslatedText
           stringId="outpatientAppointments.groupByToggle.clinicians"
           fallback="Clinicians"
+          data-testid="translatedtext-mft6"
         />
       </ToggleButton>
     </Wrapper>

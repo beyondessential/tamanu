@@ -7,7 +7,7 @@ export const useSendAppointmentEmail = (appointmentId, useMutationOptions) => {
   const { facilityId } = useAuth();
   const api = useApi();
   return useMutation(
-    email => api.post('appointments/emailReminder', { appointmentId, email, facilityId }),
+    (email) => api.post('appointments/emailReminder', { appointmentId, email, facilityId }),
     useMutationOptions,
   );
 };

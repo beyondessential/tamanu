@@ -40,18 +40,20 @@ const Description = styled.h4`
 
 export const NoPermissionScreen = () => {
   return (
-    <Container>
-      <Message>
-        <Heading>
+    <Container data-testid="container-d7rd">
+      <Message data-testid="message-mq8u">
+        <Heading data-testid="heading-oz8d">
           <TranslatedText
             stringId="general.permission.permissionRequired.title"
             fallback="Permission required"
+            data-testid="translatedtext-u7h7"
           />
         </Heading>
-        <Description>
+        <Description data-testid="description-u3h1">
           <TranslatedText
             stringId="general.permission.permissionRequired.message"
             fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
+            data-testid="translatedtext-oafm"
           />
         </Description>
       </Message>

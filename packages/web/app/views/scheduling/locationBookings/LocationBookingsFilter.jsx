@@ -33,7 +33,7 @@ export const LocationBookingsFilter = () => {
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const updateUserPreferences = debounce(
-    values =>
+    (values) =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
         value: omit(values, ['patientNameOrId']),
@@ -48,38 +48,43 @@ export const LocationBookingsFilter = () => {
       onSubmit={async () => {}}
       render={({ setValues }) => (
         <>
-          <SearchBar>
+          <SearchBar data-testid="searchbar-lgtv">
             <Field
               name="patientNameOrId"
               component={SearchField}
+              // Avoids [object Object] in the placeholder
               placeholder={getTranslation(
                 'scheduling.filter.placeholder.patientNameOrId',
                 'Search patient name or ID',
-              )} // Avoids [object Object] in the placeholder
+              )}
               style={{ width: '18.75rem' }}
+              data-testid="field-e0qu"
             />
             <Field
               name="locationGroupIds"
               label={getTranslation('general.area.label', 'Area')}
               component={FilterField}
               endpoint="bookableLocationGroup"
-              onChange={e =>
+              onChange={(e) =>
                 updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
               }
+              data-testid="field-67bz"
             />
             <Field
               name="clinicianId"
               label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
               component={FilterField}
               endpoint="practitioner"
-              onChange={e => updateUserPreferences({ ...filters, clinicianId: e.target.value })}
+              onChange={(e) => updateUserPreferences({ ...filters, clinicianId: e.target.value })}
+              data-testid="field-a99m"
             />
             <Field
               name="bookingTypeId"
               label={getTranslation('general.type.label', 'Type')}
               component={FilterField}
               endpoint="bookingType"
-              onChange={e => updateUserPreferences({ ...filters, bookingTypeId: e.target.value })}
+              onChange={(e) => updateUserPreferences({ ...filters, bookingTypeId: e.target.value })}
+              data-testid="field-7bfo"
             />
             <TextButton
               onClick={() => {
@@ -88,13 +93,19 @@ export const LocationBookingsFilter = () => {
                 updateUserPreferences(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
+              data-testid="textbutton-xd2o"
             >
-              <TranslatedText stringId="general.action.clear" fallback="Clear" />
+              <TranslatedText
+                stringId="general.action.clear"
+                fallback="Clear"
+                data-testid="translatedtext-cque"
+              />
             </TextButton>
           </SearchBar>
-          <FormListener />
+          <FormListener data-testid="formlistener-i0in" />
         </>
       )}
+      data-testid="form-1bo8"
     />
   );
 };

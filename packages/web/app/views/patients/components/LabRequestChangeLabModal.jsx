@@ -25,7 +25,12 @@ export const LabRequestChangeLabModal = React.memo(
     };
 
     return (
-      <FormModal open={open} onClose={onClose} title="Change lab request laboratory">
+      <FormModal
+        open={open}
+        onClose={onClose}
+        title="Change lab request laboratory"
+        data-testid="formmodal-q2b0"
+      >
         <Form
           onSubmit={updateLab}
           validationSchema={yup.object().shape({
@@ -33,7 +38,11 @@ export const LabRequestChangeLabModal = React.memo(
               .string()
               .required()
               .translatedLabel(
-                <TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />,
+                <TranslatedText
+                  stringId="lab.laboratory.label"
+                  fallback="Laboratory"
+                  data-testid="translatedtext-fxq6"
+                />,
               ),
           })}
           initialValues={{
@@ -41,22 +50,30 @@ export const LabRequestChangeLabModal = React.memo(
           }}
           formType={FORM_TYPES.EDIT_FORM}
           render={({ submitForm }) => (
-            <FormGrid columns={1}>
+            <FormGrid columns={1} data-testid="formgrid-xw6v">
               <Field
                 component={AutocompleteField}
                 label={
                   <TranslatedText
                     stringId="lab.modal.changeLab.laboratory.label"
                     fallback="Laboratory"
+                    data-testid="translatedtext-xpwv"
                   />
                 }
                 name="labTestLaboratoryId"
                 suggester={laboratorySuggester}
                 required
+                data-testid="field-36s0"
               />
-              <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
+              <ModalFormActionRow
+                confirmText="Confirm"
+                onConfirm={submitForm}
+                onCancel={onClose}
+                data-testid="modalformactionrow-i2uo"
+              />
             </FormGrid>
           )}
+          data-testid="form-om63"
         />
       </FormModal>
     );

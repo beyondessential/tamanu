@@ -5,7 +5,7 @@ export const useImagingRequestAreas = () => {
   const [imagingRequestAreas, setImagingRequestAreas] = useState({});
   const api = useApi();
 
-  const getAreasForImagingType = type => {
+  const getAreasForImagingType = (type) => {
     return imagingRequestAreas[type] || [];
   };
 

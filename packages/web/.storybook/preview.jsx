@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
 
 const preview = {
   decorators: [
-    Story => (
+    (Story) => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>

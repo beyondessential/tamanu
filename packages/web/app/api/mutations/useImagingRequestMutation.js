@@ -6,7 +6,7 @@ export const useImagingRequestMutation = (encounterId, useMutationOptions) => {
   const api = useApi();
 
   return useMutation(
-    async data => api.post('imagingRequest', { ...data, encounterId }),
+    async (data) => api.post('imagingRequest', { ...data, encounterId }),
     useMutationOptions,
   );
 };

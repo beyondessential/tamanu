@@ -46,7 +46,7 @@ const getBloodPressureDescription = (description, key) => {
 
 const getDefaultMeasureData = (rawData, visualisationConfig) => {
   const { yAxis } = visualisationConfig;
-  return rawData.map(d => {
+  return rawData.map((d) => {
     const isInsideNormalRange =
       d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
     const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
@@ -80,7 +80,7 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
 
   // Adjust shape calculations for secondary value in arrow vector
   // (currently this just applies to DBP in blood pressure).
-  return defaultMeasureData.map(baseData => {
+  return defaultMeasureData.map((baseData) => {
     const secondaryData = { value: baseData.inwardArrowVector.bottom };
 
     const isInsideNormalRange =

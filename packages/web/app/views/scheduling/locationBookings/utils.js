@@ -5,19 +5,11 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
 import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
 
-export const appointmentToFormValues = appointment => {
+export const appointmentToFormValues = (appointment) => {
   if (!appointment) return {};
 
-  const {
-    bookingTypeId,
-    clinicianId,
-    endTime,
-    id,
-    locationId,
-    patientId,
-    startDate,
-    startTime,
-  } = appointment;
+  const { bookingTypeId, clinicianId, endTime, id, locationId, patientId, startDate, startTime } =
+    appointment;
   const startTimeObj = startTime ? new Date(startTime) : null;
   const endTimeObj = endTime ? new Date(endTime) : null;
 
@@ -49,14 +41,14 @@ export const appointmentToFormValues = appointment => {
 };
 
 /** Record<LocationId, Record<Date, Appointment> */
-export const partitionAppointmentsByLocation = appointments =>
+export const partitionAppointmentsByLocation = (appointments) =>
   appointments.reduce((acc, appt) => {
     const locationId = appt.locationId;
     (acc[locationId] ?? (acc[locationId] = [])).push(appt);
     return acc;
   }, {});
 
-export const partitionAppointmentsByDate = appointments =>
+export const partitionAppointmentsByDate = (appointments) =>
   appointments.reduce((acc, appt) => {
     const start = parseISO(appt.startTime);
     const end = parseISO(appt.endTime);
@@ -69,14 +61,14 @@ export const partitionAppointmentsByDate = appointments =>
     return acc;
   }, {});
 
-export const generateIdFromCell = cell => `${cell.locationId}.${cell.date.valueOf()}`;
+export const generateIdFromCell = (cell) => `${cell.locationId}.${cell.date.valueOf()}`;
 
-export const scrollToThisWeek = scrollIntoViewOptions =>
+export const scrollToThisWeek = (scrollIntoViewOptions) =>
   document
     .getElementById(THIS_WEEK_ID)
     ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
 
-export const scrollToBeginning = scrollToOptions =>
+export const scrollToBeginning = (scrollToOptions) =>
   document.getElementById(LOCATION_BOOKINGS_CALENDAR_ID)?.scroll({ left: 0, ...scrollToOptions });
 
 export const scrollToCell = (cell, scrollIntoViewOptions) =>

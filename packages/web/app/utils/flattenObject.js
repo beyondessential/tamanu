@@ -32,7 +32,8 @@ export const flattenObject = (obj, prefix = '') => {
     const newKey = isObjArray ? `[${key}]` : key;
     const separator = isObjArray ? '' : '.';
     const prefixedKey = prefix ? `${prefix}${separator}${newKey}` : newKey;
-    if (isObject(value) && !isValidElement(value)) // stop it from trying to flatten react elements
+    if (isObject(value) && !isValidElement(value))
+      // stop it from trying to flatten react elements
       Object.assign(flattened, flattenObject(value, prefixedKey));
     else flattened[prefixedKey] = value;
   });

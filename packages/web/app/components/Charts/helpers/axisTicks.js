@@ -1,6 +1,6 @@
 import { getTime } from 'date-fns';
 
-export const getXAxisTicks = dateRange => {
+export const getXAxisTicks = (dateRange) => {
   const ticks = [];
   const [startDate, endDate] = dateRange;
 
@@ -15,7 +15,7 @@ export const getXAxisTicks = dateRange => {
   return ticks;
 };
 
-export const getYAxisTicks = yAxisConfigs => {
+export const getYAxisTicks = (yAxisConfigs) => {
   const { graphRange, interval } = yAxisConfigs;
 
   const ticks = [];
