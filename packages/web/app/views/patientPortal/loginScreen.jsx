@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../../components/FormGrid';
-import { BodyText, Field, Form, FormSubmitButton, TextField } from '../../components';
+import { BodyText, Field, Form, FormSubmitButton, LogoLight, TextField } from '../../components';
 import { Colors } from '../../constants';
 import * as yup from 'yup';
 import { useEncounterDataQuery } from '../../api/queries';
@@ -10,19 +10,38 @@ import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 
 const LoginContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: ${Colors.white};
+`;
+
+const Header = styled.div`
+  background: ${Colors.primary};
+  height: 100px;
+  display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: ${Colors.background};
+`;
+
+const LogoContainer = styled.div`
+  width: 200px;
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 20px;
 `;
 
 const LoginCard = styled.div`
   background: ${Colors.white};
   padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
 `;
 
 const LoginHeading = styled(Typography)`
@@ -30,13 +49,13 @@ const LoginHeading = styled(Typography)`
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
-  text-align: center;
+  text-align: left;
 `;
 
 const LoginSubtext = styled(BodyText)`
   color: ${Colors.midText};
   padding-top: 10px;
-  text-align: center;
+  text-align: left;
 `;
 
 const LoginButton = styled(FormSubmitButton)`
@@ -47,35 +66,39 @@ const LoginButton = styled(FormSubmitButton)`
   width: 100%;
 `;
 
-const InfoText = styled(BodyText)`
-  color: ${Colors.midText};
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
+const StyledFormGrid = styled(FormGrid)`
+  text-align: left;
+  width: 100%;
 `;
 
-const LoginScreen = ({ encounterId }) => {
+const LoginScreen = () => {
   return (
     <LoginContainer>
-      <LoginCard>
-        <FormGrid columns={1}>
-          <div>
-            <LoginHeading>Patient Portal</LoginHeading>
-            <LoginSubtext>Enter your date of birth to access your records</LoginSubtext>
-            <InfoText>Encounter ID: {encounterId}</InfoText>
-          </div>
-          <Field
-            name="dateOfBirth"
-            label="Date of Birth"
-            type="date"
-            required
-            component={TextField}
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-          />
-          <LoginButton text="Login" />
-        </FormGrid>
-      </LoginCard>
+      <Header>
+        <LogoContainer>
+          <LogoLight size="180px" />
+        </LogoContainer>
+      </Header>
+      <ContentContainer>
+        <LoginCard>
+          <StyledFormGrid columns={1}>
+            <div>
+              <LoginHeading>Log in</LoginHeading>
+              <LoginSubtext>Enter your date of birth to log in</LoginSubtext>
+            </div>
+            <Field
+              name="dateOfBirth"
+              label="Patient date of birth"
+              type="date"
+              required
+              component={TextField}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+            <LoginButton text="Login" />
+          </StyledFormGrid>
+        </LoginCard>
+      </ContentContainer>
     </LoginContainer>
   );
 };
