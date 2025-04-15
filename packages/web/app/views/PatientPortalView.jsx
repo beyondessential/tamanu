@@ -63,7 +63,17 @@ const OutstandingCount = styled.h1`
   margin: 0 0 24px 0;
 `;
 
-const AccordionDetail = styled.details.attrs({ name: 'accordion' })``;
+const Details = styled.details`
+  padding-block: 1rem;
+  padding-inline: 0.5rem;
+
+  > summary {
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+`;
 
 const WaveEmoji = () => (
   <span role="img" aria-label="wave">
@@ -89,13 +99,14 @@ export const PatientPortalView = () => {
     },
   );
 
-  const { data: allergyNames = [] } = useQuery([`allergies`, patientId], () =>
-    api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
-  {
-    select: data => {
-      return data.data.map(({ allergy }) => allergy.name)
-    }
-  }
+  const { data: allergyNames = [] } = useQuery(
+    [`allergies`, patientId],
+    () => api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
+    {
+      select: data => {
+        return data.data.map(({ allergy }) => allergy.name);
+      },
+    },
   );
 
   const {data: ongoingConditionNames = []} = useQuery([`condition`, patientId], () =>
@@ -143,7 +154,7 @@ export const PatientPortalView = () => {
         </OutstandingCount>
         <PatientPortalFormList forms={forms} patientId={patientId} />
 
-        <AccordionDetail>
+        <Details>
           <summary>Patient details</summary>
           {patient && (
             <PatientPortalKVCard
@@ -156,35 +167,35 @@ export const PatientPortalView = () => {
               }}
             />
           )}
-        </AccordionDetail>
+        </Details>
 
-        <AccordionDetail>
+        <Details>
           <summary>Ongoing conditions</summary>
           <ul>
             {ongoingConditionNames.map(name => (
               <li key={name}>{name}</li>
             ))}
           </ul>
-        </AccordionDetail>
+        </Details>
 
-        <AccordionDetail>
+        <Details>
           <summary>Allergies</summary>
           <ul>
             {allergyNames.map(name => (
               <li key={name}>{name}</li>
             ))}
           </ul>
-        </AccordionDetail>
+        </Details>
 
-        <AccordionDetail>
+        <Details>
           <summary>Medications</summary>
           Here be medications
-        </AccordionDetail>
+        </Details>
 
-        <AccordionDetail>
+        <Details>
           <summary>Vaccinations</summary>
           Here be vaccine things
-        </AccordionDetail>
+        </Details>
       </Content>
     </Container>
   );
