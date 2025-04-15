@@ -1,7 +1,6 @@
 // VaccineScheduleAccordion.jsx
 import React from 'react';
-import { Stack } from '@mui/material';
-import { AccordionContainer } from './AccordionContainer';
+import { Stack, Typography } from '@mui/material';
 import { VaccineCard } from './VaccineCard';
 
 const fakeVaccines = [
@@ -27,21 +26,16 @@ const fakeVaccines = [
 
 export const VaccinesScheduleAccordion = ({ vaccines = fakeVaccines }) => {
   return (
-    <AccordionContainer title="Vaccine Schedule" count={vaccines.length} defaultExpanded={true}>
-      <Stack spacing={2}>
-        {vaccines.map((vaccine, index) => (
-          <VaccineCard
-            key={index}
-            vaccine={vaccine}
-            elevation={0}
-            rootSx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-            }}
-          />
-        ))}
-      </Stack>
-    </AccordionContainer>
+    <Stack spacing={2}>
+      <Typography variant="h7">Vaccine Schedule ({vaccines.length})</Typography>
+      {vaccines.map((vaccine, index) => (
+        <VaccineCard
+          key={index}
+          vaccine={vaccine}
+          elevation={0}
+          rootSx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+        />
+      ))}
+    </Stack>
   );
 };
