@@ -17,7 +17,7 @@ export const Field = formikConnect(
   ({
     formik: {
       errors,
-      status: { submitStatus },
+      status = {}, // Provide a default empty object if status is undefined
     },
     name,
     component = TextField,
@@ -25,6 +25,9 @@ export const Field = formikConnect(
     helperText,
     ...props
   }) => {
+    // Safely access submitStatus property
+    const submitStatus = status.submitStatus;
+
     // Only show error messages once the user has attempted to submit the form
     const error = submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
@@ -93,7 +96,9 @@ export const FieldWithTooltip = ({
   return (
     <MuiBox position="relative">
       <Field {...props} />
-      {tooltipText && <FormTooltip arrow placement="top" title={tooltipText} {...muiTooltipProps} />}
+      {tooltipText && (
+        <FormTooltip arrow placement="top" title={tooltipText} {...muiTooltipProps} />
+      )}
     </MuiBox>
   );
 };

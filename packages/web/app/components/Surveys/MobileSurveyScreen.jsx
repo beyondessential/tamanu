@@ -147,12 +147,18 @@ export const MobileSurveyScreen = ({
       setStatus({});
     } else {
       // Use formik status prop to track if the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      // Ensure status is an object before spreading it
+      setStatus({
+        ...(status || {}),
+        submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED,
+      });
 
       const firstErroredQuestion = screenComponents.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),
       );
-      scrollToQuestion(firstErroredQuestion.dataElementId);
+      if (firstErroredQuestion) {
+        scrollToQuestion(firstErroredQuestion.dataElementId);
+      }
     }
   };
 

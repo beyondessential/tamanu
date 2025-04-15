@@ -6,6 +6,7 @@ import { MobileSurveyScreen } from '../../components/Surveys/MobileSurveyScreen'
 import { submitFormResponse } from '../../store/patientPortal';
 import { usePatient } from '../../contexts/Patient';
 import { useSurvey } from '../../hooks/useSurvey';
+import { FORM_STATUSES } from '../../constants';
 
 export const PatientPortalMobileSurveyResponseForm = () => {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ export const PatientPortalMobileSurveyResponseForm = () => {
     await dispatch(
       submitFormResponse({
         surveyId,
-        patientId: patient.id,
+        patientId: patient?.id,
         responses: values,
       }),
     );
@@ -47,7 +48,11 @@ export const PatientPortalMobileSurveyResponseForm = () => {
   });
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      initialStatus={{ submitStatus: FORM_STATUSES.NOT_SUBMITTED }}
+    >
       {({ values, errors, setFieldValue, validateForm, setErrors, status, setStatus }) => (
         <Form style={{ height: '100%' }}>
           <MobileSurveyScreen
