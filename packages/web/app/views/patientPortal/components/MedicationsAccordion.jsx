@@ -6,7 +6,7 @@ import { DetailCard } from './DetailCard';
 import { useEncounterMedicationsQuery } from '../../../api/queries/useEncounterMedicationsQuery';
 
 const medicationFields = [
-  { label: 'Medication', field: 'medication' },
+  { label: 'Medication', field: 'name' },
   { label: 'Dose', field: 'dose' },
   { label: 'Frequency', field: 'frequency' },
   { label: 'Route', field: 'route' },
@@ -14,37 +14,20 @@ const medicationFields = [
   { label: 'Prescriber', field: 'prescriber' },
 ];
 
-const mockMedications = [
-  {
-    medication: 'Amoxicillin',
-    dose: '500mg',
-    frequency: 'Three times daily',
-    route: 'Oral',
-    date: '2023-10-15',
-    prescriber: 'Dr. Smith',
-  },
-  {
-    medication: 'Ibuprofen',
-    dose: '400mg',
-    frequency: 'As needed',
-    route: 'Oral',
-    date: '2023-10-14',
-    prescriber: 'Dr. Jones',
-  },
-  {
-    medication: 'Ventolin',
-    dose: '100mcg',
-    frequency: 'Two puffs when required',
-    route: 'Inhaled',
-    date: '2023-10-10',
-    prescriber: 'Dr. Wilson',
-  },
-];
+export const MedicationsAccordion = ({ encounterId }) => {
+  const { data: encounterMedications, isLoading } = useEncounterMedicationsQuery(encounterId);
 
-export const MedicationsAccordion = ({ encounterId, medications = mockMedications }) => {
-  console.log(encounterId);
-  const { data: encounterMedications } = useEncounterMedicationsQuery(encounterId);
-  console.log('medications', encounterMedications);
+  if (isLoading) return;
+
+  const medications =
+    encounterMedications?.data?.map(med => ({
+      name: med.medication?.name,
+      dose: med.prescription,
+      frequency: `${med.qtyMorning}-${med.qtyLunch}-${med.qtyEvening}-${med.qtyNight}`,
+      route: med.route,
+      date: med.date,
+      prescriber: med.prescriber?.displayName,
+    })) || [];
 
   return (
     <AccordionContainer title="Medications" count={medications.length} defaultExpanded={true}>
