@@ -58,7 +58,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       // things clean and tight?
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
 
-      const changelogRecords = batchOfRows.map((r) => r.changelog);
+      const changelogRecords = batchOfRows.flatMap((r) => r.changelog);
       await insertChangelogRecords(sequelize, changelogRecords);
 
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
