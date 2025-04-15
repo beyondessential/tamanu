@@ -89,11 +89,14 @@ export const PatientPortalView = () => {
     },
   );
 
-  const { data: allergies } = useQuery([`allergies`, patientId], () =>
+  const { data: allergyNames = [] } = useQuery([`allergies`, patientId], () =>
     api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
+  {
+    select: data => {
+      return data.data.map(({ allergy }) => allergy.name)
+    }
+  }
   );
-
-  console.log(allergies)
 
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
@@ -157,8 +160,9 @@ export const PatientPortalView = () => {
         <AccordionDetail>
           <summary>Allergies</summary>
           <ul>
-            <li>Penicillin (rash)</li>
-            <li>Aspirin (anaphylaxis)</li>
+            {allergyNames.map(name => (
+              <li key={name}>{name}</li>
+            ))}
           </ul>
         </AccordionDetail>
 
