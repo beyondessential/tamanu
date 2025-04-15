@@ -15,7 +15,10 @@ export const PatientPortalRoutes = React.memo(({ match }) => (
         component={PatientPortalMobileSurveyResponseForm}
       />
       <Route path={`${match.path}/login/:encounterId`} component={PatientPortalLoginForm} />
-      <Route path="/patient-portal" component={PatientPortal} />
+      <Route
+        path="/patient-portal/patient/:patientId/encounter/:encounterId"
+        component={PatientPortal}
+      />
       {/* Redirect to patient portal home when no specific route is matched */}
       <Redirect to={`/patient-portal`} />
     </Switch>
