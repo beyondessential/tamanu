@@ -118,6 +118,17 @@ export const PatientPortalView = () => {
     }
   )
 
+    const { data: medications = [] } = useQuery(
+    [`medications`, patientId],
+    () => api.get(`encounter/${encounter?.id}/medications`),
+    {
+      select: data => {
+        return data.data;
+      },
+      enabled: !!encounter,
+    },
+  );
+
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
   const forms = [
@@ -189,7 +200,20 @@ export const PatientPortalView = () => {
 
         <Details>
           <summary>Medications</summary>
-          Here be medications
+
+            {medications.map(medication => (
+              <PatientPortalKVCard
+                dict={{
+                  'Medication': medication.medication.name,
+                  'Dose': medication.quantity,
+                  'Frequency': medication.qtyMorning,
+                  'Route': medication.route,
+                  'Date Started': medication.date,
+                  'Prescriber': medication.prescriber.displayName,
+                }}
+              />
+            ))}
+
         </Details>
 
         <Details>
