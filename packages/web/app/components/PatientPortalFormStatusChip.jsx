@@ -24,6 +24,10 @@ const Chip = styled.div`
   padding-inline: 0.85em;
 `;
 
-export const PatientPortalFormStatusChip = ({ status }) => {
-  return <Chip data-color={FORM_STATUS_COLORS[status]}>{status}</Chip>;
+export const PatientPortalFormStatusChip = ({ status, ...props }) => {
+  return (
+    <Chip data-color={FORM_STATUS_COLORS[status]} {...props}>
+      {status}
+    </Chip>
+  );
 };
