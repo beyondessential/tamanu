@@ -16,6 +16,12 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
+export const PatientPortalSurveySubmitButton = styled(FormSubmitButton)`
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px;
+`;
+
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
@@ -83,7 +89,12 @@ export const SurveyScreenPaginator = ({
     surveyScreenProps = {
       ...surveyScreenProps,
       submitButton: (
-        <FormSubmitButton text="Submit" color="primary" variant="contained" onClick={onSurveyComplete} />
+        <PatientPortalSurveySubmitButton
+          text="Submit"
+          color="primary"
+          variant="contained"
+          onClick={onSurveyComplete}
+        />
       ),
     };
   }
