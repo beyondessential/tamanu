@@ -8,6 +8,9 @@ import * as yup from 'yup';
 import { useEncounterDataQuery } from '../../api/queries';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -110,11 +113,14 @@ export const PatientPortalLoginForm = React.memo(() => {
   const { data: encounter } = useEncounterDataQuery(encounterId);
   const { data: patient } = usePatientDataQuery(encounter?.patientId);
 
+  const dispatch = useDispatch();
+
   return (
     <Form
       onSubmit={async ({ dateOfBirth }) => {
         if (patient?.dateOfBirth === dateOfBirth) {
           console.log('Success! Logging in as superuser');
+          dispatch(push(`/patient-portal/patient/${patient.id}/encounter/${encounterId}`));
         } else {
           console.log('date of birth does not match');
         }
@@ -127,7 +133,11 @@ export const PatientPortalLoginForm = React.memo(() => {
         dateOfBirth: yup
           .date()
           .required('Date of birth is required')
-          .max(new Date(), 'Date of birth cannot be in the future'),
+          .max(new Date(), 'Date of birth cannot be in the future')
+          .test('match-patient-dob', 'Date of birth does not match our records', function(value) {
+            if (!patient?.dateOfBirth) return true; // Skip validation if patient data isn't loaded yet
+            return toDateString(value) === patient.dateOfBirth;
+          }),
       })}
     />
   );
