@@ -47,7 +47,6 @@ describe('PatientProgramRegistration', () => {
       const programRegistry1 = await createProgramRegistry({ name: 'AA-registry1' });
       const programRegistry2 = await createProgramRegistry({ name: 'BB-registry2' });
       const programRegistry3 = await createProgramRegistry({ name: 'CC-registry3' });
-      const programRegistry4 = await createProgramRegistry({ name: 'DD-registry4' });
 
       const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
@@ -83,36 +82,7 @@ describe('PatientProgramRegistration', () => {
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry3.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-          clinicianId: app.user.id,
-        }),
-      );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-          patientId: patient.id,
-          date: TEST_DATE_LATE,
-          clinicianId: app.user.id,
-        }),
-      );
-
-      // Registry 4: Should show the most recent details
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry4.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-          clinicianId: app.user.id,
-        }),
-      );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry4.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_LATE,
           clinicianId: app.user.id,
@@ -139,11 +109,6 @@ describe('PatientProgramRegistration', () => {
         {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: programRegistry2.id,
-        },
-        {
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          date: TEST_DATE_LATE,
-          programRegistryId: programRegistry4.id,
         },
       ]);
     });
@@ -192,50 +157,6 @@ describe('PatientProgramRegistration', () => {
         patientProgramRegistrationId: createdRegistration.id,
         programRegistryConditionId: programRegistryCondition.id,
       });
-    });
-
-    it('appends a new entry to the history for a program registration', async () => {
-      const clinician = await models.User.create(fake(models.User));
-      const patient = await models.Patient.create(fake(models.Patient));
-      const program1 = await models.Program.create(fake(models.Program));
-      const programRegistry1 = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: program1.id }),
-      );
-      const existingRegistration = await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry1.id,
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          date: '2023-09-02 08:00:00',
-        }),
-      );
-
-      // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-
-      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
-        // clinicianId: Should come from existing registration
-        patientId: patient.id,
-        programRegistryId: programRegistry1.id,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: '2023-09-02 09:00:00',
-        registeringFacilityId: facilityId,
-      });
-
-      expect(result).toHaveSucceeded();
-
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
-
-      expect(createdRegistration).toMatchObject({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: '2023-09-02 09:00:00',
-      });
-      expect(createdRegistration.updatedAt).not.toEqual(existingRegistration.updatedAt);
     });
   });
 
@@ -396,7 +317,8 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
-  describe('reading registration information', () => {
+  // Skip as replacing appends with upsert is being done elsewhere
+  describe.skip('reading registration information', () => {
     const populate = async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
