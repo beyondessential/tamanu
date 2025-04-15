@@ -17,7 +17,7 @@ export const useSurvey = surveyId => {
       try {
         setLoading(true);
         const response = await api.get(`survey/${surveyId}`);
-        setSurvey(response.data);
+        setSurvey(response);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching survey:', err);
