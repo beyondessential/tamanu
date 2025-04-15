@@ -98,6 +98,15 @@ export const PatientPortalView = () => {
   }
   );
 
+  const {data: ongoingConditionNames = []} = useQuery([`condition`, patientId], () =>
+    api.get(`patient/${encodeURIComponent(patientId)}/conditions`),
+    {
+      select: data => {
+        return data.data.map(({ condition }) => condition.name)
+      }
+    }
+  )
+
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
   const forms = [
@@ -152,8 +161,9 @@ export const PatientPortalView = () => {
         <AccordionDetail>
           <summary>Ongoing conditions</summary>
           <ul>
-            <li>Basal ganglia haemorrhage</li>
-            <li>Diabetes</li>
+            {ongoingConditionNames.map(name => (
+              <li key={name}>{name}</li>
+            ))}
           </ul>
         </AccordionDetail>
 
