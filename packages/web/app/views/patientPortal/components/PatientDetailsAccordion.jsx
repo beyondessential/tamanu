@@ -2,27 +2,33 @@
 import React from 'react';
 import { AccordionContainer } from './AccordionContainer';
 import { Typography, Box, Grid2 } from '@mui/material';
+import { useReferenceDataQuery } from '../../../api/queries';
+import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
+import { getSex } from '@tamanu/shared/utils/patientAccessors';
 
 const fields = [
   { label: 'First name', field: 'firstName' },
   { label: 'Last name', field: 'lastName' },
-  { label: 'Date of birth', field: 'dob' },
+  { label: 'Date of birth', field: 'dateOfBirth' },
   { label: 'Sex', field: 'sex' },
   { label: 'Village', field: 'village' },
-  { label: 'Patient ID', field: 'patientId' },
+  { label: 'Patient ID', field: 'displayId' },
 ];
 
-// Sample data for testing
-const sampleData = {
-  firstName: 'John',
-  lastName: 'Smith',
-  dob: '1985-06-15',
-  sex: 'Male',
-  village: 'Seaside Village',
-  patientId: 'P123456',
-};
+export const PatientDetailsAccordion = ({ patientId }) => {
+  const { data: patient, isLoading: isPatientDataLoading } = usePatientDataQuery(patientId);
+  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
 
-export const PatientDetailsAccordion = ({ data = sampleData }) => {
+  if (isPatientDataLoading || isVillageLoading) return;
+
+  const patientDetails = {
+    ...patient,
+    sex: getSex(patient),
+    village: village.name,
+  };
+
+  console.log('Patient Details:', patientDetails);
+
   return (
     <AccordionContainer title="Patient details" defaultExpanded>
       <Box>
@@ -35,7 +41,7 @@ export const PatientDetailsAccordion = ({ data = sampleData }) => {
             </Grid2>
             <Grid2 item xs={8}>
               <Typography variant="body1" fontWeight="medium">
-                {data[item.field] || '—'}
+                {patientDetails[item.field] || '—'}
               </Typography>
             </Grid2>
           </Grid2>

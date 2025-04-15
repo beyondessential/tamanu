@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../../constants';
@@ -68,42 +68,41 @@ const IconWrapper = styled.div`
   color: ${Colors.primary};
 `;
 
-// Mock API service that returns survey data
-const useSurveys = () => {
+const useSurveys = encounterId => {
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const api = useApi();
 
   useEffect(() => {
-    // Simulate API call delay
-    const timeoutId = setTimeout(() => {
-      // Mock data - would normally come from an API call
-      const mockSurveys = [
-        {
-          id: 'program-demoimmunisation-demoaefi',
-          name: 'General pre-admission patient form',
-          status: 'Outstanding',
-        },
-        {
-          id: 'program-demncdprimaryscreening-cvdscreeningref',
-          name: 'Existing condition pre-admission form',
-          status: 'Completed',
-        },
-      ];
+    const fetchSurveys = async () => {
+      try {
+        const response = await api.get(`encounter/${encounterId}/assignedSurveys`);
+        const surveyData = response.data.map(survey => ({
+          id: survey.survey_id,
+          name: survey.survey_name,
+          status: survey.completed ? 'Completed' : 'Outstanding',
+        }));
+        setSurveys(surveyData);
+      } catch (error) {
+        console.error('Error fetching surveys:', error);
+        setSurveys([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setSurveys(mockSurveys);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [api]);
+    if (encounterId) {
+      fetchSurveys();
+    }
+  }, [api, encounterId]);
 
   return { surveys, loading };
 };
 
 export const SurveyList = () => {
   const history = useHistory();
-  const { surveys, loading } = useSurveys();
+  const { encounterId } = useParams();
+  const { surveys, loading } = useSurveys(encounterId);
 
   const handleSurveyClick = surveyId => {
     history.push(`/patient-portal/surveys/${surveyId}`);

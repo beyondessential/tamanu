@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { login } from '../../store';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -119,7 +120,7 @@ export const PatientPortalLoginForm = React.memo(() => {
     <Form
       onSubmit={async ({ dateOfBirth }) => {
         if (patient?.dateOfBirth === dateOfBirth) {
-          console.log('Success! Logging in as superuser');
+          // await dispatch(login('admin@tamanu.io', 'admin', true));
           dispatch(push(`/patient-portal/patient/${patient.id}/encounter/${encounterId}`));
         } else {
           console.log('date of birth does not match');

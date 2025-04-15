@@ -3,6 +3,7 @@ import React from 'react';
 import { Stack } from '@mui/material';
 import { AccordionContainer } from './AccordionContainer';
 import { DetailCard } from './DetailCard';
+import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 
 const appointmentFields = [
   { label: 'Date & time', field: 'date_time' },
