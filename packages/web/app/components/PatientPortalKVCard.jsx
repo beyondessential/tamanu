@@ -24,12 +24,10 @@ const Card = styled.div`
 
 const Key = styled.th.attrs({ scope: 'row' })`
   font-weight: 400;
-  line-height: 1.3;
 `;
 
 const Value = styled.td`
   font-weight: 500;
-  line-height: 1.3;
 `;
 
 export const KeyValueDisplayCard = ({ dict, ...props }) => {
