@@ -2,27 +2,30 @@ import React from 'react';
 import { usePatientConditionsQuery } from '../../../api/queries';
 import PropTypes from 'prop-types';
 import { AccordionContainer } from './AccordionContainer';
+import { Box, Typography } from '@mui/material';
 
-const OngoingConditions = ({ patientId }) => {
-  const { data: patientConditions } = usePatientConditionsQuery(patientId);
-  console.log('patientConditions', patientConditions);
-
-  const formattedConditions = patientConditions.map(item => item?.diagnosis?.name);
+export const OngoingConditions = ({ patientId }) => {
+  const { data: patientConditions = [] } = usePatientConditionsQuery(patientId);
+  const formattedConditions = patientConditions.map(item => item?.diagnosis?.name).filter(Boolean);
 
   return (
     <AccordionContainer
-      title="Ongoing Conditions"
+      title="Ongoing conditions"
       count={formattedConditions.length}
       defaultExpanded={true}
     >
       {formattedConditions.length > 0 ? (
-        <ul>
+        <Box sx={{ pt: 1 }}>
           {formattedConditions.map((condition, index) => (
-            <li key={index}>{condition}</li>
+            <Typography key={index} variant="body1" sx={{ fontWeight: 'medium' }}>
+              {condition}
+            </Typography>
           ))}
-        </ul>
+        </Box>
       ) : (
-        <p>No ongoing conditions found.</p>
+        <Typography variant="body1" sx={{ py: 2 }}>
+          No ongoing conditions found.
+        </Typography>
       )}
     </AccordionContainer>
   );
@@ -31,5 +34,3 @@ const OngoingConditions = ({ patientId }) => {
 OngoingConditions.propTypes = {
   patientId: PropTypes.string.isRequired,
 };
-
-export default OngoingConditions;
