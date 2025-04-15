@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
-import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
+import { PatientPortalFormList } from '../components/PatientPortalFormList';
 import { PatientPortalKVCard } from '../components/PatientPortalKVCard';
 import { Colors } from '../constants';
 
@@ -60,28 +60,6 @@ const FormList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-`;
-
-const FormItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border: 1px solid ${Colors.outline};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${Colors.backgroundGrey};
-  }
-`;
-
-const FormTitle = styled.h2`
-  font-size: 16px;
-  font-weight: 400;
-  color: ${Colors.darkestText};
-  margin: 0;
 `;
 
 const OutstandingCount = styled.h1`
@@ -155,16 +133,7 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <FormList>
-          {/* TODO: Replace with <PatientPortalFormList forms={forms} /> */}
-          {forms.map(form => (
-            <FormItem
-              key={form.id}
-              onClick={() => history.push(`/patient-portal/${patientId}/survey/${form.id}`)}
-            >
-              <FormTitle>{form.title}</FormTitle>
-              <PatientPortalFormStatusChip status={form.status} />
-            </FormItem>
-          ))}
+          <PatientPortalFormList forms={forms} patientId={patientId} />
         </FormList>
       </Content>
       {patient && (

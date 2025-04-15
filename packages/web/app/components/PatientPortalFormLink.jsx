@@ -39,8 +39,8 @@ const Chevron = styled(ChevronRight)`
   grid-area: --chevron;
 `;
 
-export const PatientPortalFormLink = ({ form, formStatus, ...props }) => {
-  <Link to="#">
+export const PatientPortalFormLink = ({ form, formStatus, patientId, ...props }) => {
+  <Link to={`/patient-portal/${patientId}/survey/${form.id}`}>
     <ListItem {...props}>
       <FormName>{form.name}</FormName>
       {formStatus && <StatusChip status={formStatus} />}
