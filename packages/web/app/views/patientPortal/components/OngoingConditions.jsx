@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePatientConditionsQuery } from '../../../api/queries';
-import GenericAccordion from './GenericAccordion';
 import PropTypes from 'prop-types';
+import AccordionContainer from './AccordionContainer';
 
 const OngoingConditions = ({ patientId }) => {
   const { data: patientConditions } = usePatientConditionsQuery(patientId);
@@ -10,7 +10,11 @@ const OngoingConditions = ({ patientId }) => {
   const formattedConditions = patientConditions.map(item => item?.diagnosis?.name);
 
   return (
-    <GenericAccordion title="Ongoing Conditions">
+    <AccordionContainer
+      title="Ongoing Conditions"
+      count={formattedConditions.length}
+      defaultExpanded={true}
+    >
       {formattedConditions.length > 0 ? (
         <ul>
           {formattedConditions.map((condition, index) => (
@@ -20,7 +24,7 @@ const OngoingConditions = ({ patientId }) => {
       ) : (
         <p>No ongoing conditions found.</p>
       )}
-    </GenericAccordion>
+    </AccordionContainer>
   );
 };
 

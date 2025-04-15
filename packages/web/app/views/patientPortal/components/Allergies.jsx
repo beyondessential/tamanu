@@ -1,14 +1,14 @@
 import React from 'react';
 import { usePatientAllergiesQuery } from '../../../api/queries';
-import GenericAccordion from './GenericAccordion';
 import PropTypes from 'prop-types';
+import AccordionContainer from './AccordionContainer';
 
 const Allergies = ({ patientId }) => {
   const { data: patientAllergies } = usePatientAllergiesQuery(patientId);
   console.log('patientAllergies', patientAllergies);
 
   return (
-    <GenericAccordion title="Allergies">
+    <AccordionContainer title="Allergies" count={patientAllergies.length} defaultExpanded={true}>
       {patientAllergies.length > 0 ? (
         patientAllergies.map((item, index) => (
           <ul key={index}>
@@ -20,7 +20,7 @@ const Allergies = ({ patientId }) => {
       ) : (
         <p>No allergies.</p>
       )}
-    </GenericAccordion>
+    </AccordionContainer>
   );
 };
 
