@@ -59,7 +59,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .distinct(true)
       .where(`ppr.patientId = :patientId`, { patientId })
       .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
-      .andWhere('ppr.isMostRecent = 1')
       .getRawMany();
 
     const programRegistryRepository = this.getRepository();
