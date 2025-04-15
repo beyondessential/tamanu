@@ -143,6 +143,24 @@ export class MedicationAdministrationRecord extends Model {
     });
   }
 
+  static async onPrescriptionDiscontinued(
+    prescription: Prescription,
+    transaction?: Transaction | null,
+  ) {
+    const { models } = this.sequelize;
+
+    await models.MedicationAdministrationRecord.destroy({
+      where: {
+        prescriptionId: prescription.id,
+        administeredAt: {
+          [Op.gt]: prescription.discontinuedDate,
+        },
+        status: null,
+      },
+      transaction,
+    });
+  }
+
   static getListReferenceAssociations() {
     return ['prescription'];
   }
