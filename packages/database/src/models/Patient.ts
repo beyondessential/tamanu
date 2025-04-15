@@ -120,11 +120,6 @@ export class Patient extends Model {
       as: 'patientProgramRegistrations',
     });
 
-    this.hasMany(models.PatientProgramRegistrationCondition, {
-      foreignKey: 'patientId',
-      as: 'patientProgramRegistrationConditions',
-    });
-
     this.hasMany(models.PatientContact, {
       foreignKey: 'patientId',
       as: 'contacts',
@@ -346,7 +341,7 @@ export class Patient extends Model {
 
   static async incomingSyncHook(
     changes: SyncSnapshotAttributes[],
-  ): Promise<SyncHookSnapshotChanges | undefined>{
+  ): Promise<SyncHookSnapshotChanges | undefined> {
     return resolveDuplicatedPatientDisplayIds(this, changes);
   }
 }
