@@ -179,6 +179,8 @@ dependencies {
 
     implementation project(':react-native-config')
 
+    implementation 'org.jetbrains:annotations:16.0.2'
+
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
