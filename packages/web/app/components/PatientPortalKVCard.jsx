@@ -3,10 +3,11 @@ import styled from 'styled-components';
 
 import { PatientPortalFormStatusChipRoot } from './PatientPortalFormStatusChip';
 
-const Card = styled.table`
+const Card = styled.div`
   border-radius: 3px;
   border: 1px solid #dedede;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
   line-height: 1.3;
   padding: 1rem;
   row-gap: 6px;
@@ -51,6 +52,7 @@ export const KeyValueDisplayCard = ({ dict, formStatus, ...props }) => {
           </tr>
         ))}
       </Table>
+      {formStatus && <PatientPortalFormStatusChipRoot status={formStatus} />}
     </Card>
   );
 };
