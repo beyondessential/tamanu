@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePatientAllergiesQuery } from '../../../api/queries';
 import PropTypes from 'prop-types';
-import AccordionContainer from './AccordionContainer';
+import { AccordionContainer } from './AccordionContainer';
 
 const Allergies = ({ patientId }) => {
   const { data: patientAllergies } = usePatientAllergiesQuery(patientId);

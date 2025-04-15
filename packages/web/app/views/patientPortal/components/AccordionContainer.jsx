@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Typography, Box } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const AccordionContainer = ({
+export const AccordionContainer = ({
   title,
   count,
   children,
@@ -34,5 +34,3 @@ const AccordionContainer = ({
     </Accordion>
   );
 };
-
-export default AccordionContainer;
