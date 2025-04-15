@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { LogoDark } from '../components/Logo';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
 
 const Container = styled.div`
@@ -123,7 +124,7 @@ export const PatientPortalView = () => {
         </LogoContainer>
         <WelcomeContainer>
           <WelcomeText>
-            Welcome to Tamanu  <span>{patientName}</span> <WaveEmoji />
+            Welcome to Tamanu <span>{patientName}</span> <WaveEmoji />
           </WelcomeText>
         </WelcomeContainer>
       </Header>
