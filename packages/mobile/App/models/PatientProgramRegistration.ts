@@ -147,7 +147,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return fullPpr;
   }
 
-  static async appendRegistration(
+  static async upsertRegistration(
     patientId: string,
     programRegistryId: string,
     data: any,
@@ -158,8 +158,12 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patientId,
     );
     if (existingRegistration) {
-      await PatientProgramRegistration.updateValues(existingRegistration.id, {
-        isMostRecent: false,
+      return PatientProgramRegistration.updateValues(existingRegistration.id, {
+        ...getValuesFromRelations(existingRegistration),
+        ...getValuesFromRelations(data),
+        ...data,
+        programRegistry: programRegistryId,
+        patient: patientId,
       });
     }
 
@@ -169,7 +173,6 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       ...data,
       programRegistry: programRegistryId,
       patient: patientId,
-      isMostRecent: true,
     });
   }
 }

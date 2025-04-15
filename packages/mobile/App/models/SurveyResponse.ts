@@ -95,7 +95,7 @@ async function writeToPatientFields(
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.appendRegistration(patientId, programRegistryDetail.id, {
+    await PatientProgramRegistration.upsertRegistration(patientId, programRegistryDetail.id, {
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       registeringFacilityId:
