@@ -27,6 +27,7 @@ import {
 } from '@tamanu/database/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
+import { addChangelogRecords } from './addChangelogRecords';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -262,13 +263,22 @@ export class CentralSyncManager {
       await repeatableReadTransaction(store.sequelize, async (transaction) => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
-        if (!isInitialBuildOfLookupTable) {
+        if (isInitialBuildOfLookupTable) {
+          await this.store.models.SyncLookupTick.create({
+            sourceStartTick: previouslyUpToTick,
+            lookupEndTick: currentTick,
+          });
+        } else {
           transaction.afterCommit(async () => {
             // Wrap inside transaction so that any writes to currentSyncTick
             // will have to wait until this transaction is committed
             await store.sequelize.transaction(async () => {
-              const { tick: currentTick } = await this.tickTockGlobalClock();
-              await updateSyncLookupPendingRecords(store, currentTick);
+              const { tick: lookupEndTick } = await this.tickTockGlobalClock();
+              await updateSyncLookupPendingRecords(store, lookupEndTick);
+              await this.store.models.SyncLookupTick.create({
+                sourceStartTick: previouslyUpToTick,
+                lookupEndTick: lookupEndTick,
+              });
             });
           });
         }
@@ -555,14 +565,21 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    await this.connectToSession(sessionId);
-    return findSyncSnapshotRecords(
+    const session = await this.connectToSession(sessionId);
+    const snapshotRecords = await findSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
       limit,
     );
+    const recordsForPull = await addChangelogRecords(
+      this.store.models,
+      session.pullSince,
+      session.pullUntil,
+      snapshotRecords,
+    );
+    return recordsForPull;
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
