@@ -6,7 +6,7 @@ import { addHours, format } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { ADMINISTRATION_STATUS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -97,12 +97,12 @@ const DiscontinuedDivider = styled.div`
   background-color: ${Colors.midText};
 `;
 
-const getIsPast = (timeSlot, selectedDate) => {
+const getIsPast = ({ timeSlot, selectedDate }) => {
   const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
   return new Date() > endDate;
 };
 
-const getIsDisabled = (hasRecord, timeSlot, selectedDate) => {
+const getIsDisabled = ({ hasRecord, timeSlot, selectedDate }) => {
   const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord) {
     return startDate > new Date();
@@ -110,47 +110,50 @@ const getIsDisabled = (hasRecord, timeSlot, selectedDate) => {
   return startDate > addHours(new Date(), 2);
 };
 
-const getIsEnd = (endDate, administeredAt, timeSlot, selectedDate) => {
-  if (administeredAt) {
-    return new Date(endDate) < new Date(administeredAt);
+const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
+  if (hasRecord) {
+    return false;
   }
-  const currentEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date(endDate) < currentEndDate;
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(endDate) < endDateOfSlot;
 };
 
-const getIsPaused = (pauseRecords, administeredAt, timeSlot, selectedDate) => {
+const getIsDiscontinued = ({
+  discontinuedDate,
+  administeredAt,
+  isRecordedStatus,
+  timeSlot,
+  selectedDate,
+  nextMarInfo,
+}) => {
+  if (isRecordedStatus || !discontinuedDate || nextMarInfo?.status) {
+    return false;
+  }
+
+  if (administeredAt) {
+    return new Date(administeredAt) > new Date(discontinuedDate);
+  }
+
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(discontinuedDate) < endDateOfSlot;
+};
+
+const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, isRecordedStatus }) => {
   if (!pauseRecords?.length) return false;
 
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-  const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
 
   return pauseRecords.some(pauseRecord => {
     const pauseStartDate = new Date(pauseRecord.pauseStartDate);
     const pauseEndDate = new Date(pauseRecord.pauseEndDate);
 
-    if (administeredAt) {
-      const administeredAtDate = new Date(administeredAt);
-      return pauseStartDate <= administeredAtDate && pauseEndDate >= administeredAtDate;
+    if (isRecordedStatus) {
+      return pauseStartDate < startDateOfSlot && pauseEndDate > startDateOfSlot;
     }
 
-    return pauseStartDate <= endDate && pauseEndDate >= startDate;
+    return pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
   });
-};
-
-const getIsPausedThenDiscontinued = (
-  pauseRecords,
-  discontinuedDate,
-  administeredAt,
-  timeSlot,
-  selectedDate,
-) => {
-  const isPaused = getIsPaused(pauseRecords, administeredAt, timeSlot, selectedDate);
-  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
-
-  return (
-    isPaused && isDiscontinued && new Date(discontinuedDate).getTime() - startDate.getTime() > 0
-  );
 };
 
 export const MarStatus = ({
@@ -159,7 +162,10 @@ export const MarStatus = ({
   selectedDate,
   timeSlot,
   marInfo,
+  previousMarInfo,
+  nextMarInfo,
   medication,
+  pauseRecords,
 }) => {
   const { administeredAt, status, reasonNotGiven, id: marId } = marInfo || {};
   const {
@@ -173,9 +179,6 @@ export const MarStatus = ({
   } = medication || {};
 
   const { encounter } = useEncounter();
-  const { data: pauseRecords } = usePausesPrescriptionQuery(prescriptionId, encounter?.id, {
-    marDate: selectedDate,
-  });
 
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -183,18 +186,38 @@ export const MarStatus = ({
   const [selectedElement, setSelectedElement] = useState(null);
 
   const containerRef = useRef(null);
-  const isPast = getIsPast(timeSlot, selectedDate);
-  const isDisabled = getIsDisabled(!!administeredAt, timeSlot, selectedDate);
-  const isDiscontinued = getIsEnd(discontinuedDate, administeredAt, timeSlot, selectedDate);
-  const isEnd = getIsEnd(endDate, administeredAt, timeSlot, selectedDate);
-  const isPaused = getIsPaused(pauseRecords?.data, administeredAt, timeSlot, selectedDate);
-  const isPausedThenDiscontinued = getIsPausedThenDiscontinued(
-    pauseRecords?.data,
+  const isPast = getIsPast({ timeSlot, selectedDate });
+  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     administeredAt,
+    isRecordedStatus: !!status,
     timeSlot,
     selectedDate,
+    nextMarInfo,
+  });
+  const isEnd = getIsEnd({ endDate, hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isPaused = getIsPaused({
+    pauseRecords: pauseRecords?.data,
+    isRecordedStatus: !!status,
+    timeSlot,
+    selectedDate,
+  });
+
+  const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
+    slot => slot.endTime === timeSlot.startTime,
   );
+  const isPreviouslyPaused =
+    previousTimeSlot &&
+    previousMarInfo &&
+    getIsPaused({
+      pauseRecords: pauseRecords?.data,
+      isRecordedStatus: !!previousMarInfo?.status,
+      timeSlot: previousTimeSlot,
+      selectedDate,
+    });
+
+  const isPausedThenDiscontinued = isPreviouslyPaused && isDiscontinued;
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -253,6 +276,7 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
+    if (!marInfo) return null;
     let color = Colors.green;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:

@@ -8,6 +8,8 @@ import { useTranslation } from '../../../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
 import { findAdministrationTimeSlotFromIdealTime } from '@tamanu/shared/utils/medication';
+import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
+import { useEncounter } from '../../../contexts/Encounter';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -16,9 +18,7 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
     const administeredAt = new Date(record.administeredAt);
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(
-      `${administeredAt.getHours()}:${administeredAt.getMinutes()}`,
-    ).index;
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(administeredAt).index;
     result[windowIndex] = record;
   });
 
@@ -31,6 +31,7 @@ const MarRowContainer = styled.div`
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
   ${props => props.discontinued && `text-decoration: line-through;`}
+  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
 `;
 
 export const MarTableRow = ({ medication, selectedDate }) => {
@@ -43,18 +44,32 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     medicationAdministrationRecords,
     pharmacyNotes,
     displayPharmacyNotesInMar,
+    encounterPrescription,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { encounter } = useEncounter();
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+  const isPausing = !!pauseData && !discontinued;
+
+  const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
+    marDate: selectedDate,
+  });
 
   return (
     <>
-      <MarRowContainer discontinued={discontinued}>
+      <MarRowContainer discontinued={discontinued} isPausing={isPausing}>
         <Box fontWeight={500}>
           <TranslatedReferenceData
             fallback={medicationRef.name}
             value={medicationRef.id}
             category={medicationRef.type}
           />
+          {isPausing && (
+            <>
+              {' '}
+              <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
+            </>
+          )}
         </Box>
         <Box>
           {getDose(medication, getTranslation, getEnumTranslation)},{' '}
@@ -82,6 +97,9 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfo={record}
+            previousMarInfo={medicationAdministrationRecords[index - 1]}
+            nextMarInfo={medicationAdministrationRecords[index + 1]}
+            pauseRecords={pauseRecords}
           />
         );
       })}
