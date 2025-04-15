@@ -3,6 +3,7 @@ import { Box, Typography, Container, Paper } from '@mui/material';
 import OngoingConditions from './components/OngoingConditions';
 import Allergies from './components/Allergies';
 import AppointmentsAccordion from './components/AppointmentsAccordion';
+import { MedicationsAccordion } from './components/MedicationsAccordion';
 
 export const PatientPortal = () => {
   const styles = {
@@ -33,31 +34,11 @@ export const PatientPortal = () => {
         <OngoingConditions patientId="19324abf-b485-4184-8537-0a7fe4be1d0b" />
         <Allergies patientId="19324abf-b485-4184-8537-0a7fe4be1d0b" />
         <AppointmentsAccordion />
+        <MedicationsAccordion />
+
         <Typography variant="h6" gutterBottom>
           Personal Information
         </Typography>
-        {/* Add patient information here */}
-      </Paper>
-
-      <Paper sx={styles.paper}>
-        <Typography variant="h6" gutterBottom>
-          Upcoming Appointments
-        </Typography>
-        {/* Add appointments list here */}
-      </Paper>
-
-      <Paper sx={styles.paper}>
-        <Typography variant="h6" gutterBottom>
-          Recent Medical Records
-        </Typography>
-        {/* Add medical records summary here */}
-      </Paper>
-
-      <Paper sx={styles.paper}>
-        <Typography variant="h6" gutterBottom>
-          Medications
-        </Typography>
-        {/* Add medications list here */}
       </Paper>
     </Container>
   );
