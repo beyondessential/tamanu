@@ -51,13 +51,10 @@ export function App({ sidebar, children }) {
     chromium: '>=100',
     edge: '>=100',
   });
-  const platformType = browser.getPlatformType();
-  const isDesktop = platformType === 'desktop';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
   if (!isDebugMode) {
     // Skip browser/platform check in debug mode
-    if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
     if (!isChromish) return <UnsupportedBrowserStatusPage />;
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
