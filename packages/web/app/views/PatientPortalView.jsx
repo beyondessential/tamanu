@@ -208,6 +208,7 @@ export const PatientPortalView = () => {
 
             {medications.map(medication => (
               <PatientPortalKVCard
+                key={medication.id}
                 dict={{
                   'Medication': medication.medication.name,
                   'Dose': medication.quantity,
