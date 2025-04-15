@@ -4,7 +4,6 @@ import { action } from '@storybook/addon-actions';
 import { MemoryRouter, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { MobileSurveyScreen } from '../app/components/Surveys/MobileSurveyScreen';
-import { PatientPortalSurveysList } from '../app/views/patientPortal/PatientPortalSurveysList';
 import { Form, Formik } from 'formik';
 
 // Mock context providers
@@ -165,16 +164,7 @@ const MockSurveyForm = () => {
 };
 
 // Stories
-
-// 1. PatientPortalSurveysList
 storiesOf('Patient Portal', module)
-  .add('Surveys List', () => (
-    <MockProviders>
-      <MobileContainer>
-        <PatientPortalSurveysList />
-      </MobileContainer>
-    </MockProviders>
-  ))
   .add('Mobile Survey Screen', () => (
     <MobileContainer>
       <MobileSurveyScreen
