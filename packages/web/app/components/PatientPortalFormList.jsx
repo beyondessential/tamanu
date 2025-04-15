@@ -15,13 +15,13 @@ const List = styled.ul.attrs({ role: 'list' })`
   list-style-type: none;
 `;
 
-export const PatientPortalFormList = ({ forms = [], ...props }) => {
+export const PatientPortalFormList = ({ forms = [], patientId, ...props }) => {
   if (forms.length === 0) return <EmptyState>No forms (yet)!</EmptyState>;
 
   return (
     <List {...props}>
       {forms.map(form => (
-        <PatientPortalFormLink form={form} key={form.id} />
+        <PatientPortalFormLink form={form} key={form.id} patientId={patientId} />
       ))}
     </List>
   );
