@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePatientConditionsQuery } from '../../../api/queries';
 import PropTypes from 'prop-types';
-import AccordionContainer from './AccordionContainer';
+import { AccordionContainer } from './AccordionContainer';
 
 const OngoingConditions = ({ patientId }) => {
   const { data: patientConditions } = usePatientConditionsQuery(patientId);
