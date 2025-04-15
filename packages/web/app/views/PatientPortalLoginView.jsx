@@ -25,8 +25,9 @@ const Header = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  padding: 24px 20px;
+  padding: 24px 26px;
   background: ${Colors.white};
+  margin-top: 40%;
 `;
 
 const Title = styled.h1`
@@ -43,7 +44,7 @@ const Subtitle = styled.p`
 `;
 
 const StyledField = styled(Field)`
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 
   .label-field {
     font-size: 14px;
@@ -71,7 +72,6 @@ const LoginButton = styled(FormSubmitButton)`
   width: 100%;
   border-radius: 4px;
   text-transform: none;
-  margin-top: 24px;
 
   &:hover {
     background: ${Colors.primaryDark};
