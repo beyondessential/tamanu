@@ -65,9 +65,10 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             category={medicationRef.type}
           />
           {isPausing && (
-            <Box color={Colors.softText}>
+            <>
+              {' '}
               <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
-            </Box>
+            </>
           )}
         </Box>
         <Box>
