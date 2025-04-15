@@ -89,7 +89,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           )}
         </Box>
       </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
+      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index, array) => {
         return (
           <MarStatus
             key={record?.id || index}
@@ -97,8 +97,8 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfo={record}
-            previousMarInfo={medicationAdministrationRecords[index - 1]}
-            nextMarInfo={medicationAdministrationRecords[index + 1]}
+            previousMarInfo={array[index - 1]}
+            nextMarInfo={array[index + 1]}
             pauseRecords={pauseRecords}
           />
         );

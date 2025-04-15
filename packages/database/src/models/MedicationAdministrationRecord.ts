@@ -105,9 +105,26 @@ export class MedicationAdministrationRecord extends Model {
         case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
           lastStartDate = startOfDay(addDays(lastStartDate, 7));
           break;
-        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH:
-          lastStartDate = startOfDay(addDays(lastStartDate, 30));
+        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
+          // Get the day of the month from the last administration date
+          const dayOfMonth = lastStartDate.getDate();
+
+          // Create next month's date
+          const nextMonthDate = new Date(lastStartDate);
+          nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+
+          // If the day is 29th, 30th, or 31st, set to 1st of next month
+          if (dayOfMonth >= 29) {
+            nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+            nextMonthDate.setDate(1);
+          } else {
+            // Keep the same day of month
+            nextMonthDate.setDate(dayOfMonth);
+          }
+
+          lastStartDate = startOfDay(nextMonthDate);
           break;
+        }
         default:
           lastStartDate = startOfDay(addDays(lastStartDate, 1));
           break;
