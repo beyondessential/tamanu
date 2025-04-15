@@ -1,15 +1,12 @@
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { Paper } from '../../components';
 import { Colors } from '../../constants';
 
-export const ProgramsPane = styled(Paper)`
+export const ProgramsPane = styled.div`
   background: white;
   padding: 30px;
-  max-width: 700px;
-  min-width: 500px;
+  max-width: 100%;
   margin: 50px auto;
-  border-radius: 3px;
 `;
 
 export const ProgramsPaneHeader = styled.div`

@@ -67,6 +67,11 @@ export const SurveyScreenPaginator = ({
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
 
+  const handleSubmit = (...args) => {
+    onSurveyComplete(...args);
+    setIsConfirmModalOpen(false);
+  };
+
   const maxIndex = currentComponents
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
@@ -107,7 +112,7 @@ export const SurveyScreenPaginator = ({
       <ConfirmModal
         open={isConfirmModalOpen}
         onCancel={() => setIsConfirmModalOpen(false)}
-        onConfirm={onSurveyComplete}
+        onConfirm={handleSubmit}
         confirmButtonText="Submit"
         cancelButtonText="Cancel"
         subText="Please ensure your answers are accurate before submitting as you will not be able to make changes or review after submitting"
