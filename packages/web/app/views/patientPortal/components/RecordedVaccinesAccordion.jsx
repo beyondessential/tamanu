@@ -1,40 +1,30 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { DetailCard } from './DetailCard';
+import { useAdministeredVaccinesQuery } from '../../../api/queries';
 
 const vaccineFields = [
-  { label: 'Vaccine', field: 'vaccine' },
+  { label: 'Vaccine', field: 'name' },
   { label: 'Schedule', field: 'schedule' },
   { label: 'Date', field: 'date' },
   { label: 'Given By', field: 'givenBy' },
   { label: 'Facility', field: 'facility' },
 ];
 
-const mockVaccines = [
-  {
-    vaccine: 'COVID-19 (Pfizer)',
-    schedule: 'Dose 1 of 2',
-    date: '2023-05-15',
-    givenBy: 'Dr. Smith',
-    facility: 'Central Hospital, Fiji',
-  },
-  {
-    vaccine: 'Tetanus',
-    schedule: 'Booster',
-    date: '2023-01-20',
-    givenBy: 'Dr. Jones',
-    facility: 'Medical Center, Samoa',
-  },
-  {
-    vaccine: 'Hepatitis B',
-    schedule: 'Dose 3 of 3',
-    date: '2022-12-10',
-    givenBy: 'Dr. Wilson',
-    facility: 'Community Clinic, Tonga',
-  },
-];
+export const RecordedVaccinesAccordion = ({ patientId }) => {
+  const { data: administeredVaccines, isLoading } = useAdministeredVaccinesQuery(patientId);
 
-export const RecordedVaccinesAccordion = ({ recordedVaccines = mockVaccines }) => {
+  if (isLoading) return;
+
+  const recordedVaccines =
+    administeredVaccines?.data?.map(vaccine => ({
+      name: vaccine.vaccineDisplayName,
+      schedule: vaccine.scheduledVaccine?.doseLabel,
+      date: vaccine.date?.split(' ')[0],
+      givenBy: vaccine.recorder?.displayName,
+      facility: vaccine.displayLocation,
+    })) || [];
+
   return (
     <Stack spacing={2}>
       <Typography variant="h7">Recorded vaccines ({recordedVaccines.length})</Typography>
