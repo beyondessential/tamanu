@@ -64,23 +64,16 @@ export function App({ sidebar, children }) {
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
 
-  // Check if we're on the patient portal route
-  const isPatientPortal = window.location.href.includes('/patient-portal/');
-  if (isPatientPortal) {
-    const encounterId = window.location.href
-      .split('/patient-portal/')[1]
-      .replace(/[^a-zA-Z0-9-]/g, '');
-    console.log('Encounter ID:', encounterId);
-    return <PatientPortalLoginForm encounterId={encounterId} />;
-  }
-
   // Only check for login and facility selection if not on patient portal
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
+  // Check if we're on the patient portal route
+  const isPatientPortal = window.location.href.includes('/patient-portal/');
+
   return (
     <AppContainer>
-      {sidebar}
+      {!isPatientPortal && sidebar}
       <PromiseErrorBoundary>
         <ErrorBoundary errorKey={currentRoute}>
           <AppContentsContainer>
