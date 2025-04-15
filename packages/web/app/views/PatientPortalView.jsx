@@ -148,6 +148,7 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <FormList>
+          {/* TODO: Replace with <PatientPortalFormList forms={forms} /> */}
           {forms.map(form => (
             <FormItem key={form.id}>
               <FormTitle>{form.title}</FormTitle>
