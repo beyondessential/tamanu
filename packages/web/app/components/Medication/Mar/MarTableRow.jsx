@@ -31,6 +31,7 @@ const MarRowContainer = styled.div`
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
   ${props => props.discontinued && `text-decoration: line-through;`}
+  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
 `;
 
 export const MarTableRow = ({ medication, selectedDate }) => {
@@ -43,9 +44,12 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     medicationAdministrationRecords,
     pharmacyNotes,
     displayPharmacyNotesInMar,
+    encounterPrescription,
   } = medication;
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
+  const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+  const isPausing = !!pauseData && !discontinued;
 
   const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
     marDate: selectedDate,
@@ -53,13 +57,18 @@ export const MarTableRow = ({ medication, selectedDate }) => {
 
   return (
     <>
-      <MarRowContainer discontinued={discontinued}>
+      <MarRowContainer discontinued={discontinued} isPausing={isPausing}>
         <Box fontWeight={500}>
           <TranslatedReferenceData
             fallback={medicationRef.name}
             value={medicationRef.id}
             category={medicationRef.type}
           />
+          {isPausing && (
+            <Box color={Colors.softText}>
+              <TranslatedText stringId="medication.mar.paused.label" fallback="(Paused)" />
+            </Box>
+          )}
         </Box>
         <Box>
           {getDose(medication, getTranslation, getEnumTranslation)},{' '}
