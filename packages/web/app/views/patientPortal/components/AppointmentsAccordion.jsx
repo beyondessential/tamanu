@@ -12,7 +12,7 @@ const appointmentFields = [
   { label: 'Appt type', field: 'appt_type' },
 ];
 
-const AppointmentsAccordion = ({
+export const AppointmentsAccordion = ({
   appointments = [
     {
       date_time: '2024-01-15T10:30:00',
@@ -43,5 +43,3 @@ const AppointmentsAccordion = ({
     </AccordionContainer>
   );
 };
-
-export default AppointmentsAccordion;

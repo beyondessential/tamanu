@@ -13,7 +13,7 @@ export const DetailCard = ({ items, data, elevation = 1, spacing = 2, rootSx = {
                 item
                 xs={4}
                 sx={{
-                  width: '200px',
+                  width: '150px',
                   flexShrink: 0,
                 }}
               >

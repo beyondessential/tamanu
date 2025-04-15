@@ -2,23 +2,29 @@ import React from 'react';
 import { usePatientAllergiesQuery } from '../../../api/queries';
 import PropTypes from 'prop-types';
 import { AccordionContainer } from './AccordionContainer';
+import { Box, Typography } from '@mui/material';
 
-const Allergies = ({ patientId }) => {
-  const { data: patientAllergies } = usePatientAllergiesQuery(patientId);
-  console.log('patientAllergies', patientAllergies);
+export const Allergies = ({ patientId }) => {
+  const { data: patientAllergies = [] } = usePatientAllergiesQuery(patientId);
 
   return (
     <AccordionContainer title="Allergies" count={patientAllergies.length} defaultExpanded={true}>
       {patientAllergies.length > 0 ? (
-        patientAllergies.map((item, index) => (
-          <ul key={index}>
-            <li>
+        <Box sx={{ pt: 1 }}>
+          {patientAllergies.map((item, index) => (
+            <Typography
+              key={index}
+              variant="body1"
+              sx={{
+                fontWeight: 'medium',
+              }}
+            >
               {item.allergy.name} ({item.reaction.name})
-            </li>
-          </ul>
-        ))
+            </Typography>
+          ))}
+        </Box>
       ) : (
-        <p>No allergies.</p>
+        <Typography variant="body1">No allergies.</Typography>
       )}
     </AccordionContainer>
   );
@@ -27,5 +33,3 @@ const Allergies = ({ patientId }) => {
 Allergies.propTypes = {
   patientId: PropTypes.string.isRequired,
 };
-
-export default Allergies;

@@ -2,7 +2,13 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { toast } from 'react-toastify';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  PATIENT_STATUS,
+  PATIENT_STATUS_COLORS,
+} from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
@@ -176,6 +182,28 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   const { getLocalisation } = useLocalisation();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
 
+  const copyPatientPortalLink = async () => {
+    try {
+      const baseUrl = window.location.origin;
+      const fullUrl = `${baseUrl}/patient-portal/login/${encounter.id}`;
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success(
+        <TranslatedText
+          stringId="patient.encounterSummary.copyPatientPortalLink.success"
+          fallback="Patient portal link copied to clipboard"
+        />,
+      );
+    } catch (err) {
+      console.error('Failed to copy encounter URL:', err);
+      toast.error(
+        <TranslatedText
+          stringId="patient.encounterSummary.copyPatientPortalLink.error"
+          fallback="Failed to copy patient portal link"
+        />,
+      );
+    }
+  };
+
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
   }
@@ -248,6 +276,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
+        <Button onClick={copyPatientPortalLink} size="small" style={{ marginRight: 10 }}>
+          <TranslatedText
+            stringId="patient.encounterSummary.copyPatientPortalLink"
+            fallback="Copy patient portal link"
+          />
+        </Button>
         <Button onClick={() => viewEncounter(id)} size="small">
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
