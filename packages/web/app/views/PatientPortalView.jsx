@@ -75,6 +75,17 @@ const Summary = styled.summary`
   font-size: 16px;
   font-weight: 500;
   line-height: 1.3;
+
+  &::marker {
+    content: '';
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMS40Njk3IDcuNzE5NjdDMTEuNzYyNiA3LjQyNjc4IDEyLjIzNzQgNy40MjY3OCAxMi41MzAzIDcuNzE5NjdMMjAuMDMwMyAxNS4yMTk3QzIwLjMyMzIgMTUuNTEyNiAyMC4zMjMyIDE1Ljk4NzQgMjAuMDMwMyAxNi4yODAzQzE5LjczNzQgMTYuNTczMiAxOS4yNjI2IDE2LjU3MzIgMTguOTY5NyAxNi4yODAzTDEyIDkuMzEwNjZMNS4wMzAzMyAxNi4yODAzQzQuNzM3NDQgMTYuNTczMiA0LjI2MjU2IDE2LjU3MzIgMy45Njk2NyAxNi4yODAzQzMuNjc2NzggMTUuOTg3NCAzLjY3Njc4IDE1LjUxMjYgMy45Njk2NyAxNS4yMTk3TDExLjQ2OTcgNy43MTk2N1oiIGZpbGw9IiM2NjY2NjYiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIwLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K');
+    height: 1em;
+    width: 1em;
+  }
+
+  details[open] &::after {
+    transform: rotate(0.5turn);
+  }
 `;
 
 const WaveEmoji = () => (
