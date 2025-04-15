@@ -22,6 +22,13 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { HierarchyFields } from '../../HierarchyFields';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { theme } from '~/ui/styled/theme';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { StyledText } from '~/ui/styled/common';
+import { ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -92,21 +99,48 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
       required={required}
     />
+  );
+};
+
+const AddressHierarchyField = ({ isEdit }): ReactElement => {
+  if (isEdit) {
+    return <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />;
+  }
+
+  return (
+    <StyledView>
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP(2.4, Orientation.Height)}
+        fontWeight={500}
+        marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
+      >
+        <TranslatedText
+          stringId={'patient.details.subheading.currentAddress'}
+          fallback={'Current address'}
+        />
+      </StyledText>
+      <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />
+    </StyledView>
   );
 };
 
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
+  isUsingHierarchyLogic: boolean,
 ): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
   if (selectFields.includes(fieldName)) {
     return SelectField;
+  }
+  if (isUsingHierarchyLogic && fieldName === PATIENT_DATA_FIELDS.VILLAGE_ID) {
+    return AddressHierarchyField;
   }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
@@ -146,12 +180,14 @@ export const PatientAdditionalDataFields = ({
   );
 
   if (isCustomSection)
-    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 
+  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+
   return padFields.map((field: string) => {
-    const Component = getComponentForField(field, customFieldIds);
+    const Component = getComponentForField(field, customFieldIds, isUsingHierarchyLogic);
     const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });
