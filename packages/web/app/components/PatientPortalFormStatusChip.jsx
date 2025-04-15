@@ -10,7 +10,7 @@ export const FORM_STATUS_COLORS = {
   outstanding: '#f76853',
 };
 
-const Chip = styled.div`
+export const PatientPortalFormStatusChipRoot = styled.div`
   --color: attr(data-color, currentcolor);
   --color: attr(data-color type(<color>), currentcolor);
 
@@ -26,8 +26,8 @@ const Chip = styled.div`
 
 export const PatientPortalFormStatusChip = ({ status, ...props }) => {
   return (
-    <Chip data-color={FORM_STATUS_COLORS[status]} {...props}>
+    <PatientPortalFormStatusChipRoot data-color={FORM_STATUS_COLORS[status]} {...props}>
       {status}
-    </Chip>
+    </PatientPortalFormStatusChipRoot>
   );
 };
