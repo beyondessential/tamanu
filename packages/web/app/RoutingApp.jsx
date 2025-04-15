@@ -34,7 +34,7 @@ export const RoutingFacilityApp = React.memo(() => {
   const { isSettingsLoaded } = useSettings();
 
   return (
-    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+    <App>
       <UserActivityMonitor />
       <Switch>
         {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
