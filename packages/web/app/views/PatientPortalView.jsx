@@ -116,10 +116,11 @@ export const PatientPortalView = () => {
 
   const { data: allergies } = useQuery(
     [`allergies`, patientId],
-    () => api.get(`patient/patientid}/allergies`),
+    () => api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
   );
 
-  console.log((allergies))
+  console.log((allergies, encounter))
+
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
   const forms = [
