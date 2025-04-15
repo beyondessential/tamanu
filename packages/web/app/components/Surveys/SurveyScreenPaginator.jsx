@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
-import { FormSubmitButton, OutlinedButton } from '../Button';
+import { Button, FormSubmitButton, OutlinedButton } from '../Button';
 import { ButtonRow } from '../ButtonRow';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { ConfirmModal } from '../ConfirmModal';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -16,7 +17,7 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-export const PatientPortalSurveySubmitButton = styled(FormSubmitButton)`
+export const PatientPortalSurveySubmitButton = styled(Button)`
   width: 100%;
   margin-top: 24px;
   padding: 12px;
@@ -59,6 +60,7 @@ export const SurveyScreenPaginator = ({
   status,
   setStatus,
 }) => {
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -90,14 +92,28 @@ export const SurveyScreenPaginator = ({
       ...surveyScreenProps,
       submitButton: (
         <PatientPortalSurveySubmitButton
-          text="Submit"
           color="primary"
           variant="contained"
-          onClick={onSurveyComplete}
-        />
+          onClick={() => setIsConfirmModalOpen(true)}
+        >
+          Submit
+        </PatientPortalSurveySubmitButton>
       ),
     };
   }
 
-  return <SurveyScreen {...surveyScreenProps} />;
+  return (
+    <>
+      <ConfirmModal
+        open={isConfirmModalOpen}
+        onCancel={() => setIsConfirmModalOpen(false)}
+        onConfirm={onSurveyComplete}
+        confirmButtonText="Submit"
+        cancelButtonText="Cancel"
+        subText="Please ensure your answers are accurate before submitting as you will not be able to make changes or review after submitting"
+        title="Are you sure you want to submit?"
+      />
+      <SurveyScreen {...surveyScreenProps} />
+    </>
+  );
 };
