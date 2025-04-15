@@ -127,6 +127,7 @@ export const MobileSurveyScreen = ({
   encounterType,
   title = 'Complete form',
   isSubmitting = false,
+  hideSubmitButton = false,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -207,19 +208,21 @@ export const MobileSurveyScreen = ({
         {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
       </ContentContainer>
 
-      <SubmitButtonContainer>
-        <StyledSubmitButton
-          color="primary"
-          variant="contained"
-          onClick={validateAndSubmit}
-          disabled={isSubmitting}
-        >
-          <TranslatedText
-            stringId={isSubmitting ? 'general.status.submitting' : 'general.action.submit'}
-            fallback={isSubmitting ? 'Submitting...' : 'Submit'}
-          />
-        </StyledSubmitButton>
-      </SubmitButtonContainer>
+      {!hideSubmitButton && (
+        <SubmitButtonContainer>
+          <StyledSubmitButton
+            color="primary"
+            variant="contained"
+            onClick={validateAndSubmit}
+            disabled={isSubmitting}
+          >
+            <TranslatedText
+              stringId={isSubmitting ? 'general.status.submitting' : 'general.action.submit'}
+              fallback={isSubmitting ? 'Submitting...' : 'Submit'}
+            />
+          </StyledSubmitButton>
+        </SubmitButtonContainer>
+      )}
     </Container>
   );
 };

@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 
-export const useEncounterMedicationsQuery = encounter => {
+export const useEncounterMedicationsQuery = encounterId => {
   const api = useApi();
 
   return useQuery(
-    ['encounterMedications', encounter?.id],
+    ['encounterMedications', encounterId],
     () =>
       api.get(
-        `encounter/${encodeURIComponent(encounter?.id)}/medications`,
+        `encounter/${encounterId}/medications`,
         {},
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
-    { enabled: !!encounter?.endDate && !!encounter?.id },
+    { enabled: !!encounterId },
   );
 };
