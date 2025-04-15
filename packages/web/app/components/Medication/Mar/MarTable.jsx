@@ -29,6 +29,7 @@ const MedicationContainer = styled.div`
 
 // Header row for the time slots
 const HeaderRow = styled.div`
+  padding-right: 5px;
   display: grid;
   grid-template-columns: minmax(50px, 1fr) repeat(
       ${props => props.columns},
@@ -44,6 +45,22 @@ const ScrollableContent = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
+  
+  /* Add these lines to handle scrollbar consistently across platforms */
+  scrollbar-gutter: stable;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${Colors.softText};
+    border-radius: 4px;
+  }
 `;
 
 const HeadingCell = styled.div`
@@ -66,7 +83,10 @@ const TimeSlotHeaderContainer = styled.div`
   align-items: center;
   border-top: 1px solid ${Colors.outline};
   border-left: 1px solid ${Colors.outline};
-  ${props => props.isCurrentTimeSlot ? `background: #EBF0F5; color: ${Colors.primary};` : `color: ${Colors.midText};`}
+  ${props =>
+    props.isCurrentTimeSlot
+      ? `background: #EBF0F5; color: ${Colors.primary};`
+      : `color: ${Colors.midText};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -118,7 +138,7 @@ const CurrentTimeOverlay = styled.div`
   width: ${MEDICATION_CELL_WIDTH - 1}px;
   height: ${p => p.$height || '100%'};
   z-index: 11;
-  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH}px;
+  right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH + 5}px;
   border: 1px solid ${Colors.primary};
   pointer-events: none;
 `;
@@ -189,17 +209,19 @@ export const MarTable = ({ selectedDate }) => {
     const prnHeader = prnHeaderRef.current;
 
     // Common observer configuration
-    const observerOptions = { 
-      threshold: 0, 
-      rootMargin: '-105px 0px 0px 0px' 
+    const observerOptions = {
+      threshold: 0,
+      rootMargin: '-105px 0px 0px 0px',
     };
 
     // Helper function to create consistent observers
     const createHeaderObserver = headerElement => {
       return new IntersectionObserver(([entry]) => {
-        headerElement.style.position = entry.isIntersecting 
-          ? 'sticky' 
-          : (entry.boundingClientRect.top < 105 ? 'static' : headerElement.style.position);
+        headerElement.style.position = entry.isIntersecting
+          ? 'sticky'
+          : entry.boundingClientRect.top < 105
+          ? 'static'
+          : headerElement.style.position;
       }, observerOptions);
     };
 
@@ -222,11 +244,7 @@ export const MarTable = ({ selectedDate }) => {
     <Container>
       {isSameDay(selectedDate, new Date()) && (
         <CurrentTimeOverlay
-          $index={
-            findAdministrationTimeSlotFromIdealTime(
-              `${format(new Date(), 'HH')}:${format(new Date(), 'mm')}`,
-            ).index
-          }
+          $index={findAdministrationTimeSlotFromIdealTime(new Date()).index}
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
           $height={overlayHeight}
         />
