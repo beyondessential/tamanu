@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 const OngoingConditions = ({ patientId }) => {
   const { data: patientConditions } = usePatientConditionsQuery(patientId);
+  console.log('patientConditions', patientConditions);
 
   const formattedConditions = patientConditions.map(item => item?.diagnosis?.name);
 

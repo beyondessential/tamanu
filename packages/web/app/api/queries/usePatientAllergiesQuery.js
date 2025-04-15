@@ -5,13 +5,12 @@ const transformData = response => {
   if (!response.data) {
     return [];
   }
-  return response.data
-    .map(patientAllergy => ({
-      ...patientAllergy,
-      allergy: patientAllergy.allergy.name,
-      reaction: patientAllergy.reaction.name,
-    }))
-    .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
+
+  return response.data.map(item => ({
+    ...item,
+    allergy: item?.allergy || {},
+    reaction: item?.reaction || {},
+  }));
 };
 export const usePatientAllergiesQuery = patientId => {
   const api = useApi();

@@ -5,9 +5,10 @@ import PropTypes from 'prop-types';
 
 const Allergies = ({ patientId }) => {
   const { data: patientAllergies } = usePatientAllergiesQuery(patientId);
+  console.log('patientAllergies', patientAllergies);
 
   return (
-    <GenericAccordion title="Ongoing Conditions">
+    <GenericAccordion title="Allergies">
       {patientAllergies.length > 0 ? (
         patientAllergies.map((item, index) => (
           <ul key={index}>
