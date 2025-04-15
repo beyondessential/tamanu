@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Formik, Form } from 'formik';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
@@ -18,6 +18,7 @@ import { OutlinedButton, Button } from '../../components/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { checkVisibility } from '../../utils';
 import { SurveyQuestion } from '../../components/Surveys/SurveyQuestion';
+import { useApi } from '../../api';
 
 const Container = styled.div`
   display: flex;
@@ -276,15 +277,33 @@ const SurveyScreen = ({
 
 export const PatientPortalMobileSurveyResponseForm = () => {
   const dispatch = useDispatch();
+  // Check if the API instance exists in the Redux store
+  const reduxState = useSelector(state => state);
+  const apiExists = reduxState && reduxState.api;
+  // Get direct API instance for backup
+  const api = useApi();
+
+  useEffect(() => {
+    console.log('Redux state:', reduxState);
+    console.log('API exists in Redux store:', apiExists);
+  }, [reduxState, apiExists]);
+
   const history = useHistory();
   const { patient } = usePatient();
-  const { surveyId } = useParams();
+  const { surveyId, patientId: urlPatientId } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
   // Use the paginated form hook outside the Formik render function
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm();
 
   const { survey, loading, error } = useSurvey(surveyId);
+
+  // Determine the patient ID from either context or URL params
+  const patientId = patient?.id || urlPatientId;
+
+  useEffect(() => {
+    console.log('Patient info:', { patientFromContext: patient?.id, urlPatientId, patientId });
+  }, [patient, urlPatientId, patientId]);
 
   if (loading) {
     return <LoadingIndicator />;
@@ -345,17 +364,143 @@ export const PatientPortalMobileSurveyResponseForm = () => {
       }) => {
         // Define submission handler for the final submission
         const handleSubmit = async () => {
+          console.log('handleSubmit called');
           setIsSubmitting(true);
+
           try {
-            const resultAction = await dispatch(
-              submitFormResponse({
-                surveyId,
-                patientId: patient?.id,
-                startTime,
-                endTime: getCurrentDateTimeString(),
-                responses: values,
-              }),
+            console.log('Starting validation');
+            // Validate the entire form before submission
+            const formErrors = await validateForm();
+
+            if (Object.keys(formErrors).length > 0) {
+              console.error('Form validation failed:', formErrors);
+              setErrors(formErrors);
+              setStatus({
+                ...status,
+                submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED,
+              });
+
+              toast.error(
+                <TranslatedText
+                  stringId="survey.response.validationError"
+                  fallback="Please fix the errors in the form"
+                />,
+                {
+                  position: toast.POSITION.TOP_CENTER,
+                  containerStyle: { marginTop: '20px', padding: '0 20px' },
+                },
+              );
+
+              setIsSubmitting(false);
+              // Go back to the screen with the first error
+              // Find the screen with the first error
+              const errorFields = Object.keys(formErrors);
+              if (errorFields.length > 0) {
+                // Find which screen contains this error field
+                for (const screenIdx of screenIndices) {
+                  const componentsOnScreen = componentsByScreen[screenIdx] || [];
+                  const hasError = componentsOnScreen.some(c =>
+                    errorFields.includes(c.dataElementId),
+                  );
+
+                  if (hasError) {
+                    // Navigate back to the screen with the error
+                    onStepBack(); // Just go back one screen to the last question screen
+                    break;
+                  }
+                }
+              }
+              return;
+            }
+
+            // Format responses properly - ensure they're in the correct format
+            // Convert the flat values object to the format expected by the API
+            const formattedResponses = {};
+
+            // Check if we have responses for all required fields
+            const requiredFields = [];
+
+            survey.components.forEach(component => {
+              const { dataElementId, validationCriteria } = component;
+              // Add all required fields to our tracking list
+              if (validationCriteria?.mandatory) {
+                requiredFields.push(dataElementId);
+              }
+
+              // Only include non-empty values
+              const value = values[dataElementId];
+              if (value !== undefined && value !== null && value !== '') {
+                formattedResponses[dataElementId] = value;
+              }
+            });
+
+            // Check if all required fields have values
+            const missingRequiredFields = requiredFields.filter(
+              field => !formattedResponses[field],
             );
+
+            if (missingRequiredFields.length > 0) {
+              console.error('Missing required fields:', missingRequiredFields);
+
+              const errors = {};
+              missingRequiredFields.forEach(field => {
+                errors[field] = 'This field is required';
+              });
+
+              setErrors(errors);
+              setStatus({
+                ...status,
+                submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED,
+              });
+
+              toast.error(
+                <TranslatedText
+                  stringId="survey.response.missingRequired"
+                  fallback="Please fill in all required fields"
+                />,
+                {
+                  position: toast.POSITION.TOP_CENTER,
+                  containerStyle: { marginTop: '20px', padding: '0 20px' },
+                },
+              );
+
+              setIsSubmitting(false);
+              return;
+            }
+
+            console.log('Submitting form with formatted values:', {
+              surveyId,
+              patientId,
+              startTime,
+              endTime: getCurrentDateTimeString(),
+              responses: formattedResponses,
+            });
+
+            console.log('About to dispatch submitFormResponse...');
+            let resultAction;
+            try {
+              resultAction = await dispatch(
+                submitFormResponse({
+                  surveyId,
+                  patientId,
+                  startTime,
+                  endTime: getCurrentDateTimeString(),
+                  responses: formattedResponses,
+                }),
+              );
+              console.log('Dispatch completed', resultAction);
+            } catch (dispatchError) {
+              console.error('Error during dispatch:', dispatchError);
+              throw dispatchError;
+            }
+
+            console.log('Form submission result:', resultAction);
+            if (resultAction.error) {
+              console.error('Redux action error:', resultAction.error);
+            }
+            if (resultAction.payload) {
+              console.log('Response payload:', resultAction.payload);
+            }
 
             // Check if the action was fulfilled or rejected
             if (resultAction.meta && resultAction.meta.requestStatus === 'fulfilled') {
@@ -379,6 +524,7 @@ export const PatientPortalMobileSurveyResponseForm = () => {
                 resultAction.error?.message ||
                 'Form submission failed';
               console.error('Error submitting form:', errorMessage, resultAction);
+              console.error('Full error details:', JSON.stringify(resultAction, null, 2));
 
               // Show error toast
               toast.error(
@@ -406,6 +552,39 @@ export const PatientPortalMobileSurveyResponseForm = () => {
                   ...status,
                   submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED,
                 });
+              }
+            }
+
+            // Try direct API call instead of Redux if dispatch isn't working
+            if (!resultAction || resultAction.error) {
+              console.log('Trying direct API call as backup...');
+              try {
+                const response = await api.post('surveyResponse', {
+                  surveyId,
+                  patientId,
+                  startTime,
+                  endTime: getCurrentDateTimeString(),
+                  answers: formattedResponses,
+                });
+                console.log('Direct API call successful:', response);
+
+                // Show success toast
+                toast.success(
+                  <TranslatedText
+                    stringId="survey.response.submissionSuccess"
+                    fallback="Form submitted successfully (direct API)"
+                  />,
+                  {
+                    position: toast.POSITION.TOP_CENTER,
+                    containerStyle: { marginTop: '20px', padding: '0 20px' },
+                  },
+                );
+
+                // Navigate back to patient portal home after successful submission
+                history.push('/patient-portal');
+                return;
+              } catch (apiError) {
+                console.error('Direct API call failed:', apiError);
               }
             }
           } catch (error) {
@@ -436,7 +615,10 @@ export const PatientPortalMobileSurveyResponseForm = () => {
             {isSummaryScreen ? (
               <SurveySummaryScreen
                 onStepBack={onStepBack}
-                onSubmit={handleSubmit}
+                onSubmit={() => {
+                  console.log('Submit button clicked');
+                  handleSubmit();
+                }}
                 isSubmitting={isSubmitting || formikIsSubmitting}
               />
             ) : (
