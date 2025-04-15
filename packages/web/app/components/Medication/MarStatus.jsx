@@ -13,8 +13,6 @@ import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
 import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
-import { usePausesPrescriptionQuery } from '../../api/queries/usePausesPrescriptionQuery';
-import { useEncounter } from '../../contexts/Encounter';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
@@ -177,8 +175,6 @@ export const MarStatus = ({
     id: prescriptionId,
     isVariableDose,
   } = medication || {};
-
-  const { encounter } = useEncounter();
 
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
