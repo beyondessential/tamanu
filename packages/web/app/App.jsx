@@ -20,7 +20,6 @@ import {
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
-import { PatientPortalLoginForm } from './views/patientPortal/LoginScreen';
 
 const AppContainer = styled.div`
   display: flex;
