@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
@@ -97,12 +97,12 @@ export const PatientPortalView = () => {
   const forms = [
     {
       id: 1,
-      title: 'General pre-admission patient form',
+      name: 'General pre-admission patient form',
       status: 'outstanding',
     },
     {
       id: 2,
-      title: 'Exiting condition pre-admission form',
+      name: 'Exiting condition pre-admission form',
       status: 'completed',
     },
   ];

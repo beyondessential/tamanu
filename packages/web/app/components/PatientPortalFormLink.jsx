@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-import PatientPortalFormStatusChip from './PatientPortalFormStatusChip';
+import {PatientPortalFormStatusChip} from './PatientPortalFormStatusChip';
 
 const ListItem = styled.li`
   align-items: center;
