@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { LogoDark } from '../components/Logo';
-import { PatientPortalFormList } from '../components/PatientPortalFormList';
+import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
 import { KeyValueDisplayCard } from '../components/PatientPortalKVCard';
 import { Colors } from '../constants';
 
@@ -114,11 +114,13 @@ export const PatientPortalView = () => {
     },
   );
 
-  const { data: allergies } = useQuery([`allergies`, patientId], () =>
-    api.get(`patient/patientid}/allergies`),
+  const { data: allergies } = useQuery(
+    [`allergies`, patientId],
+    () => api.get(`patient/${encodeURIComponent(patientId)}/allergies`),
   );
 
-  console.log(allergies);
+  console.log((allergies, encounter))
+
   const patientName = patient?.firstName;
   // Placeholder form data - this should come from your API
   const forms = [
@@ -154,7 +156,16 @@ export const PatientPortalView = () => {
           {outstandingForms.length === 1 ? 'item' : 'items'} to complete
         </OutstandingCount>
         <FormList>
-          <PatientPortalFormList forms={forms} />
+          {/* TODO: Replace with <PatientPortalFormList forms={forms} /> */}
+          {forms.map(form => (
+            <FormItem
+              key={form.id}
+              onClick={() => history.push(`/patient-portal/${patientId}/survey/${form.id}`)}
+            >
+              <FormTitle>{form.title}</FormTitle>
+              <PatientPortalFormStatusChip status={form.status} />
+            </FormItem>
+          ))}
         </FormList>
       </Content>
       {patient && (
@@ -163,7 +174,7 @@ export const PatientPortalView = () => {
             'First Name': patient.firstName,
             'Last Name': patient.lastName,
             'Date of Birth': patient.dateOfBirth,
-            Sex: patient.sex,
+            'Sex': patient.sex,
             'Patient ID': patient.displayId,
           }}
         />
