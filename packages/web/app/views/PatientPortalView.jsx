@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { LogoDark } from '../components/Logo';
 import { PatientPortalFormStatusChip } from '../components/PatientPortalFormStatusChip';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../api';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -83,8 +85,8 @@ const FormTitle = styled.h2`
 
 const OutstandingCount = styled.h1`
   color: ${Colors.darkestText};
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 400;
   margin: 0 0 24px 0;
 `;
 
@@ -96,8 +98,19 @@ const WaveEmoji = () => (
 
 export const PatientPortalView = () => {
   const { patientId } = useParams();
-  // TODO: Fetch patient name and forms from API using patientId
-  const patientName = 'Jessie'; // Placeholder until we implement the API call
+  const api = useApi();
+  const { data: patient } = useQuery(
+    ['patient-portal', patientId],
+    () => api.get(`patient/${encodeURIComponent(patientId)}`)
+  )
+
+  // const {data: encounter} = useQuery(
+  //   ['encounter', patientId],
+  //   () => api.get(`encounter/${encodeURIComponent(patientId)}`)
+  // )
+
+
+  const patientName = patient.firstName// Placeholder until we implement the API call
 
   // Placeholder form data - this should come from your API
   const forms = [
