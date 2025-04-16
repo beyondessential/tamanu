@@ -91,6 +91,8 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-facility
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers
+      - name: Print users
+        run: .github/scripts/e2e-test-setup.sh print-users
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

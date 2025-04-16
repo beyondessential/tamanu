@@ -87,4 +87,8 @@ e2e_test_setup_start_servers() {
     npm run --workspace @tamanu/facility-server start sync
 }
 
+e2e_test_setup_print_users() {
+    psql -d facility -c "SELECT * FROM users;"
+}
+
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
