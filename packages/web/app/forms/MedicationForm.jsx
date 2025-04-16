@@ -262,9 +262,7 @@ const MedicationAdministrationForm = () => {
       .filter(s => s > startDate.getTime())
       .sort((a, b) => a - b)[0];
 
-    const firstSlot = findAdministrationTimeSlotFromIdealTime(
-      format(new Date(firstStartTime), 'HH:mm'),
-    ).timeSlot;
+    const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
     return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
       getDateFromTimeString(firstSlot.endTime),

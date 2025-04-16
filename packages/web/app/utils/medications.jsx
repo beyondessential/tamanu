@@ -1,4 +1,4 @@
-import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 import { formatTime } from '../components';
 
@@ -34,7 +34,7 @@ export const getDose = (medication, getTranslation, getEnumTranslation) => {
   let { doseAmount, units, isVariableDose } = medication;
   if (!units) return '';
   if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
-  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_LABELS, units)}`;
+  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units)}`;
 };
 
 export const formatTimeSlot = time => {

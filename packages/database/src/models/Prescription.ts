@@ -93,6 +93,12 @@ export class Prescription extends Model {
                 { transaction: options.transaction },
               );
             }
+            if (prescription.changed('discontinued') && prescription.discontinued) {
+              await models.MedicationAdministrationRecord.onPrescriptionDiscontinued(
+                prescription,
+                options.transaction,
+              );
+            }
           },
         },
       },
