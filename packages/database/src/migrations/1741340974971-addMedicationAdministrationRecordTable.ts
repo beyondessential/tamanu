@@ -20,6 +20,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
+    recorded_at: {
+      type: DataTypes.DATETIMESTRING,
+      allowNull: true,
+    },
     prescription_id: {
       type: DataTypes.STRING,
       allowNull: true,

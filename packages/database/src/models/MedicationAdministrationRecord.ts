@@ -12,6 +12,7 @@ export class MedicationAdministrationRecord extends Model {
   declare status?: string;
   declare administeredAt?: string;
   declare dueAt: string;
+  declare recordedAt?: string;
   declare prescriptionId?: string;
   declare reasonNotGivenId?: string;
 
@@ -25,6 +26,9 @@ export class MedicationAdministrationRecord extends Model {
         }),
         dueAt: dateTimeType('dueAt', {
           allowNull: false,
+        }),
+        recordedAt: dateTimeType('recordedAt', {
+          allowNull: true,
         }),
       },
       {

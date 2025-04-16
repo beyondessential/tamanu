@@ -493,7 +493,9 @@ medication.put(
     //Update MAR
     mar.reasonNotGivenId = reasonNotGivenId;
     mar.status = ADMINISTRATION_STATUS.NOT_GIVEN;
-    mar.administeredAt = getCurrentDateTimeString();
+    if (!mar.status) {
+      mar.recordedAt = getCurrentDateTimeString();
+    }
     await mar.save();
 
     res.send(mar.forResponse());
@@ -538,7 +540,7 @@ medication.post(
       dueAt,
       prescriptionId,
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
-      administeredAt: getCurrentDateTimeString(),
+      recordedAt: getCurrentDateTimeString(),
     });
 
     res.send(mar.forResponse());
