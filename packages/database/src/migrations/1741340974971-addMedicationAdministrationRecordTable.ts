@@ -12,10 +12,6 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    administered_at: {
-      type: DataTypes.DATETIMESTRING,
-      allowNull: true,
-    },
     due_at: {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,

@@ -10,7 +10,6 @@ import type { Encounter } from './Encounter';
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
   declare status?: string;
-  declare administeredAt?: string;
   declare dueAt: string;
   declare recordedAt?: string;
   declare prescriptionId?: string;
@@ -21,9 +20,6 @@ export class MedicationAdministrationRecord extends Model {
       {
         id: primaryKey,
         status: DataTypes.STRING,
-        administeredAt: dateTimeType('administeredAt', {
-          allowNull: true,
-        }),
         dueAt: dateTimeType('dueAt', {
           allowNull: false,
         }),
