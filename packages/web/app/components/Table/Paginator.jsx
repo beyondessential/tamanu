@@ -127,7 +127,7 @@ export const Paginator = React.memo(
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
-          <PageRecordCount>
+          <PageRecordCount data-testid="pagerecordcount-m8ne">
             {isDataInTable && (
               <TranslatedText
                 stringId="general.table.pageRecordCount"
@@ -137,6 +137,7 @@ export const Paginator = React.memo(
                   upperRange,
                   count,
                 }}
+                data-testid="translatedtext-yhs4"
               />
             )}
           </PageRecordCount>
