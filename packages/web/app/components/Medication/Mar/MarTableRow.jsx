@@ -76,7 +76,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
-        <Box color={Colors.midText}>
+        <Box color={!isPausing ? Colors.midText : undefined}>
           <span>{notes}</span>
           {displayPharmacyNotesInMar && pharmacyNotes && (
             <span>
