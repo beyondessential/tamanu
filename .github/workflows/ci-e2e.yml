@@ -62,8 +62,8 @@ jobs:
       FACILITY_FRONTEND_URL: http://localhost:5173
       ADMIN_FRONTEND_URL: http://localhost:5174
       LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
-      TEST_EMAIL: facility-test@tamanu.io
-      TEST_PASSWORD: facility-test
+      TEST_EMAIL: test1@tamanu.io
+      TEST_PASSWORD: test1
 
     steps:
       - uses: actions/checkout@v4
