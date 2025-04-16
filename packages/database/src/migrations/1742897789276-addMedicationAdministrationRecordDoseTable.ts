@@ -30,10 +30,12 @@ export async function up(query: QueryInterface): Promise<void> {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: Sequelize.fn('now'),
     },
     deleted_at: {
       type: DataTypes.DATE,
