@@ -14,6 +14,10 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     administered_at: {
       type: DataTypes.DATETIMESTRING,
+      allowNull: true,
+    },
+    due_at: {
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     prescription_id: {

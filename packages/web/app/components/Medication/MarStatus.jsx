@@ -118,7 +118,7 @@ const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
 
 const getIsDiscontinued = ({
   discontinuedDate,
-  administeredAt,
+  dueAt,
   isRecordedStatus,
   timeSlot,
   selectedDate,
@@ -128,8 +128,8 @@ const getIsDiscontinued = ({
     return false;
   }
 
-  if (administeredAt) {
-    return new Date(administeredAt) > new Date(discontinuedDate);
+  if (dueAt) {
+    return new Date(dueAt) > new Date(discontinuedDate);
   }
 
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
@@ -176,7 +176,7 @@ export const MarStatus = ({
   medication,
   pauseRecords,
 }) => {
-  const { administeredAt, status, reasonNotGiven, id: marId } = marInfo || {};
+  const { dueAt, status, reasonNotGiven, id: marId } = marInfo || {};
   const {
     doseAmount,
     isPrn,
@@ -197,7 +197,7 @@ export const MarStatus = ({
   const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
-    administeredAt,
+    dueAt,
     isRecordedStatus: !!status,
     timeSlot,
     selectedDate,
@@ -289,7 +289,7 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
-    if (!marInfo) return null;
+    if (!marInfo || isDiscontinued) return null;
     let color = Colors.green;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
@@ -354,7 +354,7 @@ export const MarStatus = ({
         </Box>
       );
     }
-    if (administeredAt) {
+    if (marInfo) {
       switch (status) {
         case ADMINISTRATION_STATUS.NOT_GIVEN:
           return (
@@ -371,7 +371,7 @@ export const MarStatus = ({
                   stringId="medication.mar.future.tooltip"
                   fallback="Cannot record future dose. Due at :dueAt."
                   replacements={{
-                    dueAt: format(new Date(administeredAt), 'h:mma').toLowerCase(),
+                    dueAt: format(new Date(dueAt), 'h:mma').toLowerCase(),
                   }}
                 />
               </Box>
@@ -384,7 +384,7 @@ export const MarStatus = ({
                   stringId="medication.mar.missed.tooltip"
                   fallback="Missed. Due at :dueAt"
                   replacements={{
-                    dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+                    dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
                   }}
                 />
               </Box>
@@ -396,7 +396,7 @@ export const MarStatus = ({
                 stringId="medication.mar.dueAt.tooltip"
                 fallback="Due at :dueAt"
                 replacements={{
-                  dueAt: format(new Date(administeredAt), 'hh:mma').toLowerCase(),
+                  dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
                 }}
               />
             </Box>
@@ -431,7 +431,7 @@ export const MarStatus = ({
           isPaused={isPaused}
         >
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
-          {administeredAt && !isDiscontinued && renderStatus()}
+          {renderStatus()}
           <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled} />
         </StatusContainer>
       </ConditionalTooltip>
@@ -440,8 +440,8 @@ export const MarStatus = ({
         anchorEl={anchorEl}
         onClose={handleClose}
         marId={marId}
-        administeredAt={
-          administeredAt ? administeredAt : getDateFromTimeString(timeSlot.startTime, selectedDate)
+        dueAt={
+          dueAt ? dueAt : getDateFromTimeString(timeSlot.startTime, selectedDate)
         }
         prescriptionId={prescriptionId}
       />

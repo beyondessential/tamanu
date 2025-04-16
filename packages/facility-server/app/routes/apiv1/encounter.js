@@ -231,7 +231,7 @@ encounterRelations.get(
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
         where: {
-          administeredAt: {
+          dueAt: {
             [Op.gte]: startOfMarDate,
             [Op.lte]: endOfMarDate,
           },

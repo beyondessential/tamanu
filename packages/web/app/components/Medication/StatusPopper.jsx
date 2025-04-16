@@ -62,7 +62,7 @@ export const StatusPopper = ({
   open,
   anchorEl,
   onClose,
-  administeredAt,
+  dueAt,
   prescriptionId,
 }) => {
   const [showReasonScreen, setShowReasonScreen] = useState(false);
@@ -82,7 +82,7 @@ export const StatusPopper = ({
     await updateMar({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      administeredAt,
+      dueAt,
       prescriptionId,
     });
 
