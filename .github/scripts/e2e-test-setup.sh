@@ -76,9 +76,15 @@ e2e_test_setup_setup_facility() {
 	EOF
 
     npm run --workspace @tamanu/facility-server start migrate
+}
 
-    # insert a test user into the facility database
-    psql -d facility -c "INSERT INTO users (email, password, role) VALUES ('test1@tamanu.io', 'test1', 'admin');"
+e2e_test_setup_start_servers() {
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+    # Give servers time to start before syncing
+    sleep 5
+    # Sync the servers
+    npm run --workspace @tamanu/facility-server start sync
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
