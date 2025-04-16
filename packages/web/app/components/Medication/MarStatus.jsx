@@ -154,6 +154,17 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, isRecordedStatus })
   });
 };
 
+const getIsPausedThenDiscontinued = ({
+  isPreviouslyPaused,
+  isDiscontinued,
+  timeSlot,
+  selectedDate,
+  discontinuedDate,
+}) => {
+  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  return isPreviouslyPaused && isDiscontinued && new Date(discontinuedDate) >= startDateOfSlot;
+};
+
 export const MarStatus = ({
   isAlert = false,
   isEdited = false,
@@ -213,7 +224,13 @@ export const MarStatus = ({
       selectedDate,
     });
 
-  const isPausedThenDiscontinued = isPreviouslyPaused && isDiscontinued;
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued({
+    isPreviouslyPaused,
+    isDiscontinued,
+    timeSlot,
+    selectedDate,
+    discontinuedDate,
+  });
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
