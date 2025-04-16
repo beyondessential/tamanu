@@ -6,6 +6,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     dose_amount: {
       type: DataTypes.DECIMAL,
