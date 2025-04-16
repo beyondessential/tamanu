@@ -465,7 +465,7 @@ const givenMarUpdateSchema = z.object({
   }),
 });
 medication.put(
-  '/mar/:id/given',
+  '/medication-administration-record/:id/given',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
@@ -473,25 +473,25 @@ medication.put(
 
     const { dose } = await givenMarUpdateSchema.parseAsync(req.body);
 
-    const mar = await MedicationAdministrationRecord.findByPk(params.id);
-    if (!mar) {
+    const record = await MedicationAdministrationRecord.findByPk(params.id);
+    if (!record) {
       throw new InvalidOperationError(`MAR with id ${params.id} not found`);
     }
     
-    if (mar.status === ADMINISTRATION_STATUS.GIVEN) {
+    if (record.status === ADMINISTRATION_STATUS.GIVEN) {
       throw new InvalidOperationError(`MAR with id ${params.id} is already given`);
     }
 
     //Update MAR and add dose to the MAR
-    mar.status = ADMINISTRATION_STATUS.GIVEN;
-    await mar.save();
+    record.status = ADMINISTRATION_STATUS.GIVEN;
+    await record.save();
     await MedicationAdministrationRecordDose.create({
-      medicationAdministrationRecordId: mar.id,
+      medicationAdministrationRecordId: record.id,
       doseAmount: dose.doseAmount,
       givenTime: dose.givenTime,
     });
 
-    res.send(mar.forResponse());
+    res.send(record.forResponse());
   })
 );
 
@@ -505,7 +505,7 @@ const givenMarCreateSchema = z.object({
 });
 
 medication.post(
-  '/mar/given',
+  '/medication-administration-record/given',
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, Prescription } = models;
@@ -525,7 +525,7 @@ medication.post(
     }
 
     //create MAR
-    const mar = await MedicationAdministrationRecord.create({
+    const record = await MedicationAdministrationRecord.create({
       administeredAt,
       prescriptionId,
       status: ADMINISTRATION_STATUS.GIVEN,
@@ -533,19 +533,19 @@ medication.post(
 
     //create dose
     await MedicationAdministrationRecordDose.create({
-      medicationAdministrationRecordId: mar.id,
+      medicationAdministrationRecordId: record.id,
       doseAmount: dose.doseAmount,
       givenTime: dose.givenTime,
     });
 
-    res.send(mar.forResponse());
+    res.send(record.forResponse());
   })
 );
 const notGivenInputUpdateSchema = z.object({
   reasonNotGivenId: z.string(),
 });
 
-medication.put('/mar/:id/notGiven', asyncHandler(async (req, res) => {
+medication.put('/medication-administration-record/:id/not-given', asyncHandler(async (req, res) => {
   req.checkPermission('write', 'MedicationAdministrationRecord');
   const { models, params } = req;
   const { MedicationAdministrationRecord } = models;
@@ -560,21 +560,21 @@ medication.put('/mar/:id/notGiven', asyncHandler(async (req, res) => {
     throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
   }
 
-  const mar = await MedicationAdministrationRecord.findByPk(params.id);
-  if (!mar) {
+  const record = await MedicationAdministrationRecord.findByPk(params.id);
+  if (!record) {
     throw new InvalidOperationError(`MAR with id ${params.id} not found`);
   }
   
-  if (mar.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
+  if (record.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
     throw new InvalidOperationError(`MAR with id ${params.id} is already not given`);
   }
 
   //Update MAR
-  mar.reasonNotGivenId = reasonNotGivenId;
-  mar.status = ADMINISTRATION_STATUS.NOT_GIVEN;
-  await mar.save();
+  record.reasonNotGivenId = reasonNotGivenId;
+  record.status = ADMINISTRATION_STATUS.NOT_GIVEN;
+  await record.save();
 
-  res.send(mar.forResponse());
+  res.send(record.forResponse());
 }));
 
 const notGivenInputCreateSchema = z.object({
@@ -582,7 +582,7 @@ const notGivenInputCreateSchema = z.object({
   administeredAt: z.string().datetime(),
   prescriptionId: z.string(),
 });
-medication.post('/mar/notGiven', asyncHandler(async (req, res) => {
+medication.post('/medication-administration-record/not-given', asyncHandler(async (req, res) => {
   req.checkPermission('create', 'MedicationAdministrationRecord');
   const { models } = req;
   const { MedicationAdministrationRecord, Prescription } = models;
@@ -604,14 +604,14 @@ medication.post('/mar/notGiven', asyncHandler(async (req, res) => {
   }
   
   //create MAR
-  const mar = await MedicationAdministrationRecord.create({
+  const record = await MedicationAdministrationRecord.create({
     reasonNotGivenId,
     administeredAt,
     prescriptionId,
     status: ADMINISTRATION_STATUS.NOT_GIVEN,
   });
 
-  res.send(mar.forResponse());
+  res.send(record.forResponse());
 }));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
