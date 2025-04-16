@@ -440,9 +440,7 @@ export const MarStatus = ({
         anchorEl={anchorEl}
         onClose={handleClose}
         marId={marId}
-        dueAt={
-          dueAt ? dueAt : getDateFromTimeString(timeSlot.startTime, selectedDate)
-        }
+        dueAt={dueAt ? dueAt : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)}
         prescriptionId={prescriptionId}
       />
       <WarningModal

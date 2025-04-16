@@ -57,14 +57,7 @@ const StyledButton = styled(Button)`
   border-color: ${p => p.$color} !important;
 `;
 
-export const StatusPopper = ({
-  marId,
-  open,
-  anchorEl,
-  onClose,
-  dueAt,
-  prescriptionId,
-}) => {
+export const StatusPopper = ({ marId, open, anchorEl, onClose, dueAt, prescriptionId }) => {
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const { mutateAsync: updateMar } = useNotGivenMarMutation(marId);
   const queryClient = useQueryClient();
