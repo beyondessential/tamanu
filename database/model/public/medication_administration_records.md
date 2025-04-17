@@ -10,10 +10,18 @@ One of:
 - `NOT_GIVEN` - The medication was not administered to the patient
 {% enddocs %}
 
-{% docs medication_administration_records__administered_at %}
-The date and time when the medication was administered or marked as not given. This represents the actual time of administration, which may differ from the scheduled time.
-{% enddocs %}
-
 {% docs medication_administration_records__prescription_id %}
 Reference to the [prescription](#!/source/source.tamanu.tamanu.prescriptions) that this administration record is associated with. Links this administration event to the specific medication order it fulfills.
+{% enddocs %}
+
+{% docs medication_administration_records__due_at %}
+The scheduled date and time when the medication administration was planned to occur, based on the prescription's frequency and start date.
+{% enddocs %}
+
+{% docs medication_administration_records__recorded_at %}
+The timestamp indicating when the administration status (e.g., `GIVEN` or `NOT_GIVEN`) was actually recorded in the system. May be null if the status has not yet been recorded.
+{% enddocs %}
+
+{% docs medication_administration_records__reason_not_given_id %}
+Reference to the reason ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) why the medication was not administered to the patient. Only applicable when status is `NOT_GIVEN`.
 {% enddocs %}
