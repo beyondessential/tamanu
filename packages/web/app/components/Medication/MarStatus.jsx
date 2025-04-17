@@ -461,6 +461,8 @@ export const MarStatus = ({
         selectedDate={selectedDate}
         marInfo={marInfo}
         medication={medication}
+        isFuture={isFuture}
+        isPast={isPast}
       />
       <WarningModal
         modal={showWarningModal}

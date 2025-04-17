@@ -214,6 +214,9 @@ const GivenScreen = ({
   units,
   onClose,
   prescriptionId,
+  isFuture,
+  isPast,
+  isVariableDose,
 }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
@@ -239,12 +242,20 @@ const GivenScreen = ({
   };
 
   const handleIncreaseDose = (doseAmount, setFieldValue) => {
+    if (!doseAmount) {
+      setFieldValue('doseAmount', 0.5);
+      return;
+    }
     setFieldValue('doseAmount', doseAmount + 0.5);
   };
 
   const handleSubmit = async data => {
     const { timeGiven, doseAmount } = data;
-    if (Number(doseAmount) !== Number(prescriptionDoseAmount) && !showWarningModal) {
+    if (
+      Number(doseAmount) !== Number(prescriptionDoseAmount) &&
+      !showWarningModal &&
+      !isVariableDose
+    ) {
       setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
       return;
     }
@@ -335,8 +346,10 @@ const GivenScreen = ({
         </>
       )}
       initialValues={{
-        doseAmount: Number(prescriptionDoseAmount) || 0.25,
-        timeGiven: new Date(),
+        doseAmount: Number(prescriptionDoseAmount) || '',
+        timeGiven: isPast
+          ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
+          : new Date(),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup
@@ -355,7 +368,7 @@ const GivenScreen = ({
               fallback="Time is outside selected window"
             />,
             function(value) {
-              if (!value || !timeSlot) return true; // Skip validation if no value or timeSlot
+              if (!value || !timeSlot || isFuture) return true; // Skip validation if no value or timeSlot or isFuture
 
               // Convert times to minutes since midnight for easier comparison
               const timeToMinutes = date => date.getHours() * 60 + date.getMinutes();
@@ -393,9 +406,11 @@ export const StatusPopper = ({
   selectedDate,
   marInfo,
   medication,
+  isFuture,
+  isPast,
 }) => {
   const { id: marId } = marInfo || {};
-  const { doseAmount, units, id: prescriptionId } = medication || {};
+  const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
@@ -452,6 +467,9 @@ export const StatusPopper = ({
           marId={marId}
           onClose={onClose}
           prescriptionId={prescriptionId}
+          isFuture={isFuture}
+          isPast={isPast}
+          isVariableDose={isVariableDose}
         />
       );
     }
