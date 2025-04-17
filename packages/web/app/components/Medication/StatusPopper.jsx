@@ -396,7 +396,9 @@ export const StatusPopper = ({
 }) => {
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId } = medication || {};
-  const dueAt = marInfo?.dueAt ? marInfo?.dueAt : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
+  const dueAt = marInfo?.dueAt
+    ? marInfo?.dueAt
+    : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);

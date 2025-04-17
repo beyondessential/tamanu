@@ -183,6 +183,7 @@ export const MarStatus = ({
   const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
@@ -228,20 +229,6 @@ export const MarStatus = ({
   });
 
   const { getEnumTranslation } = useTranslation();
-
-  useEffect(() => {
-    const handleClickOutside = event => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsSelected(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const onSelected = event => {
     if (isDiscontinued || isDisabled) return;
@@ -366,8 +353,6 @@ export const MarStatus = ({
             </>
           );
         case ADMINISTRATION_STATUS.GIVEN: {
-          console.log('doses', doses);
-          
           const firstDose = doses?.[0];
           if (!firstDose) return null;
           return (
