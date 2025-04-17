@@ -15,7 +15,6 @@ import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
-import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
@@ -228,7 +227,7 @@ export const MarStatus = ({
     discontinuedDate,
   });
 
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getEnumTranslation } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -367,6 +366,8 @@ export const MarStatus = ({
             </>
           );
         case ADMINISTRATION_STATUS.GIVEN: {
+          console.log('doses', doses);
+          
           const firstDose = doses?.[0];
           if (!firstDose) return null;
           return (

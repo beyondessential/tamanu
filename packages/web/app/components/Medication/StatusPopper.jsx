@@ -244,7 +244,7 @@ const GivenScreen = ({
 
   const handleSubmit = async data => {
     const { timeGiven, doseAmount } = data;
-    if (doseAmount !== prescriptionDoseAmount && !showWarningModal) {
+    if (Number(doseAmount) !== Number(prescriptionDoseAmount) && !showWarningModal) {
       setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
       return;
     }
@@ -254,14 +254,14 @@ const GivenScreen = ({
       minutes: timeGiven.getMinutes(),
       seconds: timeGiven.getSeconds(),
     });
-    const dueAt = getDateFromTimeString(timeSlot.startTime, selectedDate);
+    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMar({
-      dueAt,
+      ...(marId ? { dueAt } : {}),
+      ...(marId ? { prescriptionId } : {}),
       dose: {
         doseAmount,
         givenTime,
       },
-      prescriptionId,
     });
   };
 
