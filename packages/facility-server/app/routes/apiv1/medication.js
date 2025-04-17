@@ -489,7 +489,7 @@ medication.put(
     }
     await record.save();
     await MedicationAdministrationRecordDose.create({
-      medicationAdministrationRecordId: record.id,
+      marId: record.id,
       doseAmount: dose.doseAmount,
       givenTime: dose.givenTime,
     });
@@ -537,7 +537,7 @@ medication.post(
 
     //create dose
     await MedicationAdministrationRecordDose.create({
-      medicationAdministrationRecordId: record.id,
+      marId: record.id,
       doseAmount: dose.doseAmount,
       givenTime: dose.givenTime,
     });

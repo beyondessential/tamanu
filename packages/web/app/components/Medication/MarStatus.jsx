@@ -6,7 +6,11 @@ import { addHours, format } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_STATUS,
+  DRUG_UNIT_SHORT_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+} from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -177,14 +181,7 @@ export const MarStatus = ({
   pauseRecords,
 }) => {
   const { dueAt, status, reasonNotGiven, doses } = marInfo || {};
-  const {
-    doseAmount,
-    isPrn,
-    units,
-    discontinuedDate,
-    endDate,
-    isVariableDose,
-  } = medication || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -327,7 +324,14 @@ export const MarStatus = ({
         }
         return (
           <DoseInfo>
-            {getDose({ doseAmount, units, isPrn }, getTranslation, getEnumTranslation)}
+            <div>
+              {isVariableDose ? (
+                <TranslatedText stringId="medication.table.variable" fallback="Variable" />
+              ) : (
+                doseAmount
+              )}
+            </div>
+            <div>{units ? getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units) : ''}</div>
           </DoseInfo>
         );
       }

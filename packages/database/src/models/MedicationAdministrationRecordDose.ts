@@ -9,7 +9,7 @@ export class MedicationAdministrationRecordDose extends Model {
   declare givenTime: Date;
   declare givenByUserId?: string;
   declare recordedByUserId?: string;
-  declare medicationAdministrationRecordId: string;
+  declare marId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -28,7 +28,7 @@ export class MedicationAdministrationRecordDose extends Model {
         recordedByUserId: {
           type: DataTypes.STRING,
         },
-        medicationAdministrationRecordId: {
+        marId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -42,7 +42,7 @@ export class MedicationAdministrationRecordDose extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.MedicationAdministrationRecord, {
-      foreignKey: 'medicationAdministrationRecordId',
+      foreignKey: 'marId',
       as: 'medicationAdministrationRecord',
     });
     
