@@ -138,3 +138,4 @@ export * from './SyncDeviceTick';
 
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
+export * from './MedicationAdministrationRecordDose';

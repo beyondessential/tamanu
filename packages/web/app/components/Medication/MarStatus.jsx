@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -6,12 +6,15 @@ import { addHours, format } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { ADMINISTRATION_STATUS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_STATUS,
+  DRUG_UNIT_SHORT_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+} from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
-import { getDose } from '../../utils/medications';
 import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
@@ -176,18 +179,11 @@ export const MarStatus = ({
   medication,
   pauseRecords,
 }) => {
-  const { dueAt, status, reasonNotGiven, id: marId } = marInfo || {};
-  const {
-    doseAmount,
-    isPrn,
-    units,
-    discontinuedDate,
-    endDate,
-    id: prescriptionId,
-    isVariableDose,
-  } = medication || {};
+  const { dueAt, status, reasonNotGiven, doses } = marInfo || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
@@ -195,6 +191,7 @@ export const MarStatus = ({
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate });
   const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
@@ -232,21 +229,7 @@ export const MarStatus = ({
     discontinuedDate,
   });
 
-  const { getTranslation, getEnumTranslation } = useTranslation();
-
-  useEffect(() => {
-    const handleClickOutside = event => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsSelected(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const { getEnumTranslation } = useTranslation();
 
   const onSelected = event => {
     if (isDiscontinued || isDisabled) return;
@@ -263,7 +246,7 @@ export const MarStatus = ({
       setShowWarningModal(MAR_WARNING_MODAL.PAST);
       return;
     }
-    if (isDisabled) {
+    if (isFuture) {
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
     }
@@ -328,7 +311,14 @@ export const MarStatus = ({
         }
         return (
           <DoseInfo>
-            {getDose({ doseAmount, units, isPrn }, getTranslation, getEnumTranslation)}
+            <div>
+              {isVariableDose ? (
+                <TranslatedText stringId="medication.table.variable" fallback="Variable" />
+              ) : (
+                doseAmount
+              )}
+            </div>
+            <div>{units ? getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units) : ''}</div>
           </DoseInfo>
         );
       }
@@ -363,6 +353,22 @@ export const MarStatus = ({
               <div>{reasonNotGiven?.name}</div>
             </>
           );
+        case ADMINISTRATION_STATUS.GIVEN: {
+          const firstDose = doses?.[0];
+          if (!firstDose) return null;
+          return (
+            <Box maxWidth={73}>
+              <TranslatedText
+                stringId="medication.mar.givenAt.tooltip"
+                fallback=":doses given at :time"
+                replacements={{
+                  doses: `${firstDose?.doseAmount} ${units}`,
+                  time: format(new Date(firstDose?.givenTime), 'hh:mma').toLowerCase(),
+                }}
+              />
+            </Box>
+          );
+        }
         default:
           if (isDisabled) {
             return (
@@ -421,6 +427,17 @@ export const MarStatus = ({
       <ConditionalTooltip
         visible={getTooltipText()}
         title={<Box fontWeight={400}>{getTooltipText()}</Box>}
+        PopperProps={{
+          popperOptions: {
+            positionFixed: true,
+            modifiers: {
+              preventOverflow: {
+                enabled: true,
+                boundariesElement: 'window',
+              },
+            },
+          },
+        }}
       >
         <StatusContainer
           ref={containerRef}
@@ -439,9 +456,10 @@ export const MarStatus = ({
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={handleClose}
-        marId={marId}
-        dueAt={dueAt ? dueAt : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)}
-        prescriptionId={prescriptionId}
+        timeSlot={timeSlot}
+        selectedDate={selectedDate}
+        marInfo={marInfo}
+        medication={medication}
       />
       <WarningModal
         modal={showWarningModal}
