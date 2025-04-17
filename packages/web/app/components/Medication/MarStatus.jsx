@@ -176,14 +176,13 @@ export const MarStatus = ({
   medication,
   pauseRecords,
 }) => {
-  const { dueAt, status, reasonNotGiven, doses, id: marId } = marInfo || {};
+  const { dueAt, status, reasonNotGiven, doses } = marInfo || {};
   const {
     doseAmount,
     isPrn,
     units,
     discontinuedDate,
     endDate,
-    id: prescriptionId,
     isVariableDose,
   } = medication || {};
 
@@ -459,8 +458,6 @@ export const MarStatus = ({
         selectedDate={selectedDate}
         marInfo={marInfo}
         medication={medication}
-        marId={marId}
-        dueAt={dueAt ? dueAt : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)}
       />
       <WarningModal
         modal={showWarningModal}

@@ -5,7 +5,7 @@ import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@ma
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { set } from 'date-fns';
+import { addHours, set } from 'date-fns';
 import * as yup from 'yup';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -254,9 +254,9 @@ const GivenScreen = ({
       minutes: timeGiven.getMinutes(),
       seconds: timeGiven.getSeconds(),
     });
-    const administeredAt = getDateFromTimeString(timeSlot.startTime, selectedDate);
+    const dueAt = getDateFromTimeString(timeSlot.startTime, selectedDate);
     await updateMar({
-      administeredAt,
+      dueAt,
       dose: {
         doseAmount,
         givenTime,
@@ -393,10 +393,10 @@ export const StatusPopper = ({
   selectedDate,
   marInfo,
   medication,
-  dueAt,
 }) => {
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId } = medication || {};
+  const dueAt = marInfo?.dueAt ? marInfo?.dueAt : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
