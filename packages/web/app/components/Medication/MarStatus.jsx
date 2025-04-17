@@ -13,7 +13,7 @@ import {
 } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
+import { TranslatedEnum, TranslatedText } from '../Translation';
 import { ConditionalTooltip } from '../Tooltip';
 import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
@@ -183,7 +183,7 @@ export const MarStatus = ({
   const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
 
   const [isSelected, setIsSelected] = useState(false);
-  
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
@@ -358,11 +358,12 @@ export const MarStatus = ({
           if (!firstDose) return null;
           return (
             <Box maxWidth={73}>
+              <span>{firstDose?.doseAmount}</span>{' '}
+              <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={units} />{' '}
               <TranslatedText
                 stringId="medication.mar.givenAt.tooltip"
-                fallback=":doses given at :time"
+                fallback="given at :time"
                 replacements={{
-                  doses: `${firstDose?.doseAmount} ${units}`,
                   time: format(new Date(firstDose?.givenTime), 'hh:mma').toLowerCase(),
                 }}
               />
