@@ -470,6 +470,15 @@ export const StatusPopper = ({
           offset: '0, 10',
         },
       }}
+      popperOptions={{
+        positionFixed: true,
+        modifiers: {
+          preventOverflow: {
+            enabled: true,
+            boundariesElement: 'window',
+          },
+        },
+      }}
       style={{ zIndex: 1300 }}
     >
       {({ TransitionProps }) => (

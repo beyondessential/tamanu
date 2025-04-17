@@ -441,6 +441,17 @@ export const MarStatus = ({
       <ConditionalTooltip
         visible={getTooltipText()}
         title={<Box fontWeight={400}>{getTooltipText()}</Box>}
+        PopperProps={{
+          popperOptions: {
+            positionFixed: true,
+            modifiers: {
+              preventOverflow: {
+                enabled: true,
+                boundariesElement: 'window',
+              },
+            },
+          },
+        }}
       >
         <StatusContainer
           ref={containerRef}
