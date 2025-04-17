@@ -1,0 +1,63 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: medication_administration_record_doses
+        description: '{{ doc("table__medication_administration_record_doses") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in
+              medication_administration_record_doses."
+            data_tests:
+              - unique
+              - not_null
+          - name: dose_amount
+            data_type: numeric
+            description: "{{ doc('medication_administration_record_doses__dose_amount') }}"
+            data_tests:
+              - not_null
+          - name: given_time
+            data_type: character(19)
+            description: "{{ doc('medication_administration_record_doses__given_time') }}"
+            data_tests:
+              - not_null
+          - name: given_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_record_doses__given_by_user_id')
+              }}"
+          - name: recorded_by_user_id
+            data_type: character varying(255)
+            description: "{{
+              doc('medication_administration_record_doses__recorded_by_user_id')
+              }}"
+          - name: mar_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_record_doses__mar_id') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in
+              medication_administration_record_doses."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in
+              medication_administration_record_doses."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in
+              medication_administration_record_doses."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              medication_administration_record_doses."
+            data_tests:
+              - not_null

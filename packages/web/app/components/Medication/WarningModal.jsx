@@ -73,6 +73,20 @@ export const WarningModal = ({ modal, onClose, onConfirm, isPast = false }) => {
         />
       );
       break;
+    case MAR_WARNING_MODAL.NOT_MATCHING_DOSE:
+      title = (
+        <TranslatedText
+          stringId="medication.mar.notMatchingDose.warning.title"
+          fallback="Dose amount does not match prescription" 
+        />
+      );
+      text = (
+        <TranslatedText
+          stringId="medication.mar.notMatchingDose.warning.text"
+          fallback="The dose amount recorded does not match the prescribed dose amount. Please confirm that you would like to continue recording the dose."
+        />
+      );
+      break;
   }
 
   return (
