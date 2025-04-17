@@ -17,8 +17,8 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
-    const administeredAt = new Date(record.administeredAt);
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(administeredAt).index;
+    const dueAt = new Date(record.dueAt);
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(dueAt).index;
     result[windowIndex] = record;
   });
 

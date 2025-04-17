@@ -201,6 +201,11 @@ encounterRelations.get(
           attributes: ['id'],
         },
         {
+          model: models.MedicationAdministrationRecord,
+          as: 'medicationAdministrationRecords',
+          include: 'reasonNotGiven'
+        },
+        {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
           include: {
@@ -226,7 +231,7 @@ encounterRelations.get(
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
         where: {
-          administeredAt: {
+          dueAt: {
             [Op.gte]: startOfMarDate,
             [Op.lte]: endOfMarDate,
           },
