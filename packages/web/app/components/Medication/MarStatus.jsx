@@ -366,8 +366,6 @@ export const MarStatus = ({
             </>
           );
         case ADMINISTRATION_STATUS.GIVEN: {
-          console.log('doses', doses);
-          
           const firstDose = doses?.[0];
           if (!firstDose) return null;
           return (
