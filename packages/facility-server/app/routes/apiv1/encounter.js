@@ -207,7 +207,7 @@ encounterRelations.get(
             'reasonNotGiven', 
             {
               association: 'doses',
-              order: [['createdAt', 'ASC']]  // Order doses by oldest first
+              order: [['givenTime', 'ASC']]
             }
           ],
         },
