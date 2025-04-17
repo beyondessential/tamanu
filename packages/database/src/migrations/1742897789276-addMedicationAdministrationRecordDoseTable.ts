@@ -24,7 +24,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    medication_administration_record_id: {
+    mar_id: {
       type: DataTypes.STRING,
       allowNull: false,
     },
