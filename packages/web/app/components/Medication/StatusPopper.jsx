@@ -256,8 +256,8 @@ const GivenScreen = ({
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMar({
-      ...(marId ? { dueAt } : {}),
-      ...(marId ? { prescriptionId } : {}),
+      dueAt,
+      prescriptionId,
       dose: {
         doseAmount,
         givenTime,
@@ -396,9 +396,6 @@ export const StatusPopper = ({
 }) => {
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId } = medication || {};
-  const dueAt = marInfo?.dueAt
-    ? marInfo?.dueAt
-    : addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
@@ -423,6 +420,7 @@ export const StatusPopper = ({
   };
 
   const handleReasonSelect = async reasonNotGivenId => {
+    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMar({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
