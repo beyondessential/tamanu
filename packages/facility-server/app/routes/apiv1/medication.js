@@ -484,6 +484,9 @@ medication.put(
 
     //Update MAR and add dose to the MAR
     record.status = ADMINISTRATION_STATUS.GIVEN;
+    if (!record.recordedAt) {
+      record.recordedAt = getCurrentDateTimeString();
+    }
     await record.save();
     await MedicationAdministrationRecordDose.create({
       marId: record.id,
@@ -503,7 +506,6 @@ const givenMarCreateSchema = z.object({
   dueAt: z.string().datetime(),
   prescriptionId: z.string(),
 });
-
 medication.post(
   '/medication-administration-record/given',
   asyncHandler(async (req, res) => {
@@ -530,6 +532,7 @@ medication.post(
       dueAt,
       prescriptionId,
       status: ADMINISTRATION_STATUS.GIVEN,
+      recordedAt: getCurrentDateTimeString(),
     });
 
     //create dose
@@ -542,10 +545,10 @@ medication.post(
     res.send(record.forResponse());
   }),
 );
+
 const notGivenInputUpdateSchema = z.object({
   reasonNotGivenId: z.string(),
 });
-
 medication.put(
   '/medication-administration-record/:id/not-given',
   asyncHandler(async (req, res) => {
@@ -575,6 +578,9 @@ medication.put(
     //Update MAR
     record.reasonNotGivenId = reasonNotGivenId;
     record.status = ADMINISTRATION_STATUS.NOT_GIVEN;
+    if (!record.recordedAt) {
+      record.recordedAt = getCurrentDateTimeString();
+    }
     await record.save();
 
     res.send(record.forResponse());
@@ -617,6 +623,7 @@ medication.post(
       dueAt,
       prescriptionId,
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
+      recordedAt: getCurrentDateTimeString(),
     });
 
     res.send(record.forResponse());
