@@ -44,6 +44,7 @@ export const VitalsTable = React.memo(() => {
         count={data.length}
         allowExport
         showFooterLegend={showFooterLegend}
+        isBodyScrollable
       />
     </>
   );

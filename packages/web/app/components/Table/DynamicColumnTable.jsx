@@ -6,7 +6,8 @@ import { Colors } from '../../constants';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: ${props => (props.isBodyScrollable ? 'scroll' : 'hidden')};
+  ${props => props.isBodyScrollable && `max-height: 62vh;`}
   table {
     position: relative;
     thead tr th:first-child,
@@ -31,6 +32,15 @@ const StyledTable = styled(Table)`
       position: sticky;
       left: 16px;
     }
+    ${props =>
+      props.isBodyScrollable &&
+      `
+      thead  {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+    `}
   }
 `;
 
@@ -38,7 +48,7 @@ const StyledTable = styled(Table)`
 export const DynamicColumnTable = React.memo(({ showFooterLegend, ...props }) => {
   return (
     <>
-      <StyledTable { ...props } />
+      <StyledTable {...props} />
       {showFooterLegend && (
         <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
           *Changed record
