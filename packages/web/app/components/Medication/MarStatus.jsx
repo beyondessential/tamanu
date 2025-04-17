@@ -191,6 +191,7 @@ export const MarStatus = ({
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate });
   const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
@@ -245,7 +246,7 @@ export const MarStatus = ({
       setShowWarningModal(MAR_WARNING_MODAL.PAST);
       return;
     }
-    if (isDisabled) {
+    if (isFuture) {
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
     }
