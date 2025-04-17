@@ -10,7 +10,8 @@ import type { Encounter } from './Encounter';
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
   declare status?: string;
-  declare administeredAt: string;
+  declare dueAt: string;
+  declare recordedAt?: string;
   declare prescriptionId?: string;
   declare reasonNotGivenId?: string;
 
@@ -19,8 +20,11 @@ export class MedicationAdministrationRecord extends Model {
       {
         id: primaryKey,
         status: DataTypes.STRING,
-        administeredAt: dateTimeType('administeredAt', {
+        dueAt: dateTimeType('dueAt', {
           allowNull: false,
+        }),
+        recordedAt: dateTimeType('recordedAt', {
+          allowNull: true,
         }),
       },
       {
@@ -39,7 +43,7 @@ export class MedicationAdministrationRecord extends Model {
       where: {
         prescriptionId: prescription.id,
       },
-      order: [['administeredAt', 'DESC']],
+      order: [['dueAt', 'DESC']],
     });
 
     if (
@@ -49,7 +53,7 @@ export class MedicationAdministrationRecord extends Model {
       if (!lastMedicationAdministrationRecord) {
         await this.create({
           prescriptionId: prescription.id,
-          administeredAt: prescription.startDate,
+          dueAt: prescription.startDate,
         });
       }
       return;
@@ -65,52 +69,66 @@ export class MedicationAdministrationRecord extends Model {
       endDate = new Date(prescription.endDate);
     }
 
-    let lastStartDate = new Date(
-      lastMedicationAdministrationRecord?.administeredAt || prescription.startDate,
-    );
+    let lastDueDate = new Date(lastMedicationAdministrationRecord?.dueAt || prescription.startDate);
 
-    while (lastStartDate < endDate) {
+    while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
-        const administrationDate = new Date(
-          lastStartDate.getFullYear(),
-          lastStartDate.getMonth(),
-          lastStartDate.getDate(),
+        const nextDueDate = new Date(
+          lastDueDate.getFullYear(),
+          lastDueDate.getMonth(),
+          lastDueDate.getDate(),
           hours,
           minutes,
           0,
         );
         // Skip if administration date is before start date or after end date
         if (
-          administrationDate < new Date(prescription.startDate) ||
-          administrationDate > endDate ||
-          administrationDate <= lastStartDate ||
-          (prescription.discontinuedDate &&
-            administrationDate >= new Date(prescription.discontinuedDate))
+          nextDueDate < new Date(prescription.startDate) ||
+          nextDueDate > endDate ||
+          nextDueDate <= lastDueDate ||
+          (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
         }
         // Skip if administration date is not valid (required to pass unit tests)
-        if (isValid(administrationDate)) {
+        if (isValid(nextDueDate)) {
           await this.create({
             prescriptionId: prescription.id,
-            administeredAt: administrationDate,
+            dueAt: nextDueDate,
           });
         }
       }
       // Get next administration date based on frequency
       switch (prescription.frequency) {
         case ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY:
-          lastStartDate = startOfDay(addDays(lastStartDate, 2));
+          lastDueDate = startOfDay(addDays(lastDueDate, 2));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
-          lastStartDate = startOfDay(addDays(lastStartDate, 7));
+          lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
-        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH:
-          lastStartDate = startOfDay(addDays(lastStartDate, 30));
+        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
+          // Get the day of the month from the last administration date
+          const dayOfMonth = lastDueDate.getDate();
+
+          // Create next month's date
+          const nextMonthDate = new Date(lastDueDate);
+          nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+
+          // If the day is 29th, 30th, or 31st, set to 1st of next month
+          if (dayOfMonth >= 29) {
+            nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+            nextMonthDate.setDate(1);
+          } else {
+            // Keep the same day of month
+            nextMonthDate.setDate(dayOfMonth);
+          }
+
+          lastDueDate = startOfDay(nextMonthDate);
           break;
+        }
         default:
-          lastStartDate = startOfDay(addDays(lastStartDate, 1));
+          lastDueDate = startOfDay(addDays(lastDueDate, 1));
           break;
       }
     }
@@ -130,7 +148,7 @@ export class MedicationAdministrationRecord extends Model {
 
     await models.MedicationAdministrationRecord.destroy({
       where: {
-        administeredAt: {
+        dueAt: {
           [Op.gt]: encounter.endDate,
         },
         prescriptionId: {
@@ -153,7 +171,7 @@ export class MedicationAdministrationRecord extends Model {
     await models.MedicationAdministrationRecord.destroy({
       where: {
         prescriptionId: prescription.id,
-        administeredAt: {
+        dueAt: {
           [Op.gt]: prescription.discontinuedDate,
         },
         status: null,

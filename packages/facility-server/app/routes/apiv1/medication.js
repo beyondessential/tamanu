@@ -477,7 +477,7 @@ medication.put(
     if (!record) {
       throw new InvalidOperationError(`MAR with id ${params.id} not found`);
     }
-    
+
     if (record.status === ADMINISTRATION_STATUS.GIVEN) {
       throw new InvalidOperationError(`MAR with id ${params.id} is already given`);
     }
@@ -492,7 +492,7 @@ medication.put(
     });
 
     res.send(record.forResponse());
-  })
+  }),
 );
 
 const givenMarCreateSchema = z.object({
@@ -500,7 +500,7 @@ const givenMarCreateSchema = z.object({
     doseAmount: z.number(),
     givenTime: z.string().datetime(),
   }),
-  administeredAt: z.string().datetime(),
+  dueAt: z.string().datetime(),
   prescriptionId: z.string(),
 });
 
@@ -508,11 +508,12 @@ medication.post(
   '/medication-administration-record/given',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, Prescription } = models;
-    
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, Prescription } =
+      models;
+
     req.checkPermission('create', 'MedicationAdministrationRecord');
-    const { dose, administeredAt, prescriptionId } = await givenMarCreateSchema.parseAsync(req.body);
-    
+    const { dose, dueAt, prescriptionId } = await givenMarCreateSchema.parseAsync(req.body);
+
     //validate prescription
     const prescription = await Prescription.findByPk(prescriptionId);
     if (!prescription) {
@@ -526,7 +527,7 @@ medication.post(
 
     //create MAR
     const record = await MedicationAdministrationRecord.create({
-      administeredAt,
+      dueAt,
       prescriptionId,
       status: ADMINISTRATION_STATUS.GIVEN,
     });
@@ -539,80 +540,88 @@ medication.post(
     });
 
     res.send(record.forResponse());
-  })
+  }),
 );
 const notGivenInputUpdateSchema = z.object({
   reasonNotGivenId: z.string(),
 });
 
-medication.put('/medication-administration-record/:id/not-given', asyncHandler(async (req, res) => {
-  req.checkPermission('write', 'MedicationAdministrationRecord');
-  const { models, params } = req;
-  const { MedicationAdministrationRecord } = models;
+medication.put(
+  '/medication-administration-record/:id/not-given',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecord');
+    const { models, params } = req;
+    const { MedicationAdministrationRecord } = models;
 
-  const { reasonNotGivenId } = await notGivenInputUpdateSchema.parseAsync(req.body);
+    const { reasonNotGivenId } = await notGivenInputUpdateSchema.parseAsync(req.body);
 
-  //validate not given reason
-  const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
-    where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
-  });
-  if (!reasonNotGiven) {
-    throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
-  }
+    //validate not given reason
+    const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
+      where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+    });
+    if (!reasonNotGiven) {
+      throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+    }
 
-  const record = await MedicationAdministrationRecord.findByPk(params.id);
-  if (!record) {
-    throw new InvalidOperationError(`MAR with id ${params.id} not found`);
-  }
-  
-  if (record.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-    throw new InvalidOperationError(`MAR with id ${params.id} is already not given`);
-  }
+    const record = await MedicationAdministrationRecord.findByPk(params.id);
+    if (!record) {
+      throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+    }
 
-  //Update MAR
-  record.reasonNotGivenId = reasonNotGivenId;
-  record.status = ADMINISTRATION_STATUS.NOT_GIVEN;
-  await record.save();
+    if (record.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
+      throw new InvalidOperationError(`MAR with id ${params.id} is already not given`);
+    }
 
-  res.send(record.forResponse());
-}));
+    //Update MAR
+    record.reasonNotGivenId = reasonNotGivenId;
+    record.status = ADMINISTRATION_STATUS.NOT_GIVEN;
+    await record.save();
+
+    res.send(record.forResponse());
+  }),
+);
 
 const notGivenInputCreateSchema = z.object({
   reasonNotGivenId: z.string(),
-  administeredAt: z.string().datetime(),
+  dueAt: z.string().datetime(),
   prescriptionId: z.string(),
 });
-medication.post('/medication-administration-record/not-given', asyncHandler(async (req, res) => {
-  req.checkPermission('create', 'MedicationAdministrationRecord');
-  const { models } = req;
-  const { MedicationAdministrationRecord, Prescription } = models;
+medication.post(
+  '/medication-administration-record/not-given',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'MedicationAdministrationRecord');
+    const { models } = req;
+    const { MedicationAdministrationRecord, Prescription } = models;
 
-  const { reasonNotGivenId, administeredAt, prescriptionId } = await notGivenInputCreateSchema.parseAsync(req.body);
+    const { reasonNotGivenId, dueAt, prescriptionId } = await notGivenInputCreateSchema.parseAsync(
+      req.body,
+    );
 
-  //validate prescription
-  const prescription = await Prescription.findByPk(prescriptionId);
-  if (!prescription) {
-    throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
-  }
+    //validate prescription
+    const prescription = await Prescription.findByPk(prescriptionId);
+    if (!prescription) {
+      throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
+    }
 
-  //validate not given reason
-  const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
-    where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
-  });
-  if (!reasonNotGiven) {
-    throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
-  }
-  
-  //create MAR
-  const record = await MedicationAdministrationRecord.create({
-    reasonNotGivenId,
-    administeredAt,
-    prescriptionId,
-    status: ADMINISTRATION_STATUS.NOT_GIVEN,
-  });
+    //validate not given reason
+    const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
+      where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+    });
+    if (!reasonNotGiven) {
+      throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+    }
 
-  res.send(record.forResponse());
-}));
+    //create MAR
+    const record = await MedicationAdministrationRecord.create({
+      reasonNotGivenId,
+      dueAt,
+      prescriptionId,
+      status: ADMINISTRATION_STATUS.NOT_GIVEN,
+    });
+
+    res.send(record.forResponse());
+  }),
+);
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
 globalMedicationRequests.get('/$', (req, res, next) =>

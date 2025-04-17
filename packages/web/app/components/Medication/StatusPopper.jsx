@@ -393,11 +393,10 @@ export const StatusPopper = ({
   selectedDate,
   marInfo,
   medication,
+  dueAt,
 }) => {
-  const { id: marId, administeredAt: marAdministeredAt } = marInfo || {};
+  const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId } = medication || {};
-  const administeredAt =
-    marAdministeredAt || getDateFromTimeString(timeSlot.startTime, selectedDate);
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
@@ -425,8 +424,8 @@ export const StatusPopper = ({
     await updateMar({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      ...(marId && { administeredAt }),
-      ...(marId && { prescriptionId }),
+      dueAt,
+      prescriptionId,
     });
 
     setShowReasonScreen(false);

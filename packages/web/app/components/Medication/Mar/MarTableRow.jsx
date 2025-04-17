@@ -17,8 +17,8 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 
   // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
-    const administeredAt = new Date(record.administeredAt);
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(administeredAt).index;
+    const dueAt = new Date(record.dueAt);
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(dueAt).index;
     result[windowIndex] = record;
   });
 
@@ -76,7 +76,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
-        <Box color={Colors.midText}>
+        <Box color={!isPausing ? Colors.midText : undefined}>
           <span>{notes}</span>
           {displayPharmacyNotesInMar && pharmacyNotes && (
             <span>
@@ -89,7 +89,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           )}
         </Box>
       </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index) => {
+      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index, array) => {
         return (
           <MarStatus
             key={record?.id || index}
@@ -97,8 +97,8 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             timeSlot={MEDICATION_ADMINISTRATION_TIME_SLOTS[index]}
             medication={medication}
             marInfo={record}
-            previousMarInfo={medicationAdministrationRecords[index - 1]}
-            nextMarInfo={medicationAdministrationRecords[index + 1]}
+            previousMarInfo={array[index - 1]}
+            nextMarInfo={array[index + 1]}
             pauseRecords={pauseRecords}
           />
         );
