@@ -126,7 +126,7 @@ export const SelectInput = ({
         boxShadow: 'none',
         borderRadius: '3px',
         paddingTop: '11px',
-        paddingBottom: '9px',
+        paddingBottom: '9.81px',
         paddingLeft: '5px',
         paddingRight: '13px',
         fontSize,

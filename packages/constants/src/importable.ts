@@ -54,6 +54,7 @@ export const REFERENCE_TYPES = {
   TASK_SET: 'taskSet',
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
+  REASON_NOT_GIVEN: 'reasonNotGiven',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);

@@ -1,0 +1,27 @@
+{% docs table__medication_administration_records %}
+Records of medication administrations to patients, tracking when medications prescribed in the system were given, not given, or otherwise administered.
+{% enddocs %}
+
+{% docs medication_administration_records__status %}
+Status of the medication administration.
+
+One of:
+- `GIVEN` - The medication was administered to the patient
+- `NOT_GIVEN` - The medication was not administered to the patient
+{% enddocs %}
+
+{% docs medication_administration_records__prescription_id %}
+Reference to the [prescription](#!/source/source.tamanu.tamanu.prescriptions) that this administration record is associated with. Links this administration event to the specific medication order it fulfills.
+{% enddocs %}
+
+{% docs medication_administration_records__due_at %}
+The scheduled date and time when the medication administration was planned to occur, based on the prescription's frequency and start date.
+{% enddocs %}
+
+{% docs medication_administration_records__recorded_at %}
+The timestamp indicating when the administration status (e.g., `GIVEN` or `NOT_GIVEN`) was actually recorded in the system. May be null if the status has not yet been recorded.
+{% enddocs %}
+
+{% docs medication_administration_records__reason_not_given_id %}
+Reference to the reason ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) why the medication was not administered to the patient. Only applicable when status is `NOT_GIVEN`.
+{% enddocs %}
