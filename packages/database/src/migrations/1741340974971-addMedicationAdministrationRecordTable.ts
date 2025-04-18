@@ -49,6 +49,10 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: false,
     },
+    reason_for_change: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

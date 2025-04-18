@@ -130,7 +130,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
             />,
             value => isWithinTimeSlot(timeSlot, value),
           ),
-        givenBy: yup
+        givenByUserId: yup
           .string()
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
         recordedByUserId: yup
