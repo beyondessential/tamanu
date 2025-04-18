@@ -55,7 +55,7 @@ export const PatientProgramRegistryView = () => {
   const {
     data: programRegistryConditions = [],
     isLoading: conditionsLoading,
-  } = useProgramRegistryConditionsQuery(data?.programRegistryId);
+  } = useProgramRegistryConditionsQuery(programRegistryId);
 
   const patientRoutes = usePatientRoutes();
 
