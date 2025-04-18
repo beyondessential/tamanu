@@ -18,6 +18,7 @@ import { ConditionalTooltip } from '../Tooltip';
 import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
+import { ChangeStatusModal } from './Mar/ChangeStatusModal';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
 
 const StatusContainer = styled.div`
@@ -187,6 +188,7 @@ export const MarStatus = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
+  const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
 
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate });
@@ -232,11 +234,13 @@ export const MarStatus = ({
   const { getEnumTranslation } = useTranslation();
 
   const onSelected = event => {
-    if (isDiscontinued || isDisabled) return;
+    if (isDiscontinued || isDisabled || isEnd) return;
+
     if ([ADMINISTRATION_STATUS.NOT_GIVEN, ADMINISTRATION_STATUS.GIVEN].includes(status)) {
-      setIsSelected(true);
+      handleOpenChangeStatusModal();
       return;
     }
+
     setSelectedElement(event.currentTarget);
     if (isPaused) {
       setShowWarningModal(MAR_WARNING_MODAL.PAUSED);
@@ -262,6 +266,21 @@ export const MarStatus = ({
   const handleClose = () => {
     setAnchorEl(null);
     setIsSelected(false);
+  };
+
+  const handleOpenChangeStatusModal = () => {
+    setIsSelected(true);
+    setShowChangeStatusModal(true);
+  };
+
+  const handleCloseChangeStatusModal = () => {
+    setShowChangeStatusModal(false);
+    setIsSelected(false);
+  };
+
+  const handleSaveChanges = updatedAdminRecord => {
+    console.log('Saving changes:', updatedAdminRecord);
+    handleCloseChangeStatusModal();
   };
 
   const handleConfirm = () => {
@@ -450,7 +469,7 @@ export const MarStatus = ({
         >
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
-          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled} />
+          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled || isEnd} />
         </StatusContainer>
       </ConditionalTooltip>
       <StatusPopper
@@ -469,6 +488,16 @@ export const MarStatus = ({
         onClose={() => setShowWarningModal('')}
         onConfirm={handleConfirm}
         isPast={isPast}
+      />
+      <ChangeStatusModal
+        open={showChangeStatusModal}
+        onClose={handleCloseChangeStatusModal}
+        onSave={handleSaveChanges}
+        medication={medication}
+        marInfo={marInfo}
+        timeSlot={timeSlot}
+        selectedDate={selectedDate}
+        isEdited={isEdited}
       />
     </>
   );

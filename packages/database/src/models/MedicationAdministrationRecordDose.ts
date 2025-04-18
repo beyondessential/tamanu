@@ -25,9 +25,6 @@ export class MedicationAdministrationRecordDose extends Model {
         givenByUserId: {
           type: DataTypes.STRING,
         },
-        recordedByUserId: {
-          type: DataTypes.STRING,
-        },
         marId: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -49,11 +46,6 @@ export class MedicationAdministrationRecordDose extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'givenByUserId',
       as: 'givenByUser',
-    });
-    
-    this.belongsTo(models.User, {
-      foreignKey: 'recordedByUserId',
-      as: 'recordedByUser',
     });
   }
 

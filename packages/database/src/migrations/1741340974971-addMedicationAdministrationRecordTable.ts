@@ -20,6 +20,14 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATETIMESTRING,
       allowNull: true,
     },
+    recorded_by_user_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
     prescription_id: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -35,6 +43,11 @@ export async function up(query: QueryInterface): Promise<void> {
         model: 'reference_data',
         key: 'id',
       },
+    },
+    is_auto_generated: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     created_at: {
       type: DataTypes.DATE,

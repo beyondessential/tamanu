@@ -19,14 +19,18 @@ export async function up(query: QueryInterface): Promise<void> {
     given_by_user_id: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-    recorded_by_user_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     mar_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: 'medication_administration_records',
+        key: 'id',
+      },
     },
     created_at: {
       type: DataTypes.DATE,

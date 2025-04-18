@@ -41,6 +41,7 @@ import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
 import { ASSET_NAME_LABELS } from './importable.js';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
 import {
+  ADMINISTRATION_STATUS_LABELS,  
   DRUG_ROUTE_LABELS,
   DRUG_UNIT_LABELS,
   DRUG_UNIT_SHORT_LABELS,
@@ -67,6 +68,7 @@ type EnumEntries = [EnumKeys, EnumValues][];
  * of new enum constants when maintaining translations
  */
 export const registeredEnums = {
+  ADMINISTRATION_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
@@ -121,6 +123,7 @@ export const registeredEnums = {
  * ['patient.property.sex.male', 'patient.property.female', 'patient.property.other']
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
+  ADMINISTRATION_STATUS_LABELS: 'medication.property.status',
   APPOINTMENT_STATUSES: 'appointment.property.status',
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
