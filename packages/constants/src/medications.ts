@@ -264,8 +264,11 @@ export const MEDICATION_PAUSE_DURATION_UNITS_LABELS = {
 export const ADMINISTRATION_STATUS = {
   GIVEN: 'given',
   NOT_GIVEN: 'not-given',
-  MISSED: 'missed',
-  DUE: 'due',
+};
+
+export const ADMINISTRATION_STATUS_LABELS = {
+  [ADMINISTRATION_STATUS.GIVEN]: 'Given',
+  [ADMINISTRATION_STATUS.NOT_GIVEN]: 'Not given',
 };
 
 export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
