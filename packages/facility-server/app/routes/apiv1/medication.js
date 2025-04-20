@@ -549,6 +549,21 @@ medication.post(
       throw new InvalidOperationError(`Dose amount must be greater than 0`);
     }
 
+    // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
+    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
+    if (
+      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+      !prescription.discontinued
+    ) {
+      Object.assign(prescription, {
+        discontinuedReason: 'STAT dose recorded',
+        discontinuedClinicianId: SYSTEM_USER_UUID,
+        discontinuedDate: getCurrentDateTimeString(),
+        discontinued: true,
+      });
+      await prescription.save();
+    }
+
     //create MAR
     const record = await MedicationAdministrationRecord.create({
       dueAt,
@@ -656,6 +671,21 @@ medication.post(
     });
     if (!reasonNotGiven) {
       throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+    }
+
+    // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
+    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
+    if (
+      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+      !prescription.discontinued
+    ) {
+      Object.assign(prescription, {
+        discontinuedReason: 'STAT dose recorded',
+        discontinuedClinicianId: SYSTEM_USER_UUID,
+        discontinuedDate: getCurrentDateTimeString(),
+        discontinued: true,
+      });
+      await prescription.save();
     }
 
     //create MAR
