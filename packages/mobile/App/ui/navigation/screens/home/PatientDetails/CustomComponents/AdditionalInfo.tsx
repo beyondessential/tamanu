@@ -15,6 +15,7 @@ import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { ReferenceDataType } from '~/types/IReferenceData';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -76,10 +77,11 @@ export const AdditionalInfo = ({
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = fields.map((field) => {
-        if (field === 'villageId' || field.name === 'villageId') {
+        if (Object.values(PATIENT_DATA_FIELDS).includes(field.name)) {
           return [
-            'villageId',
+            field.name,
             <TranslatedReferenceData
+              key={field.name}
               category={ReferenceDataType.Village}
               fallback={patient.village?.name}
               value={patient.villageId}

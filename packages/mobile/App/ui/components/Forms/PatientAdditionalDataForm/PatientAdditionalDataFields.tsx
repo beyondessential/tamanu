@@ -27,7 +27,7 @@ import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
-import { ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
+import { ADDRESS_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
@@ -107,7 +107,7 @@ const getCustomFieldComponent = (
 
 const AddressHierarchyField = ({ isEdit }): ReactElement => {
   if (isEdit) {
-    return <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />;
+    return <HierarchyFields fields={ADDRESS_HIERARCHY_FIELDS} />;
   }
 
   return (
@@ -123,7 +123,7 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
           fallback={'Current address'}
         />
       </StyledText>
-      <HierarchyFields fields={ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS} />
+      <HierarchyFields fields={ADDRESS_HIERARCHY_FIELDS} />
     </StyledView>
   );
 };

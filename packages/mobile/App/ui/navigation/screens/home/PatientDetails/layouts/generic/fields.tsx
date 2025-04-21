@@ -4,7 +4,7 @@ import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { ReferenceDataType } from '~/types/IReferenceData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
-export const ADDITIONAL_DATA_LOCATION_HIERARCHY_FIELDS = [
+export const ADDRESS_HIERARCHY_FIELDS = [
   {
     name: ADDITIONAL_DATA_FIELDS.DIVISION_ID,
     referenceType: ReferenceDataType.Division,
