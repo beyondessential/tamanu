@@ -58,7 +58,7 @@ const StyledItemCell = styled(Box)`
 
 const ViewOnlyCell = styled(Box)`
   font-size: ${p => (p.$hasLargeFont ? '14px' : '11px')};
-  padding-left: ${p => (p.$hasLeftPadding ? '16px' : '0px')};
+  padding-left: ${p => (p.$hasLeftPadding ? '15px' : '0px')};
   display: flex;
   align-items: center;
   min-height: 39px;
