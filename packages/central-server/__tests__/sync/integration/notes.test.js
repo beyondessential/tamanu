@@ -122,6 +122,7 @@ describe('CentralSyncManager', () => {
   beforeEach(async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
     await models.Note.truncate({ cascade: true, force: true });
+    await models.SyncLookupTick.truncate({ force: true });
     await models.PatientFacility.truncate({ force: true });
   });
 
