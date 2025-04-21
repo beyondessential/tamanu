@@ -92,7 +92,7 @@ export const InvoiceItemHeader = () => {
           fallback="Ordered by"
         />
       </Box>
-      <Box width="11%" flexGrow={1} paddingLeft="10px">
+      <Box width="11%" paddingLeft="10px" sx={{ flexGrow: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </Box>
     </StyledItemHeader>
@@ -353,7 +353,7 @@ export const InvoiceItemRow = ({
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="11%" sx={{ flexGrow: 1 }} paddingLeft="10px">
+        <StyledItemCell width="11%" paddingLeft="10px" sx={{ flexGrow: 1 }}>
           <PriceCell $hasLargeFont={!editable}>
             {hidePriceInput ? (
               <>

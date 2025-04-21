@@ -149,6 +149,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     {
       key: '',
       sortable: false,
+      numeric: true, // Right aligns the cell content
       accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
