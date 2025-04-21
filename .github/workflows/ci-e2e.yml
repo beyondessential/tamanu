@@ -99,6 +99,9 @@ jobs:
       
       - name: Run Playwright tests
         run: npm run e2e-test
+
+      - name: Re print users
+        run: .github/scripts/e2e-test-setup.sh print-users
         
       - name: Upload test results
         if: failure()

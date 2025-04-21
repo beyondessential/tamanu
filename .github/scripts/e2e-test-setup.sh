@@ -89,6 +89,7 @@ e2e_test_setup_start_servers() {
 
 e2e_test_setup_print_users() {
     psql -d facility -c "SELECT * FROM users;"
+    psql -d facility -c "SELECT * from local_system_facts;"
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
