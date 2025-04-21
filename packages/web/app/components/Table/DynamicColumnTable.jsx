@@ -6,8 +6,7 @@ import { Colors } from '../../constants';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
-  overflow-y: ${props => (props.isBodyScrollable ? 'scroll' : 'hidden')};
-  ${props => props.isBodyScrollable && `max-height: 62vh;`}
+  overflow-y: hidden;
   table {
     position: relative;
     thead tr th:first-child,
