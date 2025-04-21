@@ -16,7 +16,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   const navigation = useNavigation();
   const { getSetting } = useSettings();
-  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+  const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');
 
   const onGoBack = useCallback(() => {
     navigation.goBack();

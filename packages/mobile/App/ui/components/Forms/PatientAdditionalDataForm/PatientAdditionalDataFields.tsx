@@ -184,7 +184,7 @@ export const PatientAdditionalDataFields = ({
 
   if (loading) return [];
 
-  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+  const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds, isUsingHierarchyLogic);

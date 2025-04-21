@@ -24,7 +24,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   // Check if patient information should be editable
   const { getSetting } = useSettings();
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
-  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+  const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');
 
   const fields = [
     [PATIENT_DATA_FIELDS.FIRST_NAME, patient.firstName],

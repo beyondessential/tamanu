@@ -38,7 +38,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
     [navigation, patient],
   );
 
-  const isUsingHierarchyLogic = getSetting<boolean>('features.useLocationHierarchy');
+  const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');
 
   return (
     <>
@@ -50,10 +50,10 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
         dataSections={
           isUsingHierarchyLogic
             ? GENERIC_ADDITIONAL_DATA_SECTIONS.filter(
-                (section) => section.sectionKey !== 'otherInformation',
+                ({ sectionKey }) => sectionKey !== 'otherInformation',
               )
             : GENERIC_ADDITIONAL_DATA_SECTIONS.filter(
-                (section) => section.sectionKey !== 'otherWithHierarchy',
+                ({ sectionKey }) => sectionKey !== 'otherWithHierarchy',
               )
         }
       />
