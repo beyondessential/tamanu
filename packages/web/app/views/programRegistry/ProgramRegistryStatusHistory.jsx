@@ -4,7 +4,7 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { useParams } from 'react-router-dom';
 import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
-import { ClinicalStatusCell } from './ClinicalStatusDisplay';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { Colors } from '../../constants';
 
@@ -65,7 +65,7 @@ export const ProgramRegistryStatusHistory = () => {
         key: 'clinicalStatusId',
         title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
         sortable: false,
-        CellComponent: ClinicalStatusCell,
+        accessor: ClinicalStatusDisplay,
       },
       {
         key: 'clinicianId',
