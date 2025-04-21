@@ -26,9 +26,13 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
     // choose any single entity from the leaf node level of the hierarchy
     // then get its ancestors - that will serve as an example that gives us
     // the types used at each level of this hierarchy
-    const entity = await models.ReferenceData.getNode({
-      type: leafNodeType,
-    });
+    // const entity = await models.ReferenceData.getNode({
+    //   type: leafNodeType,
+    // });
+
+    const entity = await models.ReferenceData.getAnyOfType(leafNodeType);
+
+    console.log('entity', entity);
     const ancestors = await entity?.getAncestors();
     return [...ancestors, entity];
   });
@@ -36,8 +40,10 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
   const configuredFieldTypes =
     error || loading || !hierarchy
       ? [leafNodeType] // If there is an error, or nothing is configured just display the bottom level field
-      : hierarchy.map(entity => entity.type);
-  return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
+      : hierarchy.map((entity) => entity.type);
+
+  console.log('error', error);
+  return fields.filter((f) => configuredFieldTypes.includes(f.referenceType));
 };
 
 interface HierarchyFieldsProps {
