@@ -21,7 +21,6 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
   );
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
 
-  // TODO: Shouldn't have to do
   if (fields.length === 0) return null;
 
   return (
