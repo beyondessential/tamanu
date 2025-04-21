@@ -1,7 +1,8 @@
 import { DataTypes, Op, type Transaction } from 'sequelize';
 import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { addDays, addHours, endOfDay, isValid, startOfDay } from 'date-fns';
+import { addDays, addHours, addMonths, endOfDay, getDate, isValid, setDate, startOfDay } from 'date-fns';
 import config from 'config';
+import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
@@ -46,6 +47,11 @@ export class MedicationAdministrationRecord extends Model {
       order: [['dueAt', 'DESC']],
     });
 
+    const firstAdministrationDate = getFirstAdministrationDate(
+      new Date(prescription.startDate),
+      prescription.idealTimes,
+    );
+
     if (
       prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
       prescription.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
@@ -53,7 +59,7 @@ export class MedicationAdministrationRecord extends Model {
       if (!lastMedicationAdministrationRecord) {
         await this.create({
           prescriptionId: prescription.id,
-          dueAt: prescription.startDate,
+          dueAt: firstAdministrationDate,
         });
       }
       return;
@@ -64,13 +70,17 @@ export class MedicationAdministrationRecord extends Model {
 
     let endDate = endOfDay(addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame));
 
-    // Override with prescription end date if it's earlier
     if (prescription.endDate && new Date(prescription.endDate) < endDate) {
       endDate = new Date(prescription.endDate);
     }
 
-    let lastDueDate = new Date(lastMedicationAdministrationRecord?.dueAt || prescription.startDate);
-
+    let lastDueDate;
+    if (lastMedicationAdministrationRecord) {
+      lastDueDate = new Date(lastMedicationAdministrationRecord.dueAt);
+    } else {
+      lastDueDate = firstAdministrationDate;
+    }
+    
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
@@ -86,7 +96,7 @@ export class MedicationAdministrationRecord extends Model {
         if (
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
-          nextDueDate <= lastDueDate ||
+          nextDueDate < lastDueDate ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
@@ -108,23 +118,9 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          // Get the day of the month from the last administration date
-          const dayOfMonth = lastDueDate.getDate();
-
-          // Create next month's date
-          const nextMonthDate = new Date(lastDueDate);
-          nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-
-          // If the day is 29th, 30th, or 31st, set to 1st of next month
-          if (dayOfMonth >= 29) {
-            nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-            nextMonthDate.setDate(1);
-          } else {
-            // Keep the same day of month
-            nextMonthDate.setDate(dayOfMonth);
-          }
-
-          lastDueDate = startOfDay(nextMonthDate);
+          let nextDueDate = new Date(lastDueDate);
+          nextDueDate = addMonths(nextDueDate, 1);
+          lastDueDate = startOfDay(nextDueDate);
           break;
         }
         default:

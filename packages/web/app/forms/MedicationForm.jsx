@@ -15,13 +15,14 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
 import {
   formatShort,
   getCurrentDateString,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { addDays, format, subSeconds } from 'date-fns';
+import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 
 import { foreignKey } from '../utils/validation';
@@ -254,13 +255,10 @@ const MedicationAdministrationForm = () => {
 
     const startDate = new Date(values.startDate);
 
-    const firstStartTime = selectedTimeSlots
-      .map(s => getDateFromTimeString(s.value, startDate).getTime())
-      .concat(
-        selectedTimeSlots.map(s => getDateFromTimeString(s.value, addDays(startDate, 1)).getTime()),
-      )
-      .filter(s => s > startDate.getTime())
-      .sort((a, b) => a - b)[0];
+    const firstStartTime = getFirstAdministrationDate(
+      startDate,
+      selectedTimeSlots.map(s => s.value),
+    ).getTime();
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 

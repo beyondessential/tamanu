@@ -1,5 +1,5 @@
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { format, set } from 'date-fns';
+import { addDays, format, set } from 'date-fns';
 
 export const findAdministrationTimeSlotFromIdealTime = (idealTime) => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex((slot) => {
@@ -28,4 +28,18 @@ export const getDateFromTimeString = (time, initialDate = new Date()) => {
   const hour = parseInt(parsedTime[0]);
   const minute = parseInt(parsedTime[1]) || 0;
   return set(initialDate, { hours: hour, minutes: minute, seconds: 0 });
+};
+
+export const getFirstAdministrationDate = (startDate, idealTimes) => {
+  const firstStartTime = idealTimes
+    .map((idealTime) => getDateFromTimeString(idealTime, startDate))
+    .concat(
+      idealTimes.map((idealTime) =>
+        getDateFromTimeString(idealTime, addDays(startDate, 1)),
+      ),
+    )
+    .filter((idealTime) => idealTime > startDate.getTime())
+    .sort((a, b) => a - b)[0];
+
+  return firstStartTime;
 };
