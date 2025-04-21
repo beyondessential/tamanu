@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 
 export const insertChangelogRecords = async (sequelize, changelogRecords) => {
+  if (!changelogRecords.length) {
+    return;
+  }
   const queryInterface = sequelize.getQueryInterface();
 
   // filter out records that already exist based on record type and id
