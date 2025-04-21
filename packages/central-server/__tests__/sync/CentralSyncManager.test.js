@@ -1647,6 +1647,7 @@ describe('CentralSyncManager', () => {
     beforeEach(async () => {
       jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
+      await models.SyncLookupTick.truncate({ force: true });
       await models.DebugLog.truncate({ force: true });
       await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     });
