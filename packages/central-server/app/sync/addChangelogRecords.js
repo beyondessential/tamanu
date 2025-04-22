@@ -51,9 +51,6 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
     },
   );
 
-  console.log('changelogRecords', changelogRecords);
-  // TODO: should we use lodash or a map here?
-  // add the changelog records to each snapshot record
   snapshotRecords.forEach((r) => {
     r.changelogRecords = changelogRecords.filter(
       (c) => c.recordType === r.recordType && c.id === r.id,
