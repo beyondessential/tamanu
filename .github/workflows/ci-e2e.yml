@@ -94,6 +94,9 @@ jobs:
       - name: Print users
         run: .github/scripts/e2e-test-setup.sh print-users
 
+      - name: wait 120 seconds
+        run: sleep 120
+
       - name: Upload out files
         uses: actions/upload-artifact@v4
         with:
@@ -105,6 +108,12 @@ jobs:
         with:
           name: facility-server.out
           path: facility-server.out
+          retention-days: 30
+      - name: Upload out files
+        uses: actions/upload-artifact@v4
+        with:
+          name: facility-server-sync.out
+          path: facility-server-sync.out
           retention-days: 30
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
