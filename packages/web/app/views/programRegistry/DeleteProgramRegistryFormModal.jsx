@@ -1,61 +1,54 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  ConfirmCancelRow,
-  Modal,
-  FormSeparatorLine,
-  TranslatedText,
-  getReferenceDataStringId,
-} from '../../components';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { Typography } from '@material-ui/core';
+import { Modal, ModalCancelRow, TranslatedText, getReferenceDataStringId } from '../../components';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import { useTranslation } from '../../contexts/Translation';
 
-const Text = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  padding: 20px 50px;
-  .header {
+const Body = styled.div`
+  padding: 40px 20px 50px;
+
+  h3 {
     color: ${Colors.alert};
-    font-size: large;
-    margin-bottom: 0px;
+    font-size: 18px;
     font-weight: 500;
+    margin-bottom: 16px;
   }
-  .desc {
-    text-align: start;
+
+  p {
+    line-height: 1.5;
   }
 `;
 
-export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
+const useDeletePatientProgramRegistration = (id, onSuccess) => {
   const api = useApi();
   const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return api.delete(`patient/programRegistration/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+      onSuccess();
+    },
+  });
+};
+
+export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const { getTranslation } = useTranslation();
+  const {
+    mutate: deleteProgramRegistry,
+  } = useDeletePatientProgramRegistration(patientProgramRegistration?.id, () =>
+    onClose({ success: true }),
+  );
 
-  if (!patientProgramRegistration) return <></>;
-
-  const deleteProgramRegistry = async () => {
-    const { ...rest } = patientProgramRegistration;
-    delete rest.id;
-    delete rest.date;
-
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      {
-        ...rest,
-        registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-        date: getCurrentDateTimeString(),
-      },
-    );
-
-    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
-    onClose({ success: true });
-  };
+  if (!patientProgramRegistration) {
+    return null;
+  }
 
   const { programRegistry, programRegistryId } = patientProgramRegistration;
 
@@ -70,16 +63,15 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       width="sm"
       open={open}
       onClose={onClose}
-      overrideContentPadding
     >
-      <Text>
-        <p className="header">
+      <Body>
+        <Typography variant="h3">
           <TranslatedText
             stringId="programRegistry.modal.deleteRegistry.header"
             fallback="Confirm patient registry deletion"
           />
-        </p>
-        <p className="desc">
+        </Typography>
+        <Typography variant="body2">
           <TranslatedText
             stringId="programRegistry.modal.deleteRegistry.description"
             fallback="Are you sure you would like to delete the patient from the :programRegistry? This will delete associated patient registry records. This action is irreversible."
@@ -90,14 +82,9 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
               ),
             }}
           />
-        </p>
-      </Text>
-      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-      <ConfirmCancelRow
-        style={{ padding: '0px 50px' }}
-        onConfirm={deleteProgramRegistry}
-        onCancel={onClose}
-      />
+        </Typography>
+      </Body>
+      <ModalCancelRow onConfirm={deleteProgramRegistry} onCancel={onClose} />
     </Modal>
   );
 };

@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { validatePatientProgramRegistrationRequest } from './utils';
 
 export const patientProgramRegistration = express.Router();
@@ -143,6 +143,40 @@ patientProgramRegistration.put(
     };
 
     res.send(responseObject);
+  }),
+);
+
+patientProgramRegistration.delete(
+  '/programRegistration/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, params } = req;
+    const { id } = params;
+    const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
+
+    req.checkPermission('delete', 'PatientProgramRegistration');
+
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+
+    if (!existingRegistration) {
+      throw new NotFoundError('PatientProgramRegistration not found');
+    }
+
+    await db.transaction(async (transaction) => {
+      // Update the status to recordedInError and soft delete the registration
+      await existingRegistration.update(
+        { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
+        { transaction },
+      );
+      await existingRegistration.destroy({ transaction });
+
+      // Soft delete all related conditions
+      await PatientProgramRegistrationCondition.destroy({
+        where: { patientProgramRegistrationId: id },
+        transaction,
+      });
+    });
+
+    res.status(200).send({ message: 'Registration successfully deleted' });
   }),
 );
 

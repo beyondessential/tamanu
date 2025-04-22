@@ -622,6 +622,90 @@ describe('PatientProgramRegistration', () => {
       });
     });
 
+    describe.only('DELETE /programRegistration/:id', () => {
+      it('should mark patient program registration as deleted and update status to recordedInError', async () => {
+        // Create test data
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+
+        // Create a program registration
+        const registration = await models.PatientProgramRegistration.create({
+          patientId: patient.id,
+          programRegistryId: programRegistry.id,
+          date: new Date(),
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          clinicianId: (await models.User.findOne()).id,
+        });
+
+        // Create some conditions for this registration
+        const condition1 = await models.PatientProgramRegistrationCondition.create({
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: (
+            await models.ProgramRegistryCondition.create({
+              programRegistryId: programRegistry.id,
+              name: 'Test Condition 1',
+              code: 'test-condition-1',
+            })
+          ).id,
+          date: new Date(),
+        });
+
+        const condition2 = await models.PatientProgramRegistrationCondition.create({
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: (
+            await models.ProgramRegistryCondition.create({
+              programRegistryId: programRegistry.id,
+              name: 'Test Condition 2',
+              code: 'test-condition-2',
+            })
+          ).id,
+          date: new Date(),
+        });
+
+        // Delete the registration
+        const result = await app.delete(`patient/programRegistration/${registration.id}`);
+
+        expect(result).toHaveStatus(200);
+        expect(result.body).toHaveProperty('message', 'Registration successfully deleted');
+
+        // Verify the registration is soft deleted and marked as recordedInError
+        const updatedRegistration = await models.PatientProgramRegistration.findByPk(
+          registration.id,
+          {
+            paranoid: false, // Include soft deleted records
+          },
+        );
+
+        expect(updatedRegistration).toBeTruthy();
+        expect(updatedRegistration.registrationStatus).toBe(
+          REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        );
+        expect(updatedRegistration.deletedAt).toBeTruthy();
+
+        // Verify related conditions are also soft deleted
+        const updatedCondition1 = await models.PatientProgramRegistrationCondition.findByPk(
+          condition1.id,
+          {
+            paranoid: false,
+          },
+        );
+        const updatedCondition2 = await models.PatientProgramRegistrationCondition.findByPk(
+          condition2.id,
+          {
+            paranoid: false,
+          },
+        );
+
+        expect(updatedCondition1.deletedAt).toBeTruthy();
+        expect(updatedCondition2.deletedAt).toBeTruthy();
+      });
+
+      it('should return 404 if registration does not exist', async () => {
+        const result = await app.delete(`patient/programRegistration/non-existent-id`);
+        expect(result).toHaveStatus(404);
+      });
+    });
+
     describe('GET patient/programRegistration/:programRegistrationId/condition', () => {
       it.todo('should retrieve current patient program registration conditions');
     });
