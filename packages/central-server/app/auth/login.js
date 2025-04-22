@@ -15,7 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
-import log from '@tamanu/shared/log';
+import { log } from '@tamanu/shared/services/logging';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
