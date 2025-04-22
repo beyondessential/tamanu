@@ -21,19 +21,10 @@ export class Suggester {
     this.baseQueryParameters = baseQueryParameters;
     this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
-    this.lastUpdatedAt = -Infinity;
-    this.cachedData = null;
   }
 
   async fetch(suffix, queryParameters) {
-    const requestedAt = Date.now();
-    const data = await this.api.get(`${this.endpoint}${suffix}`, queryParameters);
-    if (this.lastUpdatedAt < requestedAt) {
-      this.cachedData = data;
-      this.lastUpdatedAt = requestedAt;
-    }
-
-    return this.cachedData;
+    return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
   }
 
   fetchCurrentOption = async value => {
