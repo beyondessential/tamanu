@@ -173,9 +173,9 @@ export const prefixMap = new Map(
 export const enumTranslations = (Object.entries(registeredEnums) as EnumEntries).flatMap(
   ([key, value]) =>
     Object.entries(value).map(([enumKey, enumValue]) => [
-      `${translationPrefixes[key]}.${enumKey
-        .toLowerCase()
-        .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
+      `${translationPrefixes[key]}.${enumKey.replace(/[^a-zA-Z0-9]+(.)/g, (_, char) =>
+        char.toUpperCase(),
+      )}`,
       enumValue,
     ]),
 );
