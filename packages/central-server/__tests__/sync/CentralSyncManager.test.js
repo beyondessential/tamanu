@@ -153,6 +153,7 @@ describe('CentralSyncManager', () => {
 
   beforeEach(async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.SyncLookupTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
     await models.Program.truncate({ cascade: true, force: true });
     await models.Survey.truncate({ cascade: true, force: true });
@@ -1711,7 +1712,6 @@ describe('CentralSyncManager', () => {
     beforeEach(async () => {
       jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
-      await models.SyncLookupTick.truncate({ force: true });
       await models.DebugLog.truncate({ force: true });
       await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     });
