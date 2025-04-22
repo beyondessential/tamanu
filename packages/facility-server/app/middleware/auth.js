@@ -88,10 +88,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
   const user = await models.User.getForAuthByEmail(email);
+  log.info('User found: ', Boolean(user));
 
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
+    log.warn('Bad password match');
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
@@ -112,15 +114,16 @@ async function localLogin(models, email, password) {
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test') {
-    return localLogin(models, email, password);
-  }
+  // if (process.env.NODE_ENV === 'test') {
+  //   return localLogin(models, email, password);
+  // }
 
   try {
     return await centralServerLogin(models, email, password, deviceId);
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
+      log.warn('Bad authentication error: ', e);
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
@@ -143,12 +146,8 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      allowedFacilities,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+    const { central, user, localisation, allowedFacilities } =
+      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -278,7 +277,7 @@ export const authMiddleware = async (req, res, next) => {
       () => next(),
     );
   } catch (e) {
-    console.log('e', e)
+    console.log('e', e);
     next(e);
   }
 };

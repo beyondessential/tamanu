@@ -15,6 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
+import log from '@tamanu/shared/log';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -78,11 +79,13 @@ export const login = ({ secret, refreshSecret }) =>
     };
 
     if (!email || !password) {
+      log.warn('Missing credentials');
       throw new BadAuthenticationError('Missing credentials');
     }
 
     const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
+      log.warm('Missing deviceId');
       throw new BadAuthenticationError('Missing deviceId');
     }
 
@@ -91,46 +94,42 @@ export const login = ({ secret, refreshSecret }) =>
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
+      log.warn('No such user');
       throw new BadAuthenticationError('No such user');
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
+      log.warn('Bad password');
       throw new BadAuthenticationError('Invalid credentials');
     }
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [
-      token,
-      refreshToken,
-      allowedFacilities,
-      localisation,
-      permissions,
-      role,
-    ] = await Promise.all([
-      buildToken(
-        {
-          userId: user.id,
-          deviceId,
-        },
-        secret,
-        {
-          expiresIn: tokenDuration,
-          audience: JWT_TOKEN_TYPES.ACCESS,
-          issuer: canonicalHostName,
-          jwtid: `${accessTokenJwtId}`,
-        },
-      ),
-      internalClient
-        ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
-        : undefined,
-      user.allowedFacilities(),
-      getLocalisation(),
-      getPermissionsForRoles(models, user.role),
-      models.Role.findByPk(user.role),
-    ]);
+    const [token, refreshToken, allowedFacilities, localisation, permissions, role] =
+      await Promise.all([
+        buildToken(
+          {
+            userId: user.id,
+            deviceId,
+          },
+          secret,
+          {
+            expiresIn: tokenDuration,
+            audience: JWT_TOKEN_TYPES.ACCESS,
+            issuer: canonicalHostName,
+            jwtid: `${accessTokenJwtId}`,
+          },
+        ),
+        internalClient
+          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
+          : undefined,
+        user.allowedFacilities(),
+        getLocalisation(),
+        getPermissionsForRoles(models, user.role),
+        models.Role.findByPk(user.role),
+      ]);
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({

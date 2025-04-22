@@ -101,6 +101,7 @@ jobs:
 
       - name: Re print users
         run: .github/scripts/e2e-test-setup.sh print-users
+        if: always()
 
       - name: Upload test results
         if: failure()

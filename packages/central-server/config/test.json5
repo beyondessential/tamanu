@@ -1,133 +1,129 @@
 // For running unit tests, defined values in 'local.json5' have priority and will overwrite config here.
 {
-  "db": {
-    "name": "tamanu-central-test",
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "reporting": {
-          "pool": {
-            "max": 5
+  db: {
+    name: 'tamanu-central-test',
+    reportSchemas: {
+      enabled: false,
+      connections: {
+        reporting: {
+          pool: {
+            max: 5,
           },
-          "username": "tamanu_reporting",
-          "password": "test"
+          username: 'tamanu_reporting',
+          password: 'test',
         },
-        "raw": {
-          "pool": {
-            "max": 5
+        raw: {
+          pool: {
+            max: 5,
           },
-          "username": "tamanu_raw",
-          "password": "test"
-        }
-      }
-    }
-  },
-  "mailgun": {
-    "from": "Tamanu test"
-  },
-  "auth": {
-    "secret": "secret",
-    "refreshToken": {
-      "secret": "refreshSecret"
-    },
-    "reportNoUserError": true,
-    "useHardcodedPermissions": false
-  },
-  "log": {
-    "consoleLevel": "warn"
-  },
-  "cors": {
-    "allowedOrigin": "https://fake-place-xxx-yyy.com"
-  },
-  "sync": {
-    "lookupTable": {
-      "enabled": false,
-      "perModelUpdateTimeoutMs": null
-    }
-  },
-  "localisation": {
-    "data": {
-      "timeZone": "UTC",
-      "country": {
-        "name": "Utopia",
-        "alpha-2": "UT",
-        "alpha-3": "UTO"
+          username: 'tamanu_raw',
+          password: 'test',
+        },
       },
-      "imagingTypes": {
-        "orthopantomography": { "label": "Orthopantomography" },
-        "xRay": { "label": "X-Ray" },
-        "ctScan": { "label": "CT Scan" },
-        "ultrasound": { "label": "Ultrasound" },
-        "mri": { "label": "MRI" },
-        "ecg": { "label": "Electrocardiogram (ECG)" },
-        "holterMonitor": { "label": "Holter Monitor" },
-        "echocardiogram": { "label": "Echocardiogram" },
-        "mammogram": { "label": "Mammogram" },
-        "mammogramScreen": { "label": "Mammogram Screening" },
-        "mammogramDiag": { "label": "Mammogram Diagnostic" },
-        "endoscopy": { "label": "Endoscopy" },
-        "fluroscopy": { "label": "Fluroscopy" },
-        "angiogram": { "label": "Angiogram" },
-        "colonoscopy": { "label": "Colonoscopy" },
-        "vascularStudy": { "label": "Vascular Study" },
-        "stressTest": { "label": "Treadmill" }
-      }
-    }
+    },
   },
-  "integrations": {
-    "fijiVrs": {
-      "enabled": true,
-      "host": "http://localhost:8080",
-      "expectAccessToken": [
-        "test-access-token"
-      ]
-    },
-    "fijiVps": {
-      "enabled": true
-    },
-    "vdsNc": {
-      "enabled": true
-    },
-    "signer": {
-      "enabled": true,
-      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
-    },
-    "fijiAspenMediciReport": {
-      "enabled": true
-    },
-    "mSupply": {
-      "enabled": true
-    },
-    "fhir": {
-      "enabled": true,
-      "worker": {
-        "resourceMaterialisationEnabled": {
-          "Patient": true,
-          "ServiceRequest": true,
-          "DiagnosticReport": true,
-          "Encounter": true,
-          "Immunization": true,
-          "Practitioner": true,
-          "MediciReport": false,
-          "Specimen": true,
-          "Organization": true
-        }
-      }
-    },
-    "omniLab": {
-      "enabled": true,
-      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
-    }
+  mailgun: {
+    from: 'Tamanu test',
   },
-  "notifications": {
-    "certificates": {
-      "labTestCategoryIds": [
-        "labTestCategory-COVID"
-      ]
-    }
+  auth: {
+    secret: 'secret',
+    refreshToken: {
+      secret: 'refreshSecret',
+    },
+    reportNoUserError: true,
+    useHardcodedPermissions: false,
   },
-  "validateQuestionConfigs": {
-    "enabled": true
+  log: {
+    consoleLevel: 'info',
   },
-  "countryTimeZone": "Pacific/Auckland"
+  cors: {
+    allowedOrigin: 'https://fake-place-xxx-yyy.com',
+  },
+  sync: {
+    lookupTable: {
+      enabled: false,
+      perModelUpdateTimeoutMs: null,
+    },
+  },
+  localisation: {
+    data: {
+      timeZone: 'UTC',
+      country: {
+        name: 'Utopia',
+        'alpha-2': 'UT',
+        'alpha-3': 'UTO',
+      },
+      imagingTypes: {
+        orthopantomography: { label: 'Orthopantomography' },
+        xRay: { label: 'X-Ray' },
+        ctScan: { label: 'CT Scan' },
+        ultrasound: { label: 'Ultrasound' },
+        mri: { label: 'MRI' },
+        ecg: { label: 'Electrocardiogram (ECG)' },
+        holterMonitor: { label: 'Holter Monitor' },
+        echocardiogram: { label: 'Echocardiogram' },
+        mammogram: { label: 'Mammogram' },
+        mammogramScreen: { label: 'Mammogram Screening' },
+        mammogramDiag: { label: 'Mammogram Diagnostic' },
+        endoscopy: { label: 'Endoscopy' },
+        fluroscopy: { label: 'Fluroscopy' },
+        angiogram: { label: 'Angiogram' },
+        colonoscopy: { label: 'Colonoscopy' },
+        vascularStudy: { label: 'Vascular Study' },
+        stressTest: { label: 'Treadmill' },
+      },
+    },
+  },
+  integrations: {
+    fijiVrs: {
+      enabled: true,
+      host: 'http://localhost:8080',
+      expectAccessToken: ['test-access-token'],
+    },
+    fijiVps: {
+      enabled: true,
+    },
+    vdsNc: {
+      enabled: true,
+    },
+    signer: {
+      enabled: true,
+      keySecret: '2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck=',
+    },
+    fijiAspenMediciReport: {
+      enabled: true,
+    },
+    mSupply: {
+      enabled: true,
+    },
+    fhir: {
+      enabled: true,
+      worker: {
+        resourceMaterialisationEnabled: {
+          Patient: true,
+          ServiceRequest: true,
+          DiagnosticReport: true,
+          Encounter: true,
+          Immunization: true,
+          Practitioner: true,
+          MediciReport: false,
+          Specimen: true,
+          Organization: true,
+        },
+      },
+    },
+    omniLab: {
+      enabled: true,
+      secret: 'YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE=',
+    },
+  },
+  notifications: {
+    certificates: {
+      labTestCategoryIds: ['labTestCategory-COVID'],
+    },
+  },
+  validateQuestionConfigs: {
+    enabled: true,
+  },
+  countryTimeZone: 'Pacific/Auckland',
 }
