@@ -575,7 +575,7 @@ describe('CentralSyncManager', () => {
         const patientProgramRegistrationChange = outgoingChanges.find((c) => c.recordType === 'patient_program_registrations');
         expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
         expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.table_name === 'patient_program_registrations')).toBeTruthy()
-        expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.record_id === patientProgramRegistration.recordId)).toBeTruthy()
+        expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.record_id === patientProgramRegistrationChange.recordId)).toBeTruthy()
       });
 
       it('returns all encounters for newly marked-for-sync patients across multiple facilities', async () => {
