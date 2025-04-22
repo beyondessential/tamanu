@@ -232,13 +232,13 @@ export const globalSettings = {
           },
         },
         disableInputPasting: {
-          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
           type: yup.boolean(),
           defaultValue: false,
         },
         discharge: {
-          description:
-            'Encounter discharge configuration',
+          description: 'Encounter discharge configuration',
           properties: {
             dischargeNoteMandatory: {
               type: yup.boolean(),
@@ -251,6 +251,11 @@ export const globalSettings = {
               defaultValue: false,
             },
           },
+        },
+        patientDetailsLocationHierarchy: {
+          description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
@@ -1297,8 +1302,8 @@ export const globalSettings = {
           description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
           defaultValue: 48,
-        }
-      }
+        },
+      },
     },
   },
 };
