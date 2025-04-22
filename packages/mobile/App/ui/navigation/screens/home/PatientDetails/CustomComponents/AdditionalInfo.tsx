@@ -17,7 +17,7 @@ import { TranslatedReferenceData } from '~/ui/components/Translations/Translated
 import { ReferenceDataType } from '~/types/IReferenceData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { ADDRESS_HIERARCHY_VILLAGE_ID } from '../fields';
-import { ADDITIONAL_DATA_FIELDS, AdditionalDataSection } from '~/ui/helpers/additionalData';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -29,7 +29,7 @@ interface AdditionalInfoProps {
     sectionKey: string,
   ) => void;
   patient: Patient;
-  dataSections: AdditionalDataSection[];
+  dataSections;
 }
 
 function getPadFieldData(data: PatientAdditionalData, fieldName: string): string {
@@ -79,7 +79,7 @@ export const AdditionalInfo = ({
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = [];
-      fields.map((field: string) => {
+      fields.map((field) => {
         if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
           fieldsWithData.push(
             [

@@ -56,11 +56,16 @@ export const HierarchyFields = ({
   const { values } = useFormikContext();
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
+  console.log('hierarchyFields', hierarchyFields);
+  console.log('values', values);
+
   return (
     <HierarchyFieldContainer>
       {hierarchyFields.map(({ label, name, referenceType }, index) => {
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
+
+        console.log('parentId', parentId);
 
         return (
           <HierarchyFieldItem

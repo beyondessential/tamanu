@@ -1,16 +1,10 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 export const ADDRESS_HIERARCHY_VILLAGE_ID = 'addressHierarchyVillageId';
 
-export interface AdditionalDataSection {
-  sectionKey: string;
-  title: ReactNode;
-  fields: string[];
-}
-
-export const ADDITIONAL_DATA_SECTIONS: Section[] = [
+export const ADDITIONAL_DATA_SECTIONS = [
   {
     sectionKey: 'identificationInformation',
     title: (
