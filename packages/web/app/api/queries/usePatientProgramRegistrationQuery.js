@@ -9,6 +9,8 @@ export const usePatientProgramRegistrationQuery = (patientId, programRegistryId,
         programRegistryId,
       )}`,
       fetchOptions,
+      // Don't show error toast for this query because sometimes it is valid to not have a program registry for a patient
+      { showUnknownErrorToast: false },
     ),
   );
 };

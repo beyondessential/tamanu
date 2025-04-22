@@ -2,11 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Typography } from '@material-ui/core';
-import { Modal, ModalCancelRow, TranslatedText, getReferenceDataStringId } from '../../components';
-import { useApi } from '../../api';
-import { Colors } from '../../constants';
-import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
-import { useTranslation } from '../../contexts/Translation';
+import {
+  Modal,
+  ModalCancelRow,
+  TranslatedText,
+  getReferenceDataStringId,
+} from '../../components/index.js';
+import { useApi } from '../../api/index.js';
+import { Colors } from '../../constants/index.js';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const Body = styled.div`
   padding: 40px 20px 50px;
@@ -23,17 +28,21 @@ const Body = styled.div`
   }
 `;
 
-const useDeletePatientProgramRegistration = (id, onSuccess) => {
+const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, onSuccess) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { id, patientId } = patientProgramRegistration;
 
   return useMutation({
     mutationFn: async () => {
       return api.delete(`patient/programRegistration/${id}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+    onSuccess: async () => {
       onSuccess();
+      await queryClient.invalidateQueries(['patient', patientId]);
+      await queryClient.invalidateQueries([
+        `infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`,
+      ]);
     },
   });
 };
@@ -42,7 +51,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
   const { getTranslation } = useTranslation();
   const {
     mutate: deleteProgramRegistry,
-  } = useDeletePatientProgramRegistration(patientProgramRegistration?.id, () =>
+  } = useDeletePatientProgramRegistration(patientProgramRegistration, () =>
     onClose({ success: true }),
   );
 
