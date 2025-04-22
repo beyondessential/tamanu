@@ -1,6 +1,16 @@
 import { DataTypes, Op, type Transaction } from 'sequelize';
 import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { addDays, addHours, addMonths, endOfDay, getDate, isValid, setDate, startOfDay } from 'date-fns';
+import {
+  addDays,
+  addHours,
+  addMonths,
+  endOfDay,
+  getDate,
+  isLastDayOfMonth,
+  isValid,
+  setDate,
+  startOfDay,
+} from 'date-fns';
 import config from 'config';
 import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
@@ -80,7 +90,7 @@ export class MedicationAdministrationRecord extends Model {
     } else {
       lastDueDate = firstAdministrationDate;
     }
-    
+
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
@@ -101,12 +111,30 @@ export class MedicationAdministrationRecord extends Model {
         ) {
           continue;
         }
-        // Skip if administration date is not valid (required to pass unit tests)
-        if (isValid(nextDueDate)) {
-          await this.create({
-            prescriptionId: prescription.id,
-            dueAt: nextDueDate,
-          });
+
+        // Handle once a month frequency
+        if (prescription.frequency === ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH) {
+          const originalDay = getDate(firstAdministrationDate);
+          if (originalDay === getDate(lastDueDate)) {
+            await this.create({
+              prescriptionId: prescription.id,
+              dueAt: nextDueDate,
+            });
+          // Handle once a month frequency when the administration date is the last day of the month
+          } else if (isLastDayOfMonth(nextDueDate) && getDate(nextDueDate) < originalDay) {
+            await this.create({
+              prescriptionId: prescription.id,
+              dueAt: setDate(addMonths(nextDueDate, 1), 1),
+            });
+          }
+        } else {
+          // Skip if administration date is not valid (required to pass unit tests)
+          if (isValid(nextDueDate)) {
+            await this.create({
+              prescriptionId: prescription.id,
+              dueAt: nextDueDate,
+            });
+          }
         }
       }
       // Get next administration date based on frequency
@@ -117,12 +145,6 @@ export class MedicationAdministrationRecord extends Model {
         case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
-        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          let nextDueDate = new Date(lastDueDate);
-          nextDueDate = addMonths(nextDueDate, 1);
-          lastDueDate = startOfDay(nextDueDate);
-          break;
-        }
         default:
           lastDueDate = startOfDay(addDays(lastDueDate, 1));
           break;
