@@ -44,7 +44,7 @@ export const PatientAdditionalDataForm = ({
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
-    async values => {
+    async (values) => {
       const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
         relations: ['category'],
         order: {
@@ -59,11 +59,11 @@ export const PatientAdditionalDataForm = ({
       await PatientAdditionalData.updateForPatient(patient.id, values);
 
       // Update any custom field definitions contained in this form
-      const customValuesToUpdate = Object.keys(values).filter(key =>
+      const customValuesToUpdate = Object.keys(values).filter((key) =>
         customPatientFieldDefinitions.map(({ id }) => id).includes(key),
       );
       await Promise.all(
-        customValuesToUpdate.map(definitionId =>
+        customValuesToUpdate.map((definitionId) =>
           PatientFieldValue.updateOrCreateForPatientAndDefinition(
             patient.id,
             definitionId,
@@ -89,13 +89,17 @@ export const PatientAdditionalDataForm = ({
         })),
       }
     : additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
-  const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
+  // TODO: NEEDS FIXIN
+  // const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
+
+  console.log('additinoalData', additionalData);
+  // console.log('initialAdditionalData', initialAdditionalData);
 
   return (
     <Form
       initialValues={{
-        ...initialAdditionalData,
+        ...additionalData,
         ...initialCustomValues,
         ...patient,
       }}
