@@ -79,7 +79,7 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the field group for this section of the additional data template
-  const { fields, dataFields = null } = isCustomSection
+  const { fields } = isCustomSection
     ? {
         fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
           id,
@@ -89,17 +89,15 @@ export const PatientAdditionalDataForm = ({
         })),
       }
     : additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
-  // TODO: NEEDS FIXIN
-  const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
+  const initialAdditionalData = getInitialAdditionalValues(additionalData, fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 
-  console.log('additinoalData', additionalData);
-  // console.log('initialAdditionalData', initialAdditionalData);
+  console.log(fields);
 
   return (
     <Form
       initialValues={{
-        ...additionalData,
+        ...initialAdditionalData,
         ...initialCustomValues,
         ...patient,
       }}
