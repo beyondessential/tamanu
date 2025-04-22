@@ -82,10 +82,9 @@ e2e_test_setup_start_servers() {
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
     nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
     # Give servers time to start before syncing
-    sleep 60
+    sleep 5
     # Sync the servers
     npm run --workspace @tamanu/facility-server start sync > facility-server-sync.out &
-    sleep 60
 }
 
 e2e_test_setup_print_users() {
