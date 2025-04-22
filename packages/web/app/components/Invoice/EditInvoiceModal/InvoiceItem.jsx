@@ -60,7 +60,7 @@ const StyledItemCell = styled(Box)`
 
 const ViewOnlyCell = styled(Box)`
   font-size: 14px;
-  padding-left: 14px;
+  padding-left: ${cellPadding};
   display: flex;
   align-items: center;
   min-height: 39px;
