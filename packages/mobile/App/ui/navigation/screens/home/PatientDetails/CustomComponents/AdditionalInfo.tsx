@@ -79,7 +79,7 @@ export const AdditionalInfo = ({
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = [];
-      fields.map((field) => {
+      fields.map((field: string) => {
         if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
           fieldsWithData.push(
             [

@@ -65,8 +65,6 @@ export const HierarchyFields = ({
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
 
-        console.log('parentId', parentId);
-
         return (
           <HierarchyFieldItem
             key={name}
