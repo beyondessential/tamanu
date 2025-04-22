@@ -17,6 +17,8 @@ import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
 
+const cellPadding = '15px';
+
 const PriceText = styled.span`
   margin-right: 16px;
   padding-left: 15px;
@@ -26,7 +28,7 @@ const PriceText = styled.span`
 const StyledItemRow = styled(Box)`
   display: flex;
   gap: 10px;
-  font-size: 11px;
+  font-size: 14px;
   padding: 7.5px 20px;
   background: ${Colors.white};
   border-left: 1px solid ${Colors.outline};
@@ -52,13 +54,13 @@ const StyledItemHeader = styled(Box)`
 const StyledItemCell = styled(Box)`
   align-self: flex-start;
   .MuiFormHelperText-root {
-    font-size: 11px;
+    font-size: 14px;
   }
 `;
 
 const ViewOnlyCell = styled(Box)`
-  font-size: ${p => (p.$hasLargeFont ? '14px' : '11px')};
-  padding-left: ${p => (p.$hasLeftPadding ? '15px' : '0px')};
+  font-size: 14px;
+  padding-left: 14px;
   display: flex;
   align-items: center;
   min-height: 39px;
@@ -74,25 +76,25 @@ const PriceCell = styled(ViewOnlyCell)`
 export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
-      <Box width="12%">
+      <Box width="12%" paddingLeft={cellPadding}>
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </Box>
-      <Box width="30%">
+      <Box width="30%" paddingLeft={cellPadding}>
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </Box>
-      <Box width="10%" paddingLeft="10px">
+      <Box width="10%" paddingLeft={cellPadding}>
         <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
       </Box>
-      <Box width="10%" paddingLeft="10px">
+      <Box width="10%" paddingLeft={cellPadding}>
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
       </Box>
-      <Box width="19%">
+      <Box width="19%" paddingLeft={cellPadding}>
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
         />
       </Box>
-      <Box width="11%" paddingLeft="10px" sx={{ flexGrow: 1 }}>
+      <Box width="11%" paddingLeft={cellPadding} sx={{ flexGrow: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </Box>
     </StyledItemHeader>
@@ -276,7 +278,6 @@ export const InvoiceItemRow = ({
               name={`invoiceItems.${index}.orderDate`}
               required
               component={DateField}
-              size="small"
               saveDateAsString
             />
           ) : (
@@ -292,7 +293,6 @@ export const InvoiceItemRow = ({
               required
               component={AutocompleteField}
               suggester={invoiceProductsSuggester}
-              size="small"
               onChange={handleChangeProduct}
             />
           ) : (
@@ -313,10 +313,12 @@ export const InvoiceItemRow = ({
             </Box>
           )}
         </StyledItemCell>
-        <StyledItemCell width="10%" paddingLeft="10px">
-          <ViewOnlyCell $hasLargeFont={!editable}>{item.productCode}</ViewOnlyCell>
+        <StyledItemCell width="10%">
+          <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+            {item.productCode}
+          </ViewOnlyCell>
         </StyledItemCell>
-        <StyledItemCell width="10%" paddingLeft="10px">
+        <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.quantity`}
@@ -328,7 +330,6 @@ export const InvoiceItemRow = ({
                   event.target.value = '';
                 }
               }}
-              size="small"
               required
             />
           ) : (
@@ -344,7 +345,6 @@ export const InvoiceItemRow = ({
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              size="small"
               onChange={handleChangeOrderedBy}
             />
           ) : (
@@ -353,7 +353,7 @@ export const InvoiceItemRow = ({
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="11%" paddingLeft="10px" sx={{ flexGrow: 1 }}>
+        <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
           <PriceCell $hasLargeFont={!editable}>
             {hidePriceInput ? (
               <>
