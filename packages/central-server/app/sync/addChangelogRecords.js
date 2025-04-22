@@ -1,5 +1,3 @@
-import { PatientProgramRegistration } from '@tamanu/database';
-import { snakeCase } from 'lodash';
 import { Op, QueryTypes } from 'sequelize';
 
 // After the regular sync snapshotting process is complete, we need to grab any changelog records
@@ -11,7 +9,7 @@ import { Op, QueryTypes } from 'sequelize';
 // send to a facility, as the snapshot has already run the right logic across the raw records, so
 // if a record is included there, we know the recent changelog entries should be included too.
 
-const TABLE_NAMES_TO_SYNC_CHANGELOGS = [PatientProgramRegistration.tableName]; // TODO: table name or model name?
+const TABLE_NAMES_TO_SYNC_CHANGELOGS = ['patient_program_registrations']; // TODO: table name or model name?
 
 export const addChangelogRecords = async (models, pullSince, pullUntil, snapshotRecords) => {
   const { SyncLookupTick } = models;
@@ -38,7 +36,7 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
       SELECT * FROM logs.changes
       WHERE updated_at_sync_tick BETWEEN :minSourceTick AND :maxSourceTick
       AND table_name IN (:whiteListedTableNames)
-      AND CONCAT(table_name, '-', record_id) IN (:recordTypesAndIds)
+      AND CONCAT(table_name, '-', record_id) IN (:tableNameAndIds)
       `,
     {
       type: QueryTypes.SELECT,
@@ -46,14 +44,14 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
         minSourceTick,
         maxSourceTick,
         whiteListedTableNames: TABLE_NAMES_TO_SYNC_CHANGELOGS, // TODO: move this to a config
-        recordTypesAndIds: snapshotRecords.map((r) => `${snakeCase(r.recordType)}-${r.id}`),
+        tableNameAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
       },
     },
   );
 
   snapshotRecords.forEach((r) => {
     r.changelogRecords = changelogRecords.filter(
-      (c) => c.recordType === r.recordType && c.id === r.id,
+      (c) => c.table_name === r.recordType && c.record_id === r.recordId,
     );
   });
   return snapshotRecords;
