@@ -32,6 +32,7 @@ import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { ReferenceDataType } from '~/types/IReferenceData';
+import { ADDRESS_HIERARCHY_VILLAGE_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -174,7 +175,7 @@ function getComponentForField(
   if (selectFields.includes(fieldName)) {
     return SelectField;
   }
-  if (isUsingHierarchyLogic && fieldName === PATIENT_DATA_FIELDS.VILLAGE_ID) {
+  if (isUsingHierarchyLogic && fieldName === ADDRESS_HIERARCHY_VILLAGE_ID) {
     return AddressHierarchyField;
   }
   if (relationIdFields.includes(fieldName)) {

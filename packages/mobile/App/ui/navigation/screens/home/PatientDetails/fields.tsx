@@ -1,7 +1,8 @@
 import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
-import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
+
+export const ADDRESS_HIERARCHY_VILLAGE_ID = 'addressHierarchyVillageId';
 
 export const ADDITIONAL_DATA_SECTIONS = [
   {
@@ -84,10 +85,10 @@ export const ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: [
-      ADDITIONAL_DATA_FIELDS.DIVISION_ID,
-      ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
-      ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
-      PATIENT_DATA_FIELDS.VILLAGE_ID,
+      // ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+      // ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+      // ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+      ADDRESS_HIERARCHY_VILLAGE_ID,
       ADDITIONAL_DATA_FIELDS.CITY_TOWN,
       ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
       ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,

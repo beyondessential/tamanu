@@ -16,6 +16,8 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { ReferenceDataType } from '~/types/IReferenceData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
+import { ADDRESS_HIERARCHY_VILLAGE_ID } from '../fields';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -76,24 +78,51 @@ export const AdditionalInfo = ({
       const onEditCallback = (): void =>
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
-      const fieldsWithData = fields.map((field) => {
-        if (
-          field === PATIENT_DATA_FIELDS.VILLAGE_ID ||
-          field.name === PATIENT_DATA_FIELDS.VILLAGE_ID
-        ) {
-          return [
-            PATIENT_DATA_FIELDS.VILLAGE_ID,
-            <TranslatedReferenceData
-              key={patient.villageId}
-              category={ReferenceDataType.Village}
-              fallback={patient.village?.name}
-              value={patient.villageId}
-            />,
-          ];
+      const fieldsWithData = [];
+      fields.map((field) => {
+        if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
+          fieldsWithData.push(
+            [
+              ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+              <TranslatedReferenceData
+                key={patientAdditionalData?.divisionId}
+                category={ReferenceDataType.Division}
+                fallback={patientAdditionalData?.division?.name}
+                value={patientAdditionalData?.divisionId}
+              />,
+            ],
+            [
+              ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+              <TranslatedReferenceData
+                key={patientAdditionalData?.subdivisionId}
+                category={ReferenceDataType.Subdivision}
+                fallback={patientAdditionalData?.subdivision?.name}
+                value={patientAdditionalData?.subdivisionId}
+              />,
+            ],
+            [
+              ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+              <TranslatedReferenceData
+                key={patientAdditionalData?.settlementId}
+                category={ReferenceDataType.Settlement}
+                fallback={patientAdditionalData?.settlement?.name}
+                value={patientAdditionalData?.settlementId}
+              />,
+            ],
+            [
+              PATIENT_DATA_FIELDS.VILLAGE_ID,
+              <TranslatedReferenceData
+                key={patient.villageId}
+                category={ReferenceDataType.Village}
+                fallback={patient.village?.name}
+                value={patient.villageId}
+              />,
+            ],
+          );
         } else if (Object.keys(customDataById).includes(field)) {
-          return [field, customDataById[field]];
+          fieldsWithData.push([field, customDataById[field]]);
         } else {
-          return [field, getPadFieldData(patientAdditionalData, field)];
+          fieldsWithData.push([field, getPadFieldData(patientAdditionalData, field)]);
         }
       });
 
