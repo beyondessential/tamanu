@@ -3,7 +3,7 @@ import { GeneralInfo } from './GeneralInfo';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
-import { GENERIC_ADDITIONAL_DATA_SECTIONS } from './fields';
+import { ADDITIONAL_DATA_SECTIONS } from './fields';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
@@ -49,10 +49,8 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
         onEdit={editPatientAdditionalData}
         dataSections={
           isUsingHierarchyLogic
-            ? GENERIC_ADDITIONAL_DATA_SECTIONS.filter(
-                ({ sectionKey }) => sectionKey !== 'otherInformation',
-              )
-            : GENERIC_ADDITIONAL_DATA_SECTIONS.filter(
+            ? ADDITIONAL_DATA_SECTIONS.filter(({ sectionKey }) => sectionKey !== 'otherInformation')
+            : ADDITIONAL_DATA_SECTIONS.filter(
                 ({ sectionKey }) => sectionKey !== 'otherWithHierarchy',
               )
         }

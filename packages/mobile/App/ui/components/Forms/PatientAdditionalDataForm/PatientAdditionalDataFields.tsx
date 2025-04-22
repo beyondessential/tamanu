@@ -16,7 +16,10 @@ import {
   selectFields,
   selectFieldsOptions,
 } from './helpers';
-import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import {
+  getConfiguredPatientAdditionalDataFields,
+  PATIENT_DATA_FIELDS,
+} from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/labels';
@@ -27,8 +30,8 @@ import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
-import { ADDRESS_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/fields';
-import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { ReferenceDataType } from '~/types/IReferenceData';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -104,6 +107,38 @@ const getCustomFieldComponent = (
     />
   );
 };
+
+export const ADDRESS_HIERARCHY_FIELDS = [
+  {
+    name: ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+    referenceType: ReferenceDataType.Division,
+    label: (
+      <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
+    ),
+  },
+  {
+    name: ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+    referenceType: ReferenceDataType.SubDivision,
+    label: (
+      <TranslatedText
+        stringId="general.localisedField.subdivisionId.label"
+        fallback="Sub division"
+      />
+    ),
+  },
+  {
+    name: ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+    referenceType: ReferenceDataType.Settlement,
+    label: (
+      <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Settlement" />
+    ),
+  },
+  {
+    name: PATIENT_DATA_FIELDS.VILLAGE_ID,
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
 
 const AddressHierarchyField = ({ isEdit }): ReactElement => {
   if (isEdit) {
