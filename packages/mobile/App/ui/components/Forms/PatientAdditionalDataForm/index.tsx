@@ -90,7 +90,7 @@ export const PatientAdditionalDataForm = ({
       }
     : additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
   // TODO: NEEDS FIXIN
-  // const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
+  const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 
   console.log('additinoalData', additionalData);
