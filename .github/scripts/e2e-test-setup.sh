@@ -23,6 +23,9 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
+        },
+        "auth": {
+            "reportNoUserError": true
         }
     }
 EOF
@@ -69,11 +72,10 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "verbose": true,
 	        "username": "tamanu",
-	        "password": "tamanu",
-	        "migrateOnStartup": true
+	        "password": "tamanu"
 	    }
 	}
-	EOF
+EOF
 
     npm run --workspace @tamanu/facility-server start migrate
 }
