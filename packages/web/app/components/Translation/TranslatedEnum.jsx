@@ -17,7 +17,12 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   }
 
   const fallback = enumValues[value];
-  const stringId = `${prefix}.${value}`;
+
+  const casedValue = value
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
+
+  const stringId = `${prefix}.${casedValue}`;
   return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
 };
 
