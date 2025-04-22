@@ -270,6 +270,11 @@ export const globalSettings = {
             },
           },
         },
+        patientDetailsLocationHierarchy: {
+          description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
     customisations: {
