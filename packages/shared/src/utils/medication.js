@@ -38,7 +38,7 @@ export const getFirstAdministrationDate = (startDate, idealTimes) => {
         getDateFromTimeString(idealTime, addDays(startDate, 1)),
       ),
     )
-    .filter((idealTime) => idealTime > startDate.getTime())
+    .filter((idealTime) => idealTime.getTime() > startDate.getTime())
     .sort((a, b) => a - b)[0];
 
   return firstStartTime;
