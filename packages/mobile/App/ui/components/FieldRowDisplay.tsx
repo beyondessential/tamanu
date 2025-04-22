@@ -5,7 +5,7 @@ import { isTablet } from 'react-native-device-info';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { labels } from '../navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { labels } from '../navigation/screens/home/PatientDetails/labels';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface FieldRowDisplayProps {

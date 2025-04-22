@@ -77,11 +77,14 @@ export const AdditionalInfo = ({
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = fields.map((field) => {
-        if (field.name === PATIENT_DATA_FIELDS.VILLAGE_ID) {
+        if (
+          field === PATIENT_DATA_FIELDS.VILLAGE_ID ||
+          field.name === PATIENT_DATA_FIELDS.VILLAGE_ID
+        ) {
           return [
             PATIENT_DATA_FIELDS.VILLAGE_ID,
             <TranslatedReferenceData
-              key={field.name}
+              key={patient.villageId}
               category={ReferenceDataType.Village}
               fallback={patient.village?.name}
               value={patient.villageId}

@@ -19,7 +19,7 @@ import {
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { labels } from '~/ui/navigation/screens/home/PatientDetails/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { HierarchyFields } from '../../HierarchyFields';
@@ -27,7 +27,7 @@ import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
-import { ADDRESS_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/fields';
+import { ADDRESS_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/fields';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
