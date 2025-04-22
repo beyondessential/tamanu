@@ -1,5 +1,6 @@
 import { TranslatedText } from './TranslatedText';
 import React from 'react';
+import { toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 
 export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) => {
   if (!options) return [];
@@ -10,9 +11,7 @@ export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) 
       ? {
           label: (
             <TranslatedText
-              stringId={`${prefix}.${label
-                .toLowerCase()
-                .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`}
+              stringId={`${prefix}.${toCamelCase(label)}`}
               fallback={label}
               {...TranslatedTextProps}
             />
