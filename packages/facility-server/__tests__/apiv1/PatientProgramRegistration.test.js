@@ -622,7 +622,7 @@ describe('PatientProgramRegistration', () => {
       });
     });
 
-    describe.only('DELETE /programRegistration/:id', () => {
+    describe('DELETE /programRegistration/:id', () => {
       it('should mark patient program registration as deleted and update status to recordedInError', async () => {
         // Create test data
         const patient = await models.Patient.create(fake(models.Patient));
@@ -663,7 +663,7 @@ describe('PatientProgramRegistration', () => {
         });
 
         // Delete the registration
-        const result = await app.delete(`patient/programRegistration/${registration.id}`);
+        const result = await app.delete(`/api/patient/programRegistration/${registration.id}`);
 
         expect(result).toHaveStatus(200);
         expect(result.body).toHaveProperty('message', 'Registration successfully deleted');
@@ -701,7 +701,9 @@ describe('PatientProgramRegistration', () => {
       });
 
       it('should return 404 if registration does not exist', async () => {
-        const result = await app.delete(`patient/programRegistration/non-existent-id`);
+        const result = await app.delete(
+          `/api/patient/programRegistration/7c032ad3-eaa0-49b2-8077-885b78c85539`,
+        );
         expect(result).toHaveStatus(404);
       });
     });
