@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 
 // After the regular sync snapshotting process is complete, we need to grab any changelog records
 // that:
@@ -28,17 +28,18 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
   if (!lookupTicks.length) {
     return snapshotRecords;
   }
-  const minSourceTick = lookupTicks.at(0).sourceStartTick;
-  const maxSourceTick = lookupTicks.at(-1).sourceStartTick;
+  const minSourceTick = lookupTicks.at(0).dataValues.sourceStartTick;
+  const maxSourceTick = lookupTicks.at(-1).dataValues.sourceStartTick;
 
   const changelogRecords = await sequelize.query(
     `
-    SELECT * FROM changelog
-    WHERE updated_at_sync_tick BETWEEN :minSourceTick AND :maxSourceTick
-    AND record_type IN (:whiteListedRecordTypes)
-    AND CONCAT(record_type, '-', record_id) IN (:recordTypesAndIds)
-    `,
+      SELECT * FROM logs.changes
+      WHERE updated_at_sync_tick BETWEEN :minSourceTick AND :maxSourceTick
+      AND record_type IN (:whiteListedRecordTypes)
+      AND CONCAT(record_type, '-', record_id) IN (:recordTypesAndIds)
+      `,
     {
+      type: QueryTypes.SELECT,
       replacements: {
         minSourceTick,
         maxSourceTick,
@@ -48,6 +49,7 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
     },
   );
 
+  console.log('changelogRecords', changelogRecords);
   // TODO: should we use lodash or a map here?
   // add the changelog records to each snapshot record
   snapshotRecords.forEach((r) => {
