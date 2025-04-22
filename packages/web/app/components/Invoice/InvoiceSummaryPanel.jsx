@@ -132,10 +132,12 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     max={100}
                     onInput={preventInvalid}
                     required
+                    style={{ flexShrink: 0, width: '70px' }}
                   />
                   <Box marginTop="11px">%</Box>
                 </Box>
-                <Box marginTop="11px" display="flex" justifyContent="flex-end">
+                <Box marginTop="11px" display="flex" justifyContent="flex-end" paddingLeft="30px">
+                  {/* Padding ensures minimum gap between % and price reduction*/}
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
