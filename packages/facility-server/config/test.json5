@@ -16,6 +16,12 @@
       }
     }
   },
+  "auth": {
+    "secret": "5892d07bb0e0e30646cf7ed2b76fa51fb6be6b4570c9ed3a5a5305b788dbcbe7",
+    "refreshToken": {
+      "secret": "de5140fdf67fb76305272fcb2ee4d9e248cae7bf8bcf07a88a3fc53f57ea7a6a"
+    }
+  },
   "log": {
     "consoleLevel": 'info',
     "enableAuditLog": true
