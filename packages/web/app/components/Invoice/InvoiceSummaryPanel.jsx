@@ -137,7 +137,6 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end" paddingLeft="30px">
-                  {/* Padding ensures minimum gap between % and price reduction*/}
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}

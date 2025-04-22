@@ -17,8 +17,6 @@ import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
 
-const cellPadding = '15px';
-
 const PriceText = styled.span`
   margin-right: 16px;
   padding-left: 15px;
@@ -51,6 +49,10 @@ const StyledItemHeader = styled(Box)`
   border-bottom: 0;
 `;
 
+const ItemHeadCell = styled(Box)`
+  padding-left: 15px;
+`;
+
 const StyledItemCell = styled(Box)`
   align-self: flex-start;
   .MuiFormHelperText-root {
@@ -58,9 +60,8 @@ const StyledItemCell = styled(Box)`
   }
 `;
 
-const ViewOnlyCell = styled(Box)`
+const ViewOnlyCell = styled(ItemHeadCell)`
   font-size: 14px;
-  padding-left: ${cellPadding};
   display: flex;
   align-items: center;
   min-height: 39px;
@@ -76,27 +77,27 @@ const PriceCell = styled(ViewOnlyCell)`
 export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
-      <Box width="12%" paddingLeft={cellPadding}>
+      <ItemHeadCell width="12%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
-      </Box>
-      <Box width="30%" paddingLeft={cellPadding}>
+      </ItemHeadCell>
+      <ItemHeadCell width="30%">
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
-      </Box>
-      <Box width="10%" paddingLeft={cellPadding}>
+      </ItemHeadCell>
+      <ItemHeadCell width="10%">
         <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-      </Box>
-      <Box width="10%" paddingLeft={cellPadding}>
+      </ItemHeadCell>
+      <ItemHeadCell width="10%">
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
-      </Box>
-      <Box width="19%" paddingLeft={cellPadding}>
+      </ItemHeadCell>
+      <ItemHeadCell width="19%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
         />
-      </Box>
-      <Box width="11%" paddingLeft={cellPadding} sx={{ flexGrow: 1 }}>
+      </ItemHeadCell>
+      <ItemHeadCell width="11%" sx={{ flexGrow: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
-      </Box>
+      </ItemHeadCell>
     </StyledItemHeader>
   );
 };
@@ -281,7 +282,7 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+            <ViewOnlyCell>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
             </ViewOnlyCell>
           )}
@@ -296,7 +297,7 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+            <ViewOnlyCell>
               {item.productName}
               {item.productId &&
                 (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
@@ -314,9 +315,7 @@ export const InvoiceItemRow = ({
           )}
         </StyledItemCell>
         <StyledItemCell width="10%">
-          <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-            {item.productCode}
-          </ViewOnlyCell>
+          <ViewOnlyCell>{item.productCode}</ViewOnlyCell>
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (
@@ -333,9 +332,7 @@ export const InvoiceItemRow = ({
               required
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {item?.quantity}
-            </ViewOnlyCell>
+            <ViewOnlyCell>{item?.quantity}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell width="19%">
@@ -348,13 +345,11 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {item?.orderedByUser?.displayName}
-            </ViewOnlyCell>
+            <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
-          <PriceCell $hasLargeFont={!editable}>
+          <PriceCell>
             {hidePriceInput ? (
               <>
                 <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
