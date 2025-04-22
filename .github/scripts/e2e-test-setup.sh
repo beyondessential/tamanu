@@ -57,6 +57,7 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
+	    "serverFacilityId": "ref/facility/a",
 	    "serverFacilityIds": ["facility-test"],
 	    "sync": {
 	        "email": "facility-test@tamanu.io",
@@ -79,6 +80,7 @@ e2e_test_setup_setup_facility() {
 }
 
 e2e_test_setup_start_servers() {
+    cat packages/facility-server/config/local.json5
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
     nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
     # Give servers time to start before syncing
