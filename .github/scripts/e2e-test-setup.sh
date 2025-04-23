@@ -60,7 +60,7 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
-	    "serverFacilityId": "facility-test",
+	    "serverFacilityIds": ["facility-test"],
 	    "sync": {
 	        "email": "facility-test@tamanu.io",
 	        "password": "facility-test",
