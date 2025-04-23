@@ -70,21 +70,6 @@ export class MedicationAdministrationRecord extends Model {
       return;
     }
 
-    let firstAdministrationDate: Date | undefined;
-    if (prescription.idealTimes && prescription.idealTimes.length > 0) {
-      try {
-        firstAdministrationDate = getFirstAdministrationDate(
-          new Date(prescription.startDate),
-          prescription.idealTimes,
-        );
-      } catch (error) {
-        console.error(
-          `Error calculating first administration date for prescription ${prescription.id}:`,
-          error,
-        );
-      }
-    }
-
     const upcomingRecordsShouldBeGeneratedTimeFrame =
       config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
 
@@ -95,30 +80,35 @@ export class MedicationAdministrationRecord extends Model {
       endDate = new Date(prescription.endDate);
     }
 
-    let lastDueDate: Date;
-    if (lastMedicationAdministrationRecord) {
-      lastDueDate = new Date(lastMedicationAdministrationRecord.dueAt);
-    } else if (firstAdministrationDate) {
-      lastDueDate = firstAdministrationDate;
-    } else {
-      lastDueDate = new Date(prescription.startDate); 
-    }
+    const firstAdministrationDate =
+      prescription.idealTimes && prescription.idealTimes.length > 0
+        ? getFirstAdministrationDate(new Date(prescription.startDate), prescription.idealTimes)
+        : prescription.startDate;
+
+    let lastDueDate = lastMedicationAdministrationRecord
+      ? new Date(lastMedicationAdministrationRecord.dueAt)
+      : firstAdministrationDate;
+
+    const lastRecordedDueDate = lastMedicationAdministrationRecord
+      ? new Date(lastMedicationAdministrationRecord.dueAt)
+      : new Date(0);
 
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
-        const currentDay = startOfDay(lastDueDate);
-        const nextDueDate = set(currentDay, { hours, minutes });
-
-        const actualLastRecordedDueDate = lastMedicationAdministrationRecord
-          ? new Date(lastMedicationAdministrationRecord.dueAt)
-          : new Date(0);
+        const nextDueDate = new Date(
+          lastDueDate.getFullYear(),
+          lastDueDate.getMonth(),
+          lastDueDate.getDate(),
+          hours,
+          minutes,
+          0,
+        );
 
         if (
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
-          (lastMedicationAdministrationRecord && nextDueDate <= actualLastRecordedDueDate) ||
-          (!lastMedicationAdministrationRecord && nextDueDate < new Date(prescription.startDate)) ||
+          (lastMedicationAdministrationRecord && nextDueDate < lastRecordedDueDate) ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
