@@ -67,7 +67,7 @@ export class MedicationAdministrationRecord extends Model {
           dueAt: prescription.startDate,
         });
       }
-      return;
+      return; 
     }
 
     let firstAdministrationDate: Date | undefined;
