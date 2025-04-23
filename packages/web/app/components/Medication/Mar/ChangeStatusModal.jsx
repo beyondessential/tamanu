@@ -1,7 +1,6 @@
 import React from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
-import { Modal } from '../../Modal';
 import {
   Field,
   Form,
@@ -11,7 +10,7 @@ import {
   AutocompleteField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, TranslatedText } from '../..';
+import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
 import styled from 'styled-components';
@@ -21,8 +20,14 @@ import { Box, Divider } from '@material-ui/core';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/validation';
+import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
+
+const StyledFormModal = styled(FormModal)`
+  .MuiPaper-root {
+    max-width: 670px;
+  }
+`;
 
 const StatusAlert = styled.div`
   font-size: 11px;
@@ -149,7 +154,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Change Administration Status">
+    <StyledFormModal open={open} onClose={onClose} title="Change Administration Status">
       <MarInfoPane medication={medication} marInfo={marInfo} />
       <Box height={16} />
       <Form
@@ -284,6 +289,6 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
           );
         }}
       />
-    </Modal>
+    </StyledFormModal>
   );
 };

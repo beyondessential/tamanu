@@ -18,8 +18,8 @@ import { ConditionalTooltip } from '../Tooltip';
 import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
-import { ChangeStatusModal } from './Mar/ChangeStatusModal';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
+import { MarDetails } from './Mar/MarDetails';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -206,7 +206,7 @@ export const MarStatus = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
-  const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
+  const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
 
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate });
@@ -256,8 +256,8 @@ export const MarStatus = ({
   const onSelected = event => {
     if (isDiscontinued || isDisabled || isEnd) return;
 
-    if ([ADMINISTRATION_STATUS.NOT_GIVEN, ADMINISTRATION_STATUS.GIVEN].includes(status)) {
-      handleOpenChangeStatusModal();
+    if (status) {
+      handleOpenMarDetailsModal();
       return;
     }
 
@@ -288,19 +288,14 @@ export const MarStatus = ({
     setIsSelected(false);
   };
 
-  const handleOpenChangeStatusModal = () => {
+  const handleOpenMarDetailsModal = () => {
     setIsSelected(true);
-    setShowChangeStatusModal(true);
+    setShowMarDetailsModal(true);
   };
 
-  const handleCloseChangeStatusModal = () => {
-    setShowChangeStatusModal(false);
+  const handleCloseMarDetailsModal = () => {
+    setShowMarDetailsModal(false);
     setIsSelected(false);
-  };
-
-  const handleSaveChanges = updatedAdminRecord => {
-    console.log('Saving changes:', updatedAdminRecord);
-    handleCloseChangeStatusModal();
   };
 
   const handleConfirm = () => {
@@ -509,16 +504,14 @@ export const MarStatus = ({
         onConfirm={handleConfirm}
         isPast={isPast}
       />
-      <ChangeStatusModal
-        open={showChangeStatusModal}
-        onClose={handleCloseChangeStatusModal}
-        onSave={handleSaveChanges}
-        medication={medication}
-        marInfo={marInfo}
-        timeSlot={timeSlot}
-        selectedDate={selectedDate}
-        isEdited={isEdited}
-      />
+      {showMarDetailsModal && (
+        <MarDetails
+          onClose={handleCloseMarDetailsModal}
+          medication={medication}
+          marInfo={marInfo}
+          timeSlot={timeSlot}
+        />
+      )}
     </>
   );
 };
