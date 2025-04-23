@@ -72,10 +72,17 @@ export class MedicationAdministrationRecord extends Model {
 
     let firstAdministrationDate: Date | undefined;
     if (prescription.idealTimes && prescription.idealTimes.length > 0) {
-      firstAdministrationDate = getFirstAdministrationDate(
-        new Date(prescription.startDate),
-        prescription.idealTimes,
-      );
+      try {
+        firstAdministrationDate = getFirstAdministrationDate(
+          new Date(prescription.startDate),
+          prescription.idealTimes,
+        );
+      } catch (error) {
+        console.error(
+          `Error calculating first administration date for prescription ${prescription.id}:`,
+          error,
+        );
+      }
     }
 
     const upcomingRecordsShouldBeGeneratedTimeFrame =
