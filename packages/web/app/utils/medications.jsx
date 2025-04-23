@@ -1,6 +1,7 @@
 import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 import { formatTime } from '../components';
+import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
   const result = {};
@@ -41,4 +42,26 @@ export const formatTimeSlot = time => {
   return formatTime(time)
     .replaceAll(' ', '')
     .toLowerCase();
+};
+
+export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {
+  if (!time || !timeSlot || isFuture) return true; // Skip validation if no value or timeSlot or isFuture
+
+  // Convert times to minutes since midnight for easier comparison
+  const timeToMinutes = date => date.getHours() * 60 + date.getMinutes();
+
+  // Get the minutes for the selected time
+  const selectedTimeMinutes = timeToMinutes(new Date(time));
+
+  const slotStartMinutes = timeToMinutes(getDateFromTimeString(timeSlot.startTime));
+  const slotEndMinutes = timeToMinutes(getDateFromTimeString(timeSlot.endTime));
+
+  // Check if the time slot crosses midnight
+  if (slotEndMinutes < slotStartMinutes) {
+    // For time slots that cross midnight
+    return selectedTimeMinutes >= slotStartMinutes || selectedTimeMinutes <= slotEndMinutes;
+  } else {
+    // For normal time slots within the same day
+    return selectedTimeMinutes >= slotStartMinutes && selectedTimeMinutes <= slotEndMinutes;
+  }
 };

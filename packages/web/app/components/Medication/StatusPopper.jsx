@@ -18,8 +18,8 @@ import { Field, Form, NumberField } from '../Field';
 import { TimePickerField } from '../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
 import { WarningModal } from './WarningModal';
-import { isWithinTimeSlot } from '../../utils/validation';
 import { useAuth } from '../../contexts/Auth';
+import { isWithinTimeSlot } from '../../utils/medications';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -220,13 +220,13 @@ const GivenScreen = ({
   isPast,
   isVariableDose,
 }) => {
+  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
 
-  const { currentUser } = useAuth();
   // Measure the DoseContainer width when component mounts
   useLayoutEffect(() => {
     if (doseInputRef.current) {
@@ -391,6 +391,7 @@ export const StatusPopper = ({
   isFuture,
   isPast,
 }) => {
+  const { currentUser } = useAuth();
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
@@ -415,8 +416,6 @@ export const StatusPopper = ({
     setShowGivenScreen(false);
     onClose();
   };
-
-  const { currentUser } = useAuth();
 
   const handleReasonSelect = async reasonNotGivenId => {
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);

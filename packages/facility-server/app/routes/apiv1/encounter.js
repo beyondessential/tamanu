@@ -201,17 +201,6 @@ encounterRelations.get(
           attributes: ['id'],
         },
         {
-          model: models.MedicationAdministrationRecord,
-          as: 'medicationAdministrationRecords',
-          include: [
-            'reasonNotGiven', 
-            {
-              association: 'doses',
-              order: [['givenTime', 'ASC']]
-            }
-          ],
-        },
-        {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
           include: {
@@ -242,6 +231,22 @@ encounterRelations.get(
             [Op.lte]: endOfMarDate,
           },
         },
+        include: [
+          'reasonNotGiven',
+          {
+            association: 'doses',
+            include: [
+              {
+                association: 'givenByUser',
+                attributes: ['id', 'displayName'],
+              },
+            ],
+          },
+          {
+            association: 'recordedByUser',
+            attributes: ['id', 'displayName'],
+          },
+        ],
         required: false,
       });
 

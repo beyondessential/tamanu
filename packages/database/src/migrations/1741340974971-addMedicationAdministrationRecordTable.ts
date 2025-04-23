@@ -36,6 +36,15 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    is_auto_generated: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    reason_for_changing_status: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     reason_not_given_id: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -43,15 +52,6 @@ export async function up(query: QueryInterface): Promise<void> {
         model: 'reference_data',
         key: 'id',
       },
-    },
-    is_auto_generated: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-    reason_for_change: {
-      type: DataTypes.TEXT,
-      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
