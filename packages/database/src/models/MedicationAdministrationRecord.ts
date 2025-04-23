@@ -68,7 +68,7 @@ export class MedicationAdministrationRecord extends Model {
       if (!lastMedicationAdministrationRecord) {
         await this.create({
           prescriptionId: prescription.id,
-          dueAt: firstAdministrationDate,
+          dueAt: prescription.startDate,
         });
       }
       return;
@@ -103,7 +103,8 @@ export class MedicationAdministrationRecord extends Model {
         if (
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
-          nextDueDate < lastDueDate ||
+          (lastMedicationAdministrationRecord &&
+            nextDueDate <= new Date(lastMedicationAdministrationRecord.dueAt)) ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
