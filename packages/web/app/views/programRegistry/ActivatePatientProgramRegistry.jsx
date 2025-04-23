@@ -96,6 +96,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     );
 
     // Invalidate queries and close modal
+    queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };

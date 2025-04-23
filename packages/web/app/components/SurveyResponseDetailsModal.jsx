@@ -39,19 +39,15 @@ const COLUMNS = [
   },
   {
     key: 'value',
-    title: (
-      <TranslatedText
-        stringId="surveyResponse.details.table.column.value"
-        fallback="Value"
-        data-testid="translatedtext-fah5"
-      />
-    ),
-    accessor: ({ answer, sourceType, type }) => (
+    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" data-testid="translatedtext-fah5" />,
+    accessor: ({ answer, sourceType, type, originalBody, componentConfig }) => (
       <SurveyAnswerResult
         answer={answer}
         sourceType={sourceType}
         type={type}
         data-testid="surveyanswerresult-dhnv"
+        originalBody={originalBody}
+        componentConfig={componentConfig}
       />
     ),
   },
@@ -120,18 +116,21 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
   const { components, answers } = surveyDetails;
   const answerRows = components
     .filter(shouldShow)
-    .map((component) => {
-      const { dataElement, id } = component;
+    .map(component => {
+      const { dataElement, id, config } = component;
       const { type, name } = dataElement;
       const answerObject = answers.find((a) => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
+      const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
       return {
         id,
         type,
         answer,
+        originalBody,
         name,
         sourceType,
+        componentConfig: config,
       };
     })
     .filter((r) => r.answer !== undefined);

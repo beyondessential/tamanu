@@ -190,6 +190,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
         data-testid="translatedtext-90u8"
       />
     }
+    id={PANE_SECTION_IDS.PROGRAM_REGISTRY}
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
     Form={PatientProgramRegistryForm}
