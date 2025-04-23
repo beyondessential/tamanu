@@ -56,10 +56,9 @@ export class MedicationAdministrationRecord extends Model {
       order: [['dueAt', 'DESC']],
     });
 
-    const firstAdministrationDate = getFirstAdministrationDate(
-      new Date(prescription.startDate),
-      prescription.idealTimes,
-    );
+    const firstAdministrationDate = prescription.idealTimes
+      ? getFirstAdministrationDate(new Date(prescription.startDate), prescription.idealTimes)
+      : prescription.startDate;
 
     if (
       prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
