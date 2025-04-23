@@ -101,7 +101,7 @@ export class MedicationAdministrationRecord extends Model {
     } else if (firstAdministrationDate) {
       lastDueDate = firstAdministrationDate;
     } else {
-      lastDueDate = new Date(prescription.startDate);
+      lastDueDate = new Date(prescription.startDate); 
     }
 
     while (lastDueDate < endDate) {
