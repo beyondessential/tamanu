@@ -6,7 +6,6 @@ import {
   addMonths,
   endOfDay,
   getDate,
-  isLastDayOfMonth,
   isValid,
   setDate,
   startOfDay,
@@ -80,16 +79,14 @@ export class MedicationAdministrationRecord extends Model {
 
     let endDate = endOfDay(addHours(new Date(), upcomingRecordsShouldBeGeneratedTimeFrame));
 
+    // Override with prescription end date if it's earlier
     if (prescription.endDate && new Date(prescription.endDate) < endDate) {
       endDate = new Date(prescription.endDate);
     }
 
-    let lastDueDate;
-    if (lastMedicationAdministrationRecord) {
-      lastDueDate = new Date(lastMedicationAdministrationRecord.dueAt);
-    } else {
-      lastDueDate = firstAdministrationDate;
-    }
+    let lastDueDate = lastMedicationAdministrationRecord
+      ? new Date(lastMedicationAdministrationRecord.dueAt)
+      : firstAdministrationDate;
 
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
@@ -112,34 +109,12 @@ export class MedicationAdministrationRecord extends Model {
           continue;
         }
 
-        // Handle once a month frequency
-        if (prescription.frequency === ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH) {
-          const originalDay = getDate(firstAdministrationDate);
-          if (originalDay === getDate(lastDueDate)) {
-            if (isValid(nextDueDate)) {
-              await this.create({
-                prescriptionId: prescription.id,
-                dueAt: nextDueDate,
-              });
-            }
-            // Handle once a month frequency when the administration date is the last day of the month
-          } else if (isLastDayOfMonth(nextDueDate) && getDate(nextDueDate) < originalDay) {
-            const nextMonthDueDate = setDate(addMonths(nextDueDate, 1), 1);
-            if (isValid(nextMonthDueDate)) {
-              await this.create({
-                prescriptionId: prescription.id,
-                dueAt: nextMonthDueDate,
-              });
-            }
-          }
-        } else {
-          // Skip if administration date is not valid (required to pass unit tests)
-          if (isValid(nextDueDate)) {
-            await this.create({
-              prescriptionId: prescription.id,
-              dueAt: nextDueDate,
-            });
-          }
+        // Skip if administration date is not valid (required to pass unit tests)
+        if (isValid(nextDueDate)) {
+          await this.create({
+            prescriptionId: prescription.id,
+            dueAt: nextDueDate,
+          });
         }
       }
       // Get next administration date based on frequency
@@ -150,6 +125,15 @@ export class MedicationAdministrationRecord extends Model {
         case ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK:
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
+        case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
+          const lastDueDay = getDate(lastDueDate);
+          if (lastDueDay >= 29) {
+            lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));
+          } else {
+            lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 1), lastDueDay));
+          }
+          break;
+        }
         default:
           lastDueDate = startOfDay(addDays(lastDueDate, 1));
           break;
