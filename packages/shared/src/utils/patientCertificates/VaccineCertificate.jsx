@@ -207,7 +207,7 @@ const VaccineCertificateComponent = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px', marginBottom: 0 }}>
+        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px', marginBottom: '0px' }}>
           <H3 style={{ marginBottom: 5, marginTop: 5 }}>
             {getTranslation('pdf.vaccineCertificate.immunisationHistory', 'Immunisation history')}
           </H3>
