@@ -7,7 +7,6 @@ import {
   endOfDay,
   getDate,
   isValid,
-  set,
   setDate,
   startOfDay,
 } from 'date-fns';
