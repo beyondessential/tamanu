@@ -67,7 +67,7 @@ export class MedicationAdministrationRecord extends Model {
           dueAt: prescription.startDate,
         });
       }
-      return; 
+      return;
     }
 
     let firstAdministrationDate: Date | undefined;
@@ -107,16 +107,20 @@ export class MedicationAdministrationRecord extends Model {
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
-        const nextDueDate = set(startOfDay(lastDueDate), { hours, minutes, seconds: 0 });
-
-        const actualLastRecordedDueDate = lastMedicationAdministrationRecord
-          ? new Date(lastMedicationAdministrationRecord.dueAt)
-          : new Date(0);
+        const nextDueDate = new Date(
+          lastDueDate.getFullYear(),
+          lastDueDate.getMonth(),
+          lastDueDate.getDate(),
+          hours,
+          minutes,
+          0,
+        );
 
         if (
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
-          (lastMedicationAdministrationRecord && nextDueDate < actualLastRecordedDueDate) ||
+          (lastMedicationAdministrationRecord &&
+            nextDueDate < new Date(lastMedicationAdministrationRecord.dueAt)) ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
