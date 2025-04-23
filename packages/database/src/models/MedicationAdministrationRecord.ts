@@ -9,7 +9,6 @@ import {
   isValid,
   setDate,
   startOfDay,
-  set,
 } from 'date-fns';
 import config from 'config';
 import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
