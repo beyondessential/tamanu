@@ -54,11 +54,17 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     // 2. When a huge number of data is imported to sync and the facility syncs it down
     // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
-      // TODO would it be better to remove the .changelog from the records before inserting, keep
-      // things clean and tight?
+
+      let changelogRecords = [];
+      for (const row of batchOfRows) {
+        if (row.changelogRecords) {
+          changelogRecords.push(...row.changelogRecords);
+        }
+        delete row.changelogRecords;
+      }
+
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
 
-      const changelogRecords = batchOfRows.flatMap(({changelog = []}) => changelog);
       await insertChangelogRecords(sequelize, changelogRecords);
 
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
