@@ -41,7 +41,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: false,
     },
-    reason_for_changing_status: {
+    changing_status_reason: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

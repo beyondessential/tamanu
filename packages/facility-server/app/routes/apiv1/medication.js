@@ -466,7 +466,7 @@ const givenMarUpdateSchema = z.object({
     givenByUserId: z.string(),
   }),
   recordedByUserId: z.string(),
-  reasonForChangingStatus: z.string().optional(),
+  changingStatusReason: z.string().optional(),
 });
 medication.put(
   '/medication-administration-record/:id/given',
@@ -480,7 +480,7 @@ medication.put(
       User,
     } = models;
 
-    const { dose, recordedByUserId, reasonForChangingStatus } =
+    const { dose, recordedByUserId, changingStatusReason } =
       await givenMarUpdateSchema.parseAsync(req.body);
 
     const record = await MedicationAdministrationRecord.findByPk(params.id);
@@ -526,7 +526,7 @@ medication.put(
 
     record.status = ADMINISTRATION_STATUS.GIVEN;
     record.recordedByUserId = recordedByUserId;
-    record.reasonForChangingStatus = reasonForChangingStatus;
+    record.changingStatusReason = changingStatusReason;
     if (!record.recordedAt) {
       record.recordedAt = getCurrentDateTimeString();
     }
@@ -552,7 +552,7 @@ const givenMarCreateSchema = z.object({
   dueAt: z.string().datetime(),
   prescriptionId: z.string(),
   recordedByUserId: z.string(),
-  reasonForChangingStatus: z.string().optional(),
+  changingStatusReason: z.string().optional(),
 });
 medication.post(
   '/medication-administration-record/given',
@@ -566,7 +566,7 @@ medication.post(
     } = models;
 
     req.checkPermission('create', 'MedicationAdministrationRecord');
-    const { dose, dueAt, prescriptionId, recordedByUserId, reasonForChangingStatus } =
+    const { dose, dueAt, prescriptionId, recordedByUserId, changingStatusReason } =
       await givenMarCreateSchema.parseAsync(req.body);
 
     //validate dose
@@ -614,7 +614,7 @@ medication.post(
       status: ADMINISTRATION_STATUS.GIVEN,
       recordedAt: getCurrentDateTimeString(),
       recordedByUserId,
-      reasonForChangingStatus,
+      changingStatusReason,
     });
 
     //create dose
@@ -632,7 +632,7 @@ medication.post(
 const notGivenInputUpdateSchema = z.object({
   reasonNotGivenId: z.string(),
   recordedByUserId: z.string(),
-  reasonForChangingStatus: z.string().optional(),
+  changingStatusReason: z.string().optional(),
 });
 medication.put(
   '/medication-administration-record/:id/not-given',
@@ -641,7 +641,7 @@ medication.put(
     const { models, params } = req;
     const { MedicationAdministrationRecord, Prescription, User } = models;
 
-    const { reasonNotGivenId, recordedByUserId, reasonForChangingStatus } =
+    const { reasonNotGivenId, recordedByUserId, changingStatusReason } =
       await notGivenInputUpdateSchema.parseAsync(req.body);
 
     //validate not given reason
@@ -690,7 +690,7 @@ medication.put(
     record.reasonNotGivenId = reasonNotGivenId;
     record.status = ADMINISTRATION_STATUS.NOT_GIVEN;
     record.recordedByUserId = recordedByUserId;
-    record.reasonForChangingStatus = reasonForChangingStatus;
+    record.changingStatusReason = changingStatusReason;
     if (!record.recordedAt) {
       record.recordedAt = getCurrentDateTimeString();
     }
@@ -705,7 +705,7 @@ const notGivenInputCreateSchema = z.object({
   dueAt: z.string().datetime(),
   prescriptionId: z.string(),
   recordedByUserId: z.string(),
-  reasonForChangingStatus: z.string().optional(),
+  changingStatusReason: z.string().optional(),
 });
 medication.post(
   '/medication-administration-record/not-given',
@@ -714,7 +714,7 @@ medication.post(
     const { models } = req;
     const { MedicationAdministrationRecord, Prescription, User } = models;
 
-    const { reasonNotGivenId, dueAt, prescriptionId, recordedByUserId, reasonForChangingStatus } =
+    const { reasonNotGivenId, dueAt, prescriptionId, recordedByUserId, changingStatusReason } =
       await notGivenInputCreateSchema.parseAsync(req.body);
 
     //validate not given reason
@@ -759,7 +759,7 @@ medication.post(
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       recordedAt: getCurrentDateTimeString(),
       recordedByUserId,
-      reasonForChangingStatus,
+      changingStatusReason,
     });
 
     res.send(record.forResponse());

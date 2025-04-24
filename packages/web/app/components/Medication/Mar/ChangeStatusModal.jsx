@@ -209,7 +209,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     required
                   />
                   <Field
-                    name="reasonForChangingStatus"
+                    name="changingStatusReason"
                     component={TextField}
                     label="Reason for change (Optional)"
                   />
@@ -269,7 +269,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     required
                   />
                   <Field
-                    name="reasonForChangingStatus"
+                    name="changingStatusReason"
                     component={TextField}
                     label="Reason for change (Optional)"
                   />
