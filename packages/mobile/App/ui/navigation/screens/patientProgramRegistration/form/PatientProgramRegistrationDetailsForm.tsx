@@ -120,8 +120,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           validationSchema={yup.object().shape({
             // programRegistryId: yup.string().required('Program Registry must be selected'),
             clinicalStatusId: yup.string(),
-            date: yup.date(),
-            registeringFacilityId: yup.string(),
+            date: yup.date().required(),
+            registeringFacilityId: yup.string().required('Registering facility is required'),
             clinicianId: yup
               .string()
               .required()
@@ -131,7 +131,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup.string(),
+            conditions: yup.array().of(
+              yup.object().shape({
+                condition: yup.object().shape({ value: yup.string().required() }),
+                category: yup.object().shape({ value: yup.string().required() }),
+              }),
+            ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >
@@ -150,6 +155,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={DateField}
                     min={new Date()}
                     name="date"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -166,6 +172,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={practitionerSuggester}
                     name="clinicianId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -182,6 +189,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={facilitySuggester}
                     name="registeringFacilityId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>

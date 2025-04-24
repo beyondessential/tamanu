@@ -1,4 +1,5 @@
 import React, { ReactElement, FC, useState, useEffect, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
@@ -36,7 +37,7 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   marginTop?: number;
   error?: string;
   disabled?: boolean;
-  openConditionScreenImmediately?: boolean;
+  isNewlyCreated?: boolean;
 }
 
 const EXCLUDED_CONDITION_CATEGORIES = [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR];
@@ -58,7 +59,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   marginTop,
   error,
   disabled,
-  openConditionScreenImmediately,
+  isNewlyCreated,
 }: PatientProgramRegistrationConditionsFieldItemProps): ReactElement => {
   const navigation = useNavigation();
   const { getTranslation } = useTranslation();
@@ -83,7 +84,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
     );
 
     return `${conditionLabel} (${categoryLabel})`;
-  }, [condition, category]);
+  }, [condition, category, getTranslation]);
 
   const [label, setLabel] = useState(buildLabel());
 
@@ -97,34 +98,70 @@ const PatientProgramRegistrationConditionsFieldItem = ({
         callback: (newValue: FieldValue) => {
           // Submit values
           setCategory(newValue);
+          setCondition(newCondition);
           onChange({ condition: newCondition, category: newValue });
         },
+        onClickBack: (newNavigation) => {
+          Alert.alert(
+            getTranslation(
+              'programRegistry.category.categoryIsRequiredWarning.title',
+              'Category is required',
+            ),
+            getTranslation(
+              'programRegistry.category.categoryIsRequiredWarning.description',
+              'Selecting a relevant category is required in order to record a related condition.\nPlease add a category otherwise cancel adding the related condition.',
+            ),
+            [
+              {
+                text: getTranslation(
+                  'programRegistry.category.cancelAddingRelatedCondition',
+                  'Cancel adding related condition',
+                ),
+                style: 'cancel',
+                onPress: () => {
+                  if (isNewlyCreated) {
+                    onDelete();
+                  }
+                  newNavigation.goBack();
+                },
+              },
+              {
+                text: getTranslation('programRegistry.category.addCategoryLabel', 'Add category'),
+              },
+            ],
+            {
+              cancelable: true,
+            },
+          );
+        },
         options: CONDITION_CATEGORY_OPTIONS,
-        modalTitle: getTranslation('programRegistry.category.label', 'Category'),
+        modalTitle: getTranslation('programRegistry.category.addCategoryLabel', 'Add category'),
       });
     },
-    [setCategory, onChange, getTranslation, navigation],
+    [setCategory, onChange, isNewlyCreated, onDelete, getTranslation, navigation],
   );
 
   const openConditionScreen = useCallback(() => {
     navigation.navigate(Routes.Forms.AutocompleteModal, {
       callback: (newValue: FieldValue) => {
-        setCondition(newValue);
         openCategoryScreen(newValue);
       },
       suggester: conditionSuggester,
-      modalTitle: getTranslation('programRegistry.conditions.label', 'Conditions'),
+      modalTitle: getTranslation(
+        'programRegistry.relatedConditions.addConditionLabel',
+        'Add related condition',
+      ),
     });
-  }, [setCondition, openCategoryScreen, getTranslation, conditionSuggester, navigation]);
+  }, [openCategoryScreen, getTranslation, conditionSuggester, navigation]);
 
   useEffect(() => {
-    if (openConditionScreenImmediately && !hasOpenedConditionScreenImmediately) {
+    if (isNewlyCreated && !hasOpenedConditionScreenImmediately) {
       openConditionScreen();
       setHasOpenedConditionScreenImmediately(true);
     }
   }, [
     openConditionScreen,
-    openConditionScreenImmediately,
+    isNewlyCreated,
     hasOpenedConditionScreenImmediately,
     setHasOpenedConditionScreenImmediately,
   ]);
@@ -242,7 +279,7 @@ export const PatientProgramRegistrationConditionsField = ({
             conditionSuggester={conditionSuggester}
             onChange={editItem(index)}
             onDelete={deleteItem(index)}
-            openConditionScreenImmediately={value === undefined} // Newly created item
+            isNewlyCreated={value === undefined} // Newly created item
           />
         ))
       )}
