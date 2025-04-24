@@ -27,7 +27,7 @@ export const insertChangelogRecords = async (sequelize, changelogRecords) => {
       updated_at_sync_tick: -999, // match incoming record behaviour so this doesn't sync back to the central server
     }));
   await queryInterface.bulkInsert(
-    { tableName: { tableName: 'changes', schema: 'logs' } },
+    { tableName: 'changes', schema: 'logs' },
     recordsToInsert,
   );
 };
