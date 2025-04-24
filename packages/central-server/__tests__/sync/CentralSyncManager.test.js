@@ -409,6 +409,7 @@ describe('CentralSyncManager', () => {
       });
       expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(1);
     });
+
     it('returns all the outgoing changes with multiple facilities', async () => {
       const facility1 = await models.Facility.create(fake(models.Facility));
       const facility2 = await models.Facility.create(fake(models.Facility));
@@ -430,6 +431,70 @@ describe('CentralSyncManager', () => {
         limit: 10,
       });
       expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
+    });
+
+    it('includes changes in outgoing changes', async () => {
+      const OLD_SYNC_TICK = 10;
+      const NEW_SYNC_TICK = 20;
+      await models.Setting.set('audit.changes.enabled', true);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+
+      patientProgramRegistration.date = '2025-04-22';
+      await patientProgramRegistration.save();
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      // The lookup table needs to be built twice to create a proper range of SyncLookupTick records
+      await centralSyncManager.updateLookupTable();
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+      const patientProgramRegistrationChange = outgoingChanges.find((c) => c.recordType === 'patient_program_registrations');
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
+      expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.table_name === 'patient_program_registrations')).toBeTruthy()
+      expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.record_id === patientProgramRegistrationChange.recordId)).toBeTruthy()
     });
   });
 
@@ -513,70 +578,6 @@ describe('CentralSyncManager', () => {
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
         expect(encounterIds).not.toEqual(expect.arrayContaining([encounter3.id]));
-      });
-
-      it('includes changes in outgoing changes', async () => {
-        const OLD_SYNC_TICK = 10;
-        const NEW_SYNC_TICK = 20;
-        await models.Setting.set('audit.changes.enabled', true);
-        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
-        const facility = await models.Facility.create(fake(models.Facility));
-        const patient = await models.Patient.create(fake(models.Patient));
-        const program = await models.Program.create(fake(models.Program));
-        const clinician = await models.User.create(fakeUser());
-
-        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
-        const programRegistry = await models.ProgramRegistry.create({
-          ...fake(models.ProgramRegistry),
-          programId: program.id,
-        });
-         const patientProgramRegistration = await models.PatientProgramRegistration.create({
-          ...fake(models.PatientProgramRegistration),
-          programRegistryId: programRegistry.id,
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          facilityId: facility.id,
-        });
-        await models.PatientFacility.create({
-          id: models.PatientFacility.generateId(),
-          patientId: patient.id,
-          facilityId: facility.id,
-        });
-
-        patientProgramRegistration.date = '2025-04-22';
-        await patientProgramRegistration.save();
-
-        const centralSyncManager = initializeCentralSyncManager({
-          sync: {
-            lookupTable: {
-              enabled: true,
-            },
-            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-          },
-        });
-
-        // TODO: not sure why twice is needed
-        await centralSyncManager.updateLookupTable();
-        await centralSyncManager.updateLookupTable();
-
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [facility.id],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-
-        const patientProgramRegistrationChange = outgoingChanges.find((c) => c.recordType === 'patient_program_registrations');
-        expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
-        expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.table_name === 'patient_program_registrations')).toBeTruthy()
-        expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.record_id === patientProgramRegistrationChange.recordId)).toBeTruthy()
       });
 
       it('returns all encounters for newly marked-for-sync patients across multiple facilities', async () => {
