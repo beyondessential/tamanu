@@ -26,6 +26,7 @@ export const HierarchyFieldItem = ({
       relations: ['parents'],
     },
     undefined,
+    // TODO: This causes weird pagination
     (item: IReferenceData) => {
       if (isFirstLevel || !parentId) {
         return true;
