@@ -23,9 +23,6 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        },
-        "auth": {
-            "reportNoUserError": true
         }
     }
 EOF
@@ -70,7 +67,6 @@ e2e_test_setup_setup_facility() {
 	    "db": {
 	        "host": "localhost",
 	        "name": "facility",
-	        "verbose": true,
 	        "username": "tamanu",
 	        "password": "tamanu"
 	    }
@@ -89,11 +85,6 @@ e2e_test_setup_start_servers() {
     # Sync the servers
     npm run --workspace @tamanu/facility-server start sync
     sleep 20
-}
-
-e2e_test_setup_print_users() {
-    psql -d facility -c "SELECT * FROM users;"
-    psql -d facility -c "SELECT * from local_system_facts;"
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )

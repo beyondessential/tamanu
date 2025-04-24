@@ -15,7 +15,6 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
-import { log } from '@tamanu/shared/services/logging';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -79,13 +78,11 @@ export const login = ({ secret, refreshSecret }) =>
     };
 
     if (!email || !password) {
-      log.warn('Missing credentials');
       throw new BadAuthenticationError('Missing credentials');
     }
 
     const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
-      log.warm('Missing deviceId');
       throw new BadAuthenticationError('Missing deviceId');
     }
 
@@ -94,13 +91,11 @@ export const login = ({ secret, refreshSecret }) =>
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
-      log.warn('No such user');
       throw new BadAuthenticationError('No such user');
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      log.warn('Bad password');
       throw new BadAuthenticationError('Invalid credentials');
     }
 
