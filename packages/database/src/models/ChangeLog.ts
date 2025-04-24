@@ -5,7 +5,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class AccessLog extends Model {
+export class ChangeLog extends Model {
   declare id: string;
   declare tableOid: number;
   declare tableSchema: string;
