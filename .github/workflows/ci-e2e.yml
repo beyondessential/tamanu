@@ -93,10 +93,8 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh start-servers
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-
       - name: Run Playwright tests
         run: npm run e2e-test
-
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4

@@ -123,7 +123,6 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
-      log.warn('Bad authentication error: ', e);
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
