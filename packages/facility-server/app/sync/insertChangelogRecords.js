@@ -13,15 +13,15 @@ export const insertChangelogRecords = async (sequelize, changelogRecords) => {
     {
       where: {
         [Op.or]: changelogRecords.map((r) => ({
-          record_type: r.record_type,
+          table_name: r.table_name,
           record_id: r.record_id,
         })),
       },
     },
   );
-  const existingKeys = existingRecords.map((r) => `${r.record_type}-${r.record_id}`);
+  const existingKeys = existingRecords.map((r) => `${r.table_name}-${r.record_id}`);
   const recordsToInsert = changelogRecords
-    .filter((r) => !existingKeys.includes(`${r.record_type}-${r.record_id}`))
+    .filter((r) => !existingKeys.includes(`${r.table_name}-${r.record_id}`))
     .map((r) => ({
       ...r,
       updated_at_sync_tick: -999, // match incoming record behaviour so this doesn't sync back to the central server
