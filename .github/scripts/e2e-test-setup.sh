@@ -67,15 +67,23 @@ e2e_test_setup_setup_facility() {
 	    "db": {
 	        "host": "localhost",
 	        "name": "facility",
-	        "verbose": true,
 	        "username": "tamanu",
-	        "password": "tamanu",
-	        "migrateOnStartup": true
+	        "password": "tamanu"
 	    }
 	}
-	EOF
+EOF
 
     npm run --workspace @tamanu/facility-server start migrate
+}
+
+e2e_test_setup_start_servers() {
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+    # Give servers time to start before syncing
+    sleep 20
+    # Sync the servers
+    npm run --workspace @tamanu/facility-server start sync
+    sleep 20
 }
 
 e2e_test_setup_$( echo $1 | sed "s/-/_/g" )
