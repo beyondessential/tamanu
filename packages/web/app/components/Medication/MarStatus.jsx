@@ -510,6 +510,9 @@ export const MarStatus = ({
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
+          isFuture={isFuture}
+          isPast={isPast}
+          selectedDate={selectedDate}
         />
       )}
     </>

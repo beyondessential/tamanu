@@ -103,7 +103,15 @@ const AddAdditionalDoseButton = styled.a`
   }
 `;
 
-export const MarDetails = ({ medication, marInfo, onClose, timeSlot }) => {
+export const MarDetails = ({
+  medication,
+  marInfo,
+  onClose,
+  timeSlot,
+  isFuture,
+  isPast,
+  selectedDate,
+}) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
 
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
@@ -304,6 +312,9 @@ export const MarDetails = ({ medication, marInfo, onClose, timeSlot }) => {
         medication={medication}
         marInfo={marInfo}
         timeSlot={timeSlot}
+        isFuture={isFuture}
+        isPast={isPast}
+        selectedDate={selectedDate}
       />
     </>
   );

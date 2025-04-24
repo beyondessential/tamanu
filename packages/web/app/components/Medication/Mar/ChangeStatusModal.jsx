@@ -1,6 +1,11 @@
 import React from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
+import { addHours } from 'date-fns';
+import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { Box, Divider } from '@material-ui/core';
+import { useQueryClient } from '@tanstack/react-query';
+import styled from 'styled-components';
 import {
   Field,
   Form,
@@ -13,13 +18,10 @@ import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
-import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
-import { Box, Divider } from '@material-ui/core';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
 
@@ -90,7 +92,16 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
-export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
+export const ChangeStatusModal = ({
+  open,
+  onClose,
+  medication,
+  marInfo,
+  timeSlot,
+  isFuture,
+  isPast,
+  selectedDate,
+}) => {
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
   const reasonNotGivenSuggester = useSuggester('reasonNotGiven');
@@ -133,7 +144,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
               stringId="medication.mar.givenTime.validation.outside"
               fallback="Time is outside selected window"
             />,
-            value => isWithinTimeSlot(timeSlot, value),
+            value => isWithinTimeSlot(timeSlot, value, isFuture),
           ),
         givenByUserId: yup
           .string()
@@ -164,6 +175,9 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
           recordedByUserId: currentUser?.id,
           givenByUserId: currentUser?.id,
           doseAmount: initialPrescribedDose,
+          givenTime: isPast
+            ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
+            : new Date(),
         }}
         validationSchema={getValidationSchema()}
         render={({ values, setFieldValue, errors, submitForm }) => {
