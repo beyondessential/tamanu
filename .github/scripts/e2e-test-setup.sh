@@ -77,7 +77,6 @@ EOF
 }
 
 e2e_test_setup_start_servers() {
-    cat packages/facility-server/config/local.json5
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
     nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
     # Give servers time to start before syncing
