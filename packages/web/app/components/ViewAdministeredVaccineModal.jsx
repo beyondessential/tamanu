@@ -164,7 +164,9 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     injectionSite: {
       label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
-      value: <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} />,
+      value: (
+        <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} enumFallback="-" />
+      ),
     },
     area: {
       label: <TranslatedText stringId="general.area.label" fallback="Area" />,
