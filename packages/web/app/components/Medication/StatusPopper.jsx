@@ -18,6 +18,8 @@ import { Field, Form, NumberField } from '../Field';
 import { TimePickerField } from '../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
 import { WarningModal } from './WarningModal';
+import { useAuth } from '../../contexts/Auth';
+import { isWithinTimeSlot } from '../../utils/medications';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -218,11 +220,13 @@ const GivenScreen = ({
   isPast,
   isVariableDose,
 }) => {
+  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
+
   // Measure the DoseContainer width when component mounts
   useLayoutEffect(() => {
     if (doseInputRef.current) {
@@ -269,9 +273,11 @@ const GivenScreen = ({
     await updateMar({
       dueAt,
       prescriptionId,
+      recordedByUserId: currentUser?.id,
       dose: {
         doseAmount,
         givenTime,
+        givenByUserId: currentUser?.id,
       },
     });
   };
@@ -367,31 +373,7 @@ const GivenScreen = ({
               stringId="medication.mar.timeGiven.validation.outside"
               fallback="Time is outside selected window"
             />,
-            function(value) {
-              if (!value || !timeSlot || isFuture) return true; // Skip validation if no value or timeSlot or isFuture
-
-              // Convert times to minutes since midnight for easier comparison
-              const timeToMinutes = date => date.getHours() * 60 + date.getMinutes();
-
-              // Get the minutes for the selected time
-              const selectedTimeMinutes = timeToMinutes(new Date(value));
-
-              const slotStartMinutes = timeToMinutes(getDateFromTimeString(timeSlot.startTime));
-              const slotEndMinutes = timeToMinutes(getDateFromTimeString(timeSlot.endTime));
-
-              // Check if the time slot crosses midnight
-              if (slotEndMinutes < slotStartMinutes) {
-                // For time slots that cross midnight
-                return (
-                  selectedTimeMinutes >= slotStartMinutes || selectedTimeMinutes <= slotEndMinutes
-                );
-              } else {
-                // For normal time slots within the same day
-                return (
-                  selectedTimeMinutes >= slotStartMinutes && selectedTimeMinutes <= slotEndMinutes
-                );
-              }
-            },
+            (value) => isWithinTimeSlot(timeSlot, value, isFuture),
           ),
       })}
     />
@@ -409,6 +391,7 @@ export const StatusPopper = ({
   isFuture,
   isPast,
 }) => {
+  const { currentUser } = useAuth();
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
@@ -441,6 +424,7 @@ export const StatusPopper = ({
       reasonNotGivenId,
       dueAt,
       prescriptionId,
+      recordedByUserId: currentUser?.id,
     });
 
     setShowReasonScreen(false);

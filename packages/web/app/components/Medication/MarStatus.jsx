@@ -19,6 +19,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
 import { WarningModal } from './WarningModal';
 import { MAR_WARNING_MODAL } from '../../constants/medication';
+import { MarDetails } from './Mar/MarDetails';
 
 const StatusContainer = styled.div`
   position: relative;
@@ -205,6 +206,7 @@ export const MarStatus = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
+  const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
 
   const containerRef = useRef(null);
   const isPast = getIsPast({ timeSlot, selectedDate });
@@ -252,11 +254,13 @@ export const MarStatus = ({
   const { getEnumTranslation } = useTranslation();
 
   const onSelected = event => {
-    if (isDiscontinued || isDisabled) return;
-    if ([ADMINISTRATION_STATUS.NOT_GIVEN, ADMINISTRATION_STATUS.GIVEN].includes(status)) {
-      setIsSelected(true);
+    if (isDiscontinued || isDisabled || isEnd) return;
+
+    if (status) {
+      handleOpenMarDetailsModal();
       return;
     }
+
     setSelectedElement(event.currentTarget);
     if (isPaused) {
       setShowWarningModal(MAR_WARNING_MODAL.PAUSED);
@@ -281,6 +285,16 @@ export const MarStatus = ({
 
   const handleClose = () => {
     setAnchorEl(null);
+    setIsSelected(false);
+  };
+
+  const handleOpenMarDetailsModal = () => {
+    setIsSelected(true);
+    setShowMarDetailsModal(true);
+  };
+
+  const handleCloseMarDetailsModal = () => {
+    setShowMarDetailsModal(false);
     setIsSelected(false);
   };
 
@@ -470,7 +484,7 @@ export const MarStatus = ({
         >
           {isPausedThenDiscontinued && <DiscontinuedDivider />}
           {renderStatus()}
-          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled} />
+          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled || isEnd} />
         </StatusContainer>
       </ConditionalTooltip>
       <StatusPopper
@@ -490,6 +504,17 @@ export const MarStatus = ({
         onConfirm={handleConfirm}
         isPast={isPast}
       />
+      {showMarDetailsModal && (
+        <MarDetails
+          onClose={handleCloseMarDetailsModal}
+          medication={medication}
+          marInfo={marInfo}
+          timeSlot={timeSlot}
+          isFuture={isFuture}
+          isPast={isPast}
+          selectedDate={selectedDate}
+        />
+      )}
     </>
   );
 };
