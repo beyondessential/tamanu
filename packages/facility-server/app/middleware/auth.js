@@ -114,7 +114,7 @@ async function localLogin(models, email, password) {
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
     return localLogin(models, email, password);
   }
 
