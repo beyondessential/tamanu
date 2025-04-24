@@ -277,7 +277,6 @@ export const authMiddleware = async (req, res, next) => {
       () => next(),
     );
   } catch (e) {
-    console.log('e', e);
     next(e);
   }
 };

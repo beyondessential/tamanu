@@ -23,7 +23,7 @@
     }
   },
   "log": {
-    "consoleLevel": 'info',
+    "consoleLevel": null,
     "enableAuditLog": true
   },
   "schedules": {

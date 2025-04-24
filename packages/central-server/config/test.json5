@@ -34,7 +34,7 @@
     "useHardcodedPermissions": false
   },
   "log": {
-    "consoleLevel": "info"
+    "consoleLevel": "warn"
   },
   "cors": {
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
