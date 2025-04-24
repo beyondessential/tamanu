@@ -540,8 +540,16 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } =
-      this.props;
+    const {
+      page,
+      lazyLoading,
+      exportName,
+      columns,
+      data,
+      allowExport,
+      count,
+      ExportButton,
+    } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {

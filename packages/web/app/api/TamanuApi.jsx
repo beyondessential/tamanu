@@ -187,7 +187,7 @@ export class TamanuApi extends ApiClient {
       facilityId,
       settings,
     });
-    return { settings };
+    return { settings, token };
   }
 
   async fetch(endpoint, query, config) {

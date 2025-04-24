@@ -224,7 +224,7 @@ export const PatientView = () => {
   const visibleTabs = usePatientTabs();
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
-    return <LoadingIndicator data-testid="loadingindicator-5msc" />;
+    return <LoadingIndicator data-testid="patient-view-loading" />;
   }
 
   return (

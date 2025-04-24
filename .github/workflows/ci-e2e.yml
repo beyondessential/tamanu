@@ -58,6 +58,13 @@ jobs:
     needs: node_modules_cache
     name: E2E Tests
     runs-on: ubuntu-latest
+    env:
+      FACILITY_FRONTEND_URL: http://localhost:5173
+      ADMIN_FRONTEND_URL: http://localhost:5174
+      LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
+      IS_PLAYWRIGHT_TEST: true
+      TEST_EMAIL: admin@tamanu.io
+      TEST_PASSWORD: admin
 
     steps:
       - uses: actions/checkout@v4
@@ -83,13 +90,12 @@ jobs:
         run: .github/scripts/e2e-test-setup.sh setup-central
       - name: Setup facility server
         run: .github/scripts/e2e-test-setup.sh setup-facility
-      
+      - name: Start servers
+        run: .github/scripts/e2e-test-setup.sh start-servers
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      
       - name: Run Playwright tests
         run: npm run e2e-test
-        
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4

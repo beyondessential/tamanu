@@ -52,6 +52,7 @@ export const TabDisplay = React.memo(
             data-testid={`icon-r0ru-${key}`}
           />
         }
+        data-testid={`tab-${key}`}
         style={{ minWidth: 'auto' }}
         label={label}
         disabled={!render}
