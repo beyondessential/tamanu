@@ -118,7 +118,7 @@ export class TamanuApi {
   async fetch(endpoint, query = {}, moreConfig = {}) {
     const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = moreConfig;
     const queryString = qs.stringify(query || {});
-    const path = `${endpoint}${query ? `?${queryString}` : ''}`;
+    const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
       headers: {
