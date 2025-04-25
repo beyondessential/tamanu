@@ -459,6 +459,31 @@ medication.get(
   }),
 );
 
+medication.get('/:id/medication-administration-record/doses', asyncHandler(async (req, res) => {
+  req.checkPermission('read', 'MedicationAdministrationRecordDose');
+  const { models, params } = req;
+  const { MedicationAdministrationRecordDose } = models;
+
+  const doses = await MedicationAdministrationRecordDose.findAll({
+    where: { marId: params.id },
+    include: [
+      {
+        association: 'givenByUser',
+        attributes: ['id', 'displayName'],
+      },
+      {
+        association: 'recordedByUser',
+        attributes: ['id', 'displayName'],
+      },
+    ],
+  });
+
+  res.send({
+    count: doses.length,
+    data: doses.map((dose) => dose.forResponse()),
+  });
+}));
+
 const givenMarUpdateSchema = z.object({
   dose: z.object({
     doseAmount: z.number(),

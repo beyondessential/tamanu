@@ -23,6 +23,8 @@ import { useSuggester } from '../../../api';
 import { useCreateDosesMutation } from '../../../api/mutations/useMarMutation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useUserQuery } from '../../../api/queries/useUserQuery';
+import { useMarDoses } from '../../../api/queries/useMarDoses';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -197,13 +199,15 @@ export const MarDetails = ({
 
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
   const [hasChanged, setHasChanged] = useState(false);
+
+  const { data: marDoses = {} } = useMarDoses(marInfo.id);
   const { mutateAsync: createDoses } = useCreateDosesMutation(marInfo.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       onClose();
     },
   });
-  const [currentDoses, setCurrentDoses] = useState(marInfo.doses);
+  const [currentDoses, setCurrentDoses] = useState(marDoses?.data);
 
   const handleOpenChangeStatusModal = () => {
     setShowChangeStatusModal(true);
@@ -225,6 +229,8 @@ export const MarDetails = ({
   };
 
   const practitionerSuggester = useSuggester('practitioner');
+
+  const { data: notGivenRecordedByUser } = useUserQuery(marInfo?.notGivenRecordedByUserId);
 
   const onRemoveDose = dose => {
     setHasChanged(true);
@@ -393,7 +399,7 @@ export const MarDetails = ({
                             fallback="Recorded by"
                           />
                         </MidText>
-                        <DarkestText mt={'3px'}>{marInfo?.notGivenRecordedByUser?.displayName}</DarkestText>
+                        <DarkestText mt={'3px'}>{notGivenRecordedByUser?.displayName}</DarkestText>
                       </Box>
                       <StyledEditButton disableRipple>
                         <StyledEditIcon />
