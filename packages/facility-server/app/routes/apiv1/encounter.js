@@ -177,7 +177,7 @@ encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { Prescription } = models;
+    const { Prescription, MedicationAdministrationRecordDose } = models;
     const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');
@@ -231,22 +231,7 @@ encounterRelations.get(
             [Op.lte]: endOfMarDate,
           },
         },
-        include: [
-          'reasonNotGiven',
-          {
-            association: 'doses',
-            include: [
-              {
-                association: 'givenByUser',
-                attributes: ['id', 'displayName'],
-              },
-            ],
-          },
-          {
-            association: 'recordedByUser',
-            attributes: ['id', 'displayName'],
-          },
-        ],
+        include: ['reasonNotGiven'],
         required: false,
       });
 
@@ -279,6 +264,57 @@ encounterRelations.get(
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
+
+    // Lazy load doses separately to avoid attributes name being truncated
+    if (marDate && objects.length > 0) {
+      // Collect all MAR IDs
+      const marIds = new Set();
+      objects.forEach((prescription) => {
+        prescription.medicationAdministrationRecords?.forEach((mar) => {
+          marIds.add(mar.id);
+        });
+      });
+
+      if (marIds.size > 0) {
+        // Fetch all doses for the collected MAR IDs
+        const allDoses = await MedicationAdministrationRecordDose.findAll({
+          where: {
+            marId: {
+              [Op.in]: Array.from(marIds),
+            },
+          },
+          include: [
+            {
+              association: 'givenByUser',
+              attributes: ['id', 'displayName'],
+            },
+            {
+              association: 'recordedByUser',
+              attributes: ['id', 'displayName'],
+            },
+          ],
+        });
+
+        // Map doses back to their MARs
+        const dosesByMarId = allDoses.reduce((acc, dose) => {
+          const marId = dose.marId;
+          if (!acc[marId]) {
+            acc[marId] = [];
+          }
+          acc[marId].push(dose);
+          return acc;
+        }, {});
+
+        // Attach doses to the MARs in the original objects array
+        objects.forEach((prescription) => {
+          prescription.medicationAdministrationRecords?.forEach((mar) => {
+            mar.doses = dosesByMarId[mar.id] || [];
+            // Sequelize instances need dataValues set directly for associations loaded this way
+            mar.setDataValue('doses', mar.doses);
+          });
+        });
+      }
+    }
 
     const data = objects.map((x) => x.forResponse());
 

@@ -7,8 +7,8 @@ export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
   declare doseAmount: number;
   declare givenTime: Date;
-  declare givenByUserId?: string;
-  declare recordedByUserId?: string;
+  declare givenByUserId: string;
+  declare recordedByUserId: string;
   declare marId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -24,6 +24,11 @@ export class MedicationAdministrationRecordDose extends Model {
         }),
         givenByUserId: {
           type: DataTypes.STRING,
+          allowNull: false,
+        },
+        recordedByUserId: {
+          type: DataTypes.STRING,
+          allowNull: false,
         },
         marId: {
           type: DataTypes.STRING,
@@ -46,6 +51,10 @@ export class MedicationAdministrationRecordDose extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'givenByUserId',
       as: 'givenByUser',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'recordedByUserId',
+      as: 'recordedByUser',
     });
   }
 

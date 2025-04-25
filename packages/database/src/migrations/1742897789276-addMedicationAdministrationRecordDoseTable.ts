@@ -18,7 +18,15 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     given_by_user_id: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
+    recorded_by_user_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'users',
         key: 'id',

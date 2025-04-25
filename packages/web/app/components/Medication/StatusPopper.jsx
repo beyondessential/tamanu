@@ -278,6 +278,7 @@ const GivenScreen = ({
         doseAmount,
         givenTime,
         givenByUserId: currentUser?.id,
+        recordedByUserId: currentUser?.id,
       },
     });
   };

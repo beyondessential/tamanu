@@ -34,3 +34,17 @@ export const useGivenMarMutation = (existingMarId = null, useMutationOptions = {
     },
   );
 };
+
+export const useCreateDosesMutation = (marId, useMutationOptions = {}) => {
+  const api = useApi();
+
+  return useMutation(
+    payload => api.post(`medication/medication-administration-record/${marId}/doses`, payload),
+    {
+      ...useMutationOptions,
+      onSuccess: (data, variables, context) => {
+        useMutationOptions.onSuccess?.(data, variables, context);
+      },
+    },
+  );
+};
