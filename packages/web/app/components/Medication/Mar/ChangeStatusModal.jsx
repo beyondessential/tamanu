@@ -158,7 +158,7 @@ export const ChangeStatusModal = ({
       reasonNotGivenId: yup
         .string()
         .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-      recordedByUserId: yup
+      notGivenRecordedByUserId: yup
         .string()
         .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
     });
@@ -174,6 +174,7 @@ export const ChangeStatusModal = ({
           status: initialStatus,
           recordedByUserId: currentUser?.id,
           givenByUserId: currentUser?.id,
+          notGivenRecordedByUserId: currentUser?.id,
           doseAmount: initialPrescribedDose,
           givenTime: isPast
             ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
@@ -216,7 +217,7 @@ export const ChangeStatusModal = ({
                     required
                   />
                   <Field
-                    name="recordedByUserId"
+                    name="notGivenRecordedByUserId"
                     component={AutocompleteField}
                     label="Recorded by"
                     suggester={practitionerSuggester}

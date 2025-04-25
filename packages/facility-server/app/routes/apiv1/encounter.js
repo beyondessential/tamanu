@@ -231,7 +231,12 @@ encounterRelations.get(
             [Op.lte]: endOfMarDate,
           },
         },
-        include: ['reasonNotGiven'],
+        include: [
+          {
+            association: 'reasonNotGiven',
+            attributes: ['id', 'name', 'type'],
+          },
+        ],
         required: false,
       });
 
@@ -311,6 +316,31 @@ encounterRelations.get(
             mar.doses = dosesByMarId[mar.id] || [];
             // Sequelize instances need dataValues set directly for associations loaded this way
             mar.setDataValue('doses', mar.doses);
+          });
+        });
+
+        const notGivenRecordedByUserIds = new Set();
+        objects.forEach((prescription) => {
+          prescription.medicationAdministrationRecords?.forEach((mar) => {
+            notGivenRecordedByUserIds.add(mar.notGivenRecordedByUserId);
+          });
+        });
+
+        const notGivenRecordedByUsers = await models.User.findAll({
+          where: {
+            id: {
+              [Op.in]: Array.from(notGivenRecordedByUserIds),
+            },
+          },
+        });
+
+        // Map notGivenRecordedByUser back to MARs
+        objects.forEach((prescription) => {
+          prescription.medicationAdministrationRecords?.forEach((mar) => {
+            mar.notGivenRecordedByUser = notGivenRecordedByUsers.find(
+              (user) => user.id === mar.notGivenRecordedByUserId,
+            );
+            mar.setDataValue('notGivenRecordedByUser', mar.notGivenRecordedByUser);
           });
         });
       }

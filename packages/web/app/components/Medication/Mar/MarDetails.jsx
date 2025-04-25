@@ -393,7 +393,7 @@ export const MarDetails = ({
                             fallback="Recorded by"
                           />
                         </MidText>
-                        <DarkestText mt={'3px'}>{marInfo.recordedByUser.displayName}</DarkestText>
+                        <DarkestText mt={'3px'}>{marInfo?.notGivenRecordedByUser?.displayName}</DarkestText>
                       </Box>
                       <StyledEditButton disableRipple>
                         <StyledEditIcon />

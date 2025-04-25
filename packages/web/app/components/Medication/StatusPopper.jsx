@@ -273,7 +273,6 @@ const GivenScreen = ({
     await updateMar({
       dueAt,
       prescriptionId,
-      recordedByUserId: currentUser?.id,
       dose: {
         doseAmount,
         givenTime,
@@ -425,7 +424,7 @@ export const StatusPopper = ({
       reasonNotGivenId,
       dueAt,
       prescriptionId,
-      recordedByUserId: currentUser?.id,
+      notGivenRecordedByUserId: currentUser?.id,
     });
 
     setShowReasonScreen(false);

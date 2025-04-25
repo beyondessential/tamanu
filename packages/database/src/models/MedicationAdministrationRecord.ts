@@ -26,7 +26,7 @@ export class MedicationAdministrationRecord extends Model {
   declare prescriptionId?: string;
   declare changingStatusReason?: string;
   declare reasonNotGivenId?: string;
-  declare recordedByUserId?: string;
+  declare notGivenRecordedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -228,8 +228,8 @@ export class MedicationAdministrationRecord extends Model {
       as: 'doses',
     });
     this.belongsTo(models.User, {
-      foreignKey: 'recordedByUserId',
-      as: 'recordedByUser',
+      foreignKey: 'notGivenRecordedByUserId',
+      as: 'notGivenRecordedByUser',
     });
   }
 
