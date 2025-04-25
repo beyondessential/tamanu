@@ -116,16 +116,24 @@ export const ChangeStatusModal = ({
 
   const handleSubmit = async values => {
     if (values.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-      await updateMarToNotGiven(values);
+      const { reasonNotGivenId, notGivenRecordedByUserId, status, changingStatusReason } = values;
+      await updateMarToNotGiven({
+        reasonNotGivenId,
+        notGivenRecordedByUserId,
+        status,
+        changingStatusReason,
+      });
     } else {
-      const { doseAmount, givenTime, givenByUserId, ...rest } = values;
+      const { doseAmount, givenTime, givenByUserId, recordedByUserId, status, changingStatusReason } = values;
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
           givenTime,
           givenByUserId,
+          recordedByUserId,
         },
-        ...rest,
+        status,
+        changingStatusReason,
       });
     }
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
