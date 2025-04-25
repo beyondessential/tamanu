@@ -13,6 +13,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+  NOTE_TYPES,
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
@@ -480,8 +481,9 @@ medication.put(
       User,
     } = models;
 
-    const { dose, recordedByUserId, changingStatusReason } =
-      await givenMarUpdateSchema.parseAsync(req.body);
+    const { dose, recordedByUserId, changingStatusReason } = await givenMarUpdateSchema.parseAsync(
+      req.body,
+    );
 
     const record = await MedicationAdministrationRecord.findByPk(params.id);
     if (!record) {
@@ -763,6 +765,48 @@ medication.post(
     });
 
     res.send(record.forResponse());
+  }),
+);
+
+const updateMedicationAdministrationRecordInputSchema = z
+  .object({
+    isError: z.boolean().optional(),
+    errorNotes: z.string().optional(),
+  })
+  .strip();
+medication.put(
+  '/medication-administration-record/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationAdministrationRecord } = models;
+    req.checkPermission('write', 'MedicationAdministrationRecord');
+
+    const { isError, errorNotes } =
+      await updateMedicationAdministrationRecordInputSchema.parseAsync(req.body);
+
+    const existingMar = await MedicationAdministrationRecord.findByPk(params.id, {
+      include: ['prescription'],
+    });
+    if (!existingMar) {
+      throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+    }
+
+    existingMar.isError = isError;
+    existingMar.errorNotes = errorNotes;
+    await existingMar.save();
+
+    const currentDate = getCurrentDateTimeString();
+
+    await existingMar.createNote({
+      content:
+        `Medication error recorded for ${existingMar.prescription.name} dose recorded at ${currentDate}. ${errorNotes}`.trim(),
+      authorId: req.user.id,
+      recordId: existingMar.id,
+      date: currentDate,
+      noteType: NOTE_TYPES.SYSTEM,
+    });
+
+    res.send(existingMar.forResponse());
   }),
 );
 

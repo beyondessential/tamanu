@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { Button } from '../../Button';
+import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
-import { CheckField, Field, Form } from '../../Field';
+import { CheckField, Field, Form, TextField } from '../../Field';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { IconButton } from '@mui/material';
 import { Edit, Add } from '@material-ui/icons';
@@ -15,7 +15,10 @@ import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/con
 import { formatTimeSlot, getDose } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
-
+import { FormGrid } from '../../FormGrid';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEncounter } from '../../../contexts/Encounter';
+import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 670px;
@@ -111,10 +114,17 @@ export const MarDetails = ({
   isFuture,
   isPast,
   selectedDate,
+  isRecordedOutsideAdministrationSchedule,
+  isDoseAmountNotMatch,
+  isRecordedDuringPaused,
 }) => {
+  const queryClient = useQueryClient();
+  const { encounter } = useEncounter();
   const { getTranslation, getEnumTranslation } = useTranslation();
 
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
+
+  const { mutateAsync: updateMar } = useUpdateMarMutation(marInfo?.id);
 
   const handleOpenChangeStatusModal = () => {
     setShowChangeStatusModal(true);
@@ -129,8 +139,10 @@ export const MarDetails = ({
     handleCloseChangeStatusModal();
   };
 
-  const onSubmit = async data => {
-    console.log('data', data);
+  const onSubmit = async (data, { setFieldValue }) => {
+    await updateMar(data);
+    setFieldValue('isError', false);
+    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
   };
 
   return (
@@ -148,29 +160,98 @@ export const MarDetails = ({
       >
         <Form
           onSubmit={onSubmit}
-          onSuccess={onClose}
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{}}
-          render={() => (
+          render={({ values }) => (
             <>
               <Container>
                 <MarInfoPane medication={medication} marInfo={marInfo} />
-                <DetailsContainer mt={'14px'} display={'flex'}>
-                  <Field
-                    label={
+                <DetailsContainer mt={'14px'} display={'flex'} flexDirection={'column'}>
+                  {marInfo?.isError ? (
+                    <Box display={'flex'} flexDirection={'column'}>
                       <Box display={'flex'} alignItems={'center'}>
-                        <DarkText>
+                        <DarkText fontWeight={500}>
                           <TranslatedText
-                            stringId="medication.mar.markAsMedicationError.label"
-                            fallback="Mark as medication error"
+                            stringId="medication.mar.medicationMarkedAsError"
+                            fallback="Medication has been marked with error"
                           />
                         </DarkText>
                         <StyledPriorityHighIcon />
                       </Box>
-                    }
-                    name="markAsMedicationError"
-                    component={CheckField}
-                  />
+                      <MidText mt={'15px'}>
+                        <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
+                      </MidText>
+                      <DarkestText mt={'3px'}>{marInfo.errorNotes || '-'}</DarkestText>
+                    </Box>
+                  ) : (
+                    <FormGrid style={{ width: '100%' }}>
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <Field
+                          label={
+                            <Box display={'flex'} alignItems={'center'}>
+                              <DarkText>
+                                <TranslatedText
+                                  stringId="medication.mar.markAsMedicationError.label"
+                                  fallback="Mark as medication error"
+                                />
+                              </DarkText>
+                              <StyledPriorityHighIcon />
+                            </Box>
+                          }
+                          name="isError"
+                          component={CheckField}
+                        />
+                      </div>
+                      {values.isError && (
+                        <div style={{ gridColumn: '1 / -1', marginTop: '-8px' }}>
+                          <Field
+                            name="errorNotes"
+                            label={
+                              <TranslatedText stringId="medication.mar.notes" fallback="Notes" />
+                            }
+                            component={TextField}
+                          />
+                        </div>
+                      )}
+                    </FormGrid>
+                  )}
+                  {(isRecordedOutsideAdministrationSchedule ||
+                    isDoseAmountNotMatch ||
+                    isRecordedDuringPaused) && (
+                    <>
+                      <HorizontalSeparator />
+                      <MidText>
+                        <TranslatedText
+                          stringId="medication.mar.medicationAlert"
+                          fallback="Medication alert"
+                        />
+                      </MidText>
+                      {isDoseAmountNotMatch && (
+                        <DarkestText mt={'3px'}>
+                          <TranslatedText
+                            stringId="medication.mar.doseAmountNotMatch"
+                            fallback="Dose amount does not match prescription"
+                          />
+                        </DarkestText>
+                      )}
+                      {isRecordedOutsideAdministrationSchedule && (
+                        <DarkestText mt={'3px'}>
+                          <TranslatedText
+                            stringId="medication.mar.recordedOutsideAdministrationSchedule"
+                            fallback="Dose recorded outside of administration schedule"
+                          />
+                        </DarkestText>
+                      )}
+                      {isRecordedDuringPaused && (
+                        <DarkestText mt={'3px'}>
+                          <TranslatedText
+                            stringId="medication.mar.recordedDuringPaused"
+                            fallback="Dose recorded while medication was paused"
+                          />
+                        </DarkestText>
+                      )}
+                    </>
+                  )}
                 </DetailsContainer>
                 <DetailsContainer mt={'14px'}>
                   <MidText>
@@ -276,30 +357,26 @@ export const MarDetails = ({
 
               <Box
                 mx={-4}
-                px={5}
+                px={4}
                 pt={2.5}
                 borderTop={`1px solid ${Colors.outline}`}
                 display={'flex'}
                 justifyContent={'flex-end'}
               >
-                {/* TODO: replace by real condition  */}
-                {/* {isMultipleDoses ? (
-                <Button onClick={onClose}>
-                  <TranslatedText stringId="general.action.close" fallback="Close" />
-                </Button>
-              ) : (
-                <Box display={'flex'} style={{ gap: '10px' }}>
-                  <OutlinedButton onClick={onClose}>
-                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                  </OutlinedButton>
-                  <Button type="submit">
-                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                {values.isError ? (
+                  <Box display={'flex'} style={{ gap: '10px' }}>
+                    <OutlinedButton onClick={onClose}>
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    </OutlinedButton>
+                    <Button type="submit">
+                      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                    </Button>
+                  </Box>
+                ) : (
+                  <Button onClick={onClose} type="submit">
+                    <TranslatedText stringId="general.action.close" fallback="Close" />
                   </Button>
-                </Box>
-              )} */}
-                <Button onClick={onClose}>
-                  <TranslatedText stringId="general.action.close" fallback="Close" />
-                </Button>
+                )}
               </Box>
             </>
           )}
