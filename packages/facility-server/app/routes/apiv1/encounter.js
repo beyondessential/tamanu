@@ -177,7 +177,7 @@ encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { Prescription, MedicationAdministrationRecordDose } = models;
+    const { Prescription } = models;
     const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');

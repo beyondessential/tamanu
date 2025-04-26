@@ -17,3 +17,7 @@ Reference to the [user](#!/model/model.public.users) who physically administered
 {% docs medication_administration_record_doses__mar_id %}
 Reference to the MAR [medication administration record](#!/model/model.public.medication_administration_records) to which this dose belongs.
 {% enddocs %}
+
+{% docs medication_administration_record_doses__recorded_by_user_id %}
+Reference to the [user](#!/model/model.public.users) who recorded the details of this specific dose administration in the system. This may or may not be the same user who physically administered the dose (`given_by_user_id`).
+{% enddocs %}

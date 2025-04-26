@@ -29,6 +29,15 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__given_by_user_id')
               }}"
+            data_tests:
+              - not_null
+          - name: recorded_by_user_id
+            data_type: character varying(255)
+            description: "{{
+              doc('medication_administration_record_doses__recorded_by_user_id')
+              }}"
+            data_tests:
+              - not_null
           - name: mar_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__mar_id') }}"
