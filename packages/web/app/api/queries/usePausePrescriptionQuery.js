@@ -6,7 +6,7 @@ export const usePausePrescriptionQuery = (prescriptionId, encounterId) => {
   const api = useApi();
 
   return useQuery(
-    [`medication/${prescriptionId}/pause`],
+    [`medication/${prescriptionId}/pause`, encounterId],
     () =>
       api.get(
         `medication/${prescriptionId}/pause`,

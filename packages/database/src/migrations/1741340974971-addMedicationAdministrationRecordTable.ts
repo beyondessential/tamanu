@@ -53,6 +53,14 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    is_error: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    error_notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
