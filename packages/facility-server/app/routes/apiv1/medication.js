@@ -646,7 +646,7 @@ medication.put(
 
     //validate not given reason
     const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
-      where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+      where: { type: REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON },
     });
     if (!reasonNotGiven) {
       throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
@@ -719,7 +719,7 @@ medication.post(
 
     //validate not given reason
     const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
-      where: { type: REFERENCE_TYPES.REASON_NOT_GIVEN },
+      where: { type: REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON },
     });
     if (!reasonNotGiven) {
       throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
