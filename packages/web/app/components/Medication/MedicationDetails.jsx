@@ -12,6 +12,8 @@ import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDose,
+  getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -25,7 +27,7 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
+import { formatTimeSlot } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';

@@ -1,13 +1,16 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
+import {
+  findAdministrationTimeSlotFromIdealTime,
+  getDose,
+  getTranslatedFrequency,
+} from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '../../../utils/medications';
 import { MarStatus } from '../MarStatus';
-import { findAdministrationTimeSlotFromIdealTime } from '@tamanu/shared/utils/medication';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
 import { useEncounter } from '../../../contexts/Encounter';
 

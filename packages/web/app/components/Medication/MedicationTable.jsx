@@ -4,13 +4,14 @@ import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation } from 'react-router-dom';
+import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
+import { formatTimeSlot } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';

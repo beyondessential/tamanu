@@ -5,11 +5,13 @@ import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { Box } from '@material-ui/core';
-import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../../utils/medications';
+import { formatTimeSlot } from '../../../utils/medications';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDose,
+  getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { format } from 'date-fns';
 
