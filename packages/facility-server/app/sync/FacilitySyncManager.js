@@ -21,6 +21,7 @@ import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { addChangelogRecords } from './addChangelogRecords';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -194,6 +195,7 @@ export class FacilitySyncManager {
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const modelsForPush = getModelsForPush(this.models);
     const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
+    await addChangelogRecords(this.models);
     if (outgoingChanges.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
         totalPushing: outgoingChanges.length,
