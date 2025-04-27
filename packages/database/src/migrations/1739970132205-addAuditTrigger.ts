@@ -16,7 +16,7 @@ export async function up(query: QueryInterface): Promise<void> {
       table_oid,
       table_schema,
       table_name,
-      updated_by_user_id,
+      author_id,
       record_id,
       record_update,
       record_created_at,
@@ -28,7 +28,7 @@ export async function up(query: QueryInterface): Promise<void> {
       TG_RELID,                 -- table_oid
       TG_TABLE_SCHEMA,          -- table_schema
       TG_TABLE_NAME,            -- table_name
-      get_session_config('${AUDIT_USERID_KEY}', uuid_nil()::text), -- updated_by_user_id
+      get_session_config('${AUDIT_USERID_KEY}', uuid_nil()::text)
       NEW.id,                   -- record_id
       TG_OP = 'UPDATE',         -- record_update
       NEW.created_at,           -- created_at

@@ -5,15 +5,8 @@ export async function up(query: QueryInterface) {
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION adjusted_offset()
     RETURNS interval AS $$
-      DECLARE
-        the_offset interval;
       BEGIN
-        SELECT value::int8 * '1 microsecond'::interval INTO the_offset
-        FROM local_system_facts WHERE key = '${FACT_TIME_OFFSET}';
-        IF NOT FOUND THEN
-          the_offset = '0 microseconds'::interval;
-        END IF;
-        RETURN the_offset;
+        RETURN local_system_fact('${FACT_TIME_OFFSET}', '0 microseconds')::interval;
       END;
     $$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
   `);
@@ -28,6 +21,6 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
-  await query.sequelize.query('DROP FUNCTION adjusted_timestamp');
-  await query.sequelize.query('DROP FUNCTION adjusted_offset');
+  await query.sequelize.query('DROP FUNCTION adjusted_timestamp CASCADE');
+  await query.sequelize.query('DROP FUNCTION adjusted_offset CASCADE');
 }
