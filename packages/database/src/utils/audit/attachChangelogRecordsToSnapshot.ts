@@ -1,16 +1,27 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 
+import type { SyncSnapshotAttributes } from 'types/sync'
+
 type QueryConfig = {
   minSourceTick: number;
   maxSourceTick?: number;
   safeListedTableNames?: string[];
 };
 
+type ChangelogRecord = {
+  [key: string]: any,
+  record_id: string
+}
+
+type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
+  changelogRecords?: ChangelogRecord[]
+}
+
 export const attachChangelogRecordsToSnapshot = async (
   sequelize: Sequelize,
-  snapshotRecords: any[],
+  snapshotRecords:  SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, safeListedTableNames }: QueryConfig,
-) => {
+): Promise<SyncSnapshotAttributesWithChangelog[]> => {
   const changelogRecords = (await sequelize.query(
     `
     SELECT * FROM logs.changes
@@ -28,19 +39,19 @@ export const attachChangelogRecordsToSnapshot = async (
         recordTypeAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
       },
     },
-  )) as any[];
+  )) as ChangelogRecord[];
 
   if (!changelogRecords.length) {
-    return snapshotRecords;
+    return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
   }
 
-  const changelogRecordsByRecordId = changelogRecords.reduce((acc, changelogRecord) => {
+  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>((acc, changelogRecord) => {
     (acc[changelogRecord.record_id] = acc[changelogRecord.record_id] || []).push(changelogRecord);
     return acc;
   }, {});
 
   snapshotRecords.forEach((snapshotRecord) => {
-    snapshotRecord.changelogRecords = changelogRecordsByRecordId[snapshotRecord.recordId] || [];
+    (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords = changelogRecordsByRecordId[snapshotRecord.recordId] || [];
   });
-  return snapshotRecords;
+  return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
 };
