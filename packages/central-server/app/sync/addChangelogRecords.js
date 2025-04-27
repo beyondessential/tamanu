@@ -34,7 +34,7 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
   const changelogRecords = await sequelize.query(
     `
       SELECT * FROM logs.changes
-      WHERE updated_at_sync_tick BETWEEN :minSourceTick AND :maxSourceTick
+      WHERE updated_at_sync_tick > :minSourceTick AND updated_at_sync_tick < :maxSourceTick
       AND table_name IN (:whiteListedTableNames)
       AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
       `,
