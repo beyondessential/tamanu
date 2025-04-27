@@ -29,11 +29,23 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__given_by_user_id')
               }}"
+            data_tests:
+              - not_null
+          - name: recorded_by_user_id
+            data_type: character varying(255)
+            description: "{{
+              doc('medication_administration_record_doses__recorded_by_user_id')
+              }}"
+            data_tests:
+              - not_null
           - name: mar_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__mar_id') }}"
             data_tests:
               - not_null
+          - name: is_removed
+            data_type: boolean
+            description: "{{ doc('medication_administration_record_doses__is_removed') }}"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in
@@ -54,5 +66,15 @@ sources:
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in
               medication_administration_record_doses."
+            data_tests:
+              - not_null
+          - name: reason_for_removal
+            data_type: character varying(255)
+            description: "{{
+              doc('medication_administration_record_doses__reason_for_removal')
+              }}"
+          - name: dose_index
+            data_type: integer
+            description: "{{ doc('medication_administration_record_doses__dose_index') }}"
             data_tests:
               - not_null

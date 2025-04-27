@@ -7,19 +7,19 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import * as yup from 'yup';
-import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
-import { Button } from '../Button';
+import { Colors } from '../../../constants';
+import { TranslatedText } from '../../Translation';
+import { Button } from '../../Button';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../api/mutations/useMarMutation';
-import { useEncounter } from '../../contexts/Encounter';
-import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
-import { Field, Form, NumberField } from '../Field';
-import { TimePickerField } from '../Field/TimePickerField';
-import { MAR_WARNING_MODAL } from '../../constants/medication';
-import { WarningModal } from './WarningModal';
-import { useAuth } from '../../contexts/Auth';
-import { isWithinTimeSlot } from '../../utils/medications';
+import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
+import { useEncounter } from '../../../contexts/Encounter';
+import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
+import { Field, Form, NumberField } from '../../Field';
+import { TimePickerField } from '../../Field/TimePickerField';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { WarningModal } from '../WarningModal';
+import { useAuth } from '../../../contexts/Auth';
+import { isWithinTimeSlot } from '../../../utils/medications';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -237,6 +237,7 @@ const GivenScreen = ({
   const { mutateAsync: updateMar } = useGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      queryClient.invalidateQueries(['marDoses', marId]);
       onClose();
     },
   });
@@ -278,6 +279,7 @@ const GivenScreen = ({
         doseAmount,
         givenTime,
         givenByUserId: currentUser?.id,
+        recordedByUserId: currentUser?.id,
       },
     });
   };
@@ -373,7 +375,7 @@ const GivenScreen = ({
               stringId="medication.mar.timeGiven.validation.outside"
               fallback="Time is outside selected window"
             />,
-            (value) => isWithinTimeSlot(timeSlot, value, isFuture),
+            value => isWithinTimeSlot(timeSlot, value, isFuture),
           ),
       })}
     />

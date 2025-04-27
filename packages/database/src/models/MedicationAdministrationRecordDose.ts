@@ -6,9 +6,12 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
   declare doseAmount: number;
+  declare doseIndex: number;
+  declare isRemoved: boolean;
+  declare reasonForRemoval?: string;
   declare givenTime: Date;
-  declare givenByUserId?: string;
-  declare recordedByUserId?: string;
+  declare givenByUserId: string;
+  declare recordedByUserId: string;
   declare marId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -24,10 +27,27 @@ export class MedicationAdministrationRecordDose extends Model {
         }),
         givenByUserId: {
           type: DataTypes.STRING,
+          allowNull: false,
+        },
+        recordedByUserId: {
+          type: DataTypes.STRING,
+          allowNull: false,
         },
         marId: {
           type: DataTypes.STRING,
           allowNull: false,
+        },
+        isRemoved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        doseIndex: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+        reasonForRemoval: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
       },
       {
@@ -42,10 +62,13 @@ export class MedicationAdministrationRecordDose extends Model {
       foreignKey: 'marId',
       as: 'medicationAdministrationRecord',
     });
-    
     this.belongsTo(models.User, {
       foreignKey: 'givenByUserId',
       as: 'givenByUser',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'recordedByUserId',
+      as: 'recordedByUser',
     });
   }
 
@@ -56,4 +79,4 @@ export class MedicationAdministrationRecordDose extends Model {
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
-} 
+}

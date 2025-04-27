@@ -23,7 +23,7 @@ The timestamp indicating when the administration status (e.g., `GIVEN` or `NOT_G
 {% enddocs %}
 
 {% docs medication_administration_records__recorded_by_user_id %}
-Reference to the [User](#!/source/source.tamanu.tamanu.users) who recorded the medication administration status. This is the healthcare professional who documented whether the medication was given or not given.
+Reference to the [user](#!/model/model.public.users) who recorded that the medication was given or not given.
 {% enddocs %}
 
 {% docs medication_administration_records__reason_not_given_id %}

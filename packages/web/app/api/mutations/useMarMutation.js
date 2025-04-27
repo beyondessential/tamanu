@@ -45,3 +45,14 @@ export const useUpdateMarMutation = (marId, useMutationOptions = {}) => {
     },
   );
 };
+
+export const useDeleteDoseMutation = (doseId, useMutationOptions = {}) => {
+  const api = useApi();
+
+  return useMutation(
+    payload => api.delete(`medication/medication-administration-record/doses/${doseId}`, payload),
+    {
+      ...useMutationOptions,
+    },
+  );
+};

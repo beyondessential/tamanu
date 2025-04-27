@@ -111,24 +111,48 @@ export const ChangeStatusModal = ({
   const initialStatus = marInfo?.status;
   const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
 
-  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marInfo?.id);
-  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marInfo?.id);
+  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marInfo?.id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      queryClient.invalidateQueries(['marDoses', marInfo?.id]);
+      onClose();
+    },
+  });
+  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marInfo?.id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      queryClient.invalidateQueries(['marDoses', marInfo?.id]);
+      onClose();
+    },
+  });
 
   const handleSubmit = async values => {
     if (values.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-      await updateMarToNotGiven(values);
+      const { reasonNotGivenId, recordedByUserId, changingStatusReason } = values;
+      await updateMarToNotGiven({
+        reasonNotGivenId,
+        recordedByUserId,
+        changingStatusReason,
+      });
     } else {
-      const { doseAmount, givenTime, givenByUserId, ...rest } = values;
+      const {
+        doseAmount,
+        givenTime,
+        givenByUserId,
+        recordedByUserId,
+        changingStatusReason,
+      } = values;
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
           givenTime,
           givenByUserId,
+          recordedByUserId,
         },
-        ...rest,
+        recordedByUserId,
+        changingStatusReason,
       });
     }
-    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     onClose();
   };
 

@@ -232,15 +232,9 @@ encounterRelations.get(
           },
         },
         include: [
-          'reasonNotGiven',
           {
-            association: 'doses',
-            include: [
-              {
-                association: 'givenByUser',
-                attributes: ['id', 'displayName'],
-              },
-            ],
+            association: 'reasonNotGiven',
+            attributes: ['id', 'name', 'type'],
           },
           {
             association: 'recordedByUser',
