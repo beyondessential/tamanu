@@ -8,6 +8,7 @@ type QueryConfig = {
   safeListedTableNames?: string[];
 };
 
+// TODO AUDIT CHANGES: proper type
 type ChangelogRecord = {
   [key: string]: any,
   record_id: string
@@ -22,6 +23,9 @@ export const attachChangelogRecordsToSnapshot = async (
   snapshotRecords:  SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, safeListedTableNames }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
+  if (!snapshotRecords.length) {
+    return (snapshotRecords as SyncSnapshotAttributesWithChangelog[])
+  }
   const changelogRecords = (await sequelize.query(
     `
     SELECT * FROM logs.changes
@@ -40,10 +44,6 @@ export const attachChangelogRecordsToSnapshot = async (
       },
     },
   )) as ChangelogRecord[];
-
-  if (!changelogRecords.length) {
-    return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
-  }
 
   const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>((acc, changelogRecord) => {
     (acc[changelogRecord.record_id] = acc[changelogRecord.record_id] || []).push(changelogRecord);
