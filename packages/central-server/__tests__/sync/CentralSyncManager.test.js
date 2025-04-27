@@ -433,7 +433,7 @@ describe('CentralSyncManager', () => {
       expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
     });
 
-    it('includes changes in outgoing changes', async () => {
+    it('includes audit changes in outgoing changes', async () => {
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       await models.Setting.set('audit.changes.enabled', true);

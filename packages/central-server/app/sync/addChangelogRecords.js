@@ -28,8 +28,8 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
   if (!lookupTicks.length) {
     return snapshotRecords;
   }
-  const minSourceTick = lookupTicks.at(0).dataValues.sourceStartTick;
-  const maxSourceTick = lookupTicks.at(-1).dataValues.sourceStartTick;
+  const minSourceTick = lookupTicks.at(0).sourceStartTick;
+  const maxSourceTick = lookupTicks.at(-1).sourceStartTick;
 
   const changelogRecords = await sequelize.query(
     `
