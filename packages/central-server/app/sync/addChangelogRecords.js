@@ -9,7 +9,7 @@ import { Op, QueryTypes } from 'sequelize';
 // send to a facility, as the snapshot has already run the right logic across the raw records, so
 // if a record is included there, we know the recent changelog entries should be included too.
 
-const TABLE_NAMES_TO_SYNC_CHANGELOGS = ['patient_program_registrations']; // TODO: table name or model name?
+const TABLES_TO_SYNC_CHANGELOGS = ['patient_program_registrations'];
 
 export const addChangelogRecords = async (models, pullSince, pullUntil, snapshotRecords) => {
   const { SyncLookupTick } = models;
@@ -36,15 +36,15 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
       SELECT * FROM logs.changes
       WHERE updated_at_sync_tick BETWEEN :minSourceTick AND :maxSourceTick
       AND table_name IN (:whiteListedTableNames)
-      AND CONCAT(table_name, '-', record_id) IN (:tableNameAndIds)
+      AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
       `,
     {
       type: QueryTypes.SELECT,
       replacements: {
         minSourceTick,
         maxSourceTick,
-        whiteListedTableNames: TABLE_NAMES_TO_SYNC_CHANGELOGS, // TODO: move this to a config
-        tableNameAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
+        whiteListedTableNames: TABLES_TO_SYNC_CHANGELOGS, // TODO: move this to a config
+        recordTypeAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
       },
     },
   );
