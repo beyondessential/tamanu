@@ -68,10 +68,12 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex('medication_administration_record_doses', ['mar_id', 'dose_index']);
+  await query.addIndex('medication_administration_record_doses', ['mar_id']);
+  await query.addIndex('medication_administration_record_doses', ['dose_index']);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.removeIndex('medication_administration_record_doses', ['mar_id', 'dose_index']);
+  await query.removeIndex('medication_administration_record_doses', ['dose_index']);
+  await query.removeIndex('medication_administration_record_doses', ['mar_id']);
   await query.dropTable('medication_administration_record_doses');
 }
