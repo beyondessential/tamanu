@@ -26,10 +26,6 @@ Reference to the [user](#!/model/model.public.users) who recorded the details of
 Indicates whether this dose record has been removed or voided.
 {% enddocs %}
 
-{% docs medication_administration_record_doses__is_primary_dose %}
-Indicates whether this is the primary or main dose in a multi-dose administration.
-{% enddocs %}
-
 {% docs medication_administration_record_doses__reason_for_removal %}
 A text field explaining why this dose record was removed or voided.
 {% enddocs %}

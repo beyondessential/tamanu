@@ -68,10 +68,6 @@ sources:
               medication_administration_record_doses."
             data_tests:
               - not_null
-          - name: is_primary_dose
-            data_type: boolean
-            description: "{{ doc('medication_administration_record_doses__is_primary_dose')
-              }}"
           - name: reason_for_removal
             data_type: character varying(255)
             description: "{{
