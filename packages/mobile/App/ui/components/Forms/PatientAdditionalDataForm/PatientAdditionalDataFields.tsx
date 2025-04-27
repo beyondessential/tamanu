@@ -167,7 +167,6 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
-  isUsingHierarchyLogic: boolean,
 ): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
@@ -175,7 +174,7 @@ function getComponentForField(
   if (selectFields.includes(fieldName)) {
     return SelectField;
   }
-  if (isUsingHierarchyLogic && fieldName === ADDRESS_HIERARCHY_VILLAGE_ID) {
+  if (fieldName === ADDRESS_HIERARCHY_VILLAGE_ID) {
     return AddressHierarchyField;
   }
   if (relationIdFields.includes(fieldName)) {
@@ -220,10 +219,8 @@ export const PatientAdditionalDataFields = ({
 
   if (loading) return [];
 
-  const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');
-
   return padFields.map((field: string) => {
-    const Component = getComponentForField(field, customFieldIds, isUsingHierarchyLogic);
+    const Component = getComponentForField(field, customFieldIds);
     const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });
