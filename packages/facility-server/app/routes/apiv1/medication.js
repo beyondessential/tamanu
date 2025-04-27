@@ -13,6 +13,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+  NOTE_TYPES,
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
@@ -459,30 +460,33 @@ medication.get(
   }),
 );
 
-medication.get('/:id/medication-administration-record/doses', asyncHandler(async (req, res) => {
-  req.checkPermission('read', 'MedicationAdministrationRecordDose');
-  const { models, params } = req;
-  const { MedicationAdministrationRecordDose } = models;
+medication.get(
+  '/:id/medication-administration-record/doses',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'MedicationAdministrationRecordDose');
+    const { models, params } = req;
+    const { MedicationAdministrationRecordDose } = models;
 
-  const doses = await MedicationAdministrationRecordDose.findAll({
-    where: { marId: params.id },
-    include: [
-      {
-        association: 'givenByUser',
-        attributes: ['id', 'displayName'],
-      },
-      {
-        association: 'recordedByUser',
-        attributes: ['id', 'displayName'],
-      },
-    ],
-  });
+    const doses = await MedicationAdministrationRecordDose.findAll({
+      where: { marId: params.id },
+      include: [
+        {
+          association: 'givenByUser',
+          attributes: ['id', 'displayName'],
+        },
+        {
+          association: 'recordedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+    });
 
-  res.send({
-    count: doses.length,
-    data: doses.map((dose) => dose.forResponse()),
-  });
-}));
+    res.send({
+      count: doses.length,
+      data: doses.map((dose) => dose.forResponse()),
+    });
+  }),
+);
 
 const givenMarUpdateSchema = z.object({
   dose: z.object({
@@ -491,6 +495,7 @@ const givenMarUpdateSchema = z.object({
     givenByUserId: z.string(),
     recordedByUserId: z.string(),
   }),
+  recordedByUserId: z.string(),
   changingStatusReason: z.string().optional(),
 });
 medication.put(
@@ -505,7 +510,7 @@ medication.put(
       User,
     } = models;
 
-    const { dose, changingStatusReason } = await givenMarUpdateSchema.parseAsync(
+    const { dose, recordedByUserId, changingStatusReason } = await givenMarUpdateSchema.parseAsync(
       req.body,
     );
 
@@ -518,9 +523,13 @@ medication.put(
       throw new InvalidOperationError(`MAR with id ${params.id} is already given`);
     }
 
-    //validate recordedByUserId
-    const recordedByUser = await User.findByPk(dose.recordedByUserId);
+    const recordedByUser = await User.findByPk(recordedByUserId);
     if (!recordedByUser) {
+      throw new InvalidOperationError(`User with id ${recordedByUserId} not found`);
+    }
+
+    const doseRecordedByUser = await User.findByPk(dose.recordedByUserId);
+    if (!doseRecordedByUser) {
       throw new InvalidOperationError(`User with id ${dose.recordedByUserId} not found`);
     }
 
@@ -740,8 +749,13 @@ medication.post(
     const { models } = req;
     const { MedicationAdministrationRecord, Prescription, User } = models;
 
-    const { reasonNotGivenId, dueAt, prescriptionId, notGivenRecordedByUserId, changingStatusReason } =
-      await notGivenInputCreateSchema.parseAsync(req.body);
+    const {
+      reasonNotGivenId,
+      dueAt,
+      prescriptionId,
+      notGivenRecordedByUserId,
+      changingStatusReason,
+    } = await notGivenInputCreateSchema.parseAsync(req.body);
 
     //validate not given reason
     const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
@@ -838,6 +852,48 @@ medication.post(
     const createdDoses = await MedicationAdministrationRecordDose.bulkCreate(dosesToCreate);
 
     res.send(createdDoses);
+  }),
+);
+
+const updateMedicationAdministrationRecordInputSchema = z
+  .object({
+    isError: z.boolean().optional(),
+    errorNotes: z.string().optional(),
+  })
+  .strip();
+medication.put(
+  '/medication-administration-record/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationAdministrationRecord } = models;
+    req.checkPermission('write', 'MedicationAdministrationRecord');
+
+    const { isError, errorNotes } =
+      await updateMedicationAdministrationRecordInputSchema.parseAsync(req.body);
+
+    const existingMar = await MedicationAdministrationRecord.findByPk(params.id, {
+      include: ['prescription'],
+    });
+    if (!existingMar) {
+      throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+    }
+
+    existingMar.isError = isError;
+    existingMar.errorNotes = errorNotes;
+    await existingMar.save();
+
+    const currentDate = getCurrentDateTimeString();
+
+    await existingMar.createNote({
+      content:
+        `Medication error recorded for ${existingMar.prescription.name} dose recorded at ${currentDate}. ${errorNotes}`.trim(),
+      authorId: req.user.id,
+      recordId: existingMar.id,
+      date: currentDate,
+      noteType: NOTE_TYPES.SYSTEM,
+    });
+
+    res.send(existingMar.forResponse());
   }),
 );
 

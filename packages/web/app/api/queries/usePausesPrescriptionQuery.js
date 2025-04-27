@@ -6,7 +6,7 @@ export const usePausesPrescriptionQuery = (prescriptionId, encounterId, fetchOpt
   const api = useApi();
 
   return useQuery(
-    [`medication/${prescriptionId}/pauses`],
+    [`medication/${prescriptionId}/pauses`, encounterId, fetchOptions],
     () =>
       api.get(
         `medication/${prescriptionId}/pauses`,
