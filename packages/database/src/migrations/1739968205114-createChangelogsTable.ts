@@ -52,7 +52,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    updated_by_user_id: {
+    author_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
