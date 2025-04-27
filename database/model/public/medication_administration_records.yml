@@ -25,11 +25,10 @@ sources:
           - name: recorded_at
             data_type: character(19)
             description: "{{ doc('medication_administration_records__recorded_at') }}"
-          - name: not_given_recorded_by_user_id
+          - name: recorded_by_user_id
             data_type: character varying(255)
-            description: "{{
-              doc('medication_administration_records__not_given_recorded_by_use\
-              r_id') }}"
+            description: "{{ doc('medication_administration_records__recorded_by_user_id')
+              }}"
           - name: prescription_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__prescription_id') }}"

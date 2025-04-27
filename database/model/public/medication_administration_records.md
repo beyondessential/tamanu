@@ -22,8 +22,8 @@ The scheduled date and time when the medication administration was planned to oc
 The timestamp indicating when the administration status (e.g., `GIVEN` or `NOT_GIVEN`) was actually recorded in the system. May be null if the status has not yet been recorded.
 {% enddocs %}
 
-{% docs medication_administration_records__not_given_recorded_by_user_id %}
-Reference to the [user](#!/model/model.public.users) who recorded that the medication was not given. This is only applicable when the `status` is `NOT_GIVEN`.
+{% docs medication_administration_records__recorded_by_user_id %}
+Reference to the [user](#!/model/model.public.users) who recorded that the medication was given or not given.
 {% enddocs %}
 
 {% docs medication_administration_records__reason_not_given_id %}

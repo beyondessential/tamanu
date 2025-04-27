@@ -6,6 +6,9 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
   declare doseAmount: number;
+  declare doseIndex: number;
+  declare isRemoved: boolean;
+  declare reasonForRemoval?: string;
   declare givenTime: Date;
   declare givenByUserId: string;
   declare recordedByUserId: string;
@@ -34,6 +37,18 @@ export class MedicationAdministrationRecordDose extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        isRemoved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        doseIndex: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+        reasonForRemoval: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
       },
       {
         ...options,
@@ -47,7 +62,6 @@ export class MedicationAdministrationRecordDose extends Model {
       foreignKey: 'marId',
       as: 'medicationAdministrationRecord',
     });
-    
     this.belongsTo(models.User, {
       foreignKey: 'givenByUserId',
       as: 'givenByUser',
@@ -65,4 +79,4 @@ export class MedicationAdministrationRecordDose extends Model {
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
-} 
+}

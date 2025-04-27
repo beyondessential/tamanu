@@ -236,6 +236,10 @@ encounterRelations.get(
             association: 'reasonNotGiven',
             attributes: ['id', 'name', 'type'],
           },
+          {
+            association: 'recordedByUser',
+            attributes: ['id', 'displayName'],
+          },
         ],
         required: false,
       });

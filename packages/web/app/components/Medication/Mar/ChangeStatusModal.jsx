@@ -111,20 +111,37 @@ export const ChangeStatusModal = ({
   const initialStatus = marInfo?.status;
   const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
 
-  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marInfo?.id);
-  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marInfo?.id);
+  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marInfo?.id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      queryClient.invalidateQueries(['marDoses', marInfo?.id]);
+      onClose();
+    },
+  });
+  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marInfo?.id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+      queryClient.invalidateQueries(['marDoses', marInfo?.id]);
+      onClose();
+    },
+  });
 
   const handleSubmit = async values => {
     if (values.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-      const { reasonNotGivenId, notGivenRecordedByUserId, status, changingStatusReason } = values;
+      const { reasonNotGivenId, recordedByUserId, changingStatusReason } = values;
       await updateMarToNotGiven({
         reasonNotGivenId,
-        notGivenRecordedByUserId,
-        status,
+        recordedByUserId,
         changingStatusReason,
       });
     } else {
-      const { doseAmount, givenTime, givenByUserId, recordedByUserId, status, changingStatusReason } = values;
+      const {
+        doseAmount,
+        givenTime,
+        givenByUserId,
+        recordedByUserId,
+        changingStatusReason,
+      } = values;
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
@@ -132,11 +149,10 @@ export const ChangeStatusModal = ({
           givenByUserId,
           recordedByUserId,
         },
-        status,
+        recordedByUserId,
         changingStatusReason,
       });
     }
-    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     onClose();
   };
 
@@ -166,7 +182,7 @@ export const ChangeStatusModal = ({
       reasonNotGivenId: yup
         .string()
         .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
-      notGivenRecordedByUserId: yup
+      recordedByUserId: yup
         .string()
         .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
     });
@@ -182,7 +198,6 @@ export const ChangeStatusModal = ({
           status: initialStatus,
           recordedByUserId: currentUser?.id,
           givenByUserId: currentUser?.id,
-          notGivenRecordedByUserId: currentUser?.id,
           doseAmount: initialPrescribedDose,
           givenTime: isPast
             ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
@@ -225,7 +240,7 @@ export const ChangeStatusModal = ({
                     required
                   />
                   <Field
-                    name="notGivenRecordedByUserId"
+                    name="recordedByUserId"
                     component={AutocompleteField}
                     label="Recorded by"
                     suggester={practitionerSuggester}

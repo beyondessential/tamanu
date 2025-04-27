@@ -21,3 +21,19 @@ Reference to the MAR [medication administration record](#!/model/model.public.me
 {% docs medication_administration_record_doses__recorded_by_user_id %}
 Reference to the [user](#!/model/model.public.users) who recorded the details of this specific dose administration in the system. This may or may not be the same user who physically administered the dose (`given_by_user_id`).
 {% enddocs %}
+
+{% docs medication_administration_record_doses__is_removed %}
+Indicates whether this dose record has been removed or voided.
+{% enddocs %}
+
+{% docs medication_administration_record_doses__is_primary_dose %}
+Indicates whether this is the primary or main dose in a multi-dose administration.
+{% enddocs %}
+
+{% docs medication_administration_record_doses__reason_for_removal %}
+A text field explaining why this dose record was removed or voided.
+{% enddocs %}
+
+{% docs medication_administration_record_doses__dose_index %}
+A sequential number indicating the order of this dose within a multi-dose administration. Helps track the sequence when multiple doses are given in a single administration event.
+{% enddocs %}

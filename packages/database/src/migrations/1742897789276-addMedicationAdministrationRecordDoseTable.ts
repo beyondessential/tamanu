@@ -40,6 +40,18 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    dose_index: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    is_removed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    reason_for_removal: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -55,8 +67,11 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
   });
+
+  await query.addIndex('medication_administration_record_doses', ['mar_id', 'dose_index']);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  await query.removeIndex('medication_administration_record_doses', ['mar_id', 'dose_index']);
   await query.dropTable('medication_administration_record_doses');
 }

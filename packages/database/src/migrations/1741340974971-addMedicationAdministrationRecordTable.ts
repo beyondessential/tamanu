@@ -20,7 +20,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATETIMESTRING,
       allowNull: true,
     },
-    not_given_recorded_by_user_id: {
+    recorded_by_user_id: {
       type: DataTypes.STRING,
       allowNull: true,
       references: {
