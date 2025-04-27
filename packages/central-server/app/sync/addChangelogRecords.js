@@ -49,10 +49,18 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
     },
   );
 
+  if (!changelogRecords.length) {
+    return snapshotRecords;
+  }
+
+  const changelogRecordsByRecordId = changelogRecords.reduce((acc, c) => {
+    (acc[c.record_id] = acc[c.record_id] || []).push(c);
+    return acc;
+  }, {});
+
   snapshotRecords.forEach((r) => {
-    r.changelogRecords = changelogRecords.filter(
-      (c) => c.table_name === r.recordType && c.record_id === r.recordId,
-    );
+    r.changelogRecords = changelogRecordsByRecordId[r.recordId] || [];
   });
+
   return snapshotRecords;
 };

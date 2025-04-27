@@ -195,16 +195,16 @@ export class FacilitySyncManager {
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const modelsForPush = getModelsForPush(this.models);
     const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
-    await addChangelogRecords(this.models);
-    if (outgoingChanges.length > 0) {
+    const outgoingChangesWithChangelogs = await addChangelogRecords(this.sequelize, pushSince, outgoingChanges);
+    if (outgoingChangesWithChangelogs.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
-        totalPushing: outgoingChanges.length,
+        totalPushing: outgoingChangesWithChangelogs.length,
       });
       if (this.__testSpyEnabled) {
-        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
+        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges: outgoingChangesWithChangelogs });
       }
-      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
-      await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
+      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
+      await deleteRedundantLocalCopies(modelsForPush, outgoingChangesWithChangelogs);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
