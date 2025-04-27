@@ -1,4 +1,6 @@
-import { Op, QueryTypes } from 'sequelize';
+import { Op } from 'sequelize';
+
+import { attachChangelogRecordsToSnapshot } from '@tamanu/database/utils/audit';
 
 // After the regular sync snapshotting process is complete, we need to grab any changelog records
 // that:
@@ -28,39 +30,13 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
   if (!lookupTicks.length) {
     return snapshotRecords;
   }
-  const minSourceTick = lookupTicks.at(0).sourceStartTick;
-  const maxSourceTick = lookupTicks.at(-1).sourceStartTick;
 
-  const changelogRecords = await sequelize.query(
-    `
-      SELECT * FROM logs.changes
-      WHERE updated_at_sync_tick > :minSourceTick AND updated_at_sync_tick < :maxSourceTick
-      AND table_name IN (:whiteListedTableNames)
-      AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
-      `,
-    {
-      type: QueryTypes.SELECT,
-      replacements: {
-        minSourceTick,
-        maxSourceTick,
-        whiteListedTableNames: TABLES_TO_SYNC_CHANGELOGS, // TODO: move this to a config
-        recordTypeAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
-      },
-    },
-  );
-
-  if (!changelogRecords.length) {
-    return snapshotRecords;
-  }
-
-  const changelogRecordsByRecordId = changelogRecords.reduce((acc, c) => {
-    (acc[c.record_id] = acc[c.record_id] || []).push(c);
-    return acc;
-  }, {});
-
-  snapshotRecords.forEach((r) => {
-    r.changelogRecords = changelogRecordsByRecordId[r.recordId] || [];
+  const snapshotRecordsWithChangelogRecords = await attachChangelogRecordsToSnapshot(sequelize, snapshotRecords, {
+    minSourceTick: lookupTicks.at(0).sourceStartTick,
+    maxSourceTick: lookupTicks.at(-1).sourceStartTick,
+    safeListedTableNames: TABLES_TO_SYNC_CHANGELOGS,
   });
 
-  return snapshotRecords;
+  return snapshotRecordsWithChangelogRecords;
+
 };
