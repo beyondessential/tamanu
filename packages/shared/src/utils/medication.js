@@ -1,6 +1,7 @@
-import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { formatTime } from '@tamanu/utils/dateTime';
 import { set } from 'date-fns';
+import { DRUG_UNIT_SHORT_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
+import { camelCase } from 'lodash';
 
 export const findAdministrationTimeSlotFromIdealTime = (idealTime) => {
   const index = MEDICATION_ADMINISTRATION_TIME_SLOTS.findIndex((slot) => {
@@ -32,4 +33,15 @@ export const formatTimeSlot = time => {
   return formatTime(time)
     .replaceAll(' ', '')
     .toLowerCase();
+};
+
+export const getDose = (medication, getTranslation, getEnumTranslation) => {
+  let { doseAmount, units, isVariableDose } = medication;
+  if (!units) return '';
+  if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
+  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units)}`;
+};
+
+export const getTranslatedFrequency = (frequency, getTranslation) => {
+  return getTranslation(`medication.frequency.${camelCase(frequency)}.label`, frequency);
 };
