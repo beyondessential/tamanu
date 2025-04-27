@@ -133,7 +133,12 @@ const columns = (getTranslation, getEnumTranslation) => [
   {
     key: 'medication',
     title: getTranslation('pdf.table.column.medication', 'Medication'),
-    accessor: ({ medication }) => medication?.name,
+    accessor: ({ medication, notes }) => (
+      <View>
+        <Text>{medication?.name + `\n`}</Text>
+        <Text style={{ fontFamily: 'Helvetica-Oblique' }}>{notes}</Text>
+      </View>
+    ),
     customStyles: { minWidth: 180 },
   },
   {
