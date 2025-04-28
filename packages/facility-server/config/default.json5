@@ -120,7 +120,12 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
-    }
+    },
+    "timeSync": {
+      "enabled": true,
+      // every hour
+      "schedule": "0 * * * *",
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
