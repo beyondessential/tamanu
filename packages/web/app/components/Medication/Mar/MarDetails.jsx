@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 
 import styled from 'styled-components';
+import { getDose, getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
@@ -11,7 +12,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
-import { formatTimeSlot, getDose } from '../../../utils/medications';
+import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { FormGrid } from '../../FormGrid';
@@ -25,7 +26,6 @@ import { FieldArray } from 'formik';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useAuth } from '../../../contexts/Auth';
 import { addHours } from 'date-fns';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 

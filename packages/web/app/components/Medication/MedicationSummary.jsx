@@ -4,12 +4,13 @@ import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { CheckSharp } from '@material-ui/icons';
+import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
-import { formatTimeSlot, getDose, getTranslatedFrequency } from '../../utils/medications';
+import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`
   font-size: 14px;

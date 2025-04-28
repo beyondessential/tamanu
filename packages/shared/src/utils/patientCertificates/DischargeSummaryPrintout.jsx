@@ -2,13 +2,15 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 import { CertificateHeader, styles } from './Layout';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE, DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { Table } from './Table';
+import { getDose, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -23,8 +25,8 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
-const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
+const TableContainer = (props) => <View style={generalStyles.tableContainer} {...props} />;
+const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -52,42 +54,9 @@ const infoBoxStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
-const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
-const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
-
-const medicationsTableStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-  },
-  col: {
-    flexDirection: 'column',
-  },
-  tableBorder: {
-    border: borderStyle,
-  },
-  titleCol: {
-    width: tableLabelWidth,
-    borderRight: borderStyle,
-    padding: tablePadding,
-  },
-  labelCol: {
-    borderRight: borderStyle,
-    width: 71,
-    padding: tablePadding,
-  },
-  dataCol: {
-    flex: 1,
-    padding: tablePadding,
-  },
-});
-
-const MedicationsTableBorder = props => (
-  <View style={[medicationsTableStyles.tableBorder, medicationsTableStyles.row]} {...props} />
-);
-const MedicationsTableTitleCol = props => (
-  <View style={medicationsTableStyles.titleCol} {...props} />
-);
+const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
@@ -103,24 +72,24 @@ const notesSectionStyles = StyleSheet.create({
   },
 });
 
-const extractOngoingConditions = patientConditions =>
-  patientConditions.map(item => item?.diagnosis?.name);
+const extractOngoingConditions = (patientConditions) =>
+  patientConditions.map((item) => item?.diagnosis?.name);
 
 const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
   const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
-    return diagnoses.map(item => item?.diagnosis?.name);
+    return diagnoses.map((item) => item?.diagnosis?.name);
   } else {
-    return diagnoses.map(item => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
+    return diagnoses.map((item) => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
   }
 };
 
 const extractProceduresInfo = ({ procedures, getSetting }) => {
   const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
-    return procedures.map(item => item?.procedureType?.name);
+    return procedures.map((item) => item?.procedureType?.name);
   } else {
-    return procedures.map(item => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
+    return procedures.map((item) => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
   }
 };
 
@@ -160,47 +129,52 @@ const NotesSection = ({ notes }) => (
   </View>
 );
 
-const MedicationsTableInfoBox = ({ label, info, hasBottomBorder = false }) => (
-  <View style={{ ...medicationsTableStyles.row, borderBottom: hasBottomBorder ?? borderStyle }}>
-    <View style={medicationsTableStyles.labelCol}>
-      <Text style={infoBoxStyles.infoText}>{label}</Text>
-    </View>
-    <View style={medicationsTableStyles.dataCol}>
-      {info.map((item, index) => {
-        return (
-          <Text style={infoBoxStyles.infoText} key={index}>
-            {item}
-          </Text>
-        );
-      })}
-    </View>
-  </View>
-);
-
-const MedicationsTable = ({ medications }) => {
-  const currentMedications = medications.filter(m => !m.discontinued);
-  const discontinuedMedications = medications.filter(m => m.discontinued);
-
-  return (
-    <MedicationsTableBorder>
-      <MedicationsTableTitleCol>
-        <Text style={infoBoxStyles.labelText}>Medications</Text>
-      </MedicationsTableTitleCol>
-      <View style={{ flexDirection: 'column', flex: 1 }}>
-        <MedicationsTableInfoBox
-          label="Current"
-          info={currentMedications.map(item => item?.medication?.name)}
-          hasBottomBorder={true}
-        />
-        <MedicationsTableInfoBox
-          label="Discontinued"
-          info={discontinuedMedications.map(item => item?.medication?.name)}
-          hasBottomBorder={false}
-        />
+const columns = (getTranslation, getEnumTranslation) => [
+  {
+    key: 'medication',
+    title: getTranslation('pdf.table.column.medication', 'Medication'),
+    accessor: ({ medication, notes }) => (
+      <View>
+        <Text>{medication?.name + `\n`}</Text>
+        <Text style={{ fontFamily: 'Helvetica-Oblique' }}>{notes}</Text>
       </View>
-    </MedicationsTableBorder>
-  );
-};
+    ),
+    customStyles: { minWidth: 180 },
+  },
+  {
+    key: 'dose',
+    title: getTranslation('pdf.table.column.dose', 'Dose'),
+    accessor: (medication) => {
+      return (
+        <Text>
+          {getDose(medication, getTranslation, getEnumTranslation)}
+          {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+        </Text>
+      );
+    },
+  },
+  {
+    key: 'frequency',
+    title: getTranslation('pdf.table.column.frequency', 'Frequency'),
+    accessor: ({ frequency }) => getTranslatedFrequency(frequency, getTranslation),
+    customStyles: { minWidth: 30 },
+  },
+  {
+    key: 'route',
+    title: getTranslation('pdf.table.column.route', 'Route'),
+    accessor: ({ route }) => getEnumTranslation(DRUG_ROUTE_LABELS, route),
+  },
+  {
+    key: 'quantity',
+    title: getTranslation('pdf.table.column.quantity', 'Quantity'),
+    accessor: ({ quantity }) => quantity,
+  },
+  {
+    key: 'repeats',
+    title: getTranslation('pdf.table.column.repeat', 'Repeat'),
+    accessor: ({ repeats }) => repeats || 0,
+  },
+];
 
 const DischargeSummaryPrintoutComponent = ({
   patientData,
@@ -211,13 +185,16 @@ const DischargeSummaryPrintoutComponent = ({
   getLocalisation,
   getSetting,
 }) => {
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { logo } = certificateData;
   const { diagnoses, procedures, medications } = encounter;
+
+  const visibleMedications = medications.filter((m) => !m.discontinued);
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
-  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
+  const primaryDiagnoses = visibleDiagnoses.filter((d) => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter((d) => !d.isPrimary);
   const notes = discharge?.note;
   const { facilityName, facilityAddress, facilityTown } = discharge;
 
@@ -280,7 +257,13 @@ const DischargeSummaryPrintoutComponent = ({
           )}
           {medications.length > 0 && (
             <TableContainer>
-              <MedicationsTable medications={medications} />
+              <Table
+                data={visibleMedications}
+                columns={columns(getTranslation, getEnumTranslation)}
+                getLocalisation={getLocalisation}
+                getSetting={getSetting}
+                columnStyle={{ padding: '10px 5px' }}
+              />
             </TableContainer>
           )}
         </SectionContainer>

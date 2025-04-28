@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Divider } from '@material-ui/core';
+import { getDose } from '@tamanu/shared/utils/medication';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Field, Form, TextField } from '../../Field';
@@ -7,7 +8,7 @@ import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
 import { Colors } from '../../../constants';
-import { formatTimeSlot, getDose } from '../../../utils/medications';
+import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 
 const StyledFormModal = styled(FormModal)`
