@@ -26,7 +26,7 @@ export const MultiVitalChartsView = () => {
   return (
     <Box minHeight="80vh" maxHeight="80vh">
       {chartKeys.map(chartKey => {
-        const VitalChartComponent = getVitalChartComponent(chartKey);
+        const VitalChartComponent = getVitalChartComponent(chartKey, isVital);
         const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
         return (

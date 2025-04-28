@@ -12,7 +12,7 @@ export const SingleVitalChartView = () => {
     isInMultiChartsView,
   } = useVitalChartData();
   const chartKey = chartKeys[0];
-  const VitalChartComponent = getVitalChartComponent(chartKey);
+  const VitalChartComponent = getVitalChartComponent(chartKey, isVital);
   const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
   return (
