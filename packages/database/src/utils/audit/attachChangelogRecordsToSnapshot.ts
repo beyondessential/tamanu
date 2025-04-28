@@ -14,7 +14,7 @@ export type ChangelogRecord = {
   record_id: string
 }
 
-type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
+export type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
   changelogRecords?: ChangelogRecord[]
 }
 
