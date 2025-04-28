@@ -23,7 +23,7 @@ import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
   const {
-    isVital,
+    isVital = false,
     chartData,
     visualisationConfig,
     isLoading,
