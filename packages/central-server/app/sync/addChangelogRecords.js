@@ -5,7 +5,7 @@ import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 // After the regular sync snapshotting process is complete, we need to grab any changelog records
 // that:
 // - are associated with the records inside the snapshot; and
-// - have an updated_at_sync_tick matching the range of lookup table ticks being synced; and
+// - have an updated_at_sync_tick matching the range of lookup table source ticks being synced; and
 // - for record types in the list that we sync changelogs down to the facility for
 // This avoids having to run any complex logic for filtering the correct changelog records to
 // send to a facility, as the snapshot has already run the right logic across the raw records, so
