@@ -152,7 +152,7 @@ const OPTIONS = [
      */
     key: 'fakedata',
     defaultValue: 0,
-    parse: (input) => intBounds(input, [0, 10000]),
+    parse: (input) => intBounds(input, [0, 100]),
   },
 ];
 
