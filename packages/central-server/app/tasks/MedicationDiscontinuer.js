@@ -1,7 +1,7 @@
 import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
@@ -31,7 +31,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
     await Prescription.update(
       {
         discontinued: true,
-        discontinuedDate: currentDateTime,
+        discontinuedDate: Sequelize.literal('end_date'),
         discontinuingClinicianId: SYSTEM_USER_UUID,
         discontinuingReason: 'Prescription end date and time reached',
       },
