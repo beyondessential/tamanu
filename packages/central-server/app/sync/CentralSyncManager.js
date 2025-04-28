@@ -576,7 +576,7 @@ export class CentralSyncManager {
       limit,
     );
     const recordsForPull = await addChangelogRecords(
-      this.store.models,
+      this.store,
       session.pullSince,
       session.pullUntil,
       snapshotRecords,

@@ -13,12 +13,15 @@ import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 
 const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];
 
-export const addChangelogRecords = async (models, pullSince, pullUntil, snapshotRecords) => {
+export const addChangelogRecords = async (
+  { sequelize, models },
+  pullSince,
+  pullUntil,
+  snapshotRecords,
+) => {
   const { SyncLookupTick } = models;
-  const { sequelize } = SyncLookupTick;
-
   // find the range of source sync ticks matching the lookup table ticks being synced
-  const lookupTicks = await models.SyncLookupTick.findAll({
+  const lookupTicks = await SyncLookupTick.findAll({
     where: {
       lookupEndTick: {
         [Op.between]: [pullSince, pullUntil],
@@ -31,12 +34,18 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
     return snapshotRecords;
   }
 
-  const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(sequelize, snapshotRecords, {
-    minSourceTick: lookupTicks.at(0).sourceStartTick,
-    maxSourceTick: lookupTicks.at(-1).sourceStartTick,
-    tableNameWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
-  });
+  const minSourceTick = lookupTicks.at(0).sourceStartTick;
+  const maxSourceTick = lookupTicks.at(-1).sourceStartTick;
+
+  const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(
+    sequelize,
+    snapshotRecords,
+    {
+      minSourceTick,
+      maxSourceTick,
+      tableNameWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+    },
+  );
 
   return snapshotRecordsWithChangelogRecords;
-
 };
