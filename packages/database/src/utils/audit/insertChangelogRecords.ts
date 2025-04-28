@@ -35,9 +35,8 @@ export const insertChangelogRecords = async (
       return {
         ...changelogRecord,
         // TODO Should we he have to do this ?
-        ...(isFacility && { updated_at_sync_tick: -999 }),
+        updated_at_sync_tick: isFacility ? -999 : Number(updated_at_sync_tick),
         record_data: JSON.stringify(record_data),
-        updated_at_sync_tick: Number(updated_at_sync_tick),
       };
     });
   await queryInterface.bulkInsert({ tableName: 'changes', schema: 'logs' }, recordsToInsert);
