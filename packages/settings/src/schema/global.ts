@@ -232,13 +232,13 @@ export const globalSettings = {
           },
         },
         disableInputPasting: {
-          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
           type: yup.boolean(),
           defaultValue: false,
         },
         discharge: {
-          description:
-            'Encounter discharge configuration',
+          description: 'Encounter discharge configuration',
           properties: {
             dischargeNoteMandatory: {
               type: yup.boolean(),
@@ -1260,43 +1260,6 @@ export const globalSettings = {
           type: yup.number().positive(),
           defaultValue: 24,
           unit: 'hours',
-        },
-      },
-    },
-    timesync: {
-      description: 'Time synchronisation settings',
-      properties: {
-        enabled: {
-          description:
-            'Enable time synchronisation. This should not be disabled unless all servers are properly timesynced within 100ms.',
-          highRisk: true,
-          type: yup.boolean(),
-          defaultValue: true,
-        },
-        interval: {
-          description: 'How often to attempt synchronisation (seconds).',
-          type: yup.number().min(60),
-          defaultValue: 300,
-        },
-        samples: {
-          description: 'How many samples to gather for synchronisation (must be odd, min 3).',
-          type: yup
-            .number()
-            .min(3)
-            .positive()
-            .integer()
-            .test(
-              'is-odd',
-              ({ path }) => `${path} is not odd`,
-              (value) => value % 2 !== 0,
-            ),
-          defaultValue: 5,
-        },
-        jitter: {
-          description:
-            'The maximum amount of time (milliseconds) between taking two samples. The actual value will be random.',
-          type: yup.number().min(1000).max(10000),
-          defaultValue: 5000,
         },
       },
     },
