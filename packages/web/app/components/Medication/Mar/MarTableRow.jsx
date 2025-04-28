@@ -10,9 +10,9 @@ import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu
 import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
-import { MarStatus } from '../MarStatus';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
 import { useEncounter } from '../../../contexts/Encounter';
+import { MarStatus } from './MarStatus';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
