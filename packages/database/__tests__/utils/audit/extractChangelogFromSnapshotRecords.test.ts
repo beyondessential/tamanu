@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { extractChangelogFromSnapshotRecords } from '../../src/utils/audit/extractChangelogFromSnapshotRecords';
+import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/extractChangelogFromSnapshotRecords';
 import type {
   SyncSnapshotAttributesWithChangelog,
   ChangelogRecord,
-} from '../../src/utils/audit/attachChangelogRecordsToSnapshot';
+} from '../../../src/utils/audit/attachChangelogRecordsToSnapshot';
 
 describe('extractChangelogFromSnapshotRecords', () => {
   it('should extract changelog records from snapshot records', () => {
