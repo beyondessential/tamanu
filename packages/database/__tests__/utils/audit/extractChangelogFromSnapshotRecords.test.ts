@@ -4,7 +4,7 @@ import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/ex
 import type {
   SyncSnapshotAttributesWithChangelog,
   ChangelogRecord,
-} from '../../../src/utils/audit/attachChangelogRecordsToSnapshot';
+} from '../../../src/types/sync';
 
 describe('extractChangelogFromSnapshotRecords', () => {
   it('should extract changelog records from snapshot records', () => {
@@ -16,15 +16,34 @@ describe('extractChangelogFromSnapshotRecords', () => {
 
     const snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[] = [
       {
-        id: 'record1',
-        someAttribute: 'value1',
+        id: 1,
         changelogRecords: changelogRecords,
-      } as SyncSnapshotAttributesWithChangelog,
+        direction: 'up',
+        recordType: 'test',
+        recordId: 'record1',
+        isDeleted: false,
+        data: {
+          id: 1,
+        },
+        savedAtSyncTick: 0,
+        updatedAtByFieldSum: 0,
+        syncLookupId: 0,
+        requiresRepull: false,
+      },
       {
-        id: 'record2',
-        someAttribute: 'value2',
-        // No changelog records
-      } as SyncSnapshotAttributesWithChangelog,
+        id: 2,
+        direction: 'up',
+        recordType: 'test',
+        recordId: 'record2',
+        isDeleted: false,
+        data: {
+          id: 2,
+        },
+        savedAtSyncTick: 0,
+        updatedAtByFieldSum: 0,
+        syncLookupId: 0,
+        requiresRepull: false,
+      },
     ];
 
     // Act
@@ -42,20 +61,30 @@ describe('extractChangelogFromSnapshotRecords', () => {
     expect(result.snapshotRecords[1].changelogRecords).toBeUndefined();
 
     // Original attributes should remain
-    expect(result.snapshotRecords[0].id).toBe('record1');
-    expect(result.snapshotRecords[0].someAttribute).toBe('value1');
-    expect(result.snapshotRecords[1].id).toBe('record2');
-    expect(result.snapshotRecords[1].someAttribute).toBe('value2');
+    expect(result.snapshotRecords[0].recordId).toBe('record1');
+    expect(result.snapshotRecords[0].data.id).toBe(1);
+    expect(result.snapshotRecords[1].recordId).toBe('record2');
+    expect(result.snapshotRecords[1].data.id).toBe(2);
   });
 
   it('should handle empty changelog records gracefully', () => {
     // Arrange
     const snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[] = [
       {
-        id: 'record1',
-        someAttribute: 'value1',
+        id: 1,
         changelogRecords: [],
-      } as SyncSnapshotAttributesWithChangelog,
+        direction: 'up',
+        recordType: 'test',
+        recordId: 'record1',
+        isDeleted: false,
+        data: {
+          id: 1,
+        },
+        savedAtSyncTick: 0,
+        updatedAtByFieldSum: 0,
+        syncLookupId: 0,
+        requiresRepull: false,
+      },
     ];
 
     // Act
@@ -71,10 +100,19 @@ describe('extractChangelogFromSnapshotRecords', () => {
     // Arrange
     const snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[] = [
       {
-        id: 'record1',
-        someAttribute: 'value1',
-        // No changelog records
-      } as SyncSnapshotAttributesWithChangelog,
+        id: 1,
+        direction: 'up',
+        recordType: 'test',
+        recordId: 'record1',
+        isDeleted: false,
+        data: {
+          id: 1,
+        },
+        savedAtSyncTick: 0,
+        updatedAtByFieldSum: 0,
+        syncLookupId: 0,
+        requiresRepull: false,
+      },
     ];
 
     // Act
