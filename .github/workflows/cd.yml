@@ -54,7 +54,7 @@ jobs:
           result-encoding: string
           script: |
             const cwd = '${{ github.workspace }}';
-            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const ref = parseBranchConfig(context);
             console.log(ref);
             return ref;
@@ -76,7 +76,7 @@ jobs:
           result-encoding: string
           script: |
             const cwd = '${{ github.workspace }}';
-            const { findControlText } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { findControlText } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const control = await findControlText(context, github);
             console.log('Control text length:', control?.body?.length);
             return JSON.stringify(control ?? {});
@@ -90,7 +90,7 @@ jobs:
         with:
           script: |
             const cwd = '${{ github.workspace }}';
-            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
 
             const allDeploys = parseDeployConfig({
               ...${{ steps.control.outputs.result }},
