@@ -50,7 +50,7 @@ describe('FacilitySyncManager', () => {
 
       // set up promise so that sync cannot be finished until promise is resolved
       syncManager.runSync = jest.fn().mockImplementation(async () => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           resolveSyncPromise = async () => resolve(true);
         });
       });
@@ -152,12 +152,17 @@ describe('FacilitySyncManager', () => {
         ...jest.requireActual('../../dist/sync/pushOutgoingChanges'),
         pushOutgoingChanges: jest.fn().mockImplementation(() => true),
       }));
+      jest.doMock('@tamanu/database/utils/audit', () => ({
+        ...jest.requireActual('@tamanu/database/utils/audit'),
+        attachChangelogRecordsToSnapshot: jest.fn().mockImplementation(() => outgoingChanges),
+      }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../dist/sync/FacilitySyncManager');
       const { pushOutgoingChanges } = require('../../dist/sync/pushOutgoingChanges');
+      const { attachChangelogRecordsToSnapshot } = require('@tamanu/database/utils/audit');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -170,6 +175,11 @@ describe('FacilitySyncManager', () => {
       });
 
       await syncManager.pushChanges(TEST_SESSION_ID, 1);
+
+      expect(attachChangelogRecordsToSnapshot).toBeCalledTimes(1);
+      expect(attachChangelogRecordsToSnapshot).toBeCalledWith(ctx.sequelize, outgoingChanges, {
+        minSourceTick: "1",
+      });
 
       expect(pushOutgoingChanges).toBeCalledTimes(1);
       expect(pushOutgoingChanges).toBeCalledWith(
