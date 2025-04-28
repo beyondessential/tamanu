@@ -1,6 +1,6 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 
-import type { SyncSnapshotAttributes } from 'types/sync'
+import type { SyncSnapshotAttributes } from 'types/sync';
 
 type QueryConfig = {
   minSourceTick: number;
@@ -10,21 +10,21 @@ type QueryConfig = {
 
 // TODO use model on merge with other sync pr
 export type ChangelogRecord = {
-  [key: string]: any,
-  record_id: string
-}
+  [key: string]: any;
+  record_id: string;
+};
 
 export type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
-  changelogRecords?: ChangelogRecord[]
-}
+  changelogRecords?: ChangelogRecord[];
+};
 
 export const attachChangelogToSnapshotRecords = async (
   sequelize: Sequelize,
-  snapshotRecords:  SyncSnapshotAttributes[],
+  snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, safeListedTableNames }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
   if (!snapshotRecords.length) {
-    return (snapshotRecords as SyncSnapshotAttributesWithChangelog[])
+    return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
   }
   const changelogRecords = (await sequelize.query(
     `
@@ -45,13 +45,17 @@ export const attachChangelogToSnapshotRecords = async (
     },
   )) as ChangelogRecord[];
 
-  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>((acc, changelogRecord) => {
-    (acc[changelogRecord.record_id] = acc[changelogRecord.record_id] || []).push(changelogRecord);
-    return acc;
-  }, {});
+  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>(
+    (acc, changelogRecord) => {
+      (acc[changelogRecord.record_id] = acc[changelogRecord.record_id] || []).push(changelogRecord);
+      return acc;
+    },
+    {},
+  );
 
   snapshotRecords.forEach((snapshotRecord) => {
-    (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords = changelogRecordsByRecordId[snapshotRecord.recordId] || [];
+    (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords =
+      changelogRecordsByRecordId[snapshotRecord.recordId] || [];
   });
   return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
 };
