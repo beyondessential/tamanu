@@ -1,6 +1,10 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 
-import type { ChangelogRecord, SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
+import type {
+  ChangelogRecord,
+  SyncSnapshotAttributes,
+  SyncSnapshotAttributesWithChangelog,
+} from 'types/sync';
 
 type QueryConfig = {
   minSourceTick: number;
@@ -37,15 +41,17 @@ export const attachChangelogToSnapshotRecords = async (
 
   const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>(
     (acc, changelogRecord) => {
-      (acc[changelogRecord.record_id] = acc[changelogRecord.record_id] || []).push(changelogRecord);
+      const id = `${changelogRecord.table_name}-${changelogRecord.record_id}`;
+      (acc[id] = acc[id] || []).push(changelogRecord);
       return acc;
     },
     {},
   );
 
   snapshotRecords.forEach((snapshotRecord) => {
+    const id = `${snapshotRecord.recordType}-${snapshotRecord.recordId}`;
     (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords =
-      changelogRecordsByRecordId[snapshotRecord.recordId] || [];
+      changelogRecordsByRecordId[id] || [];
   });
   return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
 };
