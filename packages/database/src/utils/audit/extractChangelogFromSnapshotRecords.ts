@@ -1,12 +1,13 @@
 import type {
   ChangelogRecord,
+  SyncSnapshotAttributes,
   SyncSnapshotAttributesWithChangelog,
-} from './attachChangelogToSnapshotRecords';
+} from 'types/sync';
 
 export const extractChangelogFromSnapshotRecords = (
   snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[],
 ): {
-  snapshotRecords: SyncSnapshotAttributesWithChangelog[];
+  snapshotRecords: SyncSnapshotAttributes[];
   changelogRecords: ChangelogRecord[];
 } => {
   const changelogRecords: ChangelogRecord[] = [];
@@ -18,7 +19,7 @@ export const extractChangelogFromSnapshotRecords = (
     acc.push(row);
 
     return acc;
-  }, [] as SyncSnapshotAttributesWithChangelog[]);
+  }, [] as SyncSnapshotAttributes[]);
 
   return {
     snapshotRecords: processedRecords,

@@ -38,6 +38,15 @@ export interface SyncSnapshotAttributes {
   requiresRepull?: boolean;
 }
 
+// TODO use model on merge with other sync pr
+export type ChangelogRecord = {
+  [key: string]: any;
+  record_id: string;
+};
+export interface SyncSnapshotAttributesWithChangelog extends SyncSnapshotAttributes {
+  changelogRecords?: ChangelogRecord[];
+}
+
 export type UninsertedSyncSnapshotAttributes = Omit<
   SyncSnapshotAttributes,
   'id' | 'savedAtSyncTick'

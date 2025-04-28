@@ -1,21 +1,11 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 
-import type { SyncSnapshotAttributes } from 'types/sync';
+import type { ChangelogRecord, SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
 type QueryConfig = {
   minSourceTick: number;
   maxSourceTick?: number;
   tableWhitelist?: string[];
-};
-
-// TODO use model on merge with other sync pr
-export type ChangelogRecord = {
-  [key: string]: any;
-  record_id: string;
-};
-
-export type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
-  changelogRecords?: ChangelogRecord[];
 };
 
 export const attachChangelogToSnapshotRecords = async (
@@ -24,7 +14,7 @@ export const attachChangelogToSnapshotRecords = async (
   { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
   if (!snapshotRecords.length) {
-    return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
+    return snapshotRecords;
   }
   const changelogRecords = (await sequelize.query(
     `
