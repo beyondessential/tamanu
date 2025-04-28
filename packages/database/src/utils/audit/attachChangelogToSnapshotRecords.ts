@@ -30,9 +30,9 @@ export const attachChangelogToSnapshotRecords = async (
     `
     SELECT * FROM logs.changes
     WHERE updated_at_sync_tick > :minSourceTick
-    AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
     ${maxSourceTick ? 'AND updated_at_sync_tick < :maxSourceTick' : ''}
     ${safeListedTableNames ? `AND table_name IN (:safeListedTableNames)` : ''}
+    AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
     `,
     {
       type: QueryTypes.SELECT,
