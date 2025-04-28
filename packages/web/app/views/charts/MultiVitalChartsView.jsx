@@ -21,7 +21,7 @@ const TitleContainer = styled.div`
 
 // Fetching and preparing data for vital chart
 export const MultiVitalChartsView = () => {
-  const { visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
+  const { isVital, visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
 
   return (
     <Box minHeight="80vh" maxHeight="80vh">
@@ -40,6 +40,7 @@ export const MultiVitalChartsView = () => {
               dateRange={dateRange}
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
+              isVital={isVital}
             />
           </div>
         );
