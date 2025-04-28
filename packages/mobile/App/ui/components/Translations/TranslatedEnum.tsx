@@ -3,12 +3,17 @@ import { TranslatedText } from './TranslatedText';
 import { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
 import { getEnumPrefix } from './enumRegistry';
 
-interface TranslatedEnumProps extends Partial<TranslatedTextProps>{
+interface TranslatedEnumProps extends Partial<TranslatedTextProps> {
   value: string;
   enumValues: any;
   prefix?: string;
   enumFallback?: string;
 }
+
+export const getEnumStringId = (value, enumValues) => {
+  const prefix = getEnumPrefix(enumValues);
+  return `${prefix}.${value}`;
+};
 
 export const TranslatedEnum = ({
   value,
@@ -16,14 +21,13 @@ export const TranslatedEnum = ({
   enumFallback = 'Unknown',
   ...restProps
 }: TranslatedEnumProps) => {
-  const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
       <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} {...restProps} />
     );
   }
 
+  const stringId = getEnumStringId(value, enumValues);
   const fallback = enumValues[value];
-  const stringId = `${prefix}.${value}`;
   return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
 };
