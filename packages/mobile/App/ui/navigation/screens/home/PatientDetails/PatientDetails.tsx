@@ -10,7 +10,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const { getSetting } = useSettings();
 
   const onEditGeneralInfo = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Generic.EditPatient, {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
       patientName: joinNames(patient),
     });
   }, [navigation, patient]);
@@ -24,7 +24,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
       customPatientFieldValues,
       sectionKey,
     ) => {
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData, {
+      navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
         patientName: joinNames(patient),
         patient,
         additionalDataJSON: JSON.stringify(additionalData),
