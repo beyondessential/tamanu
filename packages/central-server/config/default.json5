@@ -79,7 +79,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": true,
+      "enabled": false,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
@@ -484,6 +484,9 @@
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
+  "socket.io": {
+    enabled: true,
+  },
   "telegramBot": {
     apiToken: "",
     webhook: {

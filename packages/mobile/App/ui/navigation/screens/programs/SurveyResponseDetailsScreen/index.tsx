@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-
+import { camelCase } from 'lodash';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
@@ -14,6 +14,7 @@ import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
+import { TranslatedReferenceData } from '/components/Translations/TranslatedReferenceData';
 
 const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
@@ -28,9 +29,13 @@ const BackendAnswer = ({ question, answer }): ReactElement => {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
+
+  const displayName = getDisplayNameForModel(config.source, refData);
+  const category = camelCase(config.source);
+
   return (
     <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-      {getDisplayNameForModel(config.source, refData)}
+      <TranslatedReferenceData fallback={displayName} value={answer} category={category} />
     </StyledText>
   );
 };

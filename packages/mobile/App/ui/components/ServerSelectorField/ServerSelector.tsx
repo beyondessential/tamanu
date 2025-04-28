@@ -7,6 +7,7 @@ import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import * as overrides from '/root/serverOverrides.json';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { LanguageOption } from '~/models/TranslatedString';
 
 type Server = {
   name: string;
@@ -31,7 +32,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
-  const options = servers.map(s => ({
+  const options = servers.map((s) => ({
     label: s.name,
     value: s.host,
   }));
@@ -50,16 +51,10 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
-  const {
-    language,
-    languageOptions,
-    setLanguageOptions,
-    setLanguage,
-    host,
-    setHost,
-  } = useTranslation();
+  const { language, languageOptions, setLanguageOptions, setLanguage, host, setHost } =
+    useTranslation();
 
-  const updateHost = value => {
+  const updateHost = (value) => {
     onChange(value);
     setHost(value);
     if (!value) {
@@ -71,19 +66,21 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   useEffect(() => {
     const getOptions = async () => {
       const response = await fetch(`${host}/api/public/translation/languageOptions`);
-      const { languageNames, languagesInDb } = await response.json();
+      const { languageNames, languagesInDb, countryCodes } = await response.json();
       if (languageNames.length > 0) {
         const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-        const foundLanguageOptions = languagesInDb.map(({ language }) => {
+        const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
+        const foundLanguageOptions = languagesInDb.map(({ language }): LanguageOption => {
           return {
             label: languageDisplayNames[language],
-            value: language,
+            languageCode: language,
+            countryCode: languageCountryCodes[language] ?? null,
           };
         });
         // Check if a language is already selected, or the found language options differ
         // to the currently loaded language options
         if (!language || JSON.stringify(languageOptions) != JSON.stringify(foundLanguageOptions)) {
-          setLanguage(foundLanguageOptions[0].value);
+          setLanguage(foundLanguageOptions[0].languageCode);
           setLanguageOptions(foundLanguageOptions);
         }
       }

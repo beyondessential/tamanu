@@ -73,7 +73,7 @@ export default async () => {
           // TAMANU_VITE_TARGET=https://central.main.cd.tamanu.app
           changeOrigin: true,
         },
-        '/socket.io': {
+        '/api/socket.io': {
           target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
           ws: true,
         },

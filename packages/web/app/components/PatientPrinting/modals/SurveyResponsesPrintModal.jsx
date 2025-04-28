@@ -42,7 +42,9 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(surveyResponseId);
+    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(
+      surveyResponseId,
+    );
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', surveyResponse?.userId],
