@@ -4,7 +4,7 @@ import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -29,8 +29,14 @@ function api(ctx) {
   apiRoutes.post(
     '/timesync',
     asyncHandler(async (req, res) => {
-      const timeRes = ctx.timesync.answerClient(req.body);
-      res.send(timeRes);
+      try {
+        const timeRes = await ctx.timesync.answerClient(req.rawBody);
+        res.type('application/octet-stream');
+        res.send(timeRes);
+      } catch (error) {
+        log.error('Error in timesync:', error);
+        res.status(500).send(error.toString());
+      }
     }),
   );
   apiRoutes.use(authModule);
