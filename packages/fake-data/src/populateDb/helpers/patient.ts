@@ -19,7 +19,6 @@ export const createPatient = async ({
   facilityId,
   userId,
   isBirth = chance.bool(),
-  isPad = chance.bool(),
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
@@ -27,20 +26,17 @@ export const createPatient = async ({
     models;
 
   const patient = await Patient.create(fake(Patient));
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, {
+      patientId: patient.id,
+    }),
+  );
 
   if (isBirth) {
     await PatientBirthData.create(
       fake(PatientBirthData, {
         patientId: patient.id,
         facilityId: facilityId || (await randomRecordId(models, 'Facility')),
-      }),
-    );
-  }
-
-  if (isPad) {
-    await PatientAdditionalData.create(
-      fake(PatientAdditionalData, {
-        patientId: patient.id,
       }),
     );
   }
