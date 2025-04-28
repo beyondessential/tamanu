@@ -291,12 +291,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
-    let nameGender;
-    if (sex === 'male' || sex === 'female') {
-      nameGender = sex;
-    }
+    const nameGender: 'male' | 'female' =
+      sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
-      displayId: chance.hash({ length: 8 }),
+      displayId: chance
+        .hash({ length: 4 })
+        .toUpperCase()
+        .concat(chance.integer({ min: 10000000, max: 99999999 }).toString()),
       sex,
       firstName: chance.first({ gender: nameGender }),
       middleName: chance.first({ gender: nameGender }),
@@ -364,7 +365,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
   }),
   User: () => ({
-    email: chance.email(),
+    email: chance.email({ length: 20 }),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
