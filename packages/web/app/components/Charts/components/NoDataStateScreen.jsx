@@ -9,8 +9,8 @@ const getTextLines = isVital => {
     };
   }
   return {
-    lineOne: 'No recorded charting to display for the selected date range. To record',
-    lineTwo: `charting, please click the 'Record' button from the chart table.`,
+    lineOne: 'No recorded entries to display for the selected date range. To record',
+    lineTwo: `an entry, please click the 'Record' button from the chart table.`,
   };
 };
 
