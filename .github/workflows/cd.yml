@@ -334,6 +334,21 @@ jobs:
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
+  fake-data:
+    needs:
+      - deploy-up
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.up) }}
+    name: Add fake data to ${{ matrix.name }}
+    uses: ./.github/workflows/cd-fake-data.yml
+    with:
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
+    secrets:
+      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+
   package-android-test:
     needs: config
     if: needs.config.outputs.go-mobile == 'true'
