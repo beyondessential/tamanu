@@ -101,16 +101,22 @@ const DiscontinuedDivider = styled.div`
 `;
 
 const getIsPast = ({ timeSlot, selectedDate }) => {
-  const endDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date() > endDate;
+  const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date() > slotEndDate;
+};
+
+const getIsCurrent = ({ timeSlot, selectedDate }) => {
+  const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date() >= slotStartDate && new Date() < slotEndDate;
 };
 
 const getIsDisabled = ({ hasRecord, timeSlot, selectedDate }) => {
-  const startDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord) {
-    return startDate > new Date();
+    return slotStartDate > new Date();
   }
-  return startDate > addHours(new Date(), 2);
+  return slotStartDate > addHours(new Date(), 2);
 };
 
 const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
@@ -215,6 +221,7 @@ export const MarStatus = ({
   const isPast = getIsPast({ timeSlot, selectedDate });
   const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
   const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
+  const isCurrent = getIsCurrent({ timeSlot, selectedDate });
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
@@ -288,7 +295,7 @@ export const MarStatus = ({
       setShowWarningModal(MAR_WARNING_MODAL.PAST);
       return;
     }
-    if (isFuture) {
+    if (isFuture || (isCurrent && !marInfo?.id)) {
       setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
       return;
     }
@@ -454,6 +461,7 @@ export const MarStatus = ({
             );
           }
           if (isPast) {
+            if (isPrn) return null;
             return (
               <Box maxWidth={69}>
                 <TranslatedText
