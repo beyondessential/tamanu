@@ -9,7 +9,7 @@ sources:
         tags: []
         columns:
           - name: id
-            data_type: bigint
+            data_type: uuid
             description: "{{ doc('logs__changes__id') }}"
             data_tests:
               - unique
