@@ -25,7 +25,7 @@ const MODEL_TO_FUNCTION = {
   Encounter: { POST: createEncounter, PUT: () => null },
   ImagingRequest: { POST: createImagingRequest, PUT: () => null },
   Invoice: { POST: createInvoice, PUT: () => null },
-  LabRequest: { createLabRequest, PUT: () => null },
+  LabRequest: { POST: createLabRequest, PUT: () => null },
   ProgramRegistry: { POST: createProgramRegistry, PUT: () => null },
   Survey: { POST: createSurveyResponse, PUT: () => null },
   Tasking: { POST: createTask, PUT: () => null },
@@ -51,11 +51,25 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
 
   const tallyJson = await readJSON(tallyFilePath);
 
-  Object.entries(tallyJson).forEach(([model, tally]) => {
+  const calls = Object.entries(tallyJson).flatMap(([model, tally]) => {
+    let calls = [];
     const { POST: postCount, PUT: putCount } = tally;
-    const { POST: simulatePost, PUT: simplatePut } = MODEL_TO_FUNCTION[model];
+    const { POST: postFn, PUT: putFn } = MODEL_TO_FUNCTION[model] ?? {};
 
-    times(postCount, async () => simulatePost({ models }));
-    times(putCount, async () => simplatePut({ models }));
+    if (postFn) {
+      calls = calls.concat(times(postCount, async () => postFn({ models })));
+    } else if (postCount) {
+      console.error(`Missing mapping for ${model}.POST`);
+    }
+
+    if (putFn) {
+      calls = calls.concat(times(putCount, async () => putFn({ models })));
+    } else if (putCount) {
+      console.error(`Missing mapping for ${model}.PUT`);
+    }
+
+    return calls;
   });
+
+  await Promise.all(calls);
 };
