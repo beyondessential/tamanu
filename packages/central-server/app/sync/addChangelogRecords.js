@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 
-import { attachChangelogRecordsToSnapshot } from '@tamanu/database/utils/audit';
+import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 
 // After the regular sync snapshotting process is complete, we need to grab any changelog records
 // that:
@@ -31,7 +31,7 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
     return snapshotRecords;
   }
 
-  const snapshotRecordsWithChangelogRecords = await attachChangelogRecordsToSnapshot(sequelize, snapshotRecords, {
+  const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(sequelize, snapshotRecords, {
     minSourceTick: lookupTicks.at(0).sourceStartTick,
     maxSourceTick: lookupTicks.at(-1).sourceStartTick,
     safeListedTableNames: TABLES_TO_SYNC_CHANGELOGS,

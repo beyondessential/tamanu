@@ -5,7 +5,7 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { insertChangelogRecords } from '../../../src/utils/audit/insertChangelogRecords';
-import type { ChangelogRecord } from '../../../src/utils/audit/attachChangelogRecordsToSnapshot';
+import type { ChangelogRecord } from '../../../src/utils/audit/attachChangelogToSnapshotRecords';
 
 // Mock dependencies
 vi.mock('config', () => ({

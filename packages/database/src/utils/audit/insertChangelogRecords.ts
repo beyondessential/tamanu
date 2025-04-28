@@ -3,7 +3,7 @@ import config from 'config';
 
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-import type { ChangelogRecord } from './attachChangelogRecordsToSnapshot';
+import type { ChangelogRecord } from './attachChangelogToSnapshotRecords';
 
 export const insertChangelogRecords = async (
   sequelize: Sequelize,

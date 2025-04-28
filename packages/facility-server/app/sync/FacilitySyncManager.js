@@ -16,7 +16,7 @@ import {
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
 import {
-  attachChangelogRecordsToSnapshot
+  attachChangelogToSnapshotRecords
 } from '@tamanu/database/utils/audit';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -197,7 +197,7 @@ export class FacilitySyncManager {
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const modelsForPush = getModelsForPush(this.models);
     const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
-    const outgoingChangesWithChangelogs = await attachChangelogRecordsToSnapshot(this.sequelize, outgoingChanges, {
+    const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.sequelize, outgoingChanges, {
       minSourceTick: pushSince,
     });
     if (outgoingChangesWithChangelogs.length > 0) {

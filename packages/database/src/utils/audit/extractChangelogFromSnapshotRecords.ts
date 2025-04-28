@@ -1,7 +1,7 @@
 import type {
   ChangelogRecord,
   SyncSnapshotAttributesWithChangelog,
-} from './attachChangelogRecordsToSnapshot';
+} from './attachChangelogToSnapshotRecords';
 
 export const extractChangelogFromSnapshotRecords = (
   snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[],

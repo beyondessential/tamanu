@@ -18,7 +18,7 @@ export type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
   changelogRecords?: ChangelogRecord[]
 }
 
-export const attachChangelogRecordsToSnapshot = async (
+export const attachChangelogToSnapshotRecords = async (
   sequelize: Sequelize,
   snapshotRecords:  SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, safeListedTableNames }: QueryConfig,

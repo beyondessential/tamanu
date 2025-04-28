@@ -1,5 +1,5 @@
 export * from './attachAuditUserToDbSession';
 export * from './createMigrationAuditLog'
-export * from './attachChangelogRecordsToSnapshot';
+export * from './attachChangelogToSnapshotRecords';
 export * from './insertChangelogRecords'
 export * from './extractChangelogFromSnapshotRecords'
