@@ -26,6 +26,7 @@ import {
   repeatableReadTransaction,
 } from '@tamanu/database/sync';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
+import { insertChangelogRecords } from '@tamanu/shared/utils/audit'
 
 import { addChangelogRecords } from './addChangelogRecords';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -664,7 +665,18 @@ export class CentralSyncManager {
       incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
       sessionId,
     });
+
+    // Extract changelog records from the batch of rows
+    let changelogRecords = [];
+    for (const row of incomingSnapshotRecords) {
+      if (row.changelogRecords) {
+        changelogRecords.push(...row.changelogRecords);
+      }
+      delete row.changelogRecords;
+    }
+
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+    await insertChangelogRecords(sequelize, changelogRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
