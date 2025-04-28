@@ -18,23 +18,24 @@ interface ISelectModalScreen {
       modalTitle: string;
       value: { label: string; value: string }[];
       searchPlaceholder?: string;
+      onClickBack?: (navigation?: any) => void;
     };
   };
 }
 
 export const SelectModalScreen = (props: ISelectModalScreen) => {
-  const { callback, options, modalTitle } = props.route.params;
+  const {
+    callback,
+    options,
+    modalTitle,
+    onClickBack = () => props.navigation.goBack(),
+  } = props.route.params;
 
   return (
     <FullView background={theme.colors.WHITE}>
-      <EmptyStackHeader
-        title={modalTitle}
-        onGoBack={() => {
-          props.navigation.goBack();
-        }}
-      />
+      <EmptyStackHeader title={modalTitle} onGoBack={() => onClickBack(props.navigation)} />
       <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
-      <StyledView maxHeight={300} marginRight={20} marginLeft={20} marginBottom={20}>
+      <StyledView marginRight={20} marginLeft={20} marginBottom={20}>
         <FlatList
           data={options}
           ItemSeparatorComponent={Separator}
@@ -42,8 +43,8 @@ export const SelectModalScreen = (props: ISelectModalScreen) => {
             <StyledTouchableOpacity
               key={item.value}
               onPress={() => {
-                props.navigation.goBack();
                 callback(item);
+                props.navigation.goBack();
               }}
             >
               <StyledView marginRight={10} marginLeft={10} paddingTop={10} paddingBottom={10}>
