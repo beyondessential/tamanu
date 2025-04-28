@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
+import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { useApi } from '../api';
@@ -164,7 +164,9 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     injectionSite: {
       label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
-      value: injectionSite || '-',
+      value: (
+        <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} enumFallback="-" />
+      ),
     },
     area: {
       label: <TranslatedText stringId="general.area.label" fallback="Area" />,
