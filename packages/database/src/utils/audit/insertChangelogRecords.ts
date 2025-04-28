@@ -3,7 +3,10 @@ import config from 'config';
 
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-export const insertChangelogRecords = async (sequelize: Sequelize, changelogRecords: any[]) => {
+import type { ChangelogRecord } from './attachChangelogRecordsToSnapshot';
+
+export const insertChangelogRecords = async (sequelize: Sequelize, changelogRecords: ChangelogRecord[]) => {
+  // TODO AUDIT: what to do here do we need this
   const isFacility = !!selectFacilityIds(config);
   if (!changelogRecords.length) {
     return;
@@ -22,7 +25,8 @@ export const insertChangelogRecords = async (sequelize: Sequelize, changelogReco
         })),
       },
     },
-  )) as any[];
+  )) as ChangelogRecord[];
+
   const existingKeys = existingRecords.map((r) => `${r.table_name}-${r.record_id}`);
   const recordsToInsert = changelogRecords.filter(
     (r) => !existingKeys.includes(`${r.table_name}-${r.record_id}`),

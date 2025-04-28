@@ -9,7 +9,7 @@ type QueryConfig = {
 };
 
 // TODO AUDIT CHANGES: proper type
-type ChangelogRecord = {
+export type ChangelogRecord = {
   [key: string]: any,
   record_id: string
 }
