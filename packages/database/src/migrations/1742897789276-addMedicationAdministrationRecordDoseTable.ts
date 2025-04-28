@@ -56,6 +56,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    changing_not_given_info_reason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
