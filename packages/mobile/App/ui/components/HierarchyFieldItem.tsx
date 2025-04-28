@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useFormikContext } from 'formik';
+import React from 'react';
 import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalField';
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
