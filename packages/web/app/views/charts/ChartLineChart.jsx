@@ -2,13 +2,12 @@ import React from 'react';
 import { LineChart } from '../../components/Charts/LineChart';
 import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
 import { useEncounter } from '../../contexts/Encounter';
-import { useVitalQuery } from '../../api/queries/useVitalQuery';
+import { useGraphDataQuery } from '../../api/queries/useGraphDataQuery';
 
-// Fetching and preparing data for vital chart
 export const ChartLineChart = props => {
   const { chartKey, visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
-  const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, dateRange);
+  const { data: chartData, isLoading } = useGraphDataQuery(encounter.id, chartKey, dateRange);
   const chartProps = getVitalChartProps({
     visualisationConfig,
     dateRange,
