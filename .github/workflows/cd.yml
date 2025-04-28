@@ -336,6 +336,7 @@ jobs:
 
   fake-data:
     needs:
+      - config
       - deploy-up
     strategy:
       fail-fast: false
