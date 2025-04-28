@@ -44,7 +44,7 @@ async function main() {
   const { initDatabase } = require('@tamanu/database/services/database');
 
   const opts = program
-    .option('--rounds <number>', 'How much data to fill database with', '100')
+    .option('--rounds <number>', 'How much data to fill database with', '10')
     .option(
       '--from-tally <string>',
       'Instead of filling uniformly, use a tally to guide the distribution',
