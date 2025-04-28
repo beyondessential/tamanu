@@ -1,5 +1,5 @@
 import { DataTypes, Op, type Transaction } from 'sequelize';
-import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   addDays,
   addHours,
@@ -16,6 +16,7 @@ import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import type { Encounter } from './Encounter';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -31,7 +32,7 @@ export class MedicationAdministrationRecord extends Model {
   declare isError?: boolean;
   declare errorNotes?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
@@ -51,6 +52,44 @@ export class MedicationAdministrationRecord extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: async (mar: MedicationAdministrationRecord) => {
+            // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
+            // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
+            const prescription = await models.Prescription.findByPk(mar.prescriptionId);
+            if (
+              prescription?.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+              !prescription?.discontinued &&
+              mar.status
+            ) {
+              Object.assign(prescription, {
+                discontinuingReason: 'STAT dose recorded',
+                discontinuingClinicianId: SYSTEM_USER_UUID,
+                discontinuedDate: getCurrentDateTimeString(),
+                discontinued: true,
+              });
+              await prescription.save();
+            }
+          },
+          afterUpdate: async (mar: MedicationAdministrationRecord) => {
+            // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
+            // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
+            const prescription = await models.Prescription.findByPk(mar.prescriptionId);
+            if (
+              prescription?.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+              !prescription?.discontinued &&
+              mar.status
+            ) {
+              Object.assign(prescription, {
+                discontinuingReason: 'STAT dose recorded',
+                discontinuingClinicianId: SYSTEM_USER_UUID,
+                discontinuedDate: getCurrentDateTimeString(),
+                discontinued: true,
+              });
+              await prescription.save();
+            }
+          },
+        },
       },
     );
   }

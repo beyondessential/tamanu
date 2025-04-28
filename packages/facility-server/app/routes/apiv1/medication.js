@@ -15,7 +15,6 @@ import {
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_TYPES,
   REFERENCE_TYPES,
-  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op } from 'sequelize';
@@ -477,12 +476,7 @@ medication.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
-    const {
-      MedicationAdministrationRecord,
-      MedicationAdministrationRecordDose,
-      Prescription,
-      User,
-    } = models;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
     const { dose, recordedByUserId, changingStatusReason } = await givenMarUpdateSchema.parseAsync(
       req.body,
@@ -511,26 +505,6 @@ medication.put(
     const givenByUser = await User.findByPk(dose.givenByUserId);
     if (!givenByUser) {
       throw new InvalidOperationError(`User with id ${dose.givenByUserId} not found`);
-    }
-
-    const prescription = await Prescription.findByPk(record.prescriptionId);
-    if (!prescription) {
-      throw new InvalidOperationError(`Prescription with id ${record.prescriptionId} not found`);
-    }
-
-    // If the prescription is immediately and the MAR is the first time being given, then discontinue the prescription
-    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-    if (
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-      !prescription.discontinued
-    ) {
-      Object.assign(prescription, {
-        discontinuedReason: 'STAT dose recorded',
-        discontinuedClinicianId: SYSTEM_USER_UUID,
-        discontinuedDate: getCurrentDateTimeString(),
-        discontinued: true,
-      });
-      await prescription.save();
     }
 
     record.status = ADMINISTRATION_STATUS.GIVEN;
@@ -572,12 +546,7 @@ medication.post(
   '/medication-administration-record/given',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const {
-      MedicationAdministrationRecord,
-      MedicationAdministrationRecordDose,
-      Prescription,
-      User,
-    } = models;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
     req.checkPermission('create', 'MedicationAdministrationRecord');
     const { dose, dueAt, prescriptionId, recordedByUserId, changingStatusReason } =
@@ -602,27 +571,6 @@ medication.post(
     const givenByUser = await User.findByPk(dose.givenByUserId);
     if (!givenByUser) {
       throw new InvalidOperationError(`User with id ${dose.givenByUserId} not found`);
-    }
-
-    //validate prescription
-    const prescription = await Prescription.findByPk(prescriptionId);
-    if (!prescription) {
-      throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
-    }
-
-    // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
-    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-    if (
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-      !prescription.discontinued
-    ) {
-      Object.assign(prescription, {
-        discontinuedReason: 'STAT dose recorded',
-        discontinuedClinicianId: SYSTEM_USER_UUID,
-        discontinuedDate: getCurrentDateTimeString(),
-        discontinued: true,
-      });
-      await prescription.save();
     }
 
     //create MAR
@@ -711,12 +659,7 @@ medication.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
-    const {
-      MedicationAdministrationRecord,
-      MedicationAdministrationRecordDose,
-      Prescription,
-      User,
-    } = models;
+    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
     const { reasonNotGivenId, recordedByUserId, changingStatusReason } =
       await notGivenInputUpdateSchema.parseAsync(req.body);
@@ -742,26 +685,6 @@ medication.put(
     const recordedByUser = await User.findByPk(recordedByUserId);
     if (!recordedByUser) {
       throw new InvalidOperationError(`User with id ${recordedByUserId} not found`);
-    }
-
-    const prescription = await Prescription.findByPk(record.prescriptionId);
-    if (!prescription) {
-      throw new InvalidOperationError(`Prescription with id ${record.prescriptionId} not found`);
-    }
-
-    // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
-    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-    if (
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-      !prescription.discontinued
-    ) {
-      Object.assign(prescription, {
-        discontinuedReason: 'STAT dose recorded',
-        discontinuedClinicianId: SYSTEM_USER_UUID,
-        discontinuedDate: getCurrentDateTimeString(),
-        discontinued: true,
-      });
-      await prescription.save();
     }
 
     record.reasonNotGivenId = reasonNotGivenId;
@@ -797,7 +720,7 @@ medication.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'MedicationAdministrationRecord');
     const { models } = req;
-    const { MedicationAdministrationRecord, Prescription, User } = models;
+    const { MedicationAdministrationRecord, User } = models;
 
     const { reasonNotGivenId, dueAt, prescriptionId, recordedByUserId, changingStatusReason } =
       await notGivenInputCreateSchema.parseAsync(req.body);
@@ -814,26 +737,6 @@ medication.post(
     const recordedByUser = await User.findByPk(recordedByUserId);
     if (!recordedByUser) {
       throw new InvalidOperationError(`User with id ${recordedByUserId} not found`);
-    }
-
-    //validate prescription
-    const prescription = await Prescription.findByPk(prescriptionId);
-    if (!prescription) {
-      throw new InvalidOperationError(`Prescription with id ${prescriptionId} not found`);
-    }
-    // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
-    // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-    if (
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-      !prescription.discontinued
-    ) {
-      Object.assign(prescription, {
-        discontinuedReason: 'STAT dose recorded',
-        discontinuedClinicianId: SYSTEM_USER_UUID,
-        discontinuedDate: getCurrentDateTimeString(),
-        discontinued: true,
-      });
-      await prescription.save();
     }
 
     //create MAR
