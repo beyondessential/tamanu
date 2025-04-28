@@ -17,7 +17,7 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
   const api = useApi();
   const [startDate, endDate] = dateRange;
   const query = useQuery(
-    ['encounterGraphData', encounterId, vitalDataElementId, startDate, endDate],
+    ['encounterGraphData', encounterId, vitalDataElementId, startDate, endDate, isVital],
     () => {
       return api.get(
         `encounter/${encounterId}/graphData/${vitalDataElementId}`,
