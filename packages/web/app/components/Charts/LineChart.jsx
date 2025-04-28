@@ -23,6 +23,7 @@ import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
   const {
+    isVital,
     chartData,
     visualisationConfig,
     isLoading,
@@ -100,7 +101,7 @@ export const LineChart = props => {
           isAnimationActive={false}
         />
         {(chartData.length === 0 || isLoading) && (
-          <Customized component={<NoDataStateScreen isLoading={isLoading} />} />
+          <Customized component={<NoDataStateScreen isLoading={isLoading} isVital={isVital} />} />
         )}
       </LineChartComponent>
     </ResponsiveContainer>
