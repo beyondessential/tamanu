@@ -46,11 +46,6 @@
       "import": "./dist/esm/services/migrations/*.js",
       "types": "./dist/esm/services/migrations/*.d.ts"
     },
-    "./services/timesync": {
-      "require": "./dist/cjs/services/timesync.js",
-      "import": "./dist/esm/services/timesync.js",
-      "types": "./dist/esm/services/timesync.d.ts"
-    },
     "./services/database": {
       "require": "./dist/cjs/services/database.js",
       "import": "./dist/esm/services/database.js",

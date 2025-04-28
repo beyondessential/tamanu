@@ -50,8 +50,6 @@ const startApp =
     context.timesync = await initTimesync({
       models: context.models,
       url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-      settings: context.settings.global,
-      readOnly: true,
     });
 
     if (appType === APP_TYPES.API) {

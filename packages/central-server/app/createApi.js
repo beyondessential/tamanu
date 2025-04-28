@@ -22,16 +22,17 @@ import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
-import { TimeRequestValidator } from '@tamanu/database/services/timesync';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
-  apiRoutes.post('/timesync', asyncHandler(async (req, res) => {
-    const timeReq = await TimeRequestValidator.validate(req.body);
-    const timeRes = ctx.timesync.respond(timeReq);
-    res.send(timeRes);
-  }));
+  apiRoutes.post(
+    '/timesync',
+    asyncHandler(async (req, res) => {
+      const timeRes = ctx.timesync.answerClient(req.body);
+      res.send(timeRes);
+    }),
+  );
   apiRoutes.use(authModule);
   apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);

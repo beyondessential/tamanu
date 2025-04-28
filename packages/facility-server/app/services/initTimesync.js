@@ -1,26 +1,30 @@
-import { Timesync, TimeResponseValidator } from '@tamanu/database/services/timesync';
+import { Timesimp } from 'timesimp';
+import { FACT_TIME_OFFSET } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-export const initTimesync = async ({ models, url, settings, readOnly }) => {
+export const initTimesync = async ({ models, url }) => {
   log.info('Initializing timesync', { server: url });
-  return await Timesync.init({
-    models,
-    settings,
-    log: log.child({ task: 'timesync' }),
-    query: readOnly ? false : async (body, timeout) => {
-      try {
-        const http = await fetch(url, {
-          signal: AbortSignal.timeout(timeout),
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
-        const json = await http.json();
-        const resp = await TimeResponseValidator.validate(json);
-        return resp;
-      } catch (err) {
-        if (err.name === 'TimeoutError') return null;
-        throw err;
-      }
+  return new Timesimp(
+    async (err) => {
+      if (err) throw err;
+      const us = await models.LocalSystemFact.get(FACT_TIME_OFFSET);
+      return parseInt(us, 10);
     },
-  });
+    async (err, offset) => {
+      if (err) throw err;
+      await models.LocalSystemFact.set(FACT_TIME_OFFSET, offset.toString());
+    },
+    async (err, request) => {
+      if (err) throw err;
+      const http = await fetch(url, {
+        signal: AbortSignal.timeout(10000),
+        method: 'POST',
+        body: JSON.stringify(request),
+      }).catch((err) => {
+        log.error('Failed to fetch timesync packet', { error: err });
+        throw err;
+      });
+      return await http.blob();
+    },
+  );
 };
