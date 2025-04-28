@@ -1,4 +1,4 @@
-import { ADMINISTRATION_FREQUENCY_SYNONYMS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 import { formatTime } from '../components';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
