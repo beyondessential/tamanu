@@ -11,7 +11,7 @@ import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 // send to a facility, as the snapshot has already run the right logic across the raw records, so
 // if a record is included there, we know the recent changelog entries should be included too.
 
-const SYNC_CHANGELOGS_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];
+const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];
 
 export const addChangelogRecords = async (models, pullSince, pullUntil, snapshotRecords) => {
   const { SyncLookupTick } = models;
@@ -34,7 +34,7 @@ export const addChangelogRecords = async (models, pullSince, pullUntil, snapshot
   const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(sequelize, snapshotRecords, {
     minSourceTick: lookupTicks.at(0).sourceStartTick,
     maxSourceTick: lookupTicks.at(-1).sourceStartTick,
-    tableNameWhitelist: SYNC_CHANGELOGS_TO_FACILITY_FOR_THESE_TABLES,
+    tableNameWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
   });
 
   return snapshotRecordsWithChangelogRecords;
