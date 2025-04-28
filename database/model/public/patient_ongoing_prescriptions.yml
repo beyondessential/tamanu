@@ -26,23 +26,19 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              patient_ongoing_prescriptions."
+            description: "{{ doc('generic__created_at') }} in patient_ongoing_prescriptions."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              patient_ongoing_prescriptions."
+            description: "{{ doc('generic__updated_at') }} in patient_ongoing_prescriptions."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              patient_ongoing_prescriptions."
+            description: "{{ doc('generic__deleted_at') }} in patient_ongoing_prescriptions."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_ongoing_prescriptions."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_ongoing_prescriptions."
             data_tests:
               - not_null

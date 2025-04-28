@@ -33,3 +33,7 @@ A text field explaining why this dose record was removed or voided.
 {% docs medication_administration_record_doses__dose_index %}
 A sequential number indicating the order of this dose within a multi-dose administration. Helps track the sequence when multiple doses are given in a single administration event.
 {% enddocs %}
+
+{% docs medication_administration_record_doses__reason_for_change %}
+A text field documenting the reason for any modifications made to this dose record after it was initially recorded. This helps maintain an audit trail of changes and ensures proper documentation of why dose details were updated.
+{% enddocs %}
