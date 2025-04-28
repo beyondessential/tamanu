@@ -8,7 +8,7 @@ type QueryConfig = {
   safeListedTableNames?: string[];
 };
 
-// TODO AUDIT CHANGES: proper type
+// TODO use model on merge with other sync pr
 export type ChangelogRecord = {
   [key: string]: any,
   record_id: string
