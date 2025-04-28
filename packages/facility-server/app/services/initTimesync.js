@@ -20,6 +20,9 @@ export const initTimesync = async ({ models, url }) => {
         signal: AbortSignal.timeout(10000),
         method: 'POST',
         body: JSON.stringify(request),
+        headers: {
+          'Content-Type': 'application/octet-stream',
+        },
       }).catch((err) => {
         log.error('Failed to fetch timesync packet', { error: err });
         throw err;
