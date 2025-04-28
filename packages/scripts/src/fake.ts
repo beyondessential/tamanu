@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import type { Sequelize } from '@tamanu/database';
+import type { Models, Sequelize } from '@tamanu/database';
 import { generateEachDataType, populateDbFromTallyFile } from '@tamanu/fake-data/populateDb';
 
 /** Generate fake data to exercise the whole database */
 export async function generateFake(
   sequelize: Sequelize,
+  models: Models,
   rounds: number = 1,
   tallyFilePath?: string,
 ) {
@@ -17,9 +18,9 @@ export async function generateFake(
   while (done < rounds && errs < Math.max(10, rounds / 10)) {
     try {
       if (tallyFilePath) {
-        await populateDbFromTallyFile(sequelize.models, tallyFilePath);
+        await populateDbFromTallyFile(models, tallyFilePath);
       } else {
-        await generateEachDataType(sequelize.models);
+        await generateEachDataType(models);
       }
       process.stdout.write('.');
       done += 1;
@@ -62,7 +63,7 @@ async function main() {
 
   try {
     console.time('done');
-    await generateFake(db.sequelize, rounds, opts.fromTally);
+    await generateFake(db.sequelize, db.models, rounds, opts.fromTally);
     console.timeEnd('done');
   } finally {
     await db.sequelize.close();

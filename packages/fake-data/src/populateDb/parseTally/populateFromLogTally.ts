@@ -46,7 +46,7 @@ export const readJSON = async (path: string): Promise<object> => {
 //   },
 //  ...
 // }
-export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
+export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
 
   const tallyJson = await readJSON(tallyFilePath);
