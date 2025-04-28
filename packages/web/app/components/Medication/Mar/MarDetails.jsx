@@ -27,6 +27,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { addHours } from 'date-fns';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
+import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -202,6 +203,7 @@ export const MarDetails = ({
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
 
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
+  const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
 
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo.id);
@@ -222,6 +224,10 @@ export const MarDetails = ({
 
   const handleRemoveExistingDose = async dose => {
     setShowRemoveDoseModal(dose);
+  };
+
+  const handleOpenEditDoseModal = dose => {
+    setShowEditDoseModal(dose);
   };
 
   const onSubmit = async (data, { setFieldValue }) => {
@@ -397,7 +403,7 @@ export const MarDetails = ({
                         </MidText>
                         <DarkestText mt={'3px'}>{marInfo.recordedByUser.displayName}</DarkestText>
                       </Box>
-                      <StyledEditButton disableRipple>
+                      <StyledEditButton disableRipple onClick={() => handleOpenEditDoseModal({})}>
                         <StyledEditIcon />
                       </StyledEditButton>
                     </DetailsContainer>
@@ -483,7 +489,10 @@ export const MarDetails = ({
                             </MidText>
                             <DarkestText mt={'3px'}>{dose.recordedByUser.displayName}</DarkestText>
                           </Box>
-                          <StyledEditButton disableRipple>
+                          <StyledEditButton
+                            disableRipple
+                            onClick={() => handleOpenEditDoseModal(dose)}
+                          >
                             <StyledEditIcon />
                           </StyledEditButton>
                         </DetailsContainer>
@@ -493,7 +502,7 @@ export const MarDetails = ({
                 <FieldArray name="doses">
                   {formArrayMethods => (
                     <>
-                      {values?.doses?.map((dose, index) => (
+                      {values?.doses?.map((_, index) => (
                         <div key={index}>
                           <HorizontalSeparator />
                           <Box
@@ -648,6 +657,16 @@ export const MarDetails = ({
           medication={medication}
           marInfo={marInfo}
           dose={showRemoveDoseModal}
+        />
+      )}
+      {!!showEditDoseModal && (
+        <EditAdministrationRecordModal
+          open={showEditDoseModal}
+          onClose={() => setShowEditDoseModal(false)}
+          medication={medication}
+          marInfo={marInfo}
+          timeSlot={timeSlot}
+          doseInfo={showEditDoseModal}
         />
       )}
     </>

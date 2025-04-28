@@ -45,6 +45,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    changing_not_given_info_reason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     reason_not_given_id: {
       type: DataTypes.STRING,
       allowNull: true,
