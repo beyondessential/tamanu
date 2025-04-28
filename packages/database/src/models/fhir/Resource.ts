@@ -200,7 +200,19 @@ export class FhirResource extends Model {
     });
 
     for (const unresolvedResource of unresolvedResources) {
-      await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+      try {
+        await this.materialiseFromUpstream(unresolvedResource.upstreamId);
+      } catch (error) {
+        if (error instanceof Error) {
+          // Rethrowing like this to preserve stacktrace while logging which resource failed to resolve
+          const errorMessage = `Error resolving upstreams for ${this.fhirName}/${unresolvedResource.id}: ${error.message ?? error.toString() ?? ''}`;
+          const rethrownError = new Error(errorMessage);
+          rethrownError.stack = `${errorMessage}\n${error.stack}`;
+          throw rethrownError;
+        } else {
+          throw error;
+        }
+      }
     }
   }
 
@@ -229,9 +241,9 @@ export class FhirResource extends Model {
   asFhir() {
     const fields: Record<string, any> = {};
     for (const name of Object.keys((this.constructor as typeof FhirResource).getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'isLive', 'resolved'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'isLive', 'resolved'].includes(name))
+        continue;
       fields[name] = this.get(name) as any;
-
     }
 
     return {
