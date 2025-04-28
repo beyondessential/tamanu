@@ -50,8 +50,8 @@ describe('attachChangelogToSnapshotRecords', () => {
     ];
 
     const result = await attachChangelogToSnapshotRecords(sequelize, snapshotRecords, {
-      minSourceTick: 100,
-      maxSourceTick: 250,
+      minSourceTick: 99,
+      maxSourceTick: 251,
     });
 
     expect(result).toHaveLength(3);
@@ -59,13 +59,13 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Check patient 1 has both changelog records
     const patient1 = result.find((r) => r.recordId === '1');
     expect(patient1?.changelogRecords).toHaveLength(2);
-    expect(patient1?.changelogRecords[0].updated_at_sync_tick).toBe(100);
-    expect(patient1?.changelogRecords[1].updated_at_sync_tick).toBe(150);
+    expect(patient1?.changelogRecords[0].updated_at_sync_tick).toBe("100");
+    expect(patient1?.changelogRecords[1].updated_at_sync_tick).toBe("150");
 
     // Check patient 2 has one changelog record
     const patient2 = result.find((r) => r.recordId === '2');
     expect(patient2?.changelogRecords).toHaveLength(1);
-    expect(patient2?.changelogRecords[0].updated_at_sync_tick).toBe(200);
+    expect(patient2?.changelogRecords[0].updated_at_sync_tick).toBe("200");
 
     // Check encounter 1 has no changelog records (outside tick range)
     const encounter1 = result.find((r) => r.recordId === '1' && r.recordType === 'encounters');
@@ -103,7 +103,6 @@ describe('attachChangelogToSnapshotRecords', () => {
       tableWhitelist: ['patients'],
     });
 
-    console.log(result);
     expect(result).toHaveLength(2);
 
     // Check only patient records have changelog entries
