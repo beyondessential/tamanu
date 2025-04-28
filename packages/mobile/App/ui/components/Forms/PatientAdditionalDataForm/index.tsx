@@ -75,6 +75,8 @@ export const PatientAdditionalDataForm = ({
         ),
       );
 
+      // TODO: Needs to reload the patient data
+
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
