@@ -19,7 +19,7 @@ export const initTimesync = async ({ models, url }) => {
       const http = await fetch(url, {
         signal: AbortSignal.timeout(10000),
         method: 'POST',
-        body: JSON.stringify(request),
+        body: request,
         headers: {
           'Content-Type': 'application/octet-stream',
         },
