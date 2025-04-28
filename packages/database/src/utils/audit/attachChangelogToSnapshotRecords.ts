@@ -5,7 +5,7 @@ import type { SyncSnapshotAttributes } from 'types/sync';
 type QueryConfig = {
   minSourceTick: number;
   maxSourceTick?: number;
-  safeListedTableNames?: string[];
+  tableWhitelist?: string[];
 };
 
 // TODO use model on merge with other sync pr
@@ -21,7 +21,7 @@ export type SyncSnapshotAttributesWithChangelog = SyncSnapshotAttributes & {
 export const attachChangelogToSnapshotRecords = async (
   sequelize: Sequelize,
   snapshotRecords: SyncSnapshotAttributes[],
-  { minSourceTick, maxSourceTick, safeListedTableNames }: QueryConfig,
+  { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
   if (!snapshotRecords.length) {
     return snapshotRecords as SyncSnapshotAttributesWithChangelog[];
@@ -31,7 +31,7 @@ export const attachChangelogToSnapshotRecords = async (
     SELECT * FROM logs.changes
     WHERE updated_at_sync_tick > :minSourceTick
     ${maxSourceTick ? 'AND updated_at_sync_tick < :maxSourceTick' : ''}
-    ${safeListedTableNames ? `AND table_name IN (:safeListedTableNames)` : ''}
+    ${tableWhitelist ? `AND table_name IN (:tableWhitelist)` : ''}
     AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
     `,
     {
@@ -39,7 +39,7 @@ export const attachChangelogToSnapshotRecords = async (
       replacements: {
         minSourceTick,
         maxSourceTick,
-        safeListedTableNames,
+        tableWhitelist,
         recordTypeAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
       },
     },
