@@ -53,7 +53,7 @@ export const HierarchyFields = ({
   leafNodeType = ReferenceDataType.Village,
   relationType = ReferenceDataRelationType.AddressHierarchy,
 }: HierarchyFieldsProps) => {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
   return (
@@ -61,6 +61,12 @@ export const HierarchyFields = ({
       {hierarchyFields.map(({ label, name, referenceType }, index) => {
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
+
+        const clearRestOfFields = () => {
+          hierarchyFields.slice(index + 1).forEach((field) => {
+            setFieldValue(field.name, '');
+          });
+        };
 
         return (
           <HierarchyFieldItem
@@ -71,6 +77,7 @@ export const HierarchyFields = ({
             name={name}
             label={label}
             referenceType={referenceType}
+            onChange={clearRestOfFields}
           />
         );
       })}
