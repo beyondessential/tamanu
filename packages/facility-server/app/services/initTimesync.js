@@ -8,18 +8,21 @@ export const initTimesync = async ({ models, url }) => {
     async (err) => {
       if (err) throw err;
       const us = await models.LocalSystemFact.get(FACT_TIME_OFFSET);
+      if (!us) return null;
       return parseInt(us, 10);
     },
     async (err, offset) => {
       if (err) throw err;
+      log.debug('Timesync offset updated (us)', { offset });
       await models.LocalSystemFact.set(FACT_TIME_OFFSET, offset.toString());
     },
-    async (err, request) => {
+    async (err, body) => {
       if (err) throw err;
+      log.debug('Fetching timesync packet', { url, body });
       const http = await fetch(url, {
         signal: AbortSignal.timeout(10000),
         method: 'POST',
-        body: request,
+        body,
         headers: {
           'Content-Type': 'application/octet-stream',
         },
@@ -27,7 +30,9 @@ export const initTimesync = async ({ models, url }) => {
         log.error('Failed to fetch timesync packet', { error: err });
         throw err;
       });
-      return await http.blob();
+      const response = Buffer.from(await http.arrayBuffer());
+      log.debug('Got reply timesync packet', { url, response });
+      return response;
     },
   );
 };
