@@ -472,6 +472,52 @@ async function getAnswersWithHistory(req) {
   return { count, data };
 }
 
+async function getGraphData(req, dateDataElementId) {
+  const { models, params, query } = req;
+  const { id: encounterId, dataElementId } = params;
+  const { startDate, endDate } = query;
+  const { SurveyResponse, SurveyResponseAnswer } = models;
+
+  const dateAnswers = await SurveyResponseAnswer.findAll({
+    include: [
+      {
+        model: SurveyResponse,
+        required: true,
+        as: 'surveyResponse',
+        where: { encounterId },
+      },
+    ],
+    where: {
+      dataElementId: dateDataElementId,
+      body: { [Op.gte]: startDate, [Op.lte]: endDate },
+    },
+  });
+
+  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+
+  const answers = await SurveyResponseAnswer.findAll({
+    where: {
+      responseId: responseIds,
+      dataElementId,
+      body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
+    },
+  });
+
+  const data = answers
+    .map((answer) => {
+      const { responseId } = answer;
+      const recordedDateAnswer = dateAnswers.find(
+        (dateAnswer) => dateAnswer.responseId === responseId,
+      );
+      const recordedDate = recordedDateAnswer.body;
+      return { ...answer.dataValues, recordedDate };
+    })
+    .sort((a, b) => {
+      return a.recordedDate > b.recordedDate ? 1 : -1;
+    });
+  return data;
+}
+
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
@@ -486,58 +532,10 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/graphData/:dataElementId',
+  '/:id/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { id: encounterId, dataElementId } = params;
-    const { startDate, endDate, isVital } = query;
-    if (isVital) {
-      req.checkPermission('list', 'Vitals');
-    } else {
-      req.checkPermission('list', 'Charting');
-    }
-    const { SurveyResponse, SurveyResponseAnswer } = models;
-
-    const dateDataElementId = isVital === 'true'
-      ? VITALS_DATA_ELEMENT_IDS.dateRecorded
-      : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
-    const dateAnswers = await SurveyResponseAnswer.findAll({
-      include: [
-        {
-          model: SurveyResponse,
-          required: true,
-          as: 'surveyResponse',
-          where: { encounterId },
-        },
-      ],
-      where: {
-        dataElementId: dateDataElementId,
-        body: { [Op.gte]: startDate, [Op.lte]: endDate },
-      },
-    });
-
-    const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
-
-    const answers = await SurveyResponseAnswer.findAll({
-      where: {
-        responseId: responseIds,
-        dataElementId,
-        body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
-      },
-    });
-
-    const data = answers
-      .map((answer) => {
-        const { responseId } = answer;
-        const recordedDateAnswer = dateAnswers.find(
-          (dateAnswer) => dateAnswer.responseId === responseId,
-        );
-        const recordedDate = recordedDateAnswer.body;
-        return { ...answer.dataValues, recordedDate };
-      })
-      .sort((a, b) => {
-        return a.recordedDate > b.recordedDate ? 1 : -1;
-      });
+    req.checkPermission('list', 'Vitals');
+    const data = getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -570,6 +568,19 @@ encounterRelations.get(
 
     res.send({
       data: chartSurvey,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/charts/:dataElementId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Charting');
+    const data = getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+
+    res.send({
+      count: data.length,
+      data,
     });
   }),
 );

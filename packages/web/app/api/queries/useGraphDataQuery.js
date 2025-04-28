@@ -16,11 +16,12 @@ const transformVitalDataToChartData = vitalQuery => {
 export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, isVital = false) => {
   const api = useApi();
   const [startDate, endDate] = dateRange;
+  const directory = isVital ? 'vitals' : 'charts';
   const query = useQuery(
-    ['encounterGraphData', encounterId, vitalDataElementId, startDate, endDate, isVital],
+    ['encounter', encounterId, directory,vitalDataElementId, startDate, endDate, isVital],
     () => {
       return api.get(
-        `encounter/${encounterId}/graphData/${vitalDataElementId}`,
+        `encounter/${encounterId}/${directory}/${vitalDataElementId}`,
         { startDate, endDate, isVital },
         { isErrorUnknown: isErrorUnknownAllow404s },
       );
