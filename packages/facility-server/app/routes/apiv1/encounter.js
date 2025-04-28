@@ -486,14 +486,21 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/vitals/:dataElementId',
+  '/:id/graphData/:dataElementId',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    req.checkPermission('list', 'Vitals');
     const { id: encounterId, dataElementId } = params;
-    const { startDate, endDate } = query;
+    const { startDate, endDate, isVital } = query;
+    if (isVital) {
+      req.checkPermission('list', 'Vitals');
+    } else {
+      req.checkPermission('list', 'Charting');
+    }
     const { SurveyResponse, SurveyResponseAnswer } = models;
 
+    const dateDataElementId = isVital === 'true'
+      ? VITALS_DATA_ELEMENT_IDS.dateRecorded
+      : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
     const dateAnswers = await SurveyResponseAnswer.findAll({
       include: [
         {
@@ -504,7 +511,7 @@ encounterRelations.get(
         },
       ],
       where: {
-        dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+        dataElementId: dateDataElementId,
         body: { [Op.gte]: startDate, [Op.lte]: endDate },
       },
     });
