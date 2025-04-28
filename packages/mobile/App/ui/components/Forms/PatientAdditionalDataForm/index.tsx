@@ -54,7 +54,10 @@ export const PatientAdditionalDataForm = ({
         },
       });
 
-      await Patient.updateValues(patient.id, values);
+      // TODO: This is a hack to update the villageId as its only field within PAD
+      await Patient.updateValues(patient.id, {
+        villageId: values.villageId,
+      });
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
 
