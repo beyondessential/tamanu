@@ -5,7 +5,10 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import type { ChangelogRecord } from './attachChangelogRecordsToSnapshot';
 
-export const insertChangelogRecords = async (sequelize: Sequelize, changelogRecords: ChangelogRecord[]) => {
+export const insertChangelogRecords = async (
+  sequelize: Sequelize,
+  changelogRecords: ChangelogRecord[],
+) => {
   // TODO AUDIT: what to do here do we need this
   const isFacility = !!selectFacilityIds(config);
   if (!changelogRecords.length) {
@@ -30,7 +33,14 @@ export const insertChangelogRecords = async (sequelize: Sequelize, changelogReco
   const existingKeys = existingRecords.map((r) => `${r.table_name}-${r.record_id}`);
   const recordsToInsert = changelogRecords.filter(
     (r) => !existingKeys.includes(`${r.table_name}-${r.record_id}`),
-  );
+  ).map((r) => {
+    return {
+      ...r,
+      // TODO Should we he have to do this ?
+      record_data: JSON.stringify(r.record_data),
+      updated_at_sync_tick: Number(r.updated_at_sync_tick),
+    }
+  });
   await queryInterface.bulkInsert(
     { tableName: 'changes', schema: 'logs' },
     isFacility
