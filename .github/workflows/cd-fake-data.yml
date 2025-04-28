@@ -39,7 +39,7 @@ jobs:
           ns="tamanu-${{ inputs.deploy-name }}"
           pgpass=$(kubectl get -n "$ns" secrets central-db-app -o jsonpath='{.data.password}' | base64 -d)
           echo "::add-mask::$pgpass"
-          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
+          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
 
       - name: Add fake data to the deployment
         working-directory: packages/scripts
@@ -48,7 +48,13 @@ jobs:
           ns="tamanu-${{ inputs.deploy-name }}"
           kubectl port-forward -n "$ns" service/central-db-rw 4444:5432 &
           pf_pid=$!
-          trap "kill $pf_pid" EXIT
+          function cleanup() {
+            exitcode=$?
+            kill $pf_pid
+            exit $exitcode
+          }
+          trap cleanup EXIT
+          sleep 5
           node dist/fake.js \
             --database app \
             --rounds ${{ fromJson(inputs.options).fakedata }} \
