@@ -39,6 +39,7 @@ jobs:
           ns="tamanu-${{ inputs.deploy-name }}"
           pgpass=$(kubectl get -n "$ns" secrets central-db-app -o jsonpath='{.data.password}' | base64 -d)
           echo "::add-mask::$pgpass"
+          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" | tee -a $GITHUB_ENV
           echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
 
       - name: Add fake data to the deployment
