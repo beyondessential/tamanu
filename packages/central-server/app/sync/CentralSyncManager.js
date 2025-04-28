@@ -35,6 +35,7 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import { extractChangelogFromSnapshotRecords } from '@tamanu/database/utils/audit/extractChangelogFromSnapshotRecords';
 
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -666,16 +667,8 @@ export class CentralSyncManager {
       sessionId,
     });
 
-    // Extract changelog records from the batch of rows
-    let changelogRecords = [];
-    for (const row of incomingSnapshotRecords) {
-      if (row.changelogRecords) {
-        changelogRecords.push(...row.changelogRecords);
-      }
-      delete row.changelogRecords;
-    }
-
-    await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+    const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
+    await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
     await insertChangelogRecords(sequelize, changelogRecords);
   }
 
