@@ -437,7 +437,7 @@ export const StatusPopper = ({
     setShowGivenScreen(true);
   };
 
-  const reasonsNotGiven = useSuggestionsQuery('reasonNotGiven');
+  const reasonsNotGiven = useSuggestionsQuery('medicationNotGivenReason');
 
   const getContent = () => {
     if (showReasonScreen) {

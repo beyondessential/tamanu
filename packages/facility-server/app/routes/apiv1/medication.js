@@ -17,7 +17,7 @@ import {
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
-import { add, format, isAfter } from 'date-fns';
+import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op } from 'sequelize';
 
 export const medication = express.Router();
@@ -649,6 +649,56 @@ medication.post(
   }),
 );
 
+const notGivenInfoInputUpdateSchema = z
+  .object({
+    reasonNotGivenId: z.string(),
+    recordedByUserId: z.string(),
+    changingNotGivenInfoReason: z.string().optional(),
+  })
+  .strip();
+medication.put(
+  '/medication-administration-record/:id/not-given-info',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecord');
+    const { models, params } = req;
+    const { MedicationAdministrationRecord, User } = models;
+
+    const { reasonNotGivenId, recordedByUserId, changingNotGivenInfoReason } =
+      await notGivenInfoInputUpdateSchema.parseAsync(req.body);
+
+    const record = await MedicationAdministrationRecord.findByPk(params.id);
+    if (!record) {
+      throw new InvalidOperationError(`MAR with id ${params.id} not found`);
+    }
+
+    const recordedByUser = await User.findByPk(recordedByUserId);
+    if (!recordedByUser) {
+      throw new InvalidOperationError(`User with id ${recordedByUserId} not found`);
+    }
+
+    const reasonNotGiven = await req.models.ReferenceData.findByPk(reasonNotGivenId, {
+      where: { type: REFERENCE_TYPES.MEDICATION_NOT_GIVEN_REASON },
+    });
+    if (!reasonNotGiven) {
+      throw new InvalidOperationError(`Not given reason with id ${reasonNotGivenId} not found`);
+    }
+
+    if (
+      record.reasonNotGivenId === reasonNotGivenId &&
+      record.recordedByUserId === recordedByUserId
+    ) {
+      throw new InvalidOperationError(`No changes were made to the MAR`);
+    }
+
+    record.reasonNotGivenId = reasonNotGivenId;
+    record.recordedByUserId = recordedByUserId;
+    record.changingNotGivenInfoReason = changingNotGivenInfoReason;
+    await record.save();
+
+    res.send(record.forResponse());
+  }),
+);
+
 const notGivenInputUpdateSchema = z
   .object({
     reasonNotGivenId: z.string(),
@@ -822,10 +872,10 @@ const updateMedicationAdministrationRecordInputSchema = z
 medication.put(
   '/medication-administration-record/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
     const marId = params.id;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
-    req.checkPermission('write', 'MedicationAdministrationRecord');
 
     const { isError, errorNotes, doses } =
       await updateMedicationAdministrationRecordInputSchema.parseAsync(req.body);
@@ -917,7 +967,60 @@ medication.get(
   }),
 );
 
-const deleteMedicationAdministrationRecordInputSchema = z
+const updateDoseSchema = z.object({
+  doseAmount: z.number(),
+  givenTime: z.string().datetime(),
+  givenByUserId: z.string(),
+  recordedByUserId: z.string(),
+  reasonForChange: z.string().optional(),
+});
+medication.put(
+  '/medication-administration-record/doses/:doseId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecordDose');
+    const { models, params } = req;
+    const { doseId } = params;
+    const { MedicationAdministrationRecordDose, User } = models;
+
+    const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } =
+      await updateDoseSchema.parseAsync(req.body);
+
+    const doseObject = await MedicationAdministrationRecordDose.findByPk(doseId);
+    if (!doseObject) {
+      throw new InvalidOperationError(`Dose with id ${doseId} not found`);
+    }
+
+    const givenByUser = await User.findByPk(givenByUserId);
+    if (!givenByUser) {
+      throw new InvalidOperationError(`User with id ${givenByUserId} not found`);
+    }
+
+    const recordedByUser = await User.findByPk(recordedByUserId);
+    if (!recordedByUser) {
+      throw new InvalidOperationError(`User with id ${recordedByUserId} not found`);
+    }
+
+    if (
+      Number(doseObject.doseAmount) === doseAmount &&
+      isEqual(new Date(doseObject.givenTime), new Date(givenTime)) &&
+      doseObject.givenByUserId === givenByUserId &&
+      doseObject.recordedByUserId === recordedByUserId
+    ) {
+      throw new InvalidOperationError(`No changes were made to the dose`);
+    }
+
+    doseObject.doseAmount = doseAmount;
+    doseObject.givenTime = givenTime;
+    doseObject.givenByUserId = givenByUserId;
+    doseObject.recordedByUserId = recordedByUserId;
+    doseObject.reasonForChange = reasonForChange;
+    await doseObject.save();
+
+    res.send(doseObject.forResponse());
+  }),
+);
+
+const deleteDoseInputSchema = z
   .object({
     reasonForRemoval: z.string().optional(),
   })
@@ -925,14 +1028,12 @@ const deleteMedicationAdministrationRecordInputSchema = z
 medication.delete(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params, query } = req;
     const doseId = params.doseId;
     const { MedicationAdministrationRecordDose } = models;
 
-    req.checkPermission('write', 'MedicationAdministrationRecord');
-
-    const { reasonForRemoval } =
-      await deleteMedicationAdministrationRecordInputSchema.parseAsync(query);
+    const { reasonForRemoval } = await deleteDoseInputSchema.parseAsync(query);
 
     const existingDose = await MedicationAdministrationRecordDose.findByPk(doseId);
     if (!existingDose) {

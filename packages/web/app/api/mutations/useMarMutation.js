@@ -11,9 +11,18 @@ export const useNotGivenMarMutation = (existingMarId = null, useMutationOptions 
         : api.post('medication/medication-administration-record/not-given', payload),
     {
       ...useMutationOptions,
-      onSuccess: (data, variables, context) => {
-        useMutationOptions.onSuccess?.(data, variables, context);
-      },
+    },
+  );
+};
+
+export const useNotGivenInfoMarMutation = (marId, useMutationOptions = {}) => {
+  const api = useApi();
+
+  return useMutation(
+    payload =>
+      api.put(`medication/medication-administration-record/${marId}/not-given-info`, payload),
+    {
+      ...useMutationOptions,
     },
   );
 };
@@ -28,9 +37,6 @@ export const useGivenMarMutation = (existingMarId = null, useMutationOptions = {
         : api.post('medication/medication-administration-record/given', payload),
     {
       ...useMutationOptions,
-      onSuccess: (data, variables, context) => {
-        useMutationOptions.onSuccess?.(data, variables, context);
-      },
     },
   );
 };
@@ -40,6 +46,16 @@ export const useUpdateMarMutation = (marId, useMutationOptions = {}) => {
 
   return useMutation(
     payload => api.put(`medication/medication-administration-record/${marId}`, payload),
+    {
+      ...useMutationOptions,
+    },
+  );
+};
+
+export const useUpdateDoseMutation = (doseId, useMutationOptions = {}) => {
+  const api = useApi();
+  return useMutation(
+    payload => api.put(`medication/medication-administration-record/doses/${doseId}`, payload),
     {
       ...useMutationOptions,
     },

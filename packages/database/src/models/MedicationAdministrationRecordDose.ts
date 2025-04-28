@@ -9,6 +9,7 @@ export class MedicationAdministrationRecordDose extends Model {
   declare doseIndex: number;
   declare isRemoved: boolean;
   declare reasonForRemoval?: string;
+  declare reasonForChange?: string;
   declare givenTime: Date;
   declare givenByUserId: string;
   declare recordedByUserId: string;
@@ -46,6 +47,10 @@ export class MedicationAdministrationRecordDose extends Model {
           allowNull: false,
         },
         reasonForRemoval: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        reasonForChange: {
           type: DataTypes.STRING,
           allowNull: true,
         },
