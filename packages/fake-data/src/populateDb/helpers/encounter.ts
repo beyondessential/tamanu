@@ -1,12 +1,12 @@
 import { NOTE_RECORD_TYPES } from '@tamanu/constants';
-import type { Models, Encounter } from '@tamanu/database';
+import type { Encounter } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { times } from 'lodash';
 import { fake, chance } from '../../fake';
+import type { CommonParams } from './common';
 
-interface CreateEncounterParams {
-  models: Models;
+interface CreateEncounterParams extends CommonParams {
   patientId: string;
   departmentId: string;
   locationId: string;
@@ -18,6 +18,7 @@ interface CreateEncounterParams {
 }
 export const createEncounter = async ({
   models,
+  limit,
   patientId,
   departmentId,
   locationId,
@@ -49,26 +50,30 @@ export const createEncounter = async ({
   );
 
   await Promise.all(
-    times(diagnosisCount, async () => {
-      await EncounterDiagnosis.create(
-        fake(EncounterDiagnosis, {
-          diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
-          encounterId: encounter.id,
-        }),
-      );
-    }),
+    times(diagnosisCount, () =>
+      limit(async () => {
+        await EncounterDiagnosis.create(
+          fake(EncounterDiagnosis, {
+            diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+            encounterId: encounter.id,
+          }),
+        );
+      }),
+    ),
   );
 
   await Promise.all(
-    times(noteCount, async () => {
-      await Note.create(
-        fake(Note, {
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          recordId: encounter.id,
-          authorId: userId || (await randomRecordId(models, 'User')),
-        }),
-      );
-    }),
+    times(noteCount, () =>
+      limit(async () => {
+        await Note.create(
+          fake(Note, {
+            recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+            recordId: encounter.id,
+            authorId: userId || (await randomRecordId(models, 'User')),
+          }),
+        );
+      }),
+    ),
   );
 
   if (isDischarged) {

@@ -1,9 +1,8 @@
-import type { Models } from '@tamanu/database';
 import { times } from 'lodash';
 import { fake, chance } from '../../fake';
+import type { CommonParams } from './common';
 
-interface CreateLabRequestParams {
-  models: Models;
+interface CreateLabRequestParams extends CommonParams {
   departmentId: string;
   userId: string;
   encounterId: string;
@@ -14,6 +13,7 @@ interface CreateLabRequestParams {
 }
 export const createLabRequest = async ({
   models,
+  limit,
   departmentId,
   userId,
   encounterId,
@@ -39,22 +39,24 @@ export const createLabRequest = async ({
   );
 
   await Promise.all(
-    times(testCount, async () => {
-      const labTest = await LabTest.create(
-        fake(LabTest, {
-          labRequestId: labRequest.id,
-          categoryId: referenceDataId,
-          labTestMethodId: referenceDataId,
-          labTestTypeId,
-        }),
-      );
-      await CertificateNotification.create(
-        fake(CertificateNotification, {
-          patientId,
-          labTestId: labTest.id,
-          labRequestId: labRequest.id,
-        }),
-      );
-    }),
+    times(testCount, () =>
+      limit(async () => {
+        const labTest = await LabTest.create(
+          fake(LabTest, {
+            labRequestId: labRequest.id,
+            categoryId: referenceDataId,
+            labTestMethodId: referenceDataId,
+            labTestTypeId,
+          }),
+        );
+        await CertificateNotification.create(
+          fake(CertificateNotification, {
+            patientId,
+            labTestId: labTest.id,
+            labRequestId: labRequest.id,
+          }),
+        );
+      }),
+    ),
   );
 };

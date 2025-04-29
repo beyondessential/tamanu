@@ -1,11 +1,10 @@
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES } from '@tamanu/constants';
-import type { Models } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake } from '../../fake';
+import type { CommonParams, ExtendedCommonParams } from './common';
 
-interface CreateDbReportParams {
-  models: Models;
+interface CreateDbReportParams extends CommonParams {
   userId: string;
 }
 export const createDbReport = async ({
@@ -27,7 +26,7 @@ export const createDbReport = async ({
   );
 };
 
-interface UpdateDbReportParams extends CreateDbReportParams {
+interface UpdateDbReportParams extends ExtendedCommonParams<CreateDbReportParams> {
   reportDefinitionId: string;
 }
 export const updateDbReport = async ({

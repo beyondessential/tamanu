@@ -1,12 +1,12 @@
 import { times } from 'lodash';
 
-import type { Models, Patient } from '@tamanu/database';
+import type { Patient } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake, chance } from '../../fake';
+import type { CommonParams } from './common';
 
-interface CreatePatientParams {
-  models: Models;
+interface CreatePatientParams extends CommonParams {
   facilityId: string;
   userId: string;
   isBirth?: boolean;
@@ -16,6 +16,7 @@ interface CreatePatientParams {
 }
 export const createPatient = async ({
   models,
+  limit,
   facilityId,
   userId,
   isBirth = chance.bool(),
@@ -51,13 +52,15 @@ export const createPatient = async ({
   }
 
   await Promise.all(
-    times(allergyCount, async () => {
-      await PatientAllergy.create(
-        fake(PatientAllergy, {
-          patientId: patient.id,
-        }),
-      );
-    }),
+    times(allergyCount, () =>
+      limit(async () => {
+        await PatientAllergy.create(
+          fake(PatientAllergy, {
+            patientId: patient.id,
+          }),
+        );
+      }),
+    ),
   );
 
   return { patient };

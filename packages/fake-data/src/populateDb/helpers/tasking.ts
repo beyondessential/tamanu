@@ -1,8 +1,7 @@
-import type { Models } from '@tamanu/database';
 import { fake } from '../../fake';
+import type { CommonParams } from './common';
 
-interface CreateTaskParams {
-  models: Models;
+interface CreateTaskParams extends CommonParams {
   encounterId: string;
   userId: string;
   referenceDataId: string;

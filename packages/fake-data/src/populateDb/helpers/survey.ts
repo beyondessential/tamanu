@@ -1,10 +1,9 @@
-import type { Models } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake } from '../../fake';
+import type { CommonParams } from './common';
 
-interface CreateSurveyResponseParams {
-  models: Models;
+interface CreateSurveyResponseParams extends CommonParams {
   encounterId: string;
   surveyId: string;
 }

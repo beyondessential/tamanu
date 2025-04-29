@@ -1,5 +1,5 @@
-import { times } from 'lodash';
 import { promises as fs } from 'fs';
+import { times } from 'lodash';
 
 import { Models } from '@tamanu/database';
 
@@ -48,9 +48,13 @@ export const readJSON = async (path: string): Promise<object> => {
 // }
 export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
+  const { default: pLimit } = await import('p-limit');
 
   const tallyJson = await readJSON(tallyFilePath);
   const tallies = Object.entries(tallyJson);
+  const limit = pLimit(10);
+  const limited = (fn: (arg: any) => Promise<any>) =>
+    limit(() => fn({ models, limit }).then(print('.'), print('!')));
 
   for (const [n, [model, tally]] of tallies.entries()) {
     let calls = [];
@@ -59,14 +63,14 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
 
     if (postFn) {
       console.log(`Simulating POST ${model}`, postCount, 'times');
-      calls = calls.concat(times(postCount, () => postFn({ models }).then(print('.'), print('!'))));
+      calls = calls.concat(times(postCount, () => limited(postFn)));
     } else if (postCount) {
       console.error(`Missing mapping for ${model}.POST`);
     }
 
     if (putFn) {
       console.log(`Simulating PUT ${model}`, postCount, 'times');
-      calls = calls.concat(times(putCount, () => putFn({ models }).then(print('.'), print('!'))));
+      calls = calls.concat(times(putCount, () => limited(putFn)));
     } else if (putCount) {
       console.error(`Missing mapping for ${model}.PUT`);
     }
