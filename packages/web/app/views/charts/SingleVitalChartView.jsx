@@ -21,7 +21,6 @@ export const SingleVitalChartView = () => {
       visualisationConfig={visualisationConfig}
       dateRange={dateRange}
       isInMultiChartsView={isInMultiChartsView}
-      isVital={isVital}
     />
   );
 };

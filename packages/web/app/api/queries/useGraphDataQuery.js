@@ -18,10 +18,10 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
   const [startDate, endDate] = dateRange;
   const directory = isVital ? 'vitals' : 'charts';
   const query = useQuery(
-    ['encounter', encounterId, directory,vitalDataElementId, startDate, endDate, isVital],
+    ['encounter', encounterId, 'graphData', directory, vitalDataElementId, startDate, endDate, isVital],
     () => {
       return api.get(
-        `encounter/${encounterId}/${directory}/${vitalDataElementId}`,
+        `encounter/${encounterId}/graphData/${directory}/${vitalDataElementId}`,
         { startDate, endDate, isVital },
         { isErrorUnknown: isErrorUnknownAllow404s },
       );

@@ -40,7 +40,6 @@ export const MultiVitalChartsView = () => {
               dateRange={dateRange}
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
-              isVital={isVital}
             />
           </div>
         );

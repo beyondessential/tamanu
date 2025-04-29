@@ -532,10 +532,10 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/vitals/:dataElementId',
+  '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Vitals');
-    const data = getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
+    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -573,10 +573,10 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/charts/:dataElementId',
+  '/:id/graphData/charts/:dataElementId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Charting');
-    const data = getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
