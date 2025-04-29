@@ -141,7 +141,8 @@ export const EditAdministrationRecordModal = ({
     if (marInfo?.status === ADMINISTRATION_STATUS.GIVEN) {
       return yup.object().shape({
         givenTime: yup
-          .date()
+          .string()
+          .nullable()
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',

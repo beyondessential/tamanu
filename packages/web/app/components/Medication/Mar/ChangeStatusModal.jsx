@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
-import { addHours } from 'date-fns';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
@@ -168,7 +166,8 @@ export const ChangeStatusModal = ({
     if (initialStatus === ADMINISTRATION_STATUS.NOT_GIVEN) {
       return yup.object().shape({
         givenTime: yup
-          .date()
+          .string()
+          .nullable()
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',
