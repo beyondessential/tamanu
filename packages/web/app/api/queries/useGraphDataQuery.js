@@ -22,7 +22,7 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
     () => {
       return api.get(
         `encounter/${encounterId}/graphData/${directory}/${vitalDataElementId}`,
-        { startDate, endDate, isVital },
+        { startDate, endDate },
         { isErrorUnknown: isErrorUnknownAllow404s },
       );
     },
