@@ -79,13 +79,6 @@ const RemoveInsurerButton = styled(IconButton)`
   }
 `;
 
-const StyledNumberField = styled(NumberField)`
-  input {
-    padding: 13px 10px !important;
-    font-size: 11px !important;
-  }
-`;
-
 const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
   const formikContext = useFormikContext();
   const insurers = formikContext?.values?.insurers || [];
@@ -123,20 +116,28 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     required
                     component={AutocompleteField}
                     suggester={insurerSuggester}
-                    size="small"
+                    style={{ width: '166px' }}
                   />
                   <Field
                     name={`insurers.${index}.percentage`}
-                    component={StyledNumberField}
+                    component={NumberField}
                     min={1}
                     max={100}
                     onInput={preventInvalid}
                     required
-                    style={{ flexShrink: 0, width: '70px' }}
+                    style={{ width: '70px' }}
                   />
-                  <Box marginTop="11px">%</Box>
+                  <Box marginTop="11px" marginRight="10px">
+                    %
+                  </Box>
                 </Box>
-                <Box marginTop="11px" display="flex" justifyContent="flex-end" paddingLeft="30px">
+                <Box
+                  marginTop="11px"
+                  display="flex"
+                  justifyContent="flex-end"
+                  flexShrink={0}
+                  style={{ width: '70px' }}
+                >
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}

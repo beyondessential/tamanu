@@ -77,10 +77,10 @@ const PriceCell = styled(ViewOnlyCell)`
 export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
-      <ItemHeadCell width="12%">
+      <ItemHeadCell width="14%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </ItemHeadCell>
-      <ItemHeadCell width="30%">
+      <ItemHeadCell width="28%">
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </ItemHeadCell>
       <ItemHeadCell width="10%">
@@ -273,7 +273,7 @@ export const InvoiceItemRow = ({
   return (
     <>
       <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
-        <StyledItemCell width="12%">
+        <StyledItemCell width="14%">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
@@ -287,7 +287,7 @@ export const InvoiceItemRow = ({
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="30%">
+        <StyledItemCell width="28%">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.productId`}
