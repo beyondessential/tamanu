@@ -13,24 +13,24 @@ describe('insertChangelogRecords', () => {
 
     // Create logs schema and changes table
     // Something is wrong with the migrations, so we need to create the table manually
-    // await sequelize.query(`
-    //   CREATE SCHEMA IF NOT EXISTS logs;
-    //   CREATE TABLE IF NOT EXISTS logs.changes (
-    //     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    //     table_oid INTEGER NOT NULL,
-    //     table_schema TEXT NOT NULL,
-    //     table_name TEXT NOT NULL,
-    //     logged_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    //     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    //     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    //     deleted_at TIMESTAMP WITH TIME ZONE,
-    //     updated_at_sync_tick BIGINT NOT NULL,
-    //     updated_by_user_id TEXT NOT NULL,
-    //     record_id TEXT NOT NULL,
-    //     record_update BOOLEAN NOT NULL,
-    //     record_data JSONB NOT NULL
-    //   );
-    // `);
+    await sequelize.query(`
+      CREATE SCHEMA IF NOT EXISTS logs;
+      CREATE TABLE IF NOT EXISTS logs.changes (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        table_oid INTEGER NOT NULL,
+        table_schema TEXT NOT NULL,
+        table_name TEXT NOT NULL,
+        logged_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        deleted_at TIMESTAMP WITH TIME ZONE,
+        updated_at_sync_tick BIGINT NOT NULL,
+        updated_by_user_id TEXT NOT NULL,
+        record_id TEXT NOT NULL,
+        record_update BOOLEAN NOT NULL,
+        record_data JSONB NOT NULL
+      );
+    `);
   });
 
   afterAll(async () => {
