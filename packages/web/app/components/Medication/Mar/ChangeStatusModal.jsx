@@ -100,9 +100,6 @@ export const ChangeStatusModal = ({
   medication,
   marInfo,
   timeSlot,
-  isPast,
-  isFuture,
-  selectedDate,
 }) => {
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
@@ -179,7 +176,7 @@ export const ChangeStatusModal = ({
               stringId="medication.mar.givenTime.validation.outside"
               fallback="Time is outside selected window"
             />,
-            value => isWithinTimeSlot(timeSlot, value, isFuture),
+            value => isWithinTimeSlot(timeSlot, value),
           ),
         givenByUserId: yup
           .string()
@@ -212,9 +209,7 @@ export const ChangeStatusModal = ({
       recordedByUserId: currentUser?.id,
       givenByUserId: currentUser?.id,
       doseAmount: initialPrescribedDose,
-      givenTime: isPast
-        ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-        : new Date(),
+      givenTime: null,
     };
   };
 
