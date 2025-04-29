@@ -59,14 +59,14 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
 
     if (postFn) {
       console.log(`Simulating POST ${model}`, postCount, 'times');
-      calls = calls.concat(times(postCount, async () => postFn({ models })));
+      calls = calls.concat(times(postCount, () => postFn({ models }).then(print('.'), print('!'))));
     } else if (postCount) {
       console.error(`Missing mapping for ${model}.POST`);
     }
 
     if (putFn) {
       console.log(`Simulating PUT ${model}`, postCount, 'times');
-      calls = calls.concat(times(putCount, async () => putFn({ models })));
+      calls = calls.concat(times(putCount, () => putFn({ models }).then(print('.'), print('!'))));
     } else if (putCount) {
       console.error(`Missing mapping for ${model}.PUT`);
     }
@@ -75,3 +75,9 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
     console.log('Simulated', calls.length, 'endpoints [', n, '/', tallies.length, ']');
   }
 };
+
+function print(char: string) {
+  return () => {
+    process.stdout.write(char);
+  };
+}
