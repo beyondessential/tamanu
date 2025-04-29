@@ -116,6 +116,10 @@ export const NoteModal = ({
           }
         }}
         color={Colors.white}
+        baseWidth={535}
+        baseHeight={775}
+        minConstraints={[400, 370]}
+        maxConstraints={[535, 775]}
       >
         <NoteForm
           noteFormMode={noteFormMode}

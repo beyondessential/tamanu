@@ -3,18 +3,26 @@ import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
 import { Paper } from '@material-ui/core';
+import styled from 'styled-components';
+
 import { ResizeCornerIcon } from './Icons/ResizeCornerIcon';
 import { Colors } from '../constants';
-/**
- * HOC that makes any MUI Dialog-based modal draggable and resizable.
- * Usage:
- *   const FloatingMyModal = withModalFloating(MyModal);
- *   <FloatingMyModal open onClose title="...">...</FloatingMyModal>
- */
+
 export const withModalFloating = ModalComponent => {
+  const StyledModalComponent = styled(ModalComponent)`
+    &.MuiDialog-root,
+    & .MuiDialog-container {
+      pointer-events: none;
+    }
+
+    & .MuiDialog-paper {
+      pointer-events: auto;
+    }
+  `;
+
   const FloatingModal = ({
-    defaultWidth,
-    defaultHeight,
+    baseWidth,
+    baseHeight,
     minConstraints,
     maxConstraints,
     enableResizeHandle,
@@ -37,7 +45,7 @@ export const withModalFloating = ModalComponent => {
       return (
         <Draggable handle={draggableHandle} bounds={draggableBounds}>
           <Resizable
-            defaultSize={{ width: defaultWidth, height: defaultHeight }}
+            defaultSize={{ width: baseWidth, height: baseHeight }}
             minWidth={minConstraints[0]}
             minHeight={minConstraints[1]}
             maxWidth={maxConstraints[0]}
@@ -67,7 +75,7 @@ export const withModalFloating = ModalComponent => {
     };
 
     return (
-      <ModalComponent
+      <StyledModalComponent
         {...modalProps}
         fullWidth={false}
         maxWidth={false}
@@ -79,8 +87,8 @@ export const withModalFloating = ModalComponent => {
   };
 
   FloatingModal.propTypes = {
-    defaultWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    defaultHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    baseWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    baseHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minConstraints: PropTypes.arrayOf(PropTypes.number),
     maxConstraints: PropTypes.arrayOf(PropTypes.number),
     enableResizeHandle: PropTypes.object,
@@ -92,8 +100,8 @@ export const withModalFloating = ModalComponent => {
   };
 
   FloatingModal.defaultProps = {
-    defaultWidth: 600,
-    defaultHeight: 400,
+    baseWidth: 600,
+    baseHeight: 400,
     minConstraints: [300, 200],
     maxConstraints: [900, 600],
     enableResizeHandle: { bottomRight: true },
