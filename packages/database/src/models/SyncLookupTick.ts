@@ -15,7 +15,7 @@ export class SyncLookupTick extends Model {
         id: {
           // Sequelize always requires an id column
           // so this is to enforce using lookup_end_tick as the id.
-          // even tho we don't really need an id in this table.
+          // even though we don't really need an id in this table.
           // We don't use the value of lookup_end_tick in id
           // just so that it is clear about the type of tick that it is storing.
           type: `BIGINT GENERATED ALWAYS AS ("lookup_end_tick")`,
