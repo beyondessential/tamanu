@@ -71,8 +71,21 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
       console.error(`Missing mapping for ${model}.PUT`);
     }
 
-    await Promise.all(calls);
-    console.log('Simulated', calls.length, 'endpoints [', n, '/', tallies.length, ']');
+    if (calls.length > 0) {
+      await Promise.all(calls);
+      console.log();
+      console.log(
+        '[',
+        n + 1,
+        '/',
+        tallies.length,
+        ']',
+        'Simulated',
+        calls.length,
+        model,
+        'endpoint calls',
+      );
+    }
   }
 };
 
