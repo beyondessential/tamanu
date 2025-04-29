@@ -197,18 +197,18 @@ export class FacilitySyncManager {
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const modelsForPush = getModelsForPush(this.models);
     const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
-    const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.sequelize, outgoingChanges, {
-      minSourceTick: pushSince,
-    });
-    if (outgoingChangesWithChangelogs.length > 0) {
+    if (outgoingChanges.length > 0) {
       log.info('FacilitySyncManager.pushingOutgoingChanges', {
-        totalPushing: outgoingChangesWithChangelogs.length,
+        totalPushing: outgoingChanges.length,
       });
       if (this.__testSpyEnabled) {
-        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges: outgoingChangesWithChangelogs });
+        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges: outgoingChanges });
       }
+      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.sequelize, outgoingChanges, {
+        minSourceTick: pushSince,
+      });
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
-      await deleteRedundantLocalCopies(modelsForPush, outgoingChangesWithChangelogs);
+      await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
