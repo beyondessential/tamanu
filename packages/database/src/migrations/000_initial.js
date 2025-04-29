@@ -84,7 +84,7 @@ const modelsPromises = [
   'note',
 ].map(async (k) => {
   // eslint-disable-next-line global-require
-  const module = await import(`./000_initial/${k}`).then((m) => m.default);
+  const module = await import(`./000_initial/${k}.js`).then((m) => m.default);
   const { fields, options } = module({ Sequelize, foreignKey });
   return {
     name: makeTableName(k),
