@@ -48,24 +48,28 @@ export const createEncounter = async ({
     }),
   );
 
-  times(diagnosisCount, async () => {
-    await EncounterDiagnosis.create(
-      fake(EncounterDiagnosis, {
-        diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
-        encounterId: encounter.id,
-      }),
-    );
-  });
+  await Promise.all(
+    times(diagnosisCount, async () => {
+      await EncounterDiagnosis.create(
+        fake(EncounterDiagnosis, {
+          diagnosisId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+          encounterId: encounter.id,
+        }),
+      );
+    }),
+  );
 
-  times(noteCount, async () => {
-    await Note.create(
-      fake(Note, {
-        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-        recordId: encounter.id,
-        authorId: userId || (await randomRecordId(models, 'User')),
-      }),
-    );
-  });
+  await Promise.all(
+    times(noteCount, async () => {
+      await Note.create(
+        fake(Note, {
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          recordId: encounter.id,
+          authorId: userId || (await randomRecordId(models, 'User')),
+        }),
+      );
+    }),
+  );
 
   if (isDischarged) {
     await Discharge.create(

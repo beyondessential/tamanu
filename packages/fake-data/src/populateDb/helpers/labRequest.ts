@@ -38,21 +38,23 @@ export const createLabRequest = async ({
     }),
   );
 
-  times(testCount, async () => {
-    const labTest = await LabTest.create(
-      fake(LabTest, {
-        labRequestId: labRequest.id,
-        categoryId: referenceDataId,
-        labTestMethodId: referenceDataId,
-        labTestTypeId,
-      }),
-    );
-    await CertificateNotification.create(
-      fake(CertificateNotification, {
-        patientId,
-        labTestId: labTest.id,
-        labRequestId: labRequest.id,
-      }),
-    );
-  });
+  await Promise.all(
+    times(testCount, async () => {
+      const labTest = await LabTest.create(
+        fake(LabTest, {
+          labRequestId: labRequest.id,
+          categoryId: referenceDataId,
+          labTestMethodId: referenceDataId,
+          labTestTypeId,
+        }),
+      );
+      await CertificateNotification.create(
+        fake(CertificateNotification, {
+          patientId,
+          labTestId: labTest.id,
+          labRequestId: labRequest.id,
+        }),
+      );
+    }),
+  );
 };

@@ -47,14 +47,16 @@ export const createRepeatingAppointment = async ({
     }),
   );
 
-  times(apptCount, async () => {
-    await Appointment.create(
-      fake(Appointment, {
-        patientId: patientId || (await randomRecordId(models, 'Patient')),
-        clinicianId: clinicianId || (await randomRecordId(models, 'User')),
-        locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
-        scheduleId: appointmentSchedule.id,
-      }),
-    );
-  });
+  await Promise.all(
+    times(apptCount, async () => {
+      await Appointment.create(
+        fake(Appointment, {
+          patientId: patientId || (await randomRecordId(models, 'Patient')),
+          clinicianId: clinicianId || (await randomRecordId(models, 'User')),
+          locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
+          scheduleId: appointmentSchedule.id,
+        }),
+      );
+    }),
+  );
 };

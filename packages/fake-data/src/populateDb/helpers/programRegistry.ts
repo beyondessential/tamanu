@@ -25,12 +25,14 @@ export const createProgramRegistry = async ({
       programRegistryId,
     }),
   );
-  times(conditionCount, async () => {
-    await PatientProgramRegistrationCondition.create(
-      fake(PatientProgramRegistrationCondition, {
-        patientId,
-        programRegistryId,
-      }),
-    );
-  });
+  await Promise.all(
+    times(conditionCount, async () => {
+      await PatientProgramRegistrationCondition.create(
+        fake(PatientProgramRegistrationCondition, {
+          patientId,
+          programRegistryId,
+        }),
+      );
+    }),
+  );
 };

@@ -45,21 +45,23 @@ export const createInvoice = async ({
     }),
   );
 
-  times(itemCount, async () => {
-    const invoiceItem = await InvoiceItem.create(
-      fake(InvoiceItem, {
-        invoiceId: invoice.id,
-        productId: productId || (await randomRecordId(models, 'InvoiceProduct')),
-        orderedByUserId: userId || (await randomRecordId(models, 'User')),
-      }),
-    );
+  await Promise.all(
+    times(itemCount, async () => {
+      const invoiceItem = await InvoiceItem.create(
+        fake(InvoiceItem, {
+          invoiceId: invoice.id,
+          productId: productId || (await randomRecordId(models, 'InvoiceProduct')),
+          orderedByUserId: userId || (await randomRecordId(models, 'User')),
+        }),
+      );
 
-    await InvoiceItemDiscount.create(
-      fake(InvoiceItemDiscount, {
-        invoiceItemId: invoiceItem.id,
-      }),
-    );
-  });
+      await InvoiceItemDiscount.create(
+        fake(InvoiceItemDiscount, {
+          invoiceItemId: invoiceItem.id,
+        }),
+      );
+    }),
+  );
 
   await InvoiceInsurer.create(
     fake(InvoiceInsurer, {

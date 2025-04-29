@@ -50,13 +50,15 @@ export const createPatient = async ({
     );
   }
 
-  times(allergyCount, async () => {
-    await PatientAllergy.create(
-      fake(PatientAllergy, {
-        patientId: patient.id,
-      }),
-    );
-  });
+  await Promise.all(
+    times(allergyCount, async () => {
+      await PatientAllergy.create(
+        fake(PatientAllergy, {
+          patientId: patient.id,
+        }),
+      );
+    }),
+  );
 
   return { patient };
 };
