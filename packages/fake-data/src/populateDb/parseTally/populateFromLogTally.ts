@@ -51,26 +51,28 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
 
   const tallyJson = await readJSON(tallyFilePath);
   const notInCI = !process.env.CI;
+  const tallies = Object.entries(tallyJson);
 
-  const calls = Object.entries(tallyJson).flatMap(([model, tally]) => {
+  for (const [n, [model, tally]] of tallies.entries()) {
     let calls = [];
     const { POST: postCount, PUT: putCount } = tally;
     const { POST: postFn, PUT: putFn } = MODEL_TO_FUNCTION[model] ?? {};
 
     if (postFn) {
+      console.log(`Simulating POST ${model}`, postCount, 'times');
       calls = calls.concat(times(postCount, async () => postFn({ models })));
     } else if (postCount && notInCI) {
       console.error(`Missing mapping for ${model}.POST`);
     }
 
     if (putFn) {
+      console.log(`Simulating PUT ${model}`, postCount, 'times');
       calls = calls.concat(times(putCount, async () => putFn({ models })));
     } else if (putCount && notInCI) {
       console.error(`Missing mapping for ${model}.PUT`);
     }
 
-    return calls;
-  });
-
-  await Promise.all(calls);
+    await Promise.all(calls);
+    console.log('Simulated', calls.length, 'endpoints [', n, '/', tallies.length, ']');
+  }
 };
