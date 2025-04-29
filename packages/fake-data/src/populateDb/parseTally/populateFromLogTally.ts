@@ -69,7 +69,7 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
     }
 
     if (putFn) {
-      console.log(`Simulating PUT ${model}`, postCount, 'times');
+      console.log(`Simulating PUT ${model}`, putCount, 'times');
       calls = calls.concat(times(putCount, () => limited(putFn)));
     } else if (putCount) {
       console.error(`Missing mapping for ${model}.PUT`);
