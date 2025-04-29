@@ -26,7 +26,8 @@ export const createDbReport = async ({
   );
 };
 
-interface UpdateDbReportParams extends ExtendedCommonParams<CreateDbReportParams> {
+interface UpdateDbReportParams extends CommonParams {
+  userId: string;
   reportDefinitionId: string;
 }
 export const updateDbReport = async ({
