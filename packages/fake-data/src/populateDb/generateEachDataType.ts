@@ -13,7 +13,7 @@ import {
   createTask,
   createPatientCommunication,
   generateImportData,
-} from './helpers';
+} from './helpers/index.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
   const { default: pLimit } = await import('p-limit');

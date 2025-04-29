@@ -16,7 +16,7 @@ import {
   createSurveyResponse,
   createTask,
   generateImportData,
-} from '../helpers';
+} from '../helpers/index.js';
 
 // TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {

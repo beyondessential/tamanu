@@ -1,7 +1,7 @@
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake } from '../../fake';
-import type { CommonParams } from './common';
+import { fake } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
 interface CreateSurveyResponseParams extends CommonParams {
   encounterId: string;

@@ -1,6 +1,6 @@
 import { times } from 'lodash';
-import { fake, chance } from '../../fake';
-import type { CommonParams } from './common';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
 interface CreateLabRequestParams extends CommonParams {
   departmentId: string;

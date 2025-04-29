@@ -3,8 +3,8 @@ import { times } from 'lodash';
 import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake';
-import type { CommonParams, ExtendedCommonParams } from './common';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams, ExtendedCommonParams } from './common.js';
 
 interface CreateAppointmentParams extends CommonParams {
   locationGroupId: string;

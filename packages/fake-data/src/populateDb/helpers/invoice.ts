@@ -2,8 +2,8 @@ import { times } from 'lodash';
 
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake';
-import type { CommonParams } from './common';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
 interface CreateInvoiceParams extends CommonParams {
   encounterId: string;

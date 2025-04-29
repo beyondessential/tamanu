@@ -1,8 +1,8 @@
 import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake';
-import type { CommonParams } from './common';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
 interface CreateImagingRequestParams extends CommonParams {
   userId: string;

@@ -3,8 +3,8 @@ import type { Encounter } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { times } from 'lodash';
-import { fake, chance } from '../../fake';
-import type { CommonParams } from './common';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
 interface CreateEncounterParams extends CommonParams {
   patientId: string;
