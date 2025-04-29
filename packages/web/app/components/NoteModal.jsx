@@ -8,8 +8,9 @@ import { FormModal } from './FormModal';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
-import { NOTE_FORM_MODES } from '../constants';
+import { Colors, NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { withModalFloating } from './withModalFloating';
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -43,6 +44,8 @@ export const NoteModal = ({
   const noteContentHasChanged = (noteContent || '') !== (note?.content || '');
 
   const practitionerSuggester = useSuggester('practitioner');
+
+  const FloatingFormModal = withModalFloating(FormModal);
 
   useEffect(() => {
     (async () => {
@@ -102,10 +105,9 @@ export const NoteModal = ({
           </p>
         }
       />
-      <FormModal
+      <FloatingFormModal
         title={title}
         open={open}
-        width="lg"
         onClose={() => {
           if (noteContentHasChanged) {
             setOpenNoteCancelConfirmModal(true);
@@ -113,6 +115,7 @@ export const NoteModal = ({
             onClose();
           }
         }}
+        color={Colors.white}
       >
         <NoteForm
           noteFormMode={noteFormMode}
@@ -132,7 +135,7 @@ export const NoteModal = ({
           noteContent={noteContent}
           setNoteContent={setNoteContent}
         />
-      </FormModal>
+      </FloatingFormModal>
     </>
   );
 };
