@@ -90,10 +90,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
   const user = await models.User.getForAuthByEmail(email);
+  log.info('User found: ', Boolean(user));
 
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
+    log.warn('Bad password match');
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
@@ -114,7 +116,7 @@ async function localLogin(models, email, password) {
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
     return localLogin(models, email, password);
   }
 
@@ -200,12 +202,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user } = req;
+  const { user, facilityId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user, req.facilityId);
+  const token = await buildToken(user, facilityId);
   res.send({ token });
 }
 

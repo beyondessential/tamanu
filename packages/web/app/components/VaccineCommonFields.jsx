@@ -71,6 +71,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
         resetForm();
       }}
       required
+      data-testid="field-rd4e"
     />
   </FullWidthCol>
 );
@@ -83,6 +84,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
+    data-testid="field-npct"
   />
 );
 
@@ -104,7 +106,7 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
     min={min}
     max={max}
     keepIncorrectValue={keepIncorrectValue}
-/>
+  />
 );
 
 export const InjectionSiteField = () => (
@@ -186,7 +188,7 @@ export const ConsentField = ({ label }) => (
       style={{ marginBottom: '5px' }}
       required
     />
-    <Field name="consent" label={label} component={CheckField} required />
+    <Field name="consent" label={label} component={CheckField} required data-testid="field-wvyn" />
   </FullWidthCol>
 );
 
@@ -221,6 +223,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
           options={scheduleOptions}
           required
           autofillSingleAvailableOption
+          data-testid="field-rggk"
         />
       </FullWidthCol>
     )
