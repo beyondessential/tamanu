@@ -1,6 +1,6 @@
 import { attachChangelogToSnapshotRecords } from '../../../src/utils/audit/attachChangelogToSnapshotRecords';
 import { createTestDatabase, closeDatabase } from '../../sync/utilities';
-import {describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect, afterEach} from 'vitest';
 import {SYSTEM_USER_UUID} from '@tamanu/constants/auth'
 
 describe('attachChangelogToSnapshotRecords', () => {
@@ -36,7 +36,7 @@ describe('attachChangelogToSnapshotRecords', () => {
     await closeDatabase();
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     // Clear the changes table before each test
     await sequelize.query('TRUNCATE TABLE logs.changes');
   });
