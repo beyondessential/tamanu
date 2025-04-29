@@ -2,7 +2,7 @@ import { REPORT_DB_SCHEMAS, REPORT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake } from '../../fake';
-import type { CommonParams, ExtendedCommonParams } from './common';
+import type { CommonParams } from './common';
 
 interface CreateDbReportParams extends CommonParams {
   userId: string;
