@@ -18,12 +18,13 @@ export async function generateFake(
   while (done < rounds && errs < Math.max(10, rounds / 10)) {
     try {
       if (tallyFilePath) {
+        done += 1; // with tally, we don't want to retry errors
         await populateDbFromTallyFile(models, tallyFilePath);
       } else {
         await generateEachDataType(models);
+        done += 1;
       }
       process.stdout.write('.');
-      done += 1;
     } catch (err) {
       console.error(err);
       process.stdout.write('!');
