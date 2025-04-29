@@ -25,7 +25,7 @@ import {
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords } from '@tamanu/database/utils/audit'
+import { insertChangelogRecords, extractChangelogFromSnapshotRecords } from '@tamanu/database/utils'
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { addChangelogRecords } from './addChangelogRecords';
@@ -35,7 +35,7 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
-import { extractChangelogFromSnapshotRecords } from '@tamanu/database/utils/audit/extractChangelogFromSnapshotRecords';
+
 
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
