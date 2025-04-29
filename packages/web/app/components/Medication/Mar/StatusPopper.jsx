@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@material-ui/core';
@@ -30,29 +30,46 @@ const StyledPaper = styled(Paper)`
     content: '';
     position: absolute;
     top: 50%;
-    left: 100%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 8px solid white;
     z-index: 2;
+    ${p =>
+      p.$placement === 'right'
+        ? `
+      right: 100%;
+      border-right: 8px solid white;
+    `
+        : `
+      left: 100%;
+      border-left: 8px solid white;
+    `}
   }
 
   &::after {
     content: '';
     position: absolute;
     top: 50%;
-    left: 100%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
     border-top: 9px solid transparent;
     border-bottom: 9px solid transparent;
-    border-left: 9px solid rgba(0, 0, 0, 0.1);
     z-index: 1;
-    margin-left: 1px;
+    ${p =>
+      p.$placement === 'right'
+        ? `
+      right: 100%;
+      border-right: 9px solid rgba(0, 0, 0, 0.1);
+      margin-right: 1px;
+    `
+        : `
+      left: 100%;
+      border-left: 9px solid rgba(0, 0, 0, 0.1);
+      margin-left: 1px;
+    `}
   }
 `;
 
@@ -462,11 +479,15 @@ export const StatusPopper = ({
     return <MainScreen onGivenClick={handleGivenClick} onNotGivenClick={handleNotGivenClick} />;
   };
 
+  const placement = useMemo(() => {
+    return ['00:00', '02:00', '04:00'].includes(timeSlot.startTime) ? 'right' : 'left';
+  }, [timeSlot]);
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
-      placement="left"
+      placement={placement}
       transition
       modifiers={{
         offset: {
@@ -489,7 +510,7 @@ export const StatusPopper = ({
         <Fade {...TransitionProps} timeout={250}>
           <div>
             <ClickAwayListener onClickAway={handleClose}>
-              <StyledPaper>{getContent()}</StyledPaper>
+              <StyledPaper $placement={placement}>{getContent()}</StyledPaper>
             </ClickAwayListener>
           </div>
         </Fade>
