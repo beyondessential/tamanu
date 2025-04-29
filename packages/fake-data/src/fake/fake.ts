@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
 import Sequelize, { DataTypes } from 'sequelize';
@@ -38,7 +39,7 @@ import { Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
-export const chance = new Chance(global.jest?.getSeed() ?? null);
+export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
