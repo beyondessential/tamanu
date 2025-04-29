@@ -37,7 +37,6 @@ export async function generateFake(
   }
 
   console.log();
-  await sequelize.close();
 }
 
 async function main() {

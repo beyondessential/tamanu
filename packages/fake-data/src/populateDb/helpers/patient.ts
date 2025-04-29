@@ -10,7 +10,6 @@ interface CreatePatientParams extends CommonParams {
   facilityId: string;
   userId: string;
   isBirth?: boolean;
-  isPad?: boolean;
   isDead?: boolean;
   allergyCount?: number;
 }
