@@ -48,7 +48,11 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       { ...rest, ...changedStatus, date: getCurrentDateTimeString(), clinicianId: currentUser.id },
     );
-
+    queryClient.invalidateQueries([
+      'patient',
+      patientProgramRegistration.patientId,
+      'programRegistration',
+    ]);
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
     onClose();
   };

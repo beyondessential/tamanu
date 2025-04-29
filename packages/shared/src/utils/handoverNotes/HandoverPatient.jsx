@@ -55,8 +55,8 @@ export const HandoverPatient = ({
                     : patient[key]) || '';
                 const label =
                   defaultLabel ||
-                  getTranslation(`general.localisedFields.${key}.label.short`) ||
-                  getTranslation(`general.localisedFields.${key}.label`);
+                  getTranslation(`general.localisedField.${key}.label.short`) ||
+                  getTranslation(`general.localisedField.${key}.label`);
 
                 return (
                   <ValueDisplay
