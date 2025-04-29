@@ -47,8 +47,8 @@ describe('insertChangelogRecords', () => {
     await insertChangelogRecords(sequelize, []);
 
     // Assert
-    const result = await sequelize.query('SELECT COUNT(*) FROM logs.changes');
-    expect(result[0][0].count).toBe('0');
+    const [result] = await sequelize.query('SELECT COUNT(*) FROM logs.changes');
+    expect(result[0].count).toBe('0');
   });
 
   it('should filter out existing records before inserting', async () => {
@@ -216,7 +216,7 @@ describe('insertChangelogRecords', () => {
     await insertChangelogRecords(sequelize, changelogRecords);
 
     // Assert
-    const result = await sequelize.query('SELECT * FROM logs.changes');
-    expect(result[0][0].record_data).toMatchObject(recordData);
+    const [result] = await sequelize.query('SELECT * FROM logs.changes');
+    expect(result[0].record_data).toMatchObject(recordData);
   });
 });
