@@ -131,7 +131,6 @@ describe('attachChangelogToSnapshotRecords', () => {
     expect(patient1?.changelogRecords).toHaveLength(1);
 
     const encounter1 = result.find((r) => r.recordType === 'encounters');
-    console.log(encounter1?.changelogRecords);
     expect(encounter1?.changelogRecords).toHaveLength(0);
   });
 
