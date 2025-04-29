@@ -20,17 +20,17 @@ import {
 
 // TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {
-  Appointment: { POST: createRepeatingAppointment, PUT: () => null },
-  Patient: { POST: createPatient, PUT: () => null },
-  Encounter: { POST: createEncounter, PUT: () => null },
-  ImagingRequest: { POST: createImagingRequest, PUT: () => null },
-  Invoice: { POST: createInvoice, PUT: () => null },
-  LabRequest: { POST: createLabRequest, PUT: () => null },
-  ProgramRegistry: { POST: createProgramRegistry, PUT: () => null },
-  Survey: { POST: createSurveyResponse, PUT: () => null },
-  Tasking: { POST: createTask, PUT: () => null },
-  Vaccine: { POST: createAdministeredVaccine, PUT: () => null },
-  ReportDefinition: { POST: createDbReport, PUT: () => null },
+  Appointment: { POST: createRepeatingAppointment },
+  Patient: { POST: createPatient },
+  Encounter: { POST: createEncounter },
+  ImagingRequest: { POST: createImagingRequest },
+  Invoice: { POST: createInvoice },
+  LabRequest: { POST: createLabRequest },
+  ProgramRegistry: { POST: createProgramRegistry },
+  Survey: { POST: createSurveyResponse },
+  Tasking: { POST: createTask },
+  Vaccine: { POST: createAdministeredVaccine },
+  ReportDefinition: { POST: createDbReport },
 };
 
 export const readJSON = async (path: string): Promise<object> => {

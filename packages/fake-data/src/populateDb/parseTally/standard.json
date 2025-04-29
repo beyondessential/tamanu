@@ -1,42 +1,32 @@
 {
   "Patient": {
-    "POST": 1500,
-    "PUT": 10
+    "POST": 1500
   },
   "LabRequest": {
-    "POST": 20,
-    "PUT": 100
+    "POST": 20
   },
   "Triage": {
-    "POST": 5,
-    "PUT": 0
+    "POST": 5
   },
   "Procedure": {
-    "POST": 5,
-    "PUT": 0
+    "POST": 5
   },
   "ImagingRequest": {
-    "POST": 10,
-    "PUT": 20
+    "POST": 10
   },
   "Survey": {
-    "POST": 100,
-    "PUT": 10
+    "POST": 100
   },
   "Encounter": {
-    "POST": 100,
-    "PUT": 20
+    "POST": 100
   },
   "Appointment": {
-    "POST": 100,
-    "PUT": 100
+    "POST": 100
   },
   "Facility": {
-    "POST": 100,
-    "PUT": 0
+    "POST": 100
   },
   "Note": {
-    "POST": 200,
-    "PUT": 0
+    "POST": 200
   }
 }
