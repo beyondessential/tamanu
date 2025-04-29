@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { describe, expect, it, beforeAll, afterAll, afterEach, vi } from 'vitest';
 import { createTestDatabase, closeDatabase } from '../../sync/utilities';
 import { insertChangelogRecords } from '../../../src/utils/audit/insertChangelogRecords';
 import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
@@ -16,7 +16,7 @@ describe('insertChangelogRecords', () => {
     await closeDatabase();
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     // Clear the changes table before each test
     await sequelize.query('TRUNCATE TABLE logs.changes');
   });
