@@ -24,7 +24,8 @@ export const addChangelogRecords = async (
   const lookupTicks = await SyncLookupTick.findAll({
     where: {
       lookupEndTick: {
-        [Op.between]: [pullSince, pullUntil],
+        [Op.gt]: pullSince,
+        [Op.lt]: pullUntil,
       },
     },
     order: [['lookupEndTick', 'ASC']],
