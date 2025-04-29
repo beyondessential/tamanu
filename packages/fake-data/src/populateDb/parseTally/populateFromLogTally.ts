@@ -54,7 +54,7 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   const tallies = Object.entries(tallyJson);
   const limit = pLimit(10);
   const limited = (fn: (arg: any) => Promise<any>) =>
-    limit(() => fn({ models, limit }).then(print('.'), print('!')));
+    limit(() => fn({ models, limit }).then(print('.'), print('!', true)));
 
   for (const [n, [model, tally]] of tallies.entries()) {
     let calls = [];
@@ -93,8 +93,13 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   }
 };
 
-function print(char: string) {
-  return () => {
+function print(char: string, reject: boolean = false) {
+  return (value: any) => {
     process.stdout.write(char);
+    if (reject) {
+      throw value;
+    } else {
+      return value;
+    }
   };
 }

@@ -7,8 +7,8 @@ import { fake, chance } from '../../fake';
 import type { CommonParams } from './common';
 
 interface CreatePatientParams extends CommonParams {
-  facilityId: string;
-  userId: string;
+  facilityId?: string;
+  userId?: string;
   isBirth?: boolean;
   isDead?: boolean;
   allergyCount?: number;
