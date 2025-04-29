@@ -107,6 +107,63 @@ describe('insertChangelogRecords', () => {
     expect(insertedRecords[1].table_name).toBe('encounters');
   });
 
+  it('should set updated_at_sync_tick to -999 for facility records', async () => {
+    // Arrange
+    const changelogRecords = [
+      {
+        table_oid: 1234,
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_update: true,
+        table_name: 'patients',
+        table_schema: 'public',
+        record_id: '1',
+        record_data: { first_name: 'Patient 1' },
+        updated_at_sync_tick: 123,
+      },
+    ];
+
+    // Act
+    await insertChangelogRecords(sequelize, changelogRecords, true);
+
+    // Assert
+    const result = await sequelize.query('SELECT * FROM logs.changes');
+    expect(result[0][0].updated_at_sync_tick).toBe('-999');
+  });
+
+  it('should preserve updated_at_sync_tick for non-facility records', async () => {
+    // Arrange
+    const changelogRecords = [
+      {
+        table_oid: 1234,
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_update: true,
+        table_name: 'patients',
+        table_schema: 'public',
+        record_id: '1',
+        record_data: { first_name: 'Patient 1' },
+        updated_at_sync_tick: 123,
+      },
+    ];
+
+    // Mock no facility IDs
+    vi.mock('@tamanu/utils/selectFacilityIds', () => ({
+      selectFacilityIds: () => null,
+    }));
+
+    // Act
+    await insertChangelogRecords(sequelize, changelogRecords);
+
+    // Assert
+    const result = await sequelize.query('SELECT * FROM logs.changes');
+    expect(result[0][0].updated_at_sync_tick).toBe('123');
+  });
+
   it('should stringify record_data before inserting', async () => {
     // Arrange
     const recordData = { first_name: 'Patient 1', age: 30 };

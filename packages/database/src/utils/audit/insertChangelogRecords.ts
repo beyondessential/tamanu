@@ -1,15 +1,14 @@
-import { Op, Sequelize } from 'sequelize';
 import config from 'config';
-
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { Op, Sequelize } from 'sequelize';
+
 import type { ChangelogRecord } from 'types/sync';
 
 export const insertChangelogRecords = async (
   sequelize: Sequelize,
   changelogRecords: ChangelogRecord[],
+  isFacility = !!selectFacilityIds(config)
 ) => {
-  // TODO AUDIT: what to do here do we need this
-  const isFacility = !!selectFacilityIds(config);
   if (!changelogRecords.length) {
     return;
   }
