@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { addHours } from 'date-fns';
@@ -24,6 +24,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { WarningModal } from '../WarningModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -98,8 +100,8 @@ export const ChangeStatusModal = ({
   medication,
   marInfo,
   timeSlot,
-  isFuture,
   isPast,
+  isFuture,
   selectedDate,
 }) => {
   const { currentUser } = useAuth();
@@ -107,6 +109,7 @@ export const ChangeStatusModal = ({
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const [showWarningModal, setShowWarningModal] = useState('');
 
   const initialStatus = marInfo?.status;
   const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
@@ -142,6 +145,14 @@ export const ChangeStatusModal = ({
         recordedByUserId,
         changingStatusReason,
       } = values;
+      if (
+        !showWarningModal &&
+        Number(medication.doseAmount) !== Number(doseAmount) &&
+        !medication.isVariableDose
+      ) {
+        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+        return;
+      }
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
@@ -188,6 +199,25 @@ export const ChangeStatusModal = ({
     });
   };
 
+  const getInitialValues = () => {
+    if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
+      return {
+        status: initialStatus,
+        reasonNotGivenId: currentUser?.id,
+        recordedByUserId: currentUser?.id,
+      };
+    }
+    return {
+      status: initialStatus,
+      recordedByUserId: currentUser?.id,
+      givenByUserId: currentUser?.id,
+      doseAmount: initialPrescribedDose,
+      givenTime: isPast
+        ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
+        : new Date(),
+    };
+  };
+
   return (
     <StyledFormModal
       open={open}
@@ -203,15 +233,7 @@ export const ChangeStatusModal = ({
       <Box height={16} />
       <Form
         onSubmit={handleSubmit}
-        initialValues={{
-          status: initialStatus,
-          recordedByUserId: currentUser?.id,
-          givenByUserId: currentUser?.id,
-          doseAmount: initialPrescribedDose,
-          givenTime: isPast
-            ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-            : new Date(),
-        }}
+        initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         render={({ values, setFieldValue, errors, submitForm }) => {
           const isChangingToNotGiven =
@@ -226,7 +248,7 @@ export const ChangeStatusModal = ({
                 <Field
                   name="status"
                   component={TranslatedSelectField}
-                  label="Status"
+                  label={<TranslatedText stringId="mar.details.status.label" fallback="Status" />}
                   enumValues={ADMINISTRATION_STATUS_LABELS}
                   required
                 />
@@ -244,31 +266,50 @@ export const ChangeStatusModal = ({
                   <Field
                     name="reasonNotGivenId"
                     component={AutocompleteField}
-                    label="Reason"
+                    label={<TranslatedText stringId="mar.details.reason.label" fallback="Reason" />}
                     suggester={medicationReasonNotGivenSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
                     suggester={practitionerSuggester}
                     required
                   />
                   <Field
                     name="changingStatusReason"
                     component={TextField}
-                    label="Reason for change (Optional)"
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.reasonForChangeOptional.label"
+                        fallback="Reason for change (Optional)"
+                      />
+                    }
                   />
                 </>
               )}
 
               {isChangingToGiven && (
                 <>
+                  <WarningModal
+                    modal={showWarningModal}
+                    onClose={() => setShowWarningModal(null)}
+                    onConfirm={() => {
+                      setShowWarningModal(null);
+                      handleSubmit(values);
+                    }}
+                  />
                   <Field
                     name="doseAmount"
                     component={NumberField}
-                    label={`Dose given (${medication?.units})`}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.doseGiven.label"
+                        values={{ units: medication?.units }}
+                        fallback={`Dose given (${medication?.units})`}
+                      />
+                    }
                   />
                   <div>
                     <TimeGivenTitle>
@@ -304,21 +345,26 @@ export const ChangeStatusModal = ({
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label="Given by"
+                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
                     suggester={practitionerSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
                     suggester={practitionerSuggester}
                     required
                   />
                   <Field
                     name="changingStatusReason"
                     component={TextField}
-                    label="Reason for change (Optional)"
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.reasonForChangeOptional.label"
+                        fallback="Reason for change (Optional)"
+                      />
+                    }
                   />
                 </>
               )}
