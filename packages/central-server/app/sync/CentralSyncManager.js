@@ -25,7 +25,7 @@ import {
   SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords, extractChangelogFromSnapshotRecords } from '@tamanu/database/utils'
+import { insertChangelogRecords, extractChangelogFromSnapshotRecords } from '@tamanu/database/utils/audit'
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { addChangelogRecords } from './addChangelogRecords';
