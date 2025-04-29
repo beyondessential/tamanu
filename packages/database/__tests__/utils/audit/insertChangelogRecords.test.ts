@@ -10,6 +10,27 @@ describe('insertChangelogRecords', () => {
   beforeAll(async () => {
     const database = await createTestDatabase();
     sequelize = database.sequelize;
+
+    // Create logs schema and changes table
+    // Something is wrong with the migrations, so we need to create the table manually
+    await sequelize.query(`
+      CREATE SCHEMA IF NOT EXISTS logs;
+      CREATE TABLE IF NOT EXISTS logs.changes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        table_oid INTEGER NOT NULL,
+        table_schema TEXT NOT NULL,
+        table_name TEXT NOT NULL,
+        logged_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        deleted_at TIMESTAMP WITH TIME ZONE,
+        updated_at_sync_tick BIGINT NOT NULL,
+        updated_by_user_id TEXT NOT NULL,
+        record_id TEXT NOT NULL,
+        record_update BOOLEAN NOT NULL,
+        record_data JSONB NOT NULL
+      );
+    `);
   });
 
   afterAll(async () => {
@@ -34,6 +55,7 @@ describe('insertChangelogRecords', () => {
     // Arrange - Insert an existing record
     await sequelize.query(`
       INSERT INTO logs.changes (
+        id,
         table_oid,
         table_schema,
         table_name,
@@ -47,11 +69,13 @@ describe('insertChangelogRecords', () => {
         record_data
       )
       VALUES
-        (1234, 'public', 'patients', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"first_name": "Patient 1"}'::jsonb);
+        ('1f582bab-523e-4e25-bae6-2ab7178118df', 1234, 'public', 'patients', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"first_name": "Patient 1"}'::jsonb);
     `);
 
     const changelogRecords = [
       {
+        // Existing record
+        id: '1f582bab-523e-4e25-bae6-2ab7178118df',
         table_oid: 1234,
         logged_at: new Date(),
         created_at: new Date(),
@@ -65,6 +89,8 @@ describe('insertChangelogRecords', () => {
         updated_at_sync_tick: 100,
       },
       {
+        // New record
+        id: '2f582bab-523e-4e25-bae6-2ab7178118df',
         table_oid: 1234,
         logged_at: new Date(),
         created_at: new Date(),
@@ -78,6 +104,8 @@ describe('insertChangelogRecords', () => {
         updated_at_sync_tick: 100,
       },
       {
+        // New record
+        id: '3f582bab-523e-4e25-bae6-2ab7178118df',
         table_oid: 2345,
         logged_at: new Date(),
         created_at: new Date(),

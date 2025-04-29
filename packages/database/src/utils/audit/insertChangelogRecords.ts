@@ -7,7 +7,7 @@ import type { ChangelogRecord } from 'types/sync';
 export const insertChangelogRecords = async (
   sequelize: Sequelize,
   changelogRecords: ChangelogRecord[],
-  isFacility = !!selectFacilityIds(config)
+  isFacility = !!selectFacilityIds(config),
 ) => {
   if (!changelogRecords.length) {
     return;
@@ -19,17 +19,16 @@ export const insertChangelogRecords = async (
     { tableName: 'changes', schema: 'logs' },
     {
       where: {
-        [Op.or]: changelogRecords.map(({ table_name, record_id }) => ({
-          table_name,
-          record_id,
-        })),
+        id: {
+          [Op.in]: changelogRecords.map(({ id }) => id),
+        },
       },
     },
   )) as ChangelogRecord[];
 
-  const existingKeys = existingRecords.map((r) => `${r.table_name}-${r.record_id}`);
+  const existingIds = existingRecords.map(({ id }) => id);
   const recordsToInsert = changelogRecords
-    .filter((r) => !existingKeys.includes(`${r.table_name}-${r.record_id}`))
+    .filter(({ id }) => !existingIds.includes(id))
     .map(({ record_data, updated_at_sync_tick, ...changelogRecord }) => {
       return {
         ...changelogRecord,
