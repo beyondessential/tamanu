@@ -120,6 +120,13 @@ const StyledTable = styled(Table)`
     height: 65px;
     padding: 0 15px;
   }
+  .MuiTableRow-root {
+    &:last-child {
+      .MuiTableCell-body {
+        border-bottom: none;
+      }
+    }
+  }
 `;
 
 const HorizontalDivider = styled(Divider)`
