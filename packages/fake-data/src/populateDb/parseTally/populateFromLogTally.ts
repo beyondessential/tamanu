@@ -50,7 +50,6 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
   await generateImportData(models);
 
   const tallyJson = await readJSON(tallyFilePath);
-  const notInCI = !process.env.CI;
   const tallies = Object.entries(tallyJson);
 
   for (const [n, [model, tally]] of tallies.entries()) {
@@ -61,14 +60,14 @@ export const populateDbFromTallyFile = async (models: Models, tallyFilePath: str
     if (postFn) {
       console.log(`Simulating POST ${model}`, postCount, 'times');
       calls = calls.concat(times(postCount, async () => postFn({ models })));
-    } else if (postCount && notInCI) {
+    } else if (postCount) {
       console.error(`Missing mapping for ${model}.POST`);
     }
 
     if (putFn) {
       console.log(`Simulating PUT ${model}`, postCount, 'times');
       calls = calls.concat(times(putCount, async () => putFn({ models })));
-    } else if (putCount && notInCI) {
+    } else if (putCount) {
       console.error(`Missing mapping for ${model}.PUT`);
     }
 
