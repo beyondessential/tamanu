@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 
 import { Table, useSelectableColumn } from '../../Table';
 import {
@@ -122,6 +122,10 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const HorizontalDivider = styled(Divider)`
+  margin: 30px 0;
+`;
+
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
   const { getTranslation } = useTranslation();
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
@@ -139,6 +143,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
+    selectAllOnInit: true
   });
 
   const patient = useSelector(state => state.patient);
@@ -260,9 +265,11 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           cellOnChange={cellOnChange}
         />
       </OuterLabelFieldWrapper>
+      <HorizontalDivider color={Colors.outline} />
       <ConfirmCancelRow
         cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
+        confirmText={<TranslatedText stringId="medication.action.printPrescription" fallback="Print prescription" />}
+        confirmDisabled={!selectedRows.length}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />
