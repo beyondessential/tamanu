@@ -16,7 +16,7 @@ describe('insertChangelogRecords', () => {
     await sequelize.query(`
       CREATE SCHEMA IF NOT EXISTS logs;
       CREATE TABLE IF NOT EXISTS logs.changes (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         table_oid INTEGER NOT NULL,
         table_schema TEXT NOT NULL,
         table_name TEXT NOT NULL,
