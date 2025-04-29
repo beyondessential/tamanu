@@ -85,7 +85,7 @@ describe('insertChangelogRecords', () => {
         table_name: 'patients',
         table_schema: 'public',
         record_id: '1',
-        record_data: { first_name: 'Patient 1' },
+        record_data: { first_name: 'Patient Updated' },
         updated_at_sync_tick: 100,
       },
       {
@@ -124,15 +124,16 @@ describe('insertChangelogRecords', () => {
     await insertChangelogRecords(sequelize, changelogRecords);
 
     // Assert
-    const result = await sequelize.query('SELECT * FROM logs.changes ORDER BY record_id');
-    expect(result[0]).toHaveLength(2); // Should only have 2 records (excluding the existing one)
+    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY record_id');
+    expect(result).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
+    // Should ignore the existing record as changelog records are immutable
+    expect(result[0].record_data).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records
-    const insertedRecords = result[0];
-    expect(insertedRecords[0].record_id).toBe('2');
-    expect(insertedRecords[0].table_name).toBe('patients');
-    expect(insertedRecords[1].record_id).toBe('3');
-    expect(insertedRecords[1].table_name).toBe('encounters');
+    expect(result[1].record_id).toBe('2');
+    expect(result[1].table_name).toBe('patients');
+    expect(result[2].record_id).toBe('3');
+    expect(result[2].table_name).toBe('encounters');
   });
 
   it('should set updated_at_sync_tick to -999 for facility records', async () => {
@@ -157,8 +158,8 @@ describe('insertChangelogRecords', () => {
     await insertChangelogRecords(sequelize, changelogRecords, true);
 
     // Assert
-    const result = await sequelize.query('SELECT * FROM logs.changes');
-    expect(result[0][0].updated_at_sync_tick).toBe('-999');
+    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY record_id');
+    expect(result[0].updated_at_sync_tick).toBe('-999');
   });
 
   it('should preserve updated_at_sync_tick for non-facility records', async () => {
