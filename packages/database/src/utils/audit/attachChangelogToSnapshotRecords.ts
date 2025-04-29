@@ -20,6 +20,11 @@ export const attachChangelogToSnapshotRecords = async (
   if (!snapshotRecords.length) {
     return snapshotRecords;
   }
+  const relevantRecords = tableWhitelist
+    ? snapshotRecords.filter(({ recordType }) => tableWhitelist.includes(recordType))
+    : snapshotRecords;
+  const recordTypeAndIds = relevantRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`);
+
   const changelogRecords = (await sequelize.query(
     `
     SELECT * FROM logs.changes
@@ -34,7 +39,7 @@ export const attachChangelogToSnapshotRecords = async (
         minSourceTick,
         maxSourceTick,
         tableWhitelist,
-        recordTypeAndIds: snapshotRecords.map((r) => `${r.recordType}-${r.recordId}`),
+        recordTypeAndIds,
       },
     },
   )) as ChangelogRecord[];
