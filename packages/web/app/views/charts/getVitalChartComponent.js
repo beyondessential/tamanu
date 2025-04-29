@@ -1,16 +1,16 @@
 import { BLOOD_PRESSURE, LINE, VITAL_CHARTS } from '@tamanu/constants/surveys';
 import { VitalBloodPressureChart } from './VitalBloodPressureChart';
-import { VitalLineChart } from './VitalLineChart';
+import { VitalChartLineChart } from './VitalChartLineChart';
 
 const VITAL_GRAPHS_MAPPING = {
   [BLOOD_PRESSURE]: VitalBloodPressureChart,
-  [LINE]: VitalLineChart,
+  [LINE]: VitalChartLineChart,
 };
 
 const getVitalGraphComponent = (chartKey) => {
   const chartType = VITAL_CHARTS[chartKey];
   if (!chartType) {
-    return VitalLineChart;
+    return VitalChartLineChart;
   }
 
   const VitalGraphComponent = VITAL_GRAPHS_MAPPING[chartType];
@@ -18,7 +18,7 @@ const getVitalGraphComponent = (chartKey) => {
 }
 
 const getChartGraphComponent = () => {
-  return VitalLineChart;
+  return VitalChartLineChart;
 }
 
 export const getVitalChartComponent = (chartKey, isVital) => {

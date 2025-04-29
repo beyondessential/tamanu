@@ -5,8 +5,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useGraphDataQuery } from '../../api/queries/useGraphDataQuery';
 import { useVitalChartData } from '../../contexts/VitalChartData';
 
-// Fetching and preparing data for vital chart
-export const VitalLineChart = props => {
+export const VitalChartLineChart = props => {
   const { chartKey, visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
   const { isVital } = useVitalChartData();
