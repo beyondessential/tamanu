@@ -68,7 +68,7 @@ export const createPatient = async ({
 export const createPatientCommunication = async ({
   models: { PatientCommunication },
   patientId,
-}) => {
+}: CommonParams & { patientId: string }) => {
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId,
