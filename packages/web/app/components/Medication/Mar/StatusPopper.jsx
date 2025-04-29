@@ -18,7 +18,6 @@ import { Field, Form, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
-import { useAuth } from '../../../contexts/Auth';
 import { isWithinTimeSlot } from '../../../utils/medications';
 
 const StyledPaper = styled(Paper)`
@@ -237,7 +236,6 @@ const GivenScreen = ({
   isPast,
   isVariableDose,
 }) => {
-  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
@@ -251,7 +249,7 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMar } = useGivenMarMutation(marId, {
+  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       queryClient.invalidateQueries(['marDoses', marId]);
@@ -288,15 +286,12 @@ const GivenScreen = ({
       seconds: timeGiven.getSeconds(),
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
+    await updateMarToGiven({
       dueAt,
       prescriptionId,
-      recordedByUserId: currentUser?.id,
       dose: {
         doseAmount,
         givenTime,
-        givenByUserId: currentUser?.id,
-        recordedByUserId: currentUser?.id,
       },
     });
   };
@@ -410,14 +405,13 @@ export const StatusPopper = ({
   isFuture,
   isPast,
 }) => {
-  const { currentUser } = useAuth();
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
+  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     },
@@ -438,12 +432,11 @@ export const StatusPopper = ({
 
   const handleReasonSelect = async reasonNotGivenId => {
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
+    await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
       dueAt,
       prescriptionId,
-      recordedByUserId: currentUser?.id,
     });
 
     setShowReasonScreen(false);

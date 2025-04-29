@@ -103,6 +103,7 @@ export const EditAdministrationRecordModal = ({
   });
   const { mutateAsync: updateMarDose } = useUpdateDoseMutation(doseInfo?.id, {
     onSuccess: () => {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       queryClient.invalidateQueries(['marDoses', marInfo?.id]);
     },
   });
