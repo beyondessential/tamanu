@@ -17,12 +17,14 @@ export const attachChangelogToSnapshotRecords = async (
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
-  if (!snapshotRecords.length) {
-    return snapshotRecords;
-  }
   const relevantRecords = tableWhitelist
     ? snapshotRecords.filter(({ recordType }) => tableWhitelist.includes(recordType))
     : snapshotRecords;
+
+  if (!relevantRecords.length) {
+    return snapshotRecords;
+  }
+
   const recordTypeAndIds = relevantRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`);
 
   const changelogRecords = (await sequelize.query(
