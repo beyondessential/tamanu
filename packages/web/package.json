@@ -21,7 +21,7 @@
     "test-watch": "NODE_ENV=test vitest watch",
     "storybook": "storybook dev",
     "test-storybook": "npm run build-storybook -- --test",
-    "build-storybook": "NODE_ENV=development STORYBOOK=true storybook build"
+    "build-storybook": "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=3072' STORYBOOK=true storybook build"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^7.6.6",
