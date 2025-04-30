@@ -9,15 +9,18 @@ export class CarePlanModal extends BasePatientModal {
     readonly submitNewCarePlanAddButton: Locator;
     readonly additionalCarePlanNoteField: Locator;
     readonly addAdditionalNoteButton: Locator;
+    readonly carePlanHeader: Locator;
+
   constructor(page: Page) {
     super(page);
 
-    this.carePlanDropdown = this.page.locator('input[name="carePlanId"]');
-    this.carePlanClinicianDropdown = this.page.getByRole('dialog').locator('input[name="examinerId"]');
-    this.mainCarePlanFieldDetails = this.page.locator('textarea[name="content"]');
-    this.submitNewCarePlanAddButton = this.page.getByRole('button', { name: 'Add' });
-    this.additionalCarePlanNoteField = this.page.getByRole('textbox', { name: 'Write a note...' });
-    this.addAdditionalNoteButton = this.page.getByRole('button', { name: 'Add Note' });
+    this.carePlanDropdown = this.page.getByTestId('field-uc7w-input').getByRole('textbox', { name: 'Search...' });
+    this.carePlanClinicianDropdown = this.page.getByTestId('field-kb54-input').getByRole('textbox', { name: 'Search...' });
+    this.mainCarePlanFieldDetails = this.page.getByTestId('field-0yjf-input');
+    this.submitNewCarePlanAddButton = this.page.getByTestId('formgrid-iwuf').getByTestId('formsubmitbutton-ygc6');
+    this.additionalCarePlanNoteField = this.page.getByTestId('field-e8ln-input');
+    this.addAdditionalNoteButton = this.page.getByTestId('container-0zs2').getByTestId('formsubmitbutton-ygc6');
+    this.carePlanHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
   }
 
   async fillOutCarePlan(carePlanName: string, carePlanDetails: string) {

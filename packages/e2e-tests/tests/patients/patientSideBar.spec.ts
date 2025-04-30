@@ -4,8 +4,6 @@ import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient'
 //TODO: this is just creating with required fields, we need to test creating with all fields too
 //TODO: test editing / resolving sections of the sidebar
 //TODO: check for any other specific sidebar test cases in the regression document
-//TODO: refactor the expects in each test to somehow also use a test-id once that card is merged in, rather than just getbytext to avoid false positives
-//TODO: the getbytext expects here can be flakey, refactor to use test-ids once that card is merged in
 //TODO: refactor the "required fields" tests so they test all fields, test "required fields" as integration or unit tests
 //TODO: test clicking on ongoing fields, allergies etc to confirm all details are entered correctly once test-id card is merged in?
 //TODO: many of these test cases have a date field, should I test this as part of E2E tests or as unit tests?
@@ -14,7 +12,7 @@ import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient'
 //TODO: the logged in user doesnt seem to have access to death workflow? i dont see a record death button on patient sidebar
 //TODO: check if any other relevant tests from regression document are missing from this file
 
-//move the patient generation to beforeall?
+//TODO: is it necessary to replicate the workflow of visiting an existing patient in each test?
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
     await allPatientsPage.goto();
@@ -25,17 +23,13 @@ test.describe('Patient Side Bar', () => {
     const patientData = allPatientsPage.getPatientData();
     await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
     await patientDetailsPage.checkPatientDetailsPageHasLoaded();
-    await patientDetailsPage.confirmCorrectNHN(patientData.nhn);
+    await expect(patientDetailsPage.patientNHN).toContainText(patientData.nhn);
   });
 
-  /*TODO: this ongoing condition test can sometimes be flaky and around 20% of the time sometimes seem to try select all 3 different "Sleep apnea" options,
-  an even smaller percentage of the time it will select none of the options. the difference with this test and the others is "sleep apnea" has multiple results
-  whereas in the other tests there is generally just one result for the test data.
-  test-id card may fix this?*/
   test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
-    await expect(patientDetailsPage.page.getByText('Sleep apnea')).toBeVisible();
+    await expect(patientDetailsPage.firstListItem).toContainText('Sleep apnea');
   });
 
   test('Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
@@ -53,7 +47,7 @@ test.describe('Patient Side Bar', () => {
   test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
-    await expect(patientDetailsPage.page.getByText('Dust mites')).toBeVisible();
+    await expect(patientDetailsPage.firstListItem).toContainText('Dust mites');
   });
 
   test('Add allergy that is not in dropdown list', async ({
@@ -69,13 +63,13 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.addNewAllergyNotInDropdown(newAllergy);
 
-    await expect(patientDetailsPage.page.getByText(newAllergy)).toBeVisible();
+    await expect(patientDetailsPage.firstListItem).toContainText(newAllergy);
   });
 
   test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
-    await expect(patientDetailsPage.page.getByText('Hair alopecia')).toBeVisible();
+    await expect(patientDetailsPage.firstListItem).toContainText('Hair alopecia');
   });
 
   test('Add other patient issue with default issue and note', async ({ patientDetailsPage }) => {
@@ -83,32 +77,29 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
-    await expect(patientDetailsPage.completedNoteForNewIssue('New issue note')).toBeVisible();
+    await expect(patientDetailsPage.firstListItem).toContainText('New issue note');
   });
 
   test('Add other patient issue: warning', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
 
-    await expect(patientDetailsPage.page.getByText('Patient warnings')).toBeVisible();
-    await expect(patientDetailsPage.page.getByRole('listitem')).toContainText('Test warning');
+    await expect(patientDetailsPage.patientWarningHeader.filter({ hasText: 'Patient warnings' })).toBeVisible();
+    await expect(patientDetailsPage.patientWarningModalContent).toContainText('Test warning');
   });
 
-  //TODO: come back to this test once test-id card is merged
-  // add a unique warning for this test (different to the warning in the last test
-  //  currently this isn't possible because the locator used for clicking the add button in the first step uses xpath
   test('Warning appears when navigating to patient with a warning', async ({
     patientDetailsPage,
     allPatientsPage,
   }) => {
-    await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
+    await patientDetailsPage.addNewOtherPatientIssueWarning('A warning appears when navigating to a patient with a warning');
 
     await allPatientsPage.goto();
 
     const patientData = allPatientsPage.getPatientData();
     await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
 
-    await expect(patientDetailsPage.page.getByText('Patient warnings')).toBeVisible();
-    await expect(patientDetailsPage.page.getByRole('listitem')).toContainText('Test warning');
+    await expect(patientDetailsPage.patientWarningHeader.filter({ hasText: 'Patient warnings' })).toBeVisible();
+    await expect(patientDetailsPage.patientWarningModalContent).toContainText('A warning appears when navigating to a patient with a warning');
   });
 
   //TODO: add a test case to delete a note (maybe as part of the below case?) once test-id card is merged
@@ -120,11 +111,15 @@ test.describe('Patient Side Bar', () => {
       'Diabetes',
       'This is an example of main care plan details',
     );
-    await expect(patientDetailsPage.completedCarePlan('Diabetes')).toBeVisible();
+    await expect(patientDetailsPage.firstCarePlanListItem).toContainText('Diabetes');
 
     const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Diabetes');
 
-    await expect(completedCarePlanModal.page.getByText('Care plan: Diabetes')).toBeVisible();
+    await expect(completedCarePlanModal.carePlanHeader).toContainText('Care plan: Diabetes');
+    //TODO: in progress end of day weds 30 april. i made these locator myself, can use it to achieve the next todo?
+    //i added this at the end of this test case to confirm it worked and it seemed to successfully woo!!
+    //clean this up to respect pom logic etc then replace the expect at the end of this test case with the updated version
+    await expect(patientDetailsPage.page.getByTestId('notecontainer-6fi4').filter({ hasText: 'Main care plan' })).toContainText('This is an example of main care plan details');
     //TODO: when test id card is merged see if its possible to detect if this is within the same box as the main care plan red bolded text
     await expect(
       await completedCarePlanModal.mainCarePlan('This is an example of main care plan details'),
@@ -137,9 +132,8 @@ test.describe('Patient Side Bar', () => {
     await expect(
       await completedCarePlanModal.page.getByText('This is an additional care plan note'),
     ).toBeVisible();
+    //TODO: added this in on weds for testing purposes to see if it would focus the main care plan
+    await expect(patientDetailsPage.page.getByTestId('notecontainer-6fi4').filter({ hasText: 'Main care plan' })).toContainText('This is an example of main care plan details');
   });
 
-  test.describe('Death workflow', () => {
-    test('Record death - Male, 3 months', async () => {});
-  });
 });

@@ -21,37 +21,44 @@ export class AllPatientsPage extends BasePage {
   readonly patientSearchButton: Locator;
   readonly patientListingsHeader: Locator;
   readonly searchResultsPagination: Locator;
+  readonly searchResultsPaginationOneOfOne: Locator;
+  readonly nhnResultCell: Locator;
+  readonly secondNHNResultCell: Locator;
 
+  //TODO: remove commented out locators if no errors after updating
   constructor(page: Page) {
     super(page, routes.patients.all);
-    // Test ID currently not working
-    // this.allPatientsTable = page.getByTestId('patienttable-l8c2');
+
     this.allPatientsTable = page.getByRole('table');
-    //this test ID doesn't seem to work either alhtough it wasn't commented out in the original code I branched from
-    // this.allPatientsTableLoadingCell = this.allPatientsTable.getByTestId('translatedtext-yvlt');
-    this.allPatientsTableLoadingCell = page.getByRole('cell', { name: 'Loading...' });
-    this.addNewPatientBtn = page.getByRole('button', { name: '+ Add new patient' });
-    this.NewPatientFirstName = page
-    .getByRole("dialog")
-    .locator('input[name="firstName"]');
-  this.NewPatientLastName = page
-    .getByRole("dialog")
-    .locator('input[name="lastName"]');
-  this.NewPatientDOBtxt = page
-    .getByRole("dialog")
-    .locator('input[type="date"]');
-  this.NewPatientMaleChk = page
-    .getByLabel("sex")
-    .getByText("Male", { exact: true });
-  this.NewPatientFemaleChk = page
-    .getByLabel("sex")
-    .getByText("Female", { exact: true });
-  this.NewPatientNHN = page.locator('[data-test-class="id-field-div"]');
-  this.NewPatientConfirmBtn = page.getByText("Confirm");
-  this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
-  this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
-  this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
-  this.searchResultsPagination = page.getByTestId('pagerecordcount-m8ne');
+    this.allPatientsTableLoadingCell = page.getByTestId('statustablecell-rwkq').filter( { hasText: 'Loading' });
+    // this.addNewPatientBtn = page.getByRole('button', { name: '+ Add new patient' });
+    this.addNewPatientBtn = page.getByTestId('component-enxe');
+    this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
+ //   .getByRole("dialog")
+//    .locator('input[name="firstName"]');
+    this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
+//    .getByRole("dialog")
+//    .locator('input[name="lastName"]');
+    this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
+ //   .getByRole("dialog")
+ //   .locator('input[type="date"]');
+    this.NewPatientMaleChk = page.getByTestId('controllabel-kkx2-male');
+ //   .getByLabel("sex")
+ //   .getByText("Male", { exact: true });
+    this.NewPatientFemaleChk = page.getByTestId('controllabel-kkx2-female');
+ //   .getByLabel("sex")
+  //  .getByText("Female", { exact: true });
+  //  this.NewPatientNHN = page.locator('[data-test-class="id-field-div"]');
+    this.NewPatientNHN = page.getByTestId('id-8niy');
+//  this.NewPatientConfirmBtn = page.getByText("Confirm");
+    this.NewPatientConfirmBtn = page.getByTestId('formsubmitbutton-ygc6');
+    this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
+    this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
+    this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
+    this.searchResultsPagination = page.getByTestId('pagerecordcount-m8ne');
+    this.searchResultsPaginationOneOfOne = page.getByTestId('pagerecordcount-m8ne').filter({ hasText: "1–1 of 1" });
+    this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
+    this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
 }
   setPatientData(data: { firstName: string; lastName: string; gender: string; formattedDOB: string; nhn: string }) {
     this._patientData = data;
@@ -73,16 +80,15 @@ export class AllPatientsPage extends BasePage {
   }
 
   async clickOnSearchResult(nhn: string) {
-    await this.waitForTableToLoad();
-    await this.page.getByRole('cell', { name: nhn }).click();
+    //this has a short timeout to account for flakiness, in searchForAndSelectPatientByNHN it will try again if it timesout
+    await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
     await this.page.waitForURL('**/#/patients/all/*');
   }
 
   async navigateToPatientDetailsPage(nhn: string) {
     await this.goto();
     await expect(this.patientListingsHeader).toBeVisible();
-    await this.searchForPatientByNHN(nhn);
-    await this.clickOnSearchResult(nhn);
+    await this.searchForAndSelectPatientByNHN(nhn);
   }
 
   async fillNewPatientDetails(
@@ -104,15 +110,35 @@ export class AllPatientsPage extends BasePage {
     }
   }
 
+  async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 10) {
+    let attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        await this.nhnSearchInput.fill(nhn);
+        await this.patientSearchButton.click();
+        await this.waitForTableToLoad();
+        
+        //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
+        if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
+          return this.searchForAndSelectPatientByNHN(nhn);
+        }
+        
+        //the below if statement is required because sometimes the search results load all results instead of the specific result
+        if (await this.secondNHNResultCell.isVisible()) {
+          await this.page.reload();
+          await this.page.waitForTimeout(3000);
+          return this.searchForAndSelectPatientByNHN(nhn);
+        }
 
-  async searchForPatientByNHN(nhn: string) {
-    await this.nhnSearchInput.fill(nhn);
-    await this.patientSearchButton.click();
-    await this.waitForTableToLoad();
- //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
-    if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
-      await this.patientSearchButton.click();
+        await this.clickOnSearchResult(nhn);
+        return;
+      } catch (error) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          throw error;
+        }
+        await this.page.waitForTimeout(1000);
+      }
     }
-    await expect(this.searchResultsPagination).toContainText('1–1 of 1');
   }
 }

@@ -2,7 +2,6 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
-//TODO: refactor to not use xpath once custom locators are added
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
   patientVaccinePane?: PatientVaccinePane;
@@ -20,40 +19,37 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly defaultNewIssue: Locator;
   readonly otherPatientIssueNote: Locator;
   readonly submitNewOtherPatientIssuesAddButton: Locator;
-  readonly otherPatientIssueDropdown: Locator;
-  readonly otherPatientIssueWarningNote: Locator;
-  readonly submitNewOtherPatientIssuesWarningAddButton: Locator;
   readonly initiateNewCarePlanAddButton: Locator;
-
-  
+  readonly dropdownMenuItem: Locator;
+  readonly firstListItem: Locator;
+  readonly patientWarningHeader: Locator;
+  readonly patientWarningModalContent: Locator;
+  readonly patientNHN: Locator;
+  readonly firstCarePlanListItem: Locator;
   constructor(page: Page) {
     super(page);
 
-    this.vaccineTab = this.page.getByTestId('tab-vaccines');
-    this.initiateNewOngoingConditionAddButton = this.page.locator('div').filter({ hasText: /^Ongoing conditionsAdd$/ }).getByRole('button');
-    this.ongoingConditionNameField = this.page.locator('input[name="conditionId"]');
-    //TODO: refactor to not use xpath once custom locators are added
-    this.submitNewOngoingConditionAddButton = this.page.getByRole('list').filter({ hasText: 'Condition name*Date' }).getByRole('button').nth(2);
-    this.initiateNewAllergyAddButton = this.page.locator('div').filter({ hasText: /^AllergiesAdd$/ }).getByRole('button');
-    this.allergyNameField = this.page.locator('input[name="allergyId"]');
-    //TODO: refactor to not use xpath once custom locators are added
-    this.submitNewAllergyAddButton = this.page.getByRole('list').filter({ hasText: 'Allergy name*ReactionDate' }).getByRole('button').nth(2);
-    this.initiateNewFamilyHistoryAddButton = this.page.locator('div').filter({ hasText: /^Family historyAdd$/ }).getByRole('button');
-    this.familyHistoryDiagnosisField = this.page.locator('input[name="diagnosisId"]');
-    //TODO: refactor to not use xpath once custom locators are added
-    this.submitNewFamilyHistoryAddButton = this.page.getByRole('list').filter({ hasText: 'Diagnosis*Date recorded*' }).getByRole('button').nth(2);
-    this.initiateNewOtherPatientIssuesAddButton = this.page.locator('div').filter({ hasText: /^Other patient issuesAdd$/ }).getByRole('button');
-    //TODO: refactor to not use xpath once custom locators are added, could also use a more fine grained locator if not possible
-    this.defaultNewIssue = this.page.locator('div').filter({ hasText: /^Issue$/ }).nth(2);
-    this.otherPatientIssueNote = this.page.getByRole('list').filter({ hasText: 'Type*IssueNotesDate recorded*' }).locator('textarea[name="note"]');
-    //TODO: refactor to not use xpath once custom locators are added
-    this.submitNewOtherPatientIssuesAddButton = this.page.getByRole('list').filter({ hasText: 'Type*IssueNotesNew issue' }).getByRole('button').nth(1);
-    //TODO: refactor to not use xpath once custom locators are added
-    this.otherPatientIssueDropdown = this.page.locator('div').filter({ hasText: /^Issue$/ }).nth(2);
-   this.otherPatientIssueWarningNote = this.page.getByRole('list').filter({ hasText: 'Type*option [object Object],' }).locator('textarea[name="note"]');
-   //TODO: refactor to not use xpath once custom locators are added
-   this.submitNewOtherPatientIssuesWarningAddButton = this.page.getByRole('list').filter({ hasText: 'Type*WarningNotesTest' }).getByRole('button').nth(1);
-   this.initiateNewCarePlanAddButton = this.page.locator('div').filter({ hasText: /^Care plansAdd$/ }).getByRole('button');
+    this.vaccineTab = this.page.getByTestId('styledtab-yhha-vaccines');
+    this.initiateNewOngoingConditionAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Ongoing conditionsAdd' }).getByTestId('addbutton-b0ln');
+    this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input').getByRole('textbox', { name: 'Search...' });
+    this.submitNewOngoingConditionAddButton = this.page.getByTestId('formgrid-lqds').getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewAllergyAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'AllergiesAdd' }).getByTestId('addbutton-b0ln');
+    this.allergyNameField = this.page.getByTestId('field-hwfk-input').getByRole('textbox', { name: 'Search...' });
+    this.submitNewAllergyAddButton = this.page.getByTestId('formgrid-p12d').getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewFamilyHistoryAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Family historyAdd' }).getByTestId('addbutton-b0ln');
+    this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input').getByRole('textbox', { name: 'Search...' });
+    this.submitNewFamilyHistoryAddButton = this.page.getByTestId('formgrid-kjns').getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewOtherPatientIssuesAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Other patient issuesAdd' }).getByTestId('addbutton-b0ln');
+    this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
+    this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
+    this.submitNewOtherPatientIssuesAddButton = this.page.getByTestId('formgrid-vv7x').getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewCarePlanAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Care plansAdd' }).getByTestId('addbutton-b0ln');
+    this.dropdownMenuItem = this.page.getByTestId('typography-qxy3');
+    this.firstListItem = this.page.getByTestId('listitem-adip-0');
+    this.patientWarningHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
+    this.patientWarningModalContent = this.page.getByTestId('modalcontent-bk4w');
+    this.patientNHN = this.page.getByTestId('healthidtext-fqvn');
+    this.firstCarePlanListItem = this.page.getByTestId('listitem-fx300');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -85,6 +81,7 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
+    await this.dropdownMenuItem.waitFor({ state: 'hidden' });
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
@@ -103,12 +100,12 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async addNewOtherPatientIssueWarning(otherPatientIssueWarning: string) {
     await this.initiateNewOtherPatientIssuesAddButton.click();
-    await this.otherPatientIssueDropdown.click();
+    await this.defaultNewIssue.click();
     await this.page.getByText('Warning').click();
-    await this.otherPatientIssueWarningNote.fill(otherPatientIssueWarning);
-    await this.clickAddButtonToConfirm(this.submitNewOtherPatientIssuesWarningAddButton);
+    await this.otherPatientIssueNote.fill(otherPatientIssueWarning);
+    await this.clickAddButtonToConfirm(this.submitNewOtherPatientIssuesAddButton);
   }
-  
+
   async addNewCarePlan() {
     await this.initiateNewCarePlanAddButton.click();
     if (!this.carePlanModal) {
@@ -137,23 +134,12 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.waitForLoadState('networkidle');
   }
 
-  async confirmCorrectNHN(nhn: string) {
-    await expect(this.page.getByText(`National Health Number${nhn}`)).toBeVisible();
-  }
-
-  confirmSexAndDOB(sex: string, dob: string) {
-    return this.page.getByText(`Sex${sex}DOB${dob}`);
-  }
-
   generateNewAllergy(nhn: string) {
     return `Unique ${nhn} allergy`;
   }
 
-  completedNoteForNewIssue(note: string) {
-    return this.page.getByRole('listitem').filter({ hasText: note });
+  completedCarePlan(carePlanName: string) {
+    return this.firstCarePlanListItem.filter({ hasText: carePlanName});
   }
 
-  completedCarePlan(carePlanName: string) {
-    return this.page.getByRole('list').filter({ hasText: carePlanName});
-  }
 }
