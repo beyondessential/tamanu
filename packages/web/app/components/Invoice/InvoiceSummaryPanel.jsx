@@ -33,7 +33,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 382px;
+  width: 450px;
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 16px 20px;
@@ -110,14 +110,16 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                 width="100%"
                 position="relative"
               >
-                <Box display="flex" style={{ gap: '8px' }}>
-                  <Field
-                    name={`insurers.${index}.insurerId`}
-                    required
-                    component={AutocompleteField}
-                    suggester={insurerSuggester}
-                    style={{ width: '166px' }}
-                  />
+                <Box display="flex" style={{ gap: '8px', flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    <Field
+                      name={`insurers.${index}.insurerId`}
+                      required
+                      component={AutocompleteField}
+                      suggester={insurerSuggester}
+                      style={{ width: '100%' }}
+                    />
+                  </Box>
                   <Field
                     name={`insurers.${index}.percentage`}
                     component={NumberField}
@@ -127,12 +129,11 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                     required
                     style={{ width: '70px' }}
                   />
-                  <Box marginTop="11px" marginRight="10px">
-                    %
-                  </Box>
+                  <Box marginTop="11px">%</Box>
                 </Box>
                 <Box
                   marginTop="11px"
+                  marginLeft="10px"
                   display="flex"
                   justifyContent="flex-end"
                   flexShrink={0}
