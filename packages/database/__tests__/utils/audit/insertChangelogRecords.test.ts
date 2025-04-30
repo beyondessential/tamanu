@@ -1,8 +1,13 @@
-import { describe, expect, it, beforeAll, afterAll, afterEach } from 'vitest';
+import { describe, expect, it, beforeAll, afterAll, afterEach, vi } from 'vitest';
 import { createTestDatabase, closeDatabase } from '../../sync/utilities';
 import { insertChangelogRecords } from '../../../src/utils/audit/insertChangelogRecords';
 import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+
+// Mock no facility IDs
+vi.mock('@tamanu/utils/selectFacilityIds', () => ({
+  selectFacilityIds: () => null,
+}));
 
 describe('insertChangelogRecords', () => {
   let sequelize;

@@ -1,12 +1,7 @@
 import { attachChangelogToSnapshotRecords } from '../../../src/utils/audit/attachChangelogToSnapshotRecords';
 import { createTestDatabase, closeDatabase } from '../../sync/utilities';
-import { describe, beforeAll, afterAll, it, expect, afterEach, vi } from 'vitest';
+import { describe, beforeAll, afterAll, it, expect, afterEach } from 'vitest';
 import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
-
-// Mock no facility IDs
-vi.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: () => null,
-}));
 
 describe('attachChangelogToSnapshotRecords', () => {
   let sequelize;
