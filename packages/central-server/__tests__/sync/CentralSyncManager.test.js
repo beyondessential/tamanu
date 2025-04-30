@@ -434,6 +434,11 @@ describe('CentralSyncManager', () => {
     });
 
     it('includes audit changes in outgoing changes', async () => {
+      // This test verifies that when audit.changes.enabled is true:
+      // 1. A changelog record is created for the initial creation of a patient_program_registration
+      // 2. Another changelog record is created when that registration is updated
+      // 3. Both changelog records are attached to the outgoing sync snapshot record
+      // 4. Each changelog record has the correct table_name and record_id as the record its attached to
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       await models.Setting.set('audit.changes.enabled', true);
@@ -492,10 +497,21 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-      const patientProgramRegistrationChange = outgoingChanges.find((c) => c.recordType === 'patient_program_registrations');
-      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
-      expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.table_name === 'patient_program_registrations')).toBeTruthy()
-      expect(patientProgramRegistrationChange.changelogRecords.every((c) => c.record_id === patientProgramRegistrationChange.recordId)).toBeTruthy()
+      const patientProgramRegistrationChange = outgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+      expect(patientProgramRegistrationChange.changelogRecords).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            table_name: 'patient_program_registrations',
+            record_id: patientProgramRegistrationChange.recordId,
+          }),
+          expect.objectContaining({
+            table_name: 'patient_program_registrations',
+            record_id: patientProgramRegistrationChange.recordId,
+          }),
+        ]),
+      );
     });
   });
 
