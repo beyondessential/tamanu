@@ -1,38 +1,25 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button, EncounterTopBar, TopBar } from '../app/components';
 
-export default {
-  title: 'TopBar',
-  component: TopBar,
-};
-
-export const WithTitle = {
-  render: () => <TopBar title="Patient listing" />,
-};
-
-export const WithButton = {
-  render: () => (
+storiesOf('TopBar', module)
+  .add('With title', () => <TopBar title="Patient listing" />)
+  .add('With button', () => (
     <TopBar title="Lab requests">
       <Button color="primary" variant="contained" onClick={action('save')}>
         Save
       </Button>
     </TopBar>
-  ),
-};
-
-export const WithSubtitle = {
-  render: () => (
+  ))
+  .add('With subtitle', () => (
     <TopBar title="Hospital Admission" subTitle="Etta Clinic">
       <Button color="primary" variant="contained" onClick={action('save')}>
         Save
       </Button>
     </TopBar>
-  ),
-};
-
-export const EncounterTopBarStory = {
-  render: () => (
+  ))
+  .add('Encounter Top Bar', () => (
     <EncounterTopBar
       title="Hospital Admission"
       subTitle="Etta Clinic"
@@ -42,5 +29,4 @@ export const EncounterTopBarStory = {
         Discharge
       </Button>
     </EncounterTopBar>
-  ),
-};
+  ));

@@ -1,4 +1,5 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react';
 import { addDays, addHours, format } from 'date-fns';
 import { Modal } from '../app/components/Modal';
 import { LineChart } from '../app/components/Charts/LineChart';
@@ -48,7 +49,6 @@ const data = [
     value: 35,
   },
 ];
-
 const inwardArrowData = data.map(item => ({
   ...item,
   inwardArrowVector: {
@@ -57,7 +57,6 @@ const inwardArrowData = data.map(item => ({
   },
   config: { unit: 'mmHg' },
 }));
-
 const visualisationConfig = {
   hasVitalChart: true,
   yAxis: {
@@ -71,61 +70,52 @@ const dateRange = [
   format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss'),
   format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
 ];
-
 const chartProps = getVitalChartProps({
   visualisationConfig,
   dateRange,
 });
 
-const EncounterDecorator = Story => (
-  <EncounterContext.Provider
-    value={{
-      encounter: { id: 'encounter_id' },
-    }}
-  >
-    <Story />
-  </EncounterContext.Provider>
-);
-
-export default {
-  title: 'Vitals',
-  component: LineChart,
-  decorators: [EncounterDecorator],
-};
-
-export const VitalChart = {
-  render: () => (
-    <Modal title="Vital Chart" open width="xl">
-      <LineChart
-        chartData={data}
-        visualisationConfig={visualisationConfig}
-        chartProps={chartProps}
-      />
-    </Modal>
-  ),
-};
-
-export const EmptyVitalChart = {
-  render: () => (
-    <Modal title="Empty Vital Chart" open width="xl">
-      <LineChart
-        chartData={[]}
-        visualisationConfig={visualisationConfig}
-        chartProps={chartProps}
-      />
-    </Modal>
-  ),
-};
-
-export const InwardArrowVitalChart = {
-  render: () => (
-    <Modal title="Inward Arrow Vital Chart" open width="xl">
-      <LineChart
-        chartData={inwardArrowData}
-        visualisationConfig={visualisationConfig}
-        chartProps={chartProps}
-        useInwardArrowVector
-      />
-    </Modal>
-  ),
-};
+storiesOf('Vitals', module)
+  .addDecorator(Story => (
+    <EncounterContext.Provider
+      value={{
+        encounter: { id: 'encounter_id' },
+      }}
+    >
+      <Story />
+    </EncounterContext.Provider>
+  ))
+  .add('Vital Chart', () => {
+    return (
+      <Modal title="Vital Chart" open width="xl">
+        <LineChart
+          chartData={data}
+          visualisationConfig={visualisationConfig}
+          chartProps={chartProps}
+        />
+      </Modal>
+    );
+  })
+  .add('Empty Vital Chart', () => {
+    return (
+      <Modal title="Empty Vital Chart" open width="xl">
+        <LineChart
+          chartData={[]}
+          visualisationConfig={visualisationConfig}
+          chartProps={chartProps}
+        />
+      </Modal>
+    );
+  })
+  .add('Inward Arrow Vital Chart', () => {
+    return (
+      <Modal title="Inward Arrow Vital Chart" open width="xl">
+        <LineChart
+          chartData={inwardArrowData}
+          visualisationConfig={visualisationConfig}
+          chartProps={chartProps}
+          useInwardArrowVector
+        />
+      </Modal>
+    );
+  });

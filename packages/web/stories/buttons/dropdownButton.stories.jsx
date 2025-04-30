@@ -1,4 +1,5 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 import { DropdownButton } from '../../app/components/DropdownButton';
 import { Button, ButtonRow } from '../../app/components';
@@ -22,13 +23,8 @@ const Container = styled.div`
   }
 `;
 
-export default {
-  title: 'Buttons/DropdownButton',
-  component: DropdownButton,
-};
-
-export const Default = {
-  render: () => (
+storiesOf('Buttons/DropdownButton', module)
+  .add('Default', () => (
     <div>
       <Container>
         <DropdownButton actions={actions} size="large" />
@@ -41,24 +37,14 @@ export const Default = {
         <DropdownButton actions={actions} variant="outlined" size="small" />
       </Container>
     </div>
-  ),
-};
-
-export const OnlyOneAction = {
-  render: () => (
+  ))
+  .add('Only one action', () => (
     <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
-  ),
-};
-
-export const NoActions = {
-  render: () => <DropdownButton actions={[]} />,
-};
-
-export const InButtonRow = {
-  render: () => (
+  ))
+  .add('No actions', () => <DropdownButton actions={[]} />)
+  .add('In button row', () => (
     <ButtonRow>
       <Button onClick={() => {}}>Other</Button>
       <DropdownButton actions={actions} />
     </ButtonRow>
-  ),
-};
+  ));

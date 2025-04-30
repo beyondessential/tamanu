@@ -1,11 +1,5 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react';
 import { Notification } from '../app/components/Notification';
 
-export default {
-  title: 'Notification',
-  component: Notification,
-};
-
-export const Placeholder = {
-  render: () => <Notification message="Hello" />,
-};
+storiesOf('Notification', module).add('placeholder', () => <Notification message="Hello" />);

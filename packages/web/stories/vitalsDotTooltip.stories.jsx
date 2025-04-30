@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { storiesOf } from '@storybook/react';
 import { Colors } from '../app/constants';
 import {
   InwardArrowVectorTooltipContent,
@@ -22,65 +23,59 @@ const TooltipWrapper = styled.div`
   width: 250px;
 `;
 
-export default {
-  title: 'Vitals',
-};
+storiesOf('Vitals', module).add('Vital Tooltip', () => {
+  const name = '2023-05-30 10:04:52';
+  return (
+    <Wrapper>
+      <TooltipWrapper>
+        <TooltipContent
+          name={name}
+          value="36.4"
+          dotColor={Colors.blue}
+          visualisationConfig={{ config: { unit: '°C' } }}
+        />
+      </TooltipWrapper>
 
-export const VitalTooltip = {
-  render: () => {
-    const name = '2023-05-30 10:04:52';
-    return (
-      <Wrapper>
-        <TooltipWrapper>
-          <TooltipContent
-            name={name}
-            value="36.4"
-            dotColor={Colors.blue}
-            visualisationConfig={{ config: { unit: '°C' } }}
-          />
-        </TooltipWrapper>
+      <TooltipWrapper>
+        <TooltipContent
+          name={name}
+          value="39.1"
+          dotColor={Colors.alert}
+          description="(Outside normal range >39°C)"
+          visualisationConfig={{ config: { unit: '°C' } }}
+        />
+      </TooltipWrapper>
 
-        <TooltipWrapper>
-          <TooltipContent
-            name={name}
-            value="39.1"
-            dotColor={Colors.alert}
-            description="(Outside normal range >39°C)"
-            visualisationConfig={{ config: { unit: '°C' } }}
-          />
-        </TooltipWrapper>
+      <TooltipWrapper>
+        <TooltipContent
+          name={name}
+          value="42.2"
+          dotColor={Colors.darkestText}
+          description="(Outside normal range >39°C) (Outside graph range)"
+          visualisationConfig={{ config: { unit: '°C' } }}
+        />
+      </TooltipWrapper>
 
-        <TooltipWrapper>
-          <TooltipContent
-            name={name}
-            value="42.2"
-            dotColor={Colors.darkestText}
-            description="(Outside normal range >39°C) (Outside graph range)"
-            visualisationConfig={{ config: { unit: '°C' } }}
-          />
-        </TooltipWrapper>
+      <TooltipWrapper>
+        <InwardArrowVectorTooltipContent
+          name={name}
+          value="36"
+          dotColor={Colors.darkestText}
+          inwardArrowVector={{ top: 36, bottom: 30 }}
+          visualisationConfig={{ config: { unit: 'mm Hg' } }}
+        />
+      </TooltipWrapper>
 
-        <TooltipWrapper>
-          <InwardArrowVectorTooltipContent
-            name={name}
-            value="36"
-            dotColor={Colors.darkestText}
-            inwardArrowVector={{ top: 36, bottom: 30 }}
-            visualisationConfig={{ config: { unit: 'mm Hg' } }}
-          />
-        </TooltipWrapper>
-
-        <TooltipWrapper>
-          <InwardArrowVectorTooltipContent
-            name={name}
-            value="42.2"
-            dotColor={Colors.alert}
-            inwardArrowVector={{ top: 42.2, bottom: 30 }}
-            description="(Outside normal range >39) (Outside graph range)"
-            visualisationConfig={{ config: { unit: 'mm Hg' } }}
-          />
-        </TooltipWrapper>
-      </Wrapper>
-    );
-  },
-};
+      <TooltipWrapper>
+        <InwardArrowVectorTooltipContent
+          name={name}
+          value="42.2"
+          dotColor={Colors.alert}
+          inwardArrowVector={{ top: 42.2, bottom: 30 }}
+          description="(Outside normal range >39) (Outside graph range)"
+          visualisationConfig={{ config: { unit: 'mm Hg' } }}
+        />
+      </TooltipWrapper>
+    </Wrapper>
+  );
+});
