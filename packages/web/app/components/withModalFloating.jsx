@@ -6,6 +6,8 @@ import { Paper } from '@material-ui/core';
 import styled from 'styled-components';
 
 import { ResizeCornerIcon } from './Icons/ResizeCornerIcon';
+import { ResizeHorizontalIcon } from './Icons/ResizeHorizontalIcon';
+import { ResizeVerticalIcon } from './Icons/ResizeVerticalIcon';
 import { Colors } from '../constants';
 
 export const withModalFloating = ModalComponent => {
@@ -104,11 +106,15 @@ export const withModalFloating = ModalComponent => {
     baseHeight: 400,
     minConstraints: [300, 200],
     maxConstraints: [900, 600],
-    enableResizeHandle: { bottomRight: true },
+    enableResizeHandle: { right: true, bottom: true, bottomRight: true },
     handleComponent: {
+      right: <ResizeVerticalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      bottom: <ResizeHorizontalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
       bottomRight: <ResizeCornerIcon width={20} height={20} htmlColor={Colors.darkestText} />,
     },
     handleStyles: {
+      right: { position: 'absolute', right: 4, top: '50%', cursor: 'ew-resize' },
+      bottom: { position: 'absolute', bottom: 4, left: '50%', cursor: 'ns-resize' },
       bottomRight: { position: 'absolute', right: 0, bottom: 0, cursor: 'nwse-resize' },
     },
     draggableHandle: '.MuiDialogTitle-root',
