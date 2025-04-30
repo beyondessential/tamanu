@@ -44,7 +44,7 @@ export const addChangelogRecords = async (
     {
       minSourceTick,
       maxSourceTick,
-      tableNameWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+      tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
     },
   );
 
