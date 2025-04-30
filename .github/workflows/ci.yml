@@ -159,6 +159,9 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
+      - name: Clear node_modules (if needed)
+        run: rm -rf node_modules
+
       - name: Clean install dependencies for Storybook test
         run: npm ci
 
