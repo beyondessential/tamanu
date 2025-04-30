@@ -86,7 +86,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '1',
         record_data: { first_name: 'Patient Updated' },
-        updated_at_sync_tick: 100,
+        updated_at_sync_tick: '100',
       },
       {
         // New record
@@ -101,7 +101,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '2',
         record_data: { first_name: 'Patient 2' },
-        updated_at_sync_tick: 100,
+        updated_at_sync_tick: '100',
       },
       {
         // New record
@@ -116,7 +116,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '3',
         record_data: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
-        updated_at_sync_tick: 100,
+        updated_at_sync_tick: '100',
       },
     ];
 
@@ -150,7 +150,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '1',
         record_data: { first_name: 'Patient 1' },
-        updated_at_sync_tick: 123,
+        updated_at_sync_tick: '123',
       },
     ];
 
@@ -176,7 +176,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '1',
         record_data: { first_name: 'Patient 1' },
-        updated_at_sync_tick: 123,
+        updated_at_sync_tick: '123',
       },
     ];
 
@@ -208,7 +208,7 @@ describe('insertChangelogRecords', () => {
         table_schema: 'public',
         record_id: '1',
         record_data: recordData,
-        updated_at_sync_tick: 123,
+        updated_at_sync_tick: '123',
       },
     ];
 
