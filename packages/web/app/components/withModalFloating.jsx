@@ -20,6 +20,10 @@ export const withModalFloating = ModalComponent => {
     & .MuiDialog-paper {
       pointer-events: auto;
     }
+
+    & ${props => props.draggableHandle} {
+      cursor: move;
+    }
   `;
 
   const FloatingModal = ({
@@ -84,6 +88,7 @@ export const withModalFloating = ModalComponent => {
         PaperComponent={PaperComponent}
         hideBackdrop={hideBackdrop}
         BackdropProps={BackdropProps}
+        draggableHandle={draggableHandle}
       />
     );
   };
