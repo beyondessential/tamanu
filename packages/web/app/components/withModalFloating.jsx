@@ -113,7 +113,9 @@ export const withModalFloating = ModalComponent => {
     maxConstraints: [900, 600],
     enableResizeHandle: { right: true, bottom: true, bottomRight: true },
     handleComponent: {
+      left: <ResizeVerticalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
       right: <ResizeVerticalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      top: <ResizeHorizontalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
       bottom: <ResizeHorizontalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
       bottomRight: <ResizeCornerIcon width={20} height={20} htmlColor={Colors.darkestText} />,
     },
