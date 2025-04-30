@@ -473,7 +473,8 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      // The lookup table needs to be built twice to create a proper range of SyncLookupTick records
+      // The lookup table needs to be updated twice to create a range of SyncLookupTick records
+      // Which is used to determine which changelog records are included in the sync session
       await centralSyncManager.updateLookupTable();
       await centralSyncManager.updateLookupTable();
 
