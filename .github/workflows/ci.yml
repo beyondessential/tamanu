@@ -159,7 +159,9 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - name: Clean install dependencies for Storybook test
+        run: npm ci
+
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/web-frontend test-storybook
 
