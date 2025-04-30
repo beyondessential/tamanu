@@ -36,7 +36,7 @@ export const addChangelogRecords = async (
   }
 
   const minSourceTick = lookupTicks.at(0).sourceStartTick;
-  const maxSourceTick = lookupTicks.at(-1).sourceStartTick;
+  const maxSourceTick = lookupTicks.at(-1).lookupEndTick;
 
   const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(
     sequelize,
