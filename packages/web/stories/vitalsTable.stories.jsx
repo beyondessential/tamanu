@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
 import { addHours, format } from 'date-fns';
 import { VitalsTable } from '../app/components/VitalsTable';
 import { MockedApi } from './utils/mockedApi';
@@ -459,27 +458,33 @@ const endpoints = {
   },
 };
 
-storiesOf('Vitals', module)
-  .addDecorator(Story => (
+const MockedApiDecorator = Story => (
+  <Container>
     <MockedApi endpoints={endpoints}>
-      <Container>
-        <EncounterContext.Provider
-          value={{
-            encounter: { id: 'encounter_id' },
-          }}
-        >
-          <VitalChartDataProvider>
-            <Story />
-          </VitalChartDataProvider>
-        </EncounterContext.Provider>
-      </Container>
+      <EncounterContext.Provider value={{ encounter: { id: '123' } }}>
+        <VitalChartDataProvider>
+          <Story />
+        </VitalChartDataProvider>
+      </EncounterContext.Provider>
     </MockedApi>
-  ))
-  .add('Vitals Table', () => {
-    return (
-      <>
-        <VitalChartsModal />
-        <VitalsTable />
-      </>
-    );
-  });
+  </Container>
+);
+
+export default {
+  title: 'VitalsTable',
+  component: VitalsTable,
+  decorators: [MockedApiDecorator],
+};
+
+export const Default = {
+  render: () => <VitalsTable />,
+};
+
+export const WithChartsModal = {
+  render: () => (
+    <>
+      <VitalsTable />
+      <VitalChartsModal open />
+    </>
+  ),
+};

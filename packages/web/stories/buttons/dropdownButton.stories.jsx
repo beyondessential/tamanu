@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 import { DropdownButton } from '../../app/components/DropdownButton';
 import { Button, ButtonRow } from '../../app/components';
@@ -23,8 +22,13 @@ const Container = styled.div`
   }
 `;
 
-storiesOf('Buttons/DropdownButton', module)
-  .add('Default', () => (
+export default {
+  title: 'Buttons/DropdownButton',
+  component: DropdownButton,
+};
+
+export const Default = {
+  render: () => (
     <div>
       <Container>
         <DropdownButton actions={actions} size="large" />
@@ -37,14 +41,24 @@ storiesOf('Buttons/DropdownButton', module)
         <DropdownButton actions={actions} variant="outlined" size="small" />
       </Container>
     </div>
-  ))
-  .add('Only one action', () => (
+  ),
+};
+
+export const OnlyOneAction = {
+  render: () => (
     <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
-  ))
-  .add('No actions', () => <DropdownButton actions={[]} />)
-  .add('In button row', () => (
+  ),
+};
+
+export const NoActions = {
+  render: () => <DropdownButton actions={[]} />,
+};
+
+export const InButtonRow = {
+  render: () => (
     <ButtonRow>
       <Button onClick={() => {}}>Other</Button>
       <DropdownButton actions={actions} />
     </ButtonRow>
-  ));
+  ),
+};

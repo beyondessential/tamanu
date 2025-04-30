@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/database/demoData';
 import { PatientEncounterSummary } from '../app/views/patients/components/PatientEncounterSummary';
@@ -28,58 +27,84 @@ const getEndpointsForEncounterType = encounterType => ({
   },
 });
 
-storiesOf('PatientEncounterSummary', module)
-  .addDecorator(Story => (
-    <MockedApi
-      endpoints={{
-        'patient/:id/currentEncounter': () => null,
-        'patient/test-patient/death': () => ({
-          facility: {
-            name: 'Facility 1',
-          },
-          clinician: {
-            displayName: 'Dr. John',
-          },
-          dateOfDeath: getCurrentDateString(),
-          causes: {
-            primary: {
-              condition: {
-                name: 'Condition 1',
+export default {
+  title: 'PatientEncounterSummary',
+  component: PatientEncounterSummary,
+  decorators: [
+    (Story) => (
+      <MockedApi
+        endpoints={{
+          'patient/:id/currentEncounter': () => null,
+          'patient/test-patient/death': () => ({
+            facility: {
+              name: 'Facility 1',
+            },
+            clinician: {
+              displayName: 'Dr. John',
+            },
+            dateOfDeath: getCurrentDateString(),
+            causes: {
+              primary: {
+                condition: {
+                  name: 'Condition 1',
+                },
               },
             },
-          },
-        }),
-      }}
-    >
-      {Story()}
-    </MockedApi>
-  ))
-  .add('No current visit', () => <PatientEncounterSummary patient={patient} />)
-  .add(ENCOUNTER_TYPES.ADMISSION, () => (
+          }),
+        }}
+      >
+        {Story()}
+      </MockedApi>
+    ),
+  ],
+};
+
+export const NoCurrentVisit = {
+  render: () => <PatientEncounterSummary patient={patient} />,
+};
+
+export const Admission = {
+  render: () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.ADMISSION)}>
       <PatientEncounterSummary patient={patient} />
     </MockedApi>
-  ))
-  .add(ENCOUNTER_TYPES.CLINIC, () => (
+  ),
+};
+
+export const Clinic = {
+  render: () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.CLINIC)}>
       <PatientEncounterSummary patient={patient} />
     </MockedApi>
-  ))
-  .add(ENCOUNTER_TYPES.IMAGING, () => (
+  ),
+};
+
+export const Imaging = {
+  render: () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.IMAGING)}>
       <PatientEncounterSummary patient={patient} />
     </MockedApi>
-  ))
-  .add(ENCOUNTER_TYPES.EMERGENCY, () => (
+  ),
+};
+
+export const Emergency = {
+  render: () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.EMERGENCY)}>
       <PatientEncounterSummary patient={patient} />
     </MockedApi>
-  ))
-  .add(ENCOUNTER_TYPES.TRIAGE, () => (
+  ),
+};
+
+export const Triage = {
+  render: () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.TRIAGE)}>
       <PatientEncounterSummary patient={patient} />
     </MockedApi>
-  ))
-  .add('Deceased', () => (
+  ),
+};
+
+export const Deceased = {
+  render: () => (
     <PatientEncounterSummary encounter={null} patient={{ ...patient, dateOfDeath: '123' }} />
-  ));
+  ),
+};

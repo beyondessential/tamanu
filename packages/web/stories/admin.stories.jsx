@@ -1,6 +1,4 @@
 import React from 'react';
-
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
@@ -76,22 +74,39 @@ const dummySubmit = overrides => async formData => {
   };
 };
 
-storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
-  <ImportExportView
-    onSubmit={dummySubmit()}
-    onReceiveResult={action('result')}
-    onCancel={action('cancel')}
-    dataTypes={['referenceData', 'user', 'patient']}
-    dataTypesSelectable
-  />
-));
+export default {
+  title: 'Admin',
+};
 
-storiesOf('Admin/ImportStats', module).add('Default', () => (
-  <ImportStatsDisplay stats={sampleResponse.stats} />
-));
+export const ImportExportViewStory = {
+  name: 'ImportExportView',
+  render: () => (
+    <ImportExportView
+      onSubmit={dummySubmit()}
+      onReceiveResult={action('result')}
+      onCancel={action('cancel')}
+      dataTypes={['referenceData', 'user', 'patient']}
+      dataTypesSelectable
+    />
+  ),
+};
 
-storiesOf('Admin/ErrorTable', module)
-  .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
-  .add('No errors', () => <ImportErrorsTable errors={[]} />);
+export const ImportStatsStory = {
+  name: 'ImportStats',
+  render: () => <ImportStatsDisplay stats={sampleResponse.stats} />,
+};
 
-storiesOf('Admin/AssetUploaderView', module).add('Default', () => <AssetUploaderView />);
+export const ErrorTableDefault = {
+  name: 'ErrorTable/Default',
+  render: () => <ImportErrorsTable errors={sampleResponse.errors} />,
+};
+
+export const ErrorTableNoErrors = {
+  name: 'ErrorTable/NoErrors',
+  render: () => <ImportErrorsTable errors={[]} />,
+};
+
+export const AssetUploaderViewStory = {
+  name: 'AssetUploaderView',
+  render: () => <AssetUploaderView />,
+};

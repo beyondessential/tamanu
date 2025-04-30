@@ -1,6 +1,4 @@
 import React from 'react';
-
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import Chance from 'chance';
 
@@ -65,19 +63,49 @@ const fakeFruit = () => ({
 
 const dummyData = new Array(7).fill(0).map(fakeFruit);
 
-storiesOf('Table', module)
-  .add('Plain', () => <Table columns={dummyColumns} data={dummyData} />)
-  .add('With pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />)
-  .add('In error state', () => (
-    <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
-  ))
-  .add('In loading state', () => <Table columns={dummyColumns} isLoading data={[]} />)
-  .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
-  .add('With option row', () => (
-    <Table
-      columns={dummyColumns}
-      data={dummyData}
-      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />}
-    />
-  ))
-  .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);
+export default {
+  title: 'Table',
+  component: Table,
+};
+
+const Template = args => <Table {...args} />;
+
+export const Plain = Template.bind({});
+Plain.args = {
+  columns: dummyColumns,
+  data: dummyData,
+};
+
+export const WithPagination = {
+  render: () => <TableStateWrapper columns={dummyColumns} data={dummyData} />,
+};
+
+export const InErrorState = Template.bind({});
+InErrorState.args = {
+  columns: dummyColumns,
+  errorMessage: 'Something has gone wrong with all this fruit!',
+};
+
+export const InLoadingState = Template.bind({});
+InLoadingState.args = {
+  columns: dummyColumns,
+  isLoading: true,
+  data: [],
+};
+
+export const WithNoData = Template.bind({});
+WithNoData.args = {
+  columns: dummyColumns,
+  data: [],
+};
+
+export const WithOptionRow = Template.bind({});
+WithOptionRow.args = {
+  columns: dummyColumns,
+  data: dummyData,
+  optionRow: <CheckInput label={<small>Include citrus fruits</small>} />,
+};
+
+export const WithSorting = {
+  render: () => <TableStateWrapper columns={sortableColumns} data={dummyData} />,
+};

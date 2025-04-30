@@ -1,6 +1,5 @@
 import React from 'react';
 import shortid from 'shortid';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import {
@@ -31,7 +30,7 @@ import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
 import { createDummySuggester, mapToSuggestions } from '../utils';
-import { Modal } from '../../app/components/Modal';
+import { Modal, Form } from '../../app/components';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import { fakeLabRequest } from '../../.storybook/__mocks__/defaultEndpoints';
@@ -55,7 +54,12 @@ const patientSuggester = createDummySuggester(
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
-storiesOf('Forms', module).add('DeathForm', () => {
+export default {
+  title: 'Forms',
+  component: Form,
+};
+
+export const DeathFormStory = () => {
   const onSubmit = data => {
     console.log('submit...', data);
   };
@@ -76,13 +80,13 @@ storiesOf('Forms', module).add('DeathForm', () => {
       />
     </Modal>
   );
-});
+};
 
 const getScheduledVaccines = () => {
   return [];
 };
 
-storiesOf('Forms', module).add('VaccineForm', () => (
+export const VaccineFormStory = () => (
   <Modal title="Record vaccine" open>
     <VaccineForm
       onSubmit={action('submit')}
@@ -92,46 +96,37 @@ storiesOf('Forms', module).add('VaccineForm', () => (
       vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
     />
   </Modal>
-));
+);
 
-storiesOf('Forms/LoginForm', module).add('broken', () => (
+export const LoginFormBroken = () => (
   <div>Login view unstorybookable until ServerDetectingField can be separated out</div>
-));
-/*
-  .add('default', () => <LoginView login={action('login')} />)
-  .add('expired', () => (
-    <LoginView
-      login={action('login')}
-      errorMessage="Your session has expired. Please log in again."
-    />
-  ));
-  */
+);
 
-storiesOf('Forms/VisitForm', module)
-  .add('Default', () => (
-    <EncounterForm
-      onSubmit={action('submit')}
-      locationSuggester={locationSuggester}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ))
-  .add('Editing', () => (
-    <EncounterForm
-      onSubmit={action('submit')}
-      locationSuggester={locationSuggester}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ));
+export const VisitFormDefault = () => (
+  <EncounterForm
+    onSubmit={action('submit')}
+    locationSuggester={locationSuggester}
+    practitionerSuggester={practitionerSuggester}
+  />
+);
 
-storiesOf('Forms', module).add('TriageForm', () => (
+export const VisitFormEditing = () => (
+  <EncounterForm
+    onSubmit={action('submit')}
+    locationSuggester={locationSuggester}
+    practitionerSuggester={practitionerSuggester}
+  />
+);
+
+export const TriageFormStory = () => (
   <TriageForm
     onSubmit={action('submit')}
     locationSuggester={locationSuggester}
     practitionerSuggester={practitionerSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('ProcedureForm', () => (
+export const ProcedureFormStory = () => (
   <ProcedureForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
@@ -140,34 +135,34 @@ storiesOf('Forms', module).add('ProcedureForm', () => (
     procedureSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
     anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
   />
-));
+);
 
-storiesOf('Forms', module).add('AllergyForm', () => (
+export const AllergyFormStory = () => (
   <AllergyForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('OngoingConditionForm', () => (
+export const OngoingConditionFormStory = () => (
   <OngoingConditionForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('DischargeForm', () => (
+export const DischargeFormStory = () => (
   <DischargeForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     dispositionSuggester={dispositionSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('NewPatientForm', () => (
+export const NewPatientFormStory = () => (
   <NewPatientForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
@@ -175,9 +170,9 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('PatientDetailsForm', () => (
+export const PatientDetailsFormStory = () => (
   <PatientDetailsForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
@@ -185,45 +180,45 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('FamilyHistoryForm', () => (
+export const FamilyHistoryFormStory = () => (
   <FamilyHistoryForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     diagnosisSuggester={diagnosisSuggester}
   />
-));
+);
 
-storiesOf('Forms', module).add('MedicationForm', () => (
+export const MedicationFormStory = () => (
   <MedicationForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     drugSuggester={drugSuggester}
   />
-));
+);
 
-storiesOf('Forms', module)
-  .add('LabRequestForm', () => (
-    <MockedApi endpoints={mockLabRequestFormEndpoints}>
-      <Modal width="md" title="New lab request" open>
-        <LabRequestMultiStepForm
-          onNext={action('next')}
-          onSubmit={action('submit')}
-          onCancel={action('cancel')}
-          generateDisplayId={shortid.generate}
-          practitionerSuggester={practitionerSuggester}
-          departmentSuggester={departmentSuggester}
-        />
-      </Modal>
-    </MockedApi>
-  ))
-  .add('LabRequestSummaryPane', () => (
-    <MockedApi endpoints={mockLabRequestFormEndpoints}>
-      <Modal width="md" title="New lab request" open>
-        <LabRequestSummaryPane encounter={{}} labRequests={[fakeLabRequest(), fakeLabRequest()]} />
-      </Modal>
-    </MockedApi>
-  ));
+export const LabRequestFormStory = () => (
+  <MockedApi endpoints={mockLabRequestFormEndpoints}>
+    <Modal width="md" title="New lab request" open>
+      <LabRequestMultiStepForm
+        onNext={action('next')}
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        generateDisplayId={shortid.generate}
+        practitionerSuggester={practitionerSuggester}
+        departmentSuggester={departmentSuggester}
+      />
+    </Modal>
+  </MockedApi>
+);
+
+export const LabRequestSummaryPaneStory = () => (
+  <MockedApi endpoints={mockLabRequestFormEndpoints}>
+    <Modal width="md" title="New lab request" open>
+      <LabRequestSummaryPane encounter={{}} labRequests={[fakeLabRequest(), fakeLabRequest()]} />
+    </Modal>
+  </MockedApi>
+);

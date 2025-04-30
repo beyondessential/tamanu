@@ -1,29 +1,42 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button, ButtonRow, ConfirmCancelRow } from '../../app/components';
 
-storiesOf('Buttons/ButtonRow', module)
-  .add('ConfirmCancel', () => (
+export default {
+  title: 'Buttons/ButtonRow',
+  component: ButtonRow,
+};
+
+export const ConfirmCancel = {
+  render: () => (
     <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
-  ))
-  .add('With custom text', () => (
+  ),
+};
+
+export const WithCustomText = {
+  render: () => (
     <ConfirmCancelRow
       onConfirm={action('confirm')}
       onCancel={action('confirm')}
       confirmText="OK"
       cancelText="Back"
     />
-  ))
-  .add('With long custom text', () => (
+  ),
+};
+
+export const WithLongCustomText = {
+  render: () => (
     <ConfirmCancelRow
       onConfirm={action('confirm')}
       onCancel={action('confirm')}
       confirmText="Assign patient diagnosis"
       cancelText="Return to previous state"
     />
-  ))
-  .add('With custom buttons', () => (
+  ),
+};
+
+export const WithCustomButtons = {
+  render: () => (
     <ButtonRow>
       <Button onClick={action('plier')} variant="contained" color="primary">
         Plier
@@ -38,4 +51,5 @@ storiesOf('Buttons/ButtonRow', module)
         Glisser
       </Button>
     </ButtonRow>
-  ));
+  ),
+};

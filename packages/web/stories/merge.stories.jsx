@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { MockedApi } from './utils/mockedApi';
 
@@ -57,14 +55,32 @@ const endpoints = {
   }
 };
 
-storiesOf('Admin/PatientMerge', module)
-  .addDecorator(Story => <MockedApi endpoints={endpoints}><Story /></MockedApi>)
-  .add('Patient search', () => (
+const PatientSummaryWithState = () => {
+  const [selected, setSelected] = useState(false);
+  return (
+    <PatientSummary
+      patient={firstPatient}
+      onSelect={() => setSelected(!selected)}
+      selected={selected}
+    />
+  );
+};
+
+export default {
+  title: 'Admin/PatientMerge',
+  decorators: [(Story) => <MockedApi endpoints={endpoints}><Story /></MockedApi>],
+};
+
+export const PatientSearch = {
+  render: () => (
     <PatientMergeSearch 
       onBeginMerge={action('beginMerge')}
     />
-  ))
-  .add('Patient search with error', () => (
+  ),
+};
+
+export const PatientSearchWithError = {
+  render: () => (
     <MockedApi endpoints={{ 
       'admin/lookup/patient/:id': () => { throw new Error('Not found') }
     }} >
@@ -72,26 +88,26 @@ storiesOf('Admin/PatientMerge', module)
         onBeginMerge={action('beginMerge')}
       />
     </MockedApi>
-  ))
-  .add('Patient summary', () => {
-    const [selected, setSelected] = useState(false);
-    return (
-      <PatientSummary
-        patient={firstPatient}
-        onSelect={() => setSelected(!selected)}
-        selected={selected}
-      />
-    );
-  })
-  .add('Decision form', () => (
+  ),
+};
+
+export const PatientSummaryStory = {
+  render: () => <PatientSummaryWithState />,
+};
+
+export const DecisionForm = {
+  render: () => (
     <KeepPatientDecisionForm
       firstPatient={firstPatient}
       secondPatient={secondPatient}
       onCancel={action('cancel')}
       onSelectPlan={action('selectPlan')}
     />
-  ))
-  .add('Confirmation form', () => (
+  ),
+};
+
+export const ConfirmationForm = {
+  render: () => (
     <ConfirmationModal
       mergePlan={{
         keepPatient: firstPatient,
@@ -100,8 +116,11 @@ storiesOf('Admin/PatientMerge', module)
       onCancel={action('cancel')}
       onConfirm={action('confirm')}
     />
-  ))
-  .add('Result modal', () => (
+  ),
+};
+
+export const ResultModal = {
+  render: () => (
     <MergeResultModal
       result={{
         updates: {
@@ -113,15 +132,22 @@ storiesOf('Admin/PatientMerge', module)
       }}
       onClose={action('close')}
     />
-  ))
-  .add('Error modal', () => (
+  ),
+};
+
+export const ErrorModal = {
+  render: () => (
     <MergeErrorModal
       error={new Error("A test error occurred.")}
       onClose={action('close')}
     />
-  ))
-  .add('Entire flow', () => (
+  ),
+};
+
+export const EntireFlow = {
+  render: () => (
     <PatientMergeView
       onMergePatients={action('merge')}
     />
-  ));
+  ),
+};

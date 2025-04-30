@@ -1,16 +1,19 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import Box from '@material-ui/core/Box';
 import { DateDisplay } from '../app/components/DateDisplay';
 
 const testDate = new Date();
 
-storiesOf('DateDisplay', module)
-  .addParameters({
-    note:
-      'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
-  })
-  .add('Examples', () => (
+export default {
+  title: 'DateDisplay',
+  component: DateDisplay,
+  parameters: {
+    note: 'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
+  },
+};
+
+export const Examples = {
+  render: () => (
     <Box p={5}>
       <Box mb={5}>
         <span>Date: </span>
@@ -29,4 +32,5 @@ storiesOf('DateDisplay', module)
         <span>{DateDisplay.stringFormat(testDate)}</span>
       </Box>
     </Box>
-  ));
+  ),
+};

@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
 import { Button, Field, Form, FormGrid, TextField } from '../../app/components';
@@ -22,7 +21,12 @@ const StyledButton = styled(Button)`
   padding: 14px 20px;
 `;
 
-storiesOf('Forms', module).add('Async submission form', () => (
+export default {
+  title: 'Forms',
+  component: Form,
+};
+
+export const AsyncSubmissionForm = () => (
   <Form
     onSubmit={asyncSubmit}
     render={({ submitForm, isSubmitting }) => (
@@ -39,7 +43,7 @@ storiesOf('Forms', module).add('Async submission form', () => (
       </StyledFormGrid>
     )}
   />
-));
+);
 
 async function asyncSubmitWithError(data, { setErrors }) {
   action('submitStart')(data);
@@ -55,7 +59,7 @@ async function asyncSubmitWithError(data, { setErrors }) {
   action('submitEnd')(data);
 }
 
-storiesOf('Forms', module).add('With async error', () => (
+export const WithAsyncError = () => (
   <Form
     onSubmit={asyncSubmitWithError}
     render={({ submitForm, isSubmitting }) => (
@@ -72,4 +76,4 @@ storiesOf('Forms', module).add('With async error', () => (
       </StyledFormGrid>
     )}
   />
-));
+);
