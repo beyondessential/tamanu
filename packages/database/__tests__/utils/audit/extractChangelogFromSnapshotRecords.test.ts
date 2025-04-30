@@ -1,17 +1,40 @@
 import { describe, expect, it } from 'vitest';
 
 import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/extractChangelogFromSnapshotRecords';
-import type {
-  SyncSnapshotAttributesWithChangelog,
-  ChangelogRecord,
-} from '../../../src/types/sync';
+import type { SyncSnapshotAttributesWithChangelog, ChangelogRecord } from '../../../src/types/sync';
 
 describe('extractChangelogFromSnapshotRecords', () => {
   it('should extract changelog records from snapshot records', () => {
     // Arrange
     const changelogRecords: ChangelogRecord[] = [
-      { record_id: 'record1', id: 'dogman-1' } as ChangelogRecord,
-      { record_id: 'record1', id: 'dogman-2' } as ChangelogRecord,
+      {
+        record_id: 'record1',
+        id: 'dogman-1',
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'test',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 100,
+        updated_by_user_id: 'test-user',
+        record_update: true,
+        record_data: { test: 'data' },
+      },
+      {
+        record_id: 'record1',
+        id: 'dogman-2',
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'test',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 101,
+        updated_by_user_id: 'test-user',
+        record_update: true,
+        record_data: { test: 'updated data' },
+      },
     ];
 
     const snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[] = [
