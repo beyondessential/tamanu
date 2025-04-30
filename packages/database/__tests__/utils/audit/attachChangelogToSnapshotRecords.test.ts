@@ -1,7 +1,12 @@
 import { attachChangelogToSnapshotRecords } from '../../../src/utils/audit/attachChangelogToSnapshotRecords';
 import { createTestDatabase, closeDatabase } from '../../sync/utilities';
-import {describe, beforeAll, afterAll, it, expect, afterEach} from 'vitest';
-import {SYSTEM_USER_UUID} from '@tamanu/constants/auth'
+import { describe, beforeAll, afterAll, it, expect, afterEach, vi } from 'vitest';
+import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
+
+// Mock no facility IDs
+vi.mock('@tamanu/utils/selectFacilityIds', () => ({
+  selectFacilityIds: () => null,
+}));
 
 describe('attachChangelogToSnapshotRecords', () => {
   let sequelize;
@@ -29,7 +34,7 @@ describe('attachChangelogToSnapshotRecords', () => {
         record_update BOOLEAN NOT NULL,
         record_data JSONB NOT NULL
       );
-    `); 
+    `);
   });
 
   afterAll(async () => {
@@ -80,13 +85,13 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Check patient 1 has both changelog records
     const patient1 = result.find((r) => r.recordId === '1');
     expect(patient1?.changelogRecords).toHaveLength(2);
-    expect(patient1?.changelogRecords[0].updated_at_sync_tick).toBe("100");
-    expect(patient1?.changelogRecords[1].updated_at_sync_tick).toBe("150");
+    expect(patient1?.changelogRecords[0].updated_at_sync_tick).toBe('100');
+    expect(patient1?.changelogRecords[1].updated_at_sync_tick).toBe('150');
 
     // Check patient 2 has one changelog record
     const patient2 = result.find((r) => r.recordId === '2');
     expect(patient2?.changelogRecords).toHaveLength(1);
-    expect(patient2?.changelogRecords[0].updated_at_sync_tick).toBe("200");
+    expect(patient2?.changelogRecords[0].updated_at_sync_tick).toBe('200');
 
     // Check encounter 1 has no changelog records (outside tick range)
     const encounter1 = result.find((r) => r.recordId === '1' && r.recordType === 'encounters');
