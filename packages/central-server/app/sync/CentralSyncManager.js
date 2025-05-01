@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
