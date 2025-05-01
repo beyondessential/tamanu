@@ -1,3 +1,4 @@
+import { FACT_CURRENT_VERSION, FACT_DEVICE_ID } from '@tamanu/constants';
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE = { schema: 'logs', tableName: 'changes' };
@@ -49,6 +50,16 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    device_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: Sequelize.fn('local_system_fact', FACT_DEVICE_ID, 'unknown'),
+    },
+    version: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_VERSION, 'unknown'),
+    },
     record_id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -81,9 +92,11 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex(TABLE, ['table_oid'], { using: 'hash' });
   await query.addIndex(TABLE, ['record_id'], { using: 'hash' });
+  await query.addIndex(TABLE, ['device_id'], { using: 'hash' });
   await query.addIndex(TABLE, ['updated_by_user_id'], { using: 'hash' });
 
   await query.addIndex(TABLE, ['logged_at'], { using: 'btree' });
+  await query.addIndex(TABLE, ['version'], { using: 'btree' });
   await query.addIndex(TABLE, ['record_created_at'], { using: 'btree' });
   await query.addIndex(TABLE, ['record_updated_at'], { using: 'btree' });
   await query.addIndex(TABLE, ['record_deleted_at'], { using: 'btree' });
