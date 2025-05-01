@@ -9,7 +9,7 @@ sources:
         tags: []
         columns:
           - name: id
-            data_type: bigint
+            data_type: uuid
             description: "{{ doc('logs__changes__id') }}"
             data_tests:
               - unique
@@ -47,11 +47,6 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('logs__changes__deleted_at') }}"
-          - name: updated_at_sync_tick
-            data_type: bigint
-            description: "{{ doc('logs__changes__updated_at_sync_tick') }}"
-            data_tests:
-              - not_null
           - name: updated_by_user_id
             data_type: text
             description: "{{ doc('logs__changes__updated_by_user_id') }}"
@@ -60,6 +55,16 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
+          - name: device_id
+            data_type: text
+            description: "{{ doc('logs__changes__device_id') }}"
+            data_tests:
+              - not_null
+          - name: version
+            data_type: text
+            description: "{{ doc('logs__changes__version') }}"
+            data_tests:
+              - not_null
           - name: record_id
             data_type: text
             description: "{{ doc('logs__changes__record_id') }}"
@@ -68,6 +73,24 @@ sources:
           - name: record_update
             data_type: boolean
             description: "{{ doc('logs__changes__record_update') }}"
+            data_tests:
+              - not_null
+          - name: record_created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__changes__record_created_at') }}"
+            data_tests:
+              - not_null
+          - name: record_updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__changes__record_updated_at') }}"
+            data_tests:
+              - not_null
+          - name: record_deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__changes__record_deleted_at') }}"
+          - name: record_sync_tick
+            data_type: bigint
+            description: "{{ doc('logs__changes__record_sync_tick') }}"
             data_tests:
               - not_null
           - name: record_data
