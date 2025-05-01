@@ -46,11 +46,6 @@
       "import": "./dist/esm/services/migrations/*.js",
       "types": "./dist/esm/services/migrations/*.d.ts"
     },
-    "./services/timesync": {
-      "require": "./dist/cjs/services/timesync.js",
-      "import": "./dist/esm/services/timesync.js",
-      "types": "./dist/esm/services/timesync.d.ts"
-    },
     "./services/database": {
       "require": "./dist/cjs/services/database.js",
       "import": "./dist/esm/services/database.js",
@@ -106,7 +101,6 @@
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
-    "timesync": "^1.0.11",
     "bcrypt": "^5.1.1",
     "config": "^3.3.9",
     "date-fns": "^2.19.0",

@@ -107,7 +107,7 @@
     "request-promise": "^4.2.2",
     "sequelize": "^6.21.3",
     "socket.io": "^4.8.1",
-    "timesync": "^1.0.11",
+    "timesimp": "^1.0.2",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",

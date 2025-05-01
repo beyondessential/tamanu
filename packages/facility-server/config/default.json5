@@ -52,10 +52,6 @@
       "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
     }
   },
-  "timesync": {
-    "enabled": true,
-    "interval": 60000 // ms interval for synchronising
-  },
   "port": 4000,
   "db": {
     "name": "tamanu-facility",
@@ -123,7 +119,12 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
-    }
+    },
+    "timeSync": {
+      "enabled": true,
+      // every hour
+      "schedule": "0 * * * *",
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
