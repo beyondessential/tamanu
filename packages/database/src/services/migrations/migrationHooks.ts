@@ -124,7 +124,6 @@ export async function runPreMigration(log: Logger, sequelize: Sequelize) {
   }
 
   // remove changelog trigger before migrations
-  // except from SequelizeMeta, so that migrations are recorded in the changelog
   for (const { schema, table } of await tablesWithTrigger(sequelize, 'record_', '_changelog')) {
     log.info(`Removing changelog trigger from ${schema}.${table}`);
     await sequelize.query(`DROP TRIGGER record_${table}_changelog ON "${schema}"."${table}"`);
