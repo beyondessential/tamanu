@@ -96,24 +96,24 @@ const ParameterMultiselectField = ({ name, ...props }) => (
 const EmptyField = styled.div``;
 
 export const PARAMETER_FIELD_COMPONENTS = {
-  VillageField,
-  LabTestLaboratoryField,
-  PractitionerField,
-  FacilityField,
+  AppointmentTypeField,
+  BookingTypeField,
   DiagnosisField,
-  VaccineCategoryField,
-  VaccineField,
   EmptyField,
-  ParameterAutocompleteField,
-  ParameterSelectField,
-  ParameterMultiselectField,
+  FacilityField,
   ImagingTypeField,
   LabTestCategoryField,
   LabTestCategorySensitiveField,
-  ParameterSuggesterSelectField,
+  LabTestLaboratoryField,
   LabTestTypeField,
-  AppointmentTypeField,
-  BookingTypeField,
+  ParameterAutocompleteField,
+  ParameterMultiselectField,
+  ParameterSelectField,
+  ParameterSuggesterSelectField,
+  PractitionerField,
+  VaccineCategoryField,
+  VaccineField,
+  VillageField,
 };
 
 export const ParameterField = ({
