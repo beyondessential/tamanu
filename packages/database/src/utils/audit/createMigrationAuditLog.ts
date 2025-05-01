@@ -21,7 +21,7 @@ export const createMigrationAuditLog = async (
   if (!tableExists) return;
   await sequelize.query(
     `
-      INSERT INTO logs.migrations (logged_at, direction, migrations, current_sync_tick)
+      INSERT INTO logs.migrations (logged_at, direction, migrations, record_sync_tick)
       VALUES (
         CURRENT_TIMESTAMP,
         $1,
