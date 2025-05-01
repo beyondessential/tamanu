@@ -98,3 +98,8 @@ sources:
             description: "{{ doc('logs__changes__record_data') }}"
             data_tests:
               - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('logs__accesses__updated_at_sync_tick') }}"
+            data_tests:
+              - not_null
