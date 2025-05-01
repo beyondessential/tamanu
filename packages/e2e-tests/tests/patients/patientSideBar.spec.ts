@@ -116,9 +116,10 @@ test.describe('Patient Side Bar', () => {
     const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Diabetes');
 
     await expect(completedCarePlanModal.carePlanHeader).toContainText('Care plan: Diabetes');
-    //TODO: in progress end of day weds 30 april. i made these locator myself, can use it to achieve the next todo?
+    //TODO: in progress end of day weds 30 april. i made this locator myself, can use it to achieve the next todo?
     //i added this at the end of this test case to confirm it worked and it seemed to successfully woo!!
     //clean this up to respect pom logic etc then replace the expect at the end of this test case with the updated version
+    //the below line is only in this part of the tests cos this is just where i was working, its logical place is at the end
     await expect(patientDetailsPage.page.getByTestId('notecontainer-6fi4').filter({ hasText: 'Main care plan' })).toContainText('This is an example of main care plan details');
     //TODO: when test id card is merged see if its possible to detect if this is within the same box as the main care plan red bolded text
     await expect(
