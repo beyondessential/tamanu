@@ -9,7 +9,7 @@ const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
-  const migrationsDir = path.join(__dirname, '../..', 'migrations');
+  const migrationsDir = path.join(__dirname, '../../../dist/cjs', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)
