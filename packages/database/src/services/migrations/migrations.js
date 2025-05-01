@@ -24,6 +24,7 @@ export function createMigrationInterface(log, sequelize) {
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
+      pattern: /.*\.(js|ts)$/,
       params: [sequelize.getQueryInterface()],
       wrap:
         (updown) =>
