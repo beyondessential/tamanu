@@ -38,4 +38,6 @@ export const NON_LOGGED_TABLES = [
 
   // internal configuration
   'local_system_facts',
+
+  'SequelizeMeta',
 ];
