@@ -19,7 +19,7 @@ export async function up(query: QueryInterface): Promise<void> {
     record_sync_tick: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      defaultValue: Sequelize.fn('cast', Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'), 'bigint'),
+      defaultValue: Sequelize.cast( Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'), 'bigint'),
     },
     device_id: {
       type: DataTypes.TEXT,
