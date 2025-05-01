@@ -14,6 +14,7 @@ import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { useNoteModal } from '../../../contexts/NoteModal';
+import { NoteBlock } from '../../../components/NoteBlock';
 
 const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   width: 200px;
@@ -58,14 +59,16 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           ]}
           isClearable={false}
         />
-        <ButtonWithPermissionCheck
-          onClick={handleOpenNewNote}
-          disabled={readonly}
-          verb="create"
-          noun="EncounterNote"
-        >
-          <TranslatedText stringId="note.action.new" fallback="New note" />
-        </ButtonWithPermissionCheck>
+        <NoteBlock>
+          <ButtonWithPermissionCheck
+            onClick={handleOpenNewNote}
+            disabled={readonly}
+            verb="create"
+            noun="EncounterNote"
+          >
+            <TranslatedText stringId="note.action.new" fallback="New note" />
+          </ButtonWithPermissionCheck>
+        </NoteBlock>
       </TableButtonRow>
       <NoteTableWithPermission
         encounterId={encounter.id}

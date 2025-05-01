@@ -3,7 +3,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck, TableButtonRow, NoteBlock } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -30,27 +30,31 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setPrintMedicationModalOpen(false)}
       />
       <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
-          onClick={() => setPrintMedicationModalOpen(true)}
-          disabled={readonly}
-          verb="read"
-          noun="EncounterMedication"
-          variant="outlined"
-          color="primary"
-        >
-          <TranslatedText stringId="general.action.print" fallback="Print" />
-        </ButtonWithPermissionCheck>
-        <ButtonWithPermissionCheck
-          onClick={() => setCreateMedicationModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="EncounterMedication"
-        >
-          <TranslatedText
-            stringId="medication.action.newPrescription"
-            fallback="New prescription"
-          />
-        </ButtonWithPermissionCheck>
+        <NoteBlock>
+          <ButtonWithPermissionCheck
+            onClick={() => setPrintMedicationModalOpen(true)}
+            disabled={readonly}
+            verb="read"
+            noun="EncounterMedication"
+            variant="outlined"
+            color="primary"
+          >
+            <TranslatedText stringId="general.action.print" fallback="Print" />
+          </ButtonWithPermissionCheck>
+        </NoteBlock>
+        <NoteBlock>
+          <ButtonWithPermissionCheck
+            onClick={() => setCreateMedicationModalOpen(true)}
+            disabled={readonly}
+            verb="create"
+            noun="EncounterMedication"
+          >
+            <TranslatedText
+              stringId="medication.action.newPrescription"
+              fallback="New prescription"
+            />
+          </ButtonWithPermissionCheck>
+        </NoteBlock>
       </TableButtonRow>
       <EncounterMedicationTable encounterId={encounter.id} />
     </TabPane>

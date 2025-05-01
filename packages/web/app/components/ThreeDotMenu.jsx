@@ -30,7 +30,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 7px;
 `;
 
-export const ThreeDotMenu = ({ items }) => {
+export const ThreeDotMenu = ({ items, disabled }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -49,7 +49,7 @@ export const ThreeDotMenu = ({ items }) => {
 
   return (
     <>
-      <StyledIconButton onClick={onOpenKebabMenu}>
+      <StyledIconButton onClick={onOpenKebabMenu} disabled={disabled}>
         <MoreVert />
       </StyledIconButton>
       <StyledMenu

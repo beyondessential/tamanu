@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useNoteModal } from '../contexts/NoteModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
-export const withNoteModalViewOnly = Component => {
+export const withNoteModalBlock = Component => {
   const WrappedComponent = ({ ...props }) => {
     const { isNoteModalOpen } = useNoteModal();
 

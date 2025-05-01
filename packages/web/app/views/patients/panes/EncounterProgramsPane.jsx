@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Button, TableButtonRow } from '../../../components';
+import { Button, TableButtonRow, NoteBlock } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -21,9 +21,11 @@ export const EncounterProgramsPane = React.memo(({ patient }) => {
   return (
     <TabPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
-        </Button>
+        <NoteBlock>
+          <Button onClick={handleNewSurvey}>
+            <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
+          </Button>
+        </NoteBlock>
       </TableButtonRow>
       <DataFetchingProgramsTable
         endpoint={`encounter/${params.encounterId}/programResponses`}

@@ -5,6 +5,7 @@ import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { NoteBlock } from '../../../components/NoteBlock';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
@@ -22,14 +23,16 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         }}
       />
       <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
-          onClick={() => setEditedProcedure({})}
-          disabled={readonly}
-          verb="create"
-          noun="Procedure"
-        >
-          <TranslatedText stringId="procedure.action.create" fallback="New procedure" />
-        </ButtonWithPermissionCheck>
+        <NoteBlock>
+          <ButtonWithPermissionCheck
+            onClick={() => setEditedProcedure({})}
+            disabled={readonly}
+            verb="create"
+            noun="Procedure"
+          >
+            <TranslatedText stringId="procedure.action.create" fallback="New procedure" />
+          </ButtonWithPermissionCheck>
+        </NoteBlock>
       </TableButtonRow>
       <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
     </TabPane>

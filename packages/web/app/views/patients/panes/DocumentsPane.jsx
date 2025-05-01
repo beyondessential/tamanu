@@ -6,7 +6,13 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { ButtonWithPermissionCheck, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  ContentPane,
+  OutlinedButton,
+  TableButtonRow,
+  NoteBlock,
+} from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useDocumentActions } from '../../../hooks/useDocumentActions';
@@ -46,15 +52,23 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
-          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
-            <TranslatedText
-              stringId="document.action.openPatientLetter"
-              fallback="Patient letter"
-            />
-          </OutlinedButton>
-          <ButtonWithPermissionCheck verb="create" noun="DocumentMetadata" onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
-            <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
-          </ButtonWithPermissionCheck>
+          <NoteBlock>
+            <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
+              <TranslatedText
+                stringId="document.action.openPatientLetter"
+                fallback="Patient letter"
+              />
+            </OutlinedButton>
+          </NoteBlock>
+          <NoteBlock>
+            <ButtonWithPermissionCheck
+              verb="create"
+              noun="DocumentMetadata"
+              onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+            >
+              <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
+            </ButtonWithPermissionCheck>
+          </NoteBlock>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}

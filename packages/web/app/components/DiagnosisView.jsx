@@ -8,7 +8,8 @@ import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
-import { withNoteModalViewOnly } from './withNoteModalViewOnly';
+import { NoteBlock } from './NoteBlock';
+
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
   margin-top: 15px;
@@ -40,9 +41,9 @@ const DiagnosisGrid = styled.div`
   grid-template-columns: max-content auto max-content;
 `;
 
-const AddDiagnosisButton = withNoteModalViewOnly(styled(Button)`
+const AddDiagnosisButton = styled(Button)`
   height: fit-content;
-`);
+`;
 
 export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
   const { diagnoses, id } = encounter;
@@ -82,14 +83,16 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
       />
       <DiagnosisGrid>
         {DiagnosesDisplay}
-        <AddDiagnosisButton
-          onClick={() => editDiagnosis({})}
-          variant="outlined"
-          color="primary"
-          disabled={readOnly}
-        >
-          <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
-        </AddDiagnosisButton>
+        <NoteBlock>
+          <AddDiagnosisButton
+            onClick={() => editDiagnosis({})}
+            variant="outlined"
+            color="primary"
+            disabled={readOnly}
+          >
+            <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
+          </AddDiagnosisButton>
+        </NoteBlock>
       </DiagnosisGrid>
     </>
   );
