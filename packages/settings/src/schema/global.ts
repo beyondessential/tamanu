@@ -30,6 +30,32 @@ export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    audit: {
+      description: 'Audit settings',
+      highRisk: true,
+      properties: {
+        accesses: {
+          description: 'Audit accesses',
+          properties: {
+            enabled: {
+              description: 'Enable audit accesses',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        changes: {
+          description: 'Audit changes',
+          properties: {
+            enabled: {
+              description: 'Enable audit changes',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
     auth: {
       highRisk: true,
       description: 'Authentication options',
@@ -232,13 +258,13 @@ export const globalSettings = {
           },
         },
         disableInputPasting: {
-          description: 'Disable pasting into input fields (except email login and patient data fields)',
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
           type: yup.boolean(),
           defaultValue: false,
         },
         discharge: {
-          description:
-            'Encounter discharge configuration',
+          description: 'Encounter discharge configuration',
           properties: {
             dischargeNoteMandatory: {
               type: yup.boolean(),
@@ -251,6 +277,11 @@ export const globalSettings = {
               defaultValue: false,
             },
           },
+        },
+        patientDetailsLocationHierarchy: {
+          description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

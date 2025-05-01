@@ -39,8 +39,6 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-    settings: context.settings.global,
-    readOnly: false,
   });
 
   context.centralServer = new CentralServerConnection(context);

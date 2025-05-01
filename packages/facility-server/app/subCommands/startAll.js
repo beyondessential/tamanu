@@ -45,8 +45,6 @@ async function startAll({ skipMigrationCheck }) {
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-    settings: context.settings.global,
-    readOnly: false
   });
 
   await performTimeZoneChecks({

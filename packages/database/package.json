@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.30.0",
+  "version": "2.31.0",
   "private": true,
   "description": "BES - Database",
   "main": "dist/cjs/index.js",
@@ -45,11 +45,6 @@
       "require": "./dist/cjs/services/migrations/*.js",
       "import": "./dist/esm/services/migrations/*.js",
       "types": "./dist/esm/services/migrations/*.d.ts"
-    },
-    "./services/timesync": {
-      "require": "./dist/cjs/services/timesync.js",
-      "import": "./dist/esm/services/timesync.js",
-      "types": "./dist/esm/services/timesync.d.ts"
     },
     "./services/database": {
       "require": "./dist/cjs/services/database.js",

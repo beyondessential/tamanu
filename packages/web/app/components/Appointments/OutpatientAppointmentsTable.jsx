@@ -278,7 +278,7 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
             />
           </ViewPastBookingsButton>
         )}
-        {canCreateAppointment && (
+        {canCreateAppointment && !patient?.dateOfDeath && (
           <Button
             variant="outlined"
             color="primary"

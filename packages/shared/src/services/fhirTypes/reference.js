@@ -3,6 +3,7 @@ import { lowerCase, snakeCase } from 'lodash';
 
 import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
+import { log } from '../logging';
 
 const UPSTREAM_REF_TYPE_PREFIX = 'upstream://';
 
@@ -11,31 +12,17 @@ export class FhirReference extends FhirBaseType {
     return yup
       .object({
         // on ancestor: Element
-        id: yup
-          .string()
-          .nullable()
-          .default(null),
+        id: yup.string().nullable().default(null),
 
-        reference: yup
-          .string()
-          .nullable()
-          .default(null),
+        reference: yup.string().nullable().default(null),
 
         // In spec's schema, this is of type "uri", but it is later
         // mentioned that it can be `"Patient"` as a shorthand, so
         // it can't be the `url()` type in yup.
-        type: yup
-          .string()
-          .nullable()
-          .default(null),
+        type: yup.string().nullable().default(null),
 
-        identifier: FhirIdentifier.asYup()
-          .nullable()
-          .default(null),
-        display: yup
-          .string()
-          .nullable()
-          .default(null),
+        identifier: FhirIdentifier.asYup().nullable().default(null),
+        display: yup.string().nullable().default(null),
       })
       .noUnknown();
   }
@@ -45,7 +32,11 @@ export class FhirReference extends FhirBaseType {
   }
 
   static async to(resourceModel, upstreamId, fields) {
-    const resource = await resourceModel.findOne({ where: { upstreamId } });
+    if (!upstreamId) {
+      log.warn(`Unable to resolve reference to ${resourceModel.fhirName} with no upstreamId`);
+    }
+
+    const resource = upstreamId ? await resourceModel.findOne({ where: { upstreamId } }) : null;
     if (!resource || !resource.resolved) {
       return this.unresolved(resourceModel, upstreamId, fields);
     }

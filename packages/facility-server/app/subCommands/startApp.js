@@ -47,12 +47,17 @@ const startApp =
     await checkConfig(context);
     await performDatabaseIntegrityChecks(context);
 
-    context.timesync = await initTimesync({
-      models: context.models,
-      url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
-      settings: context.settings.global,
-      readOnly: true,
-    });
+  context.timesync = await initTimesync({
+    models: context.models,
+    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+  });
+
+  if (appType === APP_TYPES.API) {
+    context.syncConnection = new FacilitySyncConnection();
+  } else {
+    context.centralServer = new CentralServerConnection(context);
+    context.syncManager = new FacilitySyncManager(context);
+  }
 
     if (appType === APP_TYPES.API) {
       context.syncConnection = new FacilitySyncConnection();

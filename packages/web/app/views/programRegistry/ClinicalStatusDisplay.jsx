@@ -30,6 +30,6 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
   );
 };
 
-export const ClinicalStatusCell = ({ data }) => {
-  return <ClinicalStatusDisplay clinicalStatus={data.clinicalStatus} />;
+export const ClinicalStatusCell = ({ value }) => {
+  return <ClinicalStatusDisplay clinicalStatus={value} />;
 };

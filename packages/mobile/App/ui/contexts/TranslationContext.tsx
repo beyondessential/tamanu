@@ -13,6 +13,7 @@ import { useBackend } from '../hooks';
 import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
+import { LanguageOption } from '~/models/TranslatedString';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -34,8 +35,8 @@ export interface TranslatedTextProps {
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: [];
-  setLanguageOptions: (languageOptions: []) => void;
+  languageOptions: LanguageOption[];
+  setLanguageOptions: (languageOptions: LanguageOption[]) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
@@ -88,7 +89,9 @@ const TranslationContext = createContext<TranslationContextData>({
   language: 'en',
   languageOptions: null,
   setLanguageOptions: () => {},
-  getTranslation: () => { return '' },
+  getTranslation: () => {
+    return '';
+  },
   setLanguage: () => {},
   host: null,
   setHost: () => {},
@@ -108,19 +111,22 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
   }, [models.TranslatedString]);
 
-  const setLanguageState = useCallback(async (languageCode: string = DEFAULT_LANGUAGE) => {
-    await writeLanguage(languageCode);
-    if (!languageOptions) getLanguageOptions();
-    const translations = await models.TranslatedString.getForLanguage(languageCode);
-    if (isEmpty(translations) && host) {
-      // If we dont have translations synced down, fetch from the public server endpoint directly
-      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
-      const data = await response.json();
-      setTranslations(data);
-    } else {
-      setTranslations(translations);
-    }
-  }, [getLanguageOptions, host, languageOptions, models.TranslatedString]);
+  const setLanguageState = useCallback(
+    async (languageCode: string = DEFAULT_LANGUAGE) => {
+      await writeLanguage(languageCode);
+      if (!languageOptions) getLanguageOptions();
+      const translations = await models.TranslatedString.getForLanguage(languageCode);
+      if (isEmpty(translations) && host) {
+        // If we dont have translations synced down, fetch from the public server endpoint directly
+        const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+        const data = await response.json();
+        setTranslations(data);
+      } else {
+        setTranslations(translations);
+      }
+    },
+    [getLanguageOptions, host, languageOptions, models.TranslatedString],
+  );
 
   const getTranslation = (
     stringId: string,
@@ -153,9 +159,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   useEffect(() => {
     restoreLanguage();
     if (!__DEV__) return;
-    DevSettings.addMenuItem(
-      'Toggle translation highlighting',
-      () => setIsDebugMode(oldDebugValue => !oldDebugValue),
+    DevSettings.addMenuItem('Toggle translation highlighting', () =>
+      setIsDebugMode((oldDebugValue) => !oldDebugValue),
     );
   }, []);
 
