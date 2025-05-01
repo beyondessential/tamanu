@@ -23,11 +23,18 @@ import { createServer } from 'http';
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 
+const rawBodySaver = function (req, res, buf) {
+  if (buf && buf.length) {
+    req.rawBody = buf;
+  }
+};
+
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
   apiRoutes.post(
     '/timesync',
+    bodyParser.raw({ verify: rawBodySaver, type: '*/*' }),
     asyncHandler(async (req, res) => {
       try {
         const timeRes = await ctx.timesync.answerClient(req.rawBody);
@@ -64,17 +71,10 @@ export async function createApi(ctx) {
     }
   }
 
-  const rawBodySaver = function (req, res, buf) {
-    if (buf && buf.length) {
-      req.rawBody = buf;
-    }
-  };
-
   express.use(loadshedder());
   express.use(compression());
   express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
   express.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
-  express.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   express.set('trust proxy', config.proxy.trusted);

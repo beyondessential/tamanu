@@ -237,7 +237,7 @@ export async function initDatabase(dbOptions) {
     if (
       modelClass.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC &&
       modelClass.usesPublicSchema &&
-      !NON_SYNCING_TABLES.includes(modelClass.tableName)
+      !NON_SYNCING_TABLES.includes(`public.${modelClass.tableName}`)
     ) {
       throw new Error(
         `Any table that does not sync should be added to the "NON_SYNCING_TABLES" list. Please check ${modelClass.tableName}`,
