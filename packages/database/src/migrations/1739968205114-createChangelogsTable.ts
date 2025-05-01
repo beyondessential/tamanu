@@ -51,7 +51,7 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
     device_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: false,
       defaultValue: Sequelize.fn('local_system_fact', FACT_DEVICE_ID, 'unknown'),
     },
