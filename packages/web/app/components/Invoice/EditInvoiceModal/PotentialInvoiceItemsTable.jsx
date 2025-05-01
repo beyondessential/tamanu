@@ -38,7 +38,7 @@ const BulkAddButton = styled(Button)`
 `;
 
 const Container = styled.div`
-  width: 70%;
+  flex: 1 0;
   display: grid;
   margin-left: -4px;
   overflow: auto;
@@ -149,6 +149,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     {
       key: '',
       sortable: false,
+      numeric: true, // Right aligns the cell content
       accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />

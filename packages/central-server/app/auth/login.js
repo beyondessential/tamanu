@@ -102,35 +102,29 @@ export const login = ({ secret, refreshSecret }) =>
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [
-      token,
-      refreshToken,
-      allowedFacilities,
-      localisation,
-      permissions,
-      role,
-    ] = await Promise.all([
-      buildToken(
-        {
-          userId: user.id,
-          deviceId,
-        },
-        secret,
-        {
-          expiresIn: tokenDuration,
-          audience: JWT_TOKEN_TYPES.ACCESS,
-          issuer: canonicalHostName,
-          jwtid: `${accessTokenJwtId}`,
-        },
-      ),
-      internalClient
-        ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
-        : undefined,
-      user.allowedFacilities(),
-      getLocalisation(),
-      getPermissionsForRoles(models, user.role),
-      models.Role.findByPk(user.role),
-    ]);
+    const [token, refreshToken, allowedFacilities, localisation, permissions, role] =
+      await Promise.all([
+        buildToken(
+          {
+            userId: user.id,
+            deviceId,
+          },
+          secret,
+          {
+            expiresIn: tokenDuration,
+            audience: JWT_TOKEN_TYPES.ACCESS,
+            issuer: canonicalHostName,
+            jwtid: `${accessTokenJwtId}`,
+          },
+        ),
+        internalClient
+          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
+          : undefined,
+        user.allowedFacilities(),
+        getLocalisation(),
+        getPermissionsForRoles(models, user.role),
+        models.Role.findByPk(user.role),
+      ]);
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({

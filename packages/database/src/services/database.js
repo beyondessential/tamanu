@@ -176,16 +176,6 @@ export async function initDatabase(dbOptions) {
       );
     } else {
       throw new Error(`Model ${modelClass.name} has no initModel()`);
-      // modelClass.init(
-      //   {
-      //     underscored: true,
-      //     primaryKey,
-      //     sequelize,
-      //     paranoid: makeEveryModelParanoid,
-      //     hackToSkipEncounterValidation,
-      //   },
-      //   models,
-      // );
     }
   });
 
