@@ -11,7 +11,7 @@ import {
 } from '../components/NoteCommonFields';
 import { TranslatedText, TranslatedEnum } from '../components/Translation';
 
-export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
+export const EditNoteForm = ({ note, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy
     ? note.revisedBy.author?.displayName
     : note.author?.displayName;
@@ -35,7 +35,7 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       />
       <br />
-      <NoteContentField onChange={onNoteContentChange} />
+      <NoteContentField />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}

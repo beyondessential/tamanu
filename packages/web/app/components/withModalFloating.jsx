@@ -120,7 +120,9 @@ export const withModalFloating = ModalComponent => {
       bottomRight: <ResizeCornerIcon width={20} height={20} htmlColor={Colors.darkestText} />,
     },
     handleStyles: {
+      left: { position: 'absolute', left: 4, top: '50%', cursor: 'ew-resize' },
       right: { position: 'absolute', right: 4, top: '50%', cursor: 'ew-resize' },
+      top: { position: 'absolute', top: 4, left: '50%', cursor: 'ns-resize' },
       bottom: { position: 'absolute', bottom: 4, left: '50%', cursor: 'ns-resize' },
       bottomRight: { position: 'absolute', right: 0, bottom: 0, cursor: 'nwse-resize' },
     },

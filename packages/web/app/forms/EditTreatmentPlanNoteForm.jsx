@@ -21,7 +21,7 @@ const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
 
-export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
+export const EditTreatmentPlanNoteForm = ({ note, onSubmit, onCancel }) => {
   const noteAuthorName = note.author?.displayName;
   const noteOnBehalfOfName = note.onBehalfOf?.displayName;
   const writtenBy = (
@@ -68,7 +68,6 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
             fallback="Update treatment plan"
           />
         }
-        onChange={onNoteContentChange}
       />
       <StyledDivider />
       <FormSubmitCancelRow

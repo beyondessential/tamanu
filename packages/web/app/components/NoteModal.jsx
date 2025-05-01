@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
@@ -11,6 +11,9 @@ import { useAuth } from '../contexts/Auth';
 import { Colors, NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 import { withModalFloating } from './withModalFloating';
+import { useNoteModal } from '../contexts/NoteModal';
+
+const FloatingFormModal = withModalFloating(FormModal);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -24,7 +27,7 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
     : undefined;
 };
 
-export const NoteModal = ({
+export const NoteModalComponent = ({
   title = <TranslatedText stringId="note.modal.default.title" fallback="Note" />,
   open,
   onClose,
@@ -39,13 +42,8 @@ export const NoteModal = ({
   const { currentUser } = useAuth();
   const [noteTypeCountByType, setNoteTypeCountByType] = useState({});
   const [openNoteCancelConfirmModal, setOpenNoteCancelConfirmModal] = useState(false);
-  const [noteContent, setNoteContent] = useState(note?.content);
-
-  const noteContentHasChanged = (noteContent || '') !== (note?.content || '');
 
   const practitionerSuggester = useSuggester('practitioner');
-
-  const FloatingFormModal = withModalFloating(FormModal);
 
   useEffect(() => {
     (async () => {
@@ -53,10 +51,6 @@ export const NoteModal = ({
       setNoteTypeCountByType(noteTypeCountResponse.data);
     })();
   }, [api, note, encounterId]);
-
-  useEffect(() => {
-    setNoteContent(note?.content);
-  }, [note]);
 
   const handleCreateOrEditNewNote = useCallback(
     async (data, { resetForm }) => {
@@ -108,13 +102,7 @@ export const NoteModal = ({
       <FloatingFormModal
         title={title}
         open={open}
-        onClose={() => {
-          if (noteContentHasChanged) {
-            setOpenNoteCancelConfirmModal(true);
-          } else {
-            onClose();
-          }
-        }}
+        onClose={onClose}
         color={Colors.white}
         baseWidth={535}
         baseHeight={775}
@@ -124,22 +112,23 @@ export const NoteModal = ({
         <NoteForm
           noteFormMode={noteFormMode}
           onSubmit={handleCreateOrEditNewNote}
-          onCancel={() => {
-            if (noteContentHasChanged) {
-              setOpenNoteCancelConfirmModal(true);
-            } else {
-              onClose();
-            }
-          }}
           practitionerSuggester={practitionerSuggester}
           note={note}
           noteTypeCountByType={noteTypeCountByType}
           confirmText={confirmText}
           cancelText={cancelText}
-          noteContent={noteContent}
-          setNoteContent={setNoteContent}
         />
       </FloatingFormModal>
     </>
   );
 };
+
+export const NoteModal = React.memo(() => {
+  const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
+
+  useEffect(() => {
+    console.log('not modal props changed');
+  }, [noteModalProps]);
+
+  return <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />;
+});

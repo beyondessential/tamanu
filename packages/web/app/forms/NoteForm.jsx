@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -21,19 +21,13 @@ export const NoteForm = ({
   noteTypeCountByType,
   noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
-  setNoteContent,
 }) => {
   const { currentUser } = useAuth();
-
-  const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
-    setNoteContent,
-  ]);
 
   const renderForm = ({ submitForm, values, setValues }) => {
     if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
       const props = {
         note,
-        onNoteContentChange: handleNoteContentChange,
         onSubmit: submitForm,
         onCancel,
       };
@@ -59,7 +53,6 @@ export const NoteForm = ({
     return (
       <CreateNoteForm
         note={note}
-        onNoteContentChange={handleNoteContentChange}
         onSubmit={submitForm}
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
@@ -120,5 +113,4 @@ export const NoteForm = ({
 
 NoteForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  setNoteContent: PropTypes.func.isRequired,
 };
