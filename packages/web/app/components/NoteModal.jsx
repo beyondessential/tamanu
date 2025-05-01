@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Prompt } from 'react-router-dom';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
@@ -126,5 +127,13 @@ export const NoteModalComponent = ({
 export const NoteModal = React.memo(() => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
 
-  return <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />;
+  return (
+    <>
+      <Prompt
+        when={isNoteModalOpen}
+        message="You have unsaved changes in the note. Are you sure you want to leave?"
+      />
+      <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
+    </>
+  );
 });

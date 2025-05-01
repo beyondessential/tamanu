@@ -8,7 +8,7 @@ import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
-
+import { withNoteModalViewOnly } from './withNoteModalViewOnly';
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
   margin-top: 15px;
@@ -40,9 +40,9 @@ const DiagnosisGrid = styled.div`
   grid-template-columns: max-content auto max-content;
 `;
 
-const AddDiagnosisButton = styled(Button)`
+const AddDiagnosisButton = withNoteModalViewOnly(styled(Button)`
   height: fit-content;
-`;
+`);
 
 export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
   const { diagnoses, id } = encounter;
