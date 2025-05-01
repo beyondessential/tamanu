@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
@@ -71,10 +71,10 @@ export const NoteModalComponent = ({
             }),
       };
 
-      await api.post('notes', newNote);
+      const createdNote = await api.post('notes', newNote);
 
       resetForm();
-      onSaved();
+      onSaved(createdNote);
     },
     [api, noteFormMode, currentUser.id, encounterId, note, onSaved],
   );
@@ -125,10 +125,6 @@ export const NoteModalComponent = ({
 
 export const NoteModal = React.memo(() => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
-
-  useEffect(() => {
-    console.log('not modal props changed');
-  }, [noteModalProps]);
 
   return <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />;
 });

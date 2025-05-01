@@ -5,8 +5,7 @@ const NoteModalContext = createContext({
   isNoteModalOpen: false,
   closeNoteModal: () => {},
   noteModalProps: {},
-  draftContent: '',
-  setDraftContent: () => {},
+  updateNoteModalProps: () => {},
 });
 
 export const useNoteModal = () => {
@@ -15,26 +14,22 @@ export const useNoteModal = () => {
     isNoteModalOpen,
     closeNoteModal,
     noteModalProps,
-    draftContent,
-    setDraftContent,
+    updateNoteModalProps,
   } = useContext(NoteModalContext);
   return {
     openNoteModal,
     isNoteModalOpen,
     closeNoteModal,
     noteModalProps,
-    draftContent,
-    setDraftContent,
+    updateNoteModalProps,
   };
 };
 
 export const NoteModalProvider = ({ children }) => {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [noteModalProps, setNoteModalProps] = useState({});
-  const [draftContent, setDraftContent] = useState('');
 
   const openNoteModal = useCallback(props => {
-    setDraftContent(props.note?.content || '');
     setNoteModalProps(props);
     setIsNoteModalOpen(true);
   }, []);
@@ -44,16 +39,22 @@ export const NoteModalProvider = ({ children }) => {
     setNoteModalProps({});
   }, []);
 
+  const updateNoteModalProps = useCallback(props => {
+    setNoteModalProps(prevProps => ({
+      ...prevProps,
+      ...props,
+    }));
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       isNoteModalOpen,
       openNoteModal,
       closeNoteModal,
       noteModalProps,
-      draftContent,
-      setDraftContent,
+      updateNoteModalProps,
     }),
-    [isNoteModalOpen, openNoteModal, closeNoteModal, noteModalProps, draftContent, setDraftContent],
+    [isNoteModalOpen, openNoteModal, closeNoteModal, noteModalProps, updateNoteModalProps],
   );
 
   return <NoteModalContext.Provider value={contextValue}>{children}</NoteModalContext.Provider>;

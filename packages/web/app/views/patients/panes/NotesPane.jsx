@@ -22,10 +22,11 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
 export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { noteType, setNoteType } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
-  const { openNoteModal } = useNoteModal();
+  const { openNoteModal, updateNoteModalProps } = useNoteModal();
 
-  const noteModalOnSaved = async () => {
-    await loadEncounter(encounter.id);
+  const noteModalOnSaved = async createdNote => {
+    updateNoteModalProps({ note: createdNote });
+    loadEncounter(encounter.id);
   };
 
   const handleOpenNewNote = () => {
