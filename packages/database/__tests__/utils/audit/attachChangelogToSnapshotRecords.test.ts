@@ -4,10 +4,12 @@ import { describe, beforeAll, afterAll, it, expect, afterEach } from 'vitest';
 import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 
 describe('attachChangelogToSnapshotRecords', () => {
+  let models;
   let sequelize;
 
   beforeAll(async () => {
     const database = await createTestDatabase();
+    models = database.models;
     sequelize = database.sequelize;
   });
 
@@ -16,32 +18,65 @@ describe('attachChangelogToSnapshotRecords', () => {
   });
 
   afterEach(async () => {
-    // Clear the changes table before each test
-    await sequelize.query('TRUNCATE TABLE logs.changes');
+    const { ChangeLog } = models;
+    await ChangeLog.destroy({ where: {} });
   });
 
   it('should attach changelog records to snapshot records within the specified tick range', async () => {
-    // Insert some test changelog records
-    await sequelize.query(`
-      INSERT INTO logs.changes (
-        table_oid,
-        table_schema,
-        table_name,
-        logged_at,
-        created_at,
-        updated_at,
-        updated_at_sync_tick,
-        updated_by_user_id,
-        record_id,
-        record_update,
-        record_data
-      )
-      VALUES
-        (1234, 'public', 'patients', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"name": "John Doe"}'::jsonb),
-        (1234, 'public', 'patients', NOW(), NOW(), NOW(), 150, '${SYSTEM_USER_UUID}', '1', true, '{"name": "John Doe Jr"}'::jsonb),
-        (1234, 'public', 'patients', NOW(), NOW(), NOW(), 200, '${SYSTEM_USER_UUID}', '2', true, '{"name": "Jane Smith"}'::jsonb),
-        (5678, 'public', 'encounters', NOW(), NOW(), NOW(), 300, '${SYSTEM_USER_UUID}', '1', true, '{"type": "checkup"}'::jsonb);
-    `);
+    const { ChangeLog } = models;
+    await Promise.all([ChangeLog.create({
+      table_oid: 1234,
+      table_schema: 'public',
+      table_name: 'patients',
+      logged_at: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
+      updated_at_sync_tick: 100,
+      updated_by_user_id: SYSTEM_USER_UUID,
+      record_id: '1',
+      record_update: true,
+      record_data: { name: 'John Doe' },
+      }),
+      ChangeLog.create({
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'patients',
+        logged_at: new Date(),
+        created_at: new Date(),
+      updated_at: new Date(),
+        updated_at_sync_tick: 150,
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_id: '1',
+        record_update: true,
+        record_data: { name: 'John Doe Jr' },
+      }),
+      ChangeLog.create({
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'patients',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 200,
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_id: '2',
+        record_update: true,
+        record_data: { name: 'Jane Smith' },
+      }),
+      ChangeLog.create({
+        table_oid: 5678,
+        table_schema: 'public',
+        table_name: 'encounters',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 300,
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_id: '1',
+        record_update: true,
+        record_data: { type: 'checkup' },
+      }),
+    ]);
 
     const snapshotRecords = [
       { recordType: 'patients', recordId: '1' },
@@ -74,24 +109,35 @@ describe('attachChangelogToSnapshotRecords', () => {
 
   it('should filter changelog records by table whitelist', async () => {
     // Insert test data
-    await sequelize.query(`
-      INSERT INTO logs.changes (
-        table_oid,
-        table_schema,
-        table_name,
-        logged_at,
-        created_at,
-        updated_at,
-        updated_at_sync_tick,
-        updated_by_user_id,
-        record_id,
-        record_update,
-        record_data
-      )
-      VALUES
-        (1234, 'public', 'patients', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"name": "John Doe"}'::jsonb),
-        (1234, 'public', 'encounters', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"type": "checkup"}'::jsonb);
-    `);
+    const { ChangeLog } = models;
+    await Promise.all([
+      ChangeLog.create({
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'patients',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 100,
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_id: '1',
+        record_update: true,
+        record_data: { name: 'John Doe' },
+      }),
+      ChangeLog.create({
+        table_oid: 1234,
+        table_schema: 'public',
+        table_name: 'encounters',
+        logged_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        updated_at_sync_tick: 100,
+        updated_by_user_id: SYSTEM_USER_UUID,
+        record_id: '1',
+        record_update: true,
+        record_data: { type: 'checkup' },
+      }),
+    ]);
 
     const snapshotRecords = [
       { recordType: 'patients', recordId: '1' },
