@@ -1,7 +1,8 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, type Attributes } from 'sequelize';
 import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
+import type { ChangeLog } from 'models/ChangeLog';
 
 export interface SessionConfig {
   syncAllLabRequests: boolean;
@@ -44,7 +45,7 @@ export type ChangelogRecord = {
   record_id: string;
 };
 export interface SyncSnapshotAttributesWithChangelog extends SyncSnapshotAttributes {
-  changelogRecords?: ChangelogRecord[];
+  changelogRecords?: Attributes<ChangeLog>[];
 }
 
 export type UninsertedSyncSnapshotAttributes = Omit<
