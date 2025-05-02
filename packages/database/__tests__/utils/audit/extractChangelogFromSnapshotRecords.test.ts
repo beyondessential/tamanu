@@ -22,7 +22,7 @@ describe('extractChangelogFromSnapshotRecords', () => {
         recordSyncTick: 100,
         updatedByUserId: 'test-user',
         recordUpdate: true,
-        recordData: JSON.stringify({ test: 'data' })  ,
+        recordData: { test: 'data' } ,
       },
       {
         recordId: 'record1',
@@ -36,7 +36,7 @@ describe('extractChangelogFromSnapshotRecords', () => {
         recordSyncTick: 100,
         updatedByUserId: 'test-user',
         recordUpdate: true,
-        recordData: JSON.stringify({ test: 'updated data' }),
+        recordData: { test: 'updated data' },
       },
     ];
 

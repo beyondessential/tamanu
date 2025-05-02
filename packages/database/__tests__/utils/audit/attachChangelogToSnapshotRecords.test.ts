@@ -24,18 +24,19 @@ describe('attachChangelogToSnapshotRecords', () => {
 
   it('should attach changelog records to snapshot records within the specified tick range', async () => {
     const { ChangeLog } = models;
-    await Promise.all([ChangeLog.create({
-      tableOid: 1234,
-      tableSchema: 'public',
-      tableName: 'patients',
-      loggedAt: new Date(),
-      recordCreatedAt: new Date(),
-      recordUpdatedAt: new Date(),
-      recordSyncTick: 100,
-      updatedByUserId: SYSTEM_USER_UUID,
-      recordId: '1',
-      recordUpdate: true,
-      recordData: { name: 'John Doe' },
+    await Promise.all([
+      ChangeLog.create({
+        tableOid: 1234,
+        tableSchema: 'public',
+        tableName: 'patients',
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        recordSyncTick: 100,
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordId: '1',
+        recordUpdate: true,
+        recordData: { name: 'John Doe' },
       }),
       ChangeLog.create({
         tableOid: 1234,
@@ -75,7 +76,7 @@ describe('attachChangelogToSnapshotRecords', () => {
         recordId: '1',
         recordUpdate: true,
         recordData: { type: 'checkup' },
-      }),</edit>
+      }),
     ]);
 
     const snapshotRecords = [
@@ -112,30 +113,30 @@ describe('attachChangelogToSnapshotRecords', () => {
     const { ChangeLog } = models;
     await Promise.all([
       ChangeLog.create({
-        table_oid: 1234,
-        table_schema: 'public',
-        table_name: 'patients',
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_at_sync_tick: 100,
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_id: '1',
-        record_update: true,
-        record_data: { name: 'John Doe' },
+        tableOid: 1234,
+        tableSchema: 'public',
+        tableName: 'patients',
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        recordSyncTick: 100,
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordId: '1',
+        recordUpdate: true,
+        recordData: { name: 'John Doe' },
       }),
       ChangeLog.create({
-        table_oid: 1234,
-        table_schema: 'public',
-        table_name: 'encounters',
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_at_sync_tick: 100,
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_id: '1',
-        record_update: true,
-        record_data: { type: 'checkup' },
+        tableOid: 1234,
+        tableSchema: 'public',
+        tableName: 'encounters',
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        recordSyncTick: 100,
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordId: '1',
+        recordUpdate: true,
+        recordData: { type: 'checkup' },
       }),
     ]);
 
