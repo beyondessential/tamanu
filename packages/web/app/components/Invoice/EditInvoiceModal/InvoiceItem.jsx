@@ -26,7 +26,7 @@ const PriceText = styled.span`
 const StyledItemRow = styled(Box)`
   display: flex;
   gap: 10px;
-  font-size: 11px;
+  font-size: 14px;
   padding: 7.5px 20px;
   background: ${Colors.white};
   border-left: 1px solid ${Colors.outline};
@@ -49,16 +49,19 @@ const StyledItemHeader = styled(Box)`
   border-bottom: 0;
 `;
 
+const ItemHeadCell = styled(Box)`
+  padding-left: 15px;
+`;
+
 const StyledItemCell = styled(Box)`
   align-self: flex-start;
   .MuiFormHelperText-root {
-    font-size: 11px;
+    font-size: 14px;
   }
 `;
 
-const ViewOnlyCell = styled(Box)`
-  font-size: ${p => (p.$hasLargeFont ? '14px' : '11px')};
-  padding-left: ${p => (p.$hasLeftPadding ? '16px' : '0px')};
+const ViewOnlyCell = styled(ItemHeadCell)`
+  font-size: 14px;
   display: flex;
   align-items: center;
   min-height: 39px;
@@ -74,27 +77,27 @@ const PriceCell = styled(ViewOnlyCell)`
 export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
-      <Box width="12%">
+      <ItemHeadCell width="14%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
-      </Box>
-      <Box width="30%">
+      </ItemHeadCell>
+      <ItemHeadCell width="28%">
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
-      </Box>
-      <Box width="10%" paddingLeft="10px">
+      </ItemHeadCell>
+      <ItemHeadCell width="10%">
         <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-      </Box>
-      <Box width="10%" paddingLeft="10px">
+      </ItemHeadCell>
+      <ItemHeadCell width="10%">
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
-      </Box>
-      <Box width="19%">
+      </ItemHeadCell>
+      <ItemHeadCell width="19%">
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
           fallback="Ordered by"
         />
-      </Box>
-      <Box width="11%" flexGrow={1} paddingLeft="10px">
+      </ItemHeadCell>
+      <ItemHeadCell width="11%" sx={{ flexGrow: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
-      </Box>
+      </ItemHeadCell>
     </StyledItemHeader>
   );
 };
@@ -270,33 +273,31 @@ export const InvoiceItemRow = ({
   return (
     <>
       <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
-        <StyledItemCell width="12%">
+        <StyledItemCell width="14%">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
               required
               component={DateField}
-              size="small"
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+            <ViewOnlyCell>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="30%">
+        <StyledItemCell width="28%">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.productId`}
               required
               component={AutocompleteField}
               suggester={invoiceProductsSuggester}
-              size="small"
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+            <ViewOnlyCell>
               {item.productName}
               {item.productId &&
                 (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
@@ -313,10 +314,10 @@ export const InvoiceItemRow = ({
             </Box>
           )}
         </StyledItemCell>
-        <StyledItemCell width="10%" paddingLeft="10px">
-          <ViewOnlyCell $hasLargeFont={!editable}>{item.productCode}</ViewOnlyCell>
+        <StyledItemCell width="10%">
+          <ViewOnlyCell>{item.productCode}</ViewOnlyCell>
         </StyledItemCell>
-        <StyledItemCell width="10%" paddingLeft="10px">
+        <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.quantity`}
@@ -328,13 +329,10 @@ export const InvoiceItemRow = ({
                   event.target.value = '';
                 }
               }}
-              size="small"
               required
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {item?.quantity}
-            </ViewOnlyCell>
+            <ViewOnlyCell>{item?.quantity}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell width="19%">
@@ -344,17 +342,14 @@ export const InvoiceItemRow = ({
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              size="small"
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {item?.orderedByUser?.displayName}
-            </ViewOnlyCell>
+            <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
         </StyledItemCell>
-        <StyledItemCell width="11%" sx={{ flexGrow: 1 }} paddingLeft="10px">
-          <PriceCell $hasLargeFont={!editable}>
+        <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
+          <PriceCell>
             {hidePriceInput ? (
               <>
                 <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>

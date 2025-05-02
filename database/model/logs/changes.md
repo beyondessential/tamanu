@@ -60,16 +60,18 @@ The value of the `deleted_at` field of the change data.
 This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
-{% docs logs__changes__updated_at_sync_tick %}
-The value of the `updated_at_sync_tick` field of the change data.
-
-This is extracted from the data to make it easier to query on.
-{% enddocs %}
-
 {% docs logs__changes__updated_by_user_id %}
 The value of the `updated_by_user_id` field of the change data.
 
 This is extracted from the data to make it easier to query on.
+{% enddocs %}
+
+{% docs logs__changes__device_id %}
+TODO
+{% enddocs %}
+
+{% docs logs__changes__version %}
+TODO
 {% enddocs %}
 
 {% docs logs__changes__record_id %}
@@ -87,6 +89,22 @@ In some cases it can be that `UPDATE` records from the same `record_id` _predate
 the `INSERT` log. Software reading the log should also tolerate the presence of
 multiple `INSERT` entries for a single `record_id`, even if those should be
 absent under normal conditions.
+{% enddocs %}
+
+{% docs logs__changes__record_created_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__changes__record_updated_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__changes__record_deleted_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__changes__record_sync_tick %}
+TODO
 {% enddocs %}
 
 {% docs logs__changes__record_data %}

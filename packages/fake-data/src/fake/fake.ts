@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
 import Sequelize, { DataTypes } from 'sequelize';
@@ -38,7 +39,7 @@ import { Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
-export const chance = new Chance(global.jest?.getSeed() ?? null);
+export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
@@ -291,12 +292,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
-    let nameGender;
-    if (sex === 'male' || sex === 'female') {
-      nameGender = sex;
-    }
+    const nameGender: 'male' | 'female' =
+      sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
-      displayId: chance.hash({ length: 8 }),
+      displayId: chance
+        .hash({ length: 4 })
+        .toUpperCase()
+        .concat(chance.integer({ min: 10000000, max: 99999999 }).toString()),
       sex,
       firstName: chance.first({ gender: nameGender }),
       middleName: chance.first({ gender: nameGender }),
@@ -364,7 +366,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
   }),
   User: () => ({
-    email: chance.email(),
+    email: chance.email({ length: 20 }),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
