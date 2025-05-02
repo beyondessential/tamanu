@@ -106,7 +106,7 @@ const TitleCell = React.memo(({ value }) => {
   return (
     <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
       {value}
-      {isSuccess && allGraphedChartKeys.length > 0 && (
+      {isSuccess && allGraphedChartKeys.length > 1 && (
           <IconButton
             size="small"
             onClick={() => {

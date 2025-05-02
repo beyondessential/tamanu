@@ -13,25 +13,25 @@ const transformVitalDataToChartData = vitalQuery => {
   return chartData;
 };
 
-export const useVitalQuery = (encounterId, vitalDataElementId, dateRange) => {
+export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, isVital = false) => {
   const api = useApi();
   const [startDate, endDate] = dateRange;
-
-  const vitalQuery = useQuery(
-    ['encounterVital', encounterId, vitalDataElementId, startDate, endDate],
+  const directory = isVital ? 'vitals' : 'charts';
+  const query = useQuery(
+    ['encounter', encounterId, 'graphData', directory, vitalDataElementId, startDate, endDate, isVital],
     () => {
       return api.get(
-        `encounter/${encounterId}/vitals/${vitalDataElementId}`,
+        `encounter/${encounterId}/graphData/${directory}/${vitalDataElementId}`,
         { startDate, endDate },
         { isErrorUnknown: isErrorUnknownAllow404s },
       );
     },
   );
 
-  const chartData = transformVitalDataToChartData(vitalQuery);
+  const graphData = transformVitalDataToChartData(query);
 
   return {
-    ...vitalQuery,
-    data: chartData,
+    ...query,
+    data: graphData,
   };
 };
