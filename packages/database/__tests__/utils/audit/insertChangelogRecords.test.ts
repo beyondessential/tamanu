@@ -15,20 +15,19 @@ describe('insertChangelogRecords', () => {
   beforeAll(async () => {
     const database = await createTestDatabase();
     sequelize = database.sequelize;
-
     await sequelize.query(`
       CREATE TABLE logs.changes (
         id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
         table_oid integer NOT NULL,
         table_schema text NOT NULL,
         table_name text NOT NULL,
-        logged_at timestamp with time zone NOT NULL DEFAULT adjusted_timestamp(),
+        logged_at timestamp with time zone NOT NULL DEFAULT now(),
         created_at timestamp with time zone NOT NULL DEFAULT now(),
         updated_at timestamp with time zone NOT NULL DEFAULT now(),
         deleted_at timestamp with time zone,
         updated_by_user_id text NOT NULL REFERENCES users(id),
-        device_id text NOT NULL DEFAULT local_system_fact('deviceId'::text, 'unknown'::text),
-        version text NOT NULL DEFAULT local_system_fact('currentVersion'::text, 'unknown'::text),
+        device_id text NOT NULL DEFAULT 'unknown',
+        version text NOT NULL DEFAULT 'unknown',
         record_id text NOT NULL,
         record_update boolean NOT NULL,
         record_created_at timestamp with time zone NOT NULL,
