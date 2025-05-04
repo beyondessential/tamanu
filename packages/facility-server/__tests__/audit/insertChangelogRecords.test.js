@@ -21,7 +21,7 @@ describe('insertChangeLogRecords', () => {
 
   it('should not insert anything when no changelog records are provided', async () => {
     // Act
-    await insertChangelogRecords(sequelize, []);
+    await insertChangelogRecords(models, []);
 
     // Assert
     const [result] = await sequelize.query('SELECT COUNT(*) FROM logs.changes');
@@ -93,7 +93,7 @@ describe('insertChangeLogRecords', () => {
     ];
 
     // Act
-    await insertChangelogRecords(sequelize, changelogRecords);
+    await insertChangelogRecords(models, changelogRecords);
 
     // Assert
     const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY recordId');
@@ -127,7 +127,7 @@ describe('insertChangeLogRecords', () => {
     ];
 
     // Act
-    await insertChangelogRecords(sequelize, changelogRecords, true);
+    await insertChangelogRecords(models, changelogRecords, true);
 
     // Assert
     const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY recordId');
@@ -153,7 +153,7 @@ describe('insertChangeLogRecords', () => {
     ];
 
     // Act
-    await insertChangelogRecords(sequelize, changelogRecords);
+    await insertChangelogRecords(models, changelogRecords);
 
     // Assert
     const result = await sequelize.query('SELECT * FROM logs.changes');
@@ -180,7 +180,7 @@ describe('insertChangeLogRecords', () => {
     ];
 
     // Act
-    await insertChangelogRecords(sequelize, changelogRecords);
+    await insertChangelogRecords(models, changelogRecords);
 
     // Assert
     const [result] = await sequelize.query('SELECT * FROM logs.changes');

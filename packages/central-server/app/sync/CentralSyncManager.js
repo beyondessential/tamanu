@@ -669,7 +669,7 @@ export class CentralSyncManager {
 
     const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
     await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
-    await insertChangelogRecords(sequelize, changelogRecords);
+    await insertChangelogRecords(this.store.models, changelogRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
