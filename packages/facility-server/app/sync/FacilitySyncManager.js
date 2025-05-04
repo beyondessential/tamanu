@@ -204,7 +204,7 @@ export class FacilitySyncManager {
       if (this.__testSpyEnabled) {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges, });
       }
-      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.sequelize, outgoingChanges, {
+      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.models, outgoingChanges, {
         minSourceTick: pushSince,
       });
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);

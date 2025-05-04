@@ -177,7 +177,7 @@ describe('FacilitySyncManager', () => {
       await syncManager.pushChanges(TEST_SESSION_ID, 1);
 
       expect(attachChangelogToSnapshotRecords).toBeCalledTimes(1);
-      expect(attachChangelogToSnapshotRecords).toBeCalledWith(ctx.sequelize, outgoingChanges, {
+      expect(attachChangelogToSnapshotRecords).toBeCalledWith(ctx.models, outgoingChanges, {
         minSourceTick: "1",
       });
 

@@ -14,7 +14,7 @@ import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];
 
 export const addChangelogRecords = async (
-  { sequelize, models },
+  { models },
   pullSince,
   pullUntil,
   snapshotRecords,
@@ -39,7 +39,7 @@ export const addChangelogRecords = async (
   const maxSourceTick = lookupTicks.at(-1).lookupEndTick;
 
   const snapshotRecordsWithChangelogRecords = await attachChangelogToSnapshotRecords(
-    sequelize,
+    models,
     snapshotRecords,
     {
       minSourceTick,
