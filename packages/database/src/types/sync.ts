@@ -45,7 +45,7 @@ export type ChangelogRecord = {
   record_id: string;
 };
 export interface SyncSnapshotAttributesWithChangelog extends SyncSnapshotAttributes {
-  changelogRecords?: Attributes<ChangeLog>[];
+  changelogRecords?: ChangeLog[];
 }
 
 export type UninsertedSyncSnapshotAttributes = Omit<

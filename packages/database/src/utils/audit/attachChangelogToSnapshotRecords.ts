@@ -1,10 +1,7 @@
-import { QueryTypes, type Sequelize } from 'sequelize';
-
-import type {
-  ChangelogRecord,
-  SyncSnapshotAttributes,
-  SyncSnapshotAttributesWithChangelog,
-} from 'types/sync';
+import type { ChangeLog } from 'models';
+import sequelize, { Op } from 'sequelize';
+import type { Models } from 'types/model';
+import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
 type QueryConfig = {
   minSourceTick: number;
@@ -13,7 +10,7 @@ type QueryConfig = {
 };
 
 export const attachChangelogToSnapshotRecords = async (
-  sequelize: Sequelize,
+  models: Models,
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
@@ -25,30 +22,35 @@ export const attachChangelogToSnapshotRecords = async (
     return snapshotRecords;
   }
 
-  const recordTypeAndIds = relevantRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`);
+  const recordTypeAndIds = relevantRecords.map(
+    ({ recordType, recordId }) => `${recordType}-${recordId}`,
+  );
 
-  const changelogRecords = (await sequelize.query(
-    `
-    SELECT * FROM logs.changes
-    WHERE updated_at_sync_tick > :minSourceTick
-    ${maxSourceTick ? 'AND updated_at_sync_tick < :maxSourceTick' : ''}
-    ${tableWhitelist ? `AND table_name IN (:tableWhitelist)` : ''}
-    AND CONCAT(table_name, '-', record_id) IN (:recordTypeAndIds)
-    `,
-    {
-      type: QueryTypes.SELECT,
-      replacements: {
-        minSourceTick,
-        maxSourceTick,
-        tableWhitelist,
-        recordTypeAndIds,
+  const changelogRecords = await models.ChangeLog.findAll({
+    where: {
+      recordSyncTick: {
+        [Op.gt]: minSourceTick,
+        ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
       },
+      ...(tableWhitelist && {
+        tableName: {
+          [Op.in]: tableWhitelist,
+        },
+      }),
+      [Op.and]: [
+        sequelize.where(
+          sequelize.fn('CONCAT', sequelize.col('tableName'), '-', sequelize.col('recordId')),
+          {
+            [Op.in]: recordTypeAndIds,
+          },
+        ),
+      ],
     },
-  )) as ChangelogRecord[];
+  });
 
-  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangelogRecord[]>>(
+  const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangeLog[]>>(
     (acc, changelogRecord) => {
-      const id = `${changelogRecord.table_name}-${changelogRecord.record_id}`;
+      const id = `${changelogRecord.tableName}-${changelogRecord.recordId}`;
       (acc[id] = acc[id] || []).push(changelogRecord);
       return acc;
     },

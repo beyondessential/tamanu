@@ -1,5 +1,5 @@
+import type { ChangeLog } from 'models';
 import type {
-  ChangelogRecord,
   SyncSnapshotAttributes,
   SyncSnapshotAttributesWithChangelog,
 } from 'types/sync';
@@ -8,9 +8,9 @@ export const extractChangelogFromSnapshotRecords = (
   snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[],
 ): {
   snapshotRecords: SyncSnapshotAttributes[];
-  changelogRecords: ChangelogRecord[];
+  changelogRecords: ChangeLog[];
 } => {
-  const changelogRecords: ChangelogRecord[] = [];
+  const changelogRecords: ChangeLog[] = [];
   const processedRecords = snapshotRecordsWithChangelog.reduce((acc, row) => {
     if (row.changelogRecords) {
       changelogRecords.push(...row.changelogRecords);
