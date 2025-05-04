@@ -13,7 +13,7 @@ describe('attachChangelogToSnapshotRecords', () => {
     sequelize = database.sequelize;
     await sequelize.query(`
       CREATE TABLE logs.changes (
-        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+        id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
         table_oid integer NOT NULL,
         table_schema text NOT NULL,
         table_name text NOT NULL,
