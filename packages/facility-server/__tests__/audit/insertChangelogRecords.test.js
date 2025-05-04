@@ -4,9 +4,11 @@ import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from "@tamanu/constants";
 
 describe('insertChangeLogRecords', () => {
   let ctx;
+  let models;
   let sequelize;
   beforeAll(async () => {
     ctx = await createTestContext();
+    models = ctx.models;
     sequelize = ctx.sequelize;
   });
 
@@ -28,70 +30,65 @@ describe('insertChangeLogRecords', () => {
 
   it('should filter out existing records before inserting', async () => {
     // Arrange - Insert an existing record
-    await sequelize.query(`
-      INSERT INTO logs.changes (
-        id,
-        table_oid,
-        table_schema,
-        table_name,
-        logged_at,
-        created_at,
-        updated_at,
-        updated_at_sync_tick,
-        updated_by_user_id,
-        record_id,
-        record_update,
-        record_data
-      )
-      VALUES
-        ('1f582bab-523e-4e25-bae6-2ab7178118df', 1234, 'public', 'patients', NOW(), NOW(), NOW(), 100, '${SYSTEM_USER_UUID}', '1', true, '{"first_name": "Patient 1"}'::jsonb);
-    `);
+    await models.ChangeLog.create({
+        tableOid: 1234,
+        tableSchema: 'public',
+        tableName: 'patients',
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        recordSyncTick: 100,
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordId: '1',
+        recordUpdate: true,
+        recordData: { first_name: 'Patient 1' },
+    });
 
     const changelogRecords = [
       {
         // Existing record
         id: '1f582bab-523e-4e25-bae6-2ab7178118df',
-        table_oid: 1234,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'patients',
-        table_schema: 'public',
-        record_id: '1',
-        record_data: { first_name: 'Patient Updated' },
-        updated_at_sync_tick: '100',
+        tableOid: 1234,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'patients',
+        tableSchema: 'public',
+        recordId: '1',
+        recordData: { first_name: 'Patient Updated' },
+        recordSyncTick: '100',
       },
       {
         // New record
         id: '2f582bab-523e-4e25-bae6-2ab7178118df',
-        table_oid: 1234,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'patients',
-        table_schema: 'public',
-        record_id: '2',
-        record_data: { first_name: 'Patient 2' },
-        updated_at_sync_tick: '100',
+        tableOid: 1234,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'patients',
+        tableSchema: 'public',
+        recordId: '2',
+        recordData: { first_name: 'Patient 2' },
+        recordSyncTick: '100',
       },
       {
         // New record
         id: '3f582bab-523e-4e25-bae6-2ab7178118df',
-        table_oid: 2345,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'encounters',
-        table_schema: 'public',
-        record_id: '3',
-        record_data: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
-        updated_at_sync_tick: '100',
+        tableOid: 2345,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'encounters',
+        tableSchema: 'public',
+        recordId: '3',
+        recordData: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
+        recordSyncTick: '100',
       },
     ];
 
@@ -99,33 +96,33 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(sequelize, changelogRecords);
 
     // Assert
-    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY record_id');
+    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY recordId');
     expect(result).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
     // Should ignore the existing record as changelog records are immutable
-    expect(result[0].record_data).toEqual({ first_name: 'Patient 1' });
+    expect(result[0].recordData).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records
-    expect(result[1].record_id).toBe('2');
-    expect(result[1].table_name).toBe('patients');
-    expect(result[2].record_id).toBe('3');
-    expect(result[2].table_name).toBe('encounters');
+    expect(result[1].recordId).toBe('2');
+    expect(result[1].tableName).toBe('patients');
+    expect(result[2].recordId).toBe('3');
+    expect(result[2].tableName).toBe('encounters');
   });
 
-  it('should set updated_at_sync_tick to -999 for facility records', async () => {
+  it('should set recordSyncTick to -999 for facility records', async () => {
     // Arrange
     const changelogRecords = [
       {
-        table_oid: 1234,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'patients',
-        table_schema: 'public',
-        record_id: '1',
-        record_data: { first_name: 'Patient 1' },
-        updated_at_sync_tick: '123',
+        tableOid: 1234,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'patients',
+        tableSchema: 'public',
+        recordId: '1',
+        recordData: { first_name: 'Patient 1' },
+        recordSyncTick: '123',
       },
     ];
 
@@ -133,25 +130,25 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(sequelize, changelogRecords, true);
 
     // Assert
-    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY record_id');
-    expect(result[0].updated_at_sync_tick).toBe('-999');
+    const [result] = await sequelize.query('SELECT * FROM logs.changes ORDER BY recordId');
+    expect(result[0].recordSyncTick).toBe('-999');
   });
 
-  it('should preserve updated_at_sync_tick for non-facility records', async () => {
+  it('should preserve recordSyncTick for non-facility records', async () => {
     // Arrange
     const changelogRecords = [
       {
-        table_oid: 1234,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'patients',
-        table_schema: 'public',
-        record_id: '1',
-        record_data: { first_name: 'Patient 1' },
-        updated_at_sync_tick: '123',
+        tableOid: 1234,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'patients',
+        tableSchema: 'public',
+        recordId: '1',
+        recordData: { first_name: 'Patient 1' },
+        recordSyncTick: '123',
       },
     ];
 
@@ -160,25 +157,25 @@ describe('insertChangeLogRecords', () => {
 
     // Assert
     const result = await sequelize.query('SELECT * FROM logs.changes');
-    expect(result[0][0].updated_at_sync_tick).toBe('123');
+    expect(result[0][0].recordSyncTick).toBe('123');
   });
 
-  it('should stringify record_data before inserting', async () => {
+  it('should stringify recordData before inserting', async () => {
     // Arrange
     const recordData = { first_name: 'Patient 1', age: 30 };
     const changelogRecords = [
       {
-        table_oid: 1234,
-        logged_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        updated_by_user_id: SYSTEM_USER_UUID,
-        record_update: true,
-        table_name: 'patients',
-        table_schema: 'public',
-        record_id: '1',
-        record_data: recordData,
-        updated_at_sync_tick: '123',
+        tableOid: 1234,
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordUpdate: true,
+        tableName: 'patients',
+        tableSchema: 'public',
+        recordId: '1',
+        recordData: recordData,
+        recordSyncTick: '123',
       },
     ];
 
@@ -187,6 +184,6 @@ describe('insertChangeLogRecords', () => {
 
     // Assert
     const [result] = await sequelize.query('SELECT * FROM logs.changes');
-    expect(result[0].record_data).toMatchObject(recordData);
+    expect(result[0].recordData).toMatchObject(recordData);
   });
 });
