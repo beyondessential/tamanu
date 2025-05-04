@@ -1,5 +1,5 @@
 import type { ChangeLog } from 'models';
-import sequelize, { Op } from 'sequelize';
+import { Op } from 'sequelize';
 import type { Models } from 'types/model';
 import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
@@ -22,28 +22,21 @@ export const attachChangelogToSnapshotRecords = async (
     return snapshotRecords;
   }
 
-  const recordTypeAndIds = relevantRecords.map(
-    ({ recordType, recordId }) => `${recordType}-${recordId}`,
-  );
-
   const changelogRecords = await models.ChangeLog.findAll({
     where: {
-      [Op.and]: [
-        {  recordSyncTick: {
-          [Op.gt]: minSourceTick,
-          ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
-        },
-        ...(tableWhitelist && {
-          tableName: {
-            [Op.in]: tableWhitelist,
-            },
-          }),
-        },
-        sequelize.literal(`CONCAT("tableName", '-', "recordId") IN (:recordTypeAndIds)`),
-      ],
-      replacements: {
-        recordTypeAndIds,
+      recordSyncTick: {
+        [Op.gt]: minSourceTick,
+        ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
       },
+      ...(tableWhitelist && {
+        tableName: {
+          [Op.in]: tableWhitelist,
+        },
+      }),
+      [Op.or]: relevantRecords.map(({ recordType, recordId }) =>({
+          tableName: recordType,
+          recordId,
+        })),
     },
   });
 
