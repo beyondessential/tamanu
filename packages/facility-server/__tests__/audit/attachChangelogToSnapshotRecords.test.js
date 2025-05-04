@@ -1,21 +1,18 @@
-import { attachChangelogToSnapshotRecords } from '../../../src/utils/audit/attachChangelogToSnapshotRecords';
-import { createTestDatabase, closeDatabase } from '../../sync/utilities';
-import { describe, beforeAll, afterAll, it, expect, afterEach } from 'vitest';
-import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
+import { SYSTEM_USER_UUID } from "@tamanu/constants";
+import { attachChangelogToSnapshotRecords } from "@tamanu/database";
+import { createTestContext } from "../utilities";
 
 describe('attachChangelogToSnapshotRecords', () => {
-  let models;
+  let ctx;
   let sequelize;
-
+  let models;
   beforeAll(async () => {
-    const database = await createTestDatabase();
-    models = database.models;
-    sequelize = database.sequelize;
+    ctx = await createTestContext();
+    models = ctx.models;
+    sequelize = ctx.sequelize;
   });
 
-  afterAll(async () => {
-    await closeDatabase();
-  });
+  afterAll(() => ctx.close());
 
   afterEach(async () => {
     const { ChangeLog } = models;

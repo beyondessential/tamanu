@@ -1,8 +1,8 @@
-import { type ChangeLog } from '../../../src/models/ChangeLog';
+import { type ChangeLog } from '../../src/models/ChangeLog';
 import { describe, expect, it } from 'vitest';
 
-import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/extractChangelogFromSnapshotRecords';
-import type { SyncSnapshotAttributesWithChangelog } from '../../../src/types/sync';
+import { extractChangelogFromSnapshotRecords } from '../../src/utils/audit/extractChangelogFromSnapshotRecords';
+import type { SyncSnapshotAttributesWithChangelog } from '../../src/types/sync';
 import { Attributes } from 'sequelize';
 
 describe('extractChangelogFromSnapshotRecords', () => {

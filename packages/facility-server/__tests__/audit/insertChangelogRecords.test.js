@@ -1,25 +1,16 @@
-import { describe, expect, it, beforeAll, afterAll, afterEach, vi } from 'vitest';
-import { createTestDatabase, closeDatabase } from '../../sync/utilities';
-import { insertChangelogRecords } from '../../../src/utils/audit/insertChangelogRecords';
-import { SYSTEM_USER_UUID } from '@tamanu/constants/auth';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { insertChangelogRecords } from "@tamanu/database";
+import { createTestContext } from "../utilities";
+import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from "@tamanu/constants";
 
-// Mock no facility IDs
-vi.mock('@tamanu/utils/selectFacilityIds', () => ({
-  selectFacilityIds: () => null,
-}));
-
-describe('insertChangelogRecords', () => {
+describe('insertChangeLogRecords', () => {
+  let ctx;
   let sequelize;
-
   beforeAll(async () => {
-    const database = await createTestDatabase();
-    sequelize = database.sequelize;
+    ctx = await createTestContext();
+    sequelize = ctx.sequelize;
   });
 
-  afterAll(async () => {
-    await closeDatabase();
-  });
+  afterAll(() => ctx.close());
 
   afterEach(async () => {
     // Clear the changes table before each test
