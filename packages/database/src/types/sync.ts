@@ -1,4 +1,4 @@
-import { Sequelize, type Attributes } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
