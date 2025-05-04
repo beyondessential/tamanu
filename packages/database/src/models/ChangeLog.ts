@@ -78,7 +78,7 @@ export class ChangeLog extends Model {
       {
         ...options,
         tableName: 'changes',
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'logs',
       },
     );
