@@ -28,23 +28,22 @@ export const attachChangelogToSnapshotRecords = async (
 
   const changelogRecords = await models.ChangeLog.findAll({
     where: {
-      recordSyncTick: {
-        [Op.gt]: minSourceTick,
-        ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
-      },
-      ...(tableWhitelist && {
-        tableName: {
-          [Op.in]: tableWhitelist,
-        },
-      }),
       [Op.and]: [
-        sequelize.where(
-          sequelize.fn('CONCAT', sequelize.col('tableName'), '-', sequelize.col('recordId')),
-          {
-            [Op.in]: recordTypeAndIds,
-          },
-        ),
+        {  recordSyncTick: {
+          [Op.gt]: minSourceTick,
+          ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
+        },
+        ...(tableWhitelist && {
+          tableName: {
+            [Op.in]: tableWhitelist,
+            },
+          }),
+        },
+        sequelize.literal(`CONCAT("tableName", '-', "recordId") IN (:recordTypeAndIds)`),
       ],
+      replacements: {
+        recordTypeAndIds,
+      },
     },
   });
 
