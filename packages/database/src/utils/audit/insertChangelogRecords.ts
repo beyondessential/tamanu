@@ -1,7 +1,5 @@
 import config from 'config';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { Op } from 'sequelize';
-
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
 
@@ -17,9 +15,7 @@ export const insertChangelogRecords = async (
 
   const existingRecords = await ChangeLog.findAll({
     where: {
-      id: {
-        [Op.in]: changelogRecords.map(({ id }) => id),
-      },
+      id: changelogRecords.map(({ id }) => id),
     },
   });
 

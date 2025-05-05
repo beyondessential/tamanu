@@ -16,7 +16,7 @@ describe('insertChangeLogRecords', () => {
 
   afterEach(async () => {
     // Clear the changes table before each test
-    await sequelize.query('TRUNCATE TABLE logs.changes');
+    await models.ChangeLog.destroy({where: {}})
   });
 
   it('should not insert anything when no changelog records are provided', async () => {
@@ -102,12 +102,12 @@ describe('insertChangeLogRecords', () => {
     expect(results).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
     // Should ignore the existing record as changelog records are immutable
-    expect(results[0].recordData).toEqual({ first_name: 'Patient 1' });
+    expect(result[0].recordData).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records
-    expect(results[1].recordId).toBe('2');
-    expect(results[1].tableName).toBe('patients');
-    expect(results[2].recordId).toBe('3');
-    expect(results[2].tableName).toBe('encounters');
+    expect(result[1].recordId).toBe('2');
+    expect(result[1].tableName).toBe('patients');
+    expect(result[2].recordId).toBe('3');
+    expect(result[2].tableName).toBe('encounters');
   });
 
   it('should set recordSyncTick to -999 for facility records', async () => {
@@ -186,6 +186,6 @@ describe('insertChangeLogRecords', () => {
 
     // Assert
     const [changelog] = await models.ChangeLog.findAll()
-    expect(changelog.recordData).toMatchObject(recordData);
+    expect(JSON.parse(changelog.recordData)).toMatchObject(recordData);
   });
 });
