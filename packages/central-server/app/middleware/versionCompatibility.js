@@ -25,7 +25,7 @@ export const MIN_CLIENT_VERSION = MIN_CLIENT_OVERRIDE ?? `${major}.${minor}.0`;
 export const MAX_CLIENT_VERSION = `${major}.${minor}.999`;
 // Note that .999 is only for clarity; higher patch versions will always be allowed
 
-export const SUPPORTED_CLIENT_VERSIONS = {
+export const VERSION_CONTROLLED_CLIENTS = {
   [SERVER_TYPES.FACILITY]: {
     min: MIN_CLIENT_VERSION,
     max: MAX_CLIENT_VERSION,
@@ -49,10 +49,14 @@ export const versionCompatibility = (req, res, next) => {
     return;
   }
 
-  // Default to no version checking if the client type is unrecognised
-  const clientInfo = SUPPORTED_CLIENT_VERSIONS[clientType] || { min: null, max: null };
-  const { min, max } = clientInfo;
+  const clientInfo = VERSION_CONTROLLED_CLIENTS[clientType];
+  if (!clientInfo) {
+    // a non version controlled client; ignore version checking
+    next();
+    return;
+  }
 
+  const { min, max } = clientInfo;
   const runCheck = buildVersionCompatibilityCheck(min, max);
   runCheck(req, res, next);
 };
