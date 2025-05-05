@@ -129,6 +129,7 @@ export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
-export * from './AccessLog';
 export * from './SyncLookupTick';
+
+export * from './AccessLog';
 export * from './ChangeLog';
