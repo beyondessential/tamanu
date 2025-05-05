@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import {
   ButtonWithPermissionCheck,
@@ -14,32 +13,35 @@ import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { useNoteModal } from '../../../contexts/NoteModal';
+import { NoteBlock } from '../../../components/NoteBlock';
 
 const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   width: 200px;
 `;
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const { noteType, setNoteType } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
+  const { openNoteModal, updateNoteModalProps } = useNoteModal();
 
-  const noteModalOnSaved = async () => {
-    setModalOpen(false);
-    await loadEncounter(encounter.id);
+  const noteModalOnSaved = async createdNote => {
+    updateNoteModalProps({ note: createdNote });
+    loadEncounter(encounter.id);
+  };
+
+  const handleOpenNewNote = () => {
+    openNoteModal({
+      title: <TranslatedText stringId="note.modal.create.title" fallback="New note" />,
+      encounterId: encounter.id,
+      onSaved: noteModalOnSaved,
+      confirmText: <TranslatedText stringId="note.action.add" fallback="Add note" />,
+      noteFormMode: NOTE_FORM_MODES.CREATE_NOTE,
+    });
   };
 
   return (
     <TabPane>
-      <NoteModal
-        title={<TranslatedText stringId="note.modal.create.title" fallback="New note" />}
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
-        onSaved={noteModalOnSaved}
-        confirmText={<TranslatedText stringId="note.action.add" fallback="Add note" />}
-        noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
-      />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledTranslatedSelectField
           onChange={e => setNoteType(e.target.value)}
@@ -57,14 +59,16 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           ]}
           isClearable={false}
         />
-        <ButtonWithPermissionCheck
-          onClick={() => setModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="EncounterNote"
-        >
-          <TranslatedText stringId="note.action.new" fallback="New note" />
-        </ButtonWithPermissionCheck>
+        <NoteBlock>
+          <ButtonWithPermissionCheck
+            onClick={handleOpenNewNote}
+            disabled={readonly}
+            verb="create"
+            noun="EncounterNote"
+          >
+            <TranslatedText stringId="note.action.new" fallback="New note" />
+          </ButtonWithPermissionCheck>
+        </NoteBlock>
       </TableButtonRow>
       <NoteTableWithPermission
         encounterId={encounter.id}

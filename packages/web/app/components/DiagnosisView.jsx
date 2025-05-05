@@ -8,6 +8,7 @@ import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
+import { NoteBlock } from './NoteBlock';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -82,14 +83,16 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
       />
       <DiagnosisGrid>
         {DiagnosesDisplay}
-        <AddDiagnosisButton
-          onClick={() => editDiagnosis({})}
-          variant="outlined"
-          color="primary"
-          disabled={readOnly}
-        >
-          <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
-        </AddDiagnosisButton>
+        <NoteBlock>
+          <AddDiagnosisButton
+            onClick={() => editDiagnosis({})}
+            variant="outlined"
+            color="primary"
+            disabled={readOnly}
+          >
+            <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
+          </AddDiagnosisButton>
+        </NoteBlock>
       </DiagnosisGrid>
     </>
   );

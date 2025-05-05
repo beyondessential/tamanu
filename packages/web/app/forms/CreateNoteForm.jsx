@@ -13,14 +13,7 @@ import {
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useApi } from '../api';
 
-export const CreateNoteForm = ({
-  onNoteContentChange,
-  onSubmit,
-  onCancel,
-  noteTypeCountByType,
-  values,
-  setValues,
-}) => {
+export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values, setValues }) => {
   const api = useApi();
 
   const onChangeNoteType = useCallback(() => {
@@ -59,7 +52,6 @@ export const CreateNoteForm = ({
       </StyledFormGrid>
       <NoteContentField
         label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
-        onChange={onNoteContentChange}
       />
       <StyledDivider />
       <FormSubmitCancelRow

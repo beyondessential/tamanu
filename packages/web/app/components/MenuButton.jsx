@@ -83,15 +83,18 @@ export const MenuButton = React.memo(
             <Paper id="menu-list-grow" variant="outlined">
               <ClickAwayListener onClickAway={handleClose}>
                 <List>
-                  {actions.filter(Boolean).map(({ action, label }) => (
-                    <Item
-                      disabled={!action}
-                      key={label.props.fallback}
-                      onClick={event => handleClick(event, action)}
-                    >
-                      {label}
-                    </Item>
-                  ))}
+                  {actions.filter(Boolean).map(({ action, label, wrapper }) => {
+                    const menuItem = (
+                      <Item
+                        disabled={!action}
+                        key={label.props.fallback}
+                        onClick={event => handleClick(event, action)}
+                      >
+                        {label}
+                      </Item>
+                    );
+                    return wrapper ? wrapper(menuItem) : menuItem;
+                  })}
                 </List>
               </ClickAwayListener>
             </Paper>

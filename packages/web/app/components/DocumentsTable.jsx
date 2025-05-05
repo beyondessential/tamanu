@@ -9,10 +9,10 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
-
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
 import { useAuth } from '../contexts/Auth';
+import { NoteBlock } from './NoteBlock';
 
 const ActionWrapper = styled.div`
   width: 0; // This is needed to move content to the right side of the table
@@ -41,23 +41,19 @@ const getAttachmentType = ({ type }) => {
 
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDepartmentName = ({ department }) => department
-  ? <TranslatedReferenceData
-    fallback={department.name}
-    value={department.id}
-    category="department"
-  />
-  : ''
+const getDepartmentName = ({ department }) =>
+  department ? (
+    <TranslatedReferenceData
+      fallback={department.name}
+      value={department.id}
+      category="department"
+    />
+  ) : (
+    ''
+  );
 
 export const DocumentsTable = React.memo(
-  ({
-    endpoint,
-    searchParameters,
-    refreshCount,
-    refreshTable,
-    onDownload,
-    openDocumentPreview
-  }) => {
+  ({ endpoint, searchParameters, refreshCount, refreshTable, onDownload, openDocumentPreview }) => {
     const { ability } = useAuth();
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
@@ -68,6 +64,9 @@ export const DocumentsTable = React.memo(
         action: () => setModalOpen(true),
         permissionCheck: () => {
           return ability?.can('delete', 'DocumentMetadata');
+        },
+        wrapper: menuItem => {
+          return <NoteBlock>{menuItem}</NoteBlock>;
         },
       },
     ].filter(({ permissionCheck }) => {

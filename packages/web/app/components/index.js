@@ -16,6 +16,7 @@ export * from './Modal';
 export * from './ModalActionRow';
 export * from './MenuButton';
 export * from './Notification';
+export * from './NoteBlock';
 export * from './PageContainer';
 export * from './Paper';
 export * from './Preloader';
