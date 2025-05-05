@@ -3,7 +3,7 @@ import { View } from '@react-pdf/renderer';
 import { Box, Signature, SigningImage } from './Layout';
 import { useLanguageContext } from '../pdf/languageContext';
 
-export const SigningSection = ({ signingSrc }) => {
+export const SigningSection = ({ signingSrc, style, ...props }) => {
   const { getTranslation } = useLanguageContext();
 
   return (
@@ -14,7 +14,9 @@ export const SigningSection = ({ signingSrc }) => {
         flex: 1,
         paddingLeft: 15,
         paddingRight: 15,
+        ...style,
       }}
+      {...props}
     >
       {signingSrc ? (
         <SigningImage src={signingSrc} />

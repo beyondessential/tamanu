@@ -1,9 +1,8 @@
-import type { Models } from '@tamanu/database';
 import { times } from 'lodash';
-import { fake, chance } from '../../fake';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
-interface CreateLabRequestParams {
-  models: Models;
+interface CreateLabRequestParams extends CommonParams {
   departmentId: string;
   userId: string;
   encounterId: string;
@@ -14,6 +13,7 @@ interface CreateLabRequestParams {
 }
 export const createLabRequest = async ({
   models,
+  limit,
   departmentId,
   userId,
   encounterId,
@@ -38,21 +38,25 @@ export const createLabRequest = async ({
     }),
   );
 
-  times(testCount, async () => {
-    const labTest = await LabTest.create(
-      fake(LabTest, {
-        labRequestId: labRequest.id,
-        categoryId: referenceDataId,
-        labTestMethodId: referenceDataId,
-        labTestTypeId,
+  await Promise.all(
+    times(testCount, () =>
+      limit(async () => {
+        const labTest = await LabTest.create(
+          fake(LabTest, {
+            labRequestId: labRequest.id,
+            categoryId: referenceDataId,
+            labTestMethodId: referenceDataId,
+            labTestTypeId,
+          }),
+        );
+        await CertificateNotification.create(
+          fake(CertificateNotification, {
+            patientId,
+            labTestId: labTest.id,
+            labRequestId: labRequest.id,
+          }),
+        );
       }),
-    );
-    await CertificateNotification.create(
-      fake(CertificateNotification, {
-        patientId,
-        labTestId: labTest.id,
-        labRequestId: labRequest.id,
-      }),
-    );
-  });
+    ),
+  );
 };

@@ -51,6 +51,7 @@ export class ApplicationContext {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
     }, {});
+    this.settings.global = new ReadSettings(this.models);
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

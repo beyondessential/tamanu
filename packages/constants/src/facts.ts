@@ -5,6 +5,8 @@ import {
   MATERIALIZED_VIEWS,
 } from './materializedView.js';
 
+export const FACT_TIME_OFFSET = 'timeOffset';
+
 // Internal sync facts
 export const FACT_CURRENT_SYNC_TICK = 'currentSyncTick';
 export const FACT_LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
@@ -14,6 +16,7 @@ export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
+export const FACT_CURRENT_VERSION = 'currentVersion';
 export const FACT_DEVICE_ID = 'deviceId';
 export const FACT_DEVICE_KEY = 'deviceKey';
 export const FACT_FACILITY_IDS = 'facilityIds';
