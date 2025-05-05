@@ -17,7 +17,7 @@ describe('attachChangelogToSnapshotRecords', () => {
     await ChangeLog.destroy({ where: {} });
   });
 
-  it('should attach changelog records to snapshot records within the specified tick range', async () => {
+  it('should attach changelog records to snapshot records inclusively within the specified tick range', async () => {
     const { ChangeLog } = models;
     await Promise.all([
       ChangeLog.create({
@@ -81,8 +81,8 @@ describe('attachChangelogToSnapshotRecords', () => {
     ];
 
     const result = await attachChangelogToSnapshotRecords(models, snapshotRecords, {
-      minSourceTick: 99,
-      maxSourceTick: 251,
+      minSourceTick: 100,
+      maxSourceTick: 200,
     });
 
     expect(result).toHaveLength(3);
