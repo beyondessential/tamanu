@@ -82,6 +82,14 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
+const DoseLabel = styled.div`
+  color: ${Colors.darkText};
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 20px;
+  margin-bottom: 16px;
+`;
+
 export const EditAdministrationRecordModal = ({
   open,
   onClose,
@@ -89,6 +97,7 @@ export const EditAdministrationRecordModal = ({
   marInfo,
   doseInfo,
   timeSlot,
+  showDoseIndex,
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
@@ -116,11 +125,15 @@ export const EditAdministrationRecordModal = ({
         changingNotGivenInfoReason,
       });
     } else {
-      if (!showWarningModal && Number(medication.doseAmount) !== Number(doseInfo?.doseAmount)) {
+      const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } = values;
+      if (
+        !showWarningModal &&
+        Number(medication?.doseAmount) !== Number(doseAmount) &&
+        !medication?.isVariableDose
+      ) {
         setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
         return;
       }
-      const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } = values;
       await updateMarDose({
         doseAmount: Number(doseAmount),
         givenTime,
@@ -137,6 +150,8 @@ export const EditAdministrationRecordModal = ({
       return yup.object().shape({
         givenTime: yup
           .date()
+          .nullable()
+          .typeError(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',
@@ -179,8 +194,19 @@ export const EditAdministrationRecordModal = ({
       }
     >
       <MarInfoPane medication={medication} marInfo={marInfo} />
-      <Box height={16} />
+      {showDoseIndex ? (
+        <DoseLabel>
+          <TranslatedText
+            stringId="modal.mar.doseIndex.label"
+            fallback="Dose :index"
+            replacements={{ index: doseInfo?.doseIndex }}
+          />
+        </DoseLabel>
+      ) : (
+        <Box height={16} />
+      )}
       <Form
+        suppressErrorDialog
         onSubmit={handleSubmit}
         initialValues={
           marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN
@@ -239,6 +265,7 @@ export const EditAdministrationRecordModal = ({
                     name="doseAmount"
                     component={NumberField}
                     label={`Dose given (${medication?.units})`}
+                    required
                   />
                   <div>
                     <TimeGivenTitle>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { addHours } from 'date-fns';
@@ -24,6 +24,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
+import { WarningModal } from '../WarningModal';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -107,6 +109,7 @@ export const ChangeStatusModal = ({
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const [showWarningModal, setShowWarningModal] = useState('');
 
   const initialStatus = marInfo?.status;
   const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
@@ -135,6 +138,14 @@ export const ChangeStatusModal = ({
         changingStatusReason,
       });
     } else {
+      if (
+        !showWarningModal &&
+        Number(values.doseAmount) !== Number(medication?.doseAmount) &&
+        !medication?.isVariableDose
+      ) {
+        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+        return;
+      }
       const {
         doseAmount,
         givenTime,
@@ -161,6 +172,8 @@ export const ChangeStatusModal = ({
       return yup.object().shape({
         givenTime: yup
           .date()
+          .nullable()
+          .typeError(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',
@@ -202,6 +215,7 @@ export const ChangeStatusModal = ({
       <MarInfoPane medication={medication} marInfo={marInfo} />
       <Box height={16} />
       <Form
+        suppressErrorDialog
         onSubmit={handleSubmit}
         initialValues={{
           status: initialStatus,
@@ -332,6 +346,16 @@ export const ChangeStatusModal = ({
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />
+              {showWarningModal && (
+                <WarningModal
+                  modal={showWarningModal}
+                  onClose={() => setShowWarningModal('')}
+                  onConfirm={() => {
+                    setShowWarningModal('');
+                    handleSubmit(values);
+                  }}
+                />
+              )}
             </FormGrid>
           );
         }}
