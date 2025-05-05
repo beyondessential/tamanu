@@ -1,4 +1,4 @@
-import { fake } from '../../fake';
+import { fake } from '../../fake/index.js';
 
 import type {
   Department,

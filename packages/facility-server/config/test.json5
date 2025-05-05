@@ -1,4 +1,9 @@
 {
+  "audit": {
+    "accesses": {
+      "enabled": true
+    }
+  },
   "db": {
     "name": "tamanu-facility-test",
     "migrateOnStartup": true,
@@ -18,7 +23,6 @@
   },
   "log": {
     "consoleLevel": null,
-    "enableAuditLog": true
   },
   "schedules": {
     "refreshMaterializedView": {
