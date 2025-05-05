@@ -52,16 +52,16 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
     onDateChange(prevDate => addDays(prevDate, 1));
   };
 
-  const isPreviousDayDisabled = isSameDay(selectedDate, new Date(encounter.startDate));
+  const isPreviousDayDisabled = isSameDay(selectedDate, new Date(encounter?.startDate));
   const isNextDayHidden =
     isSameDay(addDays(new Date(), 2), selectedDate) ||
-    isSameDay(new Date(encounter.endDate), selectedDate);
+    isSameDay(new Date(encounter?.endDate), selectedDate);
 
   return (
     <Wrapper>
       <MedicationModal
         open={createMedicationModalOpen}
-        encounterId={encounter.id}
+        encounterId={encounter?.id}
         onClose={() => setCreateMedicationModalOpen(false)}
         onSaved={async () => {
           setCreateMedicationModalOpen(false);
@@ -75,8 +75,8 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           visible={isPreviousDayDisabled}
           title={
             <TranslatedText
-              fallback="Encounter start date"
-              stringId="medication.mar.encounterStartDate"
+              fallback="Can't select date prior to encounter start date"
+              stringId="medication.mar.tooltip.encounterStartDate"
             />
           }
           PopperProps={{
