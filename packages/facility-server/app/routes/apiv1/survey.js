@@ -83,6 +83,36 @@ survey.get(
   }),
 );
 
+survey.post(
+  '/:id/assign',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    const { encounterId } = body;
+
+    if (!encounterId) {
+      throw new Error('encounterId is required');
+    }
+
+    const survey = await findRouteObject(req, 'Survey');
+    const encounter = await models.Encounter.findByPk(encounterId);
+
+    if (!encounter) {
+      throw new NotFoundError('Encounter not found');
+    }
+
+    req.checkPermission('submit', survey);
+    req.checkPermission('read', encounter);
+
+    await models.EncounterAssignedSurvey.create({
+      surveyId: params.id,
+      encounterId,
+      completed: false,
+    });
+
+    res.send({ success: true });
+  }),
+);
+
 const surveyRelations = permissionCheckingRouter('list', 'SurveyResponse');
 
 surveyRelations.get(

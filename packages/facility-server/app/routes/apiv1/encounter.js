@@ -166,6 +166,42 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
+encounterRelations.get(
+  '/:id/assignedSurveys',
+  asyncHandler(async (req, res) => {
+    const { db, params } = req;
+    const { id: encounterId } = params;
+
+    const results = await db.query(
+      `
+        SELECT
+          eas.survey_id,
+          eas.encounter_id,
+          max(s.name) as survey_name,
+          max(sr.end_time) as completed_at,
+          bool_or(sr.end_time is not null) as completed
+        FROM
+          encounter_assigned_surveys eas
+        JOIN surveys s ON s.id = eas.survey_id
+        LEFT JOIN survey_responses sr ON s.id = sr.survey_id and sr.encounter_id = eas.encounter_id
+        WHERE
+          eas.encounter_id = :encounterId
+          AND eas.deleted_at IS NULL
+        GROUP BY eas.id, eas.survey_id, eas.encounter_id
+      `,
+      {
+        replacements: { encounterId },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      count: results.length,
+      data: results,
+    });
+  }),
+);
+
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));

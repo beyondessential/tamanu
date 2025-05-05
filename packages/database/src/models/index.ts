@@ -35,6 +35,7 @@ export * from './ReferenceDataRelation';
 export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
+export * from './EncounterAssignedSurvey';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './EncounterDiet';

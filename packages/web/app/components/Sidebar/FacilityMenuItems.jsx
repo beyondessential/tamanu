@@ -197,4 +197,11 @@ export const FACILITY_MENU_ITEMS = [
       },
     ],
   },
+  {
+    key: 'patientPortal',
+    label: <TranslatedText stringId="sidebar.patientPortal" fallback="Patient portal" />,
+    path: '/patient-portal',
+    icon: dashboardIcon,
+    ability: { action: 'read' },
+  },
 ];

@@ -9,6 +9,7 @@ import { authReducer } from './auth';
 import { imagingRequestReducer } from './imagingRequest';
 import { patientReducer } from './patient';
 import { specialModalsReducer } from './specialModals';
+import patientPortalReducer from './patientPortal';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = history => ({
@@ -17,6 +18,7 @@ export const createReducers = history => ({
   patient: patientReducer,
   imagingRequest: imagingRequestReducer,
   specialModals: specialModalsReducer,
+  patientPortal: patientPortalReducer,
 });
 
 export function initStore(api, initialState = {}) {
