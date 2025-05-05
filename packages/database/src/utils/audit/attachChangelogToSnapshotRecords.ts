@@ -25,8 +25,8 @@ export const attachChangelogToSnapshotRecords = async (
   const changelogRecords = await models.ChangeLog.findAll({
     where: {
       recordSyncTick: {
-        [Op.gt]: minSourceTick,
-        ...(maxSourceTick && { [Op.lt]: maxSourceTick }),
+        [Op.gte]: minSourceTick,
+        ...(maxSourceTick && { [Op.lte]: maxSourceTick }),
       },
       ...(tableWhitelist && {
         tableName: {
