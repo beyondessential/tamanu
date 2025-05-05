@@ -1,6 +1,7 @@
 import { SYSTEM_USER_UUID } from "@tamanu/constants";
 import { attachChangelogToSnapshotRecords } from "@tamanu/database";
 import { createTestContext } from "../utilities";
+import { fake } from "@tamanu/fake-data/fake";
 
 describe('attachChangelogToSnapshotRecords', () => {
   let ctx;
@@ -20,58 +21,34 @@ describe('attachChangelogToSnapshotRecords', () => {
   it('should attach changelog records to snapshot records inclusively within the specified tick range', async () => {
     const { ChangeLog } = models;
     await Promise.all([
-      ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 100,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
-        recordUpdate: true,
         recordData: { name: 'John Doe' },
-      }),
-      ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
+      })),
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 150,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
-        recordUpdate: true,
         recordData: { name: 'John Doe Jr' },
-      }),
-      ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
+      })),
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 200,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '2',
-        recordUpdate: true,
         recordData: { name: 'Jane Smith' },
-      }),
-      ChangeLog.create({
-        tableOid: 5678,
-        tableSchema: 'public',
+      })),
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'encounters',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 300,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
-        recordUpdate: true,
         recordData: { type: 'checkup' },
-      }),
+      })),
     ]);
 
     const snapshotRecords = [
@@ -107,32 +84,20 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Insert test data
     const { ChangeLog } = models;
     await Promise.all([
-      ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 100,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
-        recordUpdate: true,
         recordData: { name: 'John Doe' },
-      }),
-      ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
+      })),
+      ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'encounters',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
         recordSyncTick: 100,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
-        recordUpdate: true,
         recordData: { type: 'checkup' },
-      }),
+      })),
     ]);
 
     const snapshotRecords = [
