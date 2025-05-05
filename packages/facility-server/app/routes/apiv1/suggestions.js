@@ -35,11 +35,10 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 //     return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
 //   });
 // };
-const replaceDataLabelsWithTranslations = (data) =>
-  data.map((item) => {
-    item.name = item.translated_name || item.name;
-    return item;
-  });
+const replaceDataLabelsWithTranslations = (item) => {
+  item.name = item.translated_name || item.name;
+  return item;
+};
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
@@ -153,7 +152,28 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         query: { language = ENGLISH_LANGUAGE_CODE },
       } = req;
       req.checkPermission('list', modelName);
-      const record = await models[modelName].findByPk(params.id);
+
+      const dataType = getDataType(endpoint);
+      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+
+      const record = await models[modelName].findOne({
+        where: { id: params.id },
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(`(
+              SELECT "text" 
+              FROM "translated_strings" 
+              WHERE "language" = '${language}'
+              AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
+              LIMIT 1
+            )`),
+              'translated_name',
+            ],
+          ],
+        },
+      });
+
       if (!record) throw new NotFoundError();
 
       req.checkPermission('read', record);
@@ -164,24 +184,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         return;
       }
 
-      const translation = await models.TranslatedString.findOne({
-        where: {
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
-          language,
-        },
-        attributes: ['stringId', 'text'],
-        raw: true,
-      });
-
-      if (!translation) {
-        res.send(mappedRecord);
-        return;
-      }
-
-      const translatedRecord = replaceDataLabelsWithTranslations({
-        data: [mappedRecord],
-        translations: [translation],
-      })[0];
+      const translatedRecord = replaceDataLabelsWithTranslations(mappedRecord);
 
       res.send(translatedRecord);
     }),
