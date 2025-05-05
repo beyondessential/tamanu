@@ -75,8 +75,22 @@ function createSuggesterRoute(
           },
         },
       });
+      const translationsEnabled = isTranslatable && hasTranslations;
+      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
 
-      const where = whereBuilder(`%${searchQuery}%`, query, req);
+      const where = translationsEnabled
+        ? {
+            id: {
+              [Op.in]: Sequelize.literal(`(
+                SELECT DISTINCT SPLIT_PART(string_id, '.', 3)
+                FROM translated_strings
+                WHERE language = '${language}'
+                AND string_id LIKE '${translationPrefix}%'
+                AND text ILIKE '%${searchQuery}%'
+              )`),
+            },
+          }
+        : whereBuilder(`%${searchQuery}%`, query, req);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -86,20 +100,7 @@ function createSuggesterRoute(
       const order = orderBuilder?.(req);
 
       const results = await model.findAll({
-        where:
-          isTranslatable && hasTranslations
-            ? {
-                id: {
-                  [Op.in]: Sequelize.literal(`(
-              SELECT DISTINCT SUBSTRING(string_id, LENGTH('${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.') + 1)
-              FROM translated_strings
-              WHERE language = '${language}'
-              AND string_id LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.%'
-              AND text ILIKE '%${searchQuery}%'
-            )`),
-                },
-              }
-            : where,
+        where,
         include,
         order: [
           ...(order ? [order] : []),
@@ -111,7 +112,8 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
-        ...(isTranslatable && hasTranslations
+        raw: true,
+        ...(translationsEnabled
           ? {
               attributes: {
                 include: [
@@ -129,7 +131,6 @@ function createSuggesterRoute(
               },
             }
           : {}),
-        raw: true,
       });
 
       const translatedData = results.map((item) => {
@@ -138,11 +139,7 @@ function createSuggesterRoute(
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(
-        await Promise.all(
-          (isTranslatable && hasTranslations ? translatedData : results).map(mapper),
-        ),
-      );
+      res.send(await Promise.all((translationsEnabled ? translatedData : results).map(mapper)));
     }),
   );
 }
