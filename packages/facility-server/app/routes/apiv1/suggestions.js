@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy, omit } from 'lodash';
+import { camelCase, keyBy } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -67,31 +67,16 @@ function createSuggesterRoute(
       const dataType = getDataType(endpoint);
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-
-      const translations = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: dataType,
-            queryString: searchQuery,
-            // limit: defaultLimit,
-          })
-        : [];
-      const suggestedIds = translations.map(extractDataId);
-
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
-
-      const where = {
-        [Op.or]: [
-          whereQuery,
-          {
-            // Wrap inside AND block to avoid being overwritten by whereQuery results
-            [Op.and]: {
-              id: { [Op.in]: suggestedIds },
-            },
-            ...omit(whereQuery, 'name'),
+      const hasTranslations = await models.TranslatedString.count({
+        where: {
+          language,
+          stringId: {
+            [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`,
           },
-        ],
-      };
+        },
+      });
+
+      const where = whereBuilder(`%${searchQuery}%`, query, req);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -113,12 +98,38 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
+        ...(isTranslatable && hasTranslations
+          ? {
+              attributes: {
+                include: [
+                  [
+                    Sequelize.literal(`(
+                      SELECT "text" 
+                      FROM "translated_strings" 
+                      WHERE "language" = '${language}'
+                      AND "string_id" = '${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.' || "${modelName}"."id"
+                      LIMIT 1
+                    )`),
+                    'translated_name',
+                  ],
+                ],
+              },
+            }
+          : {}),
+        raw: true,
+      });
+
+      const translatedData = results.map((item) => {
+        item.name = item.translated_name;
+        return item;
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map((r) => mapper(r)));
-
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      res.send(
+        await Promise.all(
+          (isTranslatable && hasTranslations ? translatedData : results).map(mapper),
+        ),
+      );
     }),
   );
 }
