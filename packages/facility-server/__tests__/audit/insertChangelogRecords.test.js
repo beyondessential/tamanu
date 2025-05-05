@@ -132,8 +132,9 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(models, changelogRecords, true);
 
     // Assert
-    const [changelog] = await models.ChangeLog.findAll();
-    expect(changelog.recordSyncTick).toBe(-999);
+    const result = await models.ChangeLog.findAll();
+    expect(result).toHaveLength(1);
+    expect(result[0].recordSyncTick).toBe("-999");
   });
 
   it('should preserve recordSyncTick for non-facility records', async () => {
@@ -148,18 +149,19 @@ describe('insertChangeLogRecords', () => {
         recordUpdate: true,
         tableName: 'patients',
         tableSchema: 'public',
-        recordId: '1',
-        recordData: { first_name: 'Patient 1' },
+        recordId: '2',
+        recordData: { first_name: 'Patient 2' },
         recordSyncTick: '123',
       },
     ];
 
     // Act
-    await insertChangelogRecords(models, changelogRecords);
+    await insertChangelogRecords(models, changelogRecords, false);
 
     // Assert
-    const [changelog] = await models.ChangeLog.findAll();
-    expect(changelog.recordSyncTick).toBe(123);
+    const result = await models.ChangeLog.findAll();
+    expect(result).toHaveLength(1);
+    expect(result[0].recordSyncTick).toBe("123");
   });
 
   it('should stringify recordData before inserting', async () => {
