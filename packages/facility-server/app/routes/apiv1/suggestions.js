@@ -86,7 +86,20 @@ function createSuggesterRoute(
       const order = orderBuilder?.(req);
 
       const results = await model.findAll({
-        where,
+        where:
+          isTranslatable && hasTranslations
+            ? {
+                id: {
+                  [Op.in]: Sequelize.literal(`(
+              SELECT DISTINCT SUBSTRING(string_id, LENGTH('${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.') + 1)
+              FROM translated_strings
+              WHERE language = '${language}'
+              AND string_id LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.%'
+              AND text ILIKE '%${searchQuery}%'
+            )`),
+                },
+              }
+            : where,
         include,
         order: [
           ...(order ? [order] : []),
