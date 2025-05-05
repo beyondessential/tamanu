@@ -1,43 +1,29 @@
-import { type ChangeLog } from '../../src/models/ChangeLog';
-import { describe, expect, it } from 'vitest';
+import { ChangeLog } from '../../src/models/ChangeLog';
+import { describe, expect, it, beforeAll } from 'vitest';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { extractChangelogFromSnapshotRecords } from '../../src/utils/audit/extractChangelogFromSnapshotRecords';
 import type { SyncSnapshotAttributesWithChangelog } from '../../src/types/sync';
 import { Attributes } from 'sequelize';
+import { createTestDatabase } from '../sync/utilities';
 
 describe('extractChangelogFromSnapshotRecords', () => {
+  let models;
+
+  beforeAll(async () => {
+    const database = await createTestDatabase();
+    models = database.models;
+  });
+
   it('should extract changelog records from snapshot records', () => {
     // Arrange
     const changelogRecords: Attributes<ChangeLog>[] = [
-      {
+      fake(models.ChangeLog, {
         recordId: 'record1',
-        id: 'dogman-1',
-        tableOid: 1234,
-        tableSchema: 'public',
-        tableName: 'test',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        recordDeletedAt: null,
-        recordSyncTick: 100,
-        updatedByUserId: 'test-user',
-        recordUpdate: true,
-        recordData: { test: 'data' } ,
-      },
-      {
+      }),
+      fake(models.ChangeLog, {
         recordId: 'record1',
-        id: 'dogman-2',
-        tableOid: 1234,
-        tableSchema: 'public',
-        tableName: 'test',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        recordSyncTick: 100,
-        updatedByUserId: 'test-user',
-        recordUpdate: true,
-        recordData: { test: 'updated data' },
-      },
+      }),
     ];
 
     const snapshotRecordsWithChangelog: SyncSnapshotAttributesWithChangelog[] = [

@@ -15,9 +15,7 @@ import {
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
-import {
-  attachChangelogToSnapshotRecords
-} from '@tamanu/database/utils/audit';
+import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
@@ -202,11 +200,15 @@ export class FacilitySyncManager {
         totalPushing: outgoingChanges.length,
       });
       if (this.__testSpyEnabled) {
-        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges, });
+        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
-      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(this.models, outgoingChanges, {
-        minSourceTick: pushSince,
-      });
+      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(
+        this.models,
+        outgoingChanges,
+        {
+          minSourceTick: pushSince,
+        },
+      );
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
       await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
