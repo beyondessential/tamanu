@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   DateDisplay,
   MenuButton,
+  NoteBlock,
   OutlinedButton,
   TableCellTag,
   TranslatedReferenceData,
@@ -87,10 +88,16 @@ export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteCli
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
             action: () => onItemEditClick(record),
+            wrapper: actionButton => {
+              return <NoteBlock>{actionButton}</NoteBlock>;
+            },
           },
           {
             label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
             action: () => onItemDeleteClick(record),
+            wrapper: actionButton => {
+              return <NoteBlock>{actionButton}</NoteBlock>;
+            },
           },
         ]}
       />
@@ -101,9 +108,11 @@ export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteCli
 export const getRecordAction = onItemEdit => record => {
   return (
     <ActionButtonsContainer>
-      <OutlinedButton onClick={() => onItemEdit(record)}>
-        <TranslatedText stringId="general.action.record" fallback="Record" />
-      </OutlinedButton>
+      <NoteBlock>
+        <OutlinedButton onClick={() => onItemEdit(record)}>
+          <TranslatedText stringId="general.action.record" fallback="Record" />
+        </OutlinedButton>
+      </NoteBlock>
     </ActionButtonsContainer>
   );
 };

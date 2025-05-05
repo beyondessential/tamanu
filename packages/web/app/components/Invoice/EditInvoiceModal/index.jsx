@@ -22,6 +22,7 @@ import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteBlock } from '../../NoteBlock';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -250,12 +251,14 @@ export const EditInvoiceModal = ({
               marginBottom="-16px"
             >
               {finalisable && (
-                <Button onClick={handleFinaliseInvoice}>
-                  <TranslatedText
-                    stringId="invoice.modal.finaliseButton.label"
-                    fallback="Finalise invoice"
-                  />
-                </Button>
+                <NoteBlock>
+                  <Button onClick={handleFinaliseInvoice}>
+                    <TranslatedText
+                      stringId="invoice.modal.finaliseButton.label"
+                      fallback="Finalise invoice"
+                    />
+                  </Button>
+                </NoteBlock>
               )}
               {(cancelable || deletable) && (
                 <ThreeDotMenu

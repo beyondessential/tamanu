@@ -10,7 +10,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
-
+import { NoteBlock } from './NoteBlock';
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
@@ -40,6 +40,9 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
+      },
+      wrapper: menuItem => {
+        return <NoteBlock>{menuItem}</NoteBlock>;
       },
     },
   ].filter(({ permissionCheck }) => {

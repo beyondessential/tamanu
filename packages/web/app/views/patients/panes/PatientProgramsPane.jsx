@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, NoteBlock, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -16,9 +16,11 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
-        </Button>
+        <NoteBlock>
+          <Button onClick={handleNewSurvey}>
+            <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
+          </Button>
+        </NoteBlock>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} patient={patient} />
     </ContentPane>

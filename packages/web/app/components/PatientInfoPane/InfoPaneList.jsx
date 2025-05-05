@@ -10,6 +10,7 @@ import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
+import { NoteBlock } from '../NoteBlock';
 import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
@@ -141,13 +142,15 @@ export const InfoPaneList = ({
       <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
         <TitleText>{title}</TitleText>
         {!readonly && (
-          <AddButton
-            onClick={handleAddButtonClick}
-            endIcon={<AddCircleIcon />}
-            data-test-class="add-button-section"
-          >
-            Add
-          </AddButton>
+          <NoteBlock>
+            <AddButton
+              onClick={handleAddButtonClick}
+              endIcon={<AddCircleIcon />}
+              data-test-class="add-button-section"
+            >
+              Add
+            </AddButton>
+          </NoteBlock>
         )}
       </TitleContainer>
       <DataList>

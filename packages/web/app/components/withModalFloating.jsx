@@ -24,6 +24,10 @@ export const withModalFloating = ModalComponent => {
     & ${props => props.draggableHandle} {
       cursor: move;
     }
+
+    &.MuiDialog-root {
+      z-index: 1500 !important;
+    }
   `;
 
   const FloatingModal = ({
@@ -61,7 +65,7 @@ export const withModalFloating = ModalComponent => {
             handleComponent={handleComponent}
             handleStyles={handleStyles}
             className={className}
-            style={{ ...style, position: 'absolute', overflow: 'visible' }}
+            style={{ ...style, position: 'absolute', overflow: 'visible', zIndex: 1500 }}
           >
             <Paper
               {...rest}

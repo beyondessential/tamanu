@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { Button, FormModal, TableButtonRow } from '../../../components';
+import { Button, FormModal, NoteBlock, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
@@ -52,12 +52,14 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
         </FormModal>
         <VitalChartsModal />
         <TableButtonRow variant="small">
-          <Button onClick={() => setModalOpen(true)} disabled={readonly}>
-            <TranslatedText
-              stringId="encounter.vitals.action.recordVitals"
-              fallback="Record vitals"
-            />
-          </Button>
+          <NoteBlock>
+            <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+              <TranslatedText
+                stringId="encounter.vitals.action.recordVitals"
+                fallback="Record vitals"
+              />
+            </Button>
+          </NoteBlock>
         </TableButtonRow>
         <VitalsTable />
       </VitalChartDataProvider>

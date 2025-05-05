@@ -10,7 +10,7 @@ import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
-import { Button } from '../Button';
+import { Button, DefaultIconButton } from '../Button';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
@@ -19,6 +19,7 @@ import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
 import { useSuggester } from '../../api';
+import { NoteBlock } from '../NoteBlock';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -49,7 +50,7 @@ const DiscountedPrice = styled.div`
   flex-shrink: 0;
 `;
 
-const IconButton = styled.span`
+const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
   position: relative;
   top: 1px;
@@ -118,59 +119,67 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                 position="relative"
               >
                 <Box display="flex" style={{ gap: '8px' }}>
-                  <Field
-                    name={`insurers.${index}.insurerId`}
-                    required
-                    component={AutocompleteField}
-                    suggester={insurerSuggester}
-                    size="small"
-                  />
-                  <Field
-                    name={`insurers.${index}.percentage`}
-                    component={StyledNumberField}
-                    min={1}
-                    max={100}
-                    onInput={preventInvalid}
-                    required
-                  />
+                  <NoteBlock>
+                    <Field
+                      name={`insurers.${index}.insurerId`}
+                      required
+                      component={AutocompleteField}
+                      suggester={insurerSuggester}
+                      size="small"
+                    />
+                  </NoteBlock>
+                  <NoteBlock>
+                    <Field
+                      name={`insurers.${index}.percentage`}
+                      component={StyledNumberField}
+                      min={1}
+                      max={100}
+                      onInput={preventInvalid}
+                      required
+                    />
+                  </NoteBlock>
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
-                  <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
-                    <CloseIcon />
-                  </RemoveInsurerButton>
+                  <NoteBlock>
+                    <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
+                      <CloseIcon />
+                    </RemoveInsurerButton>
+                  </NoteBlock>
                 </Box>
               </Box>
             ))}
-            <AddInsurerButton
-              variant="text"
-              disableRipple
-              onClick={() => {
-                formArrayMethods.push({
-                  id: uuidv4(),
-                  percentage:
-                    !insurers?.length && defaultContributionInsurer
-                      ? defaultContributionInsurer * 100
-                      : undefined,
-                });
-              }}
-            >
-              {'+ '}
-              {insurers.length ? (
-                <TranslatedText
-                  stringId="invoice.summary.action.addAnotherInsurer"
-                  fallback="Add another insurer"
-                />
-              ) : (
-                <TranslatedText
-                  stringId="invoice.summary.action.addInsurer"
-                  fallback="Add insurer"
-                />
-              )}
-            </AddInsurerButton>
+            <NoteBlock>
+              <AddInsurerButton
+                variant="text"
+                disableRipple
+                onClick={() => {
+                  formArrayMethods.push({
+                    id: uuidv4(),
+                    percentage:
+                      !insurers?.length && defaultContributionInsurer
+                        ? defaultContributionInsurer * 100
+                        : undefined,
+                  });
+                }}
+              >
+                {'+ '}
+                {insurers.length ? (
+                  <TranslatedText
+                    stringId="invoice.summary.action.addAnotherInsurer"
+                    fallback="Add another insurer"
+                  />
+                ) : (
+                  <TranslatedText
+                    stringId="invoice.summary.action.addInsurer"
+                    fallback="Add insurer"
+                  />
+                )}
+              </AddInsurerButton>
+            </NoteBlock>
           </CardItem>
         );
       }}
@@ -278,9 +287,14 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
       <CardItem sx={{ marginBottom: '-6px', fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.discount.label" fallback="Discount" />
         {editable && !invoice.discount && (
-          <Button onClick={handleEditDiscount}>
-            <TranslatedText stringId="invoice.summary.action.addDiscount" fallback="Add discount" />
-          </Button>
+          <NoteBlock>
+            <Button onClick={handleEditDiscount}>
+              <TranslatedText
+                stringId="invoice.summary.action.addDiscount"
+                fallback="Add discount"
+              />
+            </Button>
+          </NoteBlock>
         )}
         {!!invoice.discount && (
           <DiscountedPrice>
@@ -329,9 +343,11 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             </ThemedTooltip>
           </DescriptionText>
           {editable && (
-            <IconButton onClick={handleEditDiscount}>
-              <PencilIcon />
-            </IconButton>
+            <NoteBlock>
+              <IconButton onClick={handleEditDiscount}>
+                <PencilIcon />
+              </IconButton>
+            </NoteBlock>
           )}
         </CardItem>
       )}

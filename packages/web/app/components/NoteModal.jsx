@@ -129,10 +129,10 @@ export const NoteModal = React.memo(() => {
 
   return (
     <>
-      <Prompt
+      {/* <Prompt
         when={isNoteModalOpen}
         message="You have unsaved changes in the note. Are you sure you want to leave?"
-      />
+      /> */}
       <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
     </>
   );

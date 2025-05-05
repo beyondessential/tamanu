@@ -16,6 +16,7 @@ import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
+import { NoteBlock } from '../../NoteBlock';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -272,13 +273,15 @@ export const InvoiceItemRow = ({
       <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
         <StyledItemCell width="12%">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.orderDate`}
-              required
-              component={DateField}
-              size="small"
-              saveDateAsString
-            />
+            <NoteBlock>
+              <Field
+                name={`invoiceItems.${index}.orderDate`}
+                required
+                component={DateField}
+                size="small"
+                saveDateAsString
+              />
+            </NoteBlock>
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
@@ -287,14 +290,16 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="30%">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.productId`}
-              required
-              component={AutocompleteField}
-              suggester={invoiceProductsSuggester}
-              size="small"
-              onChange={handleChangeProduct}
-            />
+            <NoteBlock>
+              <Field
+                name={`invoiceItems.${index}.productId`}
+                required
+                component={AutocompleteField}
+                suggester={invoiceProductsSuggester}
+                size="small"
+                onChange={handleChangeProduct}
+              />
+            </NoteBlock>
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item.productName}
@@ -318,19 +323,21 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="10px">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.quantity`}
-              component={NumberField}
-              min={1}
-              max={99}
-              onInput={event => {
-                if (!event.target.validity.valid) {
-                  event.target.value = '';
-                }
-              }}
-              size="small"
-              required
-            />
+            <NoteBlock>
+              <Field
+                name={`invoiceItems.${index}.quantity`}
+                component={NumberField}
+                min={1}
+                max={99}
+                onInput={event => {
+                  if (!event.target.validity.valid) {
+                    event.target.value = '';
+                  }
+                }}
+                size="small"
+                required
+              />
+            </NoteBlock>
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.quantity}
@@ -339,14 +346,16 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="19%">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.orderedByUserId`}
-              required
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-              size="small"
-              onChange={handleChangeOrderedBy}
-            />
+            <NoteBlock>
+              <Field
+                name={`invoiceItems.${index}.orderedByUserId`}
+                required
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+                size="small"
+                onChange={handleChangeOrderedBy}
+              />
+            </NoteBlock>
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderedByUser?.displayName}
@@ -370,15 +379,21 @@ export const InvoiceItemRow = ({
               </>
             ) : (
               item.productId && (
-                <Field
-                  name={`invoiceItems.${index}.productPrice`}
-                  component={PriceField}
-                  required
-                  style={{ width: '100%' }}
-                />
+                <NoteBlock>
+                  <Field
+                    name={`invoiceItems.${index}.productPrice`}
+                    component={PriceField}
+                    required
+                    style={{ width: '100%' }}
+                  />
+                </NoteBlock>
               )
             )}
-            {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}
+            {showActionMenu && editable && (
+              <NoteBlock>
+                <ThreeDotMenu items={menuItems} />
+              </NoteBlock>
+            )}
           </PriceCell>
         </StyledItemCell>
       </StyledItemRow>

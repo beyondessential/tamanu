@@ -11,7 +11,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
-
+import { NoteBlock } from '../../NoteBlock';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
 `;
@@ -150,9 +150,11 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       key: '',
       sortable: false,
       accessor: row => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
-          <TranslatedText stringId="general.action.add" fallback="Add" />
-        </SingleAddButton>
+        <NoteBlock>
+          <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
+            <TranslatedText stringId="general.action.add" fallback="Add" />
+          </SingleAddButton>
+        </NoteBlock>
       ),
     },
   ];
@@ -165,9 +167,11 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           fallback="Patient items to be added"
         />
         {!isEmptyPotentialInvoiceItems && (
-          <BulkAddButton onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}>
-            <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-          </BulkAddButton>
+          <NoteBlock>
+            <BulkAddButton onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}>
+              <TranslatedText stringId="general.action.addAll" fallback="Add all" />
+            </BulkAddButton>
+          </NoteBlock>
         )}
       </PaneHeader>
       <StyledDataFetchingTable

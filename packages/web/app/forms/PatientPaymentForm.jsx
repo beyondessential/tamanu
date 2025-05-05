@@ -12,6 +12,7 @@ import {
   DateField,
   Field,
   Form,
+  NoteBlock,
   NumberField,
   TextField,
   TranslatedText,
@@ -21,8 +22,9 @@ import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
+import { DefaultIconButton } from '../components/Button';
 
-const IconButton = styled.div`
+const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
   color: ${Colors.primary};
   position: absolute;
@@ -154,39 +156,47 @@ export const PatientPaymentForm = ({
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
           <FieldContainer width="19%">
-            <Field name="date" required component={DateField} saveDateAsString size="small" />
+            <NoteBlock>
+              <Field name="date" required component={DateField} saveDateAsString size="small" />
+            </NoteBlock>
           </FieldContainer>
           <FieldContainer width="19%">
-            <Field
-              name="methodId"
-              required
-              component={AutocompleteField}
-              suggester={paymentMethodSuggester}
-              size="small"
-              onChange={e => onDataChange({ paymentMethod: e.target })}
-            />
+            <NoteBlock>
+              <Field
+                name="methodId"
+                required
+                component={AutocompleteField}
+                suggester={paymentMethodSuggester}
+                size="small"
+                onChange={e => onDataChange({ paymentMethod: e.target })}
+              />
+            </NoteBlock>
           </FieldContainer>
           {renderChequeNumberField()}
           <FieldContainer width="13%">
-            <Field
-              name="amount"
-              required
-              component={NumberField}
-              size="small"
-              min={0}
-              onInput={validateDecimalPlaces}
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-            />
+            <NoteBlock>
+              <Field
+                name="amount"
+                required
+                component={NumberField}
+                size="small"
+                min={0}
+                onInput={validateDecimalPlaces}
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+              />
+            </NoteBlock>
           </FieldContainer>
           <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
-            <Field
-              name="receiptNumber"
-              required
-              component={TextField}
-              size="small"
-              onChange={e => setFieldValue('receiptNumber', e.target.value)}
-            />
+            <NoteBlock>
+              <Field
+                name="receiptNumber"
+                required
+                component={TextField}
+                size="small"
+                onChange={e => setFieldValue('receiptNumber', e.target.value)}
+              />
+            </NoteBlock>
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -195,19 +205,23 @@ export const PatientPaymentForm = ({
                 />
               }
             >
-              <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
-                <CachedIcon />
-              </IconButton>
+              <NoteBlock>
+                <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
+                  <CachedIcon />
+                </IconButton>
+              </NoteBlock>
             </ThemedTooltip>
           </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }}>
-            <Button
-              size="small"
-              onClick={submitForm}
-              disabled={isCreatingPayment || isUpdatingPayment}
-            >
-              <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
-            </Button>
+            <NoteBlock>
+              <Button
+                size="small"
+                onClick={submitForm}
+                disabled={isCreatingPayment || isUpdatingPayment}
+              >
+                <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
+              </Button>
+            </NoteBlock>
           </Box>
           {openConfirmPaidModal && (
             <ConfirmPaidModal
