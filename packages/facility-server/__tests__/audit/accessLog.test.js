@@ -3,6 +3,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { version } from '../../package.json';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 describe('AccessLog', () => {
   const [facilityId] = selectFacilityIds(config);
@@ -17,6 +18,8 @@ describe('AccessLog', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
+
+    await models.Setting.set('audit.accesses.enabled', true, SETTINGS_SCOPES.GLOBAL);
   });
 
   beforeEach(async () => {

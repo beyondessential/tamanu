@@ -1,9 +1,8 @@
-import type { Models } from '@tamanu/database';
 import { times } from 'lodash';
-import { fake, chance } from '../../fake';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
-interface CreateProgramRegistryParams {
-  models: Models;
+interface CreateProgramRegistryParams extends CommonParams {
   userId: string;
   patientId: string;
   programRegistryId: string;
@@ -11,6 +10,7 @@ interface CreateProgramRegistryParams {
 }
 export const createProgramRegistry = async ({
   models,
+  limit,
   userId,
   patientId,
   programRegistryId,
@@ -18,19 +18,24 @@ export const createProgramRegistry = async ({
 }: CreateProgramRegistryParams): Promise<void> => {
   const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
 
-  await PatientProgramRegistration.create(
+  const { id: patientProgramRegistrationId } = await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
       clinicianId: userId,
       patientId,
       programRegistryId,
     }),
   );
-  times(conditionCount, async () => {
-    await PatientProgramRegistrationCondition.create(
-      fake(PatientProgramRegistrationCondition, {
-        patientId,
-        programRegistryId,
+  await Promise.all(
+    times(conditionCount, () =>
+      limit(async () => {
+        await PatientProgramRegistrationCondition.create(
+          fake(PatientProgramRegistrationCondition, {
+            patientId,
+            programRegistryId,
+            patientProgramRegistrationId,
+          }),
+        );
       }),
-    );
-  });
+    ),
+  );
 };

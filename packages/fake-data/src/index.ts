@@ -1,1 +1,1 @@
-export * from './populateDb';
+export * from './populateDb/index.js';
