@@ -10,6 +10,8 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Patient } from '~/models/Patient';
+import { ReferenceData } from '~/models/ReferenceData';
+import { ReferenceDataType } from '~/types';
 import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
@@ -18,6 +20,8 @@ import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
 import { joinNames } from '~/ui/helpers/user';
+import { compose } from 'redux';
+import { withPatient } from '~/ui/containers/Patient';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;
@@ -32,7 +36,7 @@ interface PatientAdditionalDataFormProps {
   setSelectedPatient: (patient: Patient) => void;
 }
 
-export const PatientAdditionalDataForm = ({
+export const PatientAdditionalDataForm = compose(withPatient)(({
   patient,
   additionalData,
   additionalDataSections,
@@ -41,6 +45,7 @@ export const PatientAdditionalDataForm = ({
   customPatientFieldValues,
   isCustomSection = false,
   customSectionFields,
+  setSelectedPatient,
 }: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
@@ -58,11 +63,14 @@ export const PatientAdditionalDataForm = ({
 
       // TODO: hacking just to get it working for now
       const patientToUpdate = await Patient.findOne({ where: { id: patient.id } });
+      const village = await ReferenceData.findOne({
+        where: { id: values?.villageId },
+      });
       patientToUpdate.villageId = values?.villageId || null;
-      patientToUpdate.village = values?.villageId ? { id: values?.villageId } : null;
+      patientToUpdate.village = values?.villageId ? village : null;
       await patientToUpdate.save();
 
-      const updatedPAD = await PatientAdditionalData.updateForPatient(patient.id, values);
+      await PatientAdditionalData.updateForPatient(patient.id, values);
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter((key) =>
@@ -77,6 +85,10 @@ export const PatientAdditionalDataForm = ({
           ),
         ),
       );
+
+      console.log('patientToUpdate', patientToUpdate);
+
+      setSelectedPatient(patientToUpdate);
 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
@@ -125,4 +137,4 @@ export const PatientAdditionalDataForm = ({
       )}
     </Form>
   );
-};
+});
