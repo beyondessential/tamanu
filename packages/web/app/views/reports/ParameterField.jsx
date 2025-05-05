@@ -20,6 +20,7 @@ import { LabTestCategoryField } from './LabTestCategoryField';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
+import { LocationField } from './LocationField';
 import { useSuggester } from '../../api';
 import { FacilityField } from './FacilityField';
 import { useField } from 'formik';
@@ -108,6 +109,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestCategorySensitiveField,
   ParameterSuggesterSelectField,
   LabTestTypeField,
+  LocationField,
 };
 
 export const ParameterField = ({
