@@ -1,6 +1,6 @@
-import { insertChangelogRecords } from "@tamanu/database";
-import { createTestContext } from "../utilities";
-import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from "@tamanu/constants";
+import { insertChangelogRecords } from '@tamanu/database';
+import { createTestContext } from '../utilities';
+import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 describe('insertChangeLogRecords', () => {
   let ctx;
@@ -16,7 +16,7 @@ describe('insertChangeLogRecords', () => {
 
   afterEach(async () => {
     // Clear the changes table before each test
-    await models.ChangeLog.destroy({where: {}})
+    await models.ChangeLog.destroy({ where: {} });
   });
 
   it('should not insert anything when no changelog records are provided', async () => {
@@ -30,24 +30,24 @@ describe('insertChangeLogRecords', () => {
 
   it('should filter out existing records before inserting', async () => {
     // Arrange - Insert an existing record
-    await models.ChangeLog.create({
-        tableOid: 1234,
-        tableSchema: 'public',
-        tableName: 'patients',
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        recordSyncTick: 100,
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordId: '1',
-        recordUpdate: true,
-        recordData: { first_name: 'Patient 1' },
+    const existingRecord = await models.ChangeLog.create({
+      tableOid: 1234,
+      tableSchema: 'public',
+      tableName: 'patients',
+      loggedAt: new Date(),
+      recordCreatedAt: new Date(),
+      recordUpdatedAt: new Date(),
+      recordSyncTick: 100,
+      updatedByUserId: SYSTEM_USER_UUID,
+      recordId: '1',
+      recordUpdate: true,
+      recordData: { first_name: 'Patient 1' },
     });
 
     const changelogRecords = [
       {
         // Existing record
-        id: '1f582bab-523e-4e25-bae6-2ab7178118df',
+        id: existingRecord.id,
         tableOid: 1234,
         loggedAt: new Date(),
         recordCreatedAt: new Date(),
@@ -97,8 +97,8 @@ describe('insertChangeLogRecords', () => {
 
     // Assert
     const results = await models.ChangeLog.findAll({
-      order: [['recordId', 'ASC']]
-    })
+      order: [['recordId', 'ASC']],
+    });
     expect(results).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
     // Should ignore the existing record as changelog records are immutable
@@ -132,7 +132,7 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(models, changelogRecords, true);
 
     // Assert
-    const [changelog] = await models.ChangeLog.findAll()
+    const [changelog] = await models.ChangeLog.findAll();
     expect(changelog.recordSyncTick).toBe(-999);
   });
 
@@ -158,7 +158,7 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(models, changelogRecords);
 
     // Assert
-    const [changelog] = await models.ChangeLog.findAll()
+    const [changelog] = await models.ChangeLog.findAll();
     expect(changelog.recordSyncTick).toBe(123);
   });
 
@@ -185,7 +185,7 @@ describe('insertChangeLogRecords', () => {
     await insertChangelogRecords(models, changelogRecords);
 
     // Assert
-    const [changelog] = await models.ChangeLog.findAll()
+    const [changelog] = await models.ChangeLog.findAll();
     expect(JSON.parse(changelog.recordData)).toMatchObject(recordData);
   });
 });
