@@ -18,7 +18,7 @@ export const createProgramRegistry = async ({
 }: CreateProgramRegistryParams): Promise<void> => {
   const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
 
-  await PatientProgramRegistration.create(
+  const { id: patientProgramRegistrationId } = await PatientProgramRegistration.create(
     fake(PatientProgramRegistration, {
       clinicianId: userId,
       patientId,
@@ -30,6 +30,7 @@ export const createProgramRegistry = async ({
       fake(PatientProgramRegistrationCondition, {
         patientId,
         programRegistryId,
+        patientProgramRegistrationId,
       }),
     );
   });
