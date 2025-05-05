@@ -1,11 +1,11 @@
-import { ChangeLog } from '../../src/models/ChangeLog';
+import { ChangeLog } from '../../../src/models/ChangeLog';
 import { describe, expect, it, beforeAll } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 
-import { extractChangelogFromSnapshotRecords } from '../../src/utils/audit/extractChangelogFromSnapshotRecords';
-import type { SyncSnapshotAttributesWithChangelog } from '../../src/types/sync';
+import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/extractChangelogFromSnapshotRecords';
+import type { SyncSnapshotAttributesWithChangelog } from '../../../src/types/sync';
 import { Attributes } from 'sequelize';
-import { createTestDatabase } from '../sync/utilities';
+import { createTestDatabase } from '../../sync/utilities';
 
 describe('extractChangelogFromSnapshotRecords', () => {
   let models;
