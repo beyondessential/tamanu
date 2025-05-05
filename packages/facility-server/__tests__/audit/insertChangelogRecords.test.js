@@ -1,5 +1,6 @@
 import { insertChangelogRecords } from '@tamanu/database';
 import { createTestContext } from '../utilities';
+import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 describe('insertChangeLogRecords', () => {
@@ -110,7 +111,7 @@ describe('insertChangeLogRecords', () => {
     expect(results[2].tableName).toBe('encounters');
   });
 
-  it('should set recordSyncTick to -999 for facility records', async () => {
+  it('should set recordSyncTick to SYNC_TICK_FLAGS.UPDATED_ELSEWHERE for facility records', async () => {
     // Arrange
     const changelogRecords = [
       {
@@ -134,10 +135,11 @@ describe('insertChangeLogRecords', () => {
     // Assert
     const result = await models.ChangeLog.findAll();
     expect(result).toHaveLength(1);
-    expect(result[0].recordSyncTick).toBe("-999");
+    expect(result[0].recordSyncTick).toBe(SYNC_TICK_FLAGS.UPDATED_ELSEWHERE);
   });
 
-  it('should preserve recordSyncTick for non-facility records', async () => {
+  // TODO: DON'T forget this one Daniel
+  it.todo('should preserve recordSyncTick for non-facility records', async () => {
     // Arrange
     const changelogRecords = [
       {

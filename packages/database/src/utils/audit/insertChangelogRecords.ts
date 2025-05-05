@@ -2,6 +2,7 @@ import config from 'config';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
+import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
 export const insertChangelogRecords = async (
   models: Models,
@@ -23,11 +24,10 @@ export const insertChangelogRecords = async (
   const existingIds = existingRecords.map(({ id }) => id);
   const recordsToInsert = changelogRecords
     .filter(({ id }) => !existingIds.includes(id))
-    .map(({ recordData, recordSyncTick, ...changelogRecord }) => {
+    .map(({ recordData, ...changelogRecord }) => {
       return {
         ...changelogRecord,
-        // TODO Should we he have to do this ?
-        recordSyncTick: isFacility ? -999 : Number(recordSyncTick),
+        recordSyncTick: isFacility ? SYNC_TICK_FLAGS.UPDATED_ELSEWHERE : SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK,
         recordData: JSON.stringify(recordData),
       };
     });

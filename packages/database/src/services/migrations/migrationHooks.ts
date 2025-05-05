@@ -5,6 +5,7 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
+import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
 const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
   sequelize
@@ -131,11 +132,11 @@ export async function runPreMigration(log: Logger, sequelize: Sequelize) {
 }
 
 export async function runPostMigration(log: Logger, sequelize: Sequelize) {
-  // add column: holds last update tick, default to -999 (not marked for sync) on facility,
-  // and 0 (will be caught in any initial sync) on central server
+  // add column: holds last update tick, default to 0 (will be caught in any initial sync) on central server
+  // and SYNC_TICK_FLAGS.UPDATED_ELSEWHERE (not marked for sync) on facility
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
-  const initialValue = isFacilityServer ? -999 : 0; // -999 on facility, 0 on central server
+  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.UPDATED_ELSEWHERE : SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK;
   for (const { schema, table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${schema}.${table}`);
     await sequelize.query(`

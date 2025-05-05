@@ -23,7 +23,7 @@ import {
   waitForPendingEditsUsingSyncTick,
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
-  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+  SYNC_TICK_FLAGS,
   SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
 import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
@@ -291,7 +291,7 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
+        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
