@@ -438,7 +438,7 @@ describe('CentralSyncManager', () => {
       // 1. A changelog record is created for the initial creation of a patient_program_registration
       // 2. Another changelog record is created when that registration is updated
       // 3. Both changelog records are attached to the outgoing sync snapshot record
-      // 4. Each changelog record has the correct table_name and record_id as the record its attached to
+      // 4. Each changelog record has the correct tableName and recordId as the record its attached to
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       await models.Setting.set('audit.changes.enabled', true);
@@ -503,12 +503,12 @@ describe('CentralSyncManager', () => {
       expect(patientProgramRegistrationChange.changelogRecords).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            table_name: 'patient_program_registrations',
-            record_id: patientProgramRegistrationChange.recordId,
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistrationChange.recordId,
           }),
           expect.objectContaining({
-            table_name: 'patient_program_registrations',
-            record_id: patientProgramRegistrationChange.recordId,
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistrationChange.recordId,
           }),
         ]),
       );
@@ -1878,7 +1878,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it('allows having the same record_id but different record_type in sync lookup table', async () => {
+    it('allows having the same recordId but different record_type in sync lookup table', async () => {
       const patient1 = await models.Patient.create(fake(models.Patient));
       await models.ReferenceData.create(
         fake(models.ReferenceData, { id: patient1.id }), // use the same id between patient and reference_data
