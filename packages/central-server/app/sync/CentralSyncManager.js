@@ -37,7 +37,6 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
 
-
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 

@@ -138,8 +138,7 @@ describe('insertChangeLogRecords', () => {
     expect(result[0].recordSyncTick).toBe(SYNC_TICK_FLAGS.UPDATED_ELSEWHERE);
   });
 
-  // TODO: DON'T forget this one Daniel
-  it.todo('should preserve recordSyncTick for non-facility records', async () => {
+  it('should preserve recordSyncTick for non-facility records', async () => {
     // Arrange
     const changelogRecords = [
       {
