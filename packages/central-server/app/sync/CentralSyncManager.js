@@ -19,16 +19,17 @@ import {
   insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
+  SYNC_SESSION_DIRECTION,
+  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords, extractChangelogFromSnapshotRecords } from '@tamanu/database/utils/audit'
+import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
-import { addChangelogRecords } from './addChangelogRecords';
+import { getLookupSourceTickRange } from './getLookupSourceTickRange';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -575,11 +576,18 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const recordsForPull = await addChangelogRecords(
+    const sourceTickRange = await getLookupSourceTickRange(
       this.store,
       session.pullSince,
-      session.pullUntil,
+      session.pullUntil
+    );
+    const recordsForPull = await attachChangelogToSnapshotRecords(
+      this.store.models,
       snapshotRecords,
+      {
+        ...sourceTickRange,
+        tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+      }
     );
     return recordsForPull;
   }
