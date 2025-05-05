@@ -22,6 +22,10 @@ export const getLookupSourceTickRange = async (
     order: [['lookupEndTick', 'ASC']],
   });
 
+  if (!lookupTicks.length) {
+    return null;
+  }
+
   const minSourceTick = lookupTicks.at(0).sourceStartTick;
   const maxSourceTick = lookupTicks.at(-1).lookupEndTick;
 

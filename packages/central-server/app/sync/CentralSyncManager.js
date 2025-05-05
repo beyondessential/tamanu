@@ -581,6 +581,9 @@ export class CentralSyncManager {
       session.pullSince,
       session.pullUntil
     );
+    if (!sourceTickRange) {
+      return snapshotRecords;
+    }
     const recordsForPull = await attachChangelogToSnapshotRecords(
       this.store.models,
       snapshotRecords,
