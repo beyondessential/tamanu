@@ -9,6 +9,7 @@ export const insertChangelogRecords = async (
   isFacility = !!selectFacilityIds(config),
 ) => {
   const { ChangeLog } = models;
+
   if (!changelogRecords.length) {
     return;
   }
@@ -30,5 +31,6 @@ export const insertChangelogRecords = async (
         recordData: JSON.stringify(recordData),
       };
     });
+
   await ChangeLog.bulkCreate(recordsToInsert);
 };
