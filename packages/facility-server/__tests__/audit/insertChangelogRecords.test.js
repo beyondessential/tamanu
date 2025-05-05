@@ -101,7 +101,7 @@ describe('insertChangeLogRecords', () => {
     });
     expect(results).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
-    // Should ignore the existing record as changelog records are immutable
+    // Should ignore the change to the existing record as changelog records are immutable
     expect(results[0].recordData).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records
     expect(results[1].recordId).toBe('2');
