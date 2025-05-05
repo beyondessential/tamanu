@@ -90,13 +90,13 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Check patient 1 has both changelog records
     const patient1 = result.find((r) => r.recordId === '1');
     expect(patient1?.changelogRecords).toHaveLength(2);
-    expect(patient1?.changelogRecords[0].recordSyncTick).toBe(100);
-    expect(patient1?.changelogRecords[1].recordSyncTick).toBe(150);
+    expect(patient1?.changelogRecords[0].recordSyncTick).toBe("100");
+    expect(patient1?.changelogRecords[1].recordSyncTick).toBe("150");
 
     // Check patient 2 has one changelog record
     const patient2 = result.find((r) => r.recordId === '2');
     expect(patient2?.changelogRecords).toHaveLength(1);
-    expect(patient2?.changelogRecords[0].recordSyncTick).toBe(200);
+    expect(patient2?.changelogRecords[0].recordSyncTick).toBe("200");
 
     // Check encounter 1 has no changelog records (outside tick range)
     const encounter1 = result.find((r) => r.recordId === '1' && r.recordType === 'encounters');
