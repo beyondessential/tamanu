@@ -3,7 +3,6 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
-import { InvalidClientHeadersError } from '@tamanu/shared/errors';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
@@ -39,26 +38,6 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: MIN_CLIENT_VERSION,
     max: MAX_CLIENT_VERSION,
   },
-  'fiji-vps': {
-    min: null,
-    max: null,
-  },
-  'fiji-vrs': {
-    min: null,
-    max: null,
-  },
-  medici: {
-    min: null,
-    max: null,
-  },
-  mSupply: {
-    min: null,
-    max: null,
-  },
-  FHIR: {
-    min: null,
-    max: null,
-  },
 };
 
 export const versionCompatibility = (req, res, next) => {
@@ -70,17 +49,8 @@ export const versionCompatibility = (req, res, next) => {
     return;
   }
 
-  const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
-  if (!clientTypes.includes(clientType)) {
-    next(
-      new InvalidClientHeadersError(
-        `The only supported X-Tamanu-Client values are ${clientTypes.join(', ')}`,
-      ),
-    );
-    return;
-  }
-
-  const clientInfo = SUPPORTED_CLIENT_VERSIONS[clientType];
+  // Default to no version checking if the client type is unrecognised
+  const clientInfo = SUPPORTED_CLIENT_VERSIONS[clientType] || { min: null, max: null };
   const { min, max } = clientInfo;
 
   const runCheck = buildVersionCompatibilityCheck(min, max);
