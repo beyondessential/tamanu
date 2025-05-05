@@ -17,6 +17,7 @@ import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
+import { joinNames } from '~/ui/helpers/user';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;
@@ -28,6 +29,7 @@ interface PatientAdditionalDataFormProps {
   isCustomSection?: boolean;
   customSectionFields?: any[];
   sectionKey: Element;
+  setSelectedPatient: (patient: Patient) => void;
 }
 
 export const PatientAdditionalDataForm = ({
@@ -54,12 +56,13 @@ export const PatientAdditionalDataForm = ({
         },
       });
 
-      // TODO: This is a hack to update the villageId as its only field within PAD
-      await Patient.updateValues(patient.id, {
-        villageId: values.villageId,
-      });
+      // TODO: hacking just to get it working for now
+      const patientToUpdate = await Patient.findOne({ where: { id: patient.id } });
+      patientToUpdate.villageId = values?.villageId || null;
+      patientToUpdate.village = values?.villageId ? { id: values?.villageId } : null;
+      await patientToUpdate.save();
 
-      await PatientAdditionalData.updateForPatient(patient.id, values);
+      const updatedPAD = await PatientAdditionalData.updateForPatient(patient.id, values);
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter((key) =>
@@ -74,8 +77,6 @@ export const PatientAdditionalDataForm = ({
           ),
         ),
       );
-
-      // TODO: Needs to reload the patient data
 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
