@@ -1,9 +1,4 @@
-import {
-  SYNC_DIRECTIONS,
-  ENGLISH_LANGUAGE_CODE,
-  DEFAULT_LANGUAGE_CODE,
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
