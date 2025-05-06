@@ -127,20 +127,20 @@ const TitleCell = React.memo(({ value }) => {
       data-testid="box-8p39"
     >
       {value}
-      {isSuccess && allGraphedChartKeys.length > 0 && (
-        <IconButton
-          size="small"
-          onClick={() => {
-            setChartKeys(chartKeys);
-            setIsInMultiChartsView(true);
-            setModalTitle('Vitals');
-            setVitalChartModalOpen(true);
-          }}
-          data-testid="iconbutton-u6iz"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
-        </IconButton>
-      )}
+      {isSuccess && allGraphedChartKeys.length > 1 && (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys(chartKeys);
+              setIsInMultiChartsView(true);
+              setModalTitle('Vitals');
+              setVitalChartModalOpen(true);
+            }}
+            data-testid="iconbutton-u6iz"
+          >
+            <VitalVectorIcon data-testid="vitalvectoricon-qhwu"/>
+          </IconButton>
+        )}
       {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
     </Box>
   );
