@@ -222,7 +222,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         open={openDeleteProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={({ success }) => {
-          console.log('success', success);
           if (success) {
             console.log('navigateToPatient');
             navigateToPatient(patientProgramRegistration.patientId);
