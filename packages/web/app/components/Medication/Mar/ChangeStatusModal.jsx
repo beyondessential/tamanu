@@ -194,7 +194,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
     if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
       return {
         status: initialStatus,
-        reasonNotGivenId: currentUser?.id,
+        reasonNotGivenId: '',
         recordedByUserId: currentUser?.id,
       };
     }

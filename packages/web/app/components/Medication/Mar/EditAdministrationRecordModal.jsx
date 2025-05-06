@@ -318,6 +318,7 @@ export const EditAdministrationRecordModal = ({
                     <Field
                       name="reasonForChange"
                       component={TextField}
+                      disabled={!dirty}
                       label="Reason for change (Optional)"
                     />
                   </div>
