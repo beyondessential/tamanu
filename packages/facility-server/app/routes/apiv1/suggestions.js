@@ -27,9 +27,12 @@ const defaultLimit = 25;
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const replaceDataLabelWithTranslation = (item) => {
-  item.name = item.translated_name || item.name;
+  if (item.dataValues.translated_name) {
+    item.setDataValue('name', item.dataValues.translated_name);
+  }
   return item;
 };
+
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
@@ -121,7 +124,6 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
-        raw: true,
       });
 
       const translatedData = results.map(replaceDataLabelWithTranslation);
@@ -168,7 +170,6 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         replacements: {
           language,
         },
-        raw: true,
       });
 
       if (!record) throw new NotFoundError();
@@ -224,7 +225,6 @@ function createAllRecordsRoute(
           language,
           ...extraReplacementsBuilder(query),
         },
-        raw: true,
       });
 
       const translatedResults = results.map(replaceDataLabelWithTranslation);
