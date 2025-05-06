@@ -68,12 +68,12 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const { getTranslation } = useTranslation();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     const newData = { ...data };
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
@@ -85,7 +85,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-  const isRequiredPatientData = fieldName => getSetting(`fields.${fieldName}.requiredPatientData`);
+  const isRequiredPatientData = (fieldName) =>
+    getSetting(`fields.${fieldName}.requiredPatientData`);
 
   const api = useApi();
   const {
@@ -102,14 +103,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     enabled: Boolean(patient.id),
   });
 
-  const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
+  const errors = [fieldDefError, fieldValError].filter((e) => Boolean(e));
   if (errors.length > 0) {
-    return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
+    return <pre>{errors.map((e) => e.stack).join('\n')}</pre>;
   }
   const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-6mh5" />;
   }
 
   return (
@@ -121,20 +122,28 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
             isDetailsForm
+            data-testid="primarydetails-gyok"
           />
-          <StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <StyledPatientDetailSecondaryDetailsGroupWrapper data-testid="styledpatientdetailsecondarydetailsgroupwrapper-ox05">
             <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
+              data-testid="secondarydetails-2fpb"
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <PatientFields
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
+            data-testid="patientfields-csd1"
           />
-          <ButtonRow>
-            <FormSubmitButton variant="contained" color="primary" text="Save" />
+          <ButtonRow data-testid="buttonrow-92zi">
+            <FormSubmitButton
+              variant="contained"
+              color="primary"
+              text="Save"
+              data-testid="formsubmitbutton-dzgy"
+            />
           </ButtonRow>
         </>
       )}
@@ -152,6 +161,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         getTranslation,
         getSetting,
       )}
+      data-testid="form-9v1j"
     />
   );
 };

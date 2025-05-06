@@ -44,7 +44,7 @@ const options = [
   },
 ];
 
-export const DateTimeSelector = props => {
+export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
   const [value, setValue] = useState(options[0].value);
@@ -60,7 +60,7 @@ export const DateTimeSelector = props => {
 
   useEffect(() => {
     const { getDefaultStartDate, getDefaultEndDate } = options.find(
-      option => option.value === value,
+      (option) => option.value === value,
     );
     const newStartDate = getDefaultStartDate ? getDefaultStartDate() : new Date();
     const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
@@ -69,23 +69,25 @@ export const DateTimeSelector = props => {
   }, [value, formatAndSetDateRange]);
 
   return (
-    <Wrapper>
+    <Wrapper data-testid="wrapper-onhu">
       <SelectInput
         options={options}
         value={value}
         isClearable={false}
-        onChange={v => {
+        onChange={(v) => {
           setValue(v.target.value);
         }}
         size="small"
+        data-testid="selectinput-i6gc"
       />
       {value === CUSTOM_DATE && (
         <DateInput
           size="small"
           saveDateAsString
-          format={DATE_FORMAT} // set format so we can safely use parseISO
+          // set format so we can safely use parseISO
+          format={DATE_FORMAT}
           value={startDateString}
-          onChange={debounce(newValue => {
+          onChange={debounce((newValue) => {
             const { value: dateString } = newValue.target;
             if (dateString) {
               const selectedDayDate = parseISO(dateString);
@@ -96,6 +98,7 @@ export const DateTimeSelector = props => {
             }
           }, 200)}
           arrows
+          data-testid="dateinput-z016"
         />
       )}
     </Wrapper>

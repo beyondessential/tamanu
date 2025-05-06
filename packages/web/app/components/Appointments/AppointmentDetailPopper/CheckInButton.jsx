@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  usePatientCurrentEncounterQuery,
+} from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { TextButton } from '../../Button';
 import { EncounterModal } from '../../EncounterModal';
@@ -48,6 +51,7 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.action.createEncounter.success"
             fallback="Encounter successfully started"
+            data-testid="translatedtext-21ut"
           />,
         );
       },
@@ -56,12 +60,13 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.action.createEncounter.error"
             fallback="Couldn’t start encounter"
+            data-testid="translatedtext-b7r8"
           />,
         ),
     },
   );
 
-  const updateEncounter = newEncounter => mutateAppointment({ encounterId: newEncounter?.id });
+  const updateEncounter = (newEncounter) => mutateAppointment({ encounterId: newEncounter?.id });
 
   return (
     <>
@@ -70,14 +75,21 @@ export const CheckInButton = ({ appointment }) => {
           <TranslatedText
             stringId="scheduling.tooltip.alreadyAdmitted"
             fallback="Patient already admitted"
+            data-testid="translatedtext-qqhh"
           />
         }
         visible={!!encounter}
+        data-testid="styledconditionaltooltip-eltp"
       >
-        <StyledButton onClick={openModal} disabled={!!encounter || isUpdatingAppointment}>
+        <StyledButton
+          onClick={openModal}
+          disabled={!!encounter || isUpdatingAppointment}
+          data-testid="styledbutton-hcp0"
+        >
           <TranslatedText
             stringId="scheduling.action.admitOrCheckIn"
             fallback="Admit or check in"
+            data-testid="translatedtext-j8hi"
           />
         </StyledButton>
       </StyledConditionalTooltip>
@@ -93,6 +105,7 @@ export const CheckInButton = ({ appointment }) => {
         noRedirectOnSubmit
         patient={appointment?.patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
+        data-testid="encountermodal-guyo"
       />
     </>
   );

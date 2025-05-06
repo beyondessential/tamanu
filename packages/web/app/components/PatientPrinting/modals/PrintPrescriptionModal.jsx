@@ -100,14 +100,21 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   return (
     <>
       <Modal
-        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
+        title={
+          <TranslatedText
+            stringId="medication.modal.print.title"
+            fallback="Prescription"
+            data-testid="translatedtext-aa0j"
+          />
+        }
         open={open}
         onClose={onClose}
         width="md"
         printable
         onPrint={() => printPDF('prescription-printout')}
+        data-testid="modal-fdg7"
       >
-        <PDFLoader isLoading={isLoading} id="prescription-printout">
+        <PDFLoader isLoading={isLoading} id="prescription-printout" data-testid="pdfloader-ugi4">
           <PrescriptionPrintout
             patientData={{ ...patient, additionalData, village, patientWeight }}
             prescriptions={[medication]}
@@ -116,6 +123,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             prescriber={prescriber}
             getLocalisation={getLocalisation}
             getSetting={getSetting}
+            data-testid="prescriptionprintout-95jw"
           />
         </PDFLoader>
       </Modal>

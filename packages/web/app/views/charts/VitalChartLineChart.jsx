@@ -23,6 +23,7 @@ export const VitalChartLineChart = props => {
       isLoading={isLoading}
       chartProps={chartProps}
       isVital={isVital}
+      data-testid="linechart-02ks"
     />
   );
 };
