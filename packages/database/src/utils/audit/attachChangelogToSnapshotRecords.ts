@@ -29,6 +29,7 @@ export const attachChangelogToSnapshotRecords = async (
     ${maxSourceTick ? 'AND record_sync_tick <= :maxSourceTick' : ''}
     ${tableWhitelist ? `AND table_name IN (:tableWhitelist)` : ''}
     AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
+    AND deleted_at IS NULL;
     `,
     {
       model: models.ChangeLog,
