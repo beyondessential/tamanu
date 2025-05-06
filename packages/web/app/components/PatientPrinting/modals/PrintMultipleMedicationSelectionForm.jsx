@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { Box, Divider } from '@material-ui/core';
 
 import { Table, useSelectableColumn } from '../../Table';
 import {
@@ -86,14 +87,22 @@ const COLUMNS = [
     ),
     sortable: false,
     accessor: ({ repeats, onChange }) => (
-      <SelectInput options={REPEAT_OPTIONS} value={repeats} onChange={onChange} required />
+      <Box width="89px">
+        <SelectInput
+          isClearable={false}
+          options={REPEAT_OPTIONS}
+          value={repeats}
+          onChange={onChange}
+          required
+        />
+      </Box>
     ),
   },
 ];
 
 const PrescriberWrapper = styled.div`
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: space-between;
 
@@ -101,6 +110,27 @@ const PrescriberWrapper = styled.div`
   .patient-weight-input {
     width: 270px;
   }
+`;
+
+const StyledTable = styled(Table)`
+  .MuiTableCell-root {
+    &.MuiTableCell-head {
+      height: 50px;
+    }
+    height: 65px;
+    padding: 0 15px;
+  }
+  .MuiTableRow-root {
+    &:last-child {
+      .MuiTableCell-body {
+        border-bottom: none;
+      }
+    }
+  }
+`;
+
+const HorizontalDivider = styled(Divider)`
+  margin: 30px 0;
 `;
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
@@ -120,6 +150,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
+    selectAllOnInit: true
   });
 
   const patient = useSelector(state => state.patient);
@@ -216,13 +247,15 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
       <OuterLabelFieldWrapper
         label={
-          <TranslatedText
-            stringId="medication.modal.printMultiple.table.title"
-            fallback="Select the prescriptions you would like to print"
-          />
+          <Box mb="8px">
+            <TranslatedText
+              stringId="medication.modal.printMultiple.table.title"
+              fallback="Select the prescriptions you would like to print"
+            />
+          </Box>
         }
       >
-        <Table
+        <StyledTable
           headerColor={Colors.white}
           columns={[selectableColumn, ...COLUMNS]}
           data={medicationData || []}
@@ -239,9 +272,11 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           cellOnChange={cellOnChange}
         />
       </OuterLabelFieldWrapper>
+      <HorizontalDivider color={Colors.outline} />
       <ConfirmCancelRow
         cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
-        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
+        confirmText={<TranslatedText stringId="medication.action.printPrescription" fallback="Print prescription" />}
+        confirmDisabled={!selectedRows.length}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />
