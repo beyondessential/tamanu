@@ -2,7 +2,6 @@ import { fake } from '@tamanu/fake-data/fake';
 import { sortBy } from 'lodash';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
-import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 const chance = new Chance();
 
