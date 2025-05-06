@@ -12,11 +12,14 @@ import {
   createSurveyResponse,
   createTask,
   createPatientCommunication,
-  generateImportData,
   createMedication,
-} from './helpers';
+  generateImportData,
+} from './helpers/index.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
+  const { default: pLimit } = await import('p-limit');
+  const limit = pLimit(10);
+
   // Create one of each basic deployment/reference data to reference for clinical data
   const {
     referenceData,
@@ -35,11 +38,13 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   // Clinical data
   const { patient } = await createPatient({
     models,
+    limit,
     facilityId: facility.id,
     userId: user.id,
   });
   const { encounter } = await createEncounter({
     models,
+    limit,
     patientId: patient.id,
     departmentId: department.id,
     locationId: location.id,
@@ -50,6 +55,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   await Promise.all([
     await createLabRequest({
       models,
+      limit,
       departmentId: department.id,
       userId: user.id,
       encounterId: encounter.id,
@@ -59,19 +65,22 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     }),
     await createProgramRegistry({
       models,
+      limit,
       userId: user.id,
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
-    await createSurveyResponse({ models, encounterId: encounter.id, surveyId: survey.id }),
-    await createDbReport({ models, userId: user.id }),
+    await createSurveyResponse({ models, limit, encounterId: encounter.id, surveyId: survey.id }),
+    await createDbReport({ models, limit, userId: user.id }),
     await createAdministeredVaccine({
       models,
+      limit,
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
     }),
     await createInvoice({
       models,
+      limit,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
@@ -79,25 +88,29 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     }),
     await createImagingRequest({
       models,
+      limit,
       userId: user.id,
       encounterId: encounter.id,
       locationGroupId: locationGroup.id,
     }),
     await createRepeatingAppointment({
       models,
+      limit,
       locationGroupId: locationGroup.id,
       patientId: patient.id,
       clinicianId: user.id,
     }),
     await createTask({
       models,
+      limit,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
     }),
-    await createPatientCommunication({ models, patientId: patient.id }),
+    await createPatientCommunication({ models, limit, patientId: patient.id }),
     await createMedication({
       models,
+      limit,
       encounterId: encounter.id,
       patientId: patient.id,
       referenceDataId: referenceData.id,

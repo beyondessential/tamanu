@@ -1,7 +1,8 @@
 import type { Models } from '@tamanu/database';
-import { fake } from '../../fake';
+import { fake } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
-interface CreateMedicationParams {
+interface CreateMedicationParams extends CommonParams {
   models: Models;
   encounterId: string;
   patientId: string;
@@ -24,27 +25,27 @@ export const createMedication = async ({
       medicationId: referenceDataId,
     }),
   );
-  
+
   const encounterPrescription = await EncounterPrescription.create(
     fake(EncounterPrescription, {
       encounterId,
       prescriptionId: prescription.id,
     }),
   );
-  
+
   await PatientOngoingPrescription.create(
     fake(PatientOngoingPrescription, {
       patientId: patientId,
       prescriptionId: prescription.id,
     }),
   );
-  
+
   await EncounterPausePrescription.create(
     fake(EncounterPausePrescription, {
       encounterPrescriptionId: encounterPrescription.id,
     }),
   );
-  
+
   await EncounterPausePrescriptionHistory.create(
     fake(EncounterPausePrescriptionHistory, {
       encounterPrescriptionId: encounterPrescription.id,
