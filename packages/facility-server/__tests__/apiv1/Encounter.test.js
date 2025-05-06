@@ -1036,7 +1036,7 @@ describe('Encounter', () => {
           );
 
           const result = await app.get(
-            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/graphData/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;
@@ -1066,7 +1066,7 @@ describe('Encounter', () => {
           const startDateString = answers[0].submissionDate;
           const endDateString = formatISO9075(new Date());
           const result = await app.get(
-            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/graphData/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;

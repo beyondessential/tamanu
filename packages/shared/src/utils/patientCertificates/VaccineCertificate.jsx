@@ -22,7 +22,7 @@ import { Text } from '../pdf/Text';
 import { get } from 'lodash';
 import { useTextStyles } from './printComponents/MultiPageHeader';
 
-const columns = getTranslation => [
+const columns = (getTranslation) => [
   {
     key: 'date',
     title: getTranslation('pdf.table.column.dateGiven', 'Date given'),
@@ -51,7 +51,7 @@ const columns = getTranslation => [
   {
     key: 'countryName',
     title: getTranslation('pdf.table.column.country', 'Facility/Country'),
-    accessor: record => {
+    accessor: (record) => {
       const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
       return facility || '';
     },
@@ -93,8 +93,8 @@ const VaccineCertificateHeader = ({ patient }) => {
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
-  const ValueText = props => <BaseText style={valueStyles} {...props} />;
-  const LabelText = props => <BaseText style={labelStyles} {...props} />;
+  const ValueText = (props) => <BaseText style={valueStyles} {...props} />;
+  const LabelText = (props) => <BaseText style={labelStyles} {...props} />;
 
   const { getTranslation } = useLanguageContext();
   return (
@@ -144,11 +144,11 @@ const VaccineCertificateComponent = ({
   healthFacility,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const getLocalisation = key => get(localisation, key);
-  const getSetting = key => get(settings, key);
+  const getLocalisation = (key) => get(localisation, key);
+  const getSetting = (key) => get(settings, key);
   const countryName = getLocalisation('country.name');
 
-  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  const data = vaccinations.map((vaccination) => ({ ...vaccination, countryName, healthFacility }));
 
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
@@ -207,7 +207,7 @@ const VaccineCertificateComponent = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
+        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px', marginBottom: '0px' }}>
           <H3 style={{ marginBottom: 5, marginTop: 5 }}>
             {getTranslation('pdf.vaccineCertificate.immunisationHistory', 'Immunisation history')}
           </H3>
@@ -219,7 +219,12 @@ const VaccineCertificateComponent = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <SigningSection signingSrc={signingSrc} getTranslation={getTranslation} />
+        <SigningSection
+          signingSrc={signingSrc}
+          getTranslation={getTranslation}
+          style={{ marginTop: 30 }}
+          wrap={false}
+        />
         <FixedFooter>
           <VaccineCertificateFooter />
         </FixedFooter>

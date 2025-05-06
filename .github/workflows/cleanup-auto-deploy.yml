@@ -57,7 +57,7 @@ jobs:
         with:
           script: |
             const cwd = '${{ github.workspace }}';
-            const { findDeploysToCleanUp } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { findDeploysToCleanUp } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
 
             const controls = ${{ toJson(steps.list.outputs.list) }};
             const down = await findDeploysToCleanUp(controls, ${{ github.event.inputs.ttl || 24 }}, context, github);

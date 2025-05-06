@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
+
+const StyledDynamicColumnTable = styled(DynamicColumnTable)`
+  overflow-y: scroll;
+  max-height: 62vh; /* Matches generic Table height */
+`;
 
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
@@ -35,7 +42,7 @@ export const VitalsTable = React.memo(() => {
           setOpenEditModal(false);
         }}
       />
-      <DynamicColumnTable
+      <StyledDynamicColumnTable
         columns={columns}
         data={data}
         elevated={false}
@@ -44,6 +51,7 @@ export const VitalsTable = React.memo(() => {
         count={data.length}
         allowExport
         showFooterLegend={showFooterLegend}
+        isBodyScrollable
       />
     </>
   );
