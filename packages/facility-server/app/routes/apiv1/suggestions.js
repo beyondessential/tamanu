@@ -6,7 +6,6 @@ import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { camelCase } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
-  ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
@@ -16,6 +15,7 @@ import {
   TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -51,7 +51,7 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { language } = query;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
 
@@ -142,7 +142,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const {
         models,
         params,
-        query: { language = ENGLISH_LANGUAGE_CODE },
+        query: { language = DEFAULT_LANGUAGE_CODE },
       } = req;
       req.checkPermission('list', modelName);
 
@@ -193,7 +193,7 @@ function createAllRecordsRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { language } = query;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
       const dataType = getDataType(endpoint);
