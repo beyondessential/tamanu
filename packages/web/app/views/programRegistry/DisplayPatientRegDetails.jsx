@@ -5,10 +5,10 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
 import {
+  DeleteProgramRegistryFormModal,
   PatientProgramRegistryActivateModal,
   PatientProgramRegistryUpdateModal,
 } from '../../features/ProgramRegistry';
-import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -222,8 +222,11 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         open={openDeleteProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onClose={({ success }) => {
-          setOpenDeleteProgramRegistryFormModal(false);
-          if (success) navigateToPatient(patientProgramRegistration.patientId);
+          if (success) {
+            navigateToPatient(patientProgramRegistration.patientId);
+          } else {
+            setOpenDeleteProgramRegistryFormModal(true);
+          }
         }}
       />
     </Container>

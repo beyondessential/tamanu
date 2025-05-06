@@ -5,9 +5,9 @@ import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
-import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
+  DeleteProgramRegistryFormModal,
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
