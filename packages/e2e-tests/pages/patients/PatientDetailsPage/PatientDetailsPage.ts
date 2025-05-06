@@ -8,6 +8,15 @@ export class PatientDetailsPage extends BasePatientPage {
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
+  readonly ongoingConditionDateRecordedField: Locator;
+  readonly ongoingConditionClinicianField: Locator;
+  readonly savedOnGoingConditionName: Locator;
+  readonly ongoingConditionNotes: Locator;
+  readonly savedOnGoingConditionDate: Locator;
+  readonly savedOnGoingConditionClinician: Locator;
+  readonly savedOnGoingConditionNote: Locator;
+  readonly onGoingConditionForm: Locator;
+  readonly editOnGoingConditionSubmitButton: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -22,16 +31,26 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly initiateNewCarePlanAddButton: Locator;
   readonly dropdownMenuItem: Locator;
   readonly firstListItem: Locator;
-  readonly patientWarningHeader: Locator;
-  readonly patientWarningModalContent: Locator;
   readonly patientNHN: Locator;
   readonly firstCarePlanListItem: Locator;
+  readonly warningModalTitle: Locator;
+  readonly warningModalContent: Locator;
+  readonly warningModalDismissButton: Locator;
   constructor(page: Page) {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('styledtab-yhha-vaccines');
     this.initiateNewOngoingConditionAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Ongoing conditionsAdd' }).getByTestId('addbutton-b0ln');
     this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input').getByRole('textbox', { name: 'Search...' });
+    this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775-input').getByRole('textbox');
+    this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
+    this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
+    this.savedOnGoingConditionName =this.page.getByTestId('collapse-0a33').getByTestId('field-j30y-input').getByRole('textbox');
+    this.savedOnGoingConditionDate = this.page.getByTestId('collapse-0a33').getByTestId('field-2775-input').getByRole('textbox');
+    this.savedOnGoingConditionClinician = this.page.getByTestId('collapse-0a33').getByTestId('field-9miu-input').getByRole('textbox');
+    this.savedOnGoingConditionNote = this.page.getByTestId('collapse-0a33').getByTestId('field-e52k-input');
+    this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
+    this.editOnGoingConditionSubmitButton = this.page.getByTestId('collapse-0a33').getByTestId('formsubmitbutton-ygc6'); 
     this.submitNewOngoingConditionAddButton = this.page.getByTestId('formgrid-lqds').getByTestId('formsubmitbutton-ygc6');
     this.initiateNewAllergyAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'AllergiesAdd' }).getByTestId('addbutton-b0ln');
     this.allergyNameField = this.page.getByTestId('field-hwfk-input').getByRole('textbox', { name: 'Search...' });
@@ -46,10 +65,11 @@ export class PatientDetailsPage extends BasePatientPage {
     this.initiateNewCarePlanAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Care plansAdd' }).getByTestId('addbutton-b0ln');
     this.dropdownMenuItem = this.page.getByTestId('typography-qxy3');
     this.firstListItem = this.page.getByTestId('listitem-adip-0');
-    this.patientWarningHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
-    this.patientWarningModalContent = this.page.getByTestId('modalcontent-bk4w');
     this.patientNHN = this.page.getByTestId('healthidtext-fqvn');
     this.firstCarePlanListItem = this.page.getByTestId('listitem-fx300');
+    this.warningModalTitle = this.page.getByTestId('modaltitle-ojhf');
+    this.warningModalContent = this.page.getByTestId('modalcontent-bk4w');
+    this.warningModalDismissButton = this.page.getByTestId('button-ui1m');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -64,6 +84,17 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.initiateNewOngoingConditionAddButton.click();
     await this.ongoingConditionNameField.fill(conditionName);
     await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
+    await this.clickAddButtonToConfirm(this.submitNewOngoingConditionAddButton);
+  }
+
+  async addNewOngoingConditionWithAllFields(conditionName: string, dateRecorded: string, clinicianName: string, notes: string) {
+    await this.initiateNewOngoingConditionAddButton.click();
+    await this.ongoingConditionNameField.fill(conditionName);
+    await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
+    await this.ongoingConditionDateRecordedField.fill(dateRecorded);
+    await this.ongoingConditionClinicianField.click();
+    await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
+    await this.ongoingConditionNotes.fill(notes);
     await this.clickAddButtonToConfirm(this.submitNewOngoingConditionAddButton);
   }
 
@@ -122,8 +153,8 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.carePlanModal;
   }
 
-  //this is a helper method to check that the entire patient details page has loaded
-  async checkPatientDetailsPageHasLoaded() {
+  //this is a helper method to check that the entire patient details page has loaded before any other actions happen
+  async confirmPatientDetailsPageHasLoaded() {
     await expect(this.vaccineTab).toBeVisible();
   }
 

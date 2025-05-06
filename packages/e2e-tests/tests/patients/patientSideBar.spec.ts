@@ -13,16 +13,17 @@ import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient'
 //TODO: check if any other relevant tests from regression document are missing from this file
 
 //TODO: is it necessary to replicate the workflow of visiting an existing patient in each test?
+//im thinking its not strictly necessary here but in other tests it will be so it makes sense to keep the format the same
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
     await allPatientsPage.goto();
     await addNewPatientWithRequiredFields(allPatientsPage);
-    await patientDetailsPage.checkPatientDetailsPageHasLoaded();
+    await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
 
     //this is to replicate the workflow of visiting an existing patient
     const patientData = allPatientsPage.getPatientData();
     await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
-    await patientDetailsPage.checkPatientDetailsPageHasLoaded();
+    await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
     await expect(patientDetailsPage.patientNHN).toContainText(patientData.nhn);
   });
 
@@ -30,14 +31,54 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Sleep apnea');
+    
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Sleep apnea');
   });
 
   test('Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
-    //TODO:
+    await patientDetailsPage.addNewOngoingConditionWithAllFields('Jaw dislocation', '2024-06-20', 'Initial Admin', 'This is a note');
+
+    await expect(patientDetailsPage.firstListItem).toContainText('Jaw dislocation');
+    
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Jaw dislocation');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-06-20');
+    await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is a note');
   });
 
   test('Skipping mandatory field should throw error', async ({ patientDetailsPage }) => {
-    //TODO:
+    await patientDetailsPage.initiateNewOngoingConditionAddButton.click();
+
+    await patientDetailsPage.clickAddButtonToConfirm(patientDetailsPage.submitNewOngoingConditionAddButton);
+
+    await expect(patientDetailsPage.warningModalTitle).toContainText('Please fix below errors to continue');
+    await expect(patientDetailsPage.warningModalContent).toContainText('The Condition field is required');
+
+    await patientDetailsPage.warningModalDismissButton.click();
+
+    await expect(patientDetailsPage.onGoingConditionForm.filter({ hasText: 'The Condition field is required' })).toBeVisible();
+  });
+
+  test('Edit ongoing condition', async ({ patientDetailsPage }) => {
+    await patientDetailsPage.addNewOngoingConditionWithAllFields('Eating habits inadequate', '2024-07-13', 'Initial Admin', 'Temporary note');
+
+    await patientDetailsPage.firstListItem.click();
+
+    await patientDetailsPage.savedOnGoingConditionNote.fill('Edited note');
+
+    await patientDetailsPage.clickAddButtonToConfirm(patientDetailsPage.editOnGoingConditionSubmitButton);
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Eating habits inadequate');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-07-13');
+    await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('Edited note');
+    await expect(patientDetailsPage.page.getByText('Temporary note')).toBeHidden();
   });
 
   test('Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
@@ -83,8 +124,8 @@ test.describe('Patient Side Bar', () => {
   test('Add other patient issue: warning', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
 
-    await expect(patientDetailsPage.patientWarningHeader.filter({ hasText: 'Patient warnings' })).toBeVisible();
-    await expect(patientDetailsPage.patientWarningModalContent).toContainText('Test warning');
+    await expect(patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' })).toBeVisible();
+    await expect(patientDetailsPage.warningModalContent).toContainText('Test warning');
   });
 
   test('Warning appears when navigating to patient with a warning', async ({
@@ -98,8 +139,8 @@ test.describe('Patient Side Bar', () => {
     const patientData = allPatientsPage.getPatientData();
     await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
 
-    await expect(patientDetailsPage.patientWarningHeader.filter({ hasText: 'Patient warnings' })).toBeVisible();
-    await expect(patientDetailsPage.patientWarningModalContent).toContainText('A warning appears when navigating to a patient with a warning');
+    await expect(patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' })).toBeVisible();
+    await expect(patientDetailsPage.warningModalContent).toContainText('A warning appears when navigating to a patient with a warning');
   });
 
   test('Add care plans', async ({ patientDetailsPage }) => {
