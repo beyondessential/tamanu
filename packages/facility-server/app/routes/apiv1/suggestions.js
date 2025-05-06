@@ -26,16 +26,7 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-// Translation helpers
-// const extractDataId = ({ stringId }) => stringId.split('.').pop();
-// const replaceDataLabelsWithTranslations = ({ data, translations }) => {
-//   const translationsByDataId = keyBy(translations, extractDataId);
-//   return data.map((item) => {
-//     const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
-//     return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
-//   });
-// };
-const replaceDataLabelsWithTranslations = (item) => {
+const replaceDataLabelWithTranslation = (item) => {
   item.name = item.translated_name || item.name;
   return item;
 };
@@ -131,7 +122,7 @@ function createSuggesterRoute(
         raw: true,
       });
 
-      const translatedData = results.map(replaceDataLabelsWithTranslations);
+      const translatedData = results.map(replaceDataLabelWithTranslation);
 
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(translatedData.map(mapper)));
@@ -172,21 +163,16 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
             ],
           ],
         },
+        raw: true,
       });
 
       if (!record) throw new NotFoundError();
 
       req.checkPermission('read', record);
-      const mappedRecord = await mapper(record);
 
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedRecord);
-        return;
-      }
+      const translatedRecord = replaceDataLabelWithTranslation(record);
 
-      const translatedRecord = replaceDataLabelsWithTranslations(mappedRecord);
-
-      res.send(translatedRecord);
+      res.send(await mapper(translatedRecord));
     }),
   );
 }
@@ -230,19 +216,13 @@ function createAllRecordsRoute(
         attributes,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
         replacements: extraReplacementsBuilder(query),
+        raw: true,
       });
 
-      const mappedResults = await Promise.all(results.map(mapper));
-
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedResults);
-        return;
-      }
-
-      const translatedResults = results.map(replaceDataLabelsWithTranslations);
+      const translatedResults = results.map(replaceDataLabelWithTranslation);
 
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(translatedResults);
+      res.send(await Promise.all(translatedResults.map(mapper)));
     }),
   );
 }
