@@ -15,6 +15,6 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     UPDATE patient_program_registrations
     SET deleted_at = NULL
-    WHERE registration_status = 'recordedInError'
+    WHERE registration_status = 'recordedInError' and deleted_at = date::timestamp
   `);
 }
