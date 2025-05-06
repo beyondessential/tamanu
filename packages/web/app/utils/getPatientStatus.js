@@ -16,7 +16,7 @@ const STATUS_TO_LABEL = {
   [PATIENT_STATUS.EMERGENCY]: 'Emergency',
 };
 
-export const getPatientStatus = encounterType => {
+export const getPatientStatus = (encounterType) => {
   if (!encounterType) {
     return '';
   }

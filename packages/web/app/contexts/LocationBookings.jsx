@@ -33,7 +33,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!clinicianId) return;
-    setFilters(filters => ({ ...filters, clinicianId: [clinicianId] }));
+    setFilters((filters) => ({ ...filters, clinicianId: [clinicianId] }));
   }, [clinicianId]);
 
   const [selectedCell, setSelectedCell] = useState({
@@ -56,8 +56,8 @@ export const LocationBookingsContextProvider = ({ children }) => {
     [monthOf],
   );
 
-  const updateSelectedCell = newCellData => {
-    setSelectedCell(prevCell => {
+  const updateSelectedCell = (newCellData) => {
+    setSelectedCell((prevCell) => {
       const updatedCell = { ...prevCell, ...newCellData };
 
       const { date, locationId } = updatedCell;

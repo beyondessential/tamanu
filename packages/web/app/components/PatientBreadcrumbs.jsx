@@ -20,7 +20,7 @@ const StyledBreadcrumbs = styled(Breadcrumbs)`
 
 const BreadcrumbLink = styled(Typography)`
   font-size: 12px;
-  color: ${props => props.theme.palette.primary.main};
+  color: ${(props) => props.theme.palette.primary.main};
   font-weight: 400;
   text-transform: capitalize;
   cursor: pointer;
@@ -30,13 +30,24 @@ const BreadcrumbLink = styled(Typography)`
 `;
 
 const Breadcrumb = ({ onClick, children, path }) => (
-  <BreadcrumbLink key={`breadcrumb-${path}`} underline="hover" color="inherit" onClick={onClick}>
+  <BreadcrumbLink
+    key={`breadcrumb-${path}`}
+    underline="hover"
+    color="inherit"
+    onClick={onClick}
+    data-testid="breadcrumblink-gv2r"
+  >
     {children}
   </BreadcrumbLink>
 );
 
 const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
-  <Breadcrumb path={path} onClick={navigateTo} key={`breadcrumb-${path}`}>
+  <Breadcrumb
+    path={path}
+    onClick={navigateTo}
+    key={`breadcrumb-${path}`}
+    data-testid="breadcrumb-strg"
+  >
     {title}
   </Breadcrumb>
 );
@@ -68,8 +79,8 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   };
 
   return (
-    <StyledBreadcrumbs>
-      <Breadcrumb onClick={handleCategoryClick}>
+    <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
+      <Breadcrumb onClick={handleCategoryClick} data-testid="breadcrumb-0r0o">
         {PATIENT_CATEGORY_LABELS[params.category]}
       </Breadcrumb>
       {getPatientCrumbs(patientRoutes)}
