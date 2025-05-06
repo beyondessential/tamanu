@@ -478,9 +478,6 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      // The lookup table needs to be updated twice to create a range of SyncLookupTick records
-      // Which is used to determine which changelog records are included in the sync session
-      await centralSyncManager.updateLookupTable();
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
