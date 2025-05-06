@@ -1,7 +1,9 @@
 import React, { Fragment, useState } from 'react';
 
 import styled from 'styled-components';
-import { getDose, getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { getDose } from '@tamanu/shared/utils/medication';
+import * as yup from 'yup';
+import { FieldArray } from 'formik';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
@@ -12,7 +14,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
-import { formatTimeSlot } from '../../../utils/medications';
+import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { FormGrid } from '../../FormGrid';
@@ -21,13 +23,12 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';
 import { useMarDoses } from '../../../api/queries/useMarDoses';
 import { useSuggester } from '../../../api';
-import * as yup from 'yup';
-import { FieldArray } from 'formik';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useAuth } from '../../../contexts/Auth';
-import { addHours } from 'date-fns';
 import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
+import { WarningModal } from '../WarningModal';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -188,9 +189,6 @@ export const MarDetails = ({
   marInfo,
   onClose,
   timeSlot,
-  isFuture,
-  isPast,
-  selectedDate,
   isRecordedOutsideAdministrationSchedule,
   isDoseAmountNotMatch,
   isRecordedDuringPaused,
@@ -201,6 +199,7 @@ export const MarDetails = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
+  const [showWarningModal, setShowWarningModal] = useState('');
 
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
@@ -231,6 +230,14 @@ export const MarDetails = ({
   };
 
   const onSubmit = async (data, { setFieldValue }) => {
+    const isDoseAmountNotMatch = data.doses.some(
+      dose => Number(dose.doseAmount) !== Number(medication.doseAmount),
+    );
+    if (!showWarningModal && isDoseAmountNotMatch) {
+      setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+      return;
+    }
+
     await updateMar({
       ...data,
       doses: data.doses.map(dose => ({
@@ -257,6 +264,7 @@ export const MarDetails = ({
         isClosable
       >
         <Form
+          suppressErrorDialog
           onSubmit={onSubmit}
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
@@ -266,7 +274,19 @@ export const MarDetails = ({
             doses: yup.array().of(
               yup.object().shape({
                 doseAmount: yup.number().required(requiredMessage),
-                givenTime: yup.string().required(requiredMessage),
+                givenTime: yup
+                  .date()
+                  .nullable()
+                  .typeError(requiredMessage)
+                  .required(requiredMessage)
+                  .test(
+                    'time-within-slot',
+                    <TranslatedText
+                      stringId="medication.mar.givenTime.validation.outside"
+                      fallback="Time is outside selected window"
+                    />,
+                    value => isWithinTimeSlot(timeSlot, value),
+                  ),
                 givenByUserId: yup.string().required(requiredMessage),
                 recordedByUserId: yup.string().required(requiredMessage),
               }),
@@ -499,6 +519,16 @@ export const MarDetails = ({
                       )}
                     </Fragment>
                   ))}
+                {showWarningModal && (
+                  <WarningModal
+                    modal={showWarningModal}
+                    onClose={() => setShowWarningModal('')}
+                    onConfirm={() => {
+                      setShowWarningModal('');
+                      onSubmit(values, { setFieldValue });
+                    }}
+                  />
+                )}
                 <FieldArray name="doses">
                   {formArrayMethods => (
                     <>
@@ -555,15 +585,15 @@ export const MarDetails = ({
                                     InputProps: {
                                       placeholder: '--:-- --',
                                     },
-                                    error: errors[`doses.${index}.givenTime`],
+                                    error: errors?.doses?.[index]?.givenTime,
                                   },
                                   digitalClockSectionItem: {
                                     sx: { fontSize: '14px' },
                                   },
                                 }}
                               />
-                              {errors[`doses.${index}.givenTime`] && (
-                                <ErrorMessage>{errors[`doses.${index}.givenTime`]}</ErrorMessage>
+                              {errors?.doses?.[index]?.givenTime && (
+                                <ErrorMessage>{errors?.doses?.[index]?.givenTime}</ErrorMessage>
                               )}
                             </div>
                             <Field
@@ -590,12 +620,7 @@ export const MarDetails = ({
                               doseAmount: medication?.isVariableDose ? '' : medication?.doseAmount,
                               givenByUserId: currentUser?.id,
                               recordedByUserId: currentUser?.id,
-                              givenTime: isPast
-                                ? addHours(
-                                    getDateFromTimeString(timeSlot.startTime, selectedDate),
-                                    1,
-                                  )
-                                : new Date(),
+                              givenTime: null,
                             })
                           }
                         >
@@ -645,9 +670,6 @@ export const MarDetails = ({
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
-          isFuture={isFuture}
-          isPast={isPast}
-          selectedDate={selectedDate}
         />
       )}
       {!!showRemoveDoseModal && (
@@ -666,6 +688,7 @@ export const MarDetails = ({
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
+          showDoseIndex={marDoses?.length > 1}
           doseInfo={showEditDoseModal}
         />
       )}

@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import * as yup from 'yup';
-import { addHours } from 'date-fns';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
@@ -24,6 +22,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
+import { WarningModal } from '../WarningModal';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -92,21 +92,13 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
-export const ChangeStatusModal = ({
-  open,
-  onClose,
-  medication,
-  marInfo,
-  timeSlot,
-  isFuture,
-  isPast,
-  selectedDate,
-}) => {
+export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const [showWarningModal, setShowWarningModal] = useState('');
 
   const initialStatus = marInfo?.status;
   const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
@@ -135,6 +127,14 @@ export const ChangeStatusModal = ({
         changingStatusReason,
       });
     } else {
+      if (
+        !showWarningModal &&
+        Number(values.doseAmount) !== Number(medication?.doseAmount) &&
+        !medication?.isVariableDose
+      ) {
+        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+        return;
+      }
       const {
         doseAmount,
         givenTime,
@@ -161,6 +161,8 @@ export const ChangeStatusModal = ({
       return yup.object().shape({
         givenTime: yup
           .date()
+          .nullable()
+          .typeError(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',
@@ -168,7 +170,7 @@ export const ChangeStatusModal = ({
               stringId="medication.mar.givenTime.validation.outside"
               fallback="Time is outside selected window"
             />,
-            value => isWithinTimeSlot(timeSlot, value, isFuture),
+            value => isWithinTimeSlot(timeSlot, value),
           ),
         givenByUserId: yup
           .string()
@@ -188,6 +190,23 @@ export const ChangeStatusModal = ({
     });
   };
 
+  const getInitialValues = () => {
+    if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
+      return {
+        status: initialStatus,
+        reasonNotGivenId: '',
+        recordedByUserId: currentUser?.id,
+      };
+    }
+    return {
+      status: initialStatus,
+      recordedByUserId: currentUser?.id,
+      givenByUserId: currentUser?.id,
+      doseAmount: initialPrescribedDose,
+      givenTime: null,
+    };
+  };
+
   return (
     <StyledFormModal
       open={open}
@@ -202,16 +221,9 @@ export const ChangeStatusModal = ({
       <MarInfoPane medication={medication} marInfo={marInfo} />
       <Box height={16} />
       <Form
+        suppressErrorDialog
         onSubmit={handleSubmit}
-        initialValues={{
-          status: initialStatus,
-          recordedByUserId: currentUser?.id,
-          givenByUserId: currentUser?.id,
-          doseAmount: initialPrescribedDose,
-          givenTime: isPast
-            ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-            : new Date(),
-        }}
+        initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         render={({ values, setFieldValue, errors, submitForm }) => {
           const isChangingToNotGiven =
@@ -332,6 +344,16 @@ export const ChangeStatusModal = ({
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />
+              {showWarningModal && (
+                <WarningModal
+                  modal={showWarningModal}
+                  onClose={() => setShowWarningModal('')}
+                  onConfirm={() => {
+                    setShowWarningModal('');
+                    handleSubmit(values);
+                  }}
+                />
+              )}
             </FormGrid>
           );
         }}
