@@ -78,7 +78,7 @@ function createSuggesterRoute(
             Sequelize.literal(`(
               SELECT "text" 
               FROM "translated_strings" 
-              WHERE "language" = '${language}'
+              WHERE "language" = :language
               AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
               LIMIT 1
             )`),
@@ -92,9 +92,9 @@ function createSuggesterRoute(
           ? Sequelize.literal(`EXISTS (
             SELECT 1 
             FROM translated_strings 
-            WHERE language = '${language}'
+            WHERE language = :language
             AND string_id = '${translationPrefix}' || "${modelName}"."id"
-            AND text ILIKE '%${searchQuery}%'
+            AND text ILIKE :searchQuery
           )`)
           : whereBuilder(`%${searchQuery}%`, query, req);
 
@@ -116,6 +116,8 @@ function createSuggesterRoute(
         ],
         replacements: {
           positionMatch: searchQuery,
+          language,
+          searchQuery: `%${searchQuery}%`,
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
@@ -155,13 +157,16 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
               Sequelize.literal(`(
               SELECT "text" 
               FROM "translated_strings" 
-              WHERE "language" = '${language}'
+              WHERE "language" = :language
               AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
               LIMIT 1
             )`),
               'translated_name',
             ],
           ],
+        },
+        replacements: {
+          language,
         },
         raw: true,
       });
@@ -200,7 +205,7 @@ function createAllRecordsRoute(
             Sequelize.literal(`(
               SELECT "text" 
               FROM "translated_strings" 
-              WHERE "language" = '${language}'
+              WHERE "language" = :language
               AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
               LIMIT 1
             )`),
@@ -215,7 +220,10 @@ function createAllRecordsRoute(
         where,
         attributes,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
-        replacements: extraReplacementsBuilder(query),
+        replacements: {
+          language,
+          ...extraReplacementsBuilder(query),
+        },
         raw: true,
       });
 
