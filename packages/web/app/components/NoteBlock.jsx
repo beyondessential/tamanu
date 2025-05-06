@@ -11,26 +11,28 @@ export const NoteBlock = ({ children, isNavigationBlock = false }) => {
     return children;
   }
 
-  return (
-    <ConditionalTooltip
-      visible
-      title={
-        isNavigationBlock ? (
-          <TranslatedText
-            stringId="note.modal.viewOnly.tooltip"
-            fallback="Cannot navigate away from patient with unsaved note"
-          />
-        ) : (
-          <TranslatedText
-            stringId="note.modal.viewOnly.tooltip"
-            fallback="Can't perform this action while recording a note"
-          />
-        )
-      }
-    >
-      {React.Children.map(children, child =>
-        React.cloneElement(child, { disabled: isNoteModalOpen }),
-      )}
-    </ConditionalTooltip>
-  );
+  return React.Children.map(children, child => {
+    if (!React.isValidElement(child)) return child;
+
+    return (
+      <ConditionalTooltip
+        visible
+        title={
+          isNavigationBlock ? (
+            <TranslatedText
+              stringId="note.modal.viewOnly.tooltip"
+              fallback="Cannot navigate away from patient with unsaved note"
+            />
+          ) : (
+            <TranslatedText
+              stringId="note.modal.viewOnly.tooltip"
+              fallback="Can't perform this action while recording a note"
+            />
+          )
+        }
+      >
+        <div className="pointer-events-none">{child}</div>
+      </ConditionalTooltip>
+    );
+  });
 };

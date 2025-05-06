@@ -9,7 +9,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, NoteBlock } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -169,7 +169,12 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="patient.encounter.action.prepareDischarge" fallback="Prepare discharge" />,
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.prepareDischarge"
+          fallback="Prepare discharge"
+        />
+      ),
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
@@ -254,7 +259,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <StyledDropdownButton actions={actions} />;
+  return (
+    <NoteBlock>
+      <StyledDropdownButton actions={actions} />
+    </NoteBlock>
+  );
 };
 
 export const EncounterActions = React.memo(({ encounter }) => {
@@ -310,7 +319,10 @@ export const EncounterActions = React.memo(({ encounter }) => {
       />
       <EncounterRecordModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD || openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
+        open={
+          openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD ||
+          openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD
+        }
         onClose={onClose}
       />
       <ChangeReasonModal

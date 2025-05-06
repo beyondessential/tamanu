@@ -123,9 +123,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
       ) : (
         <EmptyPane>
           {ability.can('create', 'Invoice') && (
-            <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
-              <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
-            </Button>
+            <NoteBlock>
+              <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
+                <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
+              </Button>
+            </NoteBlock>
           )}
         </EmptyPane>
       )}

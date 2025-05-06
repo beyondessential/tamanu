@@ -13,7 +13,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
-import { theme } from './theme';
+import { theme, GlobalStyles } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { ReferralProvider } from './contexts/Referral';
@@ -74,6 +74,7 @@ function Root({ api, store, history }) {
                     <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
                       <StateContextProviders store={store}>
                         <ReactQueryDevtools initialIsOpen={false} />
+                        <GlobalStyles />
                         <CustomToastContainer
                           hideProgressBar
                           transition={Slide}

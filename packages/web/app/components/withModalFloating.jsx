@@ -93,6 +93,8 @@ export const withModalFloating = ModalComponent => {
         hideBackdrop={hideBackdrop}
         BackdropProps={BackdropProps}
         draggableHandle={draggableHandle}
+        disableEnforceFocus
+        disableAutoFocus
       />
     );
   };

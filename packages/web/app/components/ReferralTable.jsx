@@ -18,6 +18,7 @@ import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { NoteBlock } from './NoteBlock';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -125,16 +126,19 @@ export const ReferralTable = React.memo(({ patientId }) => {
       label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
     },
     {
       label: <TranslatedText stringId="patient.referral.action.complete" fallback="Complete" />,
       action: onCompleteReferral,
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
     },
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
@@ -142,6 +146,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       permissionCheck: () => {
         return ability?.can('delete', 'Referral');
       },
+      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
     },
     // Worth keeping around to address in proper linear card
     {

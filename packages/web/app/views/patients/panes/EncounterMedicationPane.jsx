@@ -30,18 +30,16 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setPrintMedicationModalOpen(false)}
       />
       <TableButtonRow variant="small">
-        <NoteBlock>
-          <ButtonWithPermissionCheck
-            onClick={() => setPrintMedicationModalOpen(true)}
-            disabled={readonly}
-            verb="read"
-            noun="EncounterMedication"
-            variant="outlined"
-            color="primary"
-          >
-            <TranslatedText stringId="general.action.print" fallback="Print" />
-          </ButtonWithPermissionCheck>
-        </NoteBlock>
+        <ButtonWithPermissionCheck
+          onClick={() => setPrintMedicationModalOpen(true)}
+          disabled={readonly}
+          verb="read"
+          noun="EncounterMedication"
+          variant="outlined"
+          color="primary"
+        >
+          <TranslatedText stringId="general.action.print" fallback="Print" />
+        </ButtonWithPermissionCheck>
         <NoteBlock>
           <ButtonWithPermissionCheck
             onClick={() => setCreateMedicationModalOpen(true)}

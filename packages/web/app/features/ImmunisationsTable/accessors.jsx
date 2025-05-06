@@ -88,16 +88,12 @@ export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteCli
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
             action: () => onItemEditClick(record),
-            wrapper: actionButton => {
-              return <NoteBlock>{actionButton}</NoteBlock>;
-            },
+            wrapper: action => <NoteBlock>{action}</NoteBlock>,
           },
           {
             label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
             action: () => onItemDeleteClick(record),
-            wrapper: actionButton => {
-              return <NoteBlock>{actionButton}</NoteBlock>;
-            },
+            wrapper: action => <NoteBlock>{action}</NoteBlock>,
           },
         ]}
       />
