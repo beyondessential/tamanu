@@ -246,6 +246,7 @@ export const EditAdministrationRecordModal = ({
                     <Field
                       name="changingNotGivenInfoReason"
                       component={TextField}
+                      disabled={!dirty}
                       label="Reason for change (Optional)"
                     />
                   </div>
