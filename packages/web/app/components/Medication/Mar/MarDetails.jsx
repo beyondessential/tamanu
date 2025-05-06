@@ -189,9 +189,6 @@ export const MarDetails = ({
   marInfo,
   onClose,
   timeSlot,
-  isFuture,
-  isPast,
-  selectedDate,
   isRecordedOutsideAdministrationSchedule,
   isDoseAmountNotMatch,
   isRecordedDuringPaused,
@@ -673,9 +670,6 @@ export const MarDetails = ({
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
-          isFuture={isFuture}
-          isPast={isPast}
-          selectedDate={selectedDate}
         />
       )}
       {!!showRemoveDoseModal && (

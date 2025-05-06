@@ -94,16 +94,7 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
-export const ChangeStatusModal = ({
-  open,
-  onClose,
-  medication,
-  marInfo,
-  timeSlot,
-  isFuture,
-  isPast,
-  selectedDate,
-}) => {
+export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
@@ -181,7 +172,7 @@ export const ChangeStatusModal = ({
               stringId="medication.mar.givenTime.validation.outside"
               fallback="Time is outside selected window"
             />,
-            value => isWithinTimeSlot(timeSlot, value, isFuture),
+            value => isWithinTimeSlot(timeSlot, value),
           ),
         givenByUserId: yup
           .string()
@@ -201,6 +192,23 @@ export const ChangeStatusModal = ({
     });
   };
 
+  const getInitialValues = () => {
+    if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
+      return {
+        status: initialStatus,
+        reasonNotGivenId: currentUser?.id,
+        recordedByUserId: currentUser?.id,
+      };
+    }
+    return {
+      status: initialStatus,
+      recordedByUserId: currentUser?.id,
+      givenByUserId: currentUser?.id,
+      doseAmount: initialPrescribedDose,
+      givenTime: null,
+    };
+  };
+
   return (
     <StyledFormModal
       open={open}
@@ -217,15 +225,7 @@ export const ChangeStatusModal = ({
       <Form
         suppressErrorDialog
         onSubmit={handleSubmit}
-        initialValues={{
-          status: initialStatus,
-          recordedByUserId: currentUser?.id,
-          givenByUserId: currentUser?.id,
-          doseAmount: initialPrescribedDose,
-          givenTime: isPast
-            ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-            : new Date(),
-        }}
+        initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         render={({ values, setFieldValue, errors, submitForm }) => {
           const isChangingToNotGiven =
