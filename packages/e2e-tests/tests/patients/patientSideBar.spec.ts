@@ -102,8 +102,6 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.patientWarningModalContent).toContainText('A warning appears when navigating to a patient with a warning');
   });
 
-  //TODO: add a test case to delete a note (maybe as part of the below case?) once test-id card is merged
-  //currently the locator for the kebab menu to delete a specific note doesnt use a great locator
   test('Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
@@ -116,25 +114,52 @@ test.describe('Patient Side Bar', () => {
     const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Diabetes');
 
     await expect(completedCarePlanModal.carePlanHeader).toContainText('Care plan: Diabetes');
-    //TODO: in progress end of day weds 30 april. i made this locator myself, can use it to achieve the next todo?
-    //i added this at the end of this test case to confirm it worked and it seemed to successfully woo!!
-    //clean this up to respect pom logic etc then replace the expect at the end of this test case with the updated version
-    //the below line is only in this part of the tests cos this is just where i was working, its logical place is at the end
-    await expect(patientDetailsPage.page.getByTestId('notecontainer-6fi4').filter({ hasText: 'Main care plan' })).toContainText('This is an example of main care plan details');
-    //TODO: when test id card is merged see if its possible to detect if this is within the same box as the main care plan red bolded text
-    await expect(
-      await completedCarePlanModal.mainCarePlan('This is an example of main care plan details'),
-    ).toBeVisible();
+    await expect(completedCarePlanModal.completedMainCarePlan).toContainText('This is an example of main care plan details');
+    await expect(completedCarePlanModal.completedMainCarePlan).toContainText('On behalf of Initial Admin');
 
-    await expect(await completedCarePlanModal.mainCarePlanClinician('Initial Admin')).toBeVisible();
-
-    await completedCarePlanModal.addAdditionalCarePlanNote('This is an additional care plan note');
-    //TODO: when test id card is merged see if its possible to improve this locator so its specific to the completed note section
-    await expect(
-      await completedCarePlanModal.page.getByText('This is an additional care plan note'),
-    ).toBeVisible();
-    //TODO: added this in on weds for testing purposes to see if it would focus the main care plan
-    await expect(patientDetailsPage.page.getByTestId('notecontainer-6fi4').filter({ hasText: 'Main care plan' })).toContainText('This is an example of main care plan details');
+    await completedCarePlanModal.addAdditionalCarePlanNote('This is an additional care plan note', 'System');
+    await expect(completedCarePlanModal.completedCarePlan.filter({hasText: 'System'})).toContainText('This is an additional care plan note');
+    await expect(completedCarePlanModal.completedMainCarePlan).toContainText('This is an example of main care plan details');
   });
 
+  test('Edit care plan', async ({ patientDetailsPage}) => {
+    const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
+
+    await newCarePlanModal.fillOutCarePlan(
+      'Mental health',
+      'This is the main care plan which we will edit',
+    );
+
+    const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Mental health');
+    
+    await completedCarePlanModal.completedMainCarePlanKebabMenu.click();
+    await completedCarePlanModal.completedCarePlanEditButton.click();
+
+    await completedCarePlanModal.editableNoteContent.fill('Edited note');
+    await completedCarePlanModal.saveEditedNoteButton.click();
+
+    await expect(completedCarePlanModal.completedMainCarePlan).toContainText('Edited note');
+    await expect(completedCarePlanModal.page.getByText('This is the main care plan which we will edit')).toBeHidden();
+  })
+
+  test('Delete care plan note', async ({ patientDetailsPage}) => {
+    const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
+
+    await newCarePlanModal.fillOutCarePlan(
+      'Tuberculosis',
+      'This is the main care plan which we will keep',
+    );
+
+    const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Tuberculosis');
+    await completedCarePlanModal.addAdditionalCarePlanNote('This is a note which will be deleted', 'System');
+
+    await expect(completedCarePlanModal.completedCarePlan.filter({ hasText: 'This is a note which will be deleted' })).toBeVisible();
+
+    const additionalNoteKebabMenu = completedCarePlanModal.getAdditionalNoteKebabMenu('System');
+    await additionalNoteKebabMenu.click();
+    await completedCarePlanModal.additionalNoteDeleteButton.click();
+
+    await expect(completedCarePlanModal.completedCarePlan.filter({ hasText: 'This is a note which will be deleted' })).toBeHidden();
+    await expect(completedCarePlanModal.completedCarePlan.filter({ hasText: 'This is the main care plan which we will keep' })).toBeVisible();
+  })
 });

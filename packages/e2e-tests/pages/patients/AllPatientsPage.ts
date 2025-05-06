@@ -31,26 +31,13 @@ export class AllPatientsPage extends BasePage {
 
     this.allPatientsTable = page.getByRole('table');
     this.allPatientsTableLoadingCell = page.getByTestId('statustablecell-rwkq').filter( { hasText: 'Loading' });
-    // this.addNewPatientBtn = page.getByRole('button', { name: '+ Add new patient' });
     this.addNewPatientBtn = page.getByTestId('component-enxe');
     this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
- //   .getByRole("dialog")
-//    .locator('input[name="firstName"]');
     this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
-//    .getByRole("dialog")
-//    .locator('input[name="lastName"]');
     this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
- //   .getByRole("dialog")
- //   .locator('input[type="date"]');
     this.NewPatientMaleChk = page.getByTestId('controllabel-kkx2-male');
- //   .getByLabel("sex")
- //   .getByText("Male", { exact: true });
     this.NewPatientFemaleChk = page.getByTestId('controllabel-kkx2-female');
- //   .getByLabel("sex")
-  //  .getByText("Female", { exact: true });
-  //  this.NewPatientNHN = page.locator('[data-test-class="id-field-div"]');
     this.NewPatientNHN = page.getByTestId('id-8niy');
-//  this.NewPatientConfirmBtn = page.getByText("Confirm");
     this.NewPatientConfirmBtn = page.getByTestId('formsubmitbutton-ygc6');
     this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
     this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
