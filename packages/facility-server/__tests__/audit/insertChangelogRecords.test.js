@@ -111,7 +111,7 @@ describe('insertChangeLogRecords', () => {
     expect(results[2].tableName).toBe('encounters');
   });
 
-  it('should set recordSyncTick to SYNC_TICK_FLAGS.UPDATED_ELSEWHERE for facility records', async () => {
+  it('should set recordSyncTick to SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE for facility records', async () => {
     // Arrange
     const changelogRecords = [
       {
@@ -135,11 +135,10 @@ describe('insertChangeLogRecords', () => {
     // Assert
     const result = await models.ChangeLog.findAll();
     expect(result).toHaveLength(1);
-    expect(result[0].recordSyncTick).toBe(`${SYNC_TICK_FLAGS.UPDATED_ELSEWHERE}`);
+    expect(result[0].recordSyncTick).toBe(`${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}`);
   });
 
-  // TODO: DON'T forget this one Daniel
-  it.skip('should preserve recordSyncTick for non-facility records', async () => {
+  it('should preserve recordSyncTick for non-facility records', async () => {
     // Arrange
     const changelogRecords = [
       {

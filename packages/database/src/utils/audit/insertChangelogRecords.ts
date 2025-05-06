@@ -24,10 +24,10 @@ export const insertChangelogRecords = async (
   const existingIds = existingRecords.map(({ id }) => id);
   const recordsToInsert = changelogRecords
     .filter(({ id }) => !existingIds.includes(id))
-    .map(({ recordData, ...changelogRecord }) => {
+    .map(({ recordData, recordSyncTick, ...changelogRecord }) => {
       return {
         ...changelogRecord,
-        recordSyncTick: isFacility ? SYNC_TICK_FLAGS.UPDATED_ELSEWHERE : SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK,
+        recordSyncTick: isFacility ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : Number(recordSyncTick),
         recordData: JSON.stringify(recordData),
       };
     });
