@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -49,11 +49,21 @@ export const withModalFloating = ModalComponent => {
     // All other props go to the wrapped modal
     ...modalProps
   }) => {
+    const positionRef = useRef({ x: 0, y: 0 });
+
     // Custom PaperComponent for dragging + resizing
     const PaperComponent = paperProps => {
       const { style, className, children, ...rest } = paperProps;
       return (
-        <Draggable handle={draggableHandle} bounds={draggableBounds}>
+        <Draggable
+          handle={draggableHandle}
+          bounds={draggableBounds}
+          defaultPosition={positionRef.current}
+          cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
+          onStop={(e, data) => {
+            positionRef.current = { x: data.x, y: data.y };
+          }}
+        >
           <Resizable
             defaultSize={{ width: baseWidth, height: baseHeight }}
             minWidth={minConstraints[0]}

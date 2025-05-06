@@ -172,7 +172,6 @@ const PatientRoutesContent = () => {
           </PatientPaneInner>
         </PatientPane>
       </TwoColumnDisplay>
-      <NoteModal />
     </>
   );
 };
@@ -181,6 +180,7 @@ export const PatientRoutes = React.memo(() => {
   return (
     <NoteModalProvider>
       <PatientRoutesContent />
+      <NoteModal />
     </NoteModalProvider>
   );
 }, isPathUnchanged);

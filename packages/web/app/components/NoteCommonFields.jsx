@@ -84,7 +84,7 @@ export const WrittenByField = ({
 };
 
 export const NoteDateTimeField = ({ required, disabled }) => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
 
   return (
     <Field
@@ -173,6 +173,8 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     onChange={onChange}
+    menuPosition="absolute"
+    menuPlacement="auto"
   />
 );
 
