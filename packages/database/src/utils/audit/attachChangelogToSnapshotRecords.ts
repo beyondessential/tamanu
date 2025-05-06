@@ -1,5 +1,5 @@
 import type { ChangeLog } from 'models';
-import { Op } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import type { Models } from 'types/model';
 import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
@@ -22,23 +22,26 @@ export const attachChangelogToSnapshotRecords = async (
     return snapshotRecords;
   }
 
-  const changelogRecords = await models.ChangeLog.findAll({
-    where: {
-      recordSyncTick: {
-        [Op.gte]: minSourceTick,
-        ...(maxSourceTick && { [Op.lte]: maxSourceTick }),
+  const changelogRecords = await models.ChangeLog.sequelize.query(
+    `
+   SELECT * FROM logs.changes
+    WHERE record_sync_tick >= :minSourceTick
+    ${maxSourceTick ? 'AND record_sync_tick <= :maxSourceTick' : ''}
+    ${tableWhitelist ? `AND table_name IN (:tableWhitelist)` : ''}
+    AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
+    `,
+    {
+      model: models.ChangeLog,
+      type: QueryTypes.SELECT,
+      mapToModel: true,
+      replacements: {
+        minSourceTick,
+        maxSourceTick,
+        tableWhitelist,
+        recordTypeAndIds: relevantRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`),
       },
-      ...(tableWhitelist && {
-        tableName: {
-          [Op.in]: tableWhitelist,
-        },
-      }),
-      [Op.or]: relevantRecords.map(({ recordType, recordId }) =>({
-          tableName: recordType,
-          recordId,
-        })),
     },
-  });
+  );
 
   const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangeLog[]>>(
     (acc, changelogRecord) => {
