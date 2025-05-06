@@ -100,11 +100,30 @@ export class MedicationAdministrationRecord extends Model {
     );
   }
 
+  /**
+   * Generates upcoming Medication Administration Records (MARs) for a given prescription.
+   *
+   * This function calculates and creates MAR entries based on the prescription's
+   * frequency, start date, end date, ideal administration times, and discontinuation date.
+   * It ensures that MARs are generated up to a configurable timeframe in the future
+   * (defaulting to 72 hours) or until the prescription's end date, whichever is earlier.
+   *
+   * Special handling is included for 'IMMEDIATELY' and 'AS_DIRECTED' frequencies,
+   * as well as for calculating next due dates for various frequencies like
+   * 'EVERY_SECOND_DAY', 'ONCE_A_WEEK', and 'ONCE_A_MONTH'.
+   *
+   * It avoids creating duplicate records by checking the last existing MAR and
+   * skips generation if the calculated due date falls outside the valid prescription period
+   * or before the last generated MAR.
+   *
+   * @param prescription The prescription object for which to generate MARs.
+   */
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
     if (!prescription.frequency || !prescription.startDate) {
       return;
     }
 
+    // Get the last MAR of the prescription (for cron job)
     const lastMedicationAdministrationRecord = await this.findOne({
       where: {
         prescriptionId: prescription.id,
@@ -112,6 +131,7 @@ export class MedicationAdministrationRecord extends Model {
       order: [['dueAt', 'DESC']],
     });
 
+    // If the prescription is immediately or as directed, create a MAR for the start date
     if (
       prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
       prescription.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
@@ -126,6 +146,7 @@ export class MedicationAdministrationRecord extends Model {
       return;
     }
 
+    // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
     if (prescription.idealTimes && prescription.idealTimes.length > 0) {
       try {
@@ -141,6 +162,7 @@ export class MedicationAdministrationRecord extends Model {
       }
     }
 
+    // Get the upcoming records should be generated time frame
     const upcomingRecordsShouldBeGeneratedTimeFrame =
       config?.medicationAdministrationRecord?.upcomingRecordsShouldBeGeneratedTimeFrame || 72;
 
@@ -151,6 +173,7 @@ export class MedicationAdministrationRecord extends Model {
       endDate = new Date(prescription.endDate);
     }
 
+    // Get the last due date for the prescription
     let lastDueDate: Date;
     if (lastMedicationAdministrationRecord) {
       lastDueDate = new Date(lastMedicationAdministrationRecord.dueAt);
@@ -160,6 +183,7 @@ export class MedicationAdministrationRecord extends Model {
       lastDueDate = new Date(prescription.startDate);
     }
 
+    // Generate the upcoming MARs
     while (lastDueDate < endDate) {
       for (const idealTime of prescription.idealTimes || []) {
         const [hours, minutes] = idealTime.split(':').map(Number);
@@ -171,7 +195,8 @@ export class MedicationAdministrationRecord extends Model {
           minutes,
           0,
         );
-
+        // Skip if the next due date is before the start date, after the end date, or after the prescription was discontinued
+        // For cron job, skip if the next due date is before the last due date (to avoid creating duplicate records)
         if (
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
@@ -200,6 +225,7 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
+          // If the due date of the first administration is the 29th or 30th, then set the next due date to the 1st of the next month
           const lastDueDay = getDate(lastDueDate);
           if (lastDueDay >= 29) {
             lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));

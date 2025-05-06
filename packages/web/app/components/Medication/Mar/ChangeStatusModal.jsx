@@ -22,8 +22,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -92,13 +92,7 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
-export const ChangeStatusModal = ({
-  open,
-  onClose,
-  medication,
-  marInfo,
-  timeSlot,
-}) => {
+export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
@@ -133,6 +127,14 @@ export const ChangeStatusModal = ({
         changingStatusReason,
       });
     } else {
+      if (
+        !showWarningModal &&
+        Number(values.doseAmount) !== Number(medication?.doseAmount) &&
+        !medication?.isVariableDose
+      ) {
+        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+        return;
+      }
       const {
         doseAmount,
         givenTime,
@@ -166,8 +168,9 @@ export const ChangeStatusModal = ({
     if (initialStatus === ADMINISTRATION_STATUS.NOT_GIVEN) {
       return yup.object().shape({
         givenTime: yup
-          .string()
+          .date()
           .nullable()
+          .typeError(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
           .test(
             'time-within-slot',
@@ -199,7 +202,7 @@ export const ChangeStatusModal = ({
     if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
       return {
         status: initialStatus,
-        reasonNotGivenId: currentUser?.id,
+        reasonNotGivenId: '',
         recordedByUserId: currentUser?.id,
       };
     }
@@ -226,6 +229,7 @@ export const ChangeStatusModal = ({
       <MarInfoPane medication={medication} marInfo={marInfo} />
       <Box height={16} />
       <Form
+        suppressErrorDialog
         onSubmit={handleSubmit}
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
@@ -372,6 +376,16 @@ export const ChangeStatusModal = ({
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />
+              {showWarningModal && (
+                <WarningModal
+                  modal={showWarningModal}
+                  onClose={() => setShowWarningModal('')}
+                  onConfirm={() => {
+                    setShowWarningModal('');
+                    handleSubmit(values);
+                  }}
+                />
+              )}
             </FormGrid>
           );
         }}

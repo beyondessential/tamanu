@@ -171,7 +171,7 @@ const columns = (getTranslation, getEnumTranslation) => [
   },
   {
     key: 'repeats',
-    title: getTranslation('pdf.table.column.repeat', 'Repeat'),
+    title: getTranslation('pdf.table.column.repeats', 'Repeats'),
     accessor: ({ repeats }) => repeats || 0,
   },
 ];
@@ -189,7 +189,9 @@ const DischargeSummaryPrintoutComponent = ({
   const { logo } = certificateData;
   const { diagnoses, procedures, medications } = encounter;
 
-  const visibleMedications = medications.filter((m) => !m.discontinued);
+  const visibleMedications = medications
+    .filter((m) => !m.discontinued)
+    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );

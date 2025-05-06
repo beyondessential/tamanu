@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { format, isSameDay } from 'date-fns';
@@ -15,6 +15,8 @@ import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMe
 import { MarTableRow } from './MarTableRow';
 
 const MEDICATION_CELL_WIDTH = 48;
+
+const HEADER_HEIGHT = 105;
 
 const Container = styled.div`
   position: relative;
@@ -45,18 +47,15 @@ const ScrollableContent = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   ${p => (p.$flexShrink || p.$flexShrink === 0) && `flex-shrink: ${p.$flexShrink};`}
-  
   /* Add these lines to handle scrollbar consistently across platforms */
   scrollbar-gutter: stable;
 
   &::-webkit-scrollbar {
     width: 5px;
   }
-  
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
   &::-webkit-scrollbar-thumb {
     background-color: ${Colors.softText};
     border-radius: 4px;
@@ -77,7 +76,7 @@ const HeadingCell = styled.div`
 
 const TimeSlotHeaderContainer = styled.div`
   padding: 24px 0px 10px 0px;
-  height: 105px;
+  height: ${HEADER_HEIGHT}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -169,6 +168,7 @@ export const MarTable = ({ selectedDate }) => {
   const scheduledHeaderRef = useRef(null);
   const prnSectionRef = useRef(null);
   const prnHeaderRef = useRef(null);
+  const scrollableContentRef = useRef(null);
   const [overlayHeight, setOverlayHeight] = useState('100%');
 
   const { data: medicationsData } = useEncounterMedicationQuery(encounter?.id, {
@@ -183,24 +183,63 @@ export const MarTable = ({ selectedDate }) => {
   const prnMedications = medications.filter(medication => medication.isPrn);
   const scheduledMedications = medications.filter(medication => !medication.isPrn);
 
-  // Determine overlay height based on medication content
-  const getOverlayHeight = () => {
+  // Determine overlay height based on medication content and visibility
+  const calculateAndSetOverlayHeight = useCallback(() => {
+    const scrollableContainer = scrollableContentRef.current;
+    const scheduledSection = scheduledSectionRef.current;
+
     if (prnMedications.length > 0) {
       setOverlayHeight('100%');
       return;
     }
-    if (scheduledMedications.length > 0) {
-      const scheduledSectionHeight = scheduledSectionRef?.current?.offsetHeight || 0;
-      setOverlayHeight('calc(105px + ' + scheduledSectionHeight + 'px)');
+
+    if (scheduledMedications.length > 0 && scrollableContainer && scheduledSection) {
+      const scrollableRect = scrollableContainer.getBoundingClientRect();
+      const scheduledRect = scheduledSection.getBoundingClientRect();
+
+      // Calculate the visible height of the scheduled medications
+      const visibleTop = Math.max(scrollableRect.top, scheduledRect.top);
+      const visibleBottom = Math.min(scrollableRect.bottom, scheduledRect.bottom);
+      const visibleScheduledHeight = Math.max(0, visibleBottom - visibleTop);
+
+      setOverlayHeight(`calc(${HEADER_HEIGHT}px + ${visibleScheduledHeight}px)`);
       return;
     }
-    setOverlayHeight('105px');
-  };
 
+    // Only header is visible or no scheduled meds
+    setOverlayHeight(`${HEADER_HEIGHT}px`);
+  }, [prnMedications.length, scheduledMedications.length]);
+
+  // Recalculate on mount, or selectedDate change
   useLayoutEffect(() => {
-    getOverlayHeight();
-  }, [prnMedications.length, scheduledMedications.length, selectedDate]);
+    calculateAndSetOverlayHeight();
+  }, [calculateAndSetOverlayHeight, selectedDate]);
 
+  // Add/Remove Scroll Listener
+  useLayoutEffect(() => {
+    const scrollableElement = scrollableContentRef?.current;
+
+    if (!scrollableElement) return;
+
+    // Add listener only if we need dynamic height (no PRN meds)
+    if (prnMedications.length === 0 && scheduledMedications.length > 0) {
+      scrollableElement.addEventListener('scroll', calculateAndSetOverlayHeight);
+
+      // Initial calculation after layout
+      calculateAndSetOverlayHeight();
+
+      return () => {
+        scrollableElement.removeEventListener('scroll', calculateAndSetOverlayHeight);
+      };
+    } else {
+      // Ensure correct height is set if conditions change (e.g., PRN meds added/removed)
+      calculateAndSetOverlayHeight();
+    }
+    // No cleanup needed if listener wasn't added
+    return undefined;
+  }, [prnMedications.length, scheduledMedications.length, calculateAndSetOverlayHeight]);
+
+  // Effect for sticky headers
   useLayoutEffect(() => {
     // Don't proceed if any required refs are missing
     if (!scheduledHeaderRef.current || !prnHeaderRef.current) return;
@@ -211,7 +250,7 @@ export const MarTable = ({ selectedDate }) => {
     // Common observer configuration
     const observerOptions = {
       threshold: 0,
-      rootMargin: '-105px 0px 0px 0px',
+      rootMargin: `-${HEADER_HEIGHT}px 0px 0px 0px`,
     };
 
     // Helper function to create consistent observers
@@ -219,7 +258,7 @@ export const MarTable = ({ selectedDate }) => {
       return new IntersectionObserver(([entry]) => {
         headerElement.style.position = entry.isIntersecting
           ? 'sticky'
-          : entry.boundingClientRect.top < 105
+          : entry.boundingClientRect.top < HEADER_HEIGHT
           ? 'static'
           : headerElement.style.position;
       }, observerOptions);
@@ -265,7 +304,7 @@ export const MarTable = ({ selectedDate }) => {
         ))}
       </HeaderRow>
       <MedicationContainer>
-        <ScrollableContent>
+        <ScrollableContent ref={scrollableContentRef}>
           {/* Scheduled medications section */}
           <div ref={scheduledSectionRef}>
             <SubHeader ref={scheduledHeaderRef}>

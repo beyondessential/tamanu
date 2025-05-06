@@ -385,6 +385,7 @@ export const MarStatus = ({
   };
 
   const getTooltipText = () => {
+    if (isPrn && isPast) return null;
     if (isDiscontinued) {
       return (
         <Box maxWidth={69}>
@@ -460,7 +461,6 @@ export const MarStatus = ({
             );
           }
           if (isPast) {
-            if (isPrn) return null;
             return (
               <Box maxWidth={69}>
                 <TranslatedText
@@ -552,8 +552,6 @@ export const MarStatus = ({
           medication={medication}
           marInfo={marInfo}
           timeSlot={timeSlot}
-          isPast={isPast}
-          selectedDate={selectedDate}
           isRecordedOutsideAdministrationSchedule={isRecordedOutsideAdministrationSchedule}
           isDoseAmountNotMatch={isDoseAmountNotMatch}
           isRecordedDuringPaused={isRecordedDuringPaused}

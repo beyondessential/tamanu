@@ -95,10 +95,11 @@ const DoseButton = styled(IconButton)`
   padding: 5px;
   margin: -5px;
   svg {
-    color: ${Colors.primary};
+    color: ${p => (p.disabled ? Colors.softText : Colors.primary)};
     width: 14px;
     height: 14px;
   }
+  ${p => p.$hidden && 'opacity: 0;'}
 `;
 
 const TimeGivenTitle = styled.div`
@@ -147,6 +148,7 @@ const InputSuffix = styled.span`
   position: absolute;
   right: 3px;
   top: 1.7px;
+  color: ${Colors.midText};
 `;
 
 const StyledTimePicker = styled(Field)`
@@ -312,14 +314,24 @@ const GivenScreen = ({
           />
           <FormContainer $width={containerWidth}>
             <DoseContainer>
-              <DoseButton onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}>
+              <DoseButton
+                disabled={values.doseAmount <= 0.25}
+                onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}
+                $hidden={isVariableDose}
+              >
                 <RemoveCircleOutlineIcon />
               </DoseButton>
               <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
                 <Field name="doseAmount" component={NumberField} min={0.25} />
-                <InputSuffix>{units}</InputSuffix>
+                <InputSuffix>
+                  {units}
+                  <RequiredMark>*</RequiredMark>
+                </InputSuffix>
               </StyledNumberFieldWrapper>
-              <DoseButton onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}>
+              <DoseButton
+                onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}
+                $hidden={isVariableDose}
+              >
                 <AddCircleOutlineIcon />
               </DoseButton>
             </DoseContainer>

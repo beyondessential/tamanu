@@ -1,10 +1,9 @@
-import type { Models } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake } from '../../fake';
+import { fake } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
-interface CreateAdministeredVaccineParams {
-  models: Models;
+interface CreateAdministeredVaccineParams extends CommonParams {
   scheduledVaccineId: string;
   encounterId: string;
 }

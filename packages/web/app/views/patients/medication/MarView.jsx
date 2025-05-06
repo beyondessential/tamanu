@@ -4,6 +4,7 @@ import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
 import { Colors } from '../../../constants';
 import { set } from 'date-fns';
+import { useEncounter } from '../../../contexts/Encounter';
 
 const MarContainer = styled.div`
   border-bottom: 1px solid ${Colors.outline};
@@ -11,7 +12,11 @@ const MarContainer = styled.div`
 `;
 
 export const MarView = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { encounter } = useEncounter();
+  
+  const defaultSelectedDate =
+    new Date(encounter?.endDate) < new Date() ? new Date(encounter?.endDate) : new Date();
+  const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
   const handleDateChange = date => setSelectedDate(date);
 
   useEffect(() => {
