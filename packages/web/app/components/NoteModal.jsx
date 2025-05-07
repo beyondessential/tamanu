@@ -125,10 +125,26 @@ export const NoteModalComponent = ({
 
 export const NoteModal = React.memo(() => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
+  const handleBeforeUnloadRef = React.useRef(null);
 
-  return (
-    <>
-      <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
-    </>
-  );
+  useEffect(() => {
+    // Create the handler function and store it in the ref
+    handleBeforeUnloadRef.current = e => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    if (isNoteModalOpen) {
+      window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
+    }
+
+    return () => {
+      if (handleBeforeUnloadRef.current) {
+        window.removeEventListener('beforeunload', handleBeforeUnloadRef.current);
+      }
+    };
+  }, [isNoteModalOpen]);
+
+  console.log('📝 NoteModal render:', { isNoteModalOpen, noteModalProps });
+  return <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />;
 });
