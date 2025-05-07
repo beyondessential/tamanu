@@ -1,8 +1,9 @@
 import { test, expect } from '../../fixtures/baseFixture';
 import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient';
 
-//TODO: this is just creating with required fields, we need to test creating with all fields too
+//TODO: is this good enough to submit just to get generate patient merged to main? can split todos elsewhere?
 //TODO: test editing / resolving sections of the sidebar
+//TODO: test reaction in allergy, needs some test data to be imported
 //TODO: check for any other specific sidebar test cases in the regression document
 //TODO: refactor the "required fields" tests so they test all fields, test "required fields" as integration or unit tests
 //TODO: test clicking on ongoing fields, allergies etc to confirm all details are entered correctly once test-id card is merged in?
@@ -70,7 +71,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.savedOnGoingConditionNote.fill('Edited note');
 
-    await patientDetailsPage.clickAddButtonToConfirm(patientDetailsPage.editOnGoingConditionSubmitButton);
+    await patientDetailsPage.clickAddButtonToConfirm(patientDetailsPage.submitEditsButton);
 
     await patientDetailsPage.firstListItem.click();
 
@@ -82,14 +83,60 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
-    //TODO:
+    await patientDetailsPage.addNewOngoingConditionWithAllFields('Pain in hand', '2024-08-14', 'Initial Admin', 'This is to test resolving a note');
+    
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.resolvedCheckbox).not.toBeChecked();
+
+    await patientDetailsPage.resolveOngoingCondition('Initial Admin', 'Resolved note');
+
+    await expect(patientDetailsPage.firstListItem).toContainText('Pain in hand (resolved)');
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOnGoingConditionName).toHaveValue('Pain in hand');
+    await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue('2024-08-14');
+    await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is to test resolving a note');
+
+    await expect(patientDetailsPage.resolvedCheckbox).toBeChecked();
+    await expect(patientDetailsPage.resolvedClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.resolvedNote).toHaveValue('Resolved note');
   });
 
   test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Dust mites');
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedAllergyName).toHaveValue('Dust mites');
   });
+
+test('Edit allergy', async({ patientDetailsPage}) => {
+  await patientDetailsPage.addNewAllergyWithJustRequiredFields('Eggs');
+
+  await patientDetailsPage.firstListItem.click();
+
+  await patientDetailsPage.savedAllergyNote.fill('Edited to add a note');
+  await patientDetailsPage.submitEditsButton.click();
+
+  await patientDetailsPage.firstListItem.click();
+
+  await expect(patientDetailsPage.savedAllergyName).toHaveValue('Eggs');
+  await expect(patientDetailsPage.savedAllergyNote).toHaveValue('Edited to add a note');
+
+  await patientDetailsPage.savedAllergyNote.fill('Second edit');
+  await patientDetailsPage.submitEditsButton.click();
+
+  await patientDetailsPage.firstListItem.click();
+
+  await expect(patientDetailsPage.savedAllergyName).toHaveValue('Eggs');
+  await expect(patientDetailsPage.savedAllergyNote).toHaveValue('Second edit');
+  await expect(patientDetailsPage.page.getByText('Edited to add a note')).toBeHidden();
+});
 
   test('Add allergy that is not in dropdown list', async ({
     patientDetailsPage,
@@ -105,12 +152,54 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.addNewAllergyNotInDropdown(newAllergy);
 
     await expect(patientDetailsPage.firstListItem).toContainText(newAllergy);
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedAllergyName).toHaveValue(newAllergy);
   });
 
   test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Hair alopecia');
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
+  });
+
+  test('Edit family history', async({ patientDetailsPage}) => {
+    await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
+
+    await patientDetailsPage.firstListItem.click();
+    
+    await patientDetailsPage.savedFamilyHistoryDateRecorded.fill('2025-05-25');
+    await patientDetailsPage.savedFamilyHistoryRelationship.fill('Mother');
+    await patientDetailsPage.savedFamilyClinician.click();
+    await patientDetailsPage.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
+    await patientDetailsPage.savedFamilyHistoryNote.fill('First edit to note');
+    await patientDetailsPage.submitEditsButton.click();
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
+    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
+    await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('First edit to note');
+
+    await patientDetailsPage.savedFamilyHistoryNote.fill('Second edit to note');
+    await patientDetailsPage.submitEditsButton.click();
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedFamilyHistoryName).toHaveValue('Hair alopecia');
+    await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue('2025-05-25');
+    await expect(patientDetailsPage.savedFamilyHistoryRelationship).toHaveValue('Mother');
+    await expect(patientDetailsPage.savedFamilyClinician).toHaveValue('Initial Admin');
+    await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Second edit to note');
+
+    await expect(patientDetailsPage.page.getByText('First edit to note')).toBeHidden();
   });
 
   test('Add other patient issue with default issue and note', async ({ patientDetailsPage }) => {
@@ -119,6 +208,11 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
     await expect(patientDetailsPage.firstListItem).toContainText('New issue note');
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedIssueType).toContainText('Issue');
+    await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('New issue note');
   });
 
   test('Add other patient issue: warning', async ({ patientDetailsPage }) => {
@@ -143,6 +237,37 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.warningModalContent).toContainText('A warning appears when navigating to a patient with a warning');
   });
 
+  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage }) => {
+    await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
+    await patientDetailsPage.warningModalOkayButton.click();
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Test warning');
+
+    await patientDetailsPage.savedOtherPatientIssueNote.fill('Edited warning');
+    await patientDetailsPage.submitEditsButton.click();
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
+
+    await allPatientsPage.goto();
+
+    const patientData = allPatientsPage.getPatientData();
+    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+
+    await expect(patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' })).toBeVisible();
+    await expect(patientDetailsPage.warningModalContent).toContainText('Edited warning');
+
+    await patientDetailsPage.warningModalOkayButton.click();
+
+    await patientDetailsPage.firstListItem.click();
+
+    await expect(patientDetailsPage.savedOtherPatientIssueNote).toHaveValue('Edited warning');
+    await expect(patientDetailsPage.page.getByText('Test warning')).toBeHidden();
+  });
+
   test('Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
@@ -159,6 +284,7 @@ test.describe('Patient Side Bar', () => {
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText('On behalf of Initial Admin');
 
     await completedCarePlanModal.addAdditionalCarePlanNote('This is an additional care plan note', 'System');
+
     await expect(completedCarePlanModal.completedCarePlan.filter({hasText: 'System'})).toContainText('This is an additional care plan note');
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText('This is an example of main care plan details');
   });

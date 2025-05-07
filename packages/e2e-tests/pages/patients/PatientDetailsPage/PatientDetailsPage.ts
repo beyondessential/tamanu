@@ -16,16 +16,24 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
   readonly onGoingConditionForm: Locator;
-  readonly editOnGoingConditionSubmitButton: Locator;
+  readonly submitEditsButton: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
+  readonly savedAllergyName: Locator;
+  readonly savedAllergyNote: Locator;
   readonly submitNewAllergyAddButton: Locator;
   readonly initiateNewFamilyHistoryAddButton: Locator;
   readonly familyHistoryDiagnosisField: Locator;
   readonly submitNewFamilyHistoryAddButton: Locator;
+  readonly savedFamilyHistoryDateRecorded: Locator;
+  readonly savedFamilyHistoryRelationship: Locator;
+  readonly savedFamilyClinician: Locator;
+  readonly savedFamilyHistoryNote: Locator;
   readonly initiateNewOtherPatientIssuesAddButton: Locator;
   readonly defaultNewIssue: Locator;
+  readonly savedIssueType: Locator;
+  readonly savedOtherPatientIssueNote: Locator;
   readonly otherPatientIssueNote: Locator;
   readonly submitNewOtherPatientIssuesAddButton: Locator;
   readonly initiateNewCarePlanAddButton: Locator;
@@ -36,6 +44,11 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly warningModalTitle: Locator;
   readonly warningModalContent: Locator;
   readonly warningModalDismissButton: Locator;
+  readonly warningModalOkayButton: Locator;
+  readonly resolvedCheckbox: Locator;
+  readonly resolvedClinician: Locator;
+  readonly resolvedNote: Locator;
+  readonly savedFamilyHistoryName: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -50,17 +63,25 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionClinician = this.page.getByTestId('collapse-0a33').getByTestId('field-9miu-input').getByRole('textbox');
     this.savedOnGoingConditionNote = this.page.getByTestId('collapse-0a33').getByTestId('field-e52k-input');
     this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
-    this.editOnGoingConditionSubmitButton = this.page.getByTestId('collapse-0a33').getByTestId('formsubmitbutton-ygc6'); 
+    this.submitEditsButton = this.page.getByTestId('collapse-0a33').getByTestId('formsubmitbutton-ygc6'); 
     this.submitNewOngoingConditionAddButton = this.page.getByTestId('formgrid-lqds').getByTestId('formsubmitbutton-ygc6');
     this.initiateNewAllergyAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'AllergiesAdd' }).getByTestId('addbutton-b0ln');
     this.allergyNameField = this.page.getByTestId('field-hwfk-input').getByRole('textbox', { name: 'Search...' });
+    this.savedAllergyName = this.page.getByTestId('collapse-0a33').getByTestId('field-hwfk-input').getByRole('textbox');
+    this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page.getByTestId('formgrid-p12d').getByTestId('formsubmitbutton-ygc6');
     this.initiateNewFamilyHistoryAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Family historyAdd' }).getByTestId('addbutton-b0ln');
     this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input').getByRole('textbox', { name: 'Search...' });
     this.submitNewFamilyHistoryAddButton = this.page.getByTestId('formgrid-kjns').getByTestId('formsubmitbutton-ygc6');
+    this.savedFamilyHistoryDateRecorded = this.page.getByTestId('collapse-0a33').getByTestId('field-wrp3-input').getByRole('textbox');
+    this.savedFamilyHistoryRelationship = this.page.getByTestId('collapse-0a33').getByTestId('field-t0k5-input');
+    this.savedFamilyClinician = this.page.getByTestId('collapse-0a33').getByTestId('field-kbwi-input').getByRole('textbox');
+    this.savedFamilyHistoryNote = this.page.getByTestId('collapse-0a33').getByTestId('field-mgiu-input');
     this.initiateNewOtherPatientIssuesAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Other patient issuesAdd' }).getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
+    this.savedIssueType = this.page.getByTestId('collapse-0a33').getByText('Type*Issue');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
+    this.savedOtherPatientIssueNote = this.page.getByTestId('collapse-0a33').getByTestId('field-nj3s-input');
     this.submitNewOtherPatientIssuesAddButton = this.page.getByTestId('formgrid-vv7x').getByTestId('formsubmitbutton-ygc6');
     this.initiateNewCarePlanAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Care plansAdd' }).getByTestId('addbutton-b0ln');
     this.dropdownMenuItem = this.page.getByTestId('typography-qxy3');
@@ -70,6 +91,11 @@ export class PatientDetailsPage extends BasePatientPage {
     this.warningModalTitle = this.page.getByTestId('modaltitle-ojhf');
     this.warningModalContent = this.page.getByTestId('modalcontent-bk4w');
     this.warningModalDismissButton = this.page.getByTestId('button-ui1m');
+    this.warningModalOkayButton = this.page.getByTestId('button-3i9s');
+    this.resolvedCheckbox = this.page.getByTestId('collapse-0a33').getByTestId('checkinput-x2e3-controlcheck');
+    this.resolvedClinician = this.page.getByRole('combobox').filter({ hasText: 'Clinician confirming' }).getByPlaceholder('Search...');
+    this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
+    this.savedFamilyHistoryName = this.page.getByTestId('collapse-0a33').getByTestId('field-3b4u-input').getByRole('textbox');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -173,4 +199,11 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.firstCarePlanListItem.filter({ hasText: carePlanName});
   }
 
+  async resolveOngoingCondition(clinicianName: string, note: string) {
+    await this.resolvedCheckbox.check();
+    await this.resolvedClinician.click();
+    await this.page.getByRole('menuitem', { name: clinicianName }).click();
+    await this.resolvedNote.fill(note);
+    await this.page.getByRole('button', { name: 'Save' }).click();
+  }
 }
