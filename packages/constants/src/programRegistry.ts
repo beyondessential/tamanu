@@ -31,6 +31,11 @@ export const STATUS_COLOR = {
   teal: '#125E7E',
 };
 
+/**
+ * ########################################################################################################
+ *       These categories must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
+ * ########################################################################################################
+ */
 export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   SUSPECTED: 'suspected',
   UNDER_INVESTIGATION: 'underInvestigation',
@@ -54,3 +59,5 @@ export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE]: 'Not applicable',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
 };
+
+// ########################################################################################################

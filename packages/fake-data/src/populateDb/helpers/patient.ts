@@ -1,25 +1,24 @@
 import { times } from 'lodash';
 
-import type { Models, Patient } from '@tamanu/database';
+import type { Patient } from '@tamanu/database';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
-import { fake, chance } from '../../fake';
+import { fake, chance } from '../../fake/index.js';
+import type { CommonParams } from './common.js';
 
-interface CreatePatientParams {
-  models: Models;
-  facilityId: string;
-  userId: string;
+interface CreatePatientParams extends CommonParams {
+  facilityId?: string;
+  userId?: string;
   isBirth?: boolean;
-  isPad?: boolean;
   isDead?: boolean;
   allergyCount?: number;
 }
 export const createPatient = async ({
   models,
+  limit,
   facilityId,
   userId,
   isBirth = chance.bool(),
-  isPad = chance.bool(),
   isDead = chance.bool(),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
@@ -27,20 +26,17 @@ export const createPatient = async ({
     models;
 
   const patient = await Patient.create(fake(Patient));
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, {
+      patientId: patient.id,
+    }),
+  );
 
   if (isBirth) {
     await PatientBirthData.create(
       fake(PatientBirthData, {
         patientId: patient.id,
         facilityId: facilityId || (await randomRecordId(models, 'Facility')),
-      }),
-    );
-  }
-
-  if (isPad) {
-    await PatientAdditionalData.create(
-      fake(PatientAdditionalData, {
-        patientId: patient.id,
       }),
     );
   }
@@ -54,13 +50,17 @@ export const createPatient = async ({
     );
   }
 
-  times(allergyCount, async () => {
-    await PatientAllergy.create(
-      fake(PatientAllergy, {
-        patientId: patient.id,
+  await Promise.all(
+    times(allergyCount, () =>
+      limit(async () => {
+        await PatientAllergy.create(
+          fake(PatientAllergy, {
+            patientId: patient.id,
+          }),
+        );
       }),
-    );
-  });
+    ),
+  );
 
   return { patient };
 };
@@ -68,7 +68,7 @@ export const createPatient = async ({
 export const createPatientCommunication = async ({
   models: { PatientCommunication },
   patientId,
-}) => {
+}: CommonParams & { patientId: string }) => {
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId,
@@ -76,23 +76,23 @@ export const createPatientCommunication = async ({
   );
 };
 
-interface CreatePatientViewLogParams {
-  models: Models;
+interface CreatePatientViewLogParams extends CommonParams {
   facilityId: string;
   userId: string;
   patientId: string;
 }
 export const createAccessLog = async ({
-  models: { AccessLog },
+  models,
   patientId,
   userId,
   facilityId,
 }: CreatePatientViewLogParams) => {
+  const { AccessLog } = models;
   await AccessLog.create(
     fake(AccessLog, {
-      userId,
       recordId: patientId,
-      facilityId,
+      userId: userId || (await randomRecordId(models, 'User')),
+      facilityId: facilityId || (await randomRecordId(models, 'Facility')),
       recordType: 'Patient',
       frontEndContext: { patientId },
       backEndContext: { endPoint: '/patient/:id' },

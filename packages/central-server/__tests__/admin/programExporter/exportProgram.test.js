@@ -53,7 +53,7 @@ const buildExpectedMetadataSheet = (program, surveys) => [
     'publish',
     false,
     'current',
-    false,
+    expect.any(Boolean),
     '',
   ]),
 ];

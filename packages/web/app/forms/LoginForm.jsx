@@ -140,6 +140,7 @@ const LoginFormComponent = ({
         onChange={() => removeValidation()}
         autoComplete="off"
         enablePasting
+        data-testid="styledfield-dwnl"
       />
       <div>
         <StyledField
@@ -151,6 +152,7 @@ const LoginFormComponent = ({
           placeholder={getTranslation('login.password.placeholder', 'Enter your password')}
           onChange={() => removeValidation()}
           autoComplete="off"
+          data-testid="styledfield-a9k6"
         />
         <RememberMeRow>
           <StyledCheckboxField
@@ -160,7 +162,10 @@ const LoginFormComponent = ({
           />
         </RememberMeRow>
       </div>
-      <LoginButton text={<TranslatedText stringId="login.login.label" fallback="Log in" />} />
+      <LoginButton
+        text={<TranslatedText stringId="login.login.label" fallback="Log in" />}
+        data-testid="loginbutton-gx21"
+      />
       <LanguageSelector />
       <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
         <TranslatedText stringId="login.forgotPassword.label" fallback="Forgot your password?" />

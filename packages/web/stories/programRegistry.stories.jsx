@@ -10,13 +10,15 @@ import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramReg
 import { PatientProgramRegistryFormHistory } from '../app/views/programRegistry/PatientProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
-import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
-import { PatientProgramRegistryActivateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryActivateModal.jsx';
 import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
 import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
-import { UpdateConditionFormModal } from '../app/features/ProgramRegistry';
+import {
+  PatientProgramRegistryActivateModal,
+  DeleteProgramRegistryFormModal,
+  UpdateConditionFormModal,
+} from '../app/features/ProgramRegistry';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';

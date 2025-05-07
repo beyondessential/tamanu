@@ -3,3 +3,4 @@ export { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 export { UpdateConditionFormModal } from './UpdateConditionFormModal';
 export { PatientProgramRegistryUpdateModal } from './PatientProgramRegistryUpdateModal';
 export { PatientProgramRegistryActivateModal } from './PatientProgramRegistryActivateModal';
+export { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
