@@ -167,6 +167,11 @@ describe('CentralSyncManager', () => {
       displayName: 'System',
       role: 'system',
     });
+    // Add these lines to ensure proper cleanup
+    await models.Setting.set('audit.changes.enabled', false);
+    await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
+    await models.SyncLookup.truncate({ force: true });
+    await models.DebugLog.truncate({ force: true });
   });
 
   afterAll(() => ctx.close());
@@ -689,21 +694,135 @@ describe('CentralSyncManager', () => {
         (c) => c.recordType === 'patient_program_registrations',
       );
 
-      // Filter out the initial creation record and only look at update records
-      const updateRecords = patientProgramRegistrationChange.changelogRecords.filter(
-        (record) => record.recordUpdate === true,
-      );
-
       // Verify that only changes up to NEW_SYNC_TICK are included
       // The change at FINAL_SYNC_TICK should not be included since it happened after the lookup table update
-      expect(updateRecords).toHaveLength(1);
-      expect(updateRecords[0]).toEqual(
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(1);
+      expect(patientProgramRegistrationChange.changelogRecords[0]).toEqual(
         expect.objectContaining({
           tableName: 'patient_program_registrations',
           recordId: patientProgramRegistration.id,
           recordData: expect.objectContaining({
             date: '2025-04-22 00:00:00',
           }),
+        }),
+      );
+    });
+
+    it('handles sync tick boundary conditions correctly', async () => {
+      const BOUNDARY_SYNC_TICK = 20;
+      const AFTER_BOUNDARY_SYNC_TICK = 21;
+      await models.Setting.set('audit.changes.enabled', true);
+
+      // Set up initial data
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, BOUNDARY_SYNC_TICK);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+
+      // Make a change exactly at the boundary sync tick
+      patientProgramRegistration.date = '2025-04-22 00:00:00';
+      await patientProgramRegistration.save();
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      // Update lookup table at the boundary tick
+      await centralSyncManager.updateLookupTable();
+
+      // Make a change immediately after the boundary
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, AFTER_BOUNDARY_SYNC_TICK);
+      patientProgramRegistration.date = '2025-04-23 00:00:00';
+      await patientProgramRegistration.save();
+
+      // Start sync session
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: BOUNDARY_SYNC_TICK,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const patientProgramRegistrationChange = outgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+
+      // Verify that the change at the boundary tick is included
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(1);
+      expect(patientProgramRegistrationChange.changelogRecords[0]).toEqual(
+        expect.objectContaining({
+          tableName: 'patient_program_registrations',
+          recordId: patientProgramRegistration.id,
+          recordData: expect.objectContaining({
+            date: '2025-04-22 00:00:00',
+          }),
+          recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
+        }),
+      );
+
+      // Make another change and update lookup table again
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, AFTER_BOUNDARY_SYNC_TICK + 1);
+      patientProgramRegistration.date = '2025-04-24 00:00:00';
+      await patientProgramRegistration.save();
+      await centralSyncManager.updateLookupTable();
+
+      // Start a new sync session
+      const { sessionId: secondSessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, secondSessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        secondSessionId,
+        {
+          since: AFTER_BOUNDARY_SYNC_TICK,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const secondOutgoingChanges = await centralSyncManager.getOutgoingChanges(secondSessionId, {});
+      const secondPatientProgramRegistrationChange = secondOutgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+
+      // Verify that the change after the boundary is now included
+      expect(secondPatientProgramRegistrationChange.changelogRecords).toHaveLength(1);
+      expect(secondPatientProgramRegistrationChange.changelogRecords[0]).toEqual(
+        expect.objectContaining({
+          tableName: 'patient_program_registrations',
+          recordId: patientProgramRegistration.id,
+          recordData: expect.objectContaining({
+            date: '2025-04-23 00:00:00',
+          }),
+          recordSyncTick: AFTER_BOUNDARY_SYNC_TICK.toString(),
         }),
       );
     });
@@ -1923,9 +2042,6 @@ describe('CentralSyncManager', () => {
   describe('updateLookupTable', () => {
     beforeEach(async () => {
       jest.resetModules();
-      await models.SyncLookup.truncate({ force: true });
-      await models.DebugLog.truncate({ force: true });
-      await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     });
 
     afterEach(async () => {
