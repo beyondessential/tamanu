@@ -305,7 +305,7 @@ patientProgramRegistration.get(
       include: [
         {
           model: User,
-          as: 'user',
+          as: 'updatedByUser',
           attributes: ['id', 'displayName'],
         },
       ],
@@ -345,7 +345,7 @@ patientProgramRegistration.get(
         registrationStatus: data.registration_status,
         clinicalStatusId: data.clinical_status_id,
         clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
-        clinician: change.user,
+        clinician: change.updatedByUser,
         registrationDate: data.date,
       };
     });
