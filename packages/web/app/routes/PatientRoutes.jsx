@@ -49,12 +49,9 @@ const ProgramRegistryTitle = () => {
 };
 
 export const usePatientRoutes = () => {
-  const {
-    navigateToEncounter,
-    navigateToPatient,
-    navigateToProgramRegistry,
-  } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const { navigateToEncounter, navigateToPatient, navigateToProgramRegistry } =
+    usePatientNavigation();
+  const patient = useSelector((state) => state.patient);
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
@@ -139,7 +136,7 @@ const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextP
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
     <Route exact path={path} component={component} />
-    {routes?.map(subRoute => (
+    {routes?.map((subRoute) => (
       <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
     ))}
   </>
@@ -174,7 +171,7 @@ export const PatientRoutes = React.memo(() => {
            that they have access to the programRegistryId url param */}
           {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
           <Switch>
-            {patientRoutes.map(route => (
+            {patientRoutes.map((route) => (
               <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
             ))}
           </Switch>

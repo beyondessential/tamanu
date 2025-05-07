@@ -8,16 +8,16 @@ export const usePatientNavigation = () => {
   const params = useParams();
   const location = useLocation();
 
-  const navigate = url => dispatch(push(url));
+  const navigate = (url) => dispatch(push(url));
 
-  const getParams = path =>
+  const getParams = (path) =>
     matchPath(location.pathname, {
       path,
       exact: false,
       strict: false,
     })?.params ?? {};
 
-  const navigateToCategory = category => {
+  const navigateToCategory = (category) => {
     navigate(
       generatePath(PATIENT_PATHS.CATEGORY, {
         category,
@@ -82,7 +82,7 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToProgramRegistry = programRegistryId => {
+  const navigateToProgramRegistry = (programRegistryId) => {
     if (programRegistryId) {
       const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
         ...params,

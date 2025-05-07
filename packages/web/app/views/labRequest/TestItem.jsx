@@ -63,14 +63,14 @@ const TestItemWrapper = styled.div`
 
 const TestItemLabel = ({ label, category }) => (
   <>
-    <LabelText>{label}</LabelText>
-    {category && <CategoryText>{category}</CategoryText>}
+    <LabelText data-testid="labeltext-6stl">{label}</LabelText>
+    {category && <CategoryText data-testid="categorytext-jno3">{category}</CategoryText>}
   </>
 );
 
 export const SelectableTestItem = ({ name, label, category, checked, indeterminate, onChange }) => {
   return (
-    <FormControl>
+    <FormControl data-testid="formcontrol-cng3">
       <StyledFormControlLabel
         control={
           <StyledCheckboxControl
@@ -82,9 +82,11 @@ export const SelectableTestItem = ({ name, label, category, checked, indetermina
             checked={checked}
             onChange={onChange}
             name={name}
+            data-testid="styledcheckboxcontrol-6oiy"
           />
         }
-        label={<TestItemLabel label={label} category={category} />}
+        label={<TestItemLabel label={label} category={category} data-testid="testitemlabel-a7ol" />}
+        data-testid="styledformcontrollabel-ywrq"
       />
     </FormControl>
   );
@@ -95,10 +97,10 @@ export const TestItem = ({ label, name, category, onRemove }) => {
     onRemove({ target: { name, checked: false } });
   };
   return (
-    <TestItemWrapper>
-      <TestItemLabel label={label} category={category} />
-      <RemoveIconButton onClick={handleRemove} color="primary">
-        <CloseIcon fontSize="inherit" />
+    <TestItemWrapper data-testid="testitemwrapper-o7ha">
+      <TestItemLabel label={label} category={category} data-testid="testitemlabel-ypgb" />
+      <RemoveIconButton onClick={handleRemove} color="primary" data-testid="removeiconbutton-iwj5">
+        <CloseIcon fontSize="inherit" data-testid="closeicon-mfuk" />
       </RemoveIconButton>
     </TestItemWrapper>
   );

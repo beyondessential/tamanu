@@ -34,21 +34,25 @@ const Cell = styled.td`
 
 export const ListTable = ({ columns, data, className }) => {
   const totalWidth = columns.reduce((sum, c) => sum + c.widthProportion || 1, 0);
-  const getWidth = widthProportion => `${(widthProportion / totalWidth) * 100}%`;
+  const getWidth = (widthProportion) => `${(widthProportion / totalWidth) * 100}%`;
   return (
-    <Table className={className}>
+    <Table className={className} data-testid="table-3rm2">
       <thead>
-        <Row>
+        <Row data-testid="row-5r58">
           {columns.map(({ key, title, style, widthProportion = 1 }) => (
-            <Header key={key} style={{ width: getWidth(widthProportion), ...style }}>
+            <Header
+              key={key}
+              style={{ width: getWidth(widthProportion), ...style }}
+              data-testid={`header-0mym-${key}`}
+            >
               {title}
             </Header>
           ))}
         </Row>
       </thead>
       <tbody>
-        {data.map(row => (
-          <Row key={row.id}>
+        {data.map((row, index) => (
+          <Row key={row.id} data-testid={`row-7yxx-${index}`}>
             {columns.map(({ key, accessor, style, widthProportion = 1 }) => (
               <Cell
                 key={key}
@@ -56,6 +60,7 @@ export const ListTable = ({ columns, data, className }) => {
                   width: getWidth(widthProportion),
                   ...style,
                 }}
+                data-testid={`cell-mzpq-${index}-${key}`}
               >
                 {accessor ? accessor(row) : row[key]}
               </Cell>

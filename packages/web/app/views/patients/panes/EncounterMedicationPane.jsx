@@ -58,66 +58,79 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
 
   return (
-    <TabPane>
+    <TabPane data-testid="tabpane-u787">
       <TableContainer>
-      <MedicationModal
-        open={createMedicationModalOpen}
-        encounterId={encounter.id}
-        onClose={() => setCreateMedicationModalOpen(false)}
-        onSaved={async () => {
-          setCreateMedicationModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-      />
-      <PrintMultipleMedicationSelectionModal
-        encounter={encounter}
-        open={printMedicationModalOpen}
-        onClose={() => setPrintMedicationModalOpen(false)}
-      />
-      <TableButtonRow>
-        <ButtonGroup>
-          <StyledTextButton
-            disabled={readonly}
-          >
-            <AddRoundedIcon />
-            <TranslatedText
-              stringId="medication.action.addOngoingMedications"
-              fallback="Add ongoing medications"
-            />
-          </StyledTextButton>
-          <div />
-          <StyledTextButton
-            onClick={() => setPrintMedicationModalOpen(true)}
-            disabled={readonly}
-            color="primary"
-          >
-            <PrintIcon />
-            <TranslatedText stringId="general.action.print" fallback="Print" />
-          </StyledTextButton>
-        </ButtonGroup>
-        <ButtonGroup>
-          <StyledButton
-            disabled={readonly}
-            variant="outlined"
-            color="primary"
-            onClick={navigateToMar}
-          >
-            <TranslatedText stringId="medication.action.medicationAdminRecord" fallback="Medication admin record" />
-          </StyledButton>
-          <StyledButtonWithPermissionCheck
-            onClick={() => setCreateMedicationModalOpen(true)}
-            disabled={readonly}
-            verb="create"
-            noun="Prescription"
-          >
-            <TranslatedText
-              stringId="medication.action.newPrescription"
-              fallback="New prescription"
-            />
-          </StyledButtonWithPermissionCheck>
-        </ButtonGroup>
-      </TableButtonRow>
-      <EncounterMedicationTable encounterId={encounter.id} />
+        <MedicationModal
+          open={createMedicationModalOpen}
+          encounterId={encounter.id}
+          onClose={() => setCreateMedicationModalOpen(false)}
+          onSaved={async () => {
+            setCreateMedicationModalOpen(false);
+            await loadEncounter(encounter.id);
+          }}
+          data-testid="medicationmodal-s2hv"
+        />
+        <PrintMultipleMedicationSelectionModal
+          encounter={encounter}
+          open={printMedicationModalOpen}
+          onClose={() => setPrintMedicationModalOpen(false)}
+          data-testid="printmultiplemedicationselectionmodal-1zpq"
+        />
+        <TableButtonRow data-testid="tablebuttonrow-dl51">
+          <ButtonGroup>
+            <StyledTextButton disabled={readonly}>
+              <AddRoundedIcon />
+              <TranslatedText
+                stringId="medication.action.addOngoingMedications"
+                fallback="Add ongoing medications"
+              />
+            </StyledTextButton>
+            <div />
+            <StyledTextButton
+              onClick={() => setPrintMedicationModalOpen(true)}
+              disabled={readonly}
+              color="primary"
+              data-testid="styledtextbutton-hbja"
+            >
+              <PrintIcon />
+              <TranslatedText
+                stringId="general.action.print"
+                fallback="Print"
+                data-testid="translatedtext-pikt"
+              />
+            </StyledTextButton>
+          </ButtonGroup>
+          <ButtonGroup>
+            <StyledButton
+              disabled={readonly}
+              variant="outlined"
+              color="primary"
+              onClick={navigateToMar}
+            >
+              <TranslatedText
+                stringId="medication.action.medicationAdminRecord"
+                fallback="Medication admin record"
+              />
+            </StyledButton>
+            <StyledButtonWithPermissionCheck
+              onClick={() => setCreateMedicationModalOpen(true)}
+              disabled={readonly}
+              verb="create"
+              noun="Prescription"
+              data-testid="styledbuttonwithpermissioncheck-cagj"
+            >
+              <TranslatedText
+                stringId="medication.action.newPrescription"
+                fallback="New prescription"
+                data-testid="translatedtext-pikt"
+              />
+            </StyledButtonWithPermissionCheck>
+          </ButtonGroup>
+        </TableButtonRow>
+        <EncounterMedicationTable
+          encounterId={encounter.id}
+          data-testid="encountermedicationtable-gs0p"
+        />
       </TableContainer>
     </TabPane>
   );

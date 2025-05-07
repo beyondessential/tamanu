@@ -14,7 +14,7 @@ const TopBarHeading = styled(Typography)`
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0;
-  color: ${props => props.theme.palette.text.primary};
+  color: ${(props) => props.theme.palette.text.primary};
   min-width: 250px;
 `;
 
@@ -37,7 +37,7 @@ const Bar = styled(Toolbar)`
 const Dot = styled.span`
   height: 15px;
   width: 15px;
-  background-color: ${props => props.color};
+  background-color: ${(props) => props.color};
   border-radius: 50%;
   margin-right: 10px;
   flex-shrink: 0;
@@ -53,11 +53,13 @@ export const TopBar = React.memo(({ title, subTitle, children, className, encoun
   };
 
   return (
-    <AppBar className={className}>
-      <Bar>
-        {dotColors[encounterType] && <Dot color={dotColors[encounterType]} />}
+    <AppBar className={className} data-testid="appbar-eplg">
+      <Bar data-testid="bar-0r5f">
+        {dotColors[encounterType] && (
+          <Dot color={dotColors[encounterType]} data-testid="dot-lfmg" />
+        )}
         {title && (
-          <TopBarHeading variant="h3">
+          <TopBarHeading variant="h3" data-testid="topbarheading-bgnl">
             {title}
             {subTitle && (
               <>
@@ -86,9 +88,11 @@ TopBar.defaultProps = {
 };
 
 export const SimpleTopBar = React.memo(({ title, children, className }) => (
-  <AppBar className={className}>
-    <Bar>
-      <TopBarHeading variant="h1">{title}</TopBarHeading>
+  <AppBar className={className} data-testid="appbar-rhqd">
+    <Bar data-testid="bar-c8bn">
+      <TopBarHeading variant="h1" data-testid="topbarheading-go4f">
+        {title}
+      </TopBarHeading>
       {children}
     </Bar>
   </AppBar>
@@ -121,8 +125,13 @@ const StaticTopBar = styled(TopBar)`
 `;
 
 export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
-  <StaticTopBar title={title} subTitle={subTitle} encounterType={encounter.encounterType}>
-    <Container>{children}</Container>
+  <StaticTopBar
+    title={title}
+    subTitle={subTitle}
+    encounterType={encounter.encounterType}
+    data-testid="statictopbar-pmtf"
+  >
+    <Container data-testid="container-zn0h">{children}</Container>
   </StaticTopBar>
 );
 

@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../useApi';
 
 // Supplying a facilityId means the preference will be applied only when logged in to that facility
-export const useUserPreferencesMutation = facilityId => {
+export const useUserPreferencesMutation = (facilityId) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { currentUser } = useAuth();

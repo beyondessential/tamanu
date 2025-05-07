@@ -19,7 +19,7 @@ const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { getSetting } = useSettings();
   const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
@@ -27,9 +27,9 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const { facility } = encounter.location;
 
   const [title, setTitle] = useState('');
-  const handleTitleChange = useCallback(title => setTitle(title), []);
+  const handleTitleChange = useCallback((title) => setTitle(title), []);
 
-  const dischargeDispositionFilterer = dischargeDisposition => {
+  const dischargeDispositionFilterer = (dischargeDisposition) => {
     switch (getPatientStatus(encounter.encounterType)) {
       case PATIENT_STATUS.EMERGENCY:
         // This is an emergency encounter
@@ -71,7 +71,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   });
 
   const handleDischarge = useCallback(
-    async data => {
+    async (data) => {
       if (!data.dischargeDraft) {
         // add facility details to discharge details
         data.discharge = {
@@ -92,7 +92,13 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <FormModal title={title} open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal
+      title={title}
+      open={open}
+      onClose={onClose}
+      cornerExitButton={false}
+      data-testid="formmodal-ti1m"
+    >
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
@@ -100,6 +106,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         dispositionSuggester={dispositionSuggester}
+        data-testid="dischargeform-xolc"
       />
     </FormModal>
   );

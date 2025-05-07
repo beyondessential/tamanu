@@ -48,19 +48,19 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
 
     const cellData = lodashGroupBy(
       appointmentsData?.data,
-      appointment => appointment[groupBy] || 'unknown',
+      (appointment) => appointment[groupBy] || 'unknown',
     );
 
     if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
       return {
         cellData,
-        headData: usersData.filter(user => !!cellData[user.id]),
+        headData: usersData.filter((user) => !!cellData[user.id]),
       };
     }
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
         cellData,
-        headData: locationGroupData?.filter(group => !!cellData[group.id]),
+        headData: locationGroupData?.filter((group) => !!cellData[group.id]),
       };
     }
     if (!groupBy) {

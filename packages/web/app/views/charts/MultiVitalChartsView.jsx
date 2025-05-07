@@ -24,22 +24,23 @@ export const MultiVitalChartsView = () => {
   const { isVital, visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
 
   return (
-    <Box minHeight="80vh" maxHeight="80vh">
+    <Box minHeight="80vh" maxHeight="80vh" data-testid="box-38t4">
       {chartKeys.map(chartKey => {
         const VitalChartComponent = getVitalChartComponent(chartKey, isVital);
         const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
         return (
           <div key={chartKey}>
-            <Divider style={{ marginRight: 0 }} />
-            <TitleContainer>
-              <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
+            <Divider style={{ marginRight: 0 }} data-testid={`divider-1j3f-${chartKey}`} />
+            <TitleContainer data-testid={`titlecontainer-0v6s-${chartKey}`}>
+              <span>{visualisationConfigs.find((config) => config.key === chartKey)?.name}</span>
             </TitleContainer>
             <VitalChartComponent
               chartKey={chartKey}
               dateRange={dateRange}
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
+              data-testid={`vitalchartcomponent-hrwb-${chartKey}`}
             />
           </div>
         );
