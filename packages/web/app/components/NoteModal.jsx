@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { useApi, useSuggester } from '../api';
+import styled from 'styled-components';
 
 import { FormModal } from './FormModal';
 import { NoteForm } from '../forms/NoteForm';
@@ -13,7 +14,32 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { withModalFloating } from './withModalFloating';
 import { useNoteModal } from '../contexts/NoteModal';
 
-const FloatingFormModal = withModalFloating(FormModal);
+const StyledFormModal = styled(FormModal)`
+  .MuiDialogTitle-root {
+    padding-block: 10px;
+    padding-inline-start: 19px;
+    padding-inline-end: 13px;
+
+    h2 {
+      font-size: 16px;
+      line-height: 21px;
+
+      span {
+        padding: 0;
+      }
+    }
+
+    .MuiIconButton-root {
+      padding: 0;
+    }
+
+    svg {
+      font-size: 13px;
+    }
+  }
+`;
+
+const FloatingFormModal = withModalFloating(StyledFormModal);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -44,9 +70,11 @@ export const NoteModalComponent = ({
   const [openNoteCancelConfirmModal, setOpenNoteCancelConfirmModal] = useState(false);
 
   const practitionerSuggester = useSuggester('practitioner');
+  console.log('🔔 NoteModalComponent render', { open, note, encounterId, noteFormMode });
 
   useEffect(() => {
     (async () => {
+      console.log('🔄 useEffect reset noteContent →', note?.content, 'because note changed:', note);
       const noteTypeCountResponse = await api.get(`encounter/${encounterId}/notes/noteTypes`);
       setNoteTypeCountByType(noteTypeCountResponse.data);
     })();
@@ -108,6 +136,7 @@ export const NoteModalComponent = ({
         baseHeight={775}
         minConstraints={[400, 370]}
         maxConstraints={[535, 775]}
+        fixedBottomRow={true}
       >
         <NoteForm
           noteFormMode={noteFormMode}
