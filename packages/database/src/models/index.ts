@@ -130,3 +130,4 @@ export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
 export * from './AccessLog';
+export * from './ChangeLog';
