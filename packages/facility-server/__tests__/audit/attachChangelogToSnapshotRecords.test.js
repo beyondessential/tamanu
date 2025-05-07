@@ -57,7 +57,7 @@ describe('attachChangelogToSnapshotRecords', () => {
       { recordType: 'encounters', recordId: '1' },
     ];
 
-    const result = await attachChangelogToSnapshotRecords(models, snapshotRecords, {
+    const result = await attachChangelogToSnapshotRecords(ctx.store, snapshotRecords, {
       minSourceTick: 100,
       maxSourceTick: 200,
     });
@@ -105,7 +105,7 @@ describe('attachChangelogToSnapshotRecords', () => {
       { recordType: 'encounters', recordId: '1' },
     ];
 
-    const result = await attachChangelogToSnapshotRecords(models, snapshotRecords, {
+    const result = await attachChangelogToSnapshotRecords(ctx.store, snapshotRecords, {
       minSourceTick: 0,
       tableWhitelist: ['patients'],
     });
@@ -121,7 +121,7 @@ describe('attachChangelogToSnapshotRecords', () => {
   });
 
   it('should handle empty snapshot records', async () => {
-    const result = await attachChangelogToSnapshotRecords(models, [], {
+    const result = await attachChangelogToSnapshotRecords(ctx.store, [], {
       minSourceTick: 0,
     });
 

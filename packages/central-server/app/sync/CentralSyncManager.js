@@ -584,7 +584,7 @@ export class CentralSyncManager {
       return snapshotRecords;
     }
     const recordsForPull = await attachChangelogToSnapshotRecords(
-      this.store.models,
+      this.store,
       snapshotRecords,
       {
         ...sourceTickRange,

@@ -1,5 +1,5 @@
 import type { ChangeLog } from 'models';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Models } from 'types/model';
 import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
@@ -10,7 +10,7 @@ type QueryConfig = {
 };
 
 export const attachChangelogToSnapshotRecords = async (
-  models: Models,
+  { models, sequelize }: { models: Models, sequelize: Sequelize },
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
@@ -22,7 +22,7 @@ export const attachChangelogToSnapshotRecords = async (
     return snapshotRecords;
   }
 
-  const changelogRecords = await models.ChangeLog.sequelize.query(
+  const changelogRecords = await sequelize.query(
     `
    SELECT * FROM logs.changes
     WHERE record_sync_tick >= :minSourceTick
