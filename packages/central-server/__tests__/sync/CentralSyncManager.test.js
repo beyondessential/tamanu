@@ -620,6 +620,93 @@ describe('CentralSyncManager', () => {
         }),
       );
     });
+
+    it('doesnt include changes after lookup table sync tick in outgoing changes', async () => {
+      const OLD_SYNC_TICK = 10;
+      const NEW_SYNC_TICK = 20;
+      const FINAL_SYNC_TICK = 30;
+      await models.Setting.set('audit.changes.enabled', true);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+
+      // Initial change
+      patientProgramRegistration.date = '2025-04-22 00:00:00';
+      await patientProgramRegistration.save();
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      // Update lookup table at NEW_SYNC_TICK
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+      await centralSyncManager.updateLookupTable();
+
+      // Make changes after lookup table update
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, FINAL_SYNC_TICK);
+      patientProgramRegistration.date = '2025-04-23 00:00:00';
+      await patientProgramRegistration.save();
+
+      // Start sync session
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: NEW_SYNC_TICK,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const patientProgramRegistrationChange = outgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+
+      // Filter out the initial creation record and only look at update records
+      const updateRecords = patientProgramRegistrationChange.changelogRecords.filter(
+        (record) => record.recordUpdate === true,
+      );
+
+      // Verify that only changes up to NEW_SYNC_TICK are included
+      // The change at FINAL_SYNC_TICK should not be included since it happened after the lookup table update
+      expect(updateRecords).toHaveLength(1);
+      expect(updateRecords[0]).toEqual(
+        expect.objectContaining({
+          tableName: 'patient_program_registrations',
+          recordId: patientProgramRegistration.id,
+          recordData: expect.objectContaining({
+            date: '2025-04-22 00:00:00',
+          }),
+        }),
+      );
+    });
   });
 
   describe('setupSnapshotForPull', () => {
