@@ -43,6 +43,24 @@ const ENDPOINT_TO_DATA_TYPE = {
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
+const getTranslationAttributes = (endpoint, modelName) => {
+  const dataType = getDataType(endpoint);
+  return {
+    include: [
+      [
+        Sequelize.literal(`(
+        SELECT "text" 
+        FROM "translated_strings" 
+        WHERE "language" = :language
+        AND "string_id" = '${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.' || "${modelName}"."id"
+        LIMIT 1
+      )`),
+        'translated_name',
+      ],
+    ],
+  };
+};
+
 function createSuggesterRoute(
   endpoint,
   modelName,
@@ -75,21 +93,6 @@ function createSuggesterRoute(
         },
       });
 
-      const attributes = {
-        include: [
-          [
-            Sequelize.literal(`(
-              SELECT "text" 
-              FROM "translated_strings" 
-              WHERE "language" = :language
-              AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
-              LIMIT 1
-            )`),
-            'translated_name',
-          ],
-        ],
-      };
-
       const where =
         isTranslatable && hasTranslations
           ? Sequelize.literal(`EXISTS (
@@ -111,7 +114,7 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         include,
-        attributes,
+        attributes: getTranslationAttributes(endpoint, modelName),
         order: [
           ...(order ? [order] : []),
           positionQuery,
@@ -148,25 +151,9 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       } = req;
       req.checkPermission('list', modelName);
 
-      const dataType = getDataType(endpoint);
-      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
-
       const record = await models[modelName].findOne({
         where: { id: params.id },
-        attributes: {
-          include: [
-            [
-              Sequelize.literal(`(
-              SELECT "text" 
-              FROM "translated_strings" 
-              WHERE "language" = :language
-              AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
-              LIMIT 1
-            )`),
-              'translated_name',
-            ],
-          ],
-        },
+        attributes: getTranslationAttributes(endpoint, modelName),
         replacements: {
           language,
         },
@@ -197,29 +184,12 @@ function createAllRecordsRoute(
       const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
-      const dataType = getDataType(endpoint);
-      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
-
-      const attributes = {
-        include: [
-          [
-            Sequelize.literal(`(
-              SELECT "text" 
-              FROM "translated_strings" 
-              WHERE "language" = :language
-              AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
-              LIMIT 1
-            )`),
-            'translated_name',
-          ],
-        ],
-      };
 
       const where = whereBuilder('%', query, req);
 
       const results = await model.findAll({
         where,
-        attributes,
+        attributes: getTranslationAttributes(endpoint, modelName),
         order: [[Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           language,
