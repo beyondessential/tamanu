@@ -510,6 +510,115 @@ describe('CentralSyncManager', () => {
         ]),
       );
     });
+    it.only('doesnt include previously synced audit changes in outgoing changes', async () => {
+      const OLD_SYNC_TICK = 10;
+      const NEW_SYNC_TICK = 20;
+      const FINAL_SYNC_TICK = 30;
+      await models.Setting.set('audit.changes.enabled', true);
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: patient.id,
+        facilityId: facility.id,
+      });
+
+      patientProgramRegistration.date = '2025-04-22';
+      await patientProgramRegistration.save();
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      // First sync session
+      const { sessionId: firstSessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, firstSessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        firstSessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const firstOutgoingChanges = await centralSyncManager.getOutgoingChanges(firstSessionId, {});
+      const firstPatientProgramRegistrationChange = firstOutgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+      expect(firstPatientProgramRegistrationChange.changelogRecords).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+          }),
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+          }),
+        ]),
+      );
+
+      // Make new changes after first sync
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, FINAL_SYNC_TICK);
+      patientProgramRegistration.date = '2025-04-23 00:00:00';
+      await patientProgramRegistration.save();
+
+      await centralSyncManager.updateLookupTable();
+
+      // Second sync session
+      const { sessionId: secondSessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, secondSessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        secondSessionId,
+        {
+          since: NEW_SYNC_TICK,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      const secondOutgoingChanges = await centralSyncManager.getOutgoingChanges(secondSessionId, {});
+      const secondPatientProgramRegistrationChange = secondOutgoingChanges.find(
+        (c) => c.recordType === 'patient_program_registrations',
+      );
+
+      // Verify only the new changelog record is included
+      expect(secondPatientProgramRegistrationChange.changelogRecords).toHaveLength(1);
+      expect(secondPatientProgramRegistrationChange.changelogRecords[0]).toEqual(
+        expect.objectContaining({
+          tableName: 'patient_program_registrations',
+          recordId: patientProgramRegistration.id,
+          recordData: expect.objectContaining({
+            date: '2025-04-23 00:00:00',
+          }),
+        }),
+      );
+    });
   });
 
   describe('setupSnapshotForPull', () => {
