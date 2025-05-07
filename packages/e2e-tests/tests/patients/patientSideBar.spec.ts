@@ -1,20 +1,6 @@
 import { test, expect } from '../../fixtures/baseFixture';
 import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient';
 
-//TODO: is this good enough to submit just to get generate patient merged to main? can split todos elsewhere?
-//TODO: test editing / resolving sections of the sidebar
-//TODO: test reaction in allergy, needs some test data to be imported
-//TODO: check for any other specific sidebar test cases in the regression document
-//TODO: refactor the "required fields" tests so they test all fields, test "required fields" as integration or unit tests
-//TODO: test clicking on ongoing fields, allergies etc to confirm all details are entered correctly once test-id card is merged in?
-//TODO: many of these test cases have a date field, should I test this as part of E2E tests or as unit tests?
-//TODO: should program registry tests be part of this test file or another? theyre not in the sidebar section of the regression document (but maybe they should be). these require some test data to be imported
-//TODO: tests for all the stuff in id forms? seems like it needs investigation on how to do this since its generating pdfs
-//TODO: the logged in user doesnt seem to have access to death workflow? i dont see a record death button on patient sidebar
-//TODO: check if any other relevant tests from regression document are missing from this file
-
-//TODO: is it necessary to replicate the workflow of visiting an existing patient in each test?
-//im thinking its not strictly necessary here but in other tests it will be so it makes sense to keep the format the same
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
     await allPatientsPage.goto();

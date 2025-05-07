@@ -3,8 +3,6 @@ import { routes } from '../../config/routes';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
 
-//TODO: is expect(this.page.getByText(nhn)).toBeVisible(); in navigateToPatientDetailsPage scalable? is there a better way to do this?
-//TODO: there are test ids in the constructor that don't seem to work yet, maybe will work after the test-id card is merged? both were added in the original setup E2E tests PR
 export class AllPatientsPage extends BasePage {
   readonly allPatientsTable: Locator;
   readonly allPatientsTableLoadingCell: Locator;
@@ -25,7 +23,6 @@ export class AllPatientsPage extends BasePage {
   readonly nhnResultCell: Locator;
   readonly secondNHNResultCell: Locator;
 
-  //TODO: remove commented out locators if no errors after updating
   constructor(page: Page) {
     super(page, routes.patients.all);
 
