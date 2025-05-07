@@ -510,7 +510,8 @@ describe('CentralSyncManager', () => {
         ]),
       );
     });
-    it.only('doesnt include previously synced audit changes in outgoing changes', async () => {
+    // TODO: I don't think this setup is correct, make sure testing this is correct
+    it('doesnt include previously synced audit changes in outgoing changes', async () => {
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       const FINAL_SYNC_TICK = 30;
