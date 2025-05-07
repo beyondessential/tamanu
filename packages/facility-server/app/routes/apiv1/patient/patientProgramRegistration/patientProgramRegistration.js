@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { REGISTRATION_STATUSES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { validatePatientProgramRegistrationRequest } from './utils';
 
 export const patientProgramRegistration = express.Router();
@@ -153,8 +153,7 @@ patientProgramRegistration.delete(
     const { id } = params;
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
 
-    // Set permissions for the delete action to write instead of delete to match existing permissions
-    req.checkPermission('write', 'PatientProgramRegistration');
+    req.checkPermission('delete', 'PatientProgramRegistration');
 
     const existingRegistration = await PatientProgramRegistration.findByPk(id);
 
