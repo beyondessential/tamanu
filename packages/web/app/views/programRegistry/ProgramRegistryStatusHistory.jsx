@@ -46,10 +46,14 @@ const StyledTable = styled(Table)`
 
 export const ProgramRegistryStatusHistory = () => {
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading } = useProgramRegistryClinicalStatusQuery(patientId, programRegistryId, {
-    orderBy: 'date',
-    order: 'desc',
-  });
+  const { data = [], isLoading } = useProgramRegistryClinicalStatusQuery(
+    patientId,
+    programRegistryId,
+    {
+      orderBy: 'date',
+      order: 'desc',
+    },
+  );
 
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'date',
@@ -57,9 +61,7 @@ export const ProgramRegistryStatusHistory = () => {
   });
 
   const columns = useMemo(() => {
-    const removedOnce = (data ? data.data : []).some(
-      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
-    );
+    const removedOnce = data.some(row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE);
     return [
       {
         key: 'clinicalStatusId',
@@ -121,7 +123,7 @@ export const ProgramRegistryStatusHistory = () => {
           orderBy: 'date',
           order: 'asc',
         }}
-        data={data ? data.data : []}
+        data={data}
         columns={columns}
         rowsPerPage={4}
         allowExport={false}

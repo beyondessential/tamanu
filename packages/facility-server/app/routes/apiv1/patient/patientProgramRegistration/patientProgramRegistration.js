@@ -5,6 +5,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { validatePatientProgramRegistrationRequest } from './utils';
+import { Op, Sequelize } from 'sequelize';
 
 export const patientProgramRegistration = express.Router();
 
@@ -198,8 +199,6 @@ const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = (allRecords) =>
-  getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
@@ -288,42 +287,71 @@ patientProgramRegistration.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;
-    const { PatientProgramRegistration } = models;
+    const { ChangeLog, User, ProgramRegistryClinicalStatus } = models;
 
     req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const fullHistory = await PatientProgramRegistration.findAll({
+    const changes = await ChangeLog.findAll({
       where: {
+        tableName: 'patient_program_registrations',
+        recordId: {
+          [Op.in]: Sequelize.literal(
+            `(SELECT id::text FROM patient_program_registrations WHERE patient_id = :patientId AND program_registry_id = :programRegistryId)`,
+          ),
+        },
+      },
+      include: [
+        {
+          model: User,
+          as: 'updatedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'DESC']],
+      replacements: {
         patientId,
         programRegistryId,
       },
-      include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'ASC']],
-      // Get the raw records so we can easily reverse later.
-      raw: true,
-      nest: true,
     });
 
-    // Be sure to use the whole history to find the registration dates, not just the status
-    // change records.
-    const registrationDates = getRegistrationRecords(fullHistory)
-      .map(({ date }) => date)
-      .reverse();
+    // Get all unique clinical status IDs from the changes
+    const clinicalStatusIds = [
+      ...new Set(changes.map((change) => change.recordData.clinical_status_id).filter(Boolean)),
+    ];
 
-    const statusChangeRecords = getStatusChangeRecords(fullHistory);
-    const historyWithRegistrationDate = statusChangeRecords.map((data) => ({
-      ...data,
-      // Find the latest registrationDate that is not after the date of interest
-      registrationDate: registrationDates.find(
-        (registrationDate) => !isAfter(new Date(registrationDate), new Date(data.date)),
-      ),
-    }));
+    // Fetch all clinical statuses in one query
+    const clinicalStatuses = await ProgramRegistryClinicalStatus.findAll({
+      where: {
+        id: {
+          [Op.in]: clinicalStatusIds,
+        },
+      },
+      attributes: ['id', 'name', 'color'],
+    });
+
+    // Create a map for quick lookup
+    const clinicalStatusMap = clinicalStatuses.reduce((acc, status) => {
+      acc[status.id] = status;
+      return acc;
+    }, {});
+
+    const history = changes.map((change) => {
+      const data = change.recordData;
+      return {
+        id: change.id,
+        date: change.loggedAt,
+        registrationStatus: data.registration_status,
+        clinicalStatusId: data.clinical_status_id,
+        clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
+        clinician: change.updatedByUser,
+        registrationDate: data.date,
+      };
+    });
 
     res.send({
-      count: historyWithRegistrationDate.length,
-      // Give the history latest-first
-      data: historyWithRegistrationDate.reverse(),
+      count: history.length,
+      data: history,
     });
   }),
 );
