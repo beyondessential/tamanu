@@ -651,6 +651,7 @@ describe('Suggestions', () => {
       id: 'test-drug',
       type: 'drug',
       name: 'banana',
+      code: 'test-drug',
     });
 
     await TranslatedString.create({
