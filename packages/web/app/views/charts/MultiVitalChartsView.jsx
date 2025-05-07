@@ -21,13 +21,13 @@ const TitleContainer = styled.div`
 
 // Fetching and preparing data for vital chart
 export const MultiVitalChartsView = () => {
-  const { visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
+  const { isVital, visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
 
   return (
     <Box minHeight="80vh" maxHeight="80vh" data-testid="box-38t4">
-      {chartKeys.map((chartKey) => {
-        const VitalChartComponent = getVitalChartComponent(chartKey);
-        const visualisationConfig = visualisationConfigs.find((config) => config.key === chartKey);
+      {chartKeys.map(chartKey => {
+        const VitalChartComponent = getVitalChartComponent(chartKey, isVital);
+        const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
         return (
           <div key={chartKey}>
