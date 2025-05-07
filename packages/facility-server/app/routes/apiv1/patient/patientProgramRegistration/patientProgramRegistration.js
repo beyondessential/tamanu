@@ -153,8 +153,7 @@ patientProgramRegistration.delete(
     const { id } = params;
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
 
-    // Set permissions for the delete action to write instead of delete to match existing permissions
-    req.checkPermission('write', 'PatientProgramRegistration');
+    req.checkPermission('delete', 'PatientProgramRegistration');
 
     const existingRegistration = await PatientProgramRegistration.findByPk(id);
 
