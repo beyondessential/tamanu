@@ -33,7 +33,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 382px;
+  width: 450px;
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 16px 20px;
@@ -79,13 +79,6 @@ const RemoveInsurerButton = styled(IconButton)`
   }
 `;
 
-const StyledNumberField = styled(NumberField)`
-  input {
-    padding: 13px 10px !important;
-    font-size: 11px !important;
-  }
-`;
-
 const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
   const formikContext = useFormikContext();
   const insurers = formikContext?.values?.insurers || [];
@@ -122,22 +115,25 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                 position="relative"
                 data-testid="box-70z7"
               >
-                <Box display="flex" style={{ gap: '8px' }} data-testid="box-zoc8">
-                  <Field
-                    name={`insurers.${index}.insurerId`}
-                    required
-                    component={AutocompleteField}
-                    suggester={insurerSuggester}
-                    size="small"
-                    data-testid={`field-6jf7-${index}`}
-                  />
+                <Box display="flex" style={{ gap: '8px', flex: 1 }}>
+                  <Box style={{ flex: 1 }}>
+                    <Field
+                      name={`insurers.${index}.insurerId`}
+                      required
+                      component={AutocompleteField}
+                      suggester={insurerSuggester}
+                      style={{ width: '100%' }}
+                      data-testid={`field-6jf7-${index}`}
+                    />
+                  </Box>
                   <Field
                     name={`insurers.${index}.percentage`}
-                    component={StyledNumberField}
+                    component={NumberField}
                     min={1}
                     max={100}
                     onInput={preventInvalid}
                     required
+                    style={{ width: '70px' }}
                     data-testid={`field-v5p9-${index}`}
                   />
                   <Box marginTop="11px" data-testid={`box-mtns-${index}`}>
@@ -146,8 +142,11 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                 </Box>
                 <Box
                   marginTop="11px"
+                  marginLeft="10px"
                   display="flex"
                   justifyContent="flex-end"
+                  flexShrink={0}
+                  style={{ width: '70px' }}
                   data-testid={`box-mrtu-${index}`}
                 >
                   {insurerDiscountAmountDisplayList[index]

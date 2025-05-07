@@ -1,8 +1,21 @@
 import React from 'react';
 import { Colors } from '../../../constants';
 
-export const NoDataStateScreen = (props) => {
-  const { height, width, offset, isLoading } = props;
+const getTextLines = isVital => {
+  if (isVital) {
+    return {
+      lineOne: 'No recorded vitals to display for the selected date range. To record',
+      lineTwo: `vitals, please click the 'Record vitals' button from the vitals table.`,
+    };
+  }
+  return {
+    lineOne: 'No recorded entries to display for the selected date range. To record',
+    lineTwo: `an entry, please click the 'Record' button from the chart table.`,
+  };
+};
+
+export const NoDataStateScreen = props => {
+  const { isVital, height, width, offset, isLoading } = props;
   const { height: offsetHeight, width: offsetWidth, top: offsetTop, left: offsetLeft } = offset; // height and width without Axis
 
   const screenMarginTopAndBottom = 10;
@@ -26,8 +39,7 @@ export const NoDataStateScreen = (props) => {
     textAnchor: 'middle',
   };
   const lineHeight = 18;
-  const lineOne = `No recorded vitals to display for the selected date range. To record`;
-  const lineTwo = `vitals, please click the 'Record vitals' button from the vitals table.`;
+  const { lineOne, lineTwo } = getTextLines(isVital);
 
   const loadingMessage = 'Vitals graph loading...';
 

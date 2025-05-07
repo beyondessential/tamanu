@@ -31,6 +31,15 @@ const StyledTable = styled(Table)`
       position: sticky;
       left: 16px;
     }
+    ${props =>
+      props.isBodyScrollable &&
+      `
+      thead  {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+    `}
   }
 `;
 
