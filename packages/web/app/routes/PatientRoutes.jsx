@@ -25,7 +25,6 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
-import { NoteModalProvider } from '../contexts/NoteModal';
 import { NoteModal } from '../components/NoteModal';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
@@ -178,9 +177,9 @@ const PatientRoutesContent = () => {
 
 export const PatientRoutes = React.memo(() => {
   return (
-    <NoteModalProvider>
+    <>
       <PatientRoutesContent />
       <NoteModal />
-    </NoteModalProvider>
+    </>
   );
 }, isPathUnchanged);

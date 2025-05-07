@@ -27,6 +27,7 @@ import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
 import { CustomToastContainer } from './customToastContainer';
 import { ClearIcon } from './components/Icons/ClearIcon';
+import { NoteModalProvider } from './contexts/NoteModal';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -39,7 +40,9 @@ const StateContextProviders = ({ children, store }) => (
                 <SettingsProvider>
                   <SyncStateProvider>
                     <TranslationProvider>
-                      <LocalisationProvider store={store}>{children}</LocalisationProvider>
+                      <LocalisationProvider store={store}>
+                        <NoteModalProvider>{children}</NoteModalProvider>
+                      </LocalisationProvider>
                     </TranslationProvider>
                   </SyncStateProvider>
                 </SettingsProvider>

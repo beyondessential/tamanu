@@ -30,6 +30,7 @@ export const NoteBlock = ({ children, isNavigationBlock = false }) => {
             />
           )
         }
+        $maxWidth={'10rem'}
       >
         <div className="pointer-events-none">{child}</div>
       </ConditionalTooltip>

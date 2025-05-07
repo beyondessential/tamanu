@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
+import { NoteBlock } from '../NoteBlock';
 
 const Container = styled.div`
   display: flex;
@@ -258,13 +259,15 @@ export const Sidebar = React.memo(({ items }) => {
 
           if (!item.children) {
             return (
-              <TopLevelSidebarItem
-                key={item.path}
-                {...commonProps}
-                isCurrent={currentPath.includes(item.path)}
-                disabled={!permissionCheck(item)}
-                onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-              />
+              <NoteBlock key={item.path} isNavigationBlock>
+                <TopLevelSidebarItem
+                  key={item.path}
+                  {...commonProps}
+                  isCurrent={currentPath.includes(item.path)}
+                  disabled={!permissionCheck(item)}
+                  onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+                />
+              </NoteBlock>
             );
           }
 
@@ -274,15 +277,17 @@ export const Sidebar = React.memo(({ items }) => {
           return (
             <PrimarySidebarItem key={item.path} {...commonProps}>
               {item.children.map(child => (
-                <SecondarySidebarItem
-                  key={child.path}
-                  path={child.path}
-                  isCurrent={currentPath.includes(child.path)}
-                  color={child.color}
-                  label={child.label}
-                  disabled={!permissionCheck(child, item)}
-                  onClick={() => onPathChanged(child.path)}
-                />
+                <NoteBlock key={child.path} isNavigationBlock>
+                  <SecondarySidebarItem
+                    key={child.path}
+                    path={child.path}
+                    isCurrent={currentPath.includes(child.path)}
+                    color={child.color}
+                    label={child.label}
+                    disabled={!permissionCheck(child, item)}
+                    onClick={() => onPathChanged(child.path)}
+                  />
+                </NoteBlock>
               ))}
             </PrimarySidebarItem>
           );

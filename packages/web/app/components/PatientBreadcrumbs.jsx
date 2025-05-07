@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
-
+import { NoteBlock } from './NoteBlock';
 const StyledBreadcrumbs = styled(Breadcrumbs)`
   & ol > .MuiBreadcrumbs-separator {
     font-size: 12px;
@@ -69,9 +69,11 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
 
   return (
     <StyledBreadcrumbs>
-      <Breadcrumb onClick={handleCategoryClick}>
-        {PATIENT_CATEGORY_LABELS[params.category]}
-      </Breadcrumb>
+      <NoteBlock isNavigationBlock>
+        <Breadcrumb onClick={handleCategoryClick}>
+          {PATIENT_CATEGORY_LABELS[params.category]}
+        </Breadcrumb>
+      </NoteBlock>
       {getPatientCrumbs(patientRoutes)}
     </StyledBreadcrumbs>
   );

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { BackButton } from './Button';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
+import { NoteBlock } from './NoteBlock';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
@@ -35,7 +36,9 @@ export const PatientNavigation = ({ patientRoutes }) => {
   const navigateBack = () => dispatch(goBack());
   return (
     <StickyContainer>
-      <BackButton onClick={navigateBack} />
+      <NoteBlock isNavigationBlock>
+        <BackButton onClick={navigateBack} />
+      </NoteBlock>
       <VerticalDivider />
       <PatientBreadcrumbs patientRoutes={patientRoutes} />
     </StickyContainer>

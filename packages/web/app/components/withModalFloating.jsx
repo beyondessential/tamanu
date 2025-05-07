@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -41,58 +41,68 @@ export const withModalFloating = ModalComponent => {
     draggableHandle,
     draggableBounds,
     resizeRatio,
-
-    // Specific props for the modal
     hideBackdrop,
     BackdropProps,
-
-    // All other props go to the wrapped modal
     ...modalProps
   }) => {
     const positionRef = useRef({ x: 0, y: 0 });
 
-    // Custom PaperComponent for dragging + resizing
-    const PaperComponent = paperProps => {
-      const { style, className, children, ...rest } = paperProps;
-      return (
-        <Draggable
-          handle={draggableHandle}
-          bounds={draggableBounds}
-          defaultPosition={positionRef.current}
-          cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
-          onStop={(e, data) => {
-            positionRef.current = { x: data.x, y: data.y };
-          }}
-        >
-          <Resizable
-            defaultSize={{ width: baseWidth, height: baseHeight }}
-            minWidth={minConstraints[0]}
-            minHeight={minConstraints[1]}
-            maxWidth={maxConstraints[0]}
-            maxHeight={maxConstraints[1]}
-            enable={enableResizeHandle}
-            resizeRatio={resizeRatio}
-            handleComponent={handleComponent}
-            handleStyles={handleStyles}
-            className={className}
-            style={{ ...style, position: 'absolute', overflow: 'visible', zIndex: 1500 }}
+    const PaperComponent = useCallback(
+      paperProps => {
+        const { style, className, children, ...rest } = paperProps;
+        return (
+          <Draggable
+            handle={draggableHandle}
+            bounds={draggableBounds}
+            defaultPosition={positionRef.current}
+            cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
+            onStop={(e, data) => {
+              positionRef.current = { x: data.x, y: data.y };
+            }}
           >
-            <Paper
-              {...rest}
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-              }}
+            <Resizable
+              defaultSize={{ width: baseWidth, height: baseHeight }}
+              minWidth={minConstraints[0]}
+              minHeight={minConstraints[1]}
+              maxWidth={maxConstraints[0]}
+              maxHeight={maxConstraints[1]}
+              enable={enableResizeHandle}
+              resizeRatio={resizeRatio}
+              handleComponent={handleComponent}
+              handleStyles={handleStyles}
+              className={className}
+              style={{ ...style, position: 'absolute', overflow: 'visible', zIndex: 1500 }}
             >
-              {children}
-            </Paper>
-          </Resizable>
-        </Draggable>
-      );
-    };
+              <Paper
+                {...rest}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                {children}
+              </Paper>
+            </Resizable>
+          </Draggable>
+        );
+      },
+      [
+        positionRef,
+        draggableHandle,
+        draggableBounds,
+        baseWidth,
+        baseHeight,
+        minConstraints,
+        maxConstraints,
+        enableResizeHandle,
+        handleComponent,
+        handleStyles,
+        resizeRatio,
+      ],
+    );
 
     return (
       <StyledModalComponent
