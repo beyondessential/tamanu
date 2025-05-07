@@ -644,6 +644,37 @@ describe('Suggestions', () => {
     expect(khmerRecord.name).toEqual(KHMER_LABEL);
   });
 
+  it('should only search against translated names if they exist', async () => {
+    const { TranslatedString, ReferenceData } = models;
+
+    await ReferenceData.create({
+      id: 'test-drug',
+      type: 'drug',
+      name: 'banana',
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.drug.test-drug`,
+      text: 'apple',
+      language: 'en',
+    });
+
+    // Check that the translated label can be matched through search
+    const result1 = await userApp.get(`/api/suggestions/drug?language=en&q=apple`);
+    expect(result1.body.length).toEqual(1);
+    expect(result1.body[0].name).toEqual('apple');
+
+    // Check that the original label is not matched since a translated label exists
+    const result2 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+    expect(result2.body.length).toEqual(0);
+
+    // Drop the translation and check that the original label is matched
+    await TranslatedString.truncate({ cascade: true, force: true });
+    const result3 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+    expect(result3.body.length).toEqual(1);
+    expect(result3.body[0].name).toEqual('banana');
+  });
+
   it.skip('should return translated labels for the correct facility', async () => {
     const { TranslatedString } = models;
 
