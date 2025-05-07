@@ -6,9 +6,11 @@ import { fake } from "@tamanu/fake-data/fake";
 describe('attachChangelogToSnapshotRecords', () => {
   let ctx;
   let models;
+  let sequelize;
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
+    sequelize = ctx.sequelize;
   });
 
   afterAll(() => ctx.close());
@@ -57,7 +59,10 @@ describe('attachChangelogToSnapshotRecords', () => {
       { recordType: 'encounters', recordId: '1' },
     ];
 
-    const result = await attachChangelogToSnapshotRecords(ctx.store, snapshotRecords, {
+    const result = await attachChangelogToSnapshotRecords({
+      models,
+      sequelize
+    }, snapshotRecords, {
       minSourceTick: 100,
       maxSourceTick: 200,
     });
@@ -105,7 +110,10 @@ describe('attachChangelogToSnapshotRecords', () => {
       { recordType: 'encounters', recordId: '1' },
     ];
 
-    const result = await attachChangelogToSnapshotRecords(ctx.store, snapshotRecords, {
+    const result = await attachChangelogToSnapshotRecords({
+      models,
+      sequelize
+    }, snapshotRecords, {
       minSourceTick: 0,
       tableWhitelist: ['patients'],
     });
@@ -121,7 +129,10 @@ describe('attachChangelogToSnapshotRecords', () => {
   });
 
   it('should handle empty snapshot records', async () => {
-    const result = await attachChangelogToSnapshotRecords(ctx.store, [], {
+    const result = await attachChangelogToSnapshotRecords({
+      models,
+      sequelize
+    }, [], {
       minSourceTick: 0,
     });
 
