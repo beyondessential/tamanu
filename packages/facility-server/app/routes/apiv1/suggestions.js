@@ -42,6 +42,7 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+const getTranslationPrefix = (dataType) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
 
 const getTranslationAttributes = (endpoint, modelName) => {
   const dataType = getDataType(endpoint);
@@ -52,7 +53,7 @@ const getTranslationAttributes = (endpoint, modelName) => {
         SELECT "text" 
         FROM "translated_strings" 
         WHERE "language" = :language
-        AND "string_id" = '${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.' || "${modelName}"."id"
+        AND "string_id" = '${getTranslationPrefix(dataType)}' || "${modelName}"."id"
         LIMIT 1
       )`),
         'translated_name',
@@ -81,7 +82,7 @@ function createSuggesterRoute(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
       const dataType = getDataType(endpoint);
-      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+      const translationPrefix = getTranslationPrefix(dataType);
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       const hasTranslations = await models.TranslatedString.count({
