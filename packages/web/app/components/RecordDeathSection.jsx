@@ -35,7 +35,7 @@ const Content = styled.p`
 
 const customContent = (
   <div>
-    <Content>
+    <Content data-testid="content-ydlg">
       Are you sure you want to revert the patient death record? This will not reopen any previously
       closed encounters.
     </Content>
@@ -62,14 +62,25 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
 
   const isPatientDead = Boolean(patient.dateOfDeath);
   const actionText = isPatientDead ? (
-    <TranslatedText stringId="patient.detailsSidebar.revertDeath" fallback="Revert death record" />
+    <TranslatedText
+      stringId="patient.detailsSidebar.revertDeath"
+      fallback="Revert death record"
+      data-testid="translatedtext-q5dc"
+    />
   ) : (
-    <TranslatedText stringId="patient.detailsSidebar.recordDeath" fallback="Record death" />
+    <TranslatedText
+      stringId="patient.detailsSidebar.recordDeath"
+      fallback="Record death"
+      data-testid="translatedtext-igah"
+    />
   );
 
   return (
     <>
-      <TypographyLink onClick={isPatientDead ? openRevertModal : openDeathModal}>
+      <TypographyLink
+        onClick={isPatientDead ? openRevertModal : openDeathModal}
+        data-testid="typographylink-6nzn"
+      >
         {actionText}
       </TypographyLink>
       <ConfirmModal
@@ -78,6 +89,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
         customContent={customContent}
         onConfirm={revertDeath}
         onCancel={closeRevertModal}
+        data-testid="confirmmodal-e3cr"
       />
     </>
   );

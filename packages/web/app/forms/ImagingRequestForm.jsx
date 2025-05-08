@@ -39,7 +39,7 @@ import { foreignKey } from '../utils/validation';
 import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(type) {
-  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find((x) => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -53,12 +53,12 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
   const dispatch = useDispatch();
   const { navigateToImagingRequest } = usePatientNavigation();
 
-  const finalise = async data => {
+  const finalise = async (data) => {
     setOnSuccess(() => () => loadEncounter(encounter.id));
     await submitForm(data);
   };
-  const finaliseAndPrint = async data => {
-    setOnSuccess(() => async newRequest => {
+  const finaliseAndPrint = async (data) => {
+    setOnSuccess(() => async (newRequest) => {
       const requestId = newRequest.id;
       await dispatch(reloadImagingRequest(requestId));
       navigateToImagingRequest(requestId, 'print');
@@ -68,18 +68,28 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.finalise" fallback="Finalise" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.finalise"
+          fallback="Finalise"
+          data-testid="translatedtext-mbt7"
+        />
+      ),
       onClick: finalise,
     },
     {
       label: (
-        <TranslatedText stringId="general.action.finaliseAndPrint" fallback="Finalise & print" />
+        <TranslatedText
+          stringId="general.action.finaliseAndPrint"
+          fallback="Finalise & print"
+          data-testid="translatedtext-sasd"
+        />
       ),
       onClick: finaliseAndPrint,
     },
   ];
 
-  return <FormSubmitDropdownButton actions={actions} />;
+  return <FormSubmitDropdownButton actions={actions} data-testid="formsubmitdropdownbutton-57v3" />;
 });
 
 export const ImagingRequestForm = React.memo(
@@ -118,7 +128,7 @@ export const ImagingRequestForm = React.memo(
           requestedDate: yup.date().required(requiredValidationMessage),
           imagingType: foreignKey(requiredValidationMessage),
           areas: yup.string().when('imagingType', {
-            is: imagingType => {
+            is: (imagingType) => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length > 0;
             },
@@ -128,31 +138,30 @@ export const ImagingRequestForm = React.memo(
               .required(requiredValidationMessage),
           }),
           areaNote: yup.string().when('imagingType', {
-            is: imagingType => {
+            is: (imagingType) => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length === 0;
             },
-            then: yup
-              .string()
-              .trim()
-              .required(requiredValidationMessage),
+            then: yup.string().trim().required(requiredValidationMessage),
           }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
-            <FormGrid>
+            <FormGrid data-testid="formgrid-4uzw">
               <Field
                 name="displayId"
                 label={
                   <TranslatedText
                     stringId="imaging.requestCode.label"
                     fallback="Imaging request code"
+                    data-testid="translatedtext-69b8"
                   />
                 }
                 disabled
                 component={TextField}
+                data-testid="field-6jew"
               />
               <Field
                 name="requestedDate"
@@ -160,11 +169,13 @@ export const ImagingRequestForm = React.memo(
                   <TranslatedText
                     stringId="imaging.requestedDate.label"
                     fallback="Order date and time"
+                    data-testid="translatedtext-8yxf"
                   />
                 }
                 required
                 component={DateTimeField}
                 saveDateAsString
+                data-testid="field-xsta"
               />
               <TextInput
                 label={
@@ -177,13 +188,16 @@ export const ImagingRequestForm = React.memo(
                           stringId="general.localisedField.clinician.label.short"
                           fallback="Clinician"
                           casing="lower"
+                          data-testid="translatedtext-3dwd"
                         />
                       ),
                     }}
+                    data-testid="translatedtext-wvhl"
                   />
                 }
                 disabled
                 value={examinerLabel}
+                data-testid="textinput-3wnq"
               />
               <Field
                 name="requestedById"
@@ -197,23 +211,33 @@ export const ImagingRequestForm = React.memo(
                           stringId="general.localisedField.clinician.label.short"
                           fallback="Clinician"
                           casing="lower"
+                          data-testid="translatedtext-hdvw"
                         />
                       ),
                     }}
+                    data-testid="translatedtext-z89m"
                   />
                 }
                 required
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
+                data-testid="field-g6kl"
               />
               <div>
-                <ImagingPriorityField name="priority" />
+                <ImagingPriorityField name="priority" data-testid="imagingpriorityfield-ra8l" />
               </div>
-              <FormSeparatorLine />
+              <FormSeparatorLine data-testid="formseparatorline-lt2o" />
               <TextInput
-                label={<TranslatedText stringId="imaging.encounter.label" fallback="Encounter" />}
+                label={
+                  <TranslatedText
+                    stringId="imaging.encounter.label"
+                    fallback="Encounter"
+                    data-testid="translatedtext-wkk0"
+                  />
+                }
                 disabled
                 value={encounterLabel}
+                data-testid="textinput-tyem"
               />
               <Field
                 name="imagingType"
@@ -221,16 +245,17 @@ export const ImagingRequestForm = React.memo(
                   <TranslatedText
                     stringId="imaging.imagingType.label"
                     fallback="Imaging request type"
+                    data-testid="translatedtext-mmbd"
                   />
                 }
                 required
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
-                transformOptions={options => {
+                transformOptions={(options) => {
                   const availableTypes = Object.keys(imagingTypes);
                   return options
-                    .filter(option => availableTypes.includes(camelCase(option.value)))
-                    .map(option => {
+                    .filter((option) => availableTypes.includes(camelCase(option.value)))
+                    .map((option) => {
                       const imagingTypeKey = camelCase(option.value);
                       const { label } = imagingTypes[imagingTypeKey];
                       return {
@@ -240,12 +265,20 @@ export const ImagingRequestForm = React.memo(
                       };
                     });
                 }}
+                data-testid="field-khld"
               />
               {imagingAreas.length > 0 ? (
                 <Field
                   options={imagingAreas
-                    .map(({ id, name, type }) => ({
-                      label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
+                    .map(({ id, name, type, code }) => ({
+                      label: (
+                        <TranslatedReferenceData
+                          fallback={name}
+                          value={id}
+                          category={type}
+                          data-testid={`translatedreferencedata-50bn-${code}`}
+                        />
+                      ),
                       value: id,
                       searchString: getTranslation(getReferenceDataStringId(id, type), name),
                     }))
@@ -254,11 +287,16 @@ export const ImagingRequestForm = React.memo(
                     })}
                   name="areas"
                   label={
-                    <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
+                    <TranslatedText
+                      stringId="imaging.areas.label"
+                      fallback="Areas to be imaged"
+                      data-testid="translatedtext-y92v"
+                    />
                   }
                   component={MultiselectField}
                   prefix="imaging.property.area"
                   required
+                  data-testid="field-bsn4"
                 />
               ) : (
                 <Field
@@ -267,6 +305,7 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText
                       stringId="imaging.imagingNote.label"
                       fallback="Areas to be imaged"
+                      data-testid="translatedtext-599j"
                     />
                   }
                   component={TextField}
@@ -274,29 +313,43 @@ export const ImagingRequestForm = React.memo(
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
                   required
+                  data-testid="field-r8tf"
                 />
               )}
               <Field
                 name="note"
-                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+                label={
+                  <TranslatedText
+                    stringId="general.notes.label"
+                    fallback="Notes"
+                    data-testid="translatedtext-0n6s"
+                  />
+                }
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
                 minRows={3}
+                data-testid="field-hhqc"
               />
-              <ButtonRow>
-                <FormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              <ButtonRow data-testid="buttonrow-3y11">
+                <FormCancelButton onClick={onCancel} data-testid="formcancelbutton-lr81">
+                  <TranslatedText
+                    stringId="general.action.cancel"
+                    fallback="Cancel"
+                    data-testid="translatedtext-c1ob"
+                  />
                 </FormCancelButton>
                 <FormSubmitActionDropdown
                   encounter={encounter}
                   setOnSuccess={setOnSuccess}
                   submitForm={submitForm}
+                  data-testid="formsubmitactiondropdown-ikqn"
                 />
               </ButtonRow>
             </FormGrid>
           );
         }}
+        data-testid="form-xktj"
       />
     );
   },

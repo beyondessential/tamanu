@@ -10,7 +10,7 @@ export const useAppointmentMutation = (existingAppointmentId = null, useMutation
   const isEdit = !!existingAppointmentId;
 
   return useMutation(
-    payload =>
+    (payload) =>
       isEdit
         ? api.put(
             `appointments/${existingAppointmentId}`,

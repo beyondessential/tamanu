@@ -26,8 +26,8 @@ export default function PhotoPreview({ attachmentId }) {
   }, [api, attachmentId, setImageData]);
 
   return (
-    <ImageContainer>
-      <Image src={`data:image/jpeg;base64,${imageData}`} alt="" />
+    <ImageContainer data-testid="imagecontainer-ag5w">
+      <Image src={`data:image/jpeg;base64,${imageData}`} alt="" data-testid="image-znla" />
     </ImageContainer>
   );
 }
