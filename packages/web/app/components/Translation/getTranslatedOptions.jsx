@@ -4,7 +4,7 @@ import React from 'react';
 export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) => {
   if (!options) return [];
 
-  return options.map(option => {
+  return options.map((option, index) => {
     const { label, ...rest } = option;
     return typeof label === 'string'
       ? {
@@ -15,6 +15,7 @@ export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) 
                 .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`}
               fallback={label}
               {...TranslatedTextProps}
+              data-testid={`translatedtext-x1yr-${index}`}
             />
           ),
           ...rest,

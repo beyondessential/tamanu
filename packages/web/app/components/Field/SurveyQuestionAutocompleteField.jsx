@@ -7,7 +7,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
-const getSuggesterEndpointForConfig = config => {
+const getSuggesterEndpointForConfig = (config) => {
   if (config?.source === 'ReferenceData') {
     const type = config.where?.type;
     return type === 'icd10' ? 'diagnosis' : type;
@@ -34,9 +34,15 @@ export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
   );
 
-  return <AutocompleteField suggester={suggester} {...props} />;
+  return (
+    <AutocompleteField suggester={suggester} {...props} data-testid="autocompletefield-efuf" />
+  );
 };
 
-export const PatientDataDisplayField = props => (
-  <SurveyQuestionAutocompleteField {...props} disabled />
+export const PatientDataDisplayField = (props) => (
+  <SurveyQuestionAutocompleteField
+    {...props}
+    disabled
+    data-testid="surveyquestionautocompletefield-5r91"
+  />
 );

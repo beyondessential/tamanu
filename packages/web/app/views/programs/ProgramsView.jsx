@@ -55,7 +55,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }, [api]);
 
   const setSelectedSurvey = useCallback(
-    async id => {
+    async (id) => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setSurvey(response);
       setStartTime(getCurrentDateTimeString());
@@ -73,7 +73,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }, []);
 
   const selectProgram = useCallback(
-    async event => {
+    async (event) => {
       const programId = event.target.value;
       if (programId === selectedProgramId) {
         return;
@@ -89,14 +89,14 @@ const SurveyFlow = ({ patient, currentUser }) => {
       const { data } = await api.get(`program/${programId}/surveys`);
       setSurveys(
         data
-          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map(x => ({ value: x.id, label: x.name })),
+          .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
+          .map((x) => ({ value: x.id, label: x.name })),
       );
     },
     [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
-  const submitSurveyResponse = async data => {
+  const submitSurveyResponse = async (data) => {
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
@@ -115,45 +115,59 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   };
 
-  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
+  const {
+    isLoading,
+    data: patientAdditionalData,
+    isError,
+    error,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   if (isLoading || !programs) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-43uf" />;
   }
 
   if (isError) {
     return (
       <ErrorMessage
         title={
-          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+          <TranslatedText
+            stringId="program.modal.selectSurvey.error.title"
+            fallback="Error"
+            data-testid="translatedtext-cz5r"
+          />
         }
         error={error}
+        data-testid="errormessage-kl46"
       />
     );
   }
 
   if (!survey) {
     return (
-      <ProgramsPane>
-        <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">
-            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select form" />
+      <ProgramsPane data-testid="programspane-me3f">
+        <ProgramsPaneHeader data-testid="programspaneheader-99cy">
+          <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-csfc">
+            <TranslatedText
+              stringId="program.modal.selectSurvey.title"
+              fallback="Select form"
+              data-testid="translatedtext-wbj1"
+            />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
-        <FormGrid columns={1}>
+        <FormGrid columns={1} data-testid="formgrid-m7yd">
           <SelectInput
             name="program"
-            options={programs.map(p => ({ value: p.id, label: p.name }))}
+            options={programs.map((p) => ({ value: p.id, label: p.name }))}
             value={selectedProgramId}
             onChange={selectProgram}
             label={
               <TranslatedText
                 stringId="program.modal.selectSurvey.selectProgram.label"
                 fallback="Select program"
+                data-testid="translatedtext-30u8"
               />
             }
+            data-testid="selectinput-5hi2"
           />
           <SurveySelector
             onSubmit={setSelectedSurvey}
@@ -164,8 +178,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"
                 fallback="Begin survey"
+                data-testid="translatedtext-htq6"
               />
             }
+            data-testid="surveyselector-bn1a"
           />
         </FormGrid>
       </ProgramsPane>
@@ -180,17 +196,23 @@ const SurveyFlow = ({ patient, currentUser }) => {
       patient={patient}
       patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
+      data-testid="surveyview-ca4b"
     />
   );
 };
 
 export const ProgramsView = () => {
   const dispatch = useDispatch();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const currentUser = useSelector(getCurrentUser);
   if (!patient.id) {
-    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
+    return (
+      <PatientListingView
+        onViewPatient={(id) => dispatch(reloadPatient(id))}
+        data-testid="patientlistingview-cqsa"
+      />
+    );
   }
 
-  return <SurveyFlow patient={patient} currentUser={currentUser} />;
+  return <SurveyFlow patient={patient} currentUser={currentUser} data-testid="surveyflow-b2d8" />;
 };

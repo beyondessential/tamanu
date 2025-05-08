@@ -12,7 +12,7 @@ import {
 } from '../../components';
 import { Colors } from '../../constants';
 
-export const getVaccineName = record =>
+export const getVaccineName = (record) =>
   record.vaccineName || (
     <TranslatedReferenceData
       category="scheduledVaccine"
@@ -27,7 +27,7 @@ export const getDate = ({ date }) =>
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 
-export const getDueDate = record => {
+export const getDueDate = (record) => {
   if (!record.dueDate) {
     return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
   }
@@ -40,7 +40,7 @@ export const getDueDate = record => {
     </div>
   );
 };
-export const getGiver = record => {
+export const getGiver = (record) => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
       <TableCellTag $background="#4444441a" $color={Colors.darkestText}>
@@ -60,7 +60,7 @@ export const getGiver = record => {
     record.givenBy || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 };
-export const getFacility = record => {
+export const getFacility = (record) => {
   const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
   return facility || '';
 };
@@ -75,30 +75,32 @@ const MarginedMenuButton = styled(MenuButton)`
   margin-left: 15px;
 `;
 
-export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
-  return (
-    <ActionButtonsContainer>
-      <OutlinedButton onClick={() => onItemClick(record)}>
-        <TranslatedText stringId="general.action.view" fallback="View" />
-      </OutlinedButton>
-      <MarginedMenuButton
-        iconColor={Colors.primary}
-        actions={[
-          {
-            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => onItemEditClick(record),
-          },
-          {
-            label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-            action: () => onItemDeleteClick(record),
-          },
-        ]}
-      />
-    </ActionButtonsContainer>
-  );
-};
+export const getActionButtons =
+  ({ onItemClick, onItemEditClick, onItemDeleteClick }) =>
+  (record) => {
+    return (
+      <ActionButtonsContainer>
+        <OutlinedButton onClick={() => onItemClick(record)}>
+          <TranslatedText stringId="general.action.view" fallback="View" />
+        </OutlinedButton>
+        <MarginedMenuButton
+          iconColor={Colors.primary}
+          actions={[
+            {
+              label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+              action: () => onItemEditClick(record),
+            },
+            {
+              label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+              action: () => onItemDeleteClick(record),
+            },
+          ]}
+        />
+      </ActionButtonsContainer>
+    );
+  };
 
-export const getRecordAction = onItemEdit => record => {
+export const getRecordAction = (onItemEdit) => (record) => {
   return (
     <ActionButtonsContainer>
       <OutlinedButton onClick={() => onItemEdit(record)}>

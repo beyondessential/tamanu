@@ -175,16 +175,19 @@ const Card = ({ notification }) => {
     history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
   };
   return (
-    <CardContainer onClick={onNotificationClick}>
-      {status === NOTIFICATION_STATUSES.UNREAD && <CardIndicator />}
+    <CardContainer onClick={onNotificationClick} data-testid="cardcontainer-qqc2">
+      {status === NOTIFICATION_STATUSES.UNREAD && (
+        <CardIndicator data-testid="cardindicator-bkvg" />
+      )}
       <img src={NOTIFICATION_ICONS[type]} />
       <div>
         <BodyText
           dangerouslySetInnerHTML={{
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
+          data-testid="bodytext-xa84"
         />
-        <CardDatetime>{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
+        <CardDatetime data-testid="carddatetime-vyqg">{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
       </div>
     </CardContainer>
   );
@@ -204,36 +207,40 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
   };
 
   return (
-    <StyledDrawer open={open} onClose={onClose} anchor="right">
-      <Title>
+    <StyledDrawer open={open} onClose={onClose} anchor="right" data-testid="styleddrawer-fn4h">
+      <Title data-testid="title-cg5h">
         <TranslatedText
           fallback="Notifications"
           stringId="dashboard.notification.notifications.title"
           replacements={{ count: unreadNotifications.length }}
+          data-testid="translatedtext-2asn"
         />{' '}
         {!!unreadNotifications.length && (
           <TranslatedText
             fallback="(:count new)"
             stringId="dashboard.notification.title.countNew"
             replacements={{ count: unreadNotifications.length }}
+            data-testid="translatedtext-fq6k"
           />
         )}
-        <CloseButton onClick={onClose}>
-          <CloseIcon />
+        <CloseButton onClick={onClose} data-testid="closebutton-rgw9">
+          <CloseIcon data-testid="closeicon-x89c" />
         </CloseButton>
       </Title>
       {!unreadNotifications.length && !readNotifications.length && (
-        <NoDataContainer>
-          <Heading3 margin={0}>
+        <NoDataContainer data-testid="nodatacontainer-2xqs">
+          <Heading3 margin={0} data-testid="heading3-xlfm">
             <TranslatedText
               fallback="No notifications to display "
               stringId="dashboard.notification.empty.title"
+              data-testid="translatedtext-owm5"
             />
           </Heading3>
-          <BodyText>
+          <BodyText data-testid="bodytext-7fkl">
             <TranslatedText
               fallback="Check back again later"
               stringId="dashboard.notification.empty.subTitle"
+              data-testid="translatedtext-dpro"
             />
           </BodyText>
         </NoDataContainer>
@@ -241,40 +248,54 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
       {!isLoading ? (
         <>
           {!!unreadNotifications.length && (
-            <UnreadTitle>
-              <Heading5 margin={0}>
-                <TranslatedText fallback="Unread" stringId="dashboard.notification.unread.title" />
+            <UnreadTitle data-testid="unreadtitle-raz1">
+              <Heading5 margin={0} data-testid="heading5-lwm3">
+                <TranslatedText
+                  fallback="Unread"
+                  stringId="dashboard.notification.unread.title"
+                  data-testid="translatedtext-ddcf"
+                />
               </Heading5>
-              <ActionLink onClick={onMarkAllAsRead}>
+              <ActionLink onClick={onMarkAllAsRead} data-testid="actionlink-10rj">
                 <TranslatedText
                   fallback="Mark all as read"
                   stringId="dashboard.notification.action.markAllAsRead"
+                  data-testid="translatedtext-essh"
                 />
               </ActionLink>
             </UnreadTitle>
           )}
-          <NotificationList>
-            {unreadNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} />
+          <NotificationList data-testid="notificationlist-xmfz">
+            {unreadNotifications.map((notification, index) => (
+              <Card
+                notification={notification}
+                key={notification.id}
+                data-testid={`card-2yld-${index}`}
+              />
             ))}
           </NotificationList>
           {!!readNotifications.length && (
-            <ReadTitle>
+            <ReadTitle data-testid="readtitle-svo6">
               <TranslatedText
                 fallback="Recent (last :recentNotificationsTimeFrame hours)"
                 stringId="dashboard.notification.recent.title"
                 replacements={{ recentNotificationsTimeFrame }}
+                data-testid="translatedtext-314f"
               />
             </ReadTitle>
           )}
-          <NotificationList>
-            {readNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} />
+          <NotificationList data-testid="notificationlist-wek6">
+            {readNotifications.map((notification, index) => (
+              <Card
+                notification={notification}
+                key={notification.id}
+                data-testid={`card-trcn-${index}`}
+              />
             ))}
           </NotificationList>
         </>
       ) : (
-        <LoadingIndicator backgroundColor={Colors.white} />
+        <LoadingIndicator backgroundColor={Colors.white} data-testid="loadingindicator-36ut" />
       )}
     </StyledDrawer>
   );

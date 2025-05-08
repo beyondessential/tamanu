@@ -27,7 +27,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
-  const onSubmit = async values => {
+  const onSubmit = async (values) => {
     const { notCompletedReasonId, ...others } = values;
     markTaskNotCompleted(
       {
@@ -51,15 +51,20 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
         <div>
-          <FormGrid>
+          <FormGrid data-testid="formgrid-klyc">
             <Field
               name="notCompletedByUserId"
               label={
-                <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />
+                <TranslatedText
+                  stringId="task.form.recordedBy.label"
+                  fallback="Recorded by"
+                  data-testid="translatedtext-5cw0"
+                />
               }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
+              data-testid="field-maud"
             />
             <Field
               name="notCompletedTime"
@@ -67,12 +72,14 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                 <TranslatedText
                   stringId="task.form.recordTime.label"
                   fallback="Record date & time"
+                  data-testid="translatedtext-wtd5"
                 />
               }
               required
               saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTimeString()}
+              data-testid="field-sgto"
             />
             <Field
               name="notCompletedReasonId"
@@ -80,18 +87,27 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                 <TranslatedText
                   stringId="task.form.reasonNotCompleted.label"
                   fallback="Reason not completed"
+                  data-testid="translatedtext-xclu"
                 />
               }
               component={AutocompleteField}
               suggester={taskNotCompletedReasonSuggester}
               allowCreatingCustomValue={canCreateReferenceData}
+              data-testid="field-r3a1"
             />
           </FormGrid>
-          <Divider style={{ margin: '32px -32px 30px -32px' }} />
+          <Divider style={{ margin: '32px -32px 30px -32px' }} data-testid="divider-f56n" />
           <FormSubmitCancelRow
             onCancel={onClose}
             onConfirm={submitForm}
-            confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+            confirmText={
+              <TranslatedText
+                stringId="general.action.confirm"
+                fallback="Confirm"
+                data-testid="translatedtext-jtic"
+              />
+            }
+            data-testid="formsubmitcancelrow-y08n"
           />
         </div>
       )}
@@ -100,13 +116,21 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />,
+            <TranslatedText
+              stringId="task.form.recordedBy.label"
+              fallback="Recorded by"
+              data-testid="translatedtext-btml"
+            />,
           ),
         notCompletedTime: yup
           .date()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+            <TranslatedText
+              stringId="task.form.recordTime.label"
+              fallback="Record date & time"
+              data-testid="translatedtext-yh98"
+            />,
           )
           .max(
             getCurrentDateTimeString(),
@@ -121,6 +145,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
         notCompletedTime: getCurrentDateTimeString(),
         notCompletedByUserId: currentUser?.id,
       }}
+      data-testid="form-3cwo"
     />
   );
 };

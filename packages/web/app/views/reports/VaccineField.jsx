@@ -37,25 +37,42 @@ export const VaccineField = ({ name = 'vaccine', required, label, parameterValue
     <>
       <Field
         name={name}
-        label={label ?? <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
+        label={
+          label ?? (
+            <TranslatedText
+              stringId="vaccine.vaccine.label"
+              fallback="Vaccine"
+              data-testid="translatedtext-v3er"
+            />
+          )
+        }
         component={SelectField}
         required={required}
-        options={vaccines.map(vaccine => ({
+        options={vaccines.map((vaccine) => ({
           label: (
             <TranslatedReferenceData
               fallback={vaccine.label}
               value={vaccine.id}
               category="scheduledVaccine"
+              data-testid={`translatedreferencedata-sbfj-${vaccine.code}`}
             />
           ),
           value: vaccine.label,
         }))}
+        data-testid="field-eliy"
       />
       <Dialog
-        headerTitle={<TranslatedText stringId="general.error" fallback="Error" />}
+        headerTitle={
+          <TranslatedText
+            stringId="general.error"
+            fallback="Error"
+            data-testid="translatedtext-w1ah"
+          />
+        }
         isVisible={isErrorDialogVisible}
         onClose={() => setIsErrorDialogVisible(false)}
         contentText={`Error occurred when fetching vaccine types: ${error}`}
+        data-testid="dialog-yzkf"
       />
     </>
   );

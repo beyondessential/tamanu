@@ -19,7 +19,7 @@ const LanguageSelectorContainer = styled.div`
     font-size: 11px;
     font-weight: 400;
     line-height: 15px;
-    color: ${Colors.midText}};
+    color: ${Colors.midText};
   }
 `;
 
@@ -30,7 +30,7 @@ const LanguageOptionLabel = styled.div`
 `;
 
 const customStyles = {
-  control: provided => ({
+  control: (provided) => ({
     ...provided,
     '&:hover': {
       borderColor: 'transparent',
@@ -42,7 +42,7 @@ const customStyles = {
     fontSize: '11px',
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: provided => ({
+  menu: (provided) => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -71,7 +71,7 @@ export const LanguageSelector = () => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel>
+        <LanguageOptionLabel data-testid={`languageoptionlabel-lxsu-${language}`}>
           {countryCode && isISO31661Alpha2(countryCode) && (
             <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
           )}
@@ -85,21 +85,28 @@ export const LanguageSelector = () => {
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
 
-  const handleLanguageChange = event => {
+  const handleLanguageChange = (event) => {
     updateStoredLanguage(event.target.value);
   };
 
   return (
-    <LanguageSelectorContainer>
+    <LanguageSelectorContainer data-testid="languageselectorcontainer-1xer">
       <SelectInput
         options={languageOptions}
-        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+        label={
+          <TranslatedText
+            stringId="login.languageSelector.label"
+            fallback="Language"
+            data-testid="translatedtext-3qat"
+          />
+        }
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
         name="Language"
         value={storedLanguage}
         onChange={handleLanguageChange}
+        data-testid="selectinput-2jq3"
       />
     </LanguageSelectorContainer>
   );

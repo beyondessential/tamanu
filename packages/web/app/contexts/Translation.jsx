@@ -46,7 +46,7 @@ export const TranslationProvider = ({ children }) => {
     return value;
   };
 
-  const updateStoredLanguage = newLanguage => {
+  const updateStoredLanguage = (newLanguage) => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
     // Save the language in local storage so that it persists between sessions

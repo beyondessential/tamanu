@@ -31,16 +31,16 @@ const Container = styled.div`
 `;
 
 const Text = styled(BodyText)`
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
   padding-bottom: 20px;
 `;
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
 
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     if (data.action === 'plan') {
       return submit(data);
     }
@@ -49,7 +49,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
     return submit({ locationId, ...rest });
   };
   return (
-    <FormModal title="Move patient" open={open} onClose={onClose}>
+    <FormModal title="Move patient" open={open} onClose={onClose} data-testid="formmodal-z0n0">
       <Form
         initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
         onSubmit={onSubmit}
@@ -61,6 +61,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
               <TranslatedText
                 stringId="encounter.modal.patientMove.validation.plannedLocation.path"
                 fallback="Planned location"
+                data-testid="translatedtext-6bop"
               />,
             ),
         })}
@@ -68,11 +69,17 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         render={({ submitForm, values }) => {
           return (
             <>
-              <Container>
-                <Field name="plannedLocationId" component={LocalisedLocationField} required />
+              <Container data-testid="container-otqu">
+                <Field
+                  name="plannedLocationId"
+                  component={LocalisedLocationField}
+                  required
+                  data-testid="field-n625"
+                />
                 <LocationAvailabilityWarningMessage
                   locationId={values?.plannedLocationId}
                   style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
+                  data-testid="locationavailabilitywarningmessage-6ivs"
                 />
                 <Field
                   name="action"
@@ -80,22 +87,30 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                     <TranslatedText
                       stringId="encounter.modal.patientMove.action.label"
                       fallback="Would you like to plan or finalise the patient move?"
+                      data-testid="translatedtext-l7v1"
                     />
                   }
                   component={RadioField}
                   options={patientMoveActionOptions}
                   style={{ gridColumn: '1/-1' }}
+                  data-testid="field-ryle"
                 />
               </Container>
-              <Text>
+              <Text data-testid="text-5y59">
                 By selecting ‘Plan’ the new location will not be reflected in the patient encounter
                 until you finalise the move. If the move is not finalised within{' '}
                 {plannedMoveTimeoutHours} hours, the location will be deemed ‘Available’ again.
               </Text>
-              <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
+              <ModalActionRow
+                confirmText="Confirm"
+                onConfirm={submitForm}
+                onCancel={onClose}
+                data-testid="modalactionrow-t42b"
+              />
             </>
           );
         }}
+        data-testid="form-0n4f"
       />
     </FormModal>
   );

@@ -62,6 +62,7 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.taskSetList"
         fallback="Task set list"
+        data-testid="translatedtext-jhvi"
       />
     ),
     sortable: false,
@@ -69,7 +70,11 @@ const COLUMNS = [
   {
     key: 'assignedTo',
     title: (
-      <TranslatedText stringId="addTask.taskSet.table.column.assignedTo" fallback="Assigned to" />
+      <TranslatedText
+        stringId="addTask.taskSet.table.column.assignedTo"
+        fallback="Assigned to"
+        data-testid="translatedtext-qsbt"
+      />
     ),
     accessor: getDesignations,
     sortable: false,
@@ -77,14 +82,22 @@ const COLUMNS = [
   {
     key: 'frequency',
     title: (
-      <TranslatedText stringId="addTask.taskSet.table.column.frequency" fallback="Frequency" />
+      <TranslatedText
+        stringId="addTask.taskSet.table.column.frequency"
+        fallback="Frequency"
+        data-testid="translatedtext-zm16"
+      />
     ),
     accessor: ({ taskTemplate }) => {
       const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
       return frequencyValue && frequencyUnit ? (
         `${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`
       ) : (
-        <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
+        <TranslatedText
+          stringId="encounter.tasks.table.once"
+          fallback="Once"
+          data-testid="translatedtext-wm2y"
+        />
       );
     },
     sortable: false,
@@ -95,9 +108,15 @@ const COLUMNS = [
       <TranslatedText
         stringId="addTask.taskSet.table.column.highPriority"
         fallback="High priority"
+        data-testid="translatedtext-65on"
       />
     ),
-    accessor: ({ taskTemplate }) => (taskTemplate?.highPriority ? <StyledPriorityHighIcon /> : ''),
+    accessor: ({ taskTemplate }) =>
+      taskTemplate?.highPriority ? (
+        <StyledPriorityHighIcon data-testid="styledpriorityhighicon-0wlt" />
+      ) : (
+        ''
+      ),
     sortable: false,
   },
 ];
@@ -116,6 +135,7 @@ export const TaskSetTable = ({ tasks }) => {
       orderBy={orderBy}
       order={order}
       customSort={customSort}
+      data-testid="styledtable-19bp"
     />
   );
 };
