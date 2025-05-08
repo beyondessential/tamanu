@@ -1,7 +1,7 @@
 import { FACT_CURRENT_SYNC_TICK, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
 
 interface tableOid {
   oid: number;
@@ -99,7 +99,7 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   // Add the is_most_recent column back
   await query.addColumn('patient_program_registrations', 'is_most_recent', {
-    type: 'BOOLEAN',
+    type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   });
