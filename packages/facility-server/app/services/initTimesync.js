@@ -5,7 +5,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 export const initTimesync = async ({ models, url }) => {
   log.info('Initializing timesync', { server: url });
-  if (!config.timesync.enabled) {
+  if (!config.timeSync.enabled) {
     await models.LocalSystemFact.set(FACT_TIME_OFFSET, '0');
   }
   return new Timesimp(
