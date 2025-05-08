@@ -77,8 +77,8 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     initialSortDirection: 'asc',
   });
 
-  const customSortWrapper = customSort => data => {
-    const potentialInvoiceItems = data.map(item => ({
+  const customSortWrapper = (customSort) => (data) => {
+    const potentialInvoiceItems = data.map((item) => ({
       ...item,
       productPrice: Number(item.productPrice),
     }));
@@ -93,20 +93,20 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     !invoiceItems[0].productId &&
     !invoiceItems[0].orderedByUserId;
 
-  const onPotentialInvoiceItemsFetched = useCallback(data => {
+  const onPotentialInvoiceItemsFetched = useCallback((data) => {
     setPotentialInvoiceItems(data?.data || []);
   }, []);
 
   const potentialInvoiceItemRowStyle = ({ sourceId }) => {
-    const idList = invoiceItems.map(row => row?.sourceId).filter(Boolean);
+    const idList = invoiceItems.map((row) => row?.sourceId).filter(Boolean);
     if (idList.includes(sourceId)) return 'display: none;';
     return '';
   };
 
-  const handleAddPotentialInvoiceItems = items => {
+  const handleAddPotentialInvoiceItems = (items) => {
     if (isInvoiceItemsEmpty) formArrayMethods.remove(0);
     items.forEach(
-      item =>
+      (item) =>
         !potentialInvoiceItemRowStyle(item) &&
         formArrayMethods.push({
           ...item,
@@ -120,7 +120,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   const isEmptyPotentialInvoiceItems = !differenceBy(
     potentialInvoiceItems,
     invoiceItems,
-    it => it.sourceId || it.id,
+    (it) => it.sourceId || it.id,
   ).length;
 
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [

@@ -58,6 +58,7 @@ export const TabDisplay = React.memo(
         disabled={!render}
         value={key}
         onClick={() => onTabSelect(key)}
+        data-testid={`styledtab-yhha-${key}`}
       />
     ));
     return (
