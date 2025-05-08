@@ -696,15 +696,23 @@ describe('CentralSyncManager', () => {
 
       // Verify that only changes up to NEW_SYNC_TICK are included
       // The change at FINAL_SYNC_TICK should not be included since it happened after the lookup table update
-      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(1);
-      expect(patientProgramRegistrationChange.changelogRecords[0]).toEqual(
-        expect.objectContaining({
-          tableName: 'patient_program_registrations',
-          recordId: patientProgramRegistration.id,
-          recordData: expect.objectContaining({
-            date: '2025-04-22 00:00:00',
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
+      expect(patientProgramRegistrationChange.changelogRecords).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+            recordUpdate: false,
           }),
-        }),
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+            recordData: expect.objectContaining({
+              date: '2025-04-22 00:00:00',
+            }),
+            recordUpdate: true,
+          }),
+        ]),
       );
     });
 
@@ -777,16 +785,25 @@ describe('CentralSyncManager', () => {
       );
 
       // Verify that the change at the boundary tick is included
-      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(1);
-      expect(patientProgramRegistrationChange.changelogRecords[0]).toEqual(
-        expect.objectContaining({
-          tableName: 'patient_program_registrations',
-          recordId: patientProgramRegistration.id,
-          recordData: expect.objectContaining({
-            date: '2025-04-22 00:00:00',
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
+      expect(patientProgramRegistrationChange.changelogRecords).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+            recordUpdate: false,
+            recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
           }),
-          recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
-        }),
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+            recordData: expect.objectContaining({
+              date: '2025-04-22 00:00:00',
+            }),
+            recordUpdate: true,
+            recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
+          }),
+        ]),
       );
 
       // Make another change and update lookup table again
