@@ -8,6 +8,19 @@ interface tableOid {
 }
 
 export async function up(query: QueryInterface): Promise<void> {
+  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+  if (!COUNTRY_TIMEZONE) {
+    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  }
+
+  // Save previously set time zone
+  const previousTimeZoneQuery = await query.sequelize.query('show timezone');
+  const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
+
+  // Set time zone defined in config
+  await query.sequelize.query(`SET timezone to '${COUNTRY_TIMEZONE}'`);
+
   const [tableOidQuery]: any = await query.sequelize.query<tableOid>(
     `SELECT oid FROM pg_class WHERE relname = 'patient_program_registrations';`,
     { type: QueryTypes.SELECT },
@@ -85,6 +98,9 @@ export async function up(query: QueryInterface): Promise<void> {
       ORDER BY patient_id, program_registry_id, date ASC
     ) registration_summary ON ppr.id = registration_summary.id;
   `);
+
+  // Reset time zone for containment
+  await query.sequelize.query(`SET timezone to '${previousTimeZone}'`);
 
   // Remove all non recent registrations (this bit destructive, can't be downed)
   await query.sequelize.query(`
