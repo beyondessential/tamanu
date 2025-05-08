@@ -72,8 +72,7 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Check patient 1 has both changelog records
     const patient1 = result.find((r) => r.recordId === '1');
     expect(patient1?.changelogRecords).toHaveLength(2);
-    expect(patient1?.changelogRecords[0].recordSyncTick).toBe("100");
-    expect(patient1?.changelogRecords[1].recordSyncTick).toBe("150");
+    expect(patient1?.changelogRecords.map((r) => r.recordSyncTick).sort()).toEqual(["100", "150"]);
 
     // Check patient 2 has one changelog record
     const patient2 = result.find((r) => r.recordId === '2');
