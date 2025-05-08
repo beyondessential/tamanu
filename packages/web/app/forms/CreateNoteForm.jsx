@@ -6,12 +6,13 @@ import {
   NoteDateTimeField,
   NoteTemplateField,
   NoteTypeField,
-  StyledDivider,
-  StyledFormGrid,
   WrittenByField,
 } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useApi } from '../api';
+import { Colors } from '../constants';
+import { FormGrid } from '../components';
+import { DialogActions, DialogContent } from '@material-ui/core';
 
 export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values, setValues }) => {
   const api = useApi();
@@ -40,26 +41,48 @@ export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values
 
   return (
     <>
-      <StyledFormGrid columns={4}>
-        <NoteTypeField
-          required
-          noteTypeCountByType={noteTypeCountByType}
-          onChange={onChangeNoteType}
+      <DialogContent style={{ minHeight: '280px', overflow: 'hidden' }}>
+        <FormGrid columns={2}>
+          <NoteTypeField
+            required
+            noteTypeCountByType={noteTypeCountByType}
+            onChange={onChangeNoteType}
+            size="small"
+            fontSize="12px"
+          />
+          <NoteTemplateField
+            noteType={values.noteType}
+            onChangeTemplate={onChangeTemplate}
+            size="small"
+            fontSize="12px"
+          />
+          <WrittenByField required size="small" fontSize="12px" />
+          <NoteDateTimeField required size="small" fontSize="12px" />
+        </FormGrid>
+        <NoteContentField
+          label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
+          size="small"
+          className="note-modal__content-field"
         />
-        <NoteTemplateField noteType={values.noteType} onChangeTemplate={onChangeTemplate} />
-        <WrittenByField required />
-        <NoteDateTimeField required />
-      </StyledFormGrid>
-      <NoteContentField
-        label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
-      />
-      <StyledDivider />
-      <FormSubmitCancelRow
-        onConfirm={onSubmit}
-        confirmText={<TranslatedText stringId="note.action.addNote" fallback="Add note" />}
-        cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-        onCancel={onCancel}
-      />
+      </DialogContent>
+      <DialogActions
+        color={Colors.white}
+        style={{
+          padding: '10px 20px',
+          background: 'none',
+          borderTop: `1px solid ${Colors.softOutline}`,
+          position: 'sticky',
+          bottom: 0,
+        }}
+      >
+        <FormSubmitCancelRow
+          style={{ marginTop: '0' }}
+          onConfirm={onSubmit}
+          confirmText={<TranslatedText stringId="note.action.addNote" fallback="Add note" />}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          onCancel={onCancel}
+        />
+      </DialogActions>
     </>
   );
 };

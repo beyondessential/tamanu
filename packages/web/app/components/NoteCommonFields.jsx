@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
-
+import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
 
@@ -68,6 +68,7 @@ export const WrittenByField = ({
   ),
   required,
   disabled,
+  size,
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -79,11 +80,12 @@ export const WrittenByField = ({
       component={AutocompleteField}
       suggester={practitionerSuggester}
       disabled={disabled}
+      size={size}
     />
   );
 };
 
-export const NoteDateTimeField = ({ required, disabled }) => {
+export const NoteDateTimeField = ({ required, disabled, size }) => {
   const { getSetting } = useSettings();
 
   return (
@@ -94,6 +96,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
+      size={size}
     />
   );
 };
@@ -101,16 +104,23 @@ export const NoteDateTimeField = ({ required, disabled }) => {
 export const NoteContentField = ({
   label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
   onChange,
+  size,
 }) => (
-  <Field
-    name="content"
-    label={label}
-    required
-    component={TextField}
-    multiline
-    onChange={onChange}
-    minRows={18}
-  />
+  <Box style={{ height: '100%', flex: 1 }}>
+    <Field
+      name="content"
+      label={label}
+      required
+      component={TextField}
+      multiline
+      onChange={onChange}
+      InputProps={{
+        style: { height: '100%' },
+      }}
+      style={{ height: '100%' }}
+      size={size}
+    />
+  </Box>
 );
 
 export const NoteInfoSection = ({
@@ -120,12 +130,14 @@ export const NoteInfoSection = ({
   writtenByLabel,
   writtenBy,
   dateLabel,
+  size,
 }) => (
   <StyledInfoCard
     gridRowGap={10}
     elevated={false}
     numberOfColumns={numberOfColumns}
     contentPadding={12}
+    size={size}
   >
     <InfoCardItem
       numberOfColumns={numberOfColumns}
@@ -153,7 +165,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size }) => (
   <Field
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
@@ -175,10 +187,11 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     onChange={onChange}
     menuPosition="absolute"
     menuPlacement="auto"
+    size={size}
   />
 );
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
+export const NoteTemplateField = ({ noteType, onChangeTemplate, size }) => {
   const templateSuggester = useSuggester('template', {
     baseQueryParameters: { type: noteType },
   });
@@ -191,6 +204,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
       disabled={!noteType}
+      size={size}
     />
   );
 };

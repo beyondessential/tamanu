@@ -4,8 +4,12 @@ import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { useApi, useSuggester } from '../api';
 import styled from 'styled-components';
+import MuiDialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import { Box } from '@material-ui/core';
 
-import { FormModal } from './FormModal';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
@@ -14,32 +18,17 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { withModalFloating } from './withModalFloating';
 import { useNoteModal } from '../contexts/NoteModal';
 
-const StyledFormModal = styled(FormModal)`
-  .MuiDialogTitle-root {
-    padding-block: 10px;
-    padding-inline-start: 19px;
-    padding-inline-end: 13px;
-
-    h2 {
-      font-size: 16px;
-      line-height: 21px;
-
-      span {
-        padding: 0;
-      }
-    }
-
-    .MuiIconButton-root {
-      padding: 0;
-    }
-
-    svg {
-      font-size: 13px;
-    }
+const StyledMuiDialog = styled(MuiDialog)`
+  /* Make the form take up full height */
+  form {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 `;
 
-const FloatingFormModal = withModalFloating(StyledFormModal);
+const FloatingMuiDialog = withModalFloating(StyledMuiDialog);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -53,7 +42,7 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
     : undefined;
 };
 
-export const NoteModalComponent = ({
+export const MuiNoteModalComponent = ({
   title = <TranslatedText stringId="note.modal.default.title" fallback="Note" />,
   open,
   onClose,
@@ -70,11 +59,9 @@ export const NoteModalComponent = ({
   const [openNoteCancelConfirmModal, setOpenNoteCancelConfirmModal] = useState(false);
 
   const practitionerSuggester = useSuggester('practitioner');
-  console.log('🔔 NoteModalComponent render', { open, note, encounterId, noteFormMode });
 
   useEffect(() => {
     (async () => {
-      console.log('🔄 useEffect reset noteContent →', note?.content, 'because note changed:', note);
       const noteTypeCountResponse = await api.get(`encounter/${encounterId}/notes/noteTypes`);
       setNoteTypeCountByType(noteTypeCountResponse.data);
     })();
@@ -100,7 +87,6 @@ export const NoteModalComponent = ({
       };
 
       const createdNote = await api.post('notes', newNote);
-
       resetForm();
       onSaved(createdNote);
     },
@@ -127,17 +113,30 @@ export const NoteModalComponent = ({
           </p>
         }
       />
-      <FloatingFormModal
-        title={title}
+      <FloatingMuiDialog
         open={open}
         onClose={onClose}
-        color={Colors.white}
         baseWidth={535}
         baseHeight={775}
         minConstraints={[400, 370]}
         maxConstraints={[535, 775]}
-        fixedBottomRow={true}
       >
+        <DialogTitle style={{ borderBottom: `1px solid ${Colors.softOutline}`, padding: 0 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            width="100%"
+            justifyContent="space-between"
+            paddingY="10px"
+            paddingX="19px"
+            fontSize="14px"
+          >
+            {title}
+            <IconButton onClick={onClose} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
         <NoteForm
           noteFormMode={noteFormMode}
           onSubmit={handleCreateOrEditNewNote}
@@ -147,7 +146,7 @@ export const NoteModalComponent = ({
           confirmText={confirmText}
           cancelText={cancelText}
         />
-      </FloatingFormModal>
+      </FloatingMuiDialog>
     </>
   );
 };
@@ -175,5 +174,7 @@ export const NoteModal = React.memo(() => {
   }, [isNoteModalOpen]);
 
   console.log('📝 NoteModal render:', { isNoteModalOpen, noteModalProps });
-  return <NoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />;
+  return (
+    <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
+  );
 });

@@ -8,7 +8,6 @@ import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 import { Form } from '../components/Field';
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
-import { EditNoteForm } from './EditNoteForm';
 import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
@@ -34,7 +33,7 @@ export const NoteForm = ({
       return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
         <EditTreatmentPlanNoteForm {...props} />
       ) : (
-        <EditNoteForm {...props} />
+        <CreateNoteForm {...props} values={values} setValues={setValues} />
       );
     }
 
