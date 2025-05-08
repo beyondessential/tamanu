@@ -106,7 +106,17 @@ export const NoteContentField = ({
   onChange,
   size,
 }) => (
-  <Box style={{ height: '100%', flex: 1 }}>
+  <Box
+    style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      marginBottom: '50px',
+      minHeight: 0, // allow this Box to shrink
+      flexGrow: 1,
+      height: '100%', // ensure Box takes full height
+    }}
+  >
     <Field
       name="content"
       label={label}
@@ -114,10 +124,32 @@ export const NoteContentField = ({
       component={TextField}
       multiline
       onChange={onChange}
-      InputProps={{
-        style: { height: '100%' },
+      // this makes the outer MUI input container fill the Box
+      style={{
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column', // ensure label and input stack vertically
       }}
-      style={{ height: '100%' }}
+      // ensure the .MuiInputBase-root is also a flex column
+      InputProps={{
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          alignItems: 'start',
+          flex: 1,
+        },
+      }}
+      // this style is applied *to the <textarea> itself*:
+      inputProps={{
+        style: {
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto', // show scrollbar when content overflows
+          width: '100%',
+        },
+      }}
       size={size}
     />
   </Box>

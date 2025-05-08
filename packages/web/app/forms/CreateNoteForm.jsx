@@ -41,7 +41,16 @@ export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values
 
   return (
     <>
-      <DialogContent style={{ minHeight: '280px', overflow: 'hidden' }}>
+      <DialogContent
+        style={{
+          minHeight: '280px',
+          overflow: 'hidden',
+          maxHeight: '685px',
+          paddingBottom: '0px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <FormGrid columns={2}>
           <NoteTypeField
             required
@@ -62,7 +71,6 @@ export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
           size="small"
-          className="note-modal__content-field"
         />
       </DialogContent>
       <DialogActions
