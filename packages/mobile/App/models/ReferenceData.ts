@@ -65,26 +65,29 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   ) {
     const repo = this.getRepository();
 
+    // First attempt with relation type filter
     let recordWithParents = await repo.findOne({
-      where: (qb) => {
-        qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
-          .where('parents_type = :relationType', {
-            relationType,
-          })
-          .andWhere({ visibilityStatus: VisibilityStatus.Current })
-          .andWhere(where);
+      where: {
+        ...where,
+        visibilityStatus: VisibilityStatus.Current,
+        parents: {
+          type: relationType,
+        },
+      },
+      relations: {
+        parents: true,
       },
     });
 
+    // Fallback query without relation type filter
     if (!recordWithParents) {
-      // It's not possible to do right or outer joins in type orm so we have to do a second query
-      // the other option would be to write the query in raw sql but then it wouldn't be possible
-      // to use an object for the where parameter
       recordWithParents = await repo.findOne({
-        where: (qb) => {
-          qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
-            .where({ visibilityStatus: VisibilityStatus.Current })
-            .andWhere(where);
+        where: {
+          ...where,
+          visibilityStatus: VisibilityStatus.Current,
+        },
+        relations: {
+          parents: true,
         },
       });
     }

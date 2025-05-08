@@ -23,6 +23,8 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
 
   if (fields.length === 0) return null;
 
+  console.log('values', values);
+
   return (
     <Container data-testid="container-bmjc">
       {hierarchyToShow.map((type, index) => {

@@ -16,12 +16,23 @@ import {
   selectFields,
   selectFieldsOptions,
 } from './helpers';
-import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import {
+  getConfiguredPatientAdditionalDataFields,
+  PATIENT_DATA_FIELDS,
+} from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { labels } from '~/ui/navigation/screens/home/PatientDetails/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { HierarchyFields } from '../../HierarchyFields';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { theme } from '~/ui/styled/theme';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { StyledText } from '~/ui/styled/common';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { ReferenceDataType } from '~/types/IReferenceData';
+import { ADDRESS_HIERARCHY_VILLAGE_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outer styled view to momentarily add distance between fields
@@ -92,9 +103,64 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
       required={required}
     />
+  );
+};
+
+export const ADDRESS_HIERARCHY_FIELDS = [
+  {
+    name: ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+    referenceType: ReferenceDataType.Division,
+    label: (
+      <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" />
+    ),
+  },
+  {
+    name: ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+    referenceType: ReferenceDataType.SubDivision,
+    label: (
+      <TranslatedText
+        stringId="general.localisedField.subdivisionId.label"
+        fallback="Sub division"
+      />
+    ),
+  },
+  {
+    name: ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+    referenceType: ReferenceDataType.Settlement,
+    label: (
+      <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Settlement" />
+    ),
+  },
+  {
+    name: PATIENT_DATA_FIELDS.VILLAGE_ID,
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
+
+const AddressHierarchyField = ({ isEdit }): ReactElement => {
+  if (isEdit) {
+    return <HierarchyFields fields={ADDRESS_HIERARCHY_FIELDS} />;
+  }
+
+  return (
+    <StyledView>
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP(2.4, Orientation.Height)}
+        fontWeight={500}
+        marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
+      >
+        <TranslatedText
+          stringId={'patient.details.subheading.currentAddress'}
+          fallback={'Current address'}
+        />
+      </StyledText>
+      <HierarchyFields fields={ADDRESS_HIERARCHY_FIELDS} />
+    </StyledView>
   );
 };
 
@@ -107,6 +173,9 @@ function getComponentForField(
   }
   if (selectFields.includes(fieldName)) {
     return SelectField;
+  }
+  if (fieldName === ADDRESS_HIERARCHY_VILLAGE_ID) {
+    return AddressHierarchyField;
   }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
@@ -146,7 +215,7 @@ export const PatientAdditionalDataFields = ({
   );
 
   if (isCustomSection)
-    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 

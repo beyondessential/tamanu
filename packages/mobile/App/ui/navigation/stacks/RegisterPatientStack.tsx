@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
 import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { LocalisedNewPatientForm } from '../screens/home/PatientDetails/layouts/LocalisedPatientDetailsLayout';
+import { EditPatientScreen } from '../screens/home/PatientDetails/PatientDetails';
 
 const Stack = createStackNavigator();
 
@@ -13,7 +13,7 @@ export const RegisterPatientStack = (): ReactElement => (
     <Stack.Navigator headerMode="none">
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo}
-        component={LocalisedNewPatientForm}
+        component={EditPatientScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.NewPatient}

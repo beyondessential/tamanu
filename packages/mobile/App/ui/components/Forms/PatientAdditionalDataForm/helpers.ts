@@ -15,6 +15,7 @@ import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'lodash';
+import { ADDRESS_HIERARCHY_VILLAGE_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -154,22 +155,16 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
@@ -193,16 +188,23 @@ export const getInitialCustomValues = (
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialAdditionalValues = (
   data: PatientAdditionalData,
-  fields: (PatientFieldDefinition | string)[],
+  fields: string[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   const values = {};
   for (const field of fields) {
-    const fieldName = isObject(field) ? field.name : field;
-    const value = data[fieldName];
-    if (value) values[fieldName] = value;
+    // TODO: special case
+    if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
+      values.divisionId = data.divisionId;
+      values.settlementId = data.settlementId;
+      values.subdivisionId = data.subdivisionId;
+      values.villageId = data.villageId;
+    }
+
+    const value = data[field];
+    if (value) values[field] = value;
   }
   return values;
 };
