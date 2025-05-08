@@ -716,7 +716,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it('handles sync tick boundary conditions correctly', async () => {
+    it('changelog handles sync tick boundary conditions correctly', async () => {
       const BOUNDARY_SYNC_TICK = 20;
       const AFTER_BOUNDARY_SYNC_TICK = 21;
       await models.Setting.set('audit.changes.enabled', true);
@@ -802,6 +802,15 @@ describe('CentralSyncManager', () => {
             }),
             recordUpdate: true,
             recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
+          }),
+          expect.objectContaining({
+            tableName: 'patient_program_registrations',
+            recordId: patientProgramRegistration.id,
+            recordData: expect.objectContaining({
+              date: '2025-04-23 00:00:00',
+            }),
+            recordUpdate: true,
+            recordSyncTick: AFTER_BOUNDARY_SYNC_TICK.toString(),
           }),
         ]),
       );
