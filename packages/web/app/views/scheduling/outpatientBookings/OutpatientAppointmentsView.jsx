@@ -210,7 +210,7 @@ export const OutpatientAppointmentsView = () => {
             </Button>
           )}
         </AppointmentTopBar>
-        <CalendarWrapper>
+        <CalendarWrapper> 
           <DateSelector value={selectedDate} onChange={handleChangeDate} />
           <CalendarInnerWrapper>
             <OutpatientBookingCalendar
