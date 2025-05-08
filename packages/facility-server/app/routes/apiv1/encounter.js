@@ -90,8 +90,12 @@ encounter.put(
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { isDischarge, quantity, repeats } = medicationValues;
           if (isDischarge) {
-            const medication = await models.EncounterMedication.findByPk(medicationId);
-            await medication.update({ isDischarge, quantity, repeats });
+            const medication = await models.Prescription.findByPk(medicationId);
+            await medication.update({ quantity, repeats });
+            await models.EncounterPrescription.update(
+              { isDischarge },
+              { where: { encounterId: id, prescriptionId: medication.id } },
+            );
           }
         }
       }
@@ -169,7 +173,113 @@ const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
-encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
+encounterRelations.get(
+  '/:id/medications',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
+
+    req.checkPermission('list', 'Prescription');
+
+    const associations = Prescription.getListReferenceAssociations() || [];
+
+    const baseQueryOptions = {
+      order: orderBy
+        ? [
+            [...orderBy.split('.'), order.toUpperCase()],
+            ['date', 'ASC'],
+          ]
+        : undefined,
+      include: [
+        ...associations,
+        {
+          model: models.Encounter,
+          as: 'encounters',
+          through: { attributes: [] },
+          where: { id: params.id },
+          attributes: ['id'],
+        },
+        {
+          model: models.EncounterPrescription,
+          as: 'encounterPrescription',
+          include: {
+            model: models.EncounterPausePrescription,
+            as: 'pausePrescriptions',
+            attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
+            where: {
+              pauseEndDate: {
+                [Op.gt]: getCurrentDateTimeString(),
+              },
+            },
+          },
+          attributes: ['id'],
+        },
+      ],
+    };
+
+    // Add medicationAdministrationRecords with condition for same day
+    if (marDate) {
+      const startOfMarDate = `${marDate} 00:00:00`;
+      const endOfMarDate = `${marDate} 23:59:59`;
+      baseQueryOptions.include.push({
+        model: models.MedicationAdministrationRecord,
+        as: 'medicationAdministrationRecords',
+        where: {
+          dueAt: {
+            [Op.gte]: startOfMarDate,
+            [Op.lte]: endOfMarDate,
+          },
+        },
+        include: [
+          {
+            association: 'reasonNotGiven',
+            attributes: ['id', 'name', 'type'],
+          },
+          {
+            association: 'recordedByUser',
+            attributes: ['id', 'displayName'],
+          },
+        ],
+        required: false,
+      });
+
+      baseQueryOptions.where = {
+        ...baseQueryOptions.where,
+        startDate: {
+          [Op.lte]: endOfMarDate,
+        },
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { discontinuedDate: { [Op.is]: null } },
+              { discontinuedDate: { [Op.gt]: startOfMarDate } },
+            ],
+          },
+          {
+            [Op.or]: [{ endDate: null }, { endDate: { [Op.gt]: startOfMarDate } }],
+          },
+        ],
+      };
+    }
+
+    const count = await Prescription.count({
+      ...baseQueryOptions,
+      distinct: true,
+    });
+
+    const objects = await Prescription.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = objects.map((x) => x.forResponse());
+
+    res.send({ count, data });
+  }),
+);
+
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',

@@ -3,7 +3,12 @@ import { Utils } from 'sequelize';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 import type { SessionConfig } from '../types/sync';
 
-const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
+const recordTypesWithPatientViaEncounter = [
+  'Triage',
+  'LabRequest',
+  'ImagingRequest',
+  'MedicationAdministrationRecord',
+];
 
 function getRecordTypesToTables() {
   return NOTE_RECORD_TYPE_VALUES.reduce((acc: Record<string, string>, recordType) => {
@@ -35,10 +40,16 @@ export function buildNoteLinkedJoins() {
       `LEFT JOIN ${recordTypesToTables[r]} ON notes.record_id = ${recordTypesToTables[r]}.id AND notes.record_type = '${r}'`,
   );
   joins = joins.concat(
-    recordTypesWithPatientViaEncounter.map(
-      (r) =>
-        `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
-    ),
+    recordTypesWithPatientViaEncounter.map((r) => {
+      if (r === 'MedicationAdministrationRecord') {
+        return `
+            LEFT JOIN prescriptions ON ${recordTypesToTables[r]}.prescription_id = prescriptions.id
+            LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
+            LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON encounter_prescriptions.encounter_id = ${recordTypesToTables[r]}_encounters.id
+          `;
+      }
+      return `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`;
+    }),
   );
 
   return joins;
