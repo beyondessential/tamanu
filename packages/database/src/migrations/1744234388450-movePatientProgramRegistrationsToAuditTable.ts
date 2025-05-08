@@ -15,7 +15,7 @@ export async function up(query: QueryInterface): Promise<void> {
   }
 
   // Save previously set time zone
-  const previousTimeZoneQuery = await query.sequelize.query('show timezone');
+  const previousTimeZoneQuery: any = await query.sequelize.query('show timezone');
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
 
   // Set time zone defined in config
