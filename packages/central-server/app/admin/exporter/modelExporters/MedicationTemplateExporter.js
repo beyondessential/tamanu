@@ -7,9 +7,10 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
     });
 
     return objects.map((object) => {
-      const { durationValue, durationUnit, ...otherDataValues } = object.dataValues;
+      const { durationValue, durationUnit, referenceDataId, ...otherDataValues } = object.dataValues;
       return {
         ...otherDataValues,
+        id: referenceDataId,
         duration: `${durationValue} ${durationUnit}`,
         code: object.referenceData?.code,
         name: object.referenceData?.name,

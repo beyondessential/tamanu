@@ -510,7 +510,8 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
   const [durationValue, durationUnit] = duration?.trim().split(' ') || [];
 
   const newTemplate = {
-    id: existingTemplate?.id || id,
+    id: existingTemplate?.id || uuidv4(),
+    referenceDataId: id,
     medicationId: drugReferenceDataId,
     isPrn,
     doseAmount: doseAmount ? doseAmount.toString() : null,

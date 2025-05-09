@@ -5,6 +5,7 @@ import { type InitOptions, type Models } from '../types/model';
 
 export class MedicationTemplate extends Model {
   declare id: string;
+  declare referenceDataId: string;
   declare isPrn: boolean;
   declare doseAmount: string;
   declare units: string;
@@ -15,7 +16,6 @@ export class MedicationTemplate extends Model {
   declare notes?: string;
   declare dischargeQuantity?: number;
   declare medicationId?: string;
-
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
@@ -56,7 +56,7 @@ export class MedicationTemplate extends Model {
       as: 'medication',
     });
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'id',
+      foreignKey: 'referenceDataId',
       as: 'referenceData',
     });
   }

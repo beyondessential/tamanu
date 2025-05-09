@@ -3,9 +3,13 @@ import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('medication_templates', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: Sequelize.fn('gen_random_uuid'),
+    },
+    reference_data_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
