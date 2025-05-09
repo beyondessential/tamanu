@@ -785,7 +785,7 @@ describe('CentralSyncManager', () => {
       );
 
       // Verify that the change at the boundary tick is included
-      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(2);
+      expect(patientProgramRegistrationChange.changelogRecords).toHaveLength(3);
       expect(patientProgramRegistrationChange.changelogRecords).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
