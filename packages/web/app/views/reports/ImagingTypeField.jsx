@@ -19,12 +19,14 @@ export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
           <TranslatedText
             stringId="report.generate.parameter.imagingType.label"
             fallback="Imaging type"
+            data-testid="translatedtext-6y0p"
           />
         )
       }
       required={required}
       component={SelectField}
       options={imagingTypeOptions}
+      data-testid="field-d8hq"
     />
   );
 };

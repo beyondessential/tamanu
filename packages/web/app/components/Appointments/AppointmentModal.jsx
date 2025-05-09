@@ -14,16 +14,19 @@ export const AppointmentModal = ({ open, onClose, onSuccess, appointment }) => {
           <TranslatedText
             stringId="scheduling.modal.appointment.title.updateAppointment"
             fallback="Update appointment"
+            data-testid="translatedtext-1sov"
           />
         ) : (
           <TranslatedText
             stringId="scheduling.modal.appointment.title.createNewAppointment"
             fallback="Create new appointment"
+            data-testid="translatedtext-3we8"
           />
         )
       }
       open={open}
       onClose={onClose}
+      data-testid="formmodal-e7bf"
     >
       <AppointmentForm
         appointment={appointment}
@@ -32,6 +35,7 @@ export const AppointmentModal = ({ open, onClose, onSuccess, appointment }) => {
           onClose();
           onSuccess();
         }}
+        data-testid="appointmentform-cryc"
       />
     </FormModal>
   );

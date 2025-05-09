@@ -1,2 +1,4 @@
-export const getImagingRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown';
+export const getImagingRequestType =
+  (imagingTypes) =>
+  ({ imagingType }) =>
+    imagingTypes[imagingType]?.label || 'Unknown';

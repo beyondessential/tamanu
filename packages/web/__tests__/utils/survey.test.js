@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest';
 
 import { checkMandatory, checkVisibility } from '../../app/utils';
 
 describe('checkVisibility()', () => {
-  const generateAllComponents = components =>
+  const generateAllComponents = (components) =>
     components.map((component, index) => ({
       code: `component-${component.code}`,
       required: false,

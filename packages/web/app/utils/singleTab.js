@@ -7,7 +7,7 @@ export const useSingleTab = () => {
   const [isPrimaryTab, setIsPrimaryTab] = useState(true);
 
   useEffect(() => {
-    const listener = event => {
+    const listener = (event) => {
       const otherTabStart = event.data;
 
       if (otherTabStart < tabStart) {

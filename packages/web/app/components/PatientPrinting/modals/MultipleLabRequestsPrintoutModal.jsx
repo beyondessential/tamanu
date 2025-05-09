@@ -45,7 +45,11 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
   return (
     <Modal
       title={
-        <TranslatedText stringId="lab.modal.printMultiple.title" fallback="Print lab requests" />
+        <TranslatedText
+          stringId="lab.modal.printMultiple.title"
+          fallback="Print lab requests"
+          data-testid="translatedtext-9eip"
+        />
       }
       width="md"
       open={open}
@@ -53,8 +57,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       color={Colors.white}
       printable
       onPrint={() => printPDF('lab-request-printout')}
+      data-testid="modal-bsyg"
     >
-      <PDFLoader isLoading={isLoading} id="lab-request-printout">
+      <PDFLoader isLoading={isLoading} id="lab-request-printout" data-testid="pdfloader-1ibd">
         <MultipleLabRequestsPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
@@ -62,6 +67,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           labRequests={labRequests}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>
     </Modal>

@@ -14,7 +14,7 @@ export const useTablePaginator = ({ resetPage }) => {
     setPage(0);
   }, [resetPage]);
 
-  const handleChangeRowsPerPage = event => {
+  const handleChangeRowsPerPage = (event) => {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
     setPage(0);

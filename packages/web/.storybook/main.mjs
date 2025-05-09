@@ -58,6 +58,7 @@ export default {
           config: resolve(dir, './__mocks__/config.js'),
           yargs: resolve(dir, './__mocks__/module.js'),
           child_process: resolve(dir, './__mocks__/module.js'),
+          crypto: resolve(dir, './__mocks__/crypto.js'),
         },
       },
     });

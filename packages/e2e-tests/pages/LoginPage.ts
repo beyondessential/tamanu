@@ -12,8 +12,8 @@ export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page, routes.login);
     this.loginButton = page.getByTestId('loginbutton-gx21');
-    this.emailInput = page.getByTestId('styledfield-dwnl').locator('input');
-    this.passwordInput = page.getByTestId('styledfield-a9k6').locator('input');
+    this.emailInput = page.getByTestId('styledfield-dwnl-input');
+    this.passwordInput = page.getByTestId('styledfield-a9k6-input');
   }
 
   async login(email, password) {
