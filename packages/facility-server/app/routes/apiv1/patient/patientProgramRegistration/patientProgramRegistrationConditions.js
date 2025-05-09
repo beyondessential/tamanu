@@ -67,7 +67,7 @@ patientProgramRegistrationConditions.get(
       include: [
         {
           model: User,
-          as: 'user',
+          as: 'updatedByUser',
           attributes: ['id', 'displayName'],
         },
       ],
@@ -84,7 +84,7 @@ patientProgramRegistrationConditions.get(
         id: change.id,
         date: change.loggedAt,
         data: camelCaseProperties(change.recordData),
-        clinician: change.user,
+        clinician: change.updatedByUser,
       });
       return acc;
     }, {});
