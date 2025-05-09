@@ -50,25 +50,37 @@ const LISTING_COLUMNS = [
 
 const location = {
   key: 'locationName',
-  title: <TranslatedText stringId="general.location.label" fallback="Location" />,
+  title: (
+    <TranslatedText
+      stringId="general.location.label"
+      fallback="Location"
+      data-testid="translatedtext-1hhe"
+    />
+  ),
   accessor: LocationCell,
 };
 
 const locationGroup = {
   key: 'locationGroupName',
-  title: <TranslatedText stringId="general.area.label" fallback="Area" />,
+  title: (
+    <TranslatedText
+      stringId="general.area.label"
+      fallback="Area"
+      data-testid="translatedtext-28c6"
+    />
+  ),
   accessor: LocationGroupCell,
 };
 
 const OUTPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, location, department, clinician].map(column => ({
+  [locationGroup, location, department, clinician].map((column) => ({
     ...column,
     sortable: false,
   })),
 );
 
 const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatientSex].concat(
-  [locationGroup, location, department, clinician, diet].map(column => ({
+  [locationGroup, location, department, clinician, diet].map((column) => ({
     ...column,
     sortable: false,
   })),
@@ -84,7 +96,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
     facilityId,
   };
 
-  const handleViewPatient = async row => {
+  const handleViewPatient = async (row) => {
     await dispatch(reloadPatient(row.id));
     navigateToPatient(row.id);
   };
@@ -102,6 +114,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      data-testid="searchtablewithpermissioncheck-qyht"
     />
   );
 };
@@ -116,7 +129,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     setCreatingPatient(true);
   }, []);
 
-  const handleCreateNewPatient = async newPatient => {
+  const handleCreateNewPatient = async (newPatient) => {
     setCreatingPatient(false);
     if (onCreateNewPatient) {
       onCreateNewPatient(newPatient.id);
@@ -134,15 +147,21 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         verb="create"
         noun="Patient"
         onClick={showNewPatient}
+        data-testid="buttonwithpermissioncheck-itoq"
       >
         +{'\u00A0'}
-        <TranslatedText stringId="patientList.action.add" fallback="Add new patient" />
+        <TranslatedText
+          stringId="patientList.action.add"
+          fallback="Add new patient"
+          data-testid="translatedtext-x0v7"
+        />
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
         open={isCreatingPatient}
         onCancel={hideModal}
         onCreateNewPatient={handleCreateNewPatient}
+        data-testid="newpatientmodal-za1g"
       />
     </>
   );
@@ -154,18 +173,32 @@ export const PatientListingView = ({ onViewPatient }) => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="pagecontainer-bbim">
       <TopBar
-        title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing" />}
+        title={
+          <TranslatedText
+            stringId="patientList.default.title"
+            fallback="Patient listing"
+            data-testid="translatedtext-sjbd"
+          />
+        }
+        data-testid="topbar-asng"
       >
-        <NewPatientButton onCreateNewPatient={onViewPatient} />
+        <NewPatientButton onCreateNewPatient={onViewPatient} data-testid="newpatientbutton-dnh4" />
       </TopBar>
-      <RecentlyViewedPatientsList />
-      <ContentPane>
-        <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+      <RecentlyViewedPatientsList data-testid="recentlyviewedpatientslist-oe2h" />
+      <ContentPane data-testid="contentpane-2462">
+        <SearchTableTitle data-testid="searchtabletitle-bxti">
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid="translatedtext-6znv"
+          />
         </SearchTableTitle>
-        <AllPatientsSearchBar onSearch={setSearchParameters} />
+        <AllPatientsSearchBar
+          onSearch={setSearchParameters}
+          data-testid="allpatientssearchbar-f491"
+        />
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
@@ -185,29 +218,40 @@ export const AdmittedPatientsView = () => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="pagecontainer-w0m4">
       <TopBar
         title={
           <TranslatedText
             stringId="patientList.inpatient.title"
             fallback="Admitted patient listing"
+            data-testid="translatedtext-ia8g"
           />
         }
+        data-testid="topbar-7iok"
       />
-      <RecentlyViewedPatientsList encounterType="admission" />
-      <ContentPane>
-        <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+      <RecentlyViewedPatientsList
+        encounterType="admission"
+        data-testid="recentlyviewedpatientslist-x5ge"
+      />
+      <ContentPane data-testid="contentpane-1uj0">
+        <SearchTableTitle data-testid="searchtabletitle-v9md">
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid="translatedtext-6yf6"
+          />
         </SearchTableTitle>
         <PatientSearchBar
           onSearch={setSearchParameters}
           searchParameters={searchParameters}
           isInpatient
+          data-testid="patientsearchbar-0j57"
         />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
+          data-testid="patienttable-w4sz"
         />
       </ContentPane>
     </PageContainer>
@@ -221,22 +265,39 @@ export const OutpatientsView = () => {
   const { facilityId } = useAuth();
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="pagecontainer-4smw">
       <TopBar
         title={
-          <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
+          <TranslatedText
+            stringId="patientList.outpatient.title"
+            fallback="Outpatient listing"
+            data-testid="translatedtext-23gz"
+          />
         }
+        data-testid="topbar-a2n3"
       />
-      <RecentlyViewedPatientsList encounterType="clinic" />
-      <ContentPane>
-        <SearchTableTitle>
-          <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
+      <RecentlyViewedPatientsList
+        encounterType="clinic"
+        data-testid="recentlyviewedpatientslist-ymdi"
+      />
+      <ContentPane data-testid="contentpane-szs6">
+        <SearchTableTitle data-testid="searchtabletitle-09n6">
+          <TranslatedText
+            stringId="patientList.search.title"
+            fallback="Patient search"
+            data-testid="translatedtext-zx9n"
+          />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+        <PatientSearchBar
+          onSearch={setSearchParameters}
+          searchParameters={searchParameters}
+          data-testid="patientsearchbar-rk17"
+        />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
+          data-testid="patienttable-18bx"
         />
       </ContentPane>
     </PageContainer>

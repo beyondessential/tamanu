@@ -43,7 +43,7 @@ export const getMethod = ({ labTestMethod }) =>
 
 export const getRequestedBy = ({ requestedBy }) =>
   (requestedBy || {})?.displayName || requestedBy || 'Unknown';
-export const getPatientName = row => <PatientNameDisplay patient={row} />;
+export const getPatientName = (row) => <PatientNameDisplay patient={row} />;
 export const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 export const getStatus = ({ status }) => <StatusDisplay status={status} />;
 export const getPanelType = ({ labTestPanelId, labTestPanelName }) => (
