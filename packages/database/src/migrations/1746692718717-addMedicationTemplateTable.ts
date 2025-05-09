@@ -41,7 +41,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     duration_value: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       allowNull: true,
     },
     duration_unit: {
