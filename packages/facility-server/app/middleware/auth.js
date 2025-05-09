@@ -90,10 +90,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
   const user = await models.User.getForAuthByEmail(email);
+  log.info('User found: ', Boolean(user));
 
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
+    log.warn('Bad password match');
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
@@ -114,7 +116,7 @@ async function localLogin(models, email, password) {
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
     return localLogin(models, email, password);
   }
 
@@ -200,12 +202,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user } = req;
+  const { user, facilityId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user, req.facilityId);
+  const token = await buildToken(user, facilityId);
   res.send({ token });
 }
 
@@ -247,7 +249,7 @@ async function getUser(models, userId) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const { models } = req;
+  const { models, settings } = req;
   try {
     const token = getTokenFromHeaders(req);
     const sessionId = createSessionIdentifier(token);
@@ -262,11 +264,14 @@ export const authMiddleware = async (req, res, next) => {
         order: [['createdAt', 'DESC']],
       });
 
+    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = {
-      access: async ({ recordId, params, model }) =>
-        req.models.AccessLog.create({
+      access: async ({ recordId, params, model }) => {
+        if (!auditSettings?.accesses.enabled) return;
+        return req.models.AccessLog.create({
           userId,
           recordId,
           recordType: model.name,
@@ -278,7 +283,8 @@ export const authMiddleware = async (req, res, next) => {
           facilityId: req.facilityId,
           deviceId: req.deviceId || 'unknown-device',
           version,
-        }),
+        });
+      },
     };
 
     const spanAttributes = {};

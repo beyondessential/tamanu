@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
@@ -6,19 +6,19 @@ import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
 export class ChangeLog extends Model {
-  declare id: number;
+  declare id: string;
   declare tableOid: number;
   declare tableSchema: string;
   declare tableName: string;
   declare loggedAt: Date;
-  declare createdAt: Date;
-  declare updatedAt: Date;
-  declare deletedAt: Date | undefined;
-  declare updatedAtSyncTick: number;
   declare updatedByUserId: string;
   declare recordId: string;
   declare recordUpdate: boolean;
-  declare recordData: Record<string, any>;
+  declare recordCreatedAt: Date;
+  declare recordUpdatedAt: Date;
+  declare recordDeletedAt: Date | null;
+  declare recordSyncTick: number;
+  declare recordData: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -39,6 +39,7 @@ export class ChangeLog extends Model {
         loggedAt: {
           type: DataTypes.DATE,
           allowNull: false,
+          defaultValue: Sequelize.fn('adjusted_timestamp'),
         },
         updatedByUserId: {
           type: DataTypes.TEXT,
@@ -52,15 +53,32 @@ export class ChangeLog extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
+        recordCreatedAt: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
+        recordUpdatedAt: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
+        recordDeletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        recordSyncTick: {
+          type: DataTypes.BIGINT,
+          allowNull: false,
+        },
         recordData: {
           type: DataTypes.JSONB,
           allowNull: false,
         },
       },
+
       {
         ...options,
         tableName: 'changes',
-        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
         schema: 'logs',
       },
     );
@@ -69,7 +87,7 @@ export class ChangeLog extends Model {
   static initRelations(models: Models) {
     this.belongsTo(models.User, {
       foreignKey: 'updatedByUserId',
-      as: 'user',
+      as: 'updatedByUser',
     });
   }
 }

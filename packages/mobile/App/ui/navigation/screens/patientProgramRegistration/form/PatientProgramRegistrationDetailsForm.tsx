@@ -16,7 +16,6 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
 import { useBackendEffect } from '~/ui/hooks/index';
@@ -28,6 +27,7 @@ import {
   getReferenceDataStringId,
 } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -41,11 +41,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const facilitySuggester = new Suggester(models.Facility, {
     where: {
       visibilityStatus: VisibilityStatus.Current,
-    },
-  });
-  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
-    where: {
-      programRegistry: programRegistry.id,
     },
   });
 
@@ -87,7 +82,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       for (const condition of formData.conditions) {
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
-          programRegistryCondition: condition.value,
+          programRegistryCondition: condition.condition.value,
+          conditionCategory: condition.category.value,
           clinician: formData.clinicianId,
           patientProgramRegistration: newPpr.id,
         });
@@ -99,6 +95,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     });
   };
   const { user } = useAuth();
+
   return (
     <FullView>
       <StyledScrollView>
@@ -123,8 +120,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           validationSchema={yup.object().shape({
             // programRegistryId: yup.string().required('Program Registry must be selected'),
             clinicalStatusId: yup.string(),
-            date: yup.date(),
-            registeringFacilityId: yup.string(),
+            date: yup.date().required(),
+            registeringFacilityId: yup.string().required('Registering facility is required'),
             clinicianId: yup
               .string()
               .required()
@@ -134,7 +131,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup.string(),
+            conditions: yup.array().of(
+              yup.object().shape({
+                condition: yup.object().shape({ value: yup.string().required() }),
+                category: yup.object().shape({ value: yup.string().required() }),
+              }),
+            ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >
@@ -153,6 +155,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={DateField}
                     min={new Date()}
                     name="date"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -169,6 +172,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={practitionerSuggester}
                     name="clinicianId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -185,6 +189,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={facilitySuggester}
                     name="registeringFacilityId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -202,25 +207,18 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
+                  <PatientProgramRegistrationConditionsField
                     label={
                       <TranslatedText
                         stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
-                    labelFontSize={14}
-                    component={MultiSelectModalField}
-                    modalTitle={getTranslation('programRegistry.conditions.label', 'Conditions')}
-                    suggester={conditionSuggester}
-                    placeholder={getTranslation('general.placeholder.search', 'Search')}
-                    navigation={navigation}
-                    name="conditions"
-                    value={values.conditions}
-                    searchPlaceholder={getTranslation(
-                      'programRegistry.search.conditions',
-                      'Search conditions...',
-                    )}
+                    programRegistryId={programRegistry.id}
+                    values={values.conditions}
+                    onChange={(newValue) => {
+                      values.conditions = newValue;
+                    }}
                   />
                 </StyledView>
                 <Button

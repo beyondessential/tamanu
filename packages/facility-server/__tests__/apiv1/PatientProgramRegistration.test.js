@@ -1,6 +1,10 @@
 import config from 'config';
 import { afterAll, beforeAll } from '@jest/globals';
-import { REGISTRATION_STATUSES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import {
+  REGISTRATION_STATUSES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -22,6 +26,7 @@ describe('PatientProgramRegistration', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Setting.set('audit.changes.enabled', true, SETTINGS_SCOPES.GLOBAL);
   });
 
   afterEach(async () => {
@@ -47,7 +52,6 @@ describe('PatientProgramRegistration', () => {
       const programRegistry1 = await createProgramRegistry({ name: 'AA-registry1' });
       const programRegistry2 = await createProgramRegistry({ name: 'BB-registry2' });
       const programRegistry3 = await createProgramRegistry({ name: 'CC-registry3' });
-      const programRegistry4 = await createProgramRegistry({ name: 'DD-registry4' });
 
       const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
@@ -83,36 +87,7 @@ describe('PatientProgramRegistration', () => {
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry3.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-          clinicianId: app.user.id,
-        }),
-      );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry3.id,
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-          patientId: patient.id,
-          date: TEST_DATE_LATE,
-          clinicianId: app.user.id,
-        }),
-      );
-
-      // Registry 4: Should show the most recent details
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry4.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-          clinicianId: app.user.id,
-        }),
-      );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry4.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
           date: TEST_DATE_LATE,
           clinicianId: app.user.id,
@@ -139,11 +114,6 @@ describe('PatientProgramRegistration', () => {
         {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           programRegistryId: programRegistry2.id,
-        },
-        {
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          date: TEST_DATE_LATE,
-          programRegistryId: programRegistry4.id,
         },
       ]);
     });
@@ -192,50 +162,6 @@ describe('PatientProgramRegistration', () => {
         patientProgramRegistrationId: createdRegistration.id,
         programRegistryConditionId: programRegistryCondition.id,
       });
-    });
-
-    it('appends a new entry to the history for a program registration', async () => {
-      const clinician = await models.User.create(fake(models.User));
-      const patient = await models.Patient.create(fake(models.Patient));
-      const program1 = await models.Program.create(fake(models.Program));
-      const programRegistry1 = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: program1.id }),
-      );
-      const existingRegistration = await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          programRegistryId: programRegistry1.id,
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          date: '2023-09-02 08:00:00',
-        }),
-      );
-
-      // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 100);
-      });
-
-      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
-        // clinicianId: Should come from existing registration
-        patientId: patient.id,
-        programRegistryId: programRegistry1.id,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: '2023-09-02 09:00:00',
-        registeringFacilityId: facilityId,
-      });
-
-      expect(result).toHaveSucceeded();
-
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
-
-      expect(createdRegistration).toMatchObject({
-        programRegistryId: programRegistry1.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: '2023-09-02 09:00:00',
-      });
-      expect(createdRegistration.updatedAt).not.toEqual(existingRegistration.updatedAt);
     });
   });
 
@@ -396,7 +322,8 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
-  describe('reading registration information', () => {
+  // Skip as replacing appends with upsert is being done elsewhere
+  describe.skip('reading registration information', () => {
     const populate = async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
@@ -630,6 +557,92 @@ describe('PatientProgramRegistration', () => {
             reasonForChange: 'Test reason',
           });
 
+        expect(result).toHaveStatus(404);
+      });
+    });
+
+    describe('DELETE /programRegistration/:id', () => {
+      it('should mark patient program registration as deleted and update status to recordedInError', async () => {
+        // Create test data
+        const patient = await models.Patient.create(fake(models.Patient));
+        const programRegistry = await createProgramRegistry();
+
+        // Create a program registration
+        const registration = await models.PatientProgramRegistration.create({
+          patientId: patient.id,
+          programRegistryId: programRegistry.id,
+          date: new Date(),
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          clinicianId: (await models.User.findOne()).id,
+        });
+
+        // Create some conditions for this registration
+        const condition1 = await models.PatientProgramRegistrationCondition.create({
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: (
+            await models.ProgramRegistryCondition.create({
+              programRegistryId: programRegistry.id,
+              name: 'Test Condition 1',
+              code: 'test-condition-1',
+            })
+          ).id,
+          date: new Date(),
+        });
+
+        const condition2 = await models.PatientProgramRegistrationCondition.create({
+          patientProgramRegistrationId: registration.id,
+          programRegistryConditionId: (
+            await models.ProgramRegistryCondition.create({
+              programRegistryId: programRegistry.id,
+              name: 'Test Condition 2',
+              code: 'test-condition-2',
+            })
+          ).id,
+          date: new Date(),
+        });
+
+        // Delete the registration
+        const result = await app.delete(`/api/patient/programRegistration/${registration.id}`);
+
+        expect(result).toHaveStatus(200);
+        expect(result.body).toHaveProperty('message', 'Registration successfully deleted');
+
+        // Verify the registration is soft deleted and marked as recordedInError
+        const updatedRegistration = await models.PatientProgramRegistration.findByPk(
+          registration.id,
+          {
+            paranoid: false, // Include soft deleted records
+          },
+        );
+
+        expect(updatedRegistration).toBeTruthy();
+        expect(updatedRegistration.registrationStatus).toBe(
+          REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        );
+        expect(updatedRegistration.deletedAt).toBeTruthy();
+
+        // Verify related conditions are also soft deleted
+        const updatedCondition1 = await models.PatientProgramRegistrationCondition.findByPk(
+          condition1.id,
+          {
+            paranoid: false,
+          },
+        );
+        const updatedCondition2 = await models.PatientProgramRegistrationCondition.findByPk(
+          condition2.id,
+          {
+            paranoid: false,
+          },
+        );
+
+        expect(updatedCondition1.deletedAt).toBeTruthy();
+        expect(updatedCondition2.deletedAt).toBeTruthy();
+      });
+
+      it('should return 404 if registration does not exist', async () => {
+        const result = await app.delete(
+          `/api/patient/programRegistration/7c032ad3-eaa0-49b2-8077-885b78c85539`,
+        );
         expect(result).toHaveStatus(404);
       });
     });

@@ -14,8 +14,16 @@ A randomly generated UUID.
 The local server time when the migration run happened.
 {% enddocs %}
 
-{% docs logs__migrations__current_sync_tick %}
-The value of `currentSyncTick` in `local_system_facts` when the migrations ran.
+{% docs logs__migrations__record_sync_tick %}
+TODO
+{% enddocs %}
+
+{% docs logs__migrations__device_id %}
+TODO
+{% enddocs %}
+
+{% docs logs__migrations__version %}
+TODO
 {% enddocs %}
 
 {% docs logs__migrations__direction %}

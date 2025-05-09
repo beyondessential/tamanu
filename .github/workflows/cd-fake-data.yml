@@ -1,0 +1,62 @@
+name: CD Fake Data
+
+on:
+  workflow_call:
+    inputs:
+      deploy-name:
+        type: string
+        required: true
+      options:
+        type: string
+        required: true
+    secrets:
+      TAILSCALE_OAUTH:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: ${{ inputs.deploy-name }}
+    if: fromJson(inputs.options).fakedata != 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
+          k8s-core: ${{ fromJson(inputs.options).k8score }}
+
+      - run: npm ci
+      - run: npm run build-shared
+      - run: npm run build
+        working-directory: packages/scripts
+
+      - name: Configure tamanu to connect to the database in k8s
+        run: |
+          ns="tamanu-${{ inputs.deploy-name }}"
+          pgpass=$(kubectl get -n "$ns" secrets central-db-app -o jsonpath='{.data.password}' | base64 -d)
+          echo "::add-mask::$pgpass"
+          echo "NODE_CONFIG_DIR=$(pwd)/packages/central-server/config" | tee -a $GITHUB_ENV
+          echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",port:4444,name:"app",username:"app",password:.}}' <<< $pgpass)" | tee -a $GITHUB_ENV
+
+      - name: Add fake data to the deployment
+        working-directory: packages/scripts
+        run: |
+          set -x
+          ns="tamanu-${{ inputs.deploy-name }}"
+          kubectl port-forward -n "$ns" service/central-db-rw 4444:5432 &
+          pf_pid=$!
+          function cleanup() {
+            exitcode=$?
+            kill $pf_pid
+            exit $exitcode
+          }
+          trap cleanup EXIT
+          sleep 5
+          node dist/fake.js \
+            --database app \
+            --rounds ${{ fromJson(inputs.options).fakedata }} \
+            --from-tally ../fake-data/src/populateDb/parseTally/standard.json

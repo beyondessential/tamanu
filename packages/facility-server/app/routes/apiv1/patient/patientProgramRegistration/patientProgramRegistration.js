@@ -19,7 +19,7 @@ patientProgramRegistration.get(
     req.checkPermission('list', 'PatientProgramRegistration');
 
     const registrationData =
-      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+      await models.PatientProgramRegistration.getRegistrationsForPatient(
         params.patientId,
       );
 
@@ -147,6 +147,40 @@ patientProgramRegistration.put(
   }),
 );
 
+patientProgramRegistration.delete(
+  '/programRegistration/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, params } = req;
+    const { id } = params;
+    const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
+
+    req.checkPermission('delete', 'PatientProgramRegistration');
+
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+
+    if (!existingRegistration) {
+      throw new NotFoundError('PatientProgramRegistration not found');
+    }
+
+    await db.transaction(async (transaction) => {
+      // Update the status to recordedInError and soft delete the registration
+      await existingRegistration.update(
+        { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
+        { transaction },
+      );
+      await existingRegistration.destroy({ transaction });
+
+      // Soft delete all related conditions
+      await PatientProgramRegistrationCondition.destroy({
+        where: { patientProgramRegistrationId: id },
+        transaction,
+      });
+    });
+
+    res.status(200).send({ message: 'Registration successfully deleted' });
+  }),
+);
+
 const getChangingFieldRecords = (allRecords, field) =>
   allRecords.filter(({ [field]: currentValue }, i) => {
     // We always want the first record
@@ -182,7 +216,6 @@ patientProgramRegistration.get(
 
     const registration = await PatientProgramRegistration.findOne({
       where: {
-        isMostRecent: true,
         patientId,
         programRegistryId,
       },
@@ -270,7 +303,7 @@ patientProgramRegistration.get(
       include: [
         {
           model: User,
-          as: 'user',
+          as: 'updatedByUser',
           attributes: ['id', 'displayName'],
         },
       ],
@@ -310,7 +343,7 @@ patientProgramRegistration.get(
         registrationStatus: data.registration_status,
         clinicalStatusId: data.clinical_status_id,
         clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
-        clinician: change.user,
+        clinician: change.updatedByUser,
         registrationDate: data.date,
       };
     });
