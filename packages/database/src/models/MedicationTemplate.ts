@@ -5,7 +5,7 @@ import { type InitOptions, type Models } from '../types/model';
 
 export class MedicationTemplate extends Model {
   declare id: string;
-  declare isPrn?: boolean;
+  declare isPrn: boolean;
   declare doseAmount: string;
   declare units: string;
   declare frequency: string;
@@ -20,7 +20,11 @@ export class MedicationTemplate extends Model {
     super.init(
       {
         id: primaryKey,
-        isPrn: DataTypes.BOOLEAN,
+        isPrn: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         doseAmount: DataTypes.STRING,
         units: {
           type: DataTypes.STRING,
