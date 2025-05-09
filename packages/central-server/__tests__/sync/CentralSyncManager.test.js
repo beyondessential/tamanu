@@ -814,6 +814,7 @@ describe('CentralSyncManager', () => {
           }),
         ]),
       );
+    });
   });
 
   describe('setupSnapshotForPull', () => {
