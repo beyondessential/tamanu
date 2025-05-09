@@ -33,3 +33,7 @@ What kind of migration operation this was (typically `up`).
 {% docs logs__migrations__migrations %}
 The list of migrations applied during this operation.
 {% enddocs %}
+
++{% docs logs__migrations__updated_at_sync_tick %}
++TODO
++{% enddocs %}
