@@ -23,11 +23,11 @@ const TableHeader = () => {
   );
 };
 
-const getSchedule = record =>
+const getSchedule = (record) =>
   record.scheduleName || (
     <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
   );
-const getVaccineName = record =>
+const getVaccineName = (record) =>
   record.label || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
 export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) => {

@@ -5,20 +5,24 @@ import { TranslatedEnum } from '../Translation';
 import { INVOICE_STATUS_COLORS } from '../../constants';
 
 const StatusLabel = styled.div`
-  color: ${p => p.$color};
+  color: ${(p) => p.$color};
   border-radius: 25px;
   font-size: 11px;
   line-height: 15px;
   padding: 6px 11px;
-  background: ${p => `${p.$color}1A`};
+  background: ${(p) => `${p.$color}1A`};
   width: fit-content;
   white-space: pre;
 `;
 
 export const InvoiceStatus = ({ status }) => {
   return (
-    <StatusLabel $color={INVOICE_STATUS_COLORS[status]}>
-      <TranslatedEnum value={status} enumValues={INVOICE_STATUS_LABELS} />
+    <StatusLabel $color={INVOICE_STATUS_COLORS[status]} data-testid="statuslabel-yazt">
+      <TranslatedEnum
+        value={status}
+        enumValues={INVOICE_STATUS_LABELS}
+        data-testid="translatedenum-yj4u"
+      />
     </StatusLabel>
   );
 };

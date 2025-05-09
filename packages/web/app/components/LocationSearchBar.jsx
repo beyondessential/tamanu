@@ -47,10 +47,15 @@ const PaddedSearchIcon = styled(SearchIcon)`
 `;
 
 const renderSearchBar = ({ placeholder, submitForm }) => (
-  <SearchInputContainer>
-    <Field component={TextField} placeholder={placeholder} name="name" />
-    <FormSubmitButton color="primary" variant="contained" onClick={submitForm}>
-      <PaddedSearchIcon />
+  <SearchInputContainer data-testid="searchinputcontainer-p9q0">
+    <Field component={TextField} placeholder={placeholder} name="name" data-testid="field-gf6j" />
+    <FormSubmitButton
+      color="primary"
+      variant="contained"
+      onClick={submitForm}
+      data-testid="formsubmitbutton-zef2"
+    >
+      <PaddedSearchIcon data-testid="paddedsearchicon-5bb7" />
       Search
     </FormSubmitButton>
   </SearchInputContainer>
@@ -58,11 +63,11 @@ const renderSearchBar = ({ placeholder, submitForm }) => (
 
 export const LocationSearchBar = memo(({ onSearch }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
+  const handleSearch = useCallback((newParams) => onSearch(newParams), [onSearch]);
 
   return (
-    <Container>
-      <Form onSubmit={handleSearch} render={renderSearchBar} />
+    <Container data-testid="container-jjro">
+      <Form onSubmit={handleSearch} render={renderSearchBar} data-testid="form-8yoa" />
     </Container>
   );
 });

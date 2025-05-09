@@ -38,11 +38,17 @@ const Description = styled.div`
 export const DefaultSettingsModal = React.memo(({ scope, open, onClose }) => {
   const defaultSettingsForScope = JSON.stringify(SCOPE_DEFAULT_SETTINGS[scope], null, 2);
   return (
-    <StyledModal open={open} onClose={onClose} width="lg" title={`Default ${scope} settings`}>
-      <Description>
+    <StyledModal
+      open={open}
+      onClose={onClose}
+      width="lg"
+      title={`Default ${scope} settings`}
+      data-testid="styledmodal-f4p5"
+    >
+      <Description data-testid="description-rsez">
         These are the fallback values for keys not defined in {scope} settings
       </Description>
-      <JSONEditor value={defaultSettingsForScope} editMode={false} />
+      <JSONEditor value={defaultSettingsForScope} editMode={false} data-testid="jsoneditor-cy0m" />
     </StyledModal>
   );
 });

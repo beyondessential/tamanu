@@ -23,16 +23,16 @@ const InlineParagraph = styled(Paragraph)`
 `;
 
 export const InlineDetailsDisplay = ({ label, value }) => (
-  <InlineParagraph>
+  <InlineParagraph data-testid="inlineparagraph-x9p1">
     <strong>{label}: </strong> {value || <>&mdash;</>}
   </InlineParagraph>
 );
 
 export const DetailsDisplay = ({ label, value }) => {
   return (
-    <FlexCol>
-      <H3>{label}</H3>
-      <Paragraph>{value || <>&mdash;</>}</Paragraph>
+    <FlexCol data-testid="flexcol-6ptz">
+      <H3 data-testid="h3-bec8">{label}</H3>
+      <Paragraph data-testid="paragraph-k583">{value || <>&mdash;</>}</Paragraph>
     </FlexCol>
   );
 };

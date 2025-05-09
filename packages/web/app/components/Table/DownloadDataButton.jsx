@@ -27,7 +27,7 @@ const normalizeRecursively = (element, normalizeFn) => {
 
   return cloneElement(element, {
     children: Array.isArray(children)
-      ? Children.map(children, child => normalizeRecursively(child, normalizeFn))
+      ? Children.map(children, (child) => normalizeRecursively(child, normalizeFn))
       : normalizeRecursively(children, normalizeFn),
   });
 };
@@ -38,7 +38,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   const translationContext = useTranslation();
   const { getTranslation } = translationContext;
 
-  const safelyRenderToText = element => {
+  const safelyRenderToText = (element) => {
     /**
      * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
      * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
@@ -49,12 +49,12 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
      * object isn’t guaranteed to be defined when this element is rendered by {@link renderToText},
      * which behaves synchronously.
      */
-    const contextualizeIfIsTranslatedText = element => {
+    const contextualizeIfIsTranslatedText = (element) => {
       if (!isTranslatedText(element)) return element;
       return (
-        <QueryClientProvider client={queryClient}>
-          <ApiContext.Provider value={api}>
-            <TranslationContext.Provider value={translationContext}>
+        <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
+          <ApiContext.Provider value={api} data-testid="provider-72ic">
+            <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
               {element}
             </TranslationContext.Provider>
           </ApiContext.Provider>
@@ -75,8 +75,8 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   };
 
   const exportableColumnsWithOverrides = columns
-    .filter(c => c.isExportable !== false)
-    .map(c => {
+    .filter((c) => c.isExportable !== false)
+    .map((c) => {
       const { exportOverrides = {}, ...rest } = c;
       return { ...rest, ...exportOverrides };
     });
@@ -84,10 +84,10 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   const prepareData = async () => {
     const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
-      data.map(async d => {
+      data.map(async (d) => {
         const dx = {};
         await Promise.all(
-          exportableColumnsWithOverrides.map(async c => {
+          exportableColumnsWithOverrides.map(async (c, index) => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               dx[headerValue] = await c.asyncExportAccessor(d);
@@ -111,7 +111,9 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
             if (c.CellComponent) {
               const CellComponent = c.CellComponent;
-              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} />);
+              dx[headerValue] = safelyRenderToText(
+                <CellComponent value={d[c.key]} data-testid={`cellcomponent-7u3b-${index}`} />,
+              );
               return;
             }
 
@@ -150,11 +152,15 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
       ) : (
         <GreyOutlinedButton
           onClick={onDownloadData}
-          startIcon={<GetAppIcon />}
+          startIcon={<GetAppIcon data-testid="getappicon-bmce" />}
           data-test-class="download-data-button"
           data-testid="download-data-button"
         >
-          <TranslatedText stringId="general.action.download" fallback="Download" />
+          <TranslatedText
+            stringId="general.action.download"
+            fallback="Download"
+            data-testid="translatedtext-oycf"
+          />
         </GreyOutlinedButton>
       )}
     </>

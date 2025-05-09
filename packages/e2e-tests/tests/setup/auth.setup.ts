@@ -1,4 +1,9 @@
 import { test as setup } from '../../fixtures/baseFixture';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 setup('authenticate', async ({ loginPage }) => {
   await loginPage.goto();
@@ -8,5 +13,6 @@ setup('authenticate', async ({ loginPage }) => {
   await loginPage.page.waitForTimeout(1000);
 
   // Save page context
-  await loginPage.page.context().storageState({ path: '.auth/user.json' });
+  const authStatePath = path.join(__dirname, '../../.auth/user.json');
+  await loginPage.page.context().storageState({ path: authStatePath });
 });

@@ -26,10 +26,12 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
   const api = useApi();
   const { getSetting } = useSettings();
   const allCancellationReasons = getSetting('imagingCancellationReasons');
-  const cancellationReasonOptions = allCancellationReasons.filter(reason => !reason.hidden);
+  const cancellationReasonOptions = allCancellationReasons.filter((reason) => !reason.hidden);
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
+    const reasonText = cancellationReasonOptions.find(
+      (x) => x.value === reasonForCancellation,
+    ).label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
     const status = getReasonForCancellationStatus(reasonForCancellation);
     await api.put(`imagingRequest/${imagingRequest.id}`, {
@@ -42,29 +44,40 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
 
   return (
     <>
-      <Button variant="text" onClick={() => setIsOpen(true)}>
-        <TranslatedText stringId="imaging.action.cancelRequest" fallback="Cancel request" />
+      <Button variant="text" onClick={() => setIsOpen(true)} data-testid="button-kuzg">
+        <TranslatedText
+          stringId="imaging.action.cancelRequest"
+          fallback="Cancel request"
+          data-testid="translatedtext-xw1p"
+        />
       </Button>
       <CancelModal
         title={
-          <TranslatedText stringId="imaging.modal.cancel.title" fallback="Cancel imaging request" />
+          <TranslatedText
+            stringId="imaging.modal.cancel.title"
+            fallback="Cancel imaging request"
+            data-testid="translatedtext-n18u"
+          />
         }
         helperText={
           <TranslatedText
             stringId="imaging.modal.cancel.helperText"
             fallback="This reason will permanently delete the imaging request record"
+            data-testid="translatedtext-0kx9"
           />
         }
         bodyText={
           <TranslatedText
             stringId="imaging.modal.cancel.reasonText"
             fallback="Please select reason for cancelling imaging request and click 'Confirm'"
+            data-testid="translatedtext-n4m8"
           />
         }
         options={cancellationReasonOptions}
         open={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onConfirmCancel}
+        data-testid="cancelmodal-mb8n"
       />
     </>
   );

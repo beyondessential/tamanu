@@ -132,8 +132,16 @@ export const PatientLabTestsTable = React.memo(
         ? [
             {
               key: 'testCategory.id',
-              title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
-              accessor: (row) => <CategoryCell>{row.testCategory}</CategoryCell>,
+              title: (
+                <TranslatedText
+                  stringId="lab.testCategory.label"
+                  fallback="Test category"
+                  data-testid="translatedtext-0dpy"
+                />
+              ),
+              accessor: (row) => (
+                <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
+              ),
               sortable: false,
             },
           ]
@@ -144,13 +152,16 @@ export const PatientLabTestsTable = React.memo(
           <TranslatedText
             stringId="patient.lab.results.table.column.testType"
             fallback="Test type"
+            data-testid="translatedtext-hrn5"
           />
         ),
         accessor: (row) => (
-          <CategoryCell>
+          <CategoryCell data-testid="categorycell-7aet">
             {row.testType}
             <br />
-            <BodyText color="textTertiary">{row.unit ? `(${row.unit})` : null}</BodyText>
+            <BodyText color="textTertiary" data-testid="bodytext-zxuk">
+              {row.unit ? `(${row.unit})` : null}
+            </BodyText>
           </CategoryCell>
         ),
         sortable: false,
@@ -161,6 +172,7 @@ export const PatientLabTestsTable = React.memo(
           <TranslatedText
             stringId="patient.lab.results.table.column.normalRange"
             fallback="Normal range"
+            data-testid="translatedtext-v8jk"
           />
         ),
         accessor: (row) => {
@@ -168,7 +180,7 @@ export const PatientLabTestsTable = React.memo(
           const value = !range.min
             ? '—' // em dash
             : `${range.min}–${range.max}`; // en dash
-          return <CategoryCell>{value}</CategoryCell>;
+          return <CategoryCell data-testid="categorycell-1fi2">{value}</CategoryCell>;
         },
         sortable: false,
       },
@@ -178,8 +190,8 @@ export const PatientLabTestsTable = React.memo(
       ...stickyColumns,
       ...allDates
         .sort((a, b) => b.localeCompare(a))
-        .map((date) => ({
-          title: <DateHeadCell value={date} />,
+        .map((date, index) => ({
+          title: <DateHeadCell value={date} data-testid={`dateheadcell-qvnq-${index}`} />,
           sortable: false,
           key: date,
           accessor: (row) => {
@@ -187,17 +199,25 @@ export const PatientLabTestsTable = React.memo(
             const cellData = row.results[date];
             if (cellData) {
               return (
-                <StyledButton onClick={() => openModal(cellData.id)}>
+                <StyledButton
+                  onClick={() => openModal(cellData.id)}
+                  data-testid={`styledbutton-d5us-${index}`}
+                >
                   <RangeValidatedCell
                     value={cellData.result}
                     config={{ unit: row.unit, rounding: null }}
                     validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                    data-testid={`rangevalidatedcell-ebuf-${index}`}
                   />
                 </StyledButton>
               );
             }
 
-            return <StyledButton disabled>&mdash;</StyledButton>;
+            return (
+              <StyledButton disabled data-testid={`styledbutton-l8dl-${index}`}>
+                &mdash;
+              </StyledButton>
+            );
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
@@ -217,6 +237,7 @@ export const PatientLabTestsTable = React.memo(
             <TranslatedText
               stringId="patient.lab.results.table.noData"
               fallback="This patient has no lab results to display. Once lab results are available they will be displayed here."
+              data-testid="translatedtext-2i86"
             />
           }
           count={count}
@@ -224,11 +245,13 @@ export const PatientLabTestsTable = React.memo(
           exportName="PatientResults"
           $stickyColumns={stickyColumns.length}
           rowIdKey="testType"
+          data-testid="styledtable-u2v9"
         />
         <LabTestResultModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           labTestId={modalLabTestId}
+          data-testid="labtestresultmodal-gngm"
         />
       </>
     );

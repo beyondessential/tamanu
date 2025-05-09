@@ -20,7 +20,7 @@ const EditableNoteFormContainer = styled.div`
 function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   const [isEditing, setIsEditing] = useState(false);
   return isEditing ? (
-    <EditableNoteFormContainer>
+    <EditableNoteFormContainer data-testid="editablenoteformcontainer-mx3i">
       <CarePlanNoteForm
         onSuccessfulSubmit={() => {
           setIsEditing(false);
@@ -30,6 +30,7 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
           setIsEditing(false);
         }}
         {...rest}
+        data-testid="careplannoteform-9d8l"
       />
     </EditableNoteFormContainer>
   ) : (
@@ -37,6 +38,7 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
       onEditClicked={() => setIsEditing(true)}
       onNoteDeleted={onNoteDeleted}
       {...rest}
+      data-testid="careplannotedisplay-uymq"
     />
   );
 }
@@ -49,7 +51,7 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
   const api = useApi();
 
   useEffect(() => {
-    api.get(`patientCarePlan/${item.id}/notes`).then(notes => {
+    api.get(`patientCarePlan/${item.id}/notes`).then((notes) => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -67,7 +69,7 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
   }, [api, item.id, reloadNotes]);
 
   return (
-    <Container>
+    <Container data-testid="container-0zs2">
       <CarePlanNoteForm
         key={resetForm}
         carePlanId={item.id}
@@ -77,9 +79,10 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
         onSuccessfulSubmit={() => {
           setResetForm(resetForm + 1);
         }}
+        data-testid="careplannoteform-uwrc"
       />
       {firstNote ? (
-        <NotesSection>
+        <NotesSection data-testid="notessection-81w6">
           <EditableNoteDisplay
             note={firstNote}
             isMainCarePlan
@@ -89,9 +92,10 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
             onSuccessfulSubmit={() => {
               setResetForm(resetForm + 1);
             }}
+            data-testid="editablenotedisplay-pz6r"
           />
           {subsequentNotes.length
-            ? subsequentNotes.map(note => (
+            ? subsequentNotes.map((note, index) => (
                 <EditableNoteDisplay
                   key={note.id}
                   note={note}
@@ -104,6 +108,7 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
                   onSuccessfulSubmit={() => {
                     setResetForm(resetForm + 1);
                   }}
+                  data-testid={`editablenotedisplay-altg-${index}`}
                 />
               ))
             : null}
