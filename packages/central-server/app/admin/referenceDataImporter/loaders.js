@@ -461,6 +461,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     duration,
     notes,
     dischargeQuantity,
+    visibilityStatus,
   } = item;
 
   const rows = [];
@@ -520,6 +521,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit || null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
+    visibilityStatus: visibilityStatus || VISIBILITY_STATUSES.CURRENT,
   };
 
   rows.push({
