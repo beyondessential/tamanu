@@ -75,3 +75,27 @@ export const createPatientCommunication = async ({
     }),
   );
 };
+
+interface CreatePatientViewLogParams extends CommonParams {
+  facilityId: string;
+  userId: string;
+  patientId: string;
+}
+export const createAccessLog = async ({
+  models,
+  patientId,
+  userId,
+  facilityId,
+}: CreatePatientViewLogParams) => {
+  const { AccessLog } = models;
+  await AccessLog.create(
+    fake(AccessLog, {
+      recordId: patientId,
+      userId: userId || (await randomRecordId(models, 'User')),
+      facilityId: facilityId || (await randomRecordId(models, 'Facility')),
+      recordType: 'Patient',
+      frontEndContext: { patientId },
+      backEndContext: { endPoint: '/patient/:id' },
+    }),
+  );
+};

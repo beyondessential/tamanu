@@ -1,5 +1,6 @@
 import config from 'config';
 import { omit } from 'lodash';
+import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
@@ -57,7 +58,7 @@ export class ApplicationContext {
 
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
-    this.closePromise = new Promise(resolve => {
+    this.closePromise = new Promise((resolve) => {
       this.onClose(resolve);
     });
 
@@ -83,6 +84,22 @@ export class ApplicationContext {
       log.warn('Sync Trigger is disabled in the database.');
       return null;
     }
+
+    this.timesync = new Timesimp(
+      async (err) => {
+        if (err) throw err;
+        // we assume central-server time is correct
+        return 0;
+      },
+      async (err) => {
+        if (err) throw err;
+        // we assume central-server time is correct
+      },
+      async (err) => {
+        if (err) throw err;
+        throw new Error('No upstream timesync server for central');
+      },
+    );
 
     await initIntegrations(this);
     return this;
