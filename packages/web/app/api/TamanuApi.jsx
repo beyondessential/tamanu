@@ -190,7 +190,7 @@ export class TamanuApi extends ApiClient {
     return { settings, token };
   }
 
-  async fetch(endpoint, query = null, config) {
+  async fetch(endpoint, query, config) {
     const {
       isErrorUnknown = isErrorUnknownDefault,
       showUnknownErrorToast = false,
