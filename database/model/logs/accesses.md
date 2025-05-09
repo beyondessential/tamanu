@@ -61,3 +61,7 @@ Whether or not the user accessed the record from mobile
 {% docs logs__accesses__version %}
 The version of tamanu the record was created on
 {% enddocs %}
+
+{% docs logs__accesses__updated_at_sync_tick %}
+TODO
+{% enddocs %}
