@@ -114,3 +114,7 @@ Note that as this is `JSONB`, some type information may be lost. However, row
 data in a Tamanu system is transported using JSON via the sync system anyway, so
 it is expected that all data trivially round-trips via JSON.
 {% enddocs %}
+
+{% docs logs__changes__updated_at_sync_tick %}
+TODO
+{% enddocs %}
