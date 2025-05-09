@@ -23,7 +23,7 @@ export const ProgramRegistryConditionField = ({
       <TranslatedReferenceData
         fallback={condition.name}
         value={condition.id}
-        category="condition"
+        category="programRegistryCondition"
       />
     ),
     value: condition.id,
