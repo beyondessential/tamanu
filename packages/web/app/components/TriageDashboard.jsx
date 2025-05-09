@@ -9,7 +9,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 
-const getAverageWaitTime = categoryData => {
+const getAverageWaitTime = (categoryData) => {
   if (categoryData.length === 0) {
     return 0;
   }
@@ -40,9 +40,9 @@ const useTriageData = () => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return triageCategories?.map(category => {
+  return triageCategories?.map((category) => {
     const categoryData = data.filter(
-      triage =>
+      (triage) =>
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );
@@ -87,18 +87,19 @@ const CardFooter = ({ averageWaitTime, color }) => {
 
   return (
     <>
-      <Row>
-        <AccessTime htmlColor={color} />
-        <FooterLabel>
+      <Row data-testid="row-vqca">
+        <AccessTime htmlColor={color} data-testid="accesstime-inep" />
+        <FooterLabel data-testid="footerlabel-c5da">
           <TranslatedText
             stringId="patientList.triage.card.footer.avgWaitTime"
             fallback="Avg. wait time"
+            data-testid="translatedtext-vvsa"
           />
           :{' '}
         </FooterLabel>
-        <FooterTime>{averageHrs}</FooterTime>
+        <FooterTime data-testid="footertime-pe6h">{averageHrs}</FooterTime>
       </Row>
-      <FooterTime>{averageMins}</FooterTime>
+      <FooterTime data-testid="footertime-wnxx">{averageMins}</FooterTime>
     </>
   );
 };
@@ -111,9 +112,10 @@ export const TriageDashboard = () => {
   }
 
   return (
-    <StatisticsCardContainer>
+    <StatisticsCardContainer data-testid="statisticscardcontainer-4vpu">
       {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
         <StatisticsCard
+          level={level}
           key={level}
           color={color}
           title={
@@ -121,10 +123,17 @@ export const TriageDashboard = () => {
               stringId="patientList.triage.card.patientLevel"
               fallback="Level :level patient"
               replacements={{ level }}
+              data-testid={`translatedtext-wgbf-${level}`}
             />
           }
           value={numberOfPatients}
-          Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}
+          Footer={
+            <CardFooter
+              color={color}
+              averageWaitTime={averageWaitTime}
+              data-testid={`cardfooter-awa6-${level}`}
+            />
+          }
         />
       ))}
     </StatisticsCardContainer>

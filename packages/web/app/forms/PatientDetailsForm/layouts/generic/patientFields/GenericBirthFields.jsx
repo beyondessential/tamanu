@@ -27,6 +27,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.timeOfBirth.label"
           fallback="Time of birth"
+          data-testid="translatedtext-ji7u"
         />
       ),
     },
@@ -38,6 +39,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.gestationalAgeEstimate.label"
           fallback="Gestational age (weeks)"
+          data-testid="translatedtext-9vhb"
         />
       ),
     },
@@ -48,6 +50,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.registeredBirthPlace.label"
           fallback="Place of birth"
+          data-testid="translatedtext-yzpn"
         />
       ),
     },
@@ -59,6 +62,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthFacilityId.label"
           fallback="Name of health facility (if applicable)"
+          data-testid="translatedtext-dwju"
         />
       ),
     },
@@ -69,6 +73,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.attendantAtBirth.label"
           fallback="Attendant at birth"
+          data-testid="translatedtext-m4fi"
         />
       ),
     },
@@ -79,6 +84,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.nameOfAttendantAtBirth.label"
           fallback="Name of attendant"
+          data-testid="translatedtext-zlcg"
         />
       ),
     },
@@ -89,6 +95,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthDeliveryType.label"
           fallback="Delivery type"
+          data-testid="translatedtext-jj08"
         />
       ),
     },
@@ -99,6 +106,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthType.label"
           fallback="Single/Plural birth"
+          data-testid="translatedtext-f37p"
         />
       ),
       prefix: 'localisedField.property.birthType',
@@ -110,6 +118,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthWeight.label"
           fallback="Birth weight (kg)"
+          data-testid="translatedtext-qbv4"
         />
       ),
     },
@@ -120,6 +129,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.birthLength.label"
           fallback="Birth length (cm)"
+          data-testid="translatedtext-cx9n"
         />
       ),
     },
@@ -130,6 +140,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreOneMinute.label"
           fallback="Apgar score at 1 min"
+          data-testid="translatedtext-f0zx"
         />
       ),
     },
@@ -140,6 +151,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreFiveMinutes.label"
           fallback="Apgar score at 5 min"
+          data-testid="translatedtext-80p2"
         />
       ),
     },
@@ -150,12 +162,17 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         <TranslatedText
           stringId="general.localisedField.apgarScoreTenMinutes.label"
           fallback="Apgar score at 10 min"
+          data-testid="translatedtext-gr51"
         />
       ),
     },
   };
 
   return (
-    <ConfiguredMandatoryPatientFields fields={BIRTH_FIELDS} filterByMandatory={filterByMandatory} />
+    <ConfiguredMandatoryPatientFields
+      fields={BIRTH_FIELDS}
+      filterByMandatory={filterByMandatory}
+      data-testid="configuredmandatorypatientfields-dsxk"
+    />
   );
 };

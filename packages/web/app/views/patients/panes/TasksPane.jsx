@@ -55,19 +55,19 @@ export const TasksPane = React.memo(({ encounter }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
 
-  const onFilterByDesignation = e => {
+  const onFilterByDesignation = (e) => {
     const { value: designationId } = e.target;
-    setSearchParameters(prevParams =>
+    setSearchParameters((prevParams) =>
       designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
     );
   };
 
   const refreshTaskTable = useCallback(() => {
-    setRefreshCount(prev => prev + 1);
+    setRefreshCount((prev) => prev + 1);
   }, []);
 
   useEffect(() => {
-    setRefreshCount(prev => prev + 1);
+    setRefreshCount((prev) => prev + 1);
   }, [searchParameters]);
 
   useEffect(() => {
@@ -85,47 +85,62 @@ export const TasksPane = React.memo(({ encounter }) => {
   }, [showCompleted, showNotCompleted]);
 
   return (
-    <TabPane>
-      <ActionRow>
-        <CheckInputGroup>
+    <TabPane data-testid="tabpane-g2ah">
+      <ActionRow data-testid="actionrow-adel">
+        <CheckInputGroup data-testid="checkinputgroup-s6hg">
           <StyledCheckInput
             label={
               <TranslatedText
                 stringId="encounter.tasks.showCompleted.label"
                 fallback="Show completed"
+                data-testid="translatedtext-jm1s"
               />
             }
             onChange={() => setShowCompleted(!showCompleted)}
             value={showCompleted}
+            data-testid="styledcheckinput-kqdn"
           />
           <StyledCheckInput
             label={
               <TranslatedText
                 stringId="encounter.tasks.showNotCompleted.label"
                 fallback="Show not completed"
+                data-testid="translatedtext-53rx"
               />
             }
             onChange={() => setShowNotCompleted(!showNotCompleted)}
             value={showNotCompleted}
+            data-testid="styledcheckinput-vgby"
           />
         </CheckInputGroup>
         <AutocompleteInput
           name="designationId"
           label={
-            <Box marginBottom="-4px">
+            <Box marginBottom="-4px" data-testid="box-4dam">
               <TranslatedText
                 stringId="general.localisedField.assignedTo.label"
                 fallback="Assigned to"
+                data-testid="translatedtext-jxk1"
               />
             </Box>
           }
           size="small"
           suggester={designationSuggester}
           onChange={onFilterByDesignation}
+          data-testid="autocompleteinput-mzs4"
         />
         {canCreate && (
-          <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
-            <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
+          <Button
+            onClick={() => setTaskModalOpen(true)}
+            variant="outlined"
+            color="primary"
+            data-testid="button-a1te"
+          >
+            <TranslatedText
+              stringId="encounter.tasks.action.newTask"
+              fallback="+ New task"
+              data-testid="translatedtext-22p0"
+            />
           </Button>
         )}
       </ActionRow>
@@ -134,11 +149,13 @@ export const TasksPane = React.memo(({ encounter }) => {
         searchParameters={searchParameters}
         refreshCount={refreshCount}
         refreshTaskTable={refreshTaskTable}
+        data-testid="taskstable-cv6v"
       />
       <TaskModal
         open={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}
         refreshTaskTable={refreshTaskTable}
+        data-testid="taskmodal-5e0w"
       />
     </TabPane>
   );

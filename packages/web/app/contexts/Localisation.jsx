@@ -12,7 +12,7 @@ export const useLocalisation = () => useContext(LocalisationContext);
 
 export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
-  const reduxLocalisation = useSelector(state => state.auth.localisation);
+  const reduxLocalisation = useSelector((state) => state.auth.localisation);
   useEffect(() => {
     setLocalisation(merge(reduxLocalisation, overrides));
   }, [reduxLocalisation]);
@@ -20,7 +20,7 @@ export const LocalisationProvider = ({ children }) => {
   return (
     <LocalisationContext.Provider
       value={{
-        getLocalisation: path => get(localisation, path),
+        getLocalisation: (path) => get(localisation, path),
         localisation,
       }}
     >

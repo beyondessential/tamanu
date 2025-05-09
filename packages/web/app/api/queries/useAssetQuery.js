@@ -2,19 +2,23 @@ import { useQuery } from '@tanstack/react-query';
 import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 import { useApi } from '../useApi';
 
-const queryResponseToDataURL = response => {
+const queryResponseToDataURL = (response) => {
   const assetData = Buffer.from(response.data).toString('base64');
   const assetDataType = response.type;
   return `data:${assetDataType};base64,${assetData}`;
 };
 
-export const useAssetQuery = assetName => {
+export const useAssetQuery = (assetName) => {
   const api = useApi();
   const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
 
   let dataURL = null;
 
-  const { data: queryData, isFetching: isAssetFetching, isFetched: assetFetched } = useQuery({
+  const {
+    data: queryData,
+    isFetching: isAssetFetching,
+    isFetched: assetFetched,
+  } = useQuery({
     queryKey: ['asset', assetName],
     queryFn: () => api.get(`asset/${assetName}`),
     enabled: Boolean(assetName),

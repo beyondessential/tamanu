@@ -125,8 +125,8 @@ export const Paginator = React.memo(
     const upperRange = isLastPage || !isDataInTable ? count : selectedPageNumber * rowsPerPage;
 
     return (
-      <PaginatorWrapper colSpan={colSpan}>
-        <FooterContent>
+      <PaginatorWrapper colSpan={colSpan} data-testid="paginatorwrapper-l9c5">
+        <FooterContent data-testid="footercontent-yb09">
           <PageRecordCount data-testid="pagerecordcount-m8ne">
             {isDataInTable && (
               <TranslatedText
@@ -142,15 +142,26 @@ export const Paginator = React.memo(
             )}
           </PageRecordCount>
           <StyledSelectField
-            label={<TranslatedText stringId="general.table.rowsPerPage" fallback="Rows per page" />}
+            label={
+              <TranslatedText
+                stringId="general.table.rowsPerPage"
+                fallback="Rows per page"
+                data-testid="translatedtext-rylc"
+              />
+            }
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}
             MenuProps={{ classes: { paper: classes.selectMenu } }}
             disabled={!isDataInTable}
+            data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map(option => (
-              <StyledMenuItem key={option} value={option}>
+            {rowsPerPageOptions.map((option) => (
+              <StyledMenuItem
+                key={option}
+                value={option}
+                data-testid={`styledmenuitem-fkrw-${option.value}`}
+              >
                 {option}
               </StyledMenuItem>
             ))}
@@ -160,7 +171,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={item => {
+            renderItem={(item) => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (
@@ -168,6 +179,7 @@ export const Paginator = React.memo(
                     {...item}
                     disabled={selectedPageNumber === 1 || !isDataInTable}
                     component={PreviousButton}
+                    data-testid={`paginationitem-hcui`}
                   />
                 );
               }
@@ -177,6 +189,7 @@ export const Paginator = React.memo(
                     {...item}
                     disabled={selectedPageNumber === numberOfPages || !isDataInTable}
                     component={NextButton}
+                    data-testid={`paginationitem-d791`}
                   />
                 );
               }
@@ -206,17 +219,30 @@ export const Paginator = React.memo(
               // Conditionally show the page number button if it falls within the defined ranges above
               if ((isInRange || isEndPage) && !isEllipses) {
                 wasLastItemEllipses.current = false;
-                return <PaginationItem {...item} selected={item.page === selectedPageNumber} />;
+                return (
+                  <PaginationItem
+                    {...item}
+                    selected={item.page === selectedPageNumber}
+                    data-testid={`paginationitem-c5vg`}
+                  />
+                );
               }
               // If the item falls out of the defined range and is not the first or last page, show an ellipses
               // however we only want to show one ellipses in a row so we need to keep track of the last item
               // and dont show if one was rendered before in the list
               if (!wasLastItemEllipses.current) {
                 wasLastItemEllipses.current = true;
-                return <PaginationItem size="small" type="start-ellipsis" />;
+                return (
+                  <PaginationItem
+                    size="small"
+                    type="start-ellipsis"
+                    data-testid="paginationitem-2vck"
+                  />
+                );
               }
               return null;
             }}
+            data-testid="styledpagination-fbr1"
           />
         </FooterContent>
       </PaginatorWrapper>

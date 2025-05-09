@@ -9,7 +9,7 @@ import { ClinicalStatusCell } from '../../views/programRegistry/ClinicalStatusDi
  * {@link TranslatedText}. In other words, it is an element whose root might be a `<TranslatedText>`
  * element.
  */
-export const isTranslatedText = element => {
+export const isTranslatedText = (element) => {
   if (!isValidElement(element)) return false;
 
   return [

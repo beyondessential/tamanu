@@ -19,7 +19,7 @@ const Select = styled(TextInput)`
   width: 98px;
 
   .MuiSvgIcon-root {
-    color: ${props => props.theme.palette.grey['400']};
+    color: ${(props) => props.theme.palette.grey['400']};
   }
 `;
 
@@ -31,7 +31,9 @@ const HiddenInput = styled(TextInput)`
   }
 `;
 
-const HiddenField = props => <HiddenInput {...props} type="hidden" />;
+const HiddenField = (props) => (
+  <HiddenInput {...props} type="hidden" data-testid="hiddeninput-g7ug" />
+);
 
 export const TimeWithUnitInput = ({
   onChange,
@@ -46,7 +48,7 @@ export const TimeWithUnitInput = ({
 }) => {
   const [unit, setUnit] = useState(TIME_UNIT_OPTIONS[0].unit);
   const [value, setValue] = useState(0);
-  const selectedOption = TIME_UNIT_OPTIONS.find(o => o.unit === unit);
+  const selectedOption = TIME_UNIT_OPTIONS.find((o) => o.unit === unit);
 
   useEffect(() => {
     if (!valueInMinutes) {
@@ -54,7 +56,7 @@ export const TimeWithUnitInput = ({
     }
 
     const multiple = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
-      o => valueInMinutes % o.minutes === 0,
+      (o) => valueInMinutes % o.minutes === 0,
     );
     setUnit(multiple.unit);
     const newValue = valueInMinutes / multiple.minutes;
@@ -62,27 +64,32 @@ export const TimeWithUnitInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateExternalValue = newValueInMinutes => {
+  const updateExternalValue = (newValueInMinutes) => {
     onChange({ target: { value: newValueInMinutes, name } });
   };
 
-  const onValueChange = event => {
+  const onValueChange = (event) => {
     const newValue = event.target.value;
     setValue(newValue);
     updateExternalValue(newValue * selectedOption.minutes);
   };
 
-  const onUnitChange = event => {
+  const onUnitChange = (event) => {
     const newUnit = event.target.value;
     setUnit(newUnit);
 
-    const newOption = TIME_UNIT_OPTIONS.find(o => o.unit === newUnit);
+    const newOption = TIME_UNIT_OPTIONS.find((o) => o.unit === newUnit);
     updateExternalValue(value * newOption.minutes);
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} className={className} {...props}>
-      <FieldWrapper>
+    <OuterLabelFieldWrapper
+      label={label}
+      className={className}
+      {...props}
+      data-testid="outerlabelfieldwrapper-xi7f"
+    >
+      <FieldWrapper data-testid="fieldwrapper-u4xe">
         <MainField
           value={value}
           onChange={onValueChange}
@@ -90,20 +97,31 @@ export const TimeWithUnitInput = ({
           max={max}
           step={step}
           {...props}
+          data-testid="mainfield-r4oz"
         />
-        <Select select onChange={onUnitChange} value={unit}>
-          {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
-            <MenuItem key={option.unit} value={option.unit}>
+        <Select select onChange={onUnitChange} value={unit} data-testid="select-f39x">
+          {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map((option) => (
+            <MenuItem
+              key={option.unit}
+              value={option.unit}
+              data-testid={`menuitem-aqjx-${option.unit}`}
+            >
               {option.unit}
             </MenuItem>
           ))}
         </Select>
       </FieldWrapper>
-      <HiddenField name={name} value={valueInMinutes || 0} />
+      <HiddenField name={name} value={valueInMinutes || 0} data-testid="hiddenfield-il8g" />
     </OuterLabelFieldWrapper>
   );
 };
 
 export const TimeWithUnitField = ({ field, ...props }) => (
-  <TimeWithUnitInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <TimeWithUnitInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid="timewithunitinput-hu11"
+  />
 );

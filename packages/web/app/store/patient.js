@@ -9,23 +9,25 @@ export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
 
-export const reloadPatient = id => async (dispatch, getState, { api }) => {
-  dispatch({ type: PATIENT_LOAD_START, id });
+export const reloadPatient =
+  (id) =>
+  async (dispatch, getState, { api }) => {
+    dispatch({ type: PATIENT_LOAD_START, id });
 
-  const { auth } = getState();
-  const { facilityId } = auth;
+    const { auth } = getState();
+    const { facilityId } = auth;
 
-  try {
-    const patient = await api.get(`patient/${id}`, { facilityId });
+    try {
+      const patient = await api.get(`patient/${id}`, { facilityId });
 
-    dispatch({
-      type: PATIENT_LOAD_FINISH,
-      patient,
-    });
-  } catch (e) {
-    dispatch({ type: PATIENT_LOAD_ERROR, error: e });
-  }
-};
+      dispatch({
+        type: PATIENT_LOAD_FINISH,
+        patient,
+      });
+    } catch (e) {
+      dispatch({ type: PATIENT_LOAD_ERROR, error: e });
+    }
+  };
 
 // reducers
 

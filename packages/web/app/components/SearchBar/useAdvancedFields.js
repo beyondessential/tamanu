@@ -6,8 +6,8 @@ export const useAdvancedFields = (advancedFields, searchParameters) => {
   // show the advanced fields section
   const defaultFilterOpen = useCallback(() => {
     return Object.keys(searchParameters || {})
-      .filter(key => searchParameters[key])
-      .some(value => advancedFields.includes(value));
+      .filter((key) => searchParameters[key])
+      .some((value) => advancedFields.includes(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [advancedFields]);
 
