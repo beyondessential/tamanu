@@ -55,9 +55,9 @@ export class MedicationTemplate extends Model {
       foreignKey: 'medicationId',
       as: 'medication',
     });
-    this.hasMany(models.ReferenceData, {
+    this.belongsTo(models.ReferenceData, {
       foreignKey: 'id',
-      as: 'medicationTemplates',
+      as: 'referenceData',
     });
   }
 
