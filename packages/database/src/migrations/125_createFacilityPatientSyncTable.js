@@ -1,6 +1,7 @@
 import config from 'config';
 import Sequelize from 'sequelize';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
 export default {
   up: async (query) => {
@@ -51,7 +52,7 @@ export default {
         // push up to the central server after upgrading to the new sync model
         updated_at_sync_tick: {
           type: Sequelize.BIGINT,
-          defaultValue: isFacility ? -999 : 0, // -999 on facility, 0 on central server
+          defaultValue: isFacility ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK,
         },
       },
       {

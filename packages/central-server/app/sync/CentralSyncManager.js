@@ -19,14 +19,17 @@ import {
   insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
+  SYNC_SESSION_DIRECTION,
+  SYNC_TICK_FLAGS,
+  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
+import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
+import { getLookupSourceTickRange } from './getLookupSourceTickRange';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -262,13 +265,22 @@ export class CentralSyncManager {
       await repeatableReadTransaction(store.sequelize, async (transaction) => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
-        if (!isInitialBuildOfLookupTable) {
+        if (isInitialBuildOfLookupTable) {
+          await this.store.models.SyncLookupTick.create({
+            sourceStartTick: previouslyUpToTick,
+            lookupEndTick: currentTick,
+          });
+        } else {
           transaction.afterCommit(async () => {
             // Wrap inside transaction so that any writes to currentSyncTick
             // will have to wait until this transaction is committed
             await store.sequelize.transaction(async () => {
-              const { tick: currentTick } = await this.tickTockGlobalClock();
-              await updateSyncLookupPendingRecords(store, currentTick);
+              const { tick: lookupEndTick } = await this.tickTockGlobalClock();
+              await updateSyncLookupPendingRecords(store, lookupEndTick);
+              await this.store.models.SyncLookupTick.create({
+                sourceStartTick: previouslyUpToTick,
+                lookupEndTick: lookupEndTick,
+              });
             });
           });
         }
@@ -278,7 +290,7 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
+        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
@@ -555,14 +567,31 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    await this.connectToSession(sessionId);
-    return findSyncSnapshotRecords(
+    const session = await this.connectToSession(sessionId);
+    const snapshotRecords = await findSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
       limit,
     );
+    const sourceTickRange = await getLookupSourceTickRange(
+      this.store,
+      session.pullSince,
+      session.pullUntil
+    );
+    if (!sourceTickRange) {
+      return snapshotRecords;
+    }
+    const recordsForPull = await attachChangelogToSnapshotRecords(
+      this.store,
+      snapshotRecords,
+      {
+        ...sourceTickRange,
+        tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+      }
+    );
+    return recordsForPull;
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
@@ -647,7 +676,10 @@ export class CentralSyncManager {
       incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
       sessionId,
     });
-    await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+
+    const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
+    await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
+    await insertChangelogRecords(this.store.models, changelogRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {

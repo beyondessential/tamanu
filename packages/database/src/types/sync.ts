@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
+import type { ChangeLog } from 'models/ChangeLog';
 
 export interface SessionConfig {
   syncAllLabRequests: boolean;
@@ -36,6 +37,10 @@ export interface SyncSnapshotAttributes {
   updatedAtByFieldSum?: number; // only for merged records
   syncLookupId?: number; // no syncLookupId if it is an incoming record
   requiresRepull?: boolean;
+}
+
+export interface SyncSnapshotAttributesWithChangelog extends SyncSnapshotAttributes {
+  changelogRecords?: ChangeLog[];
 }
 
 export type UninsertedSyncSnapshotAttributes = Omit<

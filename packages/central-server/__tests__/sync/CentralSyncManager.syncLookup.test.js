@@ -622,6 +622,7 @@ describe('Sync Lookup data', () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, -1);
     await models.SyncDeviceTick.truncate({ force: true });
+    await models.SyncLookupTick.truncate({ force: true });
 
     jest.resetModules();
     jest.clearAllMocks();
