@@ -4,8 +4,7 @@ import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient'
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
     await allPatientsPage.goto();
-    await addNewPatientWithRequiredFields(allPatientsPage);
-    await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
+    await addNewPatientWithRequiredFields(allPatientsPage, patientDetailsPage);
 
     //this is to replicate the workflow of visiting an existing patient
     const patientData = allPatientsPage.getPatientData();

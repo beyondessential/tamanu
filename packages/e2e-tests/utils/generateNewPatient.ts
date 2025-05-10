@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
+import { PatientDetailsPage } from "../pages/patients/PatientDetailsPage";
 
 function generatePatientData() {
   const gender = faker.helpers.arrayElement(["male", "female"]);
@@ -11,7 +12,7 @@ function generatePatientData() {
   return { firstName, lastName, gender, formattedDOB, nhn: '' };
 }
 
-export async function addNewPatientWithRequiredFields(allPatientsPage: AllPatientsPage) {
+export async function addNewPatientWithRequiredFields(allPatientsPage: AllPatientsPage, patientDetailsPage: PatientDetailsPage) {
   await allPatientsPage.addNewPatientBtn.click();
 
   const patientData = generatePatientData();
@@ -29,6 +30,8 @@ export async function addNewPatientWithRequiredFields(allPatientsPage: AllPatien
   patientData.nhn = nhn;
 
   await allPatientsPage.NewPatientConfirmBtn.click();
+
+  await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
 
   return patientData;
 }
