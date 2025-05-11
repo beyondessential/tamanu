@@ -76,16 +76,21 @@ export const Drawer = ({
   ...props
 }) => {
   return (
-    <StyledCollapse in={open} orientation={orientation} {...props}>
-      <Wrapper>
-        <Header>
-          <Title>{title}</Title>
-          <IconButton aria-label="Close drawer" onClick={onClose}>
-            <CloseDrawerIcon />
+    <StyledCollapse
+      in={open}
+      orientation={orientation}
+      {...props}
+      data-testid="styledcollapse-6k1x"
+    >
+      <Wrapper data-testid="wrapper-7g6v">
+        <Header data-testid="header-odk1">
+          <Title data-testid="title-bpjt">{title}</Title>
+          <IconButton aria-label="Close drawer" onClick={onClose} data-testid="iconbutton-354x">
+            <CloseDrawerIcon data-testid="closedrawericon-76xf" />
           </IconButton>
         </Header>
-        <DrawerBody>
-          {description && <Description>{description}</Description>}
+        <DrawerBody data-testid="drawerbody-9l6q">
+          {description && <Description data-testid="description-eo9s">{description}</Description>}
           {children}
         </DrawerBody>
       </Wrapper>

@@ -12,7 +12,7 @@ export class addPatientProgramRegistrationConditionCategoryColumn1739395962000
         name: 'conditionCategory',
         type: 'string',
         isNullable: false,
-        default: "'Unknown'",
+        default: "'unknown'",
       }),
     );
   }

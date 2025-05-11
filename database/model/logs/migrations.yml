@@ -46,6 +46,6 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('logs__generic__updated_at_sync_tick') }} in migrations."
+            description: "{{ doc('logs__migrations__updated_at_sync_tick') }}"
             data_tests:
               - not_null

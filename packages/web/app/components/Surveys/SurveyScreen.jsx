@@ -42,7 +42,7 @@ const useScrollToFirstError = () => {
     return questionRefs.current;
   }
 
-  const scrollToQuestion = questionId => {
+  const scrollToQuestion = (questionId) => {
     const map = getQuestionMap();
     const node = map.get(questionId);
     node.scrollIntoView({
@@ -51,7 +51,7 @@ const useScrollToFirstError = () => {
     });
   };
 
-  const setQuestionToRef = dataElementId => node => {
+  const setQuestionToRef = (dataElementId) => (node) => {
     const map = getQuestionMap();
     if (node) {
       map.set(dataElementId, node);
@@ -87,10 +87,10 @@ export const SurveyScreen = ({
     const formErrors = await validateForm();
 
     // Only include visible elements
-    const pageErrors = Object.keys(formErrors).filter(x =>
+    const pageErrors = Object.keys(formErrors).filter((x) =>
       screenComponents
-        .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => c.dataElementId)
+        .filter((c) => checkVisibility(c, values, allComponents))
+        .map((c) => c.dataElementId)
         .includes(x),
     );
 
@@ -113,14 +113,15 @@ export const SurveyScreen = ({
   const getVisibleComponents = useCallback(
     (components, allComponents) =>
       components
-        .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => (
+        .filter((c) => checkVisibility(c, values, allComponents))
+        .map((c, index) => (
           <SurveyQuestion
             component={c}
             patient={patient}
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
             encounterType={encounterType}
+            data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
     [encounterType, patient, setQuestionToRef, values],
@@ -129,25 +130,43 @@ export const SurveyScreen = ({
   const visibleComponents = getVisibleComponents(screenComponents, allComponents);
 
   const emptyStateMessage = (
-    <EmptyStateText variant="body2">
+    <EmptyStateText variant="body2" data-testid="emptystatetext-12ib">
       <TranslatedText
         stringId="general.form.blankPage"
         fallback="This page has been intentionally left blank"
+        data-testid="translatedtext-o60f"
       />
     </EmptyStateText>
   );
 
   return (
-    <FormGrid columns={cols}>
+    <FormGrid columns={cols} data-testid="formgrid-h378">
       {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
-      <StyledButtonRow>
+      <StyledButtonRow data-testid="styledbuttonrow-pvdv">
         {submitButton || (
           <>
-            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              <TranslatedText stringId="general.action.previous" fallback="Prev" />
+            <OutlinedButton
+              onClick={onStepBack || undefined}
+              disabled={!onStepBack}
+              data-testid="outlinedbutton-0o9b"
+            >
+              <TranslatedText
+                stringId="general.action.previous"
+                fallback="Prev"
+                data-testid="translatedtext-6y2g"
+              />
             </OutlinedButton>
-            <Button color="primary" variant="contained" onClick={validateAndStep}>
-              <TranslatedText stringId="general.action.next" fallback="Next" />
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={validateAndStep}
+              data-testid="button-m3a6"
+            >
+              <TranslatedText
+                stringId="general.action.next"
+                fallback="Next"
+                data-testid="translatedtext-67nh"
+              />
             </Button>
           </>
         )}

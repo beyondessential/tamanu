@@ -56,34 +56,38 @@ export const InvoiceDiscountAssessmentForm = ({
 
   return (
     <>
-      <Heading3 mb="8px">
+      <Heading3 mb="8px" data-testid="heading3-luh8">
         <TranslatedText
           stringId="invoice.modal.assessment.subtitle"
           fallback="Patient invoice discount assessment"
+          data-testid="translatedtext-ulsm"
         />
       </Heading3>
-      <BodyText mb="36px" color="textTertiary">
+      <BodyText mb="36px" color="textTertiary" data-testid="bodytext-7ki0">
         <TranslatedText
           stringId="invoice.modal.assessment.description"
           fallback="To begin creating a new invoice, complete the patient discount assessment below."
+          data-testid="translatedtext-c7b6"
         />
       </BodyText>
       <Form
         onSubmit={() => handleSubmit({ percentage: (1 - percentage).toFixed(2) })}
         render={({ submitForm }) => (
           <>
-            <FormGrid columns={1}>
+            <FormGrid columns={1} data-testid="formgrid-i3v1">
               <Field
                 name="familySize"
                 label={
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.family.label"
                     fallback="What is the family size?"
+                    data-testid="translatedtext-cmoh"
                   />
                 }
                 component={SelectField}
                 options={familySizesOptions}
                 onChange={(e) => setFamilySize(e.target.value)}
+                data-testid="field-23z3"
               />
               <Field
                 name="annualIncome"
@@ -91,21 +95,30 @@ export const InvoiceDiscountAssessmentForm = ({
                   <TranslatedText
                     stringId="invoice.modal.discountAssessment.income.label"
                     fallback="What is their annual income?"
+                    data-testid="translatedtext-kmjd"
                   />
                 }
                 component={SelectField}
                 options={annualIncomeOptions}
                 disabled={!familySize && familySize !== 0}
                 onChange={handleAnnualIncomeChange}
+                data-testid="field-rdtx"
               />
             </FormGrid>
-            <StyledDivider />
+            <StyledDivider data-testid="styleddivider-pypl" />
             <ConfirmCancelBackRow
               onConfirm={submitForm}
               onCancel={onClose}
               onBack={handleBack}
-              confirmText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.next"
+                  fallback="Next"
+                  data-testid="translatedtext-vz6y"
+                />
+              }
               confirmDisabled={isSubmitting}
+              data-testid="confirmcancelbackrow-f5b4"
             />
           </>
         )}
@@ -117,6 +130,7 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.familySize.path"
                 fallback="Family size"
+                data-testid="translatedtext-z8qt"
               />,
             ),
           annualIncome: yup
@@ -126,9 +140,11 @@ export const InvoiceDiscountAssessmentForm = ({
               <TranslatedText
                 stringId="invoice.validation.annualIncome.path"
                 fallback="Annual income"
+                data-testid="translatedtext-qqwm"
               />,
             ),
         })}
+        data-testid="form-6cak"
       />
     </>
   );

@@ -50,7 +50,13 @@ const CalendarInnerWrapper = styled(Box)`
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
-  title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
+  title: (
+    <TranslatedText
+      stringId="scheduling.appointments.title"
+      fallback="Appointments"
+      data-testid="translatedtext-5my0"
+    />
+  ),
 })`
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
   flex-grow: 0;
@@ -98,16 +104,16 @@ export const OutpatientAppointmentsView = () => {
     }
   }, [location.search]);
 
-  const handleChangeDate = event => {
+  const handleChangeDate = (event) => {
     setSelectedDate(event.target.value);
   };
 
-  const handleOpenCancelModal = appointment => {
+  const handleOpenCancelModal = (appointment) => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
-  const handleSelectAppointment = appointment => {
+  const handleSelectAppointment = (appointment) => {
     setSelectedAppointment(
       pick(appointment, [
         'id',
@@ -123,7 +129,7 @@ export const OutpatientAppointmentsView = () => {
     );
   };
 
-  const handleModifyAppointment = appointment => {
+  const handleModifyAppointment = (appointment) => {
     handleSelectAppointment(appointment);
     if (!appointment.schedule) {
       handleOpenDrawer();
@@ -133,7 +139,7 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(true);
   };
 
-  const handleCreateFromExistingAppointment = appointment => {
+  const handleCreateFromExistingAppointment = (appointment) => {
     handleSelectAppointment(omit(appointment, ['id', 'schedule', 'startTime', 'endTime']));
     if (!appointment.schedule) {
       handleOpenDrawer();
@@ -173,22 +179,24 @@ export const OutpatientAppointmentsView = () => {
   };
 
   if (!canViewAppointments) {
-    return <NoPermissionScreen />;
+    return <NoPermissionScreen data-testid="nopermissionscreen-fisi" />;
   }
 
   return (
-    <Container>
-      <OutpatientAppointmentsContextProvider>
+    <Container data-testid="container-1u1o">
+      <OutpatientAppointmentsContextProvider data-testid="outpatientappointmentscontextprovider-0z3q">
         <CreateFromExistingConfirmModal
           open={isCreateFromExistingWarningOpen}
           onCancel={handleCloseCreateFromExisting}
           onConfirm={handleConfirmCreateFromExisting}
+          data-testid="createfromexistingconfirmmodal-zdyl"
         />
 
         <CancelAppointmentModal
           appointment={selectedAppointment}
           open={isCancelModalOpen}
           onClose={() => setIsCancelModalOpen(false)}
+          data-testid="cancelappointmentmodal-45n1"
         />
         <ModifyRepeatingAppointmentModal
           open={isModifyModalOpen}
@@ -196,28 +204,35 @@ export const OutpatientAppointmentsView = () => {
           onChangeModifyMode={setModifyMode}
           onClose={handleCloseConfirmModifyMode}
           onConfirm={handleConfirmModifyMode}
+          data-testid="modifyrepeatingappointmentmodal-vrsy"
         />
-        <AppointmentTopBar>
-          <GroupByToggle />
-          <OutpatientAppointmentsFilter />
+        <AppointmentTopBar data-testid="appointmenttopbar-0bbn">
+          <GroupByToggle data-testid="groupbytoggle-ps0g" />
+          <OutpatientAppointmentsFilter data-testid="outpatientappointmentsfilter-j00q" />
           {canCreateAppointment && (
-            <Button onClick={handleCreateAppointment}>
-              <AddIcon aria-hidden />{' '}
+            <Button onClick={handleCreateAppointment} data-testid="button-3btn">
+              <AddIcon aria-hidden data-testid="addicon-iv7z" />{' '}
               <TranslatedText
                 stringId="scheduling.action.bookAppointment"
                 fallback="Book appointment"
+                data-testid="translatedtext-szo6"
               />
             </Button>
           )}
         </AppointmentTopBar>
-        <CalendarWrapper>
-          <DateSelector value={selectedDate} onChange={handleChangeDate} />
-          <CalendarInnerWrapper>
+        <CalendarWrapper data-testid="calendarwrapper-pnm8">
+          <DateSelector
+            value={selectedDate}
+            onChange={handleChangeDate}
+            data-testid="dateselector-0f1v"
+          />
+          <CalendarInnerWrapper data-testid="calendarinnerwrapper-jgre">
             <OutpatientBookingCalendar
               onCancel={handleOpenCancelModal}
               onCreateFromExisting={handleCreateFromExistingAppointment}
               onModify={handleModifyAppointment}
               selectedDate={selectedDate}
+              data-testid="outpatientbookingcalendar-s73y"
             />
             <OutpatientAppointmentDrawer
               initialValues={selectedAppointment}
@@ -225,6 +240,7 @@ export const OutpatientAppointmentsView = () => {
               key={selectedAppointment.id}
               onClose={() => setDrawerOpen(false)}
               open={drawerOpen}
+              data-testid="outpatientappointmentdrawer-cuzj"
             />
           </CalendarInnerWrapper>
         </CalendarWrapper>

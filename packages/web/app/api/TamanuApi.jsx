@@ -126,7 +126,7 @@ export class TamanuApi extends ApiClient {
       deviceId: getDeviceId(),
     });
 
-    this.interceptors.request.use(config => {
+    this.interceptors.request.use((config) => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
       return config;

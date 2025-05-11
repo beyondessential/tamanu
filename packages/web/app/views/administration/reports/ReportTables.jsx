@@ -41,7 +41,7 @@ const StyledTable = styled(Table)`
 const ReportStatusTag = ({ status }) => {
   const { background, color } = STATUS_CONFIG[status];
   return (
-    <StatusTag $background={background} $color={color}>
+    <StatusTag $background={background} $color={color} data-testid="statustag-t5q4">
       {status}
     </StatusTag>
   );
@@ -69,11 +69,23 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       })}
       columns={[
         {
-          title: <TranslatedText stringId="admin.report.list.table.column.name" fallback="Name" />,
+          title: (
+            <TranslatedText
+              stringId="admin.report.list.table.column.name"
+              fallback="Name"
+              data-testid="translatedtext-zpe8"
+            />
+          ),
           key: 'name',
         },
         {
-          title: <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />,
+          title: (
+            <TranslatedText
+              stringId="general.lastUpdated.label"
+              fallback="Last updated"
+              data-testid="translatedtext-iynb"
+            />
+          ),
           key: 'lastUpdated',
           accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
@@ -82,6 +94,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
             <TranslatedText
               stringId="admin.report.list.table.column.versionCount"
               fallback="Version count"
+              data-testid="translatedtext-1fp7"
             />
           ),
           key: 'versionCount',
@@ -97,6 +110,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       customSort={customSort}
       orderBy={orderBy}
       order={order}
+      data-testid="styledtable-qv8v"
     />
   );
 });
@@ -117,6 +131,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             <TranslatedText
               stringId="admin.report.list.table.column.versionNumber"
               fallback="Version"
+              data-testid="translatedtext-5jxq"
             />
           ),
           key: 'versionNumber',
@@ -126,6 +141,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             <TranslatedText
               stringId="admin.report.list.table.column.createdAt"
               fallback="Created time"
+              data-testid="translatedtext-ao5z"
             />
           ),
           key: 'createdAt',
@@ -133,11 +149,20 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
         },
         {
           title: (
-            <TranslatedText stringId="admin.report.list.table.column.status" fallback="Status" />
+            <TranslatedText
+              stringId="admin.report.list.table.column.status"
+              fallback="Status"
+              data-testid="translatedtext-id75"
+            />
           ),
           key: 'status',
           sortable: false,
-          accessor: ({ status, active }) => <ReportStatusTag status={active ? 'active' : status} />,
+          accessor: ({ status, active }) => (
+            <ReportStatusTag
+              status={active ? 'active' : status}
+              data-testid="reportstatustag-ai1o"
+            />
+          ),
         },
       ]}
       data={data}
@@ -148,6 +173,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
       customSort={customSort}
       orderBy={orderBy}
       order={order}
+      data-testid="styledtable-xo9e"
     />
   );
 });

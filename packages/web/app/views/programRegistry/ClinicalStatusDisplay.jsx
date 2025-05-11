@@ -13,17 +13,24 @@ export const ClinicalStatusDisplay = ({ clinicalStatus }) => {
         <TranslatedText
           stringId="programRegistry.currentStatus.tooltip"
           fallback="Current status"
+          data-testid="translatedtext-ms05"
         />
       }
+      data-testid="themedtooltip-ldih"
     >
-      <TableCellTag $color={color} $position="initial">
+      <TableCellTag $color={color} $position="initial" data-testid="tablecelltag-02cm">
         <TranslatedReferenceData
           fallback={clinicalStatus?.name}
           value={clinicalStatus?.id}
           category="programRegistryClinicalStatus"
           placeholder={
-            <TranslatedText stringId="programRegistry.currentStatus.placeholder" fallback="n/a" />
+            <TranslatedText
+              stringId="programRegistry.currentStatus.placeholder"
+              fallback="n/a"
+              data-testid="translatedtext-wq0e"
+            />
           }
+          data-testid="translatedreferencedata-habj"
         />
       </TableCellTag>
     </ThemedTooltip>

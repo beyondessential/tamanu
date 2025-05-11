@@ -2,7 +2,7 @@
 // export const getFileInDocumentsPath = fileName => `file://${RNFS.DocumentDirectoryPath}/${fileName}`;
 export const getFileInDocumentsPath = () => '';
 
-export const imageDataIsFileName = imageData =>
+export const imageDataIsFileName = (imageData) =>
   imageData && imageData.length < 100 && imageData.search('.*?.(jpg|png)') !== -1;
 
 /**
@@ -10,7 +10,7 @@ export const imageDataIsFileName = imageData =>
  * @param {string} imageData
  * Either a filename inside documents or a base64 string.
  */
-export const getImageSourceFromData = imageData => {
+export const getImageSourceFromData = (imageData) => {
   if (typeof imageData === 'string') {
     let uri;
 

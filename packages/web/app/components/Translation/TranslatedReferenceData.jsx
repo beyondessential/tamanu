@@ -9,7 +9,11 @@ export const getReferenceDataStringId = (value, category) => {
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
   return value ? (
-    <TranslatedText stringId={getReferenceDataStringId(value, category)} fallback={`${fallback}`} />
+    <TranslatedText
+      stringId={getReferenceDataStringId(value, category)}
+      fallback={`${fallback}`}
+      data-testid="translatedtext-w3hp"
+    />
   ) : (
     placeholder
   );

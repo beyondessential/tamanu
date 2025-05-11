@@ -7,7 +7,7 @@ import { isNaN } from 'lodash';
 // but there's a benefit to having these field types explicitly treated differently
 // (note that an invalid FK will still be rejected by the server,
 // so there's no safety issue here)
-export const foreignKey = message => yup.string().required(message);
+export const foreignKey = (message) => yup.string().required(message);
 export const optionalForeignKey = () => yup.string();
 
 export const yupAttemptTransformToNumber = (value, originalValue) => {

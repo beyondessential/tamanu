@@ -133,15 +133,16 @@ export const ConditionSection = ({ registrationId }) => {
         <TranslatedText
           stringId="programRegistry.relatedConditions.title"
           fallback="Related conditions"
+          data-testid="translatedtext-tezx"
         />
       </Heading5>
       <ScrollBody>
         {openConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} data-testid={`condition-component-open-${index}`} />
         ))}
         {needsDivider && <Divider variant="middle" />}
         {closedConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} />
+          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} data-testid={`conditional-component-closed-${index}`} />
         ))}
       </ScrollBody>
       <UpdateConditionFormModal

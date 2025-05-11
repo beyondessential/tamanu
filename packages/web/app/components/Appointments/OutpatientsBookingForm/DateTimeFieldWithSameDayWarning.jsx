@@ -27,16 +27,22 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
     !isEdit &&
     isFetched &&
     values.patientId &&
-    existingAppointments?.data.some(booking => booking.patientId === values.patientId);
+    existingAppointments?.data.some((booking) => booking.patientId === values.patientId);
 
   return (
     <Field
       name="startTime"
-      label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
+      label={
+        <TranslatedText
+          stringId="general.dateAndTime.label"
+          fallback="Date & time"
+          data-testid="translatedtext-cg8p"
+        />
+      }
       component={DateTimeField}
       saveDateAsString
       required
-      onChange={e => {
+      onChange={(e) => {
         onChange(e);
         if (!e.target.value) setFieldValue('endTime', undefined);
       }}
@@ -45,9 +51,11 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
           <TranslatedText
             stringId="outpatientAppointment.date.warning"
             fallback="Patient already has an appointment scheduled for this day"
+            data-testid="translatedtext-x8dd"
           />
         )
       }
+      data-testid="field-vjma"
     />
   );
 };
