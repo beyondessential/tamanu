@@ -2,8 +2,8 @@ name: Diff Translations
 
 on:
   push:
-    branches:
-      - fix/enum-translations-script
+    tags:
+      - 'v*'
 
 env:
   RG_VERSION: 14.1.0
