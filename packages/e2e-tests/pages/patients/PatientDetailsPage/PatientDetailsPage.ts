@@ -52,7 +52,7 @@ export class PatientDetailsPage extends BasePatientPage {
   constructor(page: Page) {
     super(page);
 
-    this.vaccineTab = this.page.getByTestId('styledtab-yhha-vaccines');
+    this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
