@@ -104,6 +104,7 @@ export class AllPatientsPage extends BasePage {
         
         //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
         if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
+        attempts++;
         continue;
         }
         
@@ -111,6 +112,7 @@ export class AllPatientsPage extends BasePage {
         if (await this.secondNHNResultCell.isVisible()) {
           await this.page.reload();
           await this.page.waitForTimeout(3000);
+          attempts++;
           continue;
         }
 
