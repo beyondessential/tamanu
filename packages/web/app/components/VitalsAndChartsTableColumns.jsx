@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  VISIBILITY_STATUSES,
+  USER_PREFERENCES_KEYS,
+} from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
@@ -18,7 +22,7 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
 
-const getExportOverrideTitle = date => {
+const getExportOverrideTitle = (date) => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
@@ -28,7 +32,12 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const VitalsLimitedLinesCell = ({ value }) => (
-  <LimitedLinesCell value={value} maxWidth="75px" maxLines={2} />
+  <LimitedLinesCell
+    value={value}
+    maxWidth="75px"
+    maxLines={2}
+    data-testid="limitedlinescell-r6w3"
+  />
 );
 
 const MeasureCell = React.memo(({ value, data }) => {
@@ -57,7 +66,13 @@ const MeasureCell = React.memo(({ value, data }) => {
       : visualisationConfig?.key;
 
   return (
-    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+    <Box
+      flexDirection="row"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      data-testid="box-w3f4"
+    >
       {value}
       {hasVitalChart && (
         <IconButton
@@ -68,8 +83,9 @@ const MeasureCell = React.memo(({ value, data }) => {
             setModalTitle(value);
             setVitalChartModalOpen(true);
           }}
+          data-testid="iconbutton-t7kq"
         >
-          <VitalVectorIcon />
+          <VitalVectorIcon data-testid="vitalvectoricon-b8jn" />
         </IconButton>
       )}
     </Box>
@@ -87,26 +103,31 @@ const TitleCell = React.memo(({ value }) => {
   const { selectedChartTypeId } = useChartData();
   const { data: userPreferences, isSuccess, isLoading } = useUserPreferencesQuery();
 
-  const graphPreferenceKey = selectedChartTypeId === null
-    ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
-    : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
+  const graphPreferenceKey =
+    selectedChartTypeId === null
+      ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
+      : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
 
   let chartKeys = [];
   if (isSuccess) {
-    const {
-      [graphPreferenceKey]: rawGraphFilter = 'select-all',
-    } = userPreferences;
+    const { [graphPreferenceKey]: rawGraphFilter = 'select-all' } = userPreferences;
     const graphFilter = rawGraphFilter.trim();
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
   }
 
   return (
-    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+    <Box
+      flexDirection="row"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      data-testid="box-8p39"
+    >
       {value}
-      {isSuccess && allGraphedChartKeys.length > 0 && (
+      {isSuccess && allGraphedChartKeys.length > 1 && (
           <IconButton
             size="small"
             onClick={() => {
@@ -115,11 +136,12 @@ const TitleCell = React.memo(({ value }) => {
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
             }}
+            data-testid="iconbutton-u6iz"
           >
-            <VitalVectorIcon />
+            <VitalVectorIcon data-testid="vitalvectoricon-qhwu"/>
           </IconButton>
         )}
-      {isLoading && <CircularProgress size={14} />}
+      {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
     </Box>
   );
 });
@@ -142,6 +164,7 @@ export const getChartsTableColumns = (
           value={value}
           config={config}
           validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+          data-testid="rangetooltipcell-f4qi"
         />
       ),
       CellComponent: MeasureCell,
@@ -150,11 +173,11 @@ export const getChartsTableColumns = (
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
-        title: <DateHeadCell value={date} />,
+      .map((date) => ({
+        title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: cells => {
+        accessor: (cells) => {
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
@@ -172,6 +195,7 @@ export const getChartsTableColumns = (
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
               ValueWrapper={VitalsLimitedLinesCell}
+              data-testid={`rangevalidatedcell-${date}`}
             />
           );
         },
@@ -185,7 +209,11 @@ export const getChartsTableColumns = (
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
     'measure',
-    <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
+    <TranslatedText
+      stringId="encounter.vitals.table.column.measure"
+      fallback="Measure"
+      data-testid="translatedtext-l9f5"
+    />,
     patient,
     recordedDates,
     onCellClick,

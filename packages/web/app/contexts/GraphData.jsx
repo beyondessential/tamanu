@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { addDays, format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
 
-export const GraphDataProviderFactory = ({ visualisationConfigQueryFn, Context, children }) => {
+export const GraphDataProviderFactory = ({
+  visualisationConfigQueryFn,
+  Context,
+  isVital = false,
+  children,
+}) => {
   const [chartKeys, setChartKeys] = useState([]);
   const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
@@ -17,6 +22,7 @@ export const GraphDataProviderFactory = ({ visualisationConfigQueryFn, Context, 
   return (
     <Context.Provider
       value={{
+        isVital,
         visualisationConfigs,
         allGraphedChartKeys,
         vitalChartModalOpen,

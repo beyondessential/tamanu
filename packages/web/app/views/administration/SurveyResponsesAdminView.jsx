@@ -5,6 +5,8 @@ export const SurveyResponsesAdminView = () => (
   <ImportExportView
     title="Survey Responses"
     endpoint="surveyResponses"
-    buildTabs={importTab => [importTab]} // survey response export is handled via reports
+    // survey response export is handled via reports
+    buildTabs={(importTab) => [importTab]}
+    data-testid="importexportview-6x88"
   />
 );

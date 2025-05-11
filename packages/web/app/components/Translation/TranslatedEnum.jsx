@@ -16,7 +16,12 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
-      <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} {...restProps} />
+      <TranslatedText
+        stringId="general.fallback.unknown"
+        fallback={enumFallback}
+        {...restProps}
+        data-testid="translatedtext-h109"
+      />
     );
   }
 
@@ -24,7 +29,14 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   // convert the enum value to a string id
   const camelCaseValue = toCamelCase(value);
   const stringId = `${prefix}.${camelCaseValue}`;
-  return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
+  return (
+    <TranslatedText
+      stringId={stringId}
+      fallback={fallback}
+      {...restProps}
+      data-testid="translatedtext-buer"
+    />
+  );
 };
 
 TranslatedEnum.propTypes = {

@@ -14,7 +14,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const countrySuggester = useSuggester('country');
 
   const handleUpdateVaccine = useCallback(
-    async data => {
+    async (data) => {
       const newData = { ...data };
       if (
         newData.status === VACCINE_RECORDING_TYPES.GIVEN &&
@@ -42,11 +42,22 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
   return (
     <FormModal
-      title={<TranslatedText stringId="vaccine.modal.edit.title" fallback="Edit vaccine record" />}
+      title={
+        <TranslatedText
+          stringId="vaccine.modal.edit.title"
+          fallback="Edit vaccine record"
+          data-testid="translatedtext-kegh"
+        />
+      }
       open={open}
       onClose={onClose}
+      data-testid="formmodal-wu6m"
     >
-      <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
+      <ViewAdministeredVaccineContent
+        vaccineRecord={vaccineRecord}
+        editMode
+        data-testid="viewadministeredvaccinecontent-4hf5"
+      />
       <VaccineForm
         onSubmit={handleUpdateVaccine}
         onCancel={onClose}
@@ -56,6 +67,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         vaccineRecordingType={
           notGiven ? VACCINE_RECORDING_TYPES.NOT_GIVEN : VACCINE_RECORDING_TYPES.GIVEN
         }
+        data-testid="vaccineform-fx1e"
       />
     </FormModal>
   );

@@ -54,7 +54,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      ${p => (p.$canDoAction ? `width: 15px;` : '')}
+      ${(p) => (p.$canDoAction ? `width: 15px;` : '')}
     }
   }
   .MuiTableCell-body {
@@ -69,14 +69,14 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
     }
     &:nth-child(2) {
-      ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
+      ${(p) => (p.$canDoAction ? `padding-left: 0px;` : '')}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     transition: all 250ms;
     &:hover {
-      box-shadow: ${props =>
+      box-shadow: ${(props) =>
         props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
     position: relative;
@@ -211,54 +211,63 @@ const TableTooltip = ({ title, children }) => (
         },
       },
     }}
+    data-testid="styledtooltip-2imm"
   >
     {children}
   </StyledToolTip>
 );
 
 const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
-  <StatusTooltip>
-    <TranslatedText stringId="tasks.table.tooltip.completed" fallback="Completed" />
+  <StatusTooltip data-testid="statustooltip-mfnp">
+    <TranslatedText
+      stringId="tasks.table.tooltip.completed"
+      fallback="Completed"
+      data-testid="translatedtext-sd05"
+    />
     <div>{completedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>{formatShortest(completedTime)} </span>
-      <LowercaseText>{formatTime(completedTime)}</LowercaseText>
+      <LowercaseText data-testid="lowercasetext-5r41">{formatTime(completedTime)}</LowercaseText>
     </div>
     <div>{completedNote}</div>
   </StatusTooltip>
 );
 
 const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompletedReason }) => (
-  <StatusTooltip>
-    <TranslatedText stringId="tasks.table.tooltip.notCompleted" fallback="Not completed" />
+  <StatusTooltip data-testid="statustooltip-gqmz">
+    <TranslatedText
+      stringId="tasks.table.tooltip.notCompleted"
+      fallback="Not completed"
+      data-testid="translatedtext-ir0v"
+    />
     <div>{notCompletedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
-      <LowercaseText>{formatTime(notCompletedTime)}</LowercaseText>
+      <LowercaseText data-testid="lowercasetext-w9wo">{formatTime(notCompletedTime)}</LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
 );
 
-const getStatus = row => {
+const getStatus = (row) => {
   const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
       return (
-        <Box marginLeft="1.5px">
-          <StatusTodo />
+        <Box marginLeft="1.5px" data-testid="box-6w7t">
+          <StatusTodo data-testid="statustodo-yit3" />
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
       return (
-        <TableTooltip title={getCompletedTooltipText(row)}>
-          <StyledCheckCircleIcon />
+        <TableTooltip title={getCompletedTooltipText(row)} data-testid="tabletooltip-8kog">
+          <StyledCheckCircleIcon data-testid="styledcheckcircleicon-aayi" />
         </TableTooltip>
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
-        <TableTooltip title={getNotCompletedTooltipText(row)}>
-          <StyledCancelIcon />
+        <TableTooltip title={getNotCompletedTooltipText(row)} data-testid="tabletooltip-15ji">
+          <StyledCancelIcon data-testid="styledcancelicon-z0lw" />
         </TableTooltip>
       );
     default:
@@ -269,8 +278,12 @@ const getStatus = row => {
 const getDueTime = ({ dueTime }) => {
   return (
     <div>
-      <BodyText sx={{ textTransform: 'lowercase' }}>{formatTime(dueTime)}</BodyText>
-      <SmallBodyText color={Colors.midText}>{formatShortest(dueTime)}</SmallBodyText>
+      <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
+        {formatTime(dueTime)}
+      </BodyText>
+      <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
+        {formatShortest(dueTime)}
+      </SmallBodyText>
     </div>
   );
 };
@@ -279,15 +292,21 @@ const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
   if (!designations?.length) return '-';
 
-  const designationNames = designations.map(assigned => assigned.name);
+  const designationNames = designations.map((assigned) => assigned.name);
 
   if (!isOverflowing) {
-    return <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>;
+    return (
+      <OverflowedBox ref={ref} data-testid="overflowedbox-f6me">
+        {designationNames.join(', ')}
+      </OverflowedBox>
+    );
   }
 
   return (
-    <TableTooltip title={designationNames.join(', ')}>
-      <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>
+    <TableTooltip title={designationNames.join(', ')} data-testid="tabletooltip-00e0">
+      <OverflowedBox ref={ref} data-testid="overflowedbox-m7gx">
+        {designationNames.join(', ')}
+      </OverflowedBox>
     </TableTooltip>
   );
 };
@@ -329,9 +348,7 @@ const getFrequency = (task, isEncounterDischarged) => {
           stringId="encounter.tasks.table.duration.endDate"
           fallback={`Ends at :time on :date`}
           replacements={{
-            time: formatTime(endDate)
-              .toLowerCase()
-              .replaceAll(' ', ''),
+            time: formatTime(endDate).toLowerCase().replaceAll(' ', ''),
             date: formatShortest(endDate),
           }}
         />
@@ -352,7 +369,7 @@ const getFrequency = (task, isEncounterDischarged) => {
 
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
-const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
@@ -364,18 +381,23 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
 
   return (
-    <StyledActionsRow>
+    <StyledActionsRow data-testid="styledactionsrow-663u">
       {status !== TASK_STATUSES.COMPLETED && canWrite && (
         <TableTooltip
           title={
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.completed"
               fallback="Mark as complete"
+              data-testid="translatedtext-13fb"
             />
           }
+          data-testid="tabletooltip-qd11"
         >
-          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
-            <StyledCheckCircleIcon />
+          <IconButton
+            onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}
+            data-testid="iconbutton-0wvd"
+          >
+            <StyledCheckCircleIcon data-testid="styledcheckcircleicon-31o6" />
           </IconButton>
         </TableTooltip>
       )}
@@ -385,11 +407,16 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.notCompleted"
               fallback="Mark as not complete"
+              data-testid="translatedtext-rms0"
             />
           }
+          data-testid="tabletooltip-w8qq"
         >
-          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
-            <StyledCancelIcon />
+          <IconButton
+            onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}
+            data-testid="iconbutton-vptw"
+          >
+            <StyledCancelIcon data-testid="styledcancelicon-nzdl" />
           </IconButton>
         </TableTooltip>
       )}
@@ -399,22 +426,35 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
             <TranslatedText
               stringId="encounter.tasks.action.tooltip.toDo"
               fallback="Mark as to-do"
+              data-testid="translatedtext-iay4"
             />
           }
+          data-testid="tabletooltip-ozfq"
         >
-          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
-            <StatusTodo />
+          <IconButton
+            onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}
+            data-testid="iconbutton-si29"
+          >
+            <StatusTodo data-testid="statustodo-1wc8" />
           </IconButton>
         </TableTooltip>
       )}
       {status === TASK_STATUSES.TODO && canDelete && (
         <TableTooltip
           title={
-            <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.delete"
+              fallback="Delete"
+              data-testid="translatedtext-ouy9"
+            />
           }
+          data-testid="tabletooltip-5owh"
         >
-          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
-            <StyledDeleteOutlineIcon />
+          <IconButton
+            onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}
+            data-testid="iconbutton-edm0"
+          >
+            <StyledDeleteOutlineIcon data-testid="styleddeleteoutlineicon-w3ya" />
           </IconButton>
         </TableTooltip>
       )}
@@ -427,14 +467,18 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const { note } = row;
 
   return (
-    <Box display="flex" alignItems="center">
-      <NotesDisplay>
+    <Box display="flex" alignItems="center" data-testid="box-lxyf">
+      <NotesDisplay data-testid="notesdisplay-uohi">
         {note ? (
           !isOverflowing ? (
-            <OverflowedBox ref={ref}>{note}</OverflowedBox>
+            <OverflowedBox ref={ref} data-testid="overflowedbox-jgvv">
+              {note}
+            </OverflowedBox>
           ) : (
-            <TableTooltip title={note}>
-              <OverflowedBox ref={ref}>{note}</OverflowedBox>
+            <TableTooltip title={note} data-testid="tabletooltip-xeqv">
+              <OverflowedBox ref={ref} data-testid="overflowedbox-cu6i">
+                {note}
+              </OverflowedBox>
             </TableTooltip>
           )
         ) : (
@@ -442,7 +486,11 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <ActionsRow row={row} handleActionModalOpen={handleActionModalOpen} />
+        <ActionsRow
+          row={row}
+          handleActionModalOpen={handleActionModalOpen}
+          data-testid="actionsrow-skhr"
+        />
       )}
     </Box>
   );
@@ -451,27 +499,29 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
 const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
   <TableTooltip
     title={
-      <TooltipContainer>
+      <TooltipContainer data-testid="tooltipcontainer-y0r6">
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
-        <Box sx={{ textTransform: 'lowercase' }}>
+        <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
           {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
         </Box>
       </TooltipContainer>
     }
+    data-testid="tabletooltip-xlct"
   >
     <span>
-      {highPriority && <StyledPriorityHighIcon />}
+      {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-7slu" />}
       {name}
     </span>
   </TableTooltip>
 );
 
 const NoDataMessage = () => (
-  <NoDataContainer>
+  <NoDataContainer data-testid="nodatacontainer-476e">
     <TranslatedText
       stringId="encounter.tasks.table.noData"
       fallback="No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient."
+      data-testid="translatedtext-a510"
     />
   </NoDataContainer>
 );
@@ -508,11 +558,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return selectedStatus && status !== selectedStatus;
     },
-    getIsTitleDisabled: selectedKeys => {
-      const uniqueStatuses = new Set(data.map(item => item.status));
+    getIsTitleDisabled: (selectedKeys) => {
+      const uniqueStatuses = new Set(data.map((item) => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: selectedKeys => row => {
+    getRowsFilterer: (selectedKeys) => (row) => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
@@ -522,7 +572,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     resetSelection();
   }, [searchParameters, refreshCount, resetSelection]);
 
-  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
+  const selectedRowIds = useMemo(() => selectedRows.map((row) => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -533,42 +583,71 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     },
     {
       key: 'name',
-      title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Task" />,
+      title: (
+        <TranslatedText
+          stringId="encounter.tasks.table.column.task"
+          fallback="Task"
+          data-testid="translatedtext-dw5r"
+        />
+      ),
       maxWidth: 160,
       accessor: getTask,
     },
     {
       key: 'dueTime',
-      title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Due at" />,
+      title: (
+        <TranslatedText
+          stringId="encounter.tasks.table.column.task"
+          fallback="Due at"
+          data-testid="translatedtext-8mqq"
+        />
+      ),
       accessor: getDueTime,
       maxWidth: 60,
     },
     {
       key: 'assignedTo',
       title: (
-        <TranslatedText stringId="encounter.tasks.table.column.assignedTo" fallback="Assigned to" />
+        <TranslatedText
+          stringId="encounter.tasks.table.column.assignedTo"
+          fallback="Assigned to"
+          data-testid="translatedtext-m7hr"
+        />
       ),
       maxWidth: 100,
       sortable: false,
-      accessor: ({ designations }) => <AssignedToCell designations={designations} />,
+      accessor: ({ designations }) => (
+        <AssignedToCell designations={designations} data-testid="assignedtocell-xea5" />
+      ),
     },
     {
       key: 'frequency',
       title: (
-        <TranslatedText stringId="encounter.tasks.table.column.frequency" fallback="Frequency" />
+        <TranslatedText
+          stringId="encounter.tasks.table.column.frequency"
+          fallback="Frequency"
+          data-testid="translatedtext-nr0u"
+        />
       ),
       maxWidth: 90,
-      accessor: task => getFrequency(task, !!encounter?.endDate),
+      accessor: (task) => getFrequency(task, !!encounter?.endDate),
       sortable: false,
     },
     {
       key: 'note',
-      title: <TranslatedText stringId="encounter.tasks.table.column.notes" fallback="Notes" />,
-      accessor: row => (
+      title: (
+        <TranslatedText
+          stringId="encounter.tasks.table.column.notes"
+          fallback="Notes"
+          data-testid="translatedtext-hvvf"
+        />
+      ),
+      accessor: (row) => (
         <NotesCell
           row={row}
           hoveredRow={hoveredRow}
           handleActionModalOpen={handleActionModalOpen}
+          data-testid="notescell-oai6"
         />
       ),
       sortable: false,
@@ -579,11 +658,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     () =>
       selectedTask?.id
         ? selectedTask?.frequencyValue && selectedTask?.frequencyUnit
-        : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
+        : selectedRows.some((row) => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
 
-  const handleMouseEnterRow = data => {
+  const handleMouseEnterRow = (data) => {
     setHoveredRow(data);
   };
 
@@ -600,17 +679,22 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         refreshTaskTable={refreshTaskTable}
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
+        data-testid="taskactionmodal-26af"
       />
       {selectedRows.length > 0 && canDoAction && (
         <div>
-          <StyledDivider />
-          <ActionsRow rows={selectedRows} handleActionModalOpen={handleActionModalOpen} />
+          <StyledDivider data-testid="styleddivider-jsk1" />
+          <ActionsRow
+            rows={selectedRows}
+            handleActionModalOpen={handleActionModalOpen}
+            data-testid="actionsrow-92uw"
+          />
         </div>
       )}
       <StyledTable
         endpoint={`encounter/${encounterId}/tasks`}
         columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
-        noDataMessage={<NoDataMessage />}
+        noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
         allowExport={false}
         onMouseEnterRow={handleMouseEnterRow}
         onMouseLeaveRow={handleMouseLeaveRow}
@@ -621,6 +705,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         defaultRowsPerPage={25}
         disableHoverEffect={!canDoAction}
         $canDoAction={canDoAction}
+        data-testid="styledtable-3pst"
       />
     </div>
   );
