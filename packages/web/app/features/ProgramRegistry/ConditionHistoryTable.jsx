@@ -56,7 +56,12 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
         {historyData.map(entry => (
           <HistoryItem key={entry.id}>
             <HistoryItemRow>
-              <HistoryItemLabel>Category:</HistoryItemLabel>
+              <HistoryItemLabel>
+                <TranslatedText
+                  stringId="programRegistry.conditionCategoryHistory.categoryLabel"
+                  fallback="Category:"
+                />
+              </HistoryItemLabel>
               <HistoryItemValue>
                 <TranslatedEnum
                   value={entry.data.conditionCategory}
@@ -66,7 +71,12 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
             </HistoryItemRow>
             {entry.data.reasonForChange && (
               <HistoryItemRow>
-                <HistoryItemLabel>Reason for change:</HistoryItemLabel>
+                <HistoryItemLabel>
+                  <TranslatedText
+                    stringId="programRegistry.conditionCategoryHistory.reasonForChangeLabel"
+                    fallback="Reason for change:"
+                  />
+                </HistoryItemLabel>
                 <HistoryItemValue>{entry.data.reasonForChange}</HistoryItemValue>
               </HistoryItemRow>
             )}

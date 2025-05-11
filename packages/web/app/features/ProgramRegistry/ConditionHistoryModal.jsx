@@ -30,7 +30,7 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
   const columns = [
     {
       id: 'name',
-      title: <TranslatedText stringId="programRegistry.condition" fallback="Condition" />,
+      title: <TranslatedText stringId="programRegistry.condition.label" fallback="Condition" />,
       width: '50%',
       accessor: ({ conditionId, name }) => (
         <TranslatedReferenceData
@@ -72,7 +72,9 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       <Divider />
       <ConditionHistoryTable historyData={history} />
       <ModalGenericButtonRow>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose} data-testid="conditionHistoryCloseButton">
+          Close
+        </Button>
       </ModalGenericButtonRow>
     </Modal>
   );
