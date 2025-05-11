@@ -1,6 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
-import { PatientDetailsPage } from "../pages/patients/PatientDetailsPage";
+
+function generateNHN () {
+  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
+  const numbers = faker.string.numeric(6);
+  const generatedId = `${letters}${numbers}`;
+
+  return generatedId;
+}
 
 function generatePatientData() {
   const gender = faker.helpers.arrayElement(["male", "female"]);
@@ -8,30 +15,68 @@ function generatePatientData() {
   const lastName = faker.person.lastName();
   const dob = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
   const formattedDOB = dob.toISOString().split("T")[0]; // Convert to YYYY-MM-DD format
+  const nhn = generateNHN();
 
-  return { firstName, lastName, gender, formattedDOB, nhn: '' };
+  return { firstName, lastName, gender, formattedDOB, nhn};
 }
 
-export async function addNewPatientWithRequiredFields(allPatientsPage: AllPatientsPage, patientDetailsPage: PatientDetailsPage) {
-  await allPatientsPage.addNewPatientBtn.click();
+export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
 
   const patientData = generatePatientData();
-
   allPatientsPage.setPatientData(patientData);
 
-  await allPatientsPage.fillNewPatientDetails(
-    patientData.firstName,
-    patientData.lastName,
-    patientData.formattedDOB,
-    patientData.gender,
-  );
+  const token = await allPatientsPage.page.evaluate(() => {
+    return localStorage.getItem('apiToken');
+  });
 
-  const nhn = await allPatientsPage.NewPatientNHN.textContent() || '';
-  patientData.nhn = nhn;
+  if (!token) {
+    throw new Error('No API token found in localStorage');
+  }
 
-  await allPatientsPage.NewPatientConfirmBtn.click();
+  const userData = await getCurrentUser(token);
 
-  await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
+  const currentFacilityId = await allPatientsPage.page.evaluate(() => {
+    return localStorage.getItem('facilityId');
+  });
 
-  return patientData;
+  const response = await fetch('http://localhost:5173/api/patient', {
+    method: 'POST',
+    headers: {
+      'authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      birthFacilityId: null,
+      dateOfBirth: patientData.formattedDOB,
+      displayId: patientData.nhn,
+      facilityId: currentFacilityId,
+      firstName: patientData.firstName,
+      lastName: patientData.lastName,
+      patientRegistryType: 'new_patient',
+      registeredById: userData.id,
+      sex: patientData.gender,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create patient: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+async function getCurrentUser(token: string) {
+  const userResponse = await fetch('http://localhost:5173/api/user/me', {
+    method: 'GET',
+    headers: {
+      'authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!userResponse.ok) {
+    throw new Error(`Failed to get current user: ${userResponse.statusText}`);
+  }
+
+  return userResponse.json();
 }

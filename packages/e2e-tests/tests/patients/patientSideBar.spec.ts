@@ -1,10 +1,10 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { addNewPatientWithRequiredFields } from '../../utils/generateNewPatient';
+import { createPatientViaApi } from '../../utils/generateNewPatient';
 
 test.describe('Patient Side Bar', () => {
   test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
     await allPatientsPage.goto();
-    await addNewPatientWithRequiredFields(allPatientsPage, patientDetailsPage);
+    await createPatientViaApi(allPatientsPage);
 
     //this is to replicate the workflow of visiting an existing patient
     const patientData = allPatientsPage.getPatientData();

@@ -94,7 +94,7 @@ export class AllPatientsPage extends BasePage {
     }
   }
 
-  async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 10) {
+  async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
     let attempts = 0;
     while (attempts < maxAttempts) {
       try {
@@ -104,14 +104,14 @@ export class AllPatientsPage extends BasePage {
         
         //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
         if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
-          return this.searchForAndSelectPatientByNHN(nhn);
+        continue;
         }
         
         //the below if statement is required because sometimes the search results load all results instead of the specific result
         if (await this.secondNHNResultCell.isVisible()) {
           await this.page.reload();
           await this.page.waitForTimeout(3000);
-          return this.searchForAndSelectPatientByNHN(nhn);
+          continue;
         }
 
         await this.clickOnSearchResult(nhn);
