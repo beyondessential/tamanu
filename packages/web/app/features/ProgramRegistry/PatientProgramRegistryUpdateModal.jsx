@@ -10,6 +10,7 @@ import {
 import { useSuggester } from '../../api';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
+import { useAuth } from '../../contexts/Auth.js';
 
 const StyledAutocompleteField = styled(AutocompleteField)`
   width: 300px;
@@ -20,6 +21,7 @@ export const PatientProgramRegistryUpdateModal = ({
   onClose,
   open,
 }) => {
+  const { currentUser } = useAuth();
   const { id: registrationId, programRegistryId, patientId } = patientProgramRegistration;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateProgramRegistryMutation(
     patientId,
@@ -43,6 +45,9 @@ export const PatientProgramRegistryUpdateModal = ({
       width="lg"
     >
       <RelatedConditionsForm
+        initialValues={{
+          clinicianId: currentUser.id,
+        }}
         patientProgramRegistration={patientProgramRegistration}
         onSubmit={submit}
         FormActions={({ isDirty }) => (
