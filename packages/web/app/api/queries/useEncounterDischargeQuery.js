@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 
-export const useEncounterDischargeQuery = encounter => {
+export const useEncounterDischargeQuery = (encounter) => {
   const api = useApi();
 
   return useQuery(

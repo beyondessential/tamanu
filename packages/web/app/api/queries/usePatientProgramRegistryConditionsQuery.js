@@ -13,7 +13,7 @@ export const usePatientProgramRegistryConditionsQuery = (registrationId, fetchOp
   );
 };
 
-export const useProgramRegistryConditionsQuery = programRegistryId => {
+export const useProgramRegistryConditionsQuery = (programRegistryId) => {
   const api = useApi();
   return useQuery(
     ['programRegistry', programRegistryId, 'conditions'],

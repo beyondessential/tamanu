@@ -50,7 +50,7 @@ export const ArrayField = ({
   const [fields, setFields] = useState(initialState);
 
   return (
-    <FieldArray name={field.name} validateOnChange={false}>
+    <FieldArray name={field.name} validateOnChange={false} data-testid="fieldarray-a1xx">
       {({ remove }) => (
         <>
           {fields.map(({ id }, index) => {
@@ -63,6 +63,7 @@ export const ArrayField = ({
                   setFields((currentFields) => currentFields.filter((x) => x.id !== id));
                   remove(index);
                 }}
+                data-testid={`removebutton-qmfs-${index}`}
               >
                 <Remove />
               </RemoveButton>
@@ -80,6 +81,7 @@ export const ArrayField = ({
               onClick={() => {
                 setFields((currentFields) => [...currentFields, { id: generate() }]);
               }}
+              data-testid="addbutton-4ojv"
             >
               Add additional
             </AddButton>

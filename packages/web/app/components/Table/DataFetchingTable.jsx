@@ -61,7 +61,7 @@ export const DataFetchingTable = memo(
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
-      setForcedRefreshCount(prevCount => prevCount + 1);
+      setForcedRefreshCount((prevCount) => prevCount + 1);
     }, []);
 
     const manualRefresh = useCallback(() => {
@@ -71,7 +71,7 @@ export const DataFetchingTable = memo(
     }, [initialSort, refreshTable]);
 
     const handleChangeOrderBy = useCallback(
-      columnKey => {
+      (columnKey) => {
         const { order, orderBy } = sorting;
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
@@ -289,8 +289,10 @@ export const DataFetchingTable = memo(
             <TranslatedText
               stringId="general.table.error.noPermission"
               fallback="You do not have permission to view this table. If you require access, please contact your administrator."
+              data-testid="translatedtext-r2tx"
             />
           }
+          data-testid="table-6fs4"
         />
       );
     }
@@ -305,10 +307,15 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setIsNotificationMuted(true);
             }}
+            data-testid="tablenotification-pij8"
           />
         )}
         {enableAutoRefresh && (
-          <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
+          <TableRefreshButton
+            lastUpdatedTime={lastUpdatedAt}
+            refreshTable={manualRefresh}
+            data-testid="tablerefreshbutton-4u94"
+          />
         )}
         <Table
           isLoading={isLoading}
@@ -325,7 +332,7 @@ export const DataFetchingTable = memo(
           orderBy={orderBy}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
-          rowStyle={row => {
+          rowStyle={(row) => {
             const rowStyle = [];
             if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
             if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');
@@ -334,6 +341,7 @@ export const DataFetchingTable = memo(
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
+          data-testid="table-4rt7"
         />
       </>
     );

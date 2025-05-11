@@ -7,7 +7,7 @@ const isVisible = (values, allQuestionReactElements, reactElement) => {
       dataElement: {},
     },
     values,
-    allQuestionReactElements.map(x => ({
+    allQuestionReactElements.map((x) => ({
       dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
     })),
   );
@@ -24,8 +24,8 @@ export const getVisibleQuestions = (
   // Adapt the questionReactElements from react elements to the survey config objects which the
   // checkVisibility util expects
   screenQuestionReactElements
-    .filter(reactElement => isVisible(values, allQuestionReactElements, reactElement))
-    .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
+    .filter((reactElement) => isVisible(values, allQuestionReactElements, reactElement))
+    .map((x) => ({ ...x, props: { ...x.props, key: x.props.name } }));
 
 export const getInvisibleQuestions = (
   values,
@@ -33,5 +33,5 @@ export const getInvisibleQuestions = (
   screenQuestionReactElements = allQuestionReactElements,
 ) =>
   screenQuestionReactElements
-    .filter(reactElement => !isVisible(values, allQuestionReactElements, reactElement))
-    .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
+    .filter((reactElement) => !isVisible(values, allQuestionReactElements, reactElement))
+    .map((x) => ({ ...x, props: { ...x.props, key: x.props.name } }));

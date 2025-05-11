@@ -15,6 +15,7 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
     <WrittenByText
       noteAuthorName={updatedByAuthorName}
       noteOnBehalfOfName={updatedByOnBehalfOfName}
+      data-testid="writtenbytext-8x1d"
     />
   );
 
@@ -22,28 +23,44 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={
+          <TranslatedEnum
+            value={note.noteType}
+            enumValues={NOTE_TYPE_LABELS}
+            data-testid="translatedenum-xmcq"
+          />
+        }
         date={note.date}
         dateLabel={
           <TranslatedText
             stringId="note.lastUpdatedAt.label"
             fallback="Last updated at date & time"
+            data-testid="translatedtext-gf64"
           />
         }
         writtenByLabel={
           <TranslatedText
             stringId="note.lastUpdatedBy.label"
             fallback="Last updated by (or on behalf of)"
+            data-testid="translatedtext-6lf3"
           />
         }
         writtenBy={writtenBy}
+        data-testid="noteinfosection-r8z5"
       />
       <br />
-      <NoteChangeLogs note={note} />
-      <StyledDivider />
+      <NoteChangeLogs note={note} data-testid="notechangelogs-zut8" />
+      <StyledDivider data-testid="styleddivider-w141" />
       <ConfirmCancelRow
-        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-gigm"
+          />
+        }
         onConfirm={onCancel}
+        data-testid="confirmcancelrow-i0jq"
       />
     </>
   );

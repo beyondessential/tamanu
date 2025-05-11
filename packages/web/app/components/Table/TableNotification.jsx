@@ -37,9 +37,11 @@ const RefreshText = styled.span`
 
 export const TableNotification = memo(({ message, refreshTable, clearNotification }) => {
   return (
-    <Notification>
-      <NotificationClearIcon onClick={clearNotification} />
-      <RefreshText onClick={refreshTable}>{message}</RefreshText>
+    <Notification data-testid="notification-mvzs">
+      <NotificationClearIcon onClick={clearNotification} data-testid="notificationclearicon-6cup" />
+      <RefreshText onClick={refreshTable} data-testid="refreshtext-ww64">
+        {message}
+      </RefreshText>
     </Notification>
   );
 });

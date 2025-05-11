@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 
-export const usePatientAdditionalDataQuery = patientId => {
+export const usePatientAdditionalDataQuery = (patientId) => {
   const api = useApi();
   const { facilityId } = useAuth();
   return useQuery(
