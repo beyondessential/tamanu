@@ -53,37 +53,101 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('styledtab-yhha-vaccines');
-    this.initiateNewOngoingConditionAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Ongoing conditionsAdd' }).getByTestId('addbutton-b0ln');
-    this.ongoingConditionNameField = this.page.getByTestId('field-j30y-input').getByRole('textbox', { name: 'Search...' });
-    this.ongoingConditionDateRecordedField = this.page.getByTestId('field-2775-input').getByRole('textbox');
+    this.initiateNewOngoingConditionAddButton = this.page
+      .getByTestId('listssection-1frw')
+      .locator('div')
+      .filter({ hasText: 'Ongoing conditionsAdd' })
+      .getByTestId('addbutton-b0ln');
+    this.ongoingConditionNameField = this.page
+      .getByTestId('field-j30y-input')
+      .getByRole('textbox', { name: 'Search...' });
+    this.ongoingConditionDateRecordedField = this.page
+      .getByTestId('field-2775-input')
+      .getByRole('textbox');
     this.ongoingConditionClinicianField = this.page.getByTestId('field-9miu-input');
     this.ongoingConditionNotes = this.page.getByTestId('field-e52k-input');
-    this.savedOnGoingConditionName =this.page.getByTestId('collapse-0a33').getByTestId('field-j30y-input').getByRole('textbox');
-    this.savedOnGoingConditionDate = this.page.getByTestId('collapse-0a33').getByTestId('field-2775-input').getByRole('textbox');
-    this.savedOnGoingConditionClinician = this.page.getByTestId('collapse-0a33').getByTestId('field-9miu-input').getByRole('textbox');
-    this.savedOnGoingConditionNote = this.page.getByTestId('collapse-0a33').getByTestId('field-e52k-input');
+    this.savedOnGoingConditionName = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-j30y-input')
+      .getByRole('textbox');
+    this.savedOnGoingConditionDate = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-2775-input')
+      .getByRole('textbox');
+    this.savedOnGoingConditionClinician = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-9miu-input')
+      .getByRole('textbox');
+    this.savedOnGoingConditionNote = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-e52k-input');
     this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
-    this.submitEditsButton = this.page.getByTestId('collapse-0a33').getByTestId('formsubmitbutton-ygc6'); 
-    this.submitNewOngoingConditionAddButton = this.page.getByTestId('formgrid-lqds').getByTestId('formsubmitbutton-ygc6');
-    this.initiateNewAllergyAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'AllergiesAdd' }).getByTestId('addbutton-b0ln');
-    this.allergyNameField = this.page.getByTestId('field-hwfk-input').getByRole('textbox', { name: 'Search...' });
-    this.savedAllergyName = this.page.getByTestId('collapse-0a33').getByTestId('field-hwfk-input').getByRole('textbox');
+    this.submitEditsButton = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitbutton-ygc6');
+    this.submitNewOngoingConditionAddButton = this.page
+      .getByTestId('formgrid-lqds')
+      .getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewAllergyAddButton = this.page
+      .getByTestId('listssection-1frw')
+      .locator('div')
+      .filter({ hasText: 'AllergiesAdd' })
+      .getByTestId('addbutton-b0ln');
+    this.allergyNameField = this.page
+      .getByTestId('field-hwfk-input')
+      .getByRole('textbox', { name: 'Search...' });
+    this.savedAllergyName = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-hwfk-input')
+      .getByRole('textbox');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
-    this.submitNewAllergyAddButton = this.page.getByTestId('formgrid-p12d').getByTestId('formsubmitbutton-ygc6');
-    this.initiateNewFamilyHistoryAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Family historyAdd' }).getByTestId('addbutton-b0ln');
-    this.familyHistoryDiagnosisField = this.page.getByTestId('field-3b4u-input').getByRole('textbox', { name: 'Search...' });
-    this.submitNewFamilyHistoryAddButton = this.page.getByTestId('formgrid-kjns').getByTestId('formsubmitbutton-ygc6');
-    this.savedFamilyHistoryDateRecorded = this.page.getByTestId('collapse-0a33').getByTestId('field-wrp3-input').getByRole('textbox');
-    this.savedFamilyHistoryRelationship = this.page.getByTestId('collapse-0a33').getByTestId('field-t0k5-input');
-    this.savedFamilyClinician = this.page.getByTestId('collapse-0a33').getByTestId('field-kbwi-input').getByRole('textbox');
-    this.savedFamilyHistoryNote = this.page.getByTestId('collapse-0a33').getByTestId('field-mgiu-input');
-    this.initiateNewOtherPatientIssuesAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Other patient issuesAdd' }).getByTestId('addbutton-b0ln');
+    this.submitNewAllergyAddButton = this.page
+      .getByTestId('formgrid-p12d')
+      .getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewFamilyHistoryAddButton = this.page
+      .getByTestId('listssection-1frw')
+      .locator('div')
+      .filter({ hasText: 'Family historyAdd' })
+      .getByTestId('addbutton-b0ln');
+    this.familyHistoryDiagnosisField = this.page
+      .getByTestId('field-3b4u-input')
+      .getByRole('textbox', { name: 'Search...' });
+    this.submitNewFamilyHistoryAddButton = this.page
+      .getByTestId('formgrid-kjns')
+      .getByTestId('formsubmitbutton-ygc6');
+    this.savedFamilyHistoryDateRecorded = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-wrp3-input')
+      .getByRole('textbox');
+    this.savedFamilyHistoryRelationship = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-t0k5-input');
+    this.savedFamilyClinician = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-kbwi-input')
+      .getByRole('textbox');
+    this.savedFamilyHistoryNote = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-mgiu-input');
+    this.initiateNewOtherPatientIssuesAddButton = this.page
+      .getByTestId('listssection-1frw')
+      .locator('div')
+      .filter({ hasText: 'Other patient issuesAdd' })
+      .getByTestId('addbutton-b0ln');
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
     this.savedIssueType = this.page.getByTestId('collapse-0a33').getByText('Type*Issue');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
-    this.savedOtherPatientIssueNote = this.page.getByTestId('collapse-0a33').getByTestId('field-nj3s-input');
-    this.submitNewOtherPatientIssuesAddButton = this.page.getByTestId('formgrid-vv7x').getByTestId('formsubmitbutton-ygc6');
-    this.initiateNewCarePlanAddButton = this.page.getByTestId('listssection-1frw').locator('div').filter({ hasText: 'Care plansAdd' }).getByTestId('addbutton-b0ln');
+    this.savedOtherPatientIssueNote = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-nj3s-input');
+    this.submitNewOtherPatientIssuesAddButton = this.page
+      .getByTestId('formgrid-vv7x')
+      .getByTestId('formsubmitbutton-ygc6');
+    this.initiateNewCarePlanAddButton = this.page
+      .getByTestId('listssection-1frw')
+      .locator('div')
+      .filter({ hasText: 'Care plansAdd' })
+      .getByTestId('addbutton-b0ln');
     this.dropdownMenuItem = this.page.getByTestId('typography-qxy3');
     this.firstListItem = this.page.getByTestId('listitem-adip-0');
     this.patientNHN = this.page.getByTestId('healthidtext-fqvn');
@@ -92,10 +156,18 @@ export class PatientDetailsPage extends BasePatientPage {
     this.warningModalContent = this.page.getByTestId('modalcontent-bk4w');
     this.warningModalDismissButton = this.page.getByTestId('button-ui1m');
     this.warningModalOkayButton = this.page.getByTestId('button-3i9s');
-    this.resolvedCheckbox = this.page.getByTestId('collapse-0a33').getByTestId('checkinput-x2e3-controlcheck');
-    this.resolvedClinician = this.page.getByRole('combobox').filter({ hasText: 'Clinician confirming' }).getByPlaceholder('Search...');
+    this.resolvedCheckbox = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('checkinput-x2e3-controlcheck');
+    this.resolvedClinician = this.page
+      .getByRole('combobox')
+      .filter({ hasText: 'Clinician confirming' })
+      .getByPlaceholder('Search...');
     this.resolvedNote = this.page.getByTestId('field-4g2s-input').first();
-    this.savedFamilyHistoryName = this.page.getByTestId('collapse-0a33').getByTestId('field-3b4u-input').getByRole('textbox');
+    this.savedFamilyHistoryName = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-3b4u-input')
+      .getByRole('textbox');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -113,7 +185,12 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.clickAddButtonToConfirm(this.submitNewOngoingConditionAddButton);
   }
 
-  async addNewOngoingConditionWithAllFields(conditionName: string, dateRecorded: string, clinicianName: string, notes: string) {
+  async addNewOngoingConditionWithAllFields(
+    conditionName: string,
+    dateRecorded: string,
+    clinicianName: string,
+    notes: string,
+  ) {
     await this.initiateNewOngoingConditionAddButton.click();
     await this.ongoingConditionNameField.fill(conditionName);
     await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
@@ -152,7 +229,6 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewOtherPatientIssueNote(otherPatientIssueNote: string) {
     await this.otherPatientIssueNote.fill(otherPatientIssueNote);
     await this.clickAddButtonToConfirm(this.submitNewOtherPatientIssuesAddButton);
-
   }
 
   async addNewOtherPatientIssueWarning(otherPatientIssueWarning: string) {
@@ -171,7 +247,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.carePlanModal;
   }
 
-  async navigateToCarePlan(carePlanName: string): Promise<CarePlanModal>  {
+  async navigateToCarePlan(carePlanName: string): Promise<CarePlanModal> {
     await this.completedCarePlan(carePlanName).click();
     if (!this.carePlanModal) {
       this.carePlanModal = new CarePlanModal(this.page);
@@ -196,7 +272,7 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   completedCarePlan(carePlanName: string) {
-    return this.firstCarePlanListItem.filter({ hasText: carePlanName});
+    return this.firstCarePlanListItem.filter({ hasText: carePlanName });
   }
 
   async resolveOngoingCondition(clinicianName: string, note: string) {

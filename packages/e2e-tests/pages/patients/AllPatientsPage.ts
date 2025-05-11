@@ -14,7 +14,13 @@ export class AllPatientsPage extends BasePage {
   readonly NewPatientFemaleChk: Locator;
   readonly NewPatientNHN: Locator;
   readonly NewPatientConfirmBtn: Locator;
-  _patientData?: { firstName: string; lastName: string; gender: string; formattedDOB: string; nhn: string };
+  _patientData?: {
+    firstName: string;
+    lastName: string;
+    gender: string;
+    formattedDOB: string;
+    nhn: string;
+  };
   readonly nhnSearchInput: Locator;
   readonly patientSearchButton: Locator;
   readonly patientListingsHeader: Locator;
@@ -27,7 +33,9 @@ export class AllPatientsPage extends BasePage {
     super(page, routes.patients.all);
 
     this.allPatientsTable = page.getByRole('table');
-    this.allPatientsTableLoadingCell = page.getByTestId('statustablecell-rwkq').filter( { hasText: 'Loading' });
+    this.allPatientsTableLoadingCell = page
+      .getByTestId('statustablecell-rwkq')
+      .filter({ hasText: 'Loading' });
     this.addNewPatientBtn = page.getByTestId('component-enxe');
     this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
     this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
@@ -40,11 +48,19 @@ export class AllPatientsPage extends BasePage {
     this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
     this.searchResultsPagination = page.getByTestId('pagerecordcount-m8ne');
-    this.searchResultsPaginationOneOfOne = page.getByTestId('pagerecordcount-m8ne').filter({ hasText: "1–1 of 1" });
+    this.searchResultsPaginationOneOfOne = page
+      .getByTestId('pagerecordcount-m8ne')
+      .filter({ hasText: '1–1 of 1' });
     this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
     this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
-}
-  setPatientData(data: { firstName: string; lastName: string; gender: string; formattedDOB: string; nhn: string }) {
+  }
+  setPatientData(data: {
+    firstName: string;
+    lastName: string;
+    gender: string;
+    formattedDOB: string;
+    nhn: string;
+  }) {
     this._patientData = data;
   }
 
@@ -75,19 +91,14 @@ export class AllPatientsPage extends BasePage {
     await this.searchForAndSelectPatientByNHN(nhn);
   }
 
-  async fillNewPatientDetails(
-    firstName: string,
-    lastName: string,
-    dob: string,
-    gender: string,
-  ) {
+  async fillNewPatientDetails(firstName: string, lastName: string, dob: string, gender: string) {
     await this.NewPatientFirstName.fill(firstName);
     await this.NewPatientLastName.fill(lastName);
 
     await this.NewPatientDOBtxt.click();
     await this.NewPatientDOBtxt.fill(dob);
-    
-    if (gender === "female") {
+
+    if (gender === 'female') {
       await this.NewPatientFemaleChk.check();
     } else {
       await this.NewPatientMaleChk.check();
@@ -101,13 +112,13 @@ export class AllPatientsPage extends BasePage {
         await this.nhnSearchInput.fill(nhn);
         await this.patientSearchButton.click();
         await this.waitForTableToLoad();
-        
+
         //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
         if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
-        attempts++;
-        continue;
+          attempts++;
+          continue;
         }
-        
+
         //the below if statement is required because sometimes the search results load all results instead of the specific result
         if (await this.secondNHNResultCell.isVisible()) {
           await this.page.reload();
