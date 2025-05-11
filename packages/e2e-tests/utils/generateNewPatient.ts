@@ -25,19 +25,11 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   const patientData = generatePatientData();
   allPatientsPage.setPatientData(patientData);
 
-  const token = await allPatientsPage.page.evaluate(() => {
-    return localStorage.getItem('apiToken');
-  });
-
-  if (!token) {
-    throw new Error('No API token found in localStorage');
-  }
-
+  const token = await getItemFromLocalStorage(allPatientsPage, 'apiToken');
+  
   const userData = await getCurrentUser(token);
 
-  const currentFacilityId = await allPatientsPage.page.evaluate(() => {
-    return localStorage.getItem('facilityId');
-  });
+  const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
 
   const response = await fetch('http://localhost:5173/api/patient', {
     method: 'POST',
@@ -79,4 +71,16 @@ async function getCurrentUser(token: string) {
   }
 
   return userResponse.json();
+}
+
+async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
+  const response = await allPatientsPage.page.evaluate((key) => {
+    return localStorage.getItem(key);
+  }, item); 
+
+  if (!response) {
+    throw new Error(`No ${item} found in localStorage`);
+  }
+
+  return response;
 }
