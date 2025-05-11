@@ -46,9 +46,6 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
 
-  @Column({ type: 'boolean', nullable: false, default: 0 })
-  isMostRecent: boolean;
-
   @DateTimeStringColumn()
   date: DateTimeString;
 
@@ -112,8 +109,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where(`registration.isMostRecent = 1`)
-      .andWhere('program.id = :programId', { programId })
+      .where('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
       .getOne();
   }
@@ -122,8 +118,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const registrationRepository = this.getRepository();
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.isMostRecent = 1`)
-      .andWhere('registration.registrationStatus != :status', {
+      .where('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
       .andWhere('registration.patientId = :patientId', { patientId })
@@ -152,7 +147,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return fullPpr;
   }
 
-  static async appendRegistration(
+  static async upsertRegistration(
     patientId: string,
     programRegistryId: string,
     data: any,
@@ -163,8 +158,12 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patientId,
     );
     if (existingRegistration) {
-      await PatientProgramRegistration.updateValues(existingRegistration.id, {
-        isMostRecent: false,
+      return PatientProgramRegistration.updateValues(existingRegistration.id, {
+        ...getValuesFromRelations(existingRegistration),
+        ...getValuesFromRelations(data),
+        ...data,
+        programRegistry: programRegistryId,
+        patient: patientId,
       });
     }
 
@@ -174,7 +173,6 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       ...data,
       programRegistry: programRegistryId,
       patient: patientId,
-      isMostRecent: true,
     });
   }
 }

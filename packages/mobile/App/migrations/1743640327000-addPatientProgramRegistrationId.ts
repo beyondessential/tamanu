@@ -1,9 +1,11 @@
 import { MigrationInterface, QueryRunner, TableForeignKey, TableColumn } from 'typeorm';
 
-const setPatientProgramRegistrationsForFullResync = async (
+const setPatientProgramRegistrationsAndConditionsForFullResync = async (
   queryRunner: QueryRunner,
 ): Promise<void> => {
   await queryRunner.query('DELETE FROM patient_program_registration_conditions');
+  await queryRunner.query('DELETE FROM patient_program_registrations');
+
   // uuid generation based on
   // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
   await queryRunner.query(`
@@ -14,7 +16,7 @@ const setPatientProgramRegistrationsForFullResync = async (
         substr('AB89', 1 + (abs(random()) % 4) , 1)  ||
         substr(hex(randomblob(2)), 2) || '-' ||
         hex(randomblob(6))
-      ), 'tablesForFullResync', 'patient_program_registration_conditions')
+      ), 'tablesForFullResync', 'patient_program_registration_conditions,patient_program_registrations')
     `);
 };
 
@@ -44,7 +46,7 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
     await queryRunner.dropColumn('patient_program_registration_conditions', 'programRegistryId');
 
     // Fully resync the patient_program_registration_conditions table so as not to repeat the complex logic from central server migration
-    await setPatientProgramRegistrationsForFullResync(queryRunner);
+    await setPatientProgramRegistrationsAndConditionsForFullResync(queryRunner);
 
     // Add patientProgramRegistrationId column
     await queryRunner.addColumn(

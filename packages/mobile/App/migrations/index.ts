@@ -62,6 +62,7 @@ import { addIsSensitiveColumnToLabTestTypes1738620786000 } from './1738620786000
 import { addPatientProgramRegistrationConditionCategoryColumn1739395962000 } from './1739395962000-addPatientProgramRegistrationConditionCategoryColumn';
 import { addPatientProgramRegistrationReasonForChange1740342611000 } from './1740342611000-addPatientProgramRegistrationReasonForChange';
 import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-addPatientProgramRegistrationId';
+import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from './1744754327000-removeIsMostRecentFromPatientProgramRegistrations';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -127,4 +128,5 @@ export const migrationList = [
   addPatientProgramRegistrationConditionCategoryColumn1739395962000,
   addPatientProgramRegistrationReasonForChange1740342611000,
   addPatientProgramRegistrationId1743640327000,
+  removeIsMostRecentFromPatientProgramRegistrations1744754327000,
 ];
