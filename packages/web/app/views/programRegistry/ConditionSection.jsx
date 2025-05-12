@@ -137,12 +137,22 @@ export const ConditionSection = ({ registrationId }) => {
         />
       </Heading5>
       <ScrollBody>
-        {openConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} data-testid={`condition-component-open-${index}`} />
+        {openConditions.map((condition, index) => (
+          <ConditionComponent
+            key={condition.id}
+            condition={condition}
+            onClick={onConditionClick}
+            data-testid={`condition-component-open-${index}`}
+          />
         ))}
         {needsDivider && <Divider variant="middle" />}
-        {closedConditions.map(condition => (
-          <ConditionComponent key={condition.id} condition={condition} onClick={onConditionClick} data-testid={`conditional-component-closed-${index}`} />
+        {closedConditions.map((condition, index) => (
+          <ConditionComponent
+            key={condition.id}
+            condition={condition}
+            onClick={onConditionClick}
+            data-testid={`conditional-component-closed-${index}`}
+          />
         ))}
       </ScrollBody>
       <UpdateConditionFormModal
