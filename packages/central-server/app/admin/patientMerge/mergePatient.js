@@ -421,19 +421,19 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       updates.PatientFieldValue = fieldValueUpdates.length;
     }
 
+    const patientProgramRegistrationConditionUpdates =
+      await mergePatientProgramRegistrationConditions(models, unwantedPatientId);
+    if (patientProgramRegistrationConditionUpdates.length > 0) {
+      updates.PatientProgramRegistrationCondition =
+        patientProgramRegistrationConditionUpdates.length;
+    }
+
     const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
       models,
       unwantedPatientId,
     );
     if (patientProgramRegistrationUpdates.length > 0) {
       updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
-    }
-
-    const patientProgramRegistrationConditionUpdates =
-      await mergePatientProgramRegistrationConditions(models, unwantedPatientId);
-    if (patientProgramRegistrationConditionUpdates.length > 0) {
-      updates.PatientProgramRegistrationCondition =
-        patientProgramRegistrationConditionUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
