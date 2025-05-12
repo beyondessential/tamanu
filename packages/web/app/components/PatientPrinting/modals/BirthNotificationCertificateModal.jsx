@@ -87,10 +87,8 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
   const { data: motherData, isLoading: isMotherDataLoading } = useParent(
     api,
     !!additionalData,
@@ -137,8 +135,9 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       width="md"
       printable
       onPrint={() => printPDF('birth-notification')}
+      data-testid="modal-itxf"
     >
-      <PDFLoader isLoading={isLoading} id="birth-notification">
+      <PDFLoader isLoading={isLoading} id="birth-notification" data-testid="pdfloader-1cur">
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}
@@ -148,6 +147,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           getLocalisation={getLocalisation}
           language={storedLanguage}
           translations={translations}
+          data-testid="birthnotificationcertificate-mwfw"
         />
       </PDFLoader>
     </Modal>

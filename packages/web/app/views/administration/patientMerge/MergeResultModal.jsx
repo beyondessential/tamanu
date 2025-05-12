@@ -5,18 +5,20 @@ export const MergeResultModal = ({ result, onClose }) => {
   const { updates = {} } = result;
 
   const actions = (
-    <ButtonRow>
-      <Button onClick={onClose}>OK</Button>
+    <ButtonRow data-testid="buttonrow-l9vl">
+      <Button onClick={onClose} data-testid="button-3gs0">
+        OK
+      </Button>
     </ButtonRow>
   );
   return (
-    <Modal title="Merge patients" actions={actions} open onClose={onClose}>
+    <Modal title="Merge patients" actions={actions} open onClose={onClose} data-testid="modal-yazr">
       <p>
         <strong>Merge successful.</strong> Records updated:
       </p>
       <ul>
         {Object.entries(updates).map(([modelName, count]) => (
-          <li key={modelName}>
+          <li data-testid={`li-pp3g-${modelName}`} key={modelName}>
             <span>{`${modelName}: `}</span>
             <strong>{count}</strong>
           </li>

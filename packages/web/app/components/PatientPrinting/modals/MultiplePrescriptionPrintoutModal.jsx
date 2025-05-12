@@ -71,6 +71,7 @@ export const MultiplePrescriptionPrintoutModal = ({
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
           fallback="Print prescriptions"
+          data-testid="translatedtext-v5oy"
         />
       }
       width="md"
@@ -79,8 +80,9 @@ export const MultiplePrescriptionPrintoutModal = ({
       color={Colors.white}
       printable
       onPrint={() => printPDF('prescription-printout')}
+      data-testid="modal-2t67"
     >
-      <PDFLoader isLoading={isLoading} id="prescription-printout">
+      <PDFLoader isLoading={isLoading} id="prescription-printout" data-testid="pdfloader-bblq">
         <PrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village, patientWeight }}
@@ -90,6 +92,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           facility={facility}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
+          data-testid="prescriptionprintout-on8m"
         />
       </PDFLoader>
     </Modal>

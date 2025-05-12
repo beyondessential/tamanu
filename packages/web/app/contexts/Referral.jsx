@@ -22,7 +22,7 @@ export const ReferralProvider = ({ children }) => {
   };
 
   // get Referral data from the central server and save it to state.
-  const loadReferral = async referralId => {
+  const loadReferral = async (referralId) => {
     setIsLoadingReferral(true);
     const data = await api.get(`referral/${referralId}`);
     setReferral({ ...data });

@@ -43,29 +43,41 @@ const TabContainer = styled.div`
 
 const tabs = [
   {
-    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
+    label: (
+      <TranslatedText
+        stringId="admin.settings.tab.editor.title"
+        fallback="Editor"
+        data-testid="translatedtext-43ay"
+      />
+    ),
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
-    render: props => {
+    render: (props) => {
       // Don't show the editor if the scope is facility and no facility is selected
       const { facilityId, scope } = props.values;
       const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
-        <TabContainer>
-          <ScopeSelectorFields {...props} />
-          {shouldShowEditor && <EditorView {...props} />}
+        <TabContainer data-testid="tabcontainer-6tbj">
+          <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mdma" />
+          {shouldShowEditor && <EditorView {...props} data-testid="editorview-g9wr" />}
         </TabContainer>
       );
     },
   },
   {
-    label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
+    label: (
+      <TranslatedText
+        stringId="admin.settings.tab.jsonEditor.title"
+        fallback="JSON editor"
+        data-testid="translatedtext-fs34"
+      />
+    ),
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
-    render: props => (
-      <TabContainer>
-        <ScopeSelectorFields {...props} />
-        <JSONEditorView {...props} />
+    render: (props) => (
+      <TabContainer data-testid="tabcontainer-z96b">
+        <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mtsk" />
+        <JSONEditorView {...props} data-testid="jsoneditorview-7anx" />
       </TabContainer>
     ),
   },
@@ -98,7 +110,7 @@ export const SettingsView = () => {
       return true;
     } catch (error) {
       if (error instanceof ValidationError) {
-        error?.inner?.forEach(e => {
+        error?.inner?.forEach((e) => {
           notifyError(e.message);
         });
       } else {
@@ -110,25 +122,34 @@ export const SettingsView = () => {
 
   return (
     <AdminViewContainer
-      title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
+      title={
+        <TranslatedText
+          stringId="admin.settings.title"
+          fallback="Settings"
+          data-testid="translatedtext-gs7s"
+        />
+      }
+      data-testid="adminviewcontainer-htwi"
     >
       {settingsFetchError ? (
-        <ErrorMessage error={settingsFetchError} />
+        <ErrorMessage error={settingsFetchError} data-testid="errormessage-2eud" />
       ) : (
         <Form
           enableReinitialize
           initialValues={{ scope, facilityId, settings: settingsSnapshot }}
           onSubmit={handleSubmit}
-          render={props => (
+          render={(props) => (
             <SettingsForm
               {...props}
               scope={scope}
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
+              data-testid="settingsform-lqhf"
             />
           )}
           style={{ flex: 1 }}
+          data-testid="form-3nvo"
         />
       )}
     </AdminViewContainer>
@@ -160,12 +181,12 @@ const SettingsForm = ({
   );
 
   const handleShowWarningModal = async () =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
 
-  const handleChangeTab = async newTab => {
+  const handleChangeTab = async (newTab) => {
     if (newTab !== currentTab && dirty) {
       const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
@@ -174,7 +195,7 @@ const SettingsForm = ({
     setCurrentTab(newTab);
   };
 
-  const handleChangeScope = async e => {
+  const handleChangeScope = async (e) => {
     const newScope = e.target.value;
     if (newScope !== scope && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -184,7 +205,7 @@ const SettingsForm = ({
     setFacilityId(null);
   };
 
-  const handleFacilityChange = async e => {
+  const handleFacilityChange = async (e) => {
     const newFacilityId = e.target.value;
     if (newFacilityId !== facilityId && dirty) {
       const dismissChanges = await handleShowWarningModal();
@@ -212,11 +233,13 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
+        data-testid="styledtabdisplay-teef"
       />
       <WarningModal
         open={warningModalOpen}
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
+        data-testid="warningmodal-kbpq"
       />
     </>
   );

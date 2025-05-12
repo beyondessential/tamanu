@@ -18,12 +18,22 @@ const Column = ({ header, appointments, onAppointmentUpdated }) => {
 
   return (
     <>
-      <ColumnHeader className="location" $width={width} $minWidth={minWidth}>
+      <ColumnHeader
+        className="location"
+        $width={width}
+        $minWidth={minWidth}
+        data-testid="columnheader-y3re"
+      >
         {header}
       </ColumnHeader>
-      <ColumnBody className="appointments">
-        {appointmentsByStartTime.map(appt => (
-          <Appointment key={appt.id} appointment={appt} onUpdated={onAppointmentUpdated} />
+      <ColumnBody className="appointments" data-testid="columnbody-h38k">
+        {appointmentsByStartTime.map((appt, index) => (
+          <Appointment
+            key={appt.id}
+            appointment={appt}
+            onUpdated={onAppointmentUpdated}
+            data-testid={`appointment-lse5-${index}`}
+          />
         ))}
       </ColumnBody>
     </>
@@ -38,14 +48,14 @@ export const DailySchedule = ({
   onAppointmentUpdated,
 }) => {
   const appointmentGroups = groupBy(
-    appointments.filter(appointment => {
+    appointments.filter((appointment) => {
       // don't show canceled appointment
       if (appointment.status === APPOINTMENT_STATUSES.CANCELLED) {
         return false;
       }
       return true;
     }),
-    appt => appt[activeFilter].id,
+    (appt) => appt[activeFilter].id,
   );
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
@@ -62,7 +72,7 @@ export const DailySchedule = ({
       // location has name, while clinician has displayName;
       const header = filterObject.name || filterObject.displayName;
 
-      const displayAppointments = appts.filter(appointment => {
+      const displayAppointments = appts.filter((appointment) => {
         // if no appointmentType selected, show all
         if (!appointmentType.length) {
           return true;
@@ -76,9 +86,14 @@ export const DailySchedule = ({
       };
     });
   return (
-    <Container>
-      {columns.map(props => (
-        <Column key={props.key} onAppointmentUpdated={onAppointmentUpdated} {...props} />
+    <Container data-testid="container-xxnp">
+      {columns.map((props) => (
+        <Column
+          key={props.key}
+          onAppointmentUpdated={onAppointmentUpdated}
+          {...props}
+          data-testid={`column-zgt6-${props.key}`}
+        />
       ))}
     </Container>
   );

@@ -127,14 +127,6 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
         changingStatusReason,
       });
     } else {
-      if (
-        !showWarningModal &&
-        Number(values.doseAmount) !== Number(medication?.doseAmount) &&
-        !medication?.isVariableDose
-      ) {
-        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
-        return;
-      }
       const {
         doseAmount,
         givenTime,

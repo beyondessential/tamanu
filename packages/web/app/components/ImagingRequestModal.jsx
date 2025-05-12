@@ -30,10 +30,15 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
     <FormModal
       width="md"
       title={
-        <TranslatedText stringId="imaging.modal.create.title" fallback="New imaging request" />
+        <TranslatedText
+          stringId="imaging.modal.create.title"
+          fallback="New imaging request"
+          data-testid="translatedtext-2k84"
+        />
       }
       open={open}
       onClose={onClose}
+      data-testid="formmodal-k53m"
     >
       <ImagingRequestForm
         onSubmit={mutateImagingRequest}
@@ -42,6 +47,7 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         generateId={generateDisplayId}
+        data-testid="imagingrequestform-1dqs"
       />
     </FormModal>
   );

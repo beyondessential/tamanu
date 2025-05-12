@@ -28,21 +28,28 @@ const Container = styled.div`
 `;
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
-  const patient = useSelector(state => state.patient);
-  const { getSetting } = useSettings()
+  const patient = useSelector((state) => state.patient);
+  const { getSetting } = useSettings();
   const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 
   return (
     <Modal
-      title={<TranslatedText stringId="lab.modal.printLabel.title" fallback="Print label" />}
+      title={
+        <TranslatedText
+          stringId="lab.modal.printLabel.title"
+          fallback="Print label"
+          data-testid="translatedtext-4d9s"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}
       printable
+      data-testid="modal-5no3"
     >
-      <Container>
-        {labRequests.map(lab => (
-          <Box key={lab.displayId} mb={3}>
+      <Container data-testid="container-78hf">
+        {labRequests.map((lab, index) => (
+          <Box key={lab.displayId} mb={3} data-testid={`box-ldhb-${index}`}>
             <LabRequestPrintLabel
               printWidth={labelWidth}
               data={{
@@ -51,19 +58,24 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
                 patientId: patient.displayId,
                 patientDateOfBirth: patient.dateOfBirth,
                 date: lab.sampleTime,
-                labCategory: lab.category
-                  && <TranslatedReferenceData
+                labCategory: lab.category && (
+                  <TranslatedReferenceData
                     fallback={lab.category.name}
                     value={lab.category.id}
                     category={lab.category.type}
-                  />,
-                specimenType: lab.specimenType
-                  && <TranslatedReferenceData
+                    data-testid={`translatedreferencedata-hcy8-${index}`}
+                  />
+                ),
+                specimenType: lab.specimenType && (
+                  <TranslatedReferenceData
                     fallback={lab.specimenType.name}
                     value={lab.specimenType.id}
                     category={lab.specimenType.type}
+                    data-testid={`translatedreferencedata-guo4-${index}`}
                   />
+                ),
               }}
+              data-testid={`labrequestprintlabel-xrxn-${index}`}
             />
           </Box>
         ))}

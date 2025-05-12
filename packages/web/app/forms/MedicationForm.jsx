@@ -810,10 +810,11 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                       replacements={{ unit: weightUnit }}
                     />
                   }
-                  onChange={e => setPatientWeight(e.target.value)}
+                  onChange={(e) => setPatientWeight(e.target.value)}
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
+                  data-testid="field-2hh7"
                 />
               </>
             )}

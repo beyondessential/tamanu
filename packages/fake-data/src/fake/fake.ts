@@ -404,6 +404,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     const frequency = chance.pickone(REPEAT_FREQUENCY_VALUES);
     const endsMode = chance.pickone(['on', 'after']);
     return {
+      frequency,
       daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
       nthWeekday:
         frequency === REPEAT_FREQUENCY.MONTHLY ? chance.integer({ min: -1, max: 4 }) : null,
