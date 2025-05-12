@@ -2,21 +2,19 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
-import { useApi, useSuggester } from '../api';
+import { useApi, useSuggester } from '../../api';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import { Box } from '@material-ui/core';
 
-import { NoteForm } from '../forms/NoteForm';
-import { ConfirmModal } from './ConfirmModal';
-import { useAuth } from '../contexts/Auth';
-import { Colors, NOTE_FORM_MODES } from '../constants';
-import { TranslatedText } from './Translation/TranslatedText';
-import { withModalFloating } from './withModalFloating';
-import { useNoteModal } from '../contexts/NoteModal';
+import { NoteForm } from '../../forms/NoteForm';
+import { ConfirmModal } from '../ConfirmModal';
+import { useAuth } from '../../contexts/Auth';
+import { NOTE_FORM_MODES } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { withModalFloating } from '../withModalFloating';
+import { useNoteModal } from '../../contexts/NoteModal';
+import { Prompt } from 'react-router-dom';
+import { NoteModalDialogTitle } from './NoteModalCommonComponents';
 
 const StyledMuiDialog = styled(MuiDialog)`
   /* Make the form take up full height */
@@ -40,6 +38,13 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   return newData.writtenById && currentUserId !== newData.writtenById
     ? newData.writtenById
     : undefined;
+};
+
+const getMinConstraints = (noteFormMode, note) => {
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+    return [400, 500];
+  }
+  return [400, 414];
 };
 
 export const MuiNoteModalComponent = ({
@@ -89,8 +94,9 @@ export const MuiNoteModalComponent = ({
       const createdNote = await api.post('notes', newNote);
       resetForm();
       onSaved(createdNote);
+      onClose();
     },
-    [api, noteFormMode, currentUser.id, encounterId, note, onSaved],
+    [api, noteFormMode, currentUser.id, encounterId, note, onSaved, onClose],
   );
 
   return (
@@ -118,27 +124,13 @@ export const MuiNoteModalComponent = ({
         onClose={onClose}
         baseWidth={535}
         baseHeight={775}
-        minConstraints={[400, 370]}
+        minConstraints={getMinConstraints(noteFormMode, note)}
         maxConstraints={[535, 775]}
       >
-        <DialogTitle style={{ borderBottom: `1px solid ${Colors.softOutline}`, padding: 0 }}>
-          <Box
-            display="flex"
-            alignItems="center"
-            width="100%"
-            justifyContent="space-between"
-            paddingY="10px"
-            paddingX="19px"
-            fontSize="14px"
-          >
-            {title}
-            <IconButton onClick={onClose} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
+        <NoteModalDialogTitle title={title} onClose={onClose} />
         <NoteForm
           noteFormMode={noteFormMode}
+          onCancel={onClose}
           onSubmit={handleCreateOrEditNewNote}
           practitionerSuggester={practitionerSuggester}
           note={note}
@@ -175,6 +167,17 @@ export const NoteModal = React.memo(() => {
 
   console.log('📝 NoteModal render:', { isNoteModalOpen, noteModalProps });
   return (
-    <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
+    <>
+      <Prompt
+        when={isNoteModalOpen}
+        message={
+          <TranslatedText
+            stringId="note.modal.prompt.message"
+            fallback="Are you sure you want to leave this page?"
+          />
+        }
+      />
+      <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
+    </>
   );
 });

@@ -5,7 +5,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
+import {
+  AutocompleteField,
+  AutocompleteInput,
+  DateTimeField,
+  Field,
+  TextField,
+  TranslatedSelectField,
+  DateTimeInput,
+} from './Field';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -62,6 +70,33 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
+
+export const PreviouslyWrittenByField = ({
+  label = (
+    <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+  ),
+  value,
+  size,
+}) => {
+  return (
+    <AutocompleteInput
+      label={label}
+      disabled
+      value={value}
+      size={size}
+      allowFreeTextForExistingValue
+    />
+  );
+};
+
+export const PreviousDateTimeField = ({
+  label = <TranslatedText stringId="note.dateTime.label" fallback="Date & time" />,
+  value,
+  size,
+}) => {
+  return <DateTimeInput label={label} disabled value={value} size={size} />;
+};
+
 export const WrittenByField = ({
   label = (
     <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
@@ -111,10 +146,11 @@ export const NoteContentField = ({
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      marginBottom: '50px',
-      minHeight: 0, // allow this Box to shrink
+      minHeight: 0,
       flexGrow: 1,
-      height: '100%', // ensure Box takes full height
+      height: '100%',
+      marginTop: '1.2rem',
+      marginBottom: '30px',
     }}
   >
     <Field
@@ -124,14 +160,12 @@ export const NoteContentField = ({
       component={TextField}
       multiline
       onChange={onChange}
-      // this makes the outer MUI input container fill the Box
       style={{
         flex: 1,
         minHeight: 0,
         display: 'flex',
-        flexDirection: 'column', // ensure label and input stack vertically
+        flexDirection: 'column',
       }}
-      // ensure the .MuiInputBase-root is also a flex column
       InputProps={{
         style: {
           display: 'flex',
@@ -141,12 +175,11 @@ export const NoteContentField = ({
           flex: 1,
         },
       }}
-      // this style is applied *to the <textarea> itself*:
       inputProps={{
         style: {
           flex: 1,
           minHeight: 0,
-          overflow: 'auto', // show scrollbar when content overflows
+          overflow: 'auto',
           width: '100%',
         },
       }}
@@ -197,7 +230,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
   <Field
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
@@ -220,10 +253,11 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size })
     menuPosition="absolute"
     menuPlacement="auto"
     size={size}
+    disabled={disabled}
   />
 );
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate, size }) => {
+export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
   const templateSuggester = useSuggester('template', {
     baseQueryParameters: { type: noteType },
   });
@@ -235,7 +269,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size }) => {
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType}
+      disabled={!noteType || disabled}
       size={size}
     />
   );

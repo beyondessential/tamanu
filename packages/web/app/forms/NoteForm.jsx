@@ -31,9 +31,18 @@ export const NoteForm = ({
         onCancel,
       };
       return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <EditTreatmentPlanNoteForm {...props} />
+        <EditTreatmentPlanNoteForm
+          {...props}
+          noteTypeCountByType={noteTypeCountByType}
+          onChangeTemplate={() => {}}
+        />
       ) : (
-        <CreateNoteForm {...props} values={values} setValues={setValues} />
+        <CreateNoteForm
+          {...props}
+          values={values}
+          setValues={setValues}
+          noteFormMode={noteFormMode}
+        />
       );
     }
 
@@ -56,6 +65,7 @@ export const NoteForm = ({
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
         values={values}
+        noteFormMode={noteFormMode}
         setValues={setValues}
       />
     );

@@ -10,12 +10,24 @@ import {
 } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useApi } from '../api';
-import { Colors } from '../constants';
+import { NOTE_FORM_MODES, Colors } from '../constants';
 import { FormGrid } from '../components';
-import { DialogActions, DialogContent } from '@material-ui/core';
+import {
+  NoteModalDialogContent,
+  NoteModalDialogActions,
+  DisabledWrapper,
+} from '../components/NoteModal/NoteModalCommonComponents';
 
-export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values, setValues }) => {
+export const CreateNoteForm = ({
+  onSubmit,
+  onCancel,
+  noteTypeCountByType,
+  values,
+  setValues,
+  noteFormMode,
+}) => {
   const api = useApi();
+  const disableFields = noteFormMode === NOTE_FORM_MODES.EDIT_NOTE;
 
   const onChangeNoteType = useCallback(() => {
     setValues(values => ({
@@ -41,48 +53,32 @@ export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values
 
   return (
     <>
-      <DialogContent
-        style={{
-          minHeight: '280px',
-          overflow: 'hidden',
-          maxHeight: '685px',
-          paddingBottom: '0px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <FormGrid columns={2}>
-          <NoteTypeField
-            required
-            noteTypeCountByType={noteTypeCountByType}
-            onChange={onChangeNoteType}
-            size="small"
-            fontSize="12px"
-          />
-          <NoteTemplateField
-            noteType={values.noteType}
-            onChangeTemplate={onChangeTemplate}
-            size="small"
-            fontSize="12px"
-          />
-          <WrittenByField required size="small" fontSize="12px" />
-          <NoteDateTimeField required size="small" fontSize="12px" />
-        </FormGrid>
+      <NoteModalDialogContent>
+        <DisabledWrapper color={Colors.background}>
+          <FormGrid columns={2} style={{ marginTop: 0 }}>
+            <NoteTypeField
+              required
+              noteTypeCountByType={noteTypeCountByType}
+              onChange={onChangeNoteType}
+              size="small"
+              disabled={disableFields}
+            />
+            <NoteTemplateField
+              noteType={values.noteType}
+              onChangeTemplate={onChangeTemplate}
+              size="small"
+              disabled={disableFields}
+            />
+            <WrittenByField required size="small" disabled={disableFields} />
+            <NoteDateTimeField required size="small" disabled={disableFields} />
+          </FormGrid>
+        </DisabledWrapper>
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
           size="small"
         />
-      </DialogContent>
-      <DialogActions
-        color={Colors.white}
-        style={{
-          padding: '10px 20px',
-          background: 'none',
-          borderTop: `1px solid ${Colors.softOutline}`,
-          position: 'sticky',
-          bottom: 0,
-        }}
-      >
+      </NoteModalDialogContent>
+      <NoteModalDialogActions>
         <FormSubmitCancelRow
           style={{ marginTop: '0' }}
           onConfirm={onSubmit}
@@ -90,7 +86,7 @@ export const CreateNoteForm = ({ onSubmit, onCancel, noteTypeCountByType, values
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
           onCancel={onCancel}
         />
-      </DialogActions>
+      </NoteModalDialogActions>
     </>
   );
 };
