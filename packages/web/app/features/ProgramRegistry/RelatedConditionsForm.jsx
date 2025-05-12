@@ -459,11 +459,13 @@ export const RelatedConditionsForm = ({
                 await handleConfirmedSubmit(values);
               }}
             />
-            <ConditionHistoryModal
-              open={!!selectedCondition}
-              onClose={() => setSelectedCondition(null)}
-              condition={selectedCondition}
-            />
+            {areAuditChangesEnabled && (
+              <ConditionHistoryModal
+                open={!!selectedCondition}
+                onClose={() => setSelectedCondition(null)}
+                condition={selectedCondition}
+              />
+            )}
             <FormActions isDirty={dirty} />
           </>
         );
