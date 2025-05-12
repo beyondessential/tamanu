@@ -16,24 +16,52 @@ export const HierarchyFieldItem = ({
 }) => {
   const { models } = useBackend();
 
-  const suggesterInstance = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: referenceType,
-      },
-      relations: ['parents'],
+  const suggesterInstance = new Suggester(models.ReferenceData, {
+    where: {
+      type: referenceType,
     },
-    undefined,
-    // TODO: This causes weird pagination
-    (item: IReferenceData) => {
-      if (isFirstLevel || !parentId) {
-        return true;
+    relations: ['parents'],
+  });
+
+  // Custom fetchSuggestions method to filter by parent relationship
+  suggesterInstance.fetchSuggestions = async (search: string) => {
+    const requestedAt = Date.now();
+
+    try {
+      let query = models.ReferenceData.getRepository()
+        .createQueryBuilder('entity')
+        .leftJoinAndSelect('entity.parents', 'parents')
+        .where('entity.type = :type', { type: referenceType });
+
+      if (!isFirstLevel && parentId) {
+        query = query
+          .andWhere('parents.referenceDataParentId = :parentId', { parentId })
+          .andWhere('parents.type = :relationType', { relationType });
       }
-      const parent = item.parents[0];
-      return parent?.referenceDataParentId === parentId && parent?.type === relationType;
-    },
-  );
+
+      if (search) {
+        query = query.andWhere('entity.name LIKE :search', { search: `%${search}%` });
+      }
+
+      query = query.orderBy('entity.name', 'ASC').limit(25);
+
+      const data = await query.getMany();
+
+      const formattedData = data.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+
+      if (suggesterInstance.lastUpdatedAt < requestedAt) {
+        suggesterInstance.cachedData = formattedData;
+        suggesterInstance.lastUpdatedAt = requestedAt;
+      }
+
+      return suggesterInstance.cachedData;
+    } catch (e) {
+      return [];
+    }
+  };
 
   return (
     <Field
