@@ -519,6 +519,30 @@ patientRoute.post(
   }),
 );
 
+patientRoute.get(
+  '/:id/ongoingPrescriptions',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('list', 'Prescription');
+
+    const { models, params } = req;
+    const { PatientOngoingPrescription, Prescription } = models;
+
+    const ongoingPrescriptions = await PatientOngoingPrescription.findAll({
+      where: { patientId: params.id },
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          include: Prescription.getListReferenceAssociations(),
+        },
+      ],
+    });
+
+    res.json({ data: ongoingPrescriptions, count: ongoingPrescriptions.length });
+  }),
+);
+
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);

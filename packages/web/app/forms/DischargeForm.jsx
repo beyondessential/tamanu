@@ -12,7 +12,6 @@ import { foreignKey } from '../utils/validation';
 
 import {
   AutocompleteField,
-  CheckControl,
   CheckField,
   DefaultFormScreen,
   Field,
@@ -43,6 +42,11 @@ import { TranslatedText, TranslatedReferenceData } from '../components/Translati
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
+import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
+import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoiginPrescriptionsQuery';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -80,6 +84,63 @@ const UnsavedContent = styled.div`
 
 const StyledDivider = styled(Divider)`
   margin: 0 -32px 10px -32px;
+`;
+
+const MedicationContainer = styled(Box)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+`;
+
+const DarkestText = styled(Box)`
+  color: ${Colors.darkestText};
+  font-size: 14px;
+`;
+
+const MedicationHeader = styled(Box)`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${Colors.darkestText};
+  padding: 12px 20px;
+  line-height: 18px;
+`;
+
+const TableContainer = styled(Box)`
+  padding: 20px;
+  padding-bottom: 15px;
+  .MuiTable-root {
+    border: none;
+  }
+  .MuiTableHead-root {
+    background-color: ${Colors.white};
+    .MuiTableCell-head {
+      padding: 0 30px 5px 0;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+      color: ${Colors.darkText};
+      &:nth-child(4) {
+        padding-right: 0;
+      }
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableCell-body {
+      padding: 5px 30px 0 0;
+      border: none;
+      &:nth-child(4),
+      &:nth-child(5) {
+        padding-right: 0;
+      }
+      ${({ $isEmpty }) =>
+        $isEmpty &&
+        `
+        padding: 0;
+        padding-top: 15px;
+      `}
+    }
+  }
 `;
 
 const dischargingClinicianLabel = (
@@ -127,7 +188,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: dischargeDraft?.dischargerId,
       dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes.map((n) => n.content).join('\n\n'),
+      note: dischargeNotes.map(n => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -143,10 +204,9 @@ const getMedicationsInitialValues = (medications, encounter) => {
   const medicationDraft = encounter?.dischargeDraft?.medications;
   const medicationsInitialValues = {};
 
-  medications.forEach((medication) => {
+  medications.forEach(medication => {
     const key = medication.id;
     medicationsInitialValues[key] = {
-      isDischarge: medicationDraft?.[key]?.isDischarge ?? true,
       quantity: medicationDraft?.[key]?.quantity ?? medication.quantity ?? 0,
       repeats: medicationDraft?.[key]?.repeats ?? medication?.repeats?.toString() ?? '0',
     };
@@ -194,56 +254,24 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
   />
 );
 
-const StyledFlexDiv = styled.div`
-  display: flex;
-`;
-const StyledCheckbox = styled(CheckControl)`
-  font-size: 16px;
-`;
-const StyledTextSpan = styled.span`
-  color: ${(props) => (props.color ? props.color : Colors.darkText)};
-`;
-
-/*
-A custom check field was needed because the label resides on
-the table headers and there is a need to display two text descriptions
-alongside the checkbox with different stylings.
-*/
-const CustomCheckField = ({ field, lineOne, lineTwo }) => (
-  <StyledFlexDiv data-testid="styledflexdiv-5emq">
-    <StyledCheckbox
-      color="primary"
-      value={field.value}
-      name={field.name}
-      onChange={field.onChange}
-      data-testid="styledcheckbox-3e39"
-    />
-    <div>
-      <StyledTextSpan data-testid="styledtextspan-qiqs">{lineOne}</StyledTextSpan>
-      <br />
-      <StyledTextSpan color={Colors.midText} data-testid="styledtextspan-vpef">
-        {lineTwo}
-      </StyledTextSpan>
-    </div>
-  </StyledFlexDiv>
-);
-
-const MedicationAccessor = ({ id, medication, prescription }) => (
-  <Field
-    name={`medications.${id}.isDischarge`}
-    lineOne={
-      <TranslatedReferenceData
-        fallback={medication.name}
-        value={medication.id}
-        category={medication.type}
-        data-testid="translatedreferencedata-dktp"
-      />
-    }
-    lineTwo={prescription}
-    component={CustomCheckField}
-    data-testid="field-dcxx"
-  />
-);
+const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
+  const { medication: medicationReferenceData } = medication;
+  return (
+    <Box>
+      <DarkestText>
+        <TranslatedReferenceData
+          fallback={medicationReferenceData.name}
+          value={medicationReferenceData.id}
+          category={medicationReferenceData.type}
+        />
+      </DarkestText>
+      <Box fontSize={'14px'} color={Colors.midText}>
+        {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+        {getTranslatedFrequency(medication.frequency, getTranslation)}
+      </Box>
+    </Box>
+  );
+};
 const QuantityAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.quantity`}
@@ -260,30 +288,54 @@ const RepeatsAccessor = ({ id }) => (
     data-testid="field-ium3"
   />
 );
+const OngoingAccessor = ({ isOngoing }) => (
+  <DarkestText>
+    {isOngoing ? (
+      <TranslatedText stringId="general.yes" fallback="Yes" />
+    ) : (
+      <TranslatedText stringId="general.no" fallback="No" />
+    )}
+  </DarkestText>
+);
+const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
+  <DarkestText
+    style={{ textDecoration: 'underline', cursor: 'pointer' }}
+    onClick={() => handleDiscontinueMedication(medication)}
+  >
+    <TranslatedText stringId="discharge.table.discontinue" fallback="Discontinue" />
+  </DarkestText>
+);
 
-const medicationColumns = [
+const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, handleDiscontinueMedication) => [
   {
-    key: 'drug/prescription',
+    key: 'medication',
     title: (
       <TranslatedText
-        stringId="discharge.table.column.drugOrPrescription"
-        fallback="Drug / Prescription"
+        stringId="discharge.table.column.medication"
+        fallback="Medication"
         data-testid="translatedtext-qyha"
       />
     ),
-    accessor: MedicationAccessor,
+    accessor: medication => (
+      <MedicationAccessor
+        medication={medication}
+        getTranslation={getTranslation}
+        getEnumTranslation={getEnumTranslation}
+      />
+    ),
+    width: '250px',
   },
   {
     key: 'quantity',
     title: (
       <TranslatedText
         stringId="discharge.table.column.dischargeQuantity"
-        fallback="Discharge Quantity"
+        fallback="Discharge qty"
         data-testid="translatedtext-8e5k"
       />
     ),
     accessor: QuantityAccessor,
-    width: '20%',
+    width: '120px',
   },
   {
     key: 'repeats',
@@ -295,7 +347,24 @@ const medicationColumns = [
       />
     ),
     accessor: RepeatsAccessor,
-    width: '20%',
+    width: '120px',
+  },
+  {
+    key: 'Ongoing',
+    title: <TranslatedText stringId="discharge.table.column.ongoing" fallback="Ongoing" />,
+    accessor: OngoingAccessor,
+    width: '60px',
+  },
+  {
+    key: 'Discontinued',
+    title: '',
+    accessor: medication => (
+      <DiscontinuedAccessor
+        medication={medication}
+        handleDiscontinueMedication={handleDiscontinueMedication}
+      />
+    ),
+    width: '75px',
   },
 ];
 
@@ -395,7 +464,7 @@ const EncounterOverview = ({
   );
 };
 
-const DischargeFormScreen = (props) => {
+const DischargeFormScreen = props => {
   const {
     validateForm,
     onStepForward,
@@ -411,7 +480,7 @@ const DischargeFormScreen = (props) => {
   const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
-  const handleStepForward = async (isSavedForm) => {
+  const handleStepForward = async isSavedForm => {
     if (isSavedForm) {
       await onSubmit({ ...values, isDischarged: false });
       return;
@@ -443,7 +512,7 @@ const DischargeFormScreen = (props) => {
           <FormConfirmCancelBackRow
             onCancel={handleCancelAttempt}
             onConfirm={() => handleStepForward(false)}
-            CustomConfirmButton={(props) => (
+            CustomConfirmButton={props => (
               <ConditionalTooltip
                 visible={isDiagnosisEmpty}
                 title={
@@ -573,34 +642,39 @@ export const DischargeForm = ({
   onSubmit,
   onTitleChange,
 }) => {
-  const { encounter } = useEncounter();
+  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { encounter, loadEncounter } = useEncounter();
   const { getSetting } = useSettings();
+  const queryClient = useQueryClient();
+
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
+  const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
-    (d) => !['error', 'disproven'].includes(d.certainty),
+    d => !['error', 'disproven'].includes(d.certainty),
   );
 
-  // Only display medications that are not discontinued
-  // Might need to update condition to compare by end date (decision pending)
-  const activeMedications = encounter.medications?.filter((medication) => !medication.discontinued);
-  const medicationInitialValues = getMedicationsInitialValues(activeMedications, encounter);
+  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
+
+  const activeMedications = encounter.medications
+    ?.filter(medication => !medication.discontinued)
+    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
+  const onGoingMedications = ongoingPrescriptions?.data
+    ?.map(p => p.prescription)
+    .filter(p => !p.discontinued)
+    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
+  const medicationInitialValues = getMedicationsInitialValues(
+    [...activeMedications, ...onGoingMedications],
+    encounter,
+  );
   const handleSubmit = useCallback(
     async ({ isDischarged = true, ...data }) => {
-      const { medications } = data;
       if (isDischarged) {
-        // Filter out medications that weren't marked
-        const filteredMedications = {};
-        Object.keys(medications).forEach((id) => {
-          const medication = medications[id];
-          if (medication.isDischarge) filteredMedications[id] = medication;
-        });
-
-        await onSubmit({ ...data, medications: filteredMedications });
+        await onSubmit(data);
         return;
       }
       await onSubmit({ dischargeDraft: data });
@@ -611,7 +685,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter((n) => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
@@ -635,179 +709,235 @@ export const DischargeForm = ({
     );
   }, [showWarningScreen, onTitleChange]);
 
+  const handleDiscontinueMedication = medication => {
+    setDiscontinuedMedication(medication);
+  };
+
+  const onDiscontinueMedication = () => {
+    queryClient.invalidateQueries(['patient-ongoing-prescriptions', encounter.patientId]);
+    loadEncounter(encounter.id, false);
+  };
+
   return (
-    <PaginatedForm
-      onSubmit={handleSubmit}
-      onCancel={onCancel}
-      initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
-      FormScreen={(props) => (
-        <DischargeFormScreen
-          {...props}
-          currentDiagnoses={currentDiagnoses}
-          onSubmit={handleSubmit}
-          setShowWarningScreen={setShowWarningScreen}
-          data-testid="dischargeformscreen-z2zo"
+    <>
+      <PaginatedForm
+        onSubmit={handleSubmit}
+        onCancel={onCancel}
+        initialValues={getDischargeInitialValues(
+          encounter,
+          dischargeNotes,
+          medicationInitialValues,
+        )}
+        FormScreen={props => (
+          <DischargeFormScreen
+            {...props}
+            currentDiagnoses={currentDiagnoses}
+            onSubmit={handleSubmit}
+            setShowWarningScreen={setShowWarningScreen}
+            data-testid="dischargeformscreen-z2zo"
+          />
+        )}
+        formType={FORM_TYPES.CREATE_FORM}
+        SummaryScreen={
+          !showWarningScreen
+            ? DischargeSummaryScreen
+            : props => (
+                <UnsavedChangesScreen
+                  {...props}
+                  showWarningScreen={showWarningScreen}
+                  onSubmit={handleSubmit}
+                  data-testid="unsavedchangesscreen-o64o"
+                />
+              )
+        }
+        validationSchema={yup.object().shape({
+          endDate: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="discharge.dischargeDate.label"
+                fallback="Discharge date"
+                data-testid="translatedtext-542l"
+              />,
+            ),
+          discharge: yup
+            .object()
+            .shape({
+              dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
+              dispositionId: getLocalisedSchema({
+                name: 'dischargeDisposition',
+              }),
+              note: dischargeNoteMandatory
+                ? foreignKey().translatedLabel(
+                    <TranslatedText
+                      stringId="discharge.notes.label"
+                      fallback="Discharge treatment plan and follow-up notes"
+                      data-testid="translatedtext-208f"
+                    />,
+                  )
+                : yup.string().optional(),
+            })
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="general.localisedField.dischargeDisposition.label"
+                fallback="Discharge disposition"
+                data-testid="translatedtext-5ib8"
+              />,
+            ),
+        })}
+        formProps={{
+          enableReinitialize: true,
+          showInlineErrorsOnly: true,
+          validateOnChange: true,
+        }}
+        data-testid="paginatedform-ghn7"
+      >
+        <FormGrid data-testid="formgrid-menu">
+          <EncounterOverview
+            encounter={encounter}
+            currentDiagnoses={currentDiagnoses}
+            data-testid="encounteroverview-1swb"
+          />
+          <Field
+            name="endDate"
+            label={
+              <TranslatedText
+                stringId="discharge.dischargeDate.label"
+                fallback="Discharge date"
+                data-testid="translatedtext-mhlm"
+              />
+            }
+            component={DateTimeField}
+            min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
+            required
+            saveDateAsString
+            data-testid="field-20tt"
+          />
+          <Field
+            name="discharge.dischargerId"
+            label={dischargingClinicianLabel}
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+            data-testid="field-6we6"
+          />
+          <LocalisedField
+            name="discharge.dispositionId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dischargeDisposition.label"
+                fallback="Discharge disposition"
+                data-testid="translatedtext-scxc"
+              />
+            }
+            path="fields.dischargeDisposition"
+            component={AutocompleteField}
+            suggester={dispositionSuggester}
+            data-testid="localisedfield-d7fu"
+          />
+          <OuterLabelFieldWrapper
+            label={
+              <TranslatedText
+                stringId="discharge.medications.label"
+                fallback="Medications"
+                data-testid="translatedtext-6d1o"
+              />
+            }
+            style={{ gridColumn: '1 / -1' }}
+            data-testid="outerlabelfieldwrapper-axm9"
+          >
+            <MedicationContainer>
+              <MedicationHeader borderBottom={`1px solid ${Colors.outline}`}>
+                <TranslatedText
+                  stringId="discharge.encounterMedication"
+                  fallback="Encounter medication"
+                />
+              </MedicationHeader>
+              <TableContainer $isEmpty={activeMedications.length === 0}>
+                <TableFormFields
+                  columns={MEDICATION_COLUMNS(
+                    getTranslation,
+                    getEnumTranslation,
+                    handleDiscontinueMedication,
+                  )}
+                  data={activeMedications}
+                  data-testid="tableformfields-i8q7"
+                />
+              </TableContainer>
+              <MedicationHeader
+                borderTop={`1px solid ${Colors.outline}`}
+                borderBottom={`1px solid ${Colors.outline}`}
+              >
+                <TranslatedText
+                  stringId="discharge.otherOngoingMedication"
+                  fallback="Other ongoing medication"
+                />
+              </MedicationHeader>
+              <TableContainer $isEmpty={onGoingMedications.length === 0}>
+                <TableFormFields
+                  columns={MEDICATION_COLUMNS(
+                    getTranslation,
+                    getEnumTranslation,
+                    handleDiscontinueMedication,
+                  )}
+                  data={onGoingMedications}
+                  data-testid="tableformfields-i8q7"
+                />
+              </TableContainer>
+            </MedicationContainer>
+          </OuterLabelFieldWrapper>
+          <Field
+            name="sendToPharmacy"
+            label={
+              <TranslatedText
+                stringId="discharge.sendToPharmacy.label"
+                fallback="Send prescription to pharmacy"
+                data-testid="translatedtext-h7xy"
+              />
+            }
+            component={CheckField}
+            helperText={
+              <TranslatedText
+                stringId="discharge.sendToPharmacy.helperText"
+                fallback="Requires mSupply"
+                data-testid="translatedtext-kjqf"
+              />
+            }
+            style={{ gridColumn: '1 / -1' }}
+            disabled
+            data-testid="field-cxfn"
+          />
+          <Field
+            name="discharge.note"
+            label={
+              <TranslatedText
+                stringId="discharge.notes.label"
+                fallback="Discharge treatment plan and follow-up notes"
+                data-testid="translatedtext-kr28"
+              />
+            }
+            component={TextField}
+            multiline
+            minRows={4}
+            style={{ gridColumn: '1 / -1' }}
+            required={dischargeNoteMandatory}
+            data-testid="field-0uma"
+          />
+          <Divider
+            style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
+            data-testid="divider-lj2w"
+          />
+        </FormGrid>
+      </PaginatedForm>
+      {!!discontinuedMedication && (
+        <MedicationDiscontinueModal
+          medication={discontinuedMedication}
+          onDiscontinue={onDiscontinueMedication}
+          onClose={() => setDiscontinuedMedication(null)}
         />
       )}
-      formType={FORM_TYPES.CREATE_FORM}
-      SummaryScreen={
-        !showWarningScreen
-          ? DischargeSummaryScreen
-          : (props) => (
-              <UnsavedChangesScreen
-                {...props}
-                showWarningScreen={showWarningScreen}
-                onSubmit={handleSubmit}
-                data-testid="unsavedchangesscreen-o64o"
-              />
-            )
-      }
-      validationSchema={yup.object().shape({
-        endDate: yup
-          .date()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="discharge.dischargeDate.label"
-              fallback="Discharge date"
-              data-testid="translatedtext-542l"
-            />,
-          ),
-        discharge: yup
-          .object()
-          .shape({
-            dischargerId: foreignKey().translatedLabel(dischargingClinicianLabel),
-            dispositionId: getLocalisedSchema({
-              name: 'dischargeDisposition',
-            }),
-            note: dischargeNoteMandatory
-              ? foreignKey().translatedLabel(
-                  <TranslatedText
-                    stringId="discharge.notes.label"
-                    fallback="Discharge treatment plan and follow-up notes"
-                    data-testid="translatedtext-208f"
-                  />,
-                )
-              : yup.string().optional(),
-          })
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="general.localisedField.dischargeDisposition.label"
-              fallback="Discharge disposition"
-              data-testid="translatedtext-5ib8"
-            />,
-          ),
-      })}
-      formProps={{
-        enableReinitialize: true,
-        showInlineErrorsOnly: true,
-        validateOnChange: true,
-      }}
-      data-testid="paginatedform-ghn7"
-    >
-      <FormGrid data-testid="formgrid-menu">
-        <EncounterOverview
-          encounter={encounter}
-          currentDiagnoses={currentDiagnoses}
-          data-testid="encounteroverview-1swb"
-        />
-        <Field
-          name="endDate"
-          label={
-            <TranslatedText
-              stringId="discharge.dischargeDate.label"
-              fallback="Discharge date"
-              data-testid="translatedtext-mhlm"
-            />
-          }
-          component={DateTimeField}
-          min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
-          required
-          saveDateAsString
-          data-testid="field-20tt"
-        />
-        <Field
-          name="discharge.dischargerId"
-          label={dischargingClinicianLabel}
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          required
-          data-testid="field-6we6"
-        />
-        <LocalisedField
-          name="discharge.dispositionId"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.dischargeDisposition.label"
-              fallback="Discharge disposition"
-              data-testid="translatedtext-scxc"
-            />
-          }
-          path="fields.dischargeDisposition"
-          component={AutocompleteField}
-          suggester={dispositionSuggester}
-          data-testid="localisedfield-d7fu"
-        />
-        <OuterLabelFieldWrapper
-          label={
-            <TranslatedText
-              stringId="discharge.dischargeMedications.label"
-              fallback="Discharge medications"
-              data-testid="translatedtext-6d1o"
-            />
-          }
-          style={{ gridColumn: '1 / -1' }}
-          data-testid="outerlabelfieldwrapper-axm9"
-        >
-          <TableFormFields
-            columns={medicationColumns}
-            data={activeMedications}
-            data-testid="tableformfields-i8q7"
-          />
-        </OuterLabelFieldWrapper>
-        <Field
-          name="sendToPharmacy"
-          label={
-            <TranslatedText
-              stringId="discharge.sendToPharmacy.label"
-              fallback="Send prescription to pharmacy"
-              data-testid="translatedtext-h7xy"
-            />
-          }
-          component={CheckField}
-          helperText={
-            <TranslatedText
-              stringId="discharge.sendToPharmacy.helperText"
-              fallback="Requires mSupply"
-              data-testid="translatedtext-kjqf"
-            />
-          }
-          style={{ gridColumn: '1 / -1' }}
-          disabled
-          data-testid="field-cxfn"
-        />
-        <Field
-          name="discharge.note"
-          label={
-            <TranslatedText
-              stringId="discharge.notes.label"
-              fallback="Discharge treatment plan and follow-up notes"
-              data-testid="translatedtext-kr28"
-            />
-          }
-          component={TextField}
-          multiline
-          minRows={4}
-          style={{ gridColumn: '1 / -1' }}
-          required={dischargeNoteMandatory}
-          data-testid="field-0uma"
-        />
-        <Divider
-          style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
-          data-testid="divider-lj2w"
-        />
-      </FormGrid>
-    </PaginatedForm>
+    </>
   );
 };
