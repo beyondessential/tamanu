@@ -69,3 +69,8 @@ sources:
           - name: changing_not_given_info_reason
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__changing_not_given_info_reason') }}"
+          - name: is_edited
+            data_type: boolean
+            description: "{{ doc('medication_administration_records__is_edited') }}"
+            data_tests:
+              - not_null

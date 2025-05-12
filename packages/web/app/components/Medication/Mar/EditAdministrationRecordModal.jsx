@@ -191,7 +191,7 @@ export const EditAdministrationRecordModal = ({
       title={
         <TranslatedText
           stringId="modal.mar.editAdministrationRecordModal.title"
-          fallback="Edit Administration Record"
+          fallback="Edit administration record"
         />
       }
     >
@@ -232,14 +232,14 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="reasonNotGivenId"
                     component={AutocompleteField}
-                    label="Reason"
+                    label={<TranslatedText stringId="mar.details.reason.label" fallback="Reason" />}
                     suggester={medicationReasonNotGivenSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
                     suggester={recordedBySuggester}
                     required
                   />
@@ -248,7 +248,12 @@ export const EditAdministrationRecordModal = ({
                       name="changingNotGivenInfoReason"
                       component={TextField}
                       disabled={!dirty}
-                      label="Reason for change (Optional)"
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChangeOptional.label"
+                          fallback="Reason for change (Optional)"
+                        />
+                      }
                     />
                   </div>
                 </>
@@ -267,7 +272,13 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="doseAmount"
                     component={NumberField}
-                    label={`Dose given (${medication?.units})`}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.doseGiven.label"
+                        values={{ units: medication?.units }}
+                        fallback={`Dose given (${medication?.units})`}
+                      />
+                    }
                     required
                   />
                   <div>
@@ -304,14 +315,14 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label="Given by"
+                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
                     suggester={givenBySuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
                     suggester={recordedBySuggester}
                     required
                   />
@@ -320,7 +331,12 @@ export const EditAdministrationRecordModal = ({
                       name="reasonForChange"
                       component={TextField}
                       disabled={!dirty}
-                      label="Reason for change (Optional)"
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChangeOptional.label"
+                          fallback="Reason for change (Optional)"
+                        />
+                      }
                     />
                   </div>
                 </>

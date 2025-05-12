@@ -49,3 +49,7 @@ Detailed description of any errors or discrepancies associated with this medicat
 {% docs medication_administration_records__changing_not_given_info_reason %}
 Optional free text field that allows healthcare professionals to document the reason for modifying information about why a medication was not given. This is used when updating or changing the details of a previously recorded 'not given' status, providing an audit trail of why the information was changed.
 {% enddocs %}
+
+{% docs medication_administration_records__is_edited %}
+Indicates whether this medication administration record has been manually edited after its initial creation or recording.
+{% enddocs %}
