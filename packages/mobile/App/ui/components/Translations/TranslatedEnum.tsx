@@ -12,7 +12,17 @@ interface TranslatedEnumProps extends Partial<TranslatedTextProps> {
 
 export const getEnumStringId = (value, enumValues) => {
   const prefix = getEnumPrefix(enumValues);
-  return `${prefix}.${value}`;
+  return `${prefix}.${toCamelCase(value)}`;
+};
+
+/**
+ * Converts a string from formats like SNAKE_CASE to camelCase
+ * Keep in sync with packages/shared/src/utils/enumRegistry.js
+ * @param {string} value - The string to convert
+ * @returns {string} The converted string in camelCase
+ */
+const toCamelCase = (value: string): string => {
+  return value.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
 };
 
 export const TranslatedEnum = ({
