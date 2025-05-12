@@ -37,7 +37,6 @@ export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
   'PatientProgramRegistration',
-  'PatientProgramRegistrationCondition',
   'PatientBirthData',
   'PatientDeathData',
   'Note',
@@ -236,29 +235,6 @@ export async function mergePatientProgramRegistrations(models, unwantedPatientId
   return results;
 }
 
-export async function mergePatientProgramRegistrationConditions(
-  models,
-  unwantedPatientId,
-) {
-  const existingUnwantedRegistrationConditions =
-    await models.PatientProgramRegistrationCondition.findAll({
-      where: { patientId: unwantedPatientId },
-    });
-
-  if (!existingUnwantedRegistrationConditions.length) {
-    return [];
-  }
-
-  const results = [];
-
-  for (const unwantedCondition of existingUnwantedRegistrationConditions) {
-    await unwantedCondition.destroy({ force: true });
-    results.push(unwantedCondition);
-  }
-
-  return results;
-}
-
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: unwantedPatientId },
@@ -419,13 +395,6 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     );
     if (fieldValueUpdates.length > 0) {
       updates.PatientFieldValue = fieldValueUpdates.length;
-    }
-
-    const patientProgramRegistrationConditionUpdates =
-      await mergePatientProgramRegistrationConditions(models, unwantedPatientId);
-    if (patientProgramRegistrationConditionUpdates.length > 0) {
-      updates.PatientProgramRegistrationCondition =
-        patientProgramRegistrationConditionUpdates.length;
     }
 
     const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
