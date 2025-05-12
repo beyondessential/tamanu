@@ -11,7 +11,6 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Patient } from '~/models/Patient';
 import { ReferenceData } from '~/models/ReferenceData';
-import { ReferenceDataType } from '~/types';
 import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
@@ -19,7 +18,6 @@ import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
-import { joinNames } from '~/ui/helpers/user';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 
