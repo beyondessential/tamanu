@@ -236,9 +236,16 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     });
   }
 
+  static sanitizeValues(values: Partial<PatientAdditionalData>): Partial<PatientAdditionalData> {
+    return Object.fromEntries(
+      Object.entries(values).map(([key, value]) => [key, value === '' ? null : value]),
+    );
+  }
+
   static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
     const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
-    return await PatientAdditionalData.updateValues(additionalData.id, values);
+    const sanitizedValues = PatientAdditionalData.sanitizeValues(values);
+    return await PatientAdditionalData.updateValues(additionalData.id, sanitizedValues);
   }
 
   static sanitizeRecordDataForPush(rows) {
