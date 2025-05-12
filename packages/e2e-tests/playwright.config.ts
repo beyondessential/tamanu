@@ -43,7 +43,13 @@ export default defineConfig({
     },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], storageState: resolve(__dirname, '.auth/user.json') },
+      use: { 
+        ...devices['Desktop Chrome'],
+        storageState: resolve(__dirname, '.auth/user.json'),
+        // Ensure we wait for network idle after navigation
+        navigationTimeout: 30000,
+        actionTimeout: 15000,
+      },
       dependencies: ['setup'],
     },
 

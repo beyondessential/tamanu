@@ -15,4 +15,10 @@ setup('authenticate', async ({ loginPage }) => {
   // Save page context
   const authStatePath = path.join(__dirname, '../../.auth/user.json');
   await loginPage.page.context().storageState({ path: authStatePath });
+  
+  // Verify the auth state was saved
+  const fs = await import('fs');
+  if (!fs.existsSync(authStatePath)) {
+    throw new Error('Failed to save authentication state');
+  }
 });
