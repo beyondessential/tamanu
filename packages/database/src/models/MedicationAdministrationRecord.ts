@@ -119,7 +119,11 @@ export class MedicationAdministrationRecord extends Model {
    * @param prescription The prescription object for which to generate MARs.
    */
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
-    if (!prescription.frequency || !prescription.startDate) {
+    if (
+      !prescription.frequency ||
+      !prescription.startDate ||
+      prescription.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
+    ) {
       return;
     }
 
@@ -131,11 +135,8 @@ export class MedicationAdministrationRecord extends Model {
       order: [['dueAt', 'DESC']],
     });
 
-    // If the prescription is immediately or as directed, create a MAR for the start date
-    if (
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-      prescription.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-    ) {
+    // If the prescription is immediately, create a MAR for the start date
+    if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
       if (!lastMedicationAdministrationRecord) {
         await this.create({
           prescriptionId: prescription.id,
