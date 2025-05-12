@@ -4,15 +4,18 @@ import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
 import { makeTwoPatients } from './makeTwoPatients';
 import { setupProgramRegistry } from './setupProgramRegistry';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 
 describe('Merging Patient Program Registration Conditions', () => {
   let ctx;
   let models;
+  let clinician;
   let programRegistry;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
+    clinician = await models.User.create(fake(models.User));
     programRegistry = await setupProgramRegistry(models);
   });
 
@@ -20,28 +23,46 @@ describe('Merging Patient Program Registration Conditions', () => {
     await ctx.close();
   });
 
-  it('soft deletes and moves all conditions to keep patients', async () => {
-    const { PatientProgramRegistrationCondition } = models;
+  it('hard deletes all conditions', async () => {
+    const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
+
+    const keepRegistration = await PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        programRegistryId: programRegistry.id,
+        patientId: keep.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        clinicianId: clinician.id,
+      }),
+    );
+
+    const unwantedRegistration = await PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        programRegistryId: programRegistry.id,
+        patientId: merge.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        clinicianId: clinician.id,
+      }),
+    );
 
     // Keep patient has 1 condition
     const keepCondition = await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: keep.id,
+        patientProgramRegistrationId: keepRegistration.id,
         programRegistryId: programRegistry.id,
       }),
     );
 
     // Merge patient has 2 conditions
-    const unwantedCondition1 = await PatientProgramRegistrationCondition.create(
+    await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: merge.id,
+        patientProgramRegistrationId: unwantedRegistration.id,
         programRegistryId: programRegistry.id,
       }),
     );
-    const unwantedCondition2 = await PatientProgramRegistrationCondition.create(
+    await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: merge.id,
+        patientProgramRegistrationId: unwantedRegistration.id,
         programRegistryId: programRegistry.id,
       }),
     );
@@ -49,31 +70,25 @@ describe('Merging Patient Program Registration Conditions', () => {
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
       Patient: 2,
-      PatientProgramRegistrationCondition: 2,
+      PatientProgramRegistration: 1,
     });
 
     const newKeepPatientConditions = await PatientProgramRegistrationCondition.findAll({
-      where: { patientId: keep.id },
+      where: { patientProgramRegistrationId: keepRegistration.id },
       paranoid: false, // include the soft deleted conditions
       raw: true,
     });
     const newMergePatientConditions = await PatientProgramRegistrationCondition.findAll({
-      where: { patientId: merge.id },
+      where: { patientProgramRegistrationId: unwantedRegistration.id },
+      paranoid: false, // include the soft deleted conditions
       raw: true,
     });
 
-    expect(newKeepPatientConditions.length).toEqual(3);
+    expect(newKeepPatientConditions.length).toEqual(1);
     expect(newMergePatientConditions.length).toEqual(0);
 
-    const afterMergeKeepCondition = newKeepPatientConditions.find((r) => r.id === keepCondition.id);
-    const afterMergeUnwantedCondition1 = newKeepPatientConditions.find(
-      (r) => r.id === unwantedCondition1.id,
-    );
-    const afterMergeUnwantedCondition2 = newKeepPatientConditions.find(
-      (r) => r.id === unwantedCondition2.id,
-    );
+    const afterMergeKeepCondition = newKeepPatientConditions[0];
+    expect(afterMergeKeepCondition.id).toBe(keepCondition.id);
     expect(afterMergeKeepCondition.deletedAt).toBeNull();
-    expect(afterMergeUnwantedCondition1.deletedAt).not.toBeNull();
-    expect(afterMergeUnwantedCondition2.deletedAt).not.toBeNull();
   });
 });
