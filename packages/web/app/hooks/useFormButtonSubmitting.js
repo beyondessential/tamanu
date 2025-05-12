@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { notifyError } from '../utils';
 import { IS_DEVELOPMENT } from '../utils/env';
 
-export const useFormButtonLoadingIndicator = isLoading => {
+export const useFormButtonLoadingIndicator = (isLoading) => {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
 
   useEffect(() => {

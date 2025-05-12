@@ -62,14 +62,14 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
   const RefreshSpinner = isRefreshSpinning ? Spinner : RefreshIcon;
 
   return (
-    <LastUpdatedBadge>
+    <LastUpdatedBadge data-testid="lastupdatedbadge-gj4z">
       <span>
         <span>Last updated: </span>
-        <DateDisplay date={lastUpdatedTime} showTime />
+        <DateDisplay date={lastUpdatedTime} showTime data-testid="datedisplay-0aiw" />
       </span>
-      <ThemedTooltip title="Refresh">
-        <RefreshButton>
-          <RefreshSpinner onClick={handleClick} />
+      <ThemedTooltip title="Refresh" data-testid="themedtooltip-8v14">
+        <RefreshButton data-testid="refreshbutton-77qa">
+          <RefreshSpinner onClick={handleClick} data-testid="refreshspinner-n268" />
         </RefreshButton>
       </ThemedTooltip>
     </LastUpdatedBadge>

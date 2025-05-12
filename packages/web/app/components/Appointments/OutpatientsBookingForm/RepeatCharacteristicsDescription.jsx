@@ -30,7 +30,12 @@ const useOrdinalText = (date, frequency) => {
 const IntervalText = ({ interval, frequency }) => {
   const { getEnumTranslation } = useTranslation();
   return interval === 1 ? (
-    <TranslatedEnum enumValues={REPEAT_FREQUENCY_LABELS} value={frequency} casing='sentence' />
+    <TranslatedEnum
+      enumValues={REPEAT_FREQUENCY_LABELS}
+      value={frequency}
+      casing="sentence"
+      data-testid="translatedenum-1uti"
+    />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onNthWeekdayText"
@@ -39,6 +44,7 @@ const IntervalText = ({ interval, frequency }) => {
         interval,
         frequency: getEnumTranslation(REPEAT_FREQUENCY_UNIT_PLURAL_LABELS, frequency),
       }}
+      data-testid="translatedtext-3jsc"
     />
   );
 };
@@ -51,6 +57,7 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
       replacements={{
         weekday,
       }}
+      data-testid="translatedtext-gfhz"
     />
   ) : (
     <TranslatedText
@@ -59,6 +66,7 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
       replacements={{
         weekday,
       }}
+      data-testid="translatedtext-bzpt"
     />
   );
 
@@ -66,7 +74,11 @@ const FrequencyText = ({ frequency, interval, startTimeDate }) => {
   const weekday = format(startTimeDate, 'EEEE');
   const ordinalText = useOrdinalText(startTimeDate, frequency);
   return frequency === REPEAT_FREQUENCY.WEEKLY ? (
-    <WeeklyFrequencyText weekday={weekday} interval={interval} />
+    <WeeklyFrequencyText
+      weekday={weekday}
+      interval={interval}
+      data-testid="weeklyfrequencytext-cruk"
+    />
   ) : (
     <TranslatedText
       stringId="outpatientAppointments.repeating.onTheNthWeekdayText"
@@ -75,6 +87,7 @@ const FrequencyText = ({ frequency, interval, startTimeDate }) => {
         nth: ordinalText,
         weekday,
       }}
+      data-testid="translatedtext-fvaa"
     />
   );
 };
@@ -85,13 +98,20 @@ export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, int
       <TranslatedText
         stringId="outpatientAppointment.repeating.repeatsOnText"
         fallback="Repeats on:"
+        data-testid="translatedtext-ilje"
       />{' '}
-      <IntervalText frequency={frequency} interval={interval} />{' '}
-      <FrequencyText frequency={frequency} interval={interval} startTimeDate={startTimeDate} />
+      <IntervalText frequency={frequency} interval={interval} data-testid="intervaltext-k7ig" />{' '}
+      <FrequencyText
+        frequency={frequency}
+        interval={interval}
+        startTimeDate={startTimeDate}
+        data-testid="frequencytext-d414"
+      />
     </>
   ) : (
     <TranslatedText
       stringId="outpatientAppointment.repeating.error.invalidInterval"
       fallback="Invalid interval"
+      data-testid="translatedtext-fbc7"
     />
   );

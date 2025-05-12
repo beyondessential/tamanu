@@ -34,12 +34,21 @@ const COMMON_COLUMNS = [
     title: 'Request date & time',
     sortable: false,
     form: {
-      accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,
+      accessor: ({ requestedDate }) => (
+        <MultilineDatetimeDisplay
+          date={requestedDate}
+          data-testid="multilinedatetimedisplay-s1fw"
+        />
+      ),
     },
     printout: {
       widthProportion: 4,
       accessor: ({ requestedDate }) => (
-        <MultilineDatetimeDisplay date={requestedDate} isTimeSoft={false} />
+        <MultilineDatetimeDisplay
+          date={requestedDate}
+          isTimeSoft={false}
+          data-testid="multilinedatetimedisplay-ghti"
+        />
       ),
     },
   },
@@ -64,7 +73,9 @@ const COMMON_COLUMNS = [
     title: 'Type',
     sortable: false,
     maxWidth: 70,
-    accessor: ({ imagingType }) => <ImagingType imagingType={imagingType} />,
+    accessor: ({ imagingType }) => (
+      <ImagingType imagingType={imagingType} data-testid="imagingtype-kkkm" />
+    ),
     printout: { widthProportion: 4 },
   },
   {
@@ -76,7 +87,7 @@ const COMMON_COLUMNS = [
   },
 ];
 
-export const FORM_COLUMNS = COMMON_COLUMNS.filter(c => !c.form?.hidden).map(
+export const FORM_COLUMNS = COMMON_COLUMNS.filter((c) => !c.form?.hidden).map(
   // printout is taken out of ...column
   // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({
@@ -85,7 +96,7 @@ export const FORM_COLUMNS = COMMON_COLUMNS.filter(c => !c.form?.hidden).map(
   }),
 );
 
-export const PRINTOUT_COLUMNS = COMMON_COLUMNS.filter(c => !c.printout?.hidden).map(
+export const PRINTOUT_COLUMNS = COMMON_COLUMNS.filter((c) => !c.printout?.hidden).map(
   // form is taken out of ...column
   // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({

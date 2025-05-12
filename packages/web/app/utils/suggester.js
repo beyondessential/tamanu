@@ -36,7 +36,7 @@ export class Suggester {
     return this.cachedData;
   }
 
-  fetchCurrentOption = async value => {
+  fetchCurrentOption = async (value) => {
     if (!this.enable) return undefined;
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`, {
@@ -48,7 +48,7 @@ export class Suggester {
     }
   };
 
-  fetchSuggestions = async search => {
+  fetchSuggestions = async (search) => {
     if (!this.enable) return [];
     try {
       const data = await this.fetch('', {
@@ -62,7 +62,7 @@ export class Suggester {
     }
   };
 
-  createSuggestion = async body => {
+  createSuggestion = async (body) => {
     if (!this.enable) throw new Error('Suggester is disabled');
 
     const data = await this.api.post(`${this.endpoint}/create`, {

@@ -4,7 +4,7 @@ import { Chance } from 'chance';
 import { Button } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
 
-const makeRandomPatient = generateId => {
+const makeRandomPatient = (generateId) => {
   const chance = new Chance();
   const gender = chance.pickone(['male', 'female']);
   const title = gender === 'male' ? 'Mr' : chance.pickone(['Mrs', 'Ms']);
@@ -32,7 +32,7 @@ const RandomButtonStyled = styled(Button)`
 `;
 
 export const RandomPatientButton = ({ generateId, setValues }) => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const allowGenerator = getSetting('features.quickPatientGenerator');
 
   if (!allowGenerator) {
@@ -40,7 +40,10 @@ export const RandomPatientButton = ({ generateId, setValues }) => {
   }
 
   return (
-    <RandomButtonStyled onClick={() => setValues(makeRandomPatient(generateId))}>
+    <RandomButtonStyled
+      onClick={() => setValues(makeRandomPatient(generateId))}
+      data-testid="randombuttonstyled-sqtb"
+    >
       Randomise
     </RandomButtonStyled>
   );

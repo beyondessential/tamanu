@@ -2,8 +2,8 @@ import { Tooltip } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+const StyledTooltip = styled((props) => (
+  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-bsup">
     {props.children}
   </Tooltip>
 ))`
@@ -31,7 +31,7 @@ const DebugHighlighted = styled.span`
 export const DebugTooltip = React.memo(({ children, stringId, replacements, fallback }) => {
   const [open, setOpen] = useState(false);
 
-  const handleOpenTooltip = e => {
+  const handleOpenTooltip = (e) => {
     if (!e.shiftKey) return;
     setOpen(true);
   };
@@ -47,7 +47,7 @@ export const DebugTooltip = React.memo(({ children, stringId, replacements, fall
             <>
               <br />
               <b>replacements:</b>
-              <StyledList>
+              <StyledList data-testid="styledlist-adcx">
                 {Object.entries(replacements).map(([key, value]) => (
                   <li key={key}>
                     {key}: {value}
@@ -63,8 +63,9 @@ export const DebugTooltip = React.memo(({ children, stringId, replacements, fall
       open={open}
       arrow
       placement="top"
+      data-testid="styledtooltip-r5z6"
     >
-      <DebugHighlighted>{children}</DebugHighlighted>
+      <DebugHighlighted data-testid="debughighlighted-x8q9">{children}</DebugHighlighted>
     </StyledTooltip>
   );
 });

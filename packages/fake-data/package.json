@@ -1,8 +1,9 @@
 {
   "name": "@tamanu/fake-data",
-  "version": "2.30.3",
+  "version": "2.32.0",
   "private": true,
   "description": "TODO",
+  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "exports": {
@@ -34,9 +35,9 @@
     "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
-    "@tamanu/build-tooling": "*",
     "@jest/globals": "^29.4.3",
     "@swc/jest": "^0.2.24",
+    "@tamanu/build-tooling": "*",
     "@types/node": "^18.14.6",
     "jest": "^29.4.3",
     "rimraf": "^6.0.1"
@@ -44,7 +45,8 @@
   "dependencies": {
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "chance": "^1.1.12",
     "lodash": "^4.17.10",
-    "chance": "^1.1.12"
+    "p-limit": "^6.2.0"
   }
 }
