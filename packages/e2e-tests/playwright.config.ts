@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { dirname, resolve, join } from 'path';
 
 /**
  * Read environment variables from file.
@@ -43,9 +43,9 @@ export default defineConfig({
     },
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
-        storageState: resolve(__dirname, '.auth/user.json'),
+        storageState: join(__dirname, '.auth/user.json'),
         // Ensure we wait for network idle after navigation
         navigationTimeout: 30000,
         actionTimeout: 15000,
