@@ -3,7 +3,6 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyPrescription,
   createDummyPatient,
 } from '@tamanu/database/demoData/patients';
 import {
