@@ -40,7 +40,7 @@ describe('Merging Patient Program Registrations', () => {
     );
 
     // Merge patient has 1 active and 1 inactive registration
-    const unwantedRegistration1 = await PatientProgramRegistration.create(
+    await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         patientId: merge.id,
@@ -50,7 +50,7 @@ describe('Merging Patient Program Registrations', () => {
         date: '2023-10-04 08:00:00',
       }),
     );
-    const unwantedRegistration2 = await PatientProgramRegistration.create(
+    await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         patientId: merge.id,
