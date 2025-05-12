@@ -21,6 +21,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { ConditionHistoryTable } from './ConditionHistoryTable';
 import Divider from '@material-ui/core/Divider';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledFormTable = styled(FormTable)`
   margin-top: 1rem;
@@ -55,12 +56,15 @@ const useUpdateConditionMutation = (patientProgramRegistrationId, conditionId) =
 
 export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const [warningOpen, setWarningOpen] = useState(false);
+  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const { id: conditionId, patientProgramRegistrationId, conditionCategory } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
   );
+
+  const areAuditChangesEnabled = getSetting('audit.changes.enabled');
 
   const handleConfirmedSubmit = async values => {
     await submit(values);
@@ -164,8 +168,12 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           return (
             <>
               <StyledFormTable columns={columns} data={[condition]} />
-              <Divider />
-              <ConditionHistoryTable historyData={condition?.history} />
+              {areAuditChangesEnabled && (
+                <>
+                  <Divider />
+                  <ConditionHistoryTable historyData={condition?.history} />
+                </>
+              )}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
               <RecordedInErrorWarningModal
                 open={warningOpen}
