@@ -754,7 +754,7 @@ medication.post(
   }),
 );
 
-const updateMedicationAdministrationRecordInputSchema = z
+const updateMarInputSchema = z
   .object({
     isError: z.boolean().optional(),
     errorNotes: z.string().optional(),
@@ -780,8 +780,7 @@ medication.put(
     const marId = params.id;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
-    const { isError, errorNotes, doses } =
-      await updateMedicationAdministrationRecordInputSchema.parseAsync(req.body);
+    const { isError, errorNotes, doses } = await updateMarInputSchema.parseAsync(req.body);
 
     const existingMar = await MedicationAdministrationRecord.findByPk(marId, {
       include: ['prescription'],

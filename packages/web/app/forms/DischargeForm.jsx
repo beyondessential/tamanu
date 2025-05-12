@@ -663,10 +663,11 @@ export const DischargeForm = ({
   const activeMedications = encounter.medications
     ?.filter(medication => !medication.discontinued)
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
-  const onGoingMedications = ongoingPrescriptions?.data
-    ?.map(p => p.prescription)
-    .filter(p => !p.discontinued)
-    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
+  const onGoingMedications =
+    ongoingPrescriptions?.data
+      ?.map(p => p.prescription)
+      .filter(p => !p.discontinued)
+      .sort((a, b) => a.medication.name.localeCompare(b.medication.name)) || [];
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,
