@@ -217,7 +217,7 @@ export async function mergePatientDeathData(models, keepPatientId, unwantedPatie
   return results;
 }
 
-export async function mergePatientProgramRegistrations(models, keepPatientId, unwantedPatientId) {
+export async function mergePatientProgramRegistrations(models, unwantedPatientId) {
   const existingUnwantedRegistrations = await models.PatientProgramRegistration.findAll({
     where: { patientId: unwantedPatientId },
   });
@@ -229,13 +229,7 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    // Move to keep patient
-    await unwantedRegistration.update({
-      patientId: keepPatientId,
-    });
-
-    // Soft delete the registration
-    await unwantedRegistration.destroy();
+    await unwantedRegistration.destroy({ force: true });
     results.push(unwantedRegistration);
   }
 
@@ -244,7 +238,6 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
 
 export async function mergePatientProgramRegistrationConditions(
   models,
-  keepPatientId,
   unwantedPatientId,
 ) {
   const existingUnwantedRegistrationConditions =
@@ -259,13 +252,7 @@ export async function mergePatientProgramRegistrationConditions(
   const results = [];
 
   for (const unwantedCondition of existingUnwantedRegistrationConditions) {
-    // Move to keep patient
-    await unwantedCondition.update({
-      patientId: keepPatientId,
-    });
-
-    // Soft delete the registration
-    await unwantedCondition.destroy();
+    await unwantedCondition.destroy({ force: true });
     results.push(unwantedCondition);
   }
 
@@ -436,7 +423,6 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
       models,
-      keepPatientId,
       unwantedPatientId,
     );
     if (patientProgramRegistrationUpdates.length > 0) {
@@ -444,7 +430,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     const patientProgramRegistrationConditionUpdates =
-      await mergePatientProgramRegistrationConditions(models, keepPatientId, unwantedPatientId);
+      await mergePatientProgramRegistrationConditions(models, unwantedPatientId);
     if (patientProgramRegistrationConditionUpdates.length > 0) {
       updates.PatientProgramRegistrationCondition =
         patientProgramRegistrationConditionUpdates.length;
