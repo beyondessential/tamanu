@@ -136,23 +136,43 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
+const NoteContentBox = styled(Box)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 1.2rem;
+  margin-bottom: 30px;
+`;
+
+const fieldWrapperSx = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+};
+
+const inputContainerSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  alignItems: 'start',
+  flex: 1,
+};
+
+const textareaSx = {
+  flex: 1,
+  minHeight: 0,
+  overflow: 'auto',
+  width: '100%',
+};
+
 export const NoteContentField = ({
   label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
   onChange,
   size,
 }) => (
-  <Box
-    style={{
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0,
-      flexGrow: 1,
-      height: '100%',
-      marginTop: '1.2rem',
-      marginBottom: '30px',
-    }}
-  >
+  <NoteContentBox>
     <Field
       name="content"
       label={label}
@@ -160,32 +180,16 @@ export const NoteContentField = ({
       component={TextField}
       multiline
       onChange={onChange}
-      style={{
-        flex: 1,
-        minHeight: 0,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      style={fieldWrapperSx}
       InputProps={{
-        style: {
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          alignItems: 'start',
-          flex: 1,
-        },
+        style: inputContainerSx,
       }}
       inputProps={{
-        style: {
-          flex: 1,
-          minHeight: 0,
-          overflow: 'auto',
-          width: '100%',
-        },
+        style: textareaSx,
       }}
       size={size}
     />
-  </Box>
+  </NoteContentBox>
 );
 
 export const NoteInfoSection = ({

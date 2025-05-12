@@ -6,7 +6,6 @@ import {
   NoteTemplateField,
   NoteTypeField,
   WrittenByField,
-  WrittenByText,
   PreviouslyWrittenByField,
   PreviousDateTimeField,
 } from '../components/NoteCommonFields';

@@ -42,6 +42,7 @@ export const NoteModalDialogActions = styled(DialogActions)`
   bottom: 0;
 `;
 
+/* Ensures that wrapped inputs show a specific background color, rather than just inheriting */
 export const DisabledWrapper = styled.div`
   & .MuiInputBase-root.Mui-disabled {
     background-color: ${props => props.color || 'inherit'} !important;
