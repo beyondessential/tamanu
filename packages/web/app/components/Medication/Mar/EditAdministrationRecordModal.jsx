@@ -191,7 +191,7 @@ export const EditAdministrationRecordModal = ({
       title={
         <TranslatedText
           stringId="modal.mar.editAdministrationRecordModal.title"
-          fallback="Edit Administration Record"
+          fallback="Edit administration record"
         />
       }
     >
