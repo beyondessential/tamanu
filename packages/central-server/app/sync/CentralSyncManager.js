@@ -581,9 +581,9 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        // Don't produce change logs for changes made through sync
-        // Auditable change logs are generated on facility servers and will sync in to central
-        // Mobile change logs are currently not implemented
+        // Don't produce audit logs for changes made through sync
+        // Audit changelogs are generated on facility servers and will sync in to central
+        // Mobile changelogs are currently not implemented
         await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
 
         // we tick-tock the global clock to make sure there is a unique tick for these changes
