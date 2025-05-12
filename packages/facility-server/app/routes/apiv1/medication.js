@@ -514,10 +514,12 @@ medication.put(
     }
 
     record.status = ADMINISTRATION_STATUS.GIVEN;
-    record.recordedByUserId = recordedByUserId;
+    record.recordedByUserId = recordedByUserId || req.user.id;
     record.changingStatusReason = changingStatusReason;
     if (!record.recordedAt) {
       record.recordedAt = getCurrentDateTimeString();
+    } else {
+      record.isEdited = true;
     }
     await record.save();
 
@@ -683,6 +685,8 @@ medication.put(
     record.changingStatusReason = changingStatusReason;
     if (!record.recordedAt) {
       record.recordedAt = getCurrentDateTimeString();
+    } else {
+      record.isEdited = true;
     }
     await record.save();
 
