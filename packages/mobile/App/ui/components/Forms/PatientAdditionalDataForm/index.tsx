@@ -61,12 +61,6 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
         },
       });
 
-      // const sanitizedValues = Object.fromEntries(
-      //   Object.entries(values).map(([key, value]) => [key, value === '' ? null : value]),
-      // );
-
-      // console.log('sanitizedValues', sanitizedValues);
-
       // TODO: hacking just to get it working for now
       const patientToUpdate = await Patient.findOne({ where: { id: patient.id } });
       const village = await ReferenceData.findOne({
@@ -75,8 +69,6 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
       patientToUpdate.villageId = values?.villageId || null;
       patientToUpdate.village = values?.villageId ? village : null;
       await patientToUpdate.save();
-
-      // await Patient.updateValues(patient.id, values);
 
       await PatientAdditionalData.updateForPatient(patient.id, values);
 
@@ -93,8 +85,6 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
           ),
         ),
       );
-
-      // console.log('patientToUpdate', patientToUpdate);
 
       setSelectedPatient(patientToUpdate);
 
