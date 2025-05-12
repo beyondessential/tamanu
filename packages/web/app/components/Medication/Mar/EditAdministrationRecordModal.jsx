@@ -99,7 +99,8 @@ export const EditAdministrationRecordModal = ({
   timeSlot,
   showDoseIndex,
 }) => {
-  const practitionerSuggester = useSuggester('practitioner');
+  const recordedBySuggester = useSuggester('practitioner');
+  const givenBySuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
@@ -200,7 +201,7 @@ export const EditAdministrationRecordModal = ({
           <TranslatedText
             stringId="modal.mar.doseIndex.label"
             fallback="Dose :index"
-            replacements={{ index: doseInfo?.doseIndex }}
+            replacements={{ index: doseInfo?.doseIndex + 1 }}
           />
         </DoseLabel>
       ) : (
@@ -239,7 +240,7 @@ export const EditAdministrationRecordModal = ({
                     name="recordedByUserId"
                     component={AutocompleteField}
                     label="Recorded by"
-                    suggester={practitionerSuggester}
+                    suggester={recordedBySuggester}
                     required
                   />
                   <div style={{ gridColumn: '1 / -1' }}>
@@ -304,14 +305,14 @@ export const EditAdministrationRecordModal = ({
                     name="givenByUserId"
                     component={AutocompleteField}
                     label="Given by"
-                    suggester={practitionerSuggester}
+                    suggester={givenBySuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
                     label="Recorded by"
-                    suggester={practitionerSuggester}
+                    suggester={recordedBySuggester}
                     required
                   />
                   <div style={{ gridColumn: '1 / -1' }}>
