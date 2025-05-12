@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
+import { constructFacilityUrl } from './navigation';
 
 function generateNHN() {
   const letters = faker.string.alpha({ length: 4, casing: 'upper' });
@@ -30,7 +31,9 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
 
   const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
 
-  const response = await fetch('http://localhost:5173/api/patient', {
+  const apiPatientUrl = constructFacilityUrl(`/api/patient`);
+
+  const response = await fetch(apiPatientUrl, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${token}`,
@@ -57,7 +60,9 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
 }
 
 async function getCurrentUser(token: string) {
-  const userResponse = await fetch('http://localhost:5173/api/user/me', {
+  const apiUserUrl = constructFacilityUrl(`/api/user/me`);
+
+  const userResponse = await fetch(apiUserUrl, {
     method: 'GET',
     headers: {
       authorization: `Bearer ${token}`,
