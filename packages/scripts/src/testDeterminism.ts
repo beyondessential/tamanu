@@ -58,6 +58,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
   const hashes: TableHashes = new Map();
   for (const table of tables) {
+    console.log('debug', table);
     await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE "${table}"`);
     for (const column of UNHASHED_COLUMNS) {
       try {
