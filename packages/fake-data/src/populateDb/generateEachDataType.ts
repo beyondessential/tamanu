@@ -12,6 +12,7 @@ import {
   createSurveyResponse,
   createTask,
   createPatientCommunication,
+  createAccessLog,
   generateImportData,
 } from './helpers/index.js';
 
@@ -107,5 +108,12 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       referenceDataId: referenceData.id,
     }),
     await createPatientCommunication({ models, limit, patientId: patient.id }),
+    await createAccessLog({
+      models,
+      limit,
+      userId: user.id,
+      patientId: patient.id,
+      facilityId: facility.id,
+    }),
   ]);
 };
