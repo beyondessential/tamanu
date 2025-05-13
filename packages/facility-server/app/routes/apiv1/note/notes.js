@@ -56,6 +56,12 @@ noteRoute.get(
 
     await checkNotePermission(req, note, 'read');
 
+    await req.audit.access({
+      recordId: noteId,
+      params,
+      model: models.Note,
+    });
+
     res.send(note);
   }),
 );

@@ -42,6 +42,12 @@ patientRoute.get(
     });
     if (!patient) throw new NotFoundError();
 
+    await req.audit.access({
+      recordId: params.id,
+      params,
+      model: Patient,
+    });
+
     res.send(dbRecordToResponse(patient, facilityId));
   }),
 );
@@ -156,6 +162,7 @@ patientRoute.get(
     const {
       models: { Encounter },
       params,
+      query: { facilityId },
     } = req;
 
     req.checkPermission('read', 'Patient');
@@ -168,6 +175,15 @@ patientRoute.get(
       },
       include: Encounter.getFullReferenceAssociations(),
     });
+
+    if (currentEncounter) {
+      await req.audit.access({
+        recordId: currentEncounter.id,
+        params,
+        model: Encounter,
+        facilityId,
+      });
+    }
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);

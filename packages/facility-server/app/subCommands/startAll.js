@@ -7,6 +7,7 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
+import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
 import { createApiApp } from '../createApiApp';
@@ -41,6 +42,10 @@ async function startAll({ skipMigrationCheck }) {
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();
+  context.timesync = await initTimesync({
+    models: context.models,
+    url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
+  });
 
   await performTimeZoneChecks({
     remote: context.centralServer,

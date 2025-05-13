@@ -44,6 +44,13 @@ adminRoutes.get(
       include: ['village'],
     });
     if (!patient) throw new NotFoundError(`Could not find patient with display ID ${displayId}.`);
+
+    await req.audit.access({
+      recordId: patient.id,
+      params: req.params,
+      model: Patient,
+    });
+
     res.send(patient);
   }),
 );
