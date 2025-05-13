@@ -34,18 +34,10 @@ export const getReferenceDataTypeFromSuggester = (suggester: Suggester<any>): st
   return MODEL_TO_REFERENCE_DATA_TYPE[suggester.model.name] || suggester.options?.where?.type;
 };
 
-const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
-
-const extractDataId = ({ stringId }) => stringId.split('.').pop();
-
-const replaceDataLabelsWithTranslations = ({ data, translations }) => {
-  const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map((item) => ({
-    ...item,
-    name: translationsByDataId[item.id]?.text ?? item.name,
-  }));
-};
-
+const defaultFormatter = (record): OptionType => ({
+  label: record.entity_translated_name,
+  value: record.entity_id,
+});
 export class Suggester<ModelType extends BaseModelSubclass> {
   model: ModelType;
 
@@ -110,7 +102,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           },
         )
         .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
-
         .where(
           new Brackets((qb) => {
             if (search) {
@@ -136,14 +127,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       const data = await query.getRawAndEntities();
 
-      const processedData = data.raw.map((item) => ({
-        name: item.entity_translated_name,
-        id: item.entity_id,
-      }));
-
       const formattedData = this.filter
-        ? processedData.filter(this.filter).map(this.formatter)
-        : processedData.map(this.formatter);
+        ? data.raw.filter(this.filter).map(this.formatter)
+        : data.raw.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {
         this.cachedData = formattedData;
