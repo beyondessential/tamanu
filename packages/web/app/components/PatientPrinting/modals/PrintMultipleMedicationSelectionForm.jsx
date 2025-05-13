@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
+import { intersectionBy } from 'lodash';
 
 import { Table, useSelectableColumn } from '../../Table';
 import {
   AutocompleteInput,
+  NumberInput,
   OuterLabelFieldWrapper,
-  SelectInput,
   TextField,
   TextInput,
 } from '../../Field';
@@ -23,8 +24,6 @@ import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-
-const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -104,9 +103,7 @@ const COLUMNS = [
     sortable: false,
     accessor: ({ repeats, onChange }) => (
       <Box width="89px">
-        <SelectInput
-          isClearable={false}
-          options={REPEAT_OPTIONS}
+        <NumberInput
           value={repeats}
           onChange={onChange}
           required
@@ -154,7 +151,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { getTranslation } = useTranslation();
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
-  const [medicationData, setMedicationData] = useState([]);
+
   const [prescriberId, setPrescriberId] = useState(null);
   const [patientWeight, setPatientWeight] = useState('');
   const prescriberSelected = Boolean(prescriberId);
@@ -163,9 +160,14 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
     api.get(`encounter/${encounter.id}/medications`),
   );
+  const defaultMedicationData = useMemo(() => data?.data.filter(m => !m.discontinued) || [], [
+    data,
+  ]);
+  const [medicationData, setMedicationData] = useState(defaultMedicationData);
   const { currentUser } = useAuth();
-
-  const { selectedRows, selectableColumn } = useSelectableColumn(medicationData, {
+  
+  
+  const { selectedRows, selectableColumn } = useSelectableColumn(defaultMedicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
     selectAllOnInit: true,
   });
@@ -173,14 +175,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth).years;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
-
-  useEffect(() => {
-    const medications = data?.data || [];
-    const newMedications = medications
-      .filter(m => !m.discontinued)
-      .map(m => ({ ...m, repeats: 0 }));
-    setMedicationData(newMedications);
-  }, [data]);
 
   useEffect(() => {
     setPrescriberId(currentUser.id);
@@ -211,7 +205,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
       <MultiplePrescriptionPrintoutModal
         encounter={encounter}
         prescriberId={prescriberId}
-        prescriptions={selectedRows}
+        prescriptions={intersectionBy(medicationData, selectedRows, 'id')}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
         patientWeight={showPatientWeight ? patientWeight : undefined}
@@ -220,11 +214,13 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
       <PrescriberWrapper data-testid="prescriberwrapper-r57g">
         <AutocompleteInput
           infoTooltip={
-            <TranslatedText
-              stringId="medication.modal.printMultiple.prescriber.tooltip"
-              fallback="The prescriber will appear on the printed prescription"
-              data-testid="translatedtext-s7yn"
-            />
+            <Box width="147px">
+              <TranslatedText
+                stringId="medication.modal.printMultiple.prescriber.tooltip"
+                fallback="The prescriber will appear on the printed prescription"
+                data-testid="translatedtext-s7yn"
+              />
+            </Box>
           }
           name="prescriberId"
           label={
@@ -314,8 +310,8 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         }
         confirmText={
           <TranslatedText
-            stringId="medication.action.printPrescription"
-            fallback="Print prescription"
+            stringId="medication.action.printPrescriptions"
+            fallback="Print prescriptions"
             data-testid="translatedtext-ojsa"
           />
         }
