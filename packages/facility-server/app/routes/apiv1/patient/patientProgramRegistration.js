@@ -16,11 +16,12 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
-      params.patientId,
-    );
+    const registrationData =
+      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+        params.patientId,
+      );
 
-    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
+    const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
   }),
 );
@@ -68,7 +69,7 @@ patientProgramRegistration.post(
           ...registrationData,
         }),
         models.PatientProgramRegistrationCondition.bulkCreate(
-          conditionIds.map(conditionId => ({
+          conditionIds.map((conditionId) => ({
             patientId,
             programRegistryId,
             clinicianId: registrationData.clinicianId,
@@ -104,21 +105,25 @@ const getChangingFieldRecords = (allRecords, field) =>
     return currentValue !== prevValue;
   });
 
-const getRegistrationRecords = allRecords =>
+const getRegistrationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.ACTIVE,
   );
-const getDeactivationRecords = allRecords =>
+const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = allRecords =>
+const getStatusChangeRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
     const { patientId, programRegistryId } = params;
     const { PatientProgramRegistration } = models;
 
@@ -174,6 +179,13 @@ patientProgramRegistration.get(
           }
         : {};
 
+    await req.audit.access({
+      recordId: registration.id,
+      params,
+      model: PatientProgramRegistration,
+      facilityId,
+    });
+
     res.send({
       ...registration,
       // Using optional chaining for these until we create the new field to track
@@ -214,11 +226,11 @@ patientProgramRegistration.get(
       .reverse();
 
     const statusChangeRecords = getStatusChangeRecords(fullHistory);
-    const historyWithRegistrationDate = statusChangeRecords.map(data => ({
+    const historyWithRegistrationDate = statusChangeRecords.map((data) => ({
       ...data,
       // Find the latest registrationDate that is not after the date of interest
       registrationDate: registrationDates.find(
-        registrationDate => !isAfter(new Date(registrationDate), new Date(data.date)),
+        (registrationDate) => !isAfter(new Date(registrationDate), new Date(data.date)),
       ),
     }));
 

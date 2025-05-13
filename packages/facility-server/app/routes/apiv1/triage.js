@@ -11,7 +11,7 @@ import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const triage = express.Router();
 
-triage.get('/:id', simpleGet('Triage'));
+triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
 triage.put('/:id', simplePut('Triage'));
 
 triage.post(
