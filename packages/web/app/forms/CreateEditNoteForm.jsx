@@ -18,7 +18,7 @@ import {
   DisabledWrapper,
 } from '../components/NoteModal/NoteModalCommonComponents';
 
-export const CreateNoteForm = ({
+export const CreateEditNoteForm = ({
   onSubmit,
   onCancel,
   noteTypeCountByType,

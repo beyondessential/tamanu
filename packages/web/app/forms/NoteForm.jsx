@@ -8,9 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 import { Form } from '../components/Field';
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
-import { NoteChangelogForm } from './NoteChangelogForm';
-import { CreateNoteForm } from './CreateNoteForm';
-import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
+import { CreateEditNoteForm } from './CreateEditNoteForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -24,42 +22,19 @@ export const NoteForm = ({
   const { currentUser } = useAuth();
 
   const renderForm = ({ submitForm, values, setValues }) => {
-    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
-      const props = {
-        note,
-        onSubmit: submitForm,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+      return (
         <EditTreatmentPlanNoteForm
-          {...props}
+          note={note}
+          onSubmit={submitForm}
+          onCancel={onCancel}
           noteTypeCountByType={noteTypeCountByType}
-          onChangeTemplate={() => {}}
         />
-      ) : (
-        <CreateNoteForm
-          {...props}
-          values={values}
-          setValues={setValues}
-          noteFormMode={noteFormMode}
-        />
-      );
-    }
-
-    if (noteFormMode === NOTE_FORM_MODES.VIEW_NOTE) {
-      const props = {
-        note,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <TreatmentPlanNoteChangelogForm {...props} />
-      ) : (
-        <NoteChangelogForm {...props} />
       );
     }
 
     return (
-      <CreateNoteForm
+      <CreateEditNoteForm
         note={note}
         onSubmit={submitForm}
         onCancel={onCancel}

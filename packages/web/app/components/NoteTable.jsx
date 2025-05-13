@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedEnum, TranslatedText } from './Translation';
 import { useNoteModal } from '../contexts/NoteModal';
+import { NoteChangelogModal } from './NoteChangelogModal';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -253,6 +254,8 @@ const NoteTable = ({
 }) => {
   const { currentUser } = useAuth();
   const { openNoteModal } = useNoteModal();
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isNoteChangelogModalOpen, setIsNoteChangelogModalOpen] = useState(false);
 
   const handleEditNote = useCallback(
     note => {
@@ -281,23 +284,10 @@ const NoteTable = ({
     [openNoteModal, hasEncounterNoteWritePermission, encounterId, noteModalOnSaved],
   );
 
-  const handleViewNoteChangeLog = useCallback(
-    note => {
-      if (!hasEncounterNoteWritePermission) {
-        return;
-      }
-
-      openNoteModal({
-        title: <TranslatedText stringId="note.modal.changeLog.title" fallback="Change Log" />,
-        noteFormMode: NOTE_FORM_MODES.VIEW_NOTE,
-        note: note,
-        onSaved: noteModalOnSaved,
-        encounterId,
-        confirmText: <TranslatedText stringId="general.action.close" fallback="Close" />,
-      });
-    },
-    [openNoteModal, hasEncounterNoteWritePermission, encounterId, noteModalOnSaved],
-  );
+  const handleViewNoteChangeLog = useCallback(note => {
+    setSelectedNote(note);
+    setIsNoteChangelogModalOpen(true);
+  }, []);
 
   const COLUMNS = useMemo(
     () => [
@@ -328,6 +318,11 @@ const NoteTable = ({
 
   return (
     <>
+      <NoteChangelogModal
+        open={isNoteChangelogModalOpen}
+        note={selectedNote}
+        onCancel={() => setIsNoteChangelogModalOpen(false)}
+      />
       <DataFetchingTable
         lazyLoading
         hideHeader
