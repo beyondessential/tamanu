@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // Add new id column to patient_program_registrations
@@ -43,8 +43,13 @@ export async function down(query: QueryInterface): Promise<void> {
   // Add old id column to patient_program_registrations
   await query.addColumn('patient_program_registrations', 'old_id', {
     type: DataTypes.TEXT,
-    defaultValue: Sequelize.fn('gen_random_uuid'),
   });
+
+  // Create deterministic ids for existing records
+  await query.sequelize.query(`
+    UPDATE patient_program_registrations
+    SET old_id = uuid_generate_v5(uuid_generate_v5(uuid_nil(), 'patient_program_registrations'), id);
+  `);
 
   // Update conditions table to drop foreign key constraint and populate old id column
   await query.sequelize.query(`
@@ -76,5 +81,10 @@ export async function down(query: QueryInterface): Promise<void> {
       ADD CONSTRAINT patient_program_registration__patient_program_registration_fkey
       FOREIGN KEY (patient_program_registration_id)
       REFERENCES patient_program_registrations(id) ON DELETE CASCADE;
+  `);
+
+  // Add default value to id column
+  await query.sequelize.query(`
+    ALTER TABLE patient_program_registrations ALTER COLUMN id SET DEFAULT gen_random_uuid();
   `);
 }
