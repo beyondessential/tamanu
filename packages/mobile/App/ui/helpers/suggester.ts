@@ -75,9 +75,26 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
     if (!value) return undefined;
     try {
-      const data = await this.model.getRepository().findOne({ where: { id: value } });
+      const dataType = getReferenceDataTypeFromSuggester(this);
+      const query = this.model
+        .getRepository()
+        .createQueryBuilder('entity')
+        .leftJoinAndSelect(
+          'translated_strings',
+          'translation',
+          'translation.stringId = :prefix || entity.id AND translation.language = :language',
+          {
+            prefix: `refData.${dataType}.`,
+            language: 'en',
+          },
+        )
+        .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
+        .where('entity.id = :id', { id: value });
 
-      return this.formatter(data);
+      const result = await query.getRawAndEntities();
+      if (!result.raw.length) return undefined;
+
+      return this.formatter(result.raw[0]);
     } catch (e) {
       return undefined;
     }
