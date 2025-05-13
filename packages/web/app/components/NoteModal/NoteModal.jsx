@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
-
-import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
-
-import { useApi, useSuggester } from '../../api';
+import { useHistory, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { useApi, useSuggester } from '../../api';
 import { NoteForm } from '../../forms/NoteForm';
 import { ConfirmModal } from '../ConfirmModal';
 import { useAuth } from '../../contexts/Auth';
 import { NOTE_FORM_MODES } from '../../constants';
+import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
-import { Prompt } from 'react-router-dom';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
 
 const StyledMuiDialog = styled(MuiDialog)`
@@ -46,6 +45,44 @@ const getMinConstraints = (noteFormMode, note) => {
   }
   return [400, 414];
 };
+
+const MemoizedNoteModalContents = React.memo(
+  ({
+    open,
+    onClose,
+    noteFormMode,
+    note,
+    title,
+    practitionerSuggester,
+    noteTypeCountByType,
+    confirmText,
+    cancelText,
+    handleCreateOrEditNewNote,
+  }) => {
+    return (
+      <FloatingMuiDialog
+        open={open}
+        onClose={onClose}
+        baseWidth={535}
+        baseHeight={775}
+        minConstraints={getMinConstraints(noteFormMode, note)}
+      >
+        <NoteModalDialogTitle title={title} onClose={onClose} />
+        <NoteForm
+          noteFormMode={noteFormMode}
+          onCancel={onClose}
+          onSubmit={handleCreateOrEditNewNote}
+          practitione
+          Suggester={practitionerSuggester}
+          note={note}
+          noteTypeCountByType={noteTypeCountByType}
+          confirmText={confirmText}
+          cancelText={cancelText}
+        />
+      </FloatingMuiDialog>
+    );
+  },
+);
 
 export const MuiNoteModalComponent = ({
   title = <TranslatedText stringId="note.modal.default.title" fallback="Note" />,
@@ -119,26 +156,18 @@ export const MuiNoteModalComponent = ({
           </p>
         }
       />
-      <FloatingMuiDialog
+      <MemoizedNoteModalContents
         open={open}
         onClose={onClose}
-        baseWidth={535}
-        baseHeight={775}
-        minConstraints={getMinConstraints(noteFormMode, note)}
-        maxConstraints={[535, 775]}
-      >
-        <NoteModalDialogTitle title={title} onClose={onClose} />
-        <NoteForm
-          noteFormMode={noteFormMode}
-          onCancel={onClose}
-          onSubmit={handleCreateOrEditNewNote}
-          practitionerSuggester={practitionerSuggester}
-          note={note}
-          noteTypeCountByType={noteTypeCountByType}
-          confirmText={confirmText}
-          cancelText={cancelText}
-        />
-      </FloatingMuiDialog>
+        noteFormMode={noteFormMode}
+        note={note}
+        title={title}
+        practitionerSuggester={practitionerSuggester}
+        noteTypeCountByType={noteTypeCountByType}
+        confirmText={confirmText}
+        cancelText={cancelText}
+        handleCreateOrEditNewNote={handleCreateOrEditNewNote}
+      />
     </>
   );
 };
@@ -146,9 +175,10 @@ export const MuiNoteModalComponent = ({
 export const NoteModal = React.memo(() => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
   const handleBeforeUnloadRef = React.useRef(null);
+  const unblockRef = React.useRef(null);
+  const history = useHistory();
 
   useEffect(() => {
-    // Create the handler function and store it in the ref
     handleBeforeUnloadRef.current = e => {
       e.preventDefault();
       e.returnValue = '';
@@ -156,27 +186,37 @@ export const NoteModal = React.memo(() => {
 
     if (isNoteModalOpen) {
       window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
+      unblockRef.current = history.block(location => {
+        if (matchPath(location.pathname, PATIENT_PATHS.PATIENT)) {
+          return true;
+        }
+
+        const confirmed = window.confirm('Are you sure you want to leave this page?');
+        if (confirmed) {
+          closeNoteModal();
+
+          setTimeout(() => {
+            unblockRef.current();
+            history.push(location.pathname);
+          }, 0);
+        }
+
+        return false;
+      });
     }
 
     return () => {
       if (handleBeforeUnloadRef.current) {
         window.removeEventListener('beforeunload', handleBeforeUnloadRef.current);
       }
+      if (unblockRef.current) {
+        unblockRef.current();
+      }
     };
-  }, [isNoteModalOpen]);
+  }, [isNoteModalOpen, history, closeNoteModal]);
 
-  console.log('📝 NoteModal render:', { isNoteModalOpen, noteModalProps });
   return (
     <>
-      <Prompt
-        when={isNoteModalOpen}
-        message={
-          <TranslatedText
-            stringId="note.modal.prompt.message"
-            fallback="Are you sure you want to leave this page?"
-          />
-        }
-      />
       <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
     </>
   );
