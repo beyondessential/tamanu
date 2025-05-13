@@ -136,14 +136,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       const data = await query.getRawAndEntities();
 
-      console.log(data.raw[0]);
-
       const processedData = data.raw.map((item) => ({
-        label: item.entity_translated_name,
-        value: item.entity_id,
+        name: item.entity_translated_name,
+        id: item.entity_id,
       }));
-
-      console.log(processedData[0]);
 
       const formattedData = this.filter
         ? processedData.filter(this.filter).map(this.formatter)
