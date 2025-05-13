@@ -42,7 +42,7 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   // Add old id column to patient_program_registrations
   await query.addColumn('patient_program_registrations', 'old_id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.UUID,
   });
 
   // Create deterministic ids for existing records
