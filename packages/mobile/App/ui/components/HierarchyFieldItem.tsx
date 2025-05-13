@@ -6,6 +6,7 @@ import { useBackend } from '~/ui/hooks';
 import { TranslatedString } from '~/models/TranslatedString';
 import { keyBy } from 'lodash';
 import { Brackets } from 'typeorm';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 
@@ -52,7 +53,10 @@ export const HierarchyFieldItem = ({
       let query = models.ReferenceData.getRepository()
         .createQueryBuilder('entity')
         .leftJoinAndSelect('entity.parents', 'parents')
-        .where('entity.type = :type', { type: referenceType });
+        .where('entity.type = :type', { type: referenceType })
+        .andWhere('entity.visibilityStatus = :visibilityStatus', {
+          visibilityStatus: VisibilityStatus.Current,
+        });
 
       if (!isFirstLevel && parentId) {
         query = query
@@ -63,15 +67,12 @@ export const HierarchyFieldItem = ({
       if (search) {
         query = query.andWhere(
           new Brackets((qb) => {
-            qb.where('entity.name LIKE :search', { search: `%${search}%` }).orWhere(
-              'entity.id IN (:...suggestedIds)',
-              { suggestedIds },
-            );
+            qb.where('entity.id IN (:...suggestedIds)', { suggestedIds });
           }),
         );
       }
 
-      query = query.orderBy('entity.name', 'ASC').limit(25);
+      query = query.orderBy('entity.name', 'ASC');
 
       let data = await query.getMany();
 
