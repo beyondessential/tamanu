@@ -16,10 +16,18 @@ export class PatientProgramRegistration extends Model {
   declare facilityId?: string;
   declare villageId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // patient_program_registration records use a generated primary key that enforces
+          // one per patient and program registry, even across a distributed sync system
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("program_registry_id", ';', ':')) STORED`,
+          primaryKey: true,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
+        },
         date: dateTimeType('date', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
