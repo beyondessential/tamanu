@@ -32,7 +32,10 @@ async function listTables(sequelize: Sequelize): Promise<string[]> {
     (sequelize.modelManager.all as (typeof Model)[])
       // No need for determinism test when data is not shared between central and facility
       .filter((model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC)
-      .map((model) => model.tableName)
+      .map((model) => {
+        const schema = (model as any).options?.schema || 'public';
+        return `${schema}.${model.tableName}`;
+      })
   );
 }
 
@@ -59,7 +62,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
   const hashes: TableHashes = new Map();
   for (const table of tables) {
     console.log('debug', table);
-    await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE "${table}"`);
+    await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE ${table}`);
     for (const column of UNHASHED_COLUMNS) {
       try {
         await sequelize.query(`ALTER TABLE determinism_check_table DROP "${column}"`);
