@@ -21,7 +21,7 @@ import { Op } from 'sequelize';
 
 export const medication = express.Router();
 
-medication.get('/:id', simpleGet('Prescription'));
+medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
 
 medication.post(
   '/$',

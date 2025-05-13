@@ -4,10 +4,12 @@ import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaSer
 
 // import { SenaitePoller } from './SenaitePoller';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
+import { TimeSyncTask } from './TimeSyncTask';
 
 const DEFAULT_TASK_CLASSES = [
   RefreshUpcomingVaccinations,
   SendStatusToMetaServer,
+  TimeSyncTask,
 ];
 
 export function startScheduledTasks(context, taskClasses) {
