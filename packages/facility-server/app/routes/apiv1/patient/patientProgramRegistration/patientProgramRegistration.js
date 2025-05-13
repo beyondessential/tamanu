@@ -2,8 +2,10 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { validatePatientProgramRegistrationRequest } from './utils';
+import { Op, Sequelize } from 'sequelize';
 
 export const patientProgramRegistration = express.Router();
 
@@ -17,7 +19,7 @@ patientProgramRegistration.get(
     req.checkPermission('list', 'PatientProgramRegistration');
 
     const registrationData =
-      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+      await models.PatientProgramRegistration.getRegistrationsForPatient(
         params.patientId,
       );
 
@@ -33,13 +35,7 @@ patientProgramRegistration.post(
     const { patientId } = params;
     const { programRegistryId, registeringFacilityId } = body;
 
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
+    await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       where: {
@@ -54,44 +50,134 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistration');
     }
 
-    const { conditionIds = [], ...registrationData } = body;
+    const { conditions = [], ...registrationData } = body;
 
-    if (conditionIds.length > 0) {
+    if (conditions.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditions] = await db.transaction(async () => {
-      return Promise.all([
-        models.PatientProgramRegistration.create({
+    const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
+      const newRegistration = await models.PatientProgramRegistration.create(
+        {
           patientId,
           programRegistryId,
           ...registrationData,
-        }),
-        models.PatientProgramRegistrationCondition.bulkCreate(
-          conditionIds.map((conditionId) => ({
-            patientId,
-            programRegistryId,
+        },
+        { transaction },
+      );
+
+      const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
+        conditions
+          .filter((condition) => condition.conditionId)
+          .map((condition) => ({
+            patientProgramRegistrationId: newRegistration.id,
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
-            programRegistryConditionId: conditionId,
+            programRegistryConditionId: condition.conditionId,
+            conditionCategory: condition.category,
           })),
-        ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
+        { transaction },
+      );
+
+      await models.PatientFacility.upsert(
+        {
           patientId,
           facilityId: registeringFacilityId,
-        }),
-      ]);
+        },
+        { transaction },
+      );
+
+      return [newRegistration, newConditions];
     });
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...registration.get({ plain: true }),
-      conditions,
+      conditions: conditionsRecords,
     };
 
     res.send(responseObject);
+  }),
+);
+
+patientProgramRegistration.put(
+  '/programRegistration/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'PatientProgramRegistration');
+    const { db, models, params, body } = req;
+    const { id } = params;
+    const { conditions = [], ...registrationData } = body;
+    const { PatientProgramRegistration } = models;
+
+    if (conditions.length > 0) {
+      req.checkPermission('create', 'PatientProgramRegistrationCondition');
+    }
+
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+
+    if (!existingRegistration) {
+      throw new NotFoundError('PatientProgramRegistration not found');
+    }
+
+    const conditionsData = conditions.map((condition) => ({
+      id: condition.id,
+      patientProgramRegistrationId: existingRegistration.id,
+      clinicianId: registrationData.clinicianId,
+      date: condition.date,
+      programRegistryConditionId: condition.conditionId,
+      conditionCategory: condition.conditionCategory,
+      reasonForChange: condition.reasonForChange,
+    }));
+
+    const [registration] = await db.transaction(async () => {
+      return Promise.all([
+        existingRegistration.update(registrationData),
+        models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
+          updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
+        }),
+      ]);
+    });
+
+    const responseObject = {
+      ...registration.get({ plain: true }),
+    };
+
+    res.send(responseObject);
+  }),
+);
+
+patientProgramRegistration.delete(
+  '/programRegistration/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, params } = req;
+    const { id } = params;
+    const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
+
+    req.checkPermission('delete', 'PatientProgramRegistration');
+
+    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+
+    if (!existingRegistration) {
+      throw new NotFoundError('PatientProgramRegistration not found');
+    }
+
+    await db.transaction(async (transaction) => {
+      // Update the status to recordedInError and soft delete the registration
+      await existingRegistration.update(
+        { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
+        { transaction },
+      );
+      await existingRegistration.destroy({ transaction });
+
+      // Soft delete all related conditions
+      await PatientProgramRegistrationCondition.destroy({
+        where: { patientProgramRegistrationId: id },
+        transaction,
+      });
+    });
+
+    res.status(200).send({ message: 'Registration successfully deleted' });
   }),
 );
 
@@ -113,8 +199,6 @@ const getDeactivationRecords = (allRecords) =>
   getChangingFieldRecords(allRecords, 'registrationStatus').filter(
     ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
   );
-const getStatusChangeRecords = (allRecords) =>
-  getChangingFieldRecords(allRecords, 'clinicalStatusId');
 
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
@@ -132,7 +216,6 @@ patientProgramRegistration.get(
 
     const registration = await PatientProgramRegistration.findOne({
       where: {
-        isMostRecent: true,
         patientId,
         programRegistryId,
       },
@@ -197,139 +280,77 @@ patientProgramRegistration.get(
     });
   }),
 );
+
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId/history$',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;
-    const { PatientProgramRegistration } = models;
+    const { ChangeLog, User, ProgramRegistryClinicalStatus } = models;
 
     req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const fullHistory = await PatientProgramRegistration.findAll({
+    const changes = await ChangeLog.findAll({
       where: {
+        tableName: 'patient_program_registrations',
+        recordId: {
+          [Op.in]: Sequelize.literal(
+            `(SELECT id::text FROM patient_program_registrations WHERE patient_id = :patientId AND program_registry_id = :programRegistryId)`,
+          ),
+        },
+      },
+      include: [
+        {
+          model: User,
+          as: 'updatedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'DESC']],
+      replacements: {
         patientId,
         programRegistryId,
       },
-      include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'ASC']],
-      // Get the raw records so we can easily reverse later.
-      raw: true,
-      nest: true,
     });
 
-    // Be sure to use the whole history to find the registration dates, not just the status
-    // change records.
-    const registrationDates = getRegistrationRecords(fullHistory)
-      .map(({ date }) => date)
-      .reverse();
+    // Get all unique clinical status IDs from the changes
+    const clinicalStatusIds = [
+      ...new Set(changes.map((change) => change.recordData.clinical_status_id).filter(Boolean)),
+    ];
 
-    const statusChangeRecords = getStatusChangeRecords(fullHistory);
-    const historyWithRegistrationDate = statusChangeRecords.map((data) => ({
-      ...data,
-      // Find the latest registrationDate that is not after the date of interest
-      registrationDate: registrationDates.find(
-        (registrationDate) => !isAfter(new Date(registrationDate), new Date(data.date)),
-      ),
-    }));
-
-    res.send({
-      count: historyWithRegistrationDate.length,
-      // Give the history latest-first
-      data: historyWithRegistrationDate.reverse(),
-    });
-  }),
-);
-
-patientProgramRegistration.post(
-  '/:patientId/programRegistration/:programRegistryId/condition',
-  asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
-
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
-
-    req.checkPermission('read', 'PatientProgramRegistrationCondition');
-    const conditionExists = await models.PatientProgramRegistrationCondition.count({
+    // Fetch all clinical statuses in one query
+    const clinicalStatuses = await ProgramRegistryClinicalStatus.findAll({
       where: {
-        programRegistryId,
-        patientId,
-        programRegistryConditionId: body.programRegistryConditionId,
+        id: {
+          [Op.in]: clinicalStatusIds,
+        },
       },
-    });
-    if (conditionExists) {
-      throw new ValidationError("Can't create a duplicate condition for the same patient");
-    }
-
-    req.checkPermission('create', 'PatientProgramRegistrationCondition');
-    const condition = await models.PatientProgramRegistrationCondition.create({
-      patientId,
-      programRegistryId,
-      ...body,
+      attributes: ['id', 'name', 'color'],
     });
 
-    res.send(condition);
-  }),
-);
+    // Create a map for quick lookup
+    const clinicalStatusMap = clinicalStatuses.reduce((acc, status) => {
+      acc[status.id] = status;
+      return acc;
+    }, {});
 
-patientProgramRegistration.get(
-  '/:patientId/programRegistration/:programRegistryId/condition',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { patientId, programRegistryId } = params;
-    const { PatientProgramRegistrationCondition } = models;
-
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    req.checkPermission('list', 'PatientProgramRegistrationCondition');
-
-    const history = await PatientProgramRegistrationCondition.findAll({
-      where: {
-        patientId,
-        programRegistryId,
-      },
-      include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
-      order: [['date', 'DESC']],
+    const history = changes.map((change) => {
+      const data = change.recordData;
+      return {
+        id: change.id,
+        date: change.loggedAt,
+        registrationStatus: data.registration_status,
+        clinicalStatusId: data.clinical_status_id,
+        clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
+        clinician: change.updatedByUser,
+        registrationDate: data.date,
+      };
     });
 
     res.send({
       count: history.length,
       data: history,
     });
-  }),
-);
-
-patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
-  asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { patientId, programRegistryId, conditionId } = params;
-
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-    req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
-
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition');
-    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
-      where: {
-        id: conditionId,
-      },
-    });
-    if (!existingCondition) throw new NotFoundError();
-    const condition = await existingCondition.update({
-      deletionClinicianId: req.user.id,
-      deletionDate: query.deletionDate,
-    });
-    await condition.destroy();
-    res.send(condition);
   }),
 );

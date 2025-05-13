@@ -1,6 +1,17 @@
 import { enumRegistry, prefixMap } from '@tamanu/constants';
 
 /**
+ * Converts a string from formats like SNAKE_CASE to camelCase
+ * @param {string} value - The string to convert
+ * @returns {string} The converted string in camelCase
+ */
+export const toCamelCase = value => {
+  return value
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
+};
+
+/**
  * Used to enforce usage of translatable enums
  * recognises registered enums from object references
  */

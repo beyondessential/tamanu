@@ -59,6 +59,10 @@ import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-u
 import { removeLabTestStatus1734072605000 } from './1734072605000-removeLabTestStatus';
 import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './1734080053767-standardiseCaseAndPluralityOfAllTables';
 import { addIsSensitiveColumnToLabTestTypes1738620786000 } from './1738620786000-addIsSensitiveColumnToLabTestTypes';
+import { addPatientProgramRegistrationConditionCategoryColumn1739395962000 } from './1739395962000-addPatientProgramRegistrationConditionCategoryColumn';
+import { addPatientProgramRegistrationReasonForChange1740342611000 } from './1740342611000-addPatientProgramRegistrationReasonForChange';
+import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-addPatientProgramRegistrationId';
+import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from './1744754327000-removeIsMostRecentFromPatientProgramRegistrations';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -121,4 +125,8 @@ export const migrationList = [
   removeLabTestStatus1734072605000,
   standardiseCaseAndPluralityOfAllTables1734080053767,
   addIsSensitiveColumnToLabTestTypes1738620786000,
+  addPatientProgramRegistrationConditionCategoryColumn1739395962000,
+  addPatientProgramRegistrationReasonForChange1740342611000,
+  addPatientProgramRegistrationId1743640327000,
+  removeIsMostRecentFromPatientProgramRegistrations1744754327000,
 ];
