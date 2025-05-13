@@ -136,6 +136,9 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
+/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+and deals with in-field scrolling at small heights */
+
 const NoteContentBox = styled(Box)`
   flex: 1;
   display: flex;

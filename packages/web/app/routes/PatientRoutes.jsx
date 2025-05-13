@@ -25,7 +25,6 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
-import { NoteModal } from '../components/NoteModal/NoteModal';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -179,7 +178,6 @@ export const PatientRoutes = React.memo(() => {
   return (
     <>
       <PatientRoutesContent />
-      <NoteModal />
     </>
   );
 }, isPathUnchanged);

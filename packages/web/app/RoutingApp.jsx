@@ -22,6 +22,7 @@ import { UserActivityMonitor } from './components/UserActivityMonitor';
 import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
+import { NoteModal } from './components/NoteModal/NoteModal';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
@@ -34,6 +35,7 @@ export const RoutingFacilityApp = React.memo(() => {
 
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+      <NoteModal />
       <UserActivityMonitor />
       <Switch>
         {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
