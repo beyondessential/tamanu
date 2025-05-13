@@ -54,10 +54,10 @@ export async function down(query: QueryInterface): Promise<void> {
   // Update conditions table to drop foreign key constraint and populate old id column
   await query.sequelize.query(`
     ALTER TABLE patient_program_registration_conditions DROP CONSTRAINT patient_program_registration__patient_program_registration_fkey;
-    ALTER TABLE patient_program_registration_conditions ADD COLUMN patient_program_registration_old_id VARCHAR(255);
+    ALTER TABLE patient_program_registration_conditions ADD COLUMN patient_program_registration_old_id UUID;
 
     UPDATE patient_program_registration_conditions
-    SET patient_program_registration_old_id = ppr.old_id
+    SET patient_program_registration_old_id = ppr.old_id::uuid
     FROM patient_program_registrations ppr
     WHERE patient_program_registration_conditions.patient_program_registration_id = ppr.id;
   `);
