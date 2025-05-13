@@ -28,7 +28,11 @@ export const HierarchyFieldItem = ({
 }) => {
   const { models } = useBackend();
 
-  const suggesterInstance = new Suggester(models.ReferenceData);
+  const suggesterInstance = new Suggester(models.ReferenceData, {
+    where: {
+      type: referenceType,
+    },
+  });
 
   // Custom fetchSuggestions method to filter by parent relationship and include translations
   // The nested where required for this suggester is not supported by the base fetchSuggestions method
