@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
+import { useAuth } from '../../contexts/Auth';
 
-export const usePatientCurrentEncounterQuery = (patientId) => {
+export const usePatientCurrentEncounterQuery = patientId => {
+  const { facilityId } = useAuth();
   const api = useApi();
   return useQuery(['patientCurrentEncounter', patientId], () =>
-    api.get(`patient/${encodeURIComponent(patientId)}/currentEncounter`),
+    api.get(`patient/${encodeURIComponent(patientId)}/currentEncounter`, { facilityId }),
   );
 };

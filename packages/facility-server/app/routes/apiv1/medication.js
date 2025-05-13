@@ -10,7 +10,7 @@ import {
 
 export const medication = express.Router();
 
-medication.get('/:id', simpleGet('EncounterMedication'));
+medication.get('/:id', simpleGet('EncounterMedication', { auditAccess: true }));
 medication.put('/:id', simplePut('EncounterMedication'));
 medication.post('/$', simplePost('EncounterMedication'));
 
