@@ -3,20 +3,8 @@ import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalFie
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
 import { useBackend } from '~/ui/hooks';
-import { TranslatedString } from '~/models/TranslatedString';
-import { keyBy } from 'lodash';
 import { Brackets } from 'typeorm';
 import { VisibilityStatus } from '~/visibilityStatuses';
-
-const extractDataId = ({ stringId }) => stringId.split('.').pop();
-
-const replaceDataLabelsWithTranslations = ({ data, translations }) => {
-  const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map((item) => ({
-    ...item,
-    name: translationsByDataId[item.id]?.text ?? item.name,
-  }));
-};
 
 export const HierarchyFieldItem = ({
   isFirstLevel,
@@ -41,18 +29,19 @@ export const HierarchyFieldItem = ({
     const requestedAt = Date.now();
 
     try {
-      // Get translations for the reference data type
-      const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
-        language,
-        referenceType,
-        search,
-      );
-
-      const suggestedIds = translations.map(extractDataId);
-
       let query = models.ReferenceData.getRepository()
         .createQueryBuilder('entity')
         .leftJoinAndSelect('entity.parents', 'parents')
+        .leftJoinAndSelect(
+          'translated_strings',
+          'translation',
+          'translation.stringId = :prefix || entity.id AND translation.language = :language',
+          {
+            prefix: `refData.${referenceType}.`,
+            language,
+          },
+        )
+        .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
         .where('entity.type = :type', { type: referenceType })
         .andWhere('entity.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,
@@ -67,21 +56,18 @@ export const HierarchyFieldItem = ({
       if (search) {
         query = query.andWhere(
           new Brackets((qb) => {
-            qb.where('entity.id IN (:...suggestedIds)', { suggestedIds });
+            qb.where('entity_translated_name LIKE :search', { search: `%${search}%` });
           }),
         );
       }
 
       query = query.orderBy('entity.name', 'ASC');
 
-      let data = await query.getMany();
+      const data = await query.getRawAndEntities();
 
-      // Replace labels with translations
-      data = replaceDataLabelsWithTranslations({ data, translations });
-
-      const formattedData = data.map((item) => ({
-        label: item.name,
-        value: item.id,
+      const formattedData = data.raw.map((item) => ({
+        label: item.entity_translated_name,
+        value: item.entity_id,
       }));
 
       if (suggesterInstance.lastUpdatedAt < requestedAt) {

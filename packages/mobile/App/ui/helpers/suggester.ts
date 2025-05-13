@@ -97,23 +97,24 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
-      const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
-        language,
-        dataType,
-        search,
-      );
-
-      const suggestedIds = translations.map(extractDataId);
-
       let query = this.model
         .getRepository()
         .createQueryBuilder('entity')
+        .leftJoinAndSelect(
+          'translated_strings',
+          'translation',
+          'translation.stringId = :prefix || entity.id AND translation.language = :language',
+          {
+            prefix: `refData.${dataType}.`,
+            language,
+          },
+        )
+        .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
+
         .where(
           new Brackets((qb) => {
             if (search) {
-              qb.where(`${column} LIKE :search`, {
-                search: `%${search}%`,
-              }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
+              qb.where('entity_translated_name LIKE :search', { search: `%${search}%` });
             }
           }),
         )
@@ -133,13 +134,20 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         });
       }
 
-      let data = await query.getMany();
+      const data = await query.getRawAndEntities();
 
-      data = replaceDataLabelsWithTranslations({ data, translations });
+      console.log(data.raw[0]);
+
+      const processedData = data.raw.map((item) => ({
+        label: item.entity_translated_name,
+        value: item.entity_id,
+      }));
+
+      console.log(processedData[0]);
 
       const formattedData = this.filter
-        ? data.filter(this.filter).map(this.formatter)
-        : data.map(this.formatter);
+        ? processedData.filter(this.filter).map(this.formatter)
+        : processedData.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {
         this.cachedData = formattedData;
