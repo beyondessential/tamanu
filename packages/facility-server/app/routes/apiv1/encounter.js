@@ -88,14 +88,26 @@ encounter.put(
         // only isDischarge, quantity and repeats fields are edited
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { isDischarge, quantity, repeats } = medicationValues;
-          if (isDischarge) {
-            const medication = await models.Prescription.findByPk(medicationId);
-            await medication.update({ quantity, repeats });
-            await models.EncounterPrescription.update(
-              { isDischarge },
-              { where: { encounterId: id, prescriptionId: medication.id } },
-            );
+          const { quantity, repeats } = medicationValues;
+          const medication = await models.Prescription.findByPk(medicationId);
+          if (!medication || medication.discontinued) continue;
+
+          await medication.update({ quantity, repeats });
+          await models.EncounterPrescription.update(
+            { isDischarge: true },
+            { where: { encounterId: id, prescriptionId: medication.id } },
+          );
+          // If the medication is ongoing, we need to add it to the patient's ongoing medications
+          if (medication.isOngoing) {
+            const patientOngoingPrescription = await models.PatientOngoingPrescription.findOne({
+              where: { patientId: encounterObject.patientId, prescriptionId: medication.id },
+            });
+            if (!patientOngoingPrescription) {
+              await models.PatientOngoingPrescription.create({
+                patientId: encounterObject.patientId,
+                prescriptionId: medication.id,
+              });
+            }
           }
         }
       }
