@@ -58,12 +58,7 @@ export const StyledFormGrid = styled(FormGrid)`
 
 const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
   return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
-    <StyledTooltip
-      arrow
-      placement="top"
-      followCursor
-      title="This note type already exists for this encounter"
-    >
+    <StyledTooltip arrow placement="top" title="This note type already exists for this encounter">
       <div>{label}</div>
     </StyledTooltip>
   ) : (

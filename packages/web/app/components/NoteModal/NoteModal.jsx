@@ -99,6 +99,9 @@ export const MuiNoteModalComponent = ({
   const { currentUser } = useAuth();
   const [noteTypeCountByType, setNoteTypeCountByType] = useState({});
   const [openNoteCancelConfirmModal, setOpenNoteCancelConfirmModal] = useState(false);
+  const onCancel = useCallback(() => {
+    setOpenNoteCancelConfirmModal(true);
+  }, []);
 
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -158,7 +161,7 @@ export const MuiNoteModalComponent = ({
       />
       <MemoizedNoteModalContents
         open={open}
-        onClose={onClose}
+        onClose={onCancel}
         noteFormMode={noteFormMode}
         note={note}
         title={title}
