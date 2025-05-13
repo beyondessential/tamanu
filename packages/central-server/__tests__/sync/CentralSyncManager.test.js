@@ -167,7 +167,6 @@ describe('CentralSyncManager', () => {
       displayName: 'System',
       role: 'system',
     });
-    // Add these lines to ensure proper cleanup
     await models.Setting.set('audit.changes.enabled', false);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     await models.SyncLookup.truncate({ force: true });
@@ -654,7 +653,6 @@ describe('CentralSyncManager', () => {
         facilityId: facility.id,
       });
 
-      // Initial change
       patientProgramRegistration.date = '2025-04-22 00:00:00';
       await patientProgramRegistration.save();
 
@@ -667,7 +665,6 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      // Update lookup table at NEW_SYNC_TICK
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
       await centralSyncManager.updateLookupTable();
 
@@ -676,7 +673,6 @@ describe('CentralSyncManager', () => {
       patientProgramRegistration.date = '2025-04-23 00:00:00';
       await patientProgramRegistration.save();
 
-      // Start sync session
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
