@@ -1,9 +1,13 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { useField } from 'formik';
+
 import {
   SUGGESTER_ENDPOINTS,
   SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
 } from '@tamanu/constants/suggesters';
+
+import { useSuggester } from '../../api';
 import {
   AutocompleteField,
   Field,
@@ -19,12 +23,14 @@ import { LabTestTypeField } from './LabTestTypeField';
 import { LabTestCategoryField } from './LabTestCategoryField';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
+import { LabTestCategorySensitiveField } from './LabTestCategorySensitiveField';
+import { AppointmentTypeField } from './AppointmentTypeField';
+import { BookingTypeField } from './BookingTypeField';
 import { VaccineField } from './VaccineField';
 import { LocationField } from './LocationField';
-import { useSuggester } from '../../api';
 import { FacilityField } from './FacilityField';
-import { useField } from 'formik';
-import { LabTestCategorySensitiveField } from './LabTestCategorySensitiveField';
+import { PatientField } from './PatientField';
+import { useSuggester } from '../../api';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
@@ -66,6 +72,7 @@ const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, parameters, ..
       baseQueryParameters={baseQueryParameters}
       name={name}
       {...props}
+      data-testid="field-u0dj"
     />
   );
 };
@@ -79,37 +86,48 @@ const ParameterAutocompleteField = ({
 }) => {
   const options = useReportSuggesterOptions(parameters, suggesterOptions);
   const suggester = useSuggester(suggesterEndpoint, options);
-  return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
+  return (
+    <Field
+      component={AutocompleteField}
+      suggester={suggester}
+      name={name}
+      {...props}
+      data-testid="field-fbkj"
+    />
+  );
 };
 
 const ParameterSelectField = ({ name, ...props }) => (
-  <Field component={BaseSelectField} name={name} {...props} />
+  <Field component={BaseSelectField} name={name} {...props} data-testid="field-ozoi" />
 );
 
 const ParameterMultiselectField = ({ name, ...props }) => (
-  <Field component={BaseMultiselectField} name={name} {...props} />
+  <Field component={BaseMultiselectField} name={name} {...props} data-testid="field-qy3y" />
 );
 
 const EmptyField = styled.div``;
 
 export const PARAMETER_FIELD_COMPONENTS = {
-  VillageField,
-  LabTestLaboratoryField,
-  PractitionerField,
-  FacilityField,
+  AppointmentTypeField,
+  BookingTypeField,
   DiagnosisField,
-  VaccineCategoryField,
-  VaccineField,
   EmptyField,
-  ParameterAutocompleteField,
-  ParameterSelectField,
-  ParameterMultiselectField,
+  FacilityField,
   ImagingTypeField,
   LabTestCategoryField,
   LabTestCategorySensitiveField,
-  ParameterSuggesterSelectField,
+  LabTestLaboratoryField,
   LabTestTypeField,
   LocationField,
+  ParameterAutocompleteField,
+  ParameterMultiselectField,
+  ParameterSelectField,
+  ParameterSuggesterSelectField,
+  PatientField,
+  PractitionerField,
+  VaccineCategoryField,
+  VaccineField,
+  VillageField,
 };
 
 export const ParameterField = ({
@@ -131,6 +149,7 @@ export const ParameterField = ({
       parameterValues={values}
       parameters={parameters}
       {...props}
+      data-testid="parameterfieldcomponent-r4ff"
     />
   );
 };

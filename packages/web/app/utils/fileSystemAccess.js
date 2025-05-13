@@ -1,4 +1,4 @@
-const sanitizeFileName = fileName => {
+const sanitizeFileName = (fileName) => {
   return fileName
     .trim() // prevent leading or trailing whitespace
     .replace(/CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9]/g, 'download') // replace windows reserved filenames
@@ -22,13 +22,14 @@ const FILE_TYPES = [
 
 const DEFAULT_FILE_TYPE = FILE_TYPES[0];
 
-const fileTypeFromExtension = extension =>
-  FILE_TYPES.find(fileType =>
+const fileTypeFromExtension = (extension) =>
+  FILE_TYPES.find((fileType) =>
     Object.entries(fileType.accept).some(([, exts]) => exts.includes(extension)),
   ) ?? DEFAULT_FILE_TYPE;
 
-const fileTypeFromMimeType = mimeType =>
-  FILE_TYPES.find(fileType => Object.keys(fileType.accept).includes(mimeType)) ?? DEFAULT_FILE_TYPE;
+const fileTypeFromMimeType = (mimeType) =>
+  FILE_TYPES.find((fileType) => Object.keys(fileType.accept).includes(mimeType)) ??
+  DEFAULT_FILE_TYPE;
 
 const createFileSystemHandle = ({ defaultFileName, filetype }) =>
   window.showSaveFilePicker({

@@ -1,4 +1,5 @@
 import { all as allMath, create } from 'mathjs';
+import { isNumber } from 'lodash';
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 // set up math context
@@ -16,7 +17,7 @@ export function runCalculations(components: ISurveyScreenComponent[], values: an
           throw new Error('Value is not a valid number');
         }
         const config = c.getConfigObject();
-        if (config.rounding) {
+        if (isNumber(config.rounding)) {
           value = parseFloat(parseFloat(value).toFixed(config.rounding));
         }
         inputValues[c.dataElement.code] = value;

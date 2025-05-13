@@ -34,7 +34,7 @@ export class ReadSettings<Path = SettingPath> {
     this.facilityId = facilityId;
   }
 
-  async get<T extends string | number | object>(key: Path) {
+  async get<T extends string | number | object>(key: Path): Promise<T> {
     const settings = await this.getAll();
     return lodashGet(settings, key as string) as T;
   }

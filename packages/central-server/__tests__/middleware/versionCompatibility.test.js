@@ -2,10 +2,10 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { SUPPORTED_CLIENT_VERSIONS } from '../../dist/middleware/versionCompatibility';
+import { VERSION_CONTROLLED_CLIENTS } from '../../dist/middleware/versionCompatibility';
 
-const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS[SERVER_TYPES.MOBILE].min;
-const MIN_FACILITY_VERSION = SUPPORTED_CLIENT_VERSIONS[SERVER_TYPES.FACILITY].min;
+const MIN_MOBILE_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.MOBILE].min;
+const MIN_FACILITY_VERSION = VERSION_CONTROLLED_CLIENTS[SERVER_TYPES.FACILITY].min;
 
 describe('Version compatibility', () => {
   let baseApp;
@@ -92,26 +92,24 @@ describe('Version compatibility', () => {
   describe('Other client version checking', () => {
     it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
       'Should allow version %s of an unspecified client (so that tests work)',
-      async version => {
-        const response = await app
-          .get('/')
-          .unset('X-Tamanu-Client')
-          .set({
-            'X-Version': version,
-          });
+      async (version) => {
+        const response = await app.get('/').unset('X-Tamanu-Client').set({
+          'X-Version': version,
+        });
         expect(response).toHaveSucceeded();
         expect(response.body).toHaveProperty('index', true);
       },
     );
 
     it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
-      'Should deny version %s of an an unknown client type of any version',
-      async version => {
+      'Should allow version %s of an an unknown client type of any version',
+      async (version) => {
         const response = await app.get('/').set({
           'X-Tamanu-Client': 'Unknown Client',
           'X-Version': version,
         });
-        expect(response).not.toHaveSucceeded();
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveProperty('index', true);
       },
     );
   });
@@ -128,7 +126,7 @@ describe('Version compatibility', () => {
         'packages/scripts/package.json',
       ];
       versions = await Promise.all(
-        packageFiles.map(async filePath => {
+        packageFiles.map(async (filePath) => {
           const relativePath = `../../../../${filePath}`.split('/');
           const normalisedPath = path.resolve(__dirname, ...relativePath);
           const content = await fs.readFile(normalisedPath);
@@ -139,13 +137,15 @@ describe('Version compatibility', () => {
 
     it('Should have the same version across all packages', async () => {
       const [firstVersion, ...rest] = versions.map(([, v]) => v);
-      rest.forEach(subsequentVersion => {
+      rest.forEach((subsequentVersion) => {
         expect(subsequentVersion).toEqual(firstVersion);
       });
     });
 
     it('Should support the current version of the Facility server', async () => {
-      const facilityVersion = versions.find(([filePath]) => filePath === 'packages/facility-server/package.json')[1];
+      const facilityVersion = versions.find(
+        ([filePath]) => filePath === 'packages/facility-server/package.json',
+      )[1];
       const response = await app.get('/').set({
         'X-Tamanu-Client': SERVER_TYPES.FACILITY,
         'X-Version': facilityVersion,

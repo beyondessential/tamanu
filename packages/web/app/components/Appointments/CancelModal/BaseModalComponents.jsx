@@ -24,9 +24,9 @@ const Value = styled(`span`)`
 `;
 
 const DetailDisplay = ({ label, value }) => (
-  <FlexCol>
-    <Label>{label}</Label>
-    <Value>{value ?? '—'}</Value>
+  <FlexCol data-testid="flexcol-ylre">
+    <Label data-testid="label-ss5l">{label}</Label>
+    <Value data-testid="value-8515">{value ?? '—'}</Value>
   </FlexCol>
 );
 

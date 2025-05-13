@@ -7,7 +7,7 @@ import { useChartSurveyQuery } from './useChartSurveyQuery';
 function hasHistoricalData(answer) {
   if (!answer) return false;
   const { records } = answer;
-  return Object.values(records).some(record => record.body);
+  return Object.values(records).some((record) => record.body);
 }
 
 function getSortedLogsByDate(logs) {
@@ -21,24 +21,23 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   }
 
   const recordedDates = Object.keys(
-    data.find(record => record.dataElementId === dateElementId)
-      .records,
+    data.find((record) => record.dataElementId === dateElementId).records,
   );
 
   const elementIdToAnswer = {};
-  data.forEach(answer => {
+  data.forEach((answer) => {
     elementIdToAnswer[answer.dataElementId] = answer;
   });
 
   const records = surveyData.components
-    .filter(component => component.dataElementId !== dateElementId)
+    .filter((component) => component.dataElementId !== dateElementId)
     // Show current components or ones that have historical data in them
     .filter(
-      component =>
+      (component) =>
         component.visibilityStatus === VISIBILITY_STATUSES.CURRENT ||
         hasHistoricalData(elementIdToAnswer[component.dataElementId]),
     )
-    .map(component => {
+    .map((component) => {
       const { id, config, validationCriteria, dataElement } = component;
       const { records = {} } = elementIdToAnswer[dataElement.id] || {};
       const configs = {
@@ -70,12 +69,14 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
 
 export const useEncounterChartsQuery = (encounterId, surveyId) => {
   const api = useApi();
-  const chartQuery = useQuery(['encounterCharts', encounterId, surveyId], () =>
-    api.get(
-      `encounter/${encounterId}/charts/${surveyId}`,
-      { rowsPerPage: 50 },
-      { isErrorUnknown: isErrorUnknownAllow404s },
-    ),
+  const chartQuery = useQuery(
+    ['encounterCharts', encounterId, surveyId],
+    () =>
+      api.get(
+        `encounter/${encounterId}/charts/${surveyId}`,
+        { rowsPerPage: 50 },
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
     { enabled: Boolean(surveyId) },
   );
   const surveyQuery = useChartSurveyQuery(surveyId);

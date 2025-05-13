@@ -20,7 +20,7 @@ const TabContainer = styled(Tabs)`
     background-color: ${Colors.primary};
   }
   * {
-    cursor: url("${grabCursor}"), auto !important;
+    cursor: url('${grabCursor}'), auto !important;
   }
 `;
 
@@ -36,7 +36,9 @@ const StyledTab = styled(Box)`
   opacity: 0.7;
   position: relative;
   flex-shrink: 0;
-  transition: opacity, background-color 0.3s;
+  transition:
+    opacity,
+    background-color 0.3s;
 
   &:hover {
     opacity: 1;
@@ -66,7 +68,7 @@ const StyledTab = styled(Box)`
 `;
 
 const Icon = styled.i`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   margin-right: 5px;
 `;
 
@@ -83,26 +85,37 @@ export const TabDisplayDraggable = ({
     ...t,
     order: index,
   }));
-  const currentTabData = tabs.find(t => t.key === currentTab);
+  const currentTabData = tabs.find((t) => t.key === currentTab);
 
-  const onDragEnd = result => {
+  const onDragEnd = (result) => {
     handleDragEnd(result);
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <TabBar className={className}>
-        <Droppable droppableId="tab-display-droppable" direction="horizontal">
-          {provided => (
+    <DragDropContext onDragEnd={onDragEnd} data-testid="dragdropcontext-v5fu">
+      <TabBar className={className} data-testid="tabbar-zlyy">
+        <Droppable
+          droppableId="tab-display-droppable"
+          direction="horizontal"
+          data-testid="droppable-3q8i"
+        >
+          {(provided) => (
             <TabContainer
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : 'fixed'}
               scrollButtons={scrollable ? 'on' : 'off'}
               value={currentTabData?.order || 0}
               {...provided.droppableProps}
+              data-testid="tabcontainer-uai8"
             >
               {tabs.map(({ key, label, render, icon }, index) => (
-                <Draggable key={key} draggableId={key} index={index} isDragDisabled={!render}>
+                <Draggable
+                  key={key}
+                  draggableId={key}
+                  index={index}
+                  isDragDisabled={!render}
+                  data-testid={`draggable-cehj-${key}`}
+                >
                   {(provided, snapshot) => (
                     <StyledTab
                       ref={provided.innerRef}
@@ -114,11 +127,13 @@ export const TabDisplayDraggable = ({
                         selected: currentTabData?.key === key,
                         isDragging: snapshot.isDragging,
                       })}
+                      data-testid={`styledtab-ccs8-${key}`}
                     >
                       {icon && (
                         <Icon
                           className={icon}
                           color={currentTabData?.key === key ? Colors.primary : Colors.softText}
+                          data-testid={`icon-1iqd-${key}`}
                         />
                       )}
                       {label}

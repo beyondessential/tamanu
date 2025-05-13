@@ -83,7 +83,7 @@ const defaultSettings = {
 
 vi.mock('../../app/contexts/Settings');
 
-const settingsMock = settings => ({
+const settingsMock = (settings) => ({
   getSetting: () => ({ ...defaultSettings, ...settings }),
 });
 
@@ -117,7 +117,7 @@ describe('useFacilitySidebar', () => {
   it('should sort top level items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { sortPriority: 10 } }));
     const items = useFacilitySidebar();
-    expect(items.map(item => item.key)).toStrictEqual([
+    expect(items.map((item) => item.key)).toStrictEqual([
       'dashboard',
       'scheduling',
       'medication',
@@ -150,7 +150,7 @@ describe('useFacilitySidebar', () => {
       }),
     );
     const items = useFacilitySidebar();
-    expect(items[1].children.map(item => item.key)).toStrictEqual([
+    expect(items[1].children.map((item) => item.key)).toStrictEqual([
       'patientsOutpatients',
       'patientsEmergency',
       'patientsInpatients',
