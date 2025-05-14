@@ -36,7 +36,21 @@ const defaultFormatter = (record): OptionType => ({
   label: record.entity_translated_name,
   value: record.entity_id,
 });
-export class Suggester<ModelType extends BaseModelSubclass> {
+
+const getTranslationJoin = (model, language: string) => {
+  const dataType = getReferenceDataTypeFromSuggester(model);
+  return {
+    entity: 'translated_strings',
+    alias: 'translation',
+    condition: 'translation.stringId = :prefix || entity.id AND translation.language = :language',
+    parameters: {
+      prefix: `refData.${dataType}.`,
+      language,
+    },
+  };
+};
+
+export class Suggester<ModelType> {
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
@@ -49,11 +63,25 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   cachedData: any;
 
+  hierarchyOptions: {
+    parentId?: string;
+    relationType?: string;
+    referenceType?: string;
+    isFirstLevel?: boolean;
+  };
+
+  // TODO: parameterize
   constructor(
     model: ModelType,
     options,
     formatter = defaultFormatter,
     filter?: (entity: BaseModel) => boolean,
+    hierarchyOptions?: {
+      parentId?: string;
+      relationType?: string;
+      referenceType?: string;
+      isFirstLevel?: boolean;
+    },
   ) {
     this.model = model;
     this.options = options;
@@ -64,6 +92,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     this.filter = filter;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
+    this.hierarchyOptions = hierarchyOptions;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -107,9 +136,19 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
-      let query = this.model
-        .getRepository()
-        .createQueryBuilder('entity')
+      let query = this.model.getRepository().createQueryBuilder('entity');
+
+      if (this.hierarchyOptions) {
+        query = query.leftJoinAndSelect('entity.parents', 'parents');
+      }
+
+      if (relations) {
+        relations.forEach((relation) => {
+          query = query.leftJoinAndSelect(`entity.${relation}`, relation);
+        });
+      }
+
+      query = query
         .leftJoinAndSelect(
           'translated_strings',
           'translation',
@@ -133,15 +172,29 @@ export class Suggester<ModelType extends BaseModelSubclass> {
               qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
             });
           }),
-        )
-        .orderBy(`entity.${column}`, 'ASC')
-        .limit(25);
+        );
 
-      if (relations) {
-        relations.forEach((relation) => {
-          query = query.leftJoinAndSelect(`entity.${relation}`, relation);
+      if (this.hierarchyOptions) {
+        query = query.andWhere('entity.type = :referenceType', {
+          referenceType: this.hierarchyOptions.referenceType,
         });
       }
+
+      if (
+        this.hierarchyOptions &&
+        !this.hierarchyOptions.isFirstLevel &&
+        this.hierarchyOptions.parentId
+      ) {
+        query = query
+          .andWhere('parents.referenceDataParentId = :parentId', {
+            parentId: this.hierarchyOptions.parentId,
+          })
+          .andWhere('parents.type = :relationType', {
+            relationType: this.hierarchyOptions.relationType,
+          });
+      }
+
+      query = query.orderBy(`entity.${column}`, 'ASC').limit(25);
 
       const data = await query.getRawAndEntities();
 
