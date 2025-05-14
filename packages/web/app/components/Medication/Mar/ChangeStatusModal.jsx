@@ -272,8 +272,8 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     component={TextField}
                     label={
                       <TranslatedText
-                        stringId="mar.details.reasonForChangeOptional.label"
-                        fallback="Reason for change (Optional)"
+                        stringId="mar.details.reasonForChange.label"
+                        fallback="Reason for change"
                       />
                     }
                   />
@@ -351,8 +351,8 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     component={TextField}
                     label={
                       <TranslatedText
-                        stringId="mar.details.reasonForChangeOptional.label"
-                        fallback="Reason for change (Optional)"
+                        stringId="mar.details.reasonForChange.label"
+                        fallback="Reason for change"
                       />
                     }
                   />
