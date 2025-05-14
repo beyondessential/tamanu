@@ -164,8 +164,12 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     data,
   ]);
   const [medicationData, setMedicationData] = useState(defaultMedicationData);
+
+  useEffect(() => {
+    setMedicationData(defaultMedicationData);
+  }, [defaultMedicationData]);
+
   const { currentUser } = useAuth();
-  
   
   const { selectedRows, selectableColumn } = useSelectableColumn(defaultMedicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
