@@ -71,12 +71,13 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
-export const WrittenByField = ({
+
+export const PreviouslyWrittenByField = ({
   label = (
     <TranslatedText
       stringId="note.writtenBy.label"
       fallback="Written by (or on behalf of)"
-      data-testid="translatedtext-rzgt"
+      data-testid="translatedtext-rzft"
     />
   ),
   value,
@@ -129,8 +130,6 @@ export const WrittenByField = ({
   );
 };
 
-export const NoteDateTimeField = ({ required, disabled }) => {
-  const { getSetting } = useSettings();
 export const NoteDateTimeField = ({ required, disabled, size }) => {
   const { getSetting } = useSettings();
 
@@ -323,7 +322,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }
       }
       suggester={templateSuggester}
       component={AutocompleteField}
-      onChange={(e) => onChangeTemplate(e.target.value)}
+      onChange={e => onChangeTemplate(e.target.value)}
       disabled={!noteType || disabled}
       size={size}
       data-testid="field-ej08"
