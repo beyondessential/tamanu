@@ -10,7 +10,12 @@ export const ConfiguredMandatoryPatientFields = props => {
     <>
       {fieldsToShow.map(field => (
         <NoteBlock key={field.name}>
-          <LocalisedField key={field.name} enablePasting {...field} />
+          <LocalisedField
+            key={field.name}
+            enablePasting
+            {...field}
+            data-testid={`localisedfield-0jtf-${field.name}`}
+          />
         </NoteBlock>
       ))}
     </>

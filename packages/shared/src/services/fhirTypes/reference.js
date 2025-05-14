@@ -3,7 +3,6 @@ import { lowerCase, snakeCase } from 'lodash';
 
 import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
-import { log } from '../logging';
 
 const UPSTREAM_REF_TYPE_PREFIX = 'upstream://';
 
@@ -32,10 +31,6 @@ export class FhirReference extends FhirBaseType {
   }
 
   static async to(resourceModel, upstreamId, fields) {
-    if (!upstreamId) {
-      log.warn(`Unable to resolve reference to ${resourceModel.fhirName} with no upstreamId`);
-    }
-
     const resource = upstreamId ? await resourceModel.findOne({ where: { upstreamId } }) : null;
     if (!resource || !resource.resolved) {
       return this.unresolved(resourceModel, upstreamId, fields);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Colors } from '../../../constants';
 
-export const CustomDot = props => {
+export const CustomDot = (props) => {
   // cx, cy is the position of the current dot
   const { cx, cy, payload, size = 7, active } = props;
   if (!payload) {

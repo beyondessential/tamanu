@@ -109,7 +109,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-6mh5" />;
   }
 
   return (
@@ -121,21 +121,29 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
             isDetailsForm
+            data-testid="primarydetails-gyok"
           />
-          <StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <StyledPatientDetailSecondaryDetailsGroupWrapper data-testid="styledpatientdetailsecondarydetailsgroupwrapper-ox05">
             <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
+              data-testid="secondarydetails-2fpb"
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <PatientFields
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
+            data-testid="patientfields-csd1"
           />
-          <ButtonRow>
+          <ButtonRow data-testid="buttonrow-92zi">
             <NoteBlock>
-              <FormSubmitButton variant="contained" color="primary" text="Save" />
+              <FormSubmitButton
+                variant="contained"
+                color="primary"
+                text="Save"
+                data-testid="formsubmitbutton-dzgy"
+              />
             </NoteBlock>
           </ButtonRow>
         </>
@@ -154,6 +162,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         getTranslation,
         getSetting,
       )}
+      data-testid="form-9v1j"
     />
   );
 };

@@ -43,6 +43,19 @@ describe('Survey calculations', () => {
       expect(calculations.TEST).toEqual(4.3);
     });
 
+    it('should round the value to a whole number if configured number of decimal places is 0', () => {
+      const survey = makeDummySurvey([
+        {
+          code: 'TEST',
+          type: 'CalculatedQuestion',
+          calculation: '13 / 3',
+          config: { rounding: 0 },
+        },
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(4);
+    });
+
     it('should use substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },

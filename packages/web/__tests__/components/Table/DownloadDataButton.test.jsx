@@ -56,7 +56,7 @@ const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
 /** {@link DownloadDataButton} must be rendered within a translation context */
-const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
+const render = (element) => renderElementWithTranslatedText(element, null, mockTranslationContext);
 
 describe('DownloadDataButton', () => {
   const columns = [
@@ -94,7 +94,7 @@ describe('DownloadDataButton', () => {
     const stringId = chance.string();
     const translationFallback = chance.string();
     const testId = chance.string();
-    const ExportButton = props => (
+    const ExportButton = (props) => (
       <button data-testid={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>

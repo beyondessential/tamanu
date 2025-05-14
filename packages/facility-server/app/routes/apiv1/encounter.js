@@ -41,7 +41,7 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
-encounter.get('/:id', simpleGet('Encounter'));
+encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -166,7 +166,10 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
-encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
+encounterRelations.get(
+  '/:id/discharge',
+  simpleGetHasOne('Discharge', 'encounterId', { auditAccess: true }),
+);
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
@@ -270,7 +273,10 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+);
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
@@ -472,6 +478,52 @@ async function getAnswersWithHistory(req) {
   return { count, data };
 }
 
+async function getGraphData(req, dateDataElementId) {
+  const { models, params, query } = req;
+  const { id: encounterId, dataElementId } = params;
+  const { startDate, endDate } = query;
+  const { SurveyResponse, SurveyResponseAnswer } = models;
+
+  const dateAnswers = await SurveyResponseAnswer.findAll({
+    include: [
+      {
+        model: SurveyResponse,
+        required: true,
+        as: 'surveyResponse',
+        where: { encounterId },
+      },
+    ],
+    where: {
+      dataElementId: dateDataElementId,
+      body: { [Op.gte]: startDate, [Op.lte]: endDate },
+    },
+  });
+
+  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+
+  const answers = await SurveyResponseAnswer.findAll({
+    where: {
+      responseId: responseIds,
+      dataElementId,
+      body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
+    },
+  });
+
+  const data = answers
+    .map((answer) => {
+      const { responseId } = answer;
+      const recordedDateAnswer = dateAnswers.find(
+        (dateAnswer) => dateAnswer.responseId === responseId,
+      );
+      const recordedDate = recordedDateAnswer.body;
+      return { ...answer.dataValues, recordedDate };
+    })
+    .sort((a, b) => {
+      return a.recordedDate > b.recordedDate ? 1 : -1;
+    });
+  return data;
+}
+
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
@@ -486,51 +538,10 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/vitals/:dataElementId',
+  '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
     req.checkPermission('list', 'Vitals');
-    const { id: encounterId, dataElementId } = params;
-    const { startDate, endDate } = query;
-    const { SurveyResponse, SurveyResponseAnswer } = models;
-
-    const dateAnswers = await SurveyResponseAnswer.findAll({
-      include: [
-        {
-          model: SurveyResponse,
-          required: true,
-          as: 'surveyResponse',
-          where: { encounterId },
-        },
-      ],
-      where: {
-        dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
-        body: { [Op.gte]: startDate, [Op.lte]: endDate },
-      },
-    });
-
-    const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
-
-    const answers = await SurveyResponseAnswer.findAll({
-      where: {
-        responseId: responseIds,
-        dataElementId,
-        body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
-      },
-    });
-
-    const data = answers
-      .map((answer) => {
-        const { responseId } = answer;
-        const recordedDateAnswer = dateAnswers.find(
-          (dateAnswer) => dateAnswer.responseId === responseId,
-        );
-        const recordedDate = recordedDateAnswer.body;
-        return { ...answer.dataValues, recordedDate };
-      })
-      .sort((a, b) => {
-        return a.recordedDate > b.recordedDate ? 1 : -1;
-      });
+    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -563,6 +574,19 @@ encounterRelations.get(
 
     res.send({
       data: chartSurvey,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/graphData/charts/:dataElementId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Charting');
+    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+
+    res.send({
+      count: data.length,
+      data,
     });
   }),
 );

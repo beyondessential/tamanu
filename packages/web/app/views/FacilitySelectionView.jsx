@@ -7,10 +7,10 @@ import { AuthFlowView } from './AuthFlowView';
 
 export const FacilitySelectionView = () => {
   const dispatch = useDispatch();
-  const error = useSelector(state => state.auth.error);
-  const facilities = useSelector(state => state.auth.availableFacilities);
+  const error = useSelector((state) => state.auth.error);
+  const facilities = useSelector((state) => state.auth.availableFacilities);
 
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     const { facilityId } = data;
     await dispatch(setFacilityId(facilityId));
   };
@@ -20,12 +20,13 @@ export const FacilitySelectionView = () => {
   };
 
   return (
-    <AuthFlowView>
+    <AuthFlowView data-testid="authflowview-19c1">
       <FacilitySelectionForm
         facilities={facilities}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         errorMessage={error}
+        data-testid="facilityselectionform-704s"
       />
     </AuthFlowView>
   );

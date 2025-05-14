@@ -11,18 +11,20 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
   return (
-    <TabPane>
+    <TabPane data-testid="tabpane-zm0o">
       <LabRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
         onClose={() => setNewRequestModalOpen(false)}
+        data-testid="labrequestmodal-axnl"
       />
       <PrintMultipleLabRequestsSelectionModal
         encounter={encounter}
         open={printRequestsModalOpen}
         onClose={() => setPrintRequestsModalOpen(false)}
+        data-testid="printmultiplelabrequestsselectionmodal-hccp"
       />
-      <TableButtonRow variant="small">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-yf2d">
         <NoteBlock>
           <ButtonWithPermissionCheck
             onClick={() => setPrintRequestsModalOpen(true)}
@@ -32,8 +34,13 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
             variant="outlined"
             color="primary"
             size="small"
+            data-testid="buttonwithpermissioncheck-hjef"
           >
-            <TranslatedText stringId="lab.action.print" fallback="Print" />
+            <TranslatedText
+              stringId="lab.action.print"
+              fallback="Print"
+              data-testid="translatedtext-923g"
+            />
           </ButtonWithPermissionCheck>
         </NoteBlock>
         <NoteBlock>
@@ -43,12 +50,20 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
             verb="create"
             noun="LabRequest"
             size="small"
+            data-testid="buttonwithpermissioncheck-kcrs"
           >
-            <TranslatedText stringId="lab.action.create" fallback="New lab request" />
+            <TranslatedText
+              stringId="lab.action.create"
+              fallback="New lab request"
+              data-testid="translatedtext-5yxa"
+            />
           </ButtonWithPermissionCheck>
         </NoteBlock>
       </TableButtonRow>
-      <EncounterLabRequestsTable encounterId={encounter.id} />
+      <EncounterLabRequestsTable
+        encounterId={encounter.id}
+        data-testid="encounterlabrequeststable-hd7x"
+      />
     </TabPane>
   );
 });

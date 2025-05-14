@@ -1,5 +1,5 @@
-import { times } from 'lodash';
 import { promises as fs } from 'fs';
+import { times } from 'lodash';
 
 import { Models } from '@tamanu/database';
 
@@ -16,21 +16,21 @@ import {
   createSurveyResponse,
   createTask,
   generateImportData,
-} from '../helpers';
+} from '../helpers/index.js';
 
 // TODO: this needs way more data groups
 const MODEL_TO_FUNCTION = {
-  Appointment: { POST: createRepeatingAppointment, PUT: () => null },
-  Patient: { POST: createPatient, PUT: () => null },
-  Encounter: { POST: createEncounter, PUT: () => null },
-  ImagingRequest: { POST: createImagingRequest, PUT: () => null },
-  Invoice: { POST: createInvoice, PUT: () => null },
-  LabRequest: { createLabRequest, PUT: () => null },
-  ProgramRegistry: { POST: createProgramRegistry, PUT: () => null },
-  Survey: { POST: createSurveyResponse, PUT: () => null },
-  Tasking: { POST: createTask, PUT: () => null },
-  Vaccine: { POST: createAdministeredVaccine, PUT: () => null },
-  ReportDefinition: { POST: createDbReport, PUT: () => null },
+  Appointment: { POST: createRepeatingAppointment },
+  Patient: { POST: createPatient },
+  Encounter: { POST: createEncounter },
+  ImagingRequest: { POST: createImagingRequest },
+  Invoice: { POST: createInvoice },
+  LabRequest: { POST: createLabRequest },
+  ProgramRegistry: { POST: createProgramRegistry },
+  Survey: { POST: createSurveyResponse },
+  Tasking: { POST: createTask },
+  Vaccine: { POST: createAdministeredVaccine },
+  ReportDefinition: { POST: createDbReport },
 };
 
 export const readJSON = async (path: string): Promise<object> => {
@@ -46,16 +46,60 @@ export const readJSON = async (path: string): Promise<object> => {
 //   },
 //  ...
 // }
-export const populateDbFromTallyFile = async (tallyFilePath: string, models: Models) => {
+export const populateDbFromTallyFile = async (models: Models, tallyFilePath: string) => {
   await generateImportData(models);
+  const { default: pLimit } = await import('p-limit');
 
   const tallyJson = await readJSON(tallyFilePath);
+  const tallies = Object.entries(tallyJson);
+  const limit = pLimit(10);
+  const limited = (fn: (arg: any) => Promise<any>) =>
+    limit(() => fn({ models, limit }).then(print('.'), print('!', true)));
 
-  Object.entries(tallyJson).forEach(([model, tally]) => {
+  for (const [n, [model, tally]] of tallies.entries()) {
+    let calls = [];
     const { POST: postCount, PUT: putCount } = tally;
-    const { POST: simulatePost, PUT: simplatePut } = MODEL_TO_FUNCTION[model];
+    const { POST: postFn, PUT: putFn } = MODEL_TO_FUNCTION[model] ?? {};
 
-    times(postCount, async () => simulatePost({ models }));
-    times(putCount, async () => simplatePut({ models }));
-  });
+    if (postFn) {
+      console.log(`Simulating POST ${model}`, postCount, 'times');
+      calls = calls.concat(times(postCount, () => limited(postFn)));
+    } else if (postCount) {
+      console.error(`Missing mapping for ${model}.POST`);
+    }
+
+    if (putFn) {
+      console.log(`Simulating PUT ${model}`, putCount, 'times');
+      calls = calls.concat(times(putCount, () => limited(putFn)));
+    } else if (putCount) {
+      console.error(`Missing mapping for ${model}.PUT`);
+    }
+
+    if (calls.length > 0) {
+      await Promise.all(calls);
+      console.log();
+      console.log(
+        '[',
+        n + 1,
+        '/',
+        tallies.length,
+        ']',
+        'Simulated',
+        calls.length,
+        model,
+        'endpoint calls',
+      );
+    }
+  }
 };
+
+function print(char: string, reject: boolean = false) {
+  return (value: any) => {
+    process.stdout.write(char);
+    if (reject) {
+      throw value;
+    } else {
+      return value;
+    }
+  };
+}

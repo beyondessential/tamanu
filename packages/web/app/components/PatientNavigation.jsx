@@ -35,12 +35,12 @@ export const PatientNavigation = ({ patientRoutes }) => {
   const dispatch = useDispatch();
   const navigateBack = () => dispatch(goBack());
   return (
-    <StickyContainer>
+    <StickyContainer data-testid="stickycontainer-ju8w">
       <NoteBlock isNavigationBlock>
-        <BackButton onClick={navigateBack} />
+        <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />
       </NoteBlock>
-      <VerticalDivider />
-      <PatientBreadcrumbs patientRoutes={patientRoutes} />
+      <VerticalDivider data-testid="verticaldivider-yzxo" />
+      <PatientBreadcrumbs patientRoutes={patientRoutes} data-testid="patientbreadcrumbs-383h" />
     </StickyContainer>
   );
 };

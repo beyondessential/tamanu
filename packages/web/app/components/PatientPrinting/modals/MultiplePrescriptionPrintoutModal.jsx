@@ -12,6 +12,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -40,10 +41,10 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encounter.patientId}/additionalData`),
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(encounter.patientId);
 
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
@@ -71,6 +72,7 @@ export const MultiplePrescriptionPrintoutModal = ({
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
           fallback="Print prescriptions"
+          data-testid="translatedtext-v5oy"
         />
       }
       width="md"
@@ -79,8 +81,9 @@ export const MultiplePrescriptionPrintoutModal = ({
       color={Colors.white}
       printable
       onPrint={() => printPDF('prescription-printout')}
+      data-testid="modal-2t67"
     >
-      <PDFLoader isLoading={isLoading} id="prescription-printout">
+      <PDFLoader isLoading={isLoading} id="prescription-printout" data-testid="pdfloader-bblq">
         <PrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village, patientWeight }}
@@ -90,6 +93,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           facility={facility}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
+          data-testid="prescriptionprintout-on8m"
         />
       </PDFLoader>
     </Modal>

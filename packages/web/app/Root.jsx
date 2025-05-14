@@ -16,7 +16,6 @@ import { RoutingApp } from './RoutingApp';
 import { theme, GlobalStyles } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
-import { ReferralProvider } from './contexts/Referral';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
@@ -31,27 +30,25 @@ import { NoteModalProvider } from './contexts/NoteModal';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <EncounterNotesProvider>
-          <ProgramRegistryProvider>
-            <LabRequestProvider store={store}>
-              <PatientSearchProvider>
-                <SettingsProvider>
-                  <SyncStateProvider>
-                    <TranslationProvider>
-                      <LocalisationProvider store={store}>
-                        <NoteModalProvider>{children}</NoteModalProvider>
-                      </LocalisationProvider>
-                    </TranslationProvider>
-                  </SyncStateProvider>
-                </SettingsProvider>
-              </PatientSearchProvider>
-            </LabRequestProvider>
-          </ProgramRegistryProvider>
-        </EncounterNotesProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
+    <ImagingRequestsProvider>
+      <EncounterNotesProvider>
+        <ProgramRegistryProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <SettingsProvider>
+                <SyncStateProvider>
+                  <TranslationProvider>
+                    <LocalisationProvider store={store}>
+                      <NoteModalProvider>{children}</NoteModalProvider>
+                    </LocalisationProvider>
+                  </TranslationProvider>
+                </SyncStateProvider>
+              </SettingsProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </ProgramRegistryProvider>
+      </EncounterNotesProvider>
+    </ImagingRequestsProvider>
   </EncounterProvider>
 );
 

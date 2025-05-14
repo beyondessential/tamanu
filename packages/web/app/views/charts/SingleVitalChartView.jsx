@@ -4,9 +4,15 @@ import { useVitalChartData } from '../../contexts/VitalChartData';
 import { getVitalChartComponent } from './getVitalChartComponent';
 
 export const SingleVitalChartView = () => {
-  const { chartKeys, visualisationConfigs, dateRange, isInMultiChartsView } = useVitalChartData();
+  const {
+    isVital,
+    chartKeys,
+    visualisationConfigs,
+    dateRange,
+    isInMultiChartsView,
+  } = useVitalChartData();
   const chartKey = chartKeys[0];
-  const VitalChartComponent = getVitalChartComponent(chartKey);
+  const VitalChartComponent = getVitalChartComponent(chartKey, isVital);
   const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
   return (
@@ -15,6 +21,7 @@ export const SingleVitalChartView = () => {
       visualisationConfig={visualisationConfig}
       dateRange={dateRange}
       isInMultiChartsView={isInMultiChartsView}
+      data-testid="vitalchartcomponent-84pc"
     />
   );
 };

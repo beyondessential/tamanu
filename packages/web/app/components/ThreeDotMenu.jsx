@@ -49,8 +49,12 @@ export const ThreeDotMenu = ({ items, disabled }) => {
 
   return (
     <>
-      <StyledIconButton onClick={onOpenKebabMenu} disabled={disabled}>
-        <MoreVert />
+      <StyledIconButton
+        onClick={onOpenKebabMenu}
+        disabled={disabled}
+        data-testid="stylediconbutton-szh8"
+      >
+        <MoreVert data-testid="morevert-kusc" />
       </StyledIconButton>
       <StyledMenu
         anchorEl={anchorEl}
@@ -65,6 +69,7 @@ export const ThreeDotMenu = ({ items, disabled }) => {
           vertical: 'top',
           horizontal: 'right',
         }}
+        data-testid="styledmenu-7k45"
       >
         {items.map(
           (item, index) =>
@@ -73,6 +78,7 @@ export const ThreeDotMenu = ({ items, disabled }) => {
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
+                data-testid={`menuitem-${index}`}
               >
                 {item.label}
               </ThreeDotMenuItem>

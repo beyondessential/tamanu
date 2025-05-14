@@ -51,13 +51,20 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           transformOptions={options => [
             {
               value: null,
-              label: <TranslatedText stringId="general.select.all" fallback="All" />,
+              label: (
+                <TranslatedText
+                  stringId="general.select.all"
+                  fallback="All"
+                  data-testid="translatedtext-awa7"
+                />
+              ),
             },
             ...options.filter(
               option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
             ),
           ]}
           isClearable={false}
+          data-testid="styledtranslatedselectfield-oy9y"
         />
         <NoteBlock>
           <ButtonWithPermissionCheck
@@ -65,8 +72,13 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
             disabled={readonly}
             verb="create"
             noun="EncounterNote"
+            data-testid="buttonwithpermissioncheck-qbou"
           >
-            <TranslatedText stringId="note.action.new" fallback="New note" />
+            <TranslatedText
+              stringId="note.action.new"
+              fallback="New note"
+              data-testid="translatedtext-r2fu"
+            />
           </ButtonWithPermissionCheck>
         </NoteBlock>
       </TableButtonRow>
@@ -76,6 +88,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         noun="EncounterNote"
         noteModalOnSaved={noteModalOnSaved}
         noteType={noteType}
+        data-testid="notetablewithpermission-ngp2"
       />
     </TabPane>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { isNumber } from 'lodash';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -21,7 +22,7 @@ export const VitalsTableCell = ({
   let cellValue = '';
   if (data?.body) {
     cellValue = data?.body;
-    if (config?.rounding) {
+    if (isNumber(config?.rounding)) {
       cellValue = parseFloat(cellValue).toFixed(config.rounding);
     }
   }
@@ -41,9 +42,7 @@ export const VitalsTableCell = ({
         {cellValue}
       </StyledText>
       {needsAttention && (
-        <RequiredIndicator
-          marginLeft={screenPercentageToDP(0.4, Orientation.Width)}
-        />
+        <RequiredIndicator marginLeft={screenPercentageToDP(0.4, Orientation.Width)} />
       )}
     </StyledView>
   );

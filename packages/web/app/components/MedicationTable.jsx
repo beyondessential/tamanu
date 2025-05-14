@@ -18,38 +18,76 @@ const getMedicationName = ({ medication }) => (
     fallback={medication.name}
     value={medication.id}
     category={medication.type}
+    data-testid="translatedreferencedata-4br7"
   />
 );
 
 const MEDICATION_COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date }) => <DateDisplay date={date} />,
+    title: (
+      <TranslatedText
+        stringId="general.date.label"
+        fallback="Date"
+        data-testid="translatedtext-1wxs"
+      />
+    ),
+    accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-yrfq" />,
   },
   {
     key: 'medication.name',
-    title: <TranslatedText stringId="medication.table.column.name" fallback="Drug" />,
+    title: (
+      <TranslatedText
+        stringId="medication.table.column.name"
+        fallback="Drug"
+        data-testid="translatedtext-9spx"
+      />
+    ),
     accessor: getMedicationName,
     sortable: false,
   },
   {
     key: 'prescription',
-    title: <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
+    title: (
+      <TranslatedText
+        stringId="medication.instructions.label"
+        fallback="Instructions"
+        data-testid="translatedtext-k9wv"
+      />
+    ),
   },
   {
     key: 'route',
-    title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+    title: (
+      <TranslatedText
+        stringId="medication.route.label"
+        fallback="Route"
+        data-testid="translatedtext-t842"
+      />
+    ),
   },
   {
     key: 'endDate',
-    title: <TranslatedText stringId="medication.endDate.label" fallback="End date" />,
-    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
+    title: (
+      <TranslatedText
+        stringId="medication.endDate.label"
+        fallback="End date"
+        data-testid="translatedtext-gkze"
+      />
+    ),
+    accessor: (data) =>
+      data?.endDate ? <DateDisplay date={data?.endDate} data-testid="datedisplay-e5p0" /> : '',
   },
   {
     key: 'prescriber',
-    title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
-    accessor: data => data?.prescriber?.displayName ?? '',
+    title: (
+      <TranslatedText
+        stringId="medication.prescriber.label"
+        fallback="Prescriber"
+        data-testid="translatedtext-v7cy"
+      />
+    ),
+    accessor: (data) => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
 ];
@@ -57,25 +95,44 @@ const MEDICATION_COLUMNS = [
 const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
-    title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
+    title: (
+      <TranslatedText
+        stringId="general.patient.label"
+        fallback="Patient"
+        data-testid="translatedtext-aiwb"
+      />
+    ),
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },
   {
     key: 'department',
-    title: <TranslatedText stringId="general.department.label" fallback="Department" />,
+    title: (
+      <TranslatedText
+        stringId="general.department.label"
+        fallback="Department"
+        data-testid="translatedtext-v63j"
+      />
+    ),
     accessor: ({ encounter }) => (
       <TranslatedReferenceData
         fallback={encounter.department.name}
         value={encounter.department.id}
         category="department"
+        data-testid="translatedreferencedata-xtv4"
       />
     ),
     sortable: false,
   },
   {
     key: 'location',
-    title: <TranslatedText stringId="general.location.label" fallback="Location" />,
+    title: (
+      <TranslatedText
+        stringId="general.location.label"
+        fallback="Location"
+        data-testid="translatedtext-r5te"
+      />
+    ),
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
@@ -92,7 +149,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     await loadEncounter(encounterId);
   }, [loadEncounter, encounterId]);
 
-  const onMedicationSelect = useCallback(async medication => {
+  const onMedicationSelect = useCallback(async (medication) => {
     setModalOpen(true);
     setEncounterMedication(medication);
   }, []);
@@ -113,6 +170,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         onSaved={onSaved}
         medication={encounterMedication}
         readOnly
+        data-testid="medicationmodal-rem9"
       />
       <DataFetchingTable
         columns={MEDICATION_COLUMNS}
@@ -120,6 +178,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
         elevated={false}
+        data-testid="datafetchingtable-mxde"
       />
     </div>
   );
@@ -130,7 +189,7 @@ export const DataFetchingMedicationTable = () => {
   const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
-    async medication => {
+    async (medication) => {
       await loadEncounter(medication.encounter.id);
       await dispatch(reloadPatient(medication.encounter.patientId));
       dispatch(
@@ -153,10 +212,12 @@ export const DataFetchingMedicationTable = () => {
         <TranslatedText
           stringId="medication.table.noData"
           fallback="No medication requests found"
+          data-testid="translatedtext-2uuq"
         />
       }
       initialSort={{ order: 'desc', orderBy: 'date' }}
       onRowClick={onMedicationSelect}
+      data-testid="datafetchingtablewithpermissioncheck-5ngb"
     />
   );
 };

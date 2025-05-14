@@ -30,13 +30,24 @@ const BreadcrumbLink = styled(Typography)`
 `;
 
 const Breadcrumb = ({ onClick, children, path }) => (
-  <BreadcrumbLink key={`breadcrumb-${path}`} underline="hover" color="inherit" onClick={onClick}>
+  <BreadcrumbLink
+    key={`breadcrumb-${path}`}
+    underline="hover"
+    color="inherit"
+    onClick={onClick}
+    data-testid="breadcrumblink-gv2r"
+  >
     {children}
   </BreadcrumbLink>
 );
 
 const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
-  <Breadcrumb path={path} onClick={navigateTo} key={`breadcrumb-${path}`}>
+  <Breadcrumb
+    path={path}
+    onClick={navigateTo}
+    key={`breadcrumb-${path}`}
+    data-testid="breadcrumb-strg"
+  >
     {title}
   </Breadcrumb>
 );
@@ -68,9 +79,9 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   };
 
   return (
-    <StyledBreadcrumbs>
+    <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
       <NoteBlock isNavigationBlock>
-        <Breadcrumb onClick={handleCategoryClick}>
+        <Breadcrumb onClick={handleCategoryClick} data-testid="breadcrumb-0r0o">
           {PATIENT_CATEGORY_LABELS[params.category]}
         </Breadcrumb>
       </NoteBlock>

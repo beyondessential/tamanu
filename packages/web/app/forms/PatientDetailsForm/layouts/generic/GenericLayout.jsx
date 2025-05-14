@@ -42,14 +42,17 @@ export const GenericPrimaryDetailsLayout = ({
 
   return (
     <>
-      <PatientDetailsHeading>
+      <PatientDetailsHeading data-testid="patientdetailsheading-3ftw">
         <TranslatedText
           stringId="patient.detail.subheading.general"
           fallback="General information"
+          data-testid="translatedtext-rfsz"
         />
-        {isReminderContactEnabled && isDetailsForm && <ReminderContactSection />}
+        {isReminderContactEnabled && isDetailsForm && (
+          <ReminderContactSection data-testid="remindercontactsection-q5m4" />
+        )}
       </PatientDetailsHeading>
-      <FormGrid>
+      <FormGrid data-testid="formgrid-y53s">
         <NoteBlock>
           <LocalisedField
             name="firstName"
@@ -57,11 +60,13 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.firstName.label"
                 fallback="First name"
+                data-testid="translatedtext-cfge"
               />
             }
             component={TextField}
             required
             enablePasting
+            data-testid="localisedfield-cqua"
           />
           <LocalisedField
             name="middleName"
@@ -69,11 +74,13 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.middleName.label"
                 fallback="Middle name"
+                data-testid="translatedtext-cwye"
               />
             }
             component={TextField}
             required={isRequiredPatientData('middleName')}
             enablePasting
+            data-testid="localisedfield-l6hc"
           />
           <LocalisedField
             name="lastName"
@@ -81,11 +88,13 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.lastName.label"
                 fallback="Last name"
+                data-testid="translatedtext-xgre"
               />
             }
             component={TextField}
             required
             enablePasting
+            data-testid="localisedfield-41un"
           />
           <LocalisedField
             name="culturalName"
@@ -93,11 +102,13 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.culturalName.label"
                 fallback="Cultural/traditional name"
+                data-testid="translatedtext-reeu"
               />
             }
             component={TextField}
             required={isRequiredPatientData('culturalName')}
             enablePasting
+            data-testid="localisedfield-ew4s"
           />
           <LocalisedField
             name="dateOfBirth"
@@ -105,12 +116,14 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.dateOfBirth.label"
                 fallback="Date of birth"
+                data-testid="translatedtext-o7gm"
               />
             }
             max={getCurrentDateString()}
             component={DateField}
             required
             saveDateAsString
+            data-testid="localisedfield-oafl"
           />
 
           {!isUsingLocationHierarchy && (
@@ -125,17 +138,25 @@ export const GenericPrimaryDetailsLayout = ({
               component={AutocompleteField}
               suggester={villageSuggester}
               required={isRequiredPatientData('villageId')}
+              data-testid="localisedfield-rpma"
             />
           )}
           <LocalisedField
             name="sex"
-            label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+            label={
+              <TranslatedText
+                stringId="general.localisedField.sex.label"
+                fallback="Sex"
+                data-testid="translatedtext-sjf3"
+              />
+            }
             component={TranslatedRadioField}
             enumValues={SEX_LABELS}
             transformOptions={options =>
               hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
             }
             required
+            data-testid="localisedfield-aial"
           />
           <LocalisedField
             name="email"
@@ -143,16 +164,19 @@ export const GenericPrimaryDetailsLayout = ({
               <TranslatedText
                 stringId="general.localisedField.email.label"
                 fallback="Email address"
+                data-testid="translatedtext-vxqk"
               />
             }
             component={TextField}
             type="email"
             required={isRequiredPatientData('email')}
             enablePasting
+            data-testid="localisedfield-j8v5"
           />
           <RequiredSecondaryDetails
             patientRegistryType={patientRegistryType}
             registeredBirthPlace={registeredBirthPlace}
+            data-testid="requiredsecondarydetails-xpxc"
           />
         </NoteBlock>
       </FormGrid>
@@ -163,12 +187,24 @@ export const GenericPrimaryDetailsLayout = ({
 export const RequiredSecondaryDetails = ({ patientRegistryType, registeredBirthPlace }) => (
   <>
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
-      <GenericBirthFields registeredBirthPlace={registeredBirthPlace} filterByMandatory />
+      <GenericBirthFields
+        registeredBirthPlace={registeredBirthPlace}
+        filterByMandatory
+        data-testid="genericbirthfields-3uda"
+      />
     )}
-    <GenericIdentificationFields patientRegistryType={patientRegistryType} filterByMandatory />
-    <GenericContactFields filterByMandatory />
-    <GenericPersonalFields patientRegistryType={patientRegistryType} filterByMandatory />
-    <GenericLocationFields filterByMandatory />
+    <GenericIdentificationFields
+      patientRegistryType={patientRegistryType}
+      filterByMandatory
+      data-testid="genericidentificationfields-k0vj"
+    />
+    <GenericContactFields filterByMandatory data-testid="genericcontactfields-3c7t" />
+    <GenericPersonalFields
+      patientRegistryType={patientRegistryType}
+      filterByMandatory
+      data-testid="genericpersonalfields-m1dc"
+    />
+    <GenericLocationFields filterByMandatory data-testid="genericlocationfields-8w9p" />
   </>
 );
 
@@ -177,74 +213,86 @@ export const GenericSecondaryDetailsLayout = ({
   patientRegistryType,
   isEdit = false,
 }) => (
-  <SecondaryDetailsGroup>
+  <SecondaryDetailsGroup data-testid="secondarydetailsgroup-s246">
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
       <>
-        <PatientDetailsHeading>
+        <PatientDetailsHeading data-testid="patientdetailsheading-u9ma">
           <TranslatedText
             stringId="patient.detail.subheading.birthDetails"
             fallback="Birth details"
+            data-testid="translatedtext-w4iq"
           />
         </PatientDetailsHeading>
-        <SecondaryDetailsFormGrid>
+        <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-zpjh">
           <GenericBirthFields
             registeredBirthPlace={registeredBirthPlace}
             filterByMandatory={false}
+            data-testid="genericbirthfields-3wv2"
           />
         </SecondaryDetailsFormGrid>
       </>
     )}
 
-    <PatientDetailsHeading>
+    <PatientDetailsHeading data-testid="patientdetailsheading-hkyy">
       <TranslatedText
         stringId="patient.detail.subheading.identificationInformation"
         fallback="Identification information"
+        data-testid="translatedtext-nskp"
       />
     </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid>
+    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-8o1s">
       <GenericIdentificationFields
         isEdit={isEdit}
         patientRegistryType={patientRegistryType}
         filterByMandatory={false}
+        data-testid="genericidentificationfields-uh67"
       />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>
+    <PatientDetailsHeading data-testid="patientdetailsheading-pipb">
       <TranslatedText
         stringId="patient.detail.subheading.contactInformation"
         fallback="Contact information"
+        data-testid="translatedtext-tq75"
       />
     </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid>
-      <GenericContactFields filterByMandatory={false} />
+    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-g8w7">
+      <GenericContactFields filterByMandatory={false} data-testid="genericcontactfields-dfh4" />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>
+    <PatientDetailsHeading data-testid="patientdetailsheading-vd0y">
       <TranslatedText
         stringId="patient.detail.subheading.personalInformation"
         fallback="Personal information"
+        data-testid="translatedtext-bc5w"
       />
     </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid>
+    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-qrkb">
       <GenericPersonalFields
         patientRegistryType={patientRegistryType}
         filterByMandatory={false}
         isEdit={isEdit}
+        data-testid="genericpersonalfields-hmrm"
       />
     </SecondaryDetailsFormGrid>
 
-    <PatientDetailsHeading>
+    <PatientDetailsHeading data-testid="patientdetailsheading-ccov">
       <TranslatedText
         stringId="patient.detail.subheading.locationInformation"
         fallback="Location information"
+        data-testid="translatedtext-wy6z"
       />
     </PatientDetailsHeading>
-    <SecondaryDetailsFormGrid>
-      <GenericLocationFields filterByMandatory={false} />
+    <SecondaryDetailsFormGrid data-testid="secondarydetailsformgrid-x46r">
+      <GenericLocationFields filterByMandatory={false} data-testid="genericlocationfields-z71v" />
     </SecondaryDetailsFormGrid>
   </SecondaryDetailsGroup>
 );
 
 export const GenericPatientFieldLayout = ({ fieldDefinitions, fieldValues }) => (
-  <PatientFieldsGroup fieldDefinitions={fieldDefinitions} fieldValues={fieldValues} />
+  <PatientFieldsGroup
+    fieldDefinitions={fieldDefinitions}
+    fieldValues={fieldValues}
+    data-testid="patientfieldsgroup-rspx"
+  />
 );
