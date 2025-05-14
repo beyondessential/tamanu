@@ -23,7 +23,6 @@ export class PatientProgramRegistration extends Model {
           // patient_program_registration records use a generated primary key that enforces
           // one per patient and program registry, even across a distributed sync system
           type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("program_registry_id", ';', ':')) STORED`,
-          primaryKey: true,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
