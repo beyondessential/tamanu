@@ -29,6 +29,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -187,10 +188,10 @@ export const PatientView = () => {
   const api = useApi();
   const syncState = useSyncState();
   const isSyncing = syncState.isPatientSyncing(patient.id);
-  const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${patient.id}/additionalData`),
-  );
+  const {
+    data: additionalData,
+    isLoading: isLoadingAdditionalData,
+  } = usePatientAdditionalDataQuery(patient.id);
   const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),

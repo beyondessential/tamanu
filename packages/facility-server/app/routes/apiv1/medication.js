@@ -22,7 +22,7 @@ import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 
 export const medication = express.Router();
 
-medication.get('/:id', simpleGet('Prescription'));
+medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
 
 medication.post(
   '/$',
