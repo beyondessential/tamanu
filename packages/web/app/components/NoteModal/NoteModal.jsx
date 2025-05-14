@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
-import { useApi, useSuggester } from '../../api';
+import { useApi } from '../../api';
 import { NoteForm } from '../../forms/NoteForm';
 import { ConfirmModal } from '../ConfirmModal';
 import { useAuth } from '../../contexts/Auth';
+import { useTranslation } from '../../contexts/Translation';
 import { NOTE_FORM_MODES } from '../../constants';
 import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -22,6 +23,14 @@ const StyledMuiDialog = styled(MuiDialog)`
     flex-direction: column;
     flex: 1;
     min-height: 0;
+  }
+
+  .MuiDialog-paper {
+    overflow-x: hidden;
+  }
+
+  .MuiDialogContent-root {
+    overflow-x: hidden;
   }
 `;
 
@@ -49,7 +58,7 @@ const getMinConstraints = (noteFormMode, note) => {
   if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
     return [400, 500];
   }
-  return [400, 414];
+  return [400, 450];
 };
 
 const MemoizedNoteModalContents = React.memo(
@@ -59,7 +68,6 @@ const MemoizedNoteModalContents = React.memo(
     noteFormMode,
     note,
     title,
-    practitionerSuggester,
     noteTypeCountByType,
     confirmText,
     cancelText,
@@ -69,18 +77,16 @@ const MemoizedNoteModalContents = React.memo(
       <FloatingMuiDialog
         open={open}
         onClose={onClose}
-        baseWidth={535}
+        baseWidth={500}
         baseHeight={775}
         minConstraints={getMinConstraints(noteFormMode, note)}
-        maxConstraints={[535, 775]}
+        maxConstraints={[500, 775]}
       >
         <NoteModalDialogTitle title={title} onClose={onClose} />
         <NoteForm
           noteFormMode={noteFormMode}
           onCancel={onClose}
           onSubmit={handleCreateOrEditNewNote}
-          practitione
-          Suggester={practitionerSuggester}
           note={note}
           noteTypeCountByType={noteTypeCountByType}
           confirmText={confirmText}
@@ -109,8 +115,6 @@ export const MuiNoteModalComponent = ({
   const onCancel = useCallback(() => {
     setOpenNoteCancelConfirmModal(true);
   }, []);
-
-  const practitionerSuggester = useSuggester('practitioner');
 
   useEffect(() => {
     (async () => {
@@ -172,7 +176,6 @@ export const MuiNoteModalComponent = ({
         noteFormMode={noteFormMode}
         note={note}
         title={title}
-        practitionerSuggester={practitionerSuggester}
         noteTypeCountByType={noteTypeCountByType}
         confirmText={confirmText}
         cancelText={cancelText}
@@ -187,6 +190,7 @@ export const NoteModal = React.memo(() => {
   const handleBeforeUnloadRef = React.useRef(null);
   const unblockRef = React.useRef(null);
   const history = useHistory();
+  const { getTranslation } = useTranslation();
 
   useEffect(() => {
     handleBeforeUnloadRef.current = e => {
@@ -201,7 +205,12 @@ export const NoteModal = React.memo(() => {
           return true;
         }
 
-        const confirmed = window.confirm('Are you sure you want to leave this page?');
+        const confirmed = window.confirm(
+          getTranslation(
+            'note.modal.backBlock.confirm',
+            'You have a patient note in progress. If you leave this page, you will lose your changes.',
+          ),
+        );
         if (confirmed) {
           closeNoteModal();
 

@@ -20,12 +20,12 @@ export const NoteBlock = ({ children, isNavigationBlock = false }) => {
         title={
           isNavigationBlock ? (
             <TranslatedText
-              stringId="note.modal.viewOnly.tooltip"
+              stringId="note.modal.navigationBlock.tooltip"
               fallback="Cannot navigate away from patient with unsaved note"
             />
           ) : (
             <TranslatedText
-              stringId="note.modal.viewOnly.tooltip"
+              stringId="note.modal.actionBlock.tooltip"
               fallback="Can't perform this action while recording a note"
             />
           )

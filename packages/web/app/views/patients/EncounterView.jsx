@@ -5,7 +5,7 @@ import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { ContentPane, EncounterTopBar, NoteBlock } from '../../components';
+import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
