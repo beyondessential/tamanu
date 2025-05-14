@@ -18,6 +18,7 @@ import {
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op } from 'sequelize';
+import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 
 export const medication = express.Router();
 
@@ -526,7 +527,7 @@ medication.put(
     await MedicationAdministrationRecordDose.create({
       marId: record.id,
       doseAmount: dose.doseAmount,
-      givenTime: dose.givenTime,
+      givenTime: toCountryDateTimeString(dose.givenTime),
       givenByUserId: dose.givenByUserId || req.user.id,
       recordedByUserId: dose.recordedByUserId || req.user.id,
       doseIndex: 0,
@@ -576,7 +577,7 @@ medication.post(
     await MedicationAdministrationRecordDose.create({
       marId: record.id,
       doseAmount: dose.doseAmount,
-      givenTime: dose.givenTime,
+      givenTime: toCountryDateTimeString(dose.givenTime),
       givenByUserId: req.user.id,
       recordedByUserId: req.user.id,
       doseIndex: 0,
@@ -899,7 +900,7 @@ medication.put(
     }
 
     doseObject.doseAmount = doseAmount;
-    doseObject.givenTime = givenTime;
+    doseObject.givenTime = toCountryDateTimeString(givenTime);
     doseObject.givenByUserId = givenByUserId;
     doseObject.recordedByUserId = recordedByUserId;
     doseObject.reasonForChange = reasonForChange;
