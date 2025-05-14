@@ -22,9 +22,14 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly allergyNameField: Locator;
   readonly savedAllergyName: Locator;
   readonly savedAllergyNote: Locator;
+  readonly savedAllergyDate: Locator;
   readonly submitNewAllergyAddButton: Locator;
   readonly initiateNewFamilyHistoryAddButton: Locator;
   readonly familyHistoryDiagnosisField: Locator;
+  readonly familyHistoryDateRecordedField: Locator;
+  readonly familyHistoryRelationshipField: Locator;
+  readonly familyHistoryClinicianField: Locator;
+  readonly familyHistoryNotes: Locator;
   readonly submitNewFamilyHistoryAddButton: Locator;
   readonly savedFamilyHistoryDateRecorded: Locator;
   readonly savedFamilyHistoryRelationship: Locator;
@@ -34,6 +39,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly defaultNewIssue: Locator;
   readonly savedIssueType: Locator;
   readonly savedOtherPatientIssueNote: Locator;
+  readonly savedOtherPatientIssueDate: Locator;
   readonly otherPatientIssueNote: Locator;
   readonly submitNewOtherPatientIssuesAddButton: Locator;
   readonly initiateNewCarePlanAddButton: Locator;
@@ -100,6 +106,10 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('field-hwfk-input')
       .getByRole('textbox');
+    this.savedAllergyDate = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-gmf8-input')
+      .getByRole('textbox');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page
       .getByTestId('formgrid-p12d')
@@ -112,6 +122,15 @@ export class PatientDetailsPage extends BasePatientPage {
     this.familyHistoryDiagnosisField = this.page
       .getByTestId('field-3b4u-input')
       .getByRole('textbox', { name: 'Search...' });
+    this.familyHistoryDateRecordedField = this.page
+      .getByTestId('field-wrp3-input')
+      .getByRole('textbox');
+    this.familyHistoryRelationshipField = this.page
+      .getByTestId('field-t0k5-input');
+    this.familyHistoryClinicianField = this.page
+      .getByTestId('field-kbwi-input');
+    this.familyHistoryNotes = this.page
+      .getByTestId('field-mgiu-input');
     this.submitNewFamilyHistoryAddButton = this.page
       .getByTestId('formgrid-kjns')
       .getByTestId('formsubmitbutton-ygc6');
@@ -137,6 +156,10 @@ export class PatientDetailsPage extends BasePatientPage {
     this.defaultNewIssue = this.page.getByTestId('formgrid-vv7x').getByText('Issue');
     this.savedIssueType = this.page.getByTestId('collapse-0a33').getByText('Type*Issue');
     this.otherPatientIssueNote = this.page.getByTestId('field-nj3s-input');
+    this.savedOtherPatientIssueDate = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('field-urg2-input')
+      .getByRole('textbox');
     this.savedOtherPatientIssueNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-nj3s-input');
@@ -226,6 +249,24 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.clickAddButtonToConfirm(this.submitNewFamilyHistoryAddButton);
   }
 
+  async addNewFamilyHistoryWithAllFields(
+    familyHistoryCondition: string,
+    dateRecorded: string,
+    relationship: string,
+    clinicianName: string,
+    notes: string,
+  ) {
+    await this.initiateNewFamilyHistoryAddButton.click();
+    await this.familyHistoryDiagnosisField.fill(familyHistoryCondition);
+    await this.page.getByRole('menuitem', { name: familyHistoryCondition, exact: true }).click();
+    await this.familyHistoryDateRecordedField.fill(dateRecorded);
+    await this.familyHistoryRelationshipField.fill(relationship);
+    await this.familyHistoryClinicianField.click();
+    await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
+    await this.familyHistoryNotes.fill(notes);
+    await this.clickAddButtonToConfirm(this.submitNewFamilyHistoryAddButton);
+  }
+
   async addNewOtherPatientIssueNote(otherPatientIssueNote: string) {
     await this.otherPatientIssueNote.fill(otherPatientIssueNote);
     await this.clickAddButtonToConfirm(this.submitNewOtherPatientIssuesAddButton);
@@ -281,5 +322,12 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('menuitem', { name: clinicianName }).click();
     await this.resolvedNote.fill(note);
     await this.page.getByRole('button', { name: 'Save' }).click();
+  }
+
+  async getCurrentBrowserDateISOFormat(page: Page) {
+    const browserDate = await page.evaluate(() => {
+      return new Date().toISOString().split('T')[0];
+  });
+    return browserDate;
   }
 }
