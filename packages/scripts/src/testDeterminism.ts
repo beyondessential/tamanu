@@ -34,7 +34,7 @@ async function listTables(sequelize: Sequelize): Promise<string[]> {
       .filter((model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC)
       .map((model) => {
         const schema = (model as any).options?.schema || 'public';
-        return `${schema}.${model.tableName}`;
+        return `"${schema}"."${model.tableName}"`;
       })
   );
 }
