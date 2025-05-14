@@ -6,17 +6,13 @@ import { Op } from 'sequelize';
 // send to a facility, as the snapshot has already run the right logic across the raw records, so
 // if a record is included there, we know the recent changelog entries should be included too.
 
-export const getLookupSourceTickRange = async (
-  { models },
-  pullSince,
-  pullUntil,
-) => {
+export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil) => {
   const { SyncLookupTick } = models;
   const lookupTicks = await SyncLookupTick.findAll({
     where: {
       lookupEndTick: {
         [Op.gt]: pullSince,
-        [Op.lt]: pullUntil,
+        [Op.lte]: pullUntil,
       },
     },
     order: [['lookupEndTick', 'ASC']],

@@ -252,6 +252,7 @@
     },
     "syncLookupRefresher": {
       "enabled": true,
+      // every 3 seconds?
       "schedule": "*/20 * * * * *"
     },
     "generateRepeatingTasks": {
