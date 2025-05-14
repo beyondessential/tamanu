@@ -138,7 +138,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedAllergyDate).toHaveValue(currentBrowserDate);
   });
 
-  test('Add allergy with all fields', async ({}) => {
+  test('Add allergy with all fields', async () => {
     //TODO: can't do this until figured out how to import reference data for reaction
   });
 
