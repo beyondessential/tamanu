@@ -19,4 +19,7 @@ export const SYNC_TICK_FLAGS = {
   OVERWRITE_WITH_CURRENT_TICK: 0,
 };
 
-export const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];
+export const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = [
+  'patient_program_registrations',
+  'patients',
+];
