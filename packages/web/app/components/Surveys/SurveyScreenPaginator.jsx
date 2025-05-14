@@ -18,22 +18,40 @@ const StyledButtonRow = styled(ButtonRow)`
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <Typography variant="h6" gutterBottom>
-      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
+    <Typography variant="h6" gutterBottom data-testid="typography-2fz8">
+      <TranslatedText
+        stringId="program.modal.surveyResponse.complete"
+        fallback="Survey complete"
+        data-testid="translatedtext-97rx"
+      />
     </Typography>
-    <Text>
+    <Text data-testid="text-am03">
       <TranslatedText
         stringId="program.modal.surveyResponse.completeMessage"
         fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
+        data-testid="translatedtext-268y"
       />
     </Text>
     <div>
-      <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack}>
-          <TranslatedText stringId="general.action.prev" fallback="Prev" />
+      <StyledButtonRow data-testid="styledbuttonrow-ljfc">
+        <OutlinedButton onClick={onStepBack} data-testid="outlinedbutton-c5qp">
+          <TranslatedText
+            stringId="general.action.prev"
+            fallback="Prev"
+            data-testid="translatedtext-lzgi"
+          />
         </OutlinedButton>
-        <FormSubmitButton color="primary" variant="contained" onClick={onSurveyComplete}>
-          <TranslatedText stringId="general.action.complete" fallback="Complete" />
+        <FormSubmitButton
+          color="primary"
+          variant="contained"
+          onClick={onSurveyComplete}
+          data-testid="formsubmitbutton-pufy"
+        >
+          <TranslatedText
+            stringId="general.action.complete"
+            fallback="Complete"
+            data-testid="translatedtext-7box"
+          />
         </FormSubmitButton>
       </StyledButtonRow>
     </div>
@@ -55,16 +73,16 @@ export const SurveyScreenPaginator = ({
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
 
   const maxIndex = currentComponents
-    .map(x => x.screenIndex)
+    .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   if (screenIndex <= maxIndex) {
-    const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
+    const screenComponents = currentComponents.filter((x) => x.screenIndex === screenIndex);
 
     return (
       <SurveyScreen
@@ -80,9 +98,16 @@ export const SurveyScreenPaginator = ({
         errors={errors}
         status={status}
         setStatus={setStatus}
+        data-testid="surveyscreen-2tj0"
       />
     );
   }
 
-  return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
+  return (
+    <SurveySummaryScreen
+      onStepBack={onStepBack}
+      onSurveyComplete={onSurveyComplete}
+      data-testid="surveysummaryscreen-1jn5"
+    />
+  );
 };

@@ -11,31 +11,52 @@ import { useSettings } from '../../contexts/Settings';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: <TranslatedText stringId="lab.formType.option.individual.label" fallback="Individual" />,
+    label: (
+      <TranslatedText
+        stringId="lab.formType.option.individual.label"
+        fallback="Individual"
+        data-testid="translatedtext-3e3z"
+      />
+    ),
     description: (
       <TranslatedText
         stringId="lab.formType.option.individual.description"
         fallback="Select an individual or multiple individual tests"
+        data-testid="translatedtext-gu5p"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: <TranslatedText stringId="lab.formType.option.panel.label" fallback="Panel" />,
+    label: (
+      <TranslatedText
+        stringId="lab.formType.option.panel.label"
+        fallback="Panel"
+        data-testid="translatedtext-blis"
+      />
+    ),
     description: (
       <TranslatedText
         stringId="lab.formType.option.panel.description"
         fallback="Select from a list of test panels"
+        data-testid="translatedtext-co2x"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: <TranslatedText stringId="lab.formType.option.superset.label" fallback="Superset" />,
+    label: (
+      <TranslatedText
+        stringId="lab.formType.option.superset.label"
+        fallback="Superset"
+        data-testid="translatedtext-vsdj"
+      />
+    ),
     description: (
       <TranslatedText
         stringId="lab.formType.option.superset.description"
         fallback="Select from a list of supersets"
+        data-testid="translatedtext-2nnh"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.SUPERSET,
@@ -60,9 +81,13 @@ const ItemSkeletonWrapper = styled.div`
 `;
 
 const RadioItemSkeleton = ({ itemsLength }) => (
-  <ItemSkeletonWrapper>
+  <ItemSkeletonWrapper data-testid="itemskeletonwrapper-tl5v">
     {Array.from({ length: itemsLength }, (_, i) => (
-      <ItemSkeleton key={`radio-item-skeleton-${i}`} variant="rect" />
+      <ItemSkeleton
+        key={`radio-item-skeleton-${i}`}
+        variant="rect"
+        data-testid="itemskeleton-daw2"
+      />
     ))}
   </ItemSkeletonWrapper>
 );
@@ -78,7 +103,7 @@ const useLabRequestFormTypeOptions = () => {
   );
   const options =
     isSuccess && !isFetching
-      ? POSSIBLE_OPTIONS_LIST.filter(option => {
+      ? POSSIBLE_OPTIONS_LIST.filter((option) => {
           if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
           if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
           return true;
@@ -101,13 +126,29 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
   return (
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper
-        label={<TranslatedText stringId="lab.formType.label" fallback="Select your request type" />}
+        label={
+          <TranslatedText
+            stringId="lab.formType.label"
+            fallback="Select your request type"
+            data-testid="translatedtext-ifvs"
+          />
+        }
         required
+        data-testid="outerlabelfieldwrapper-aqgw"
       >
         {isLoading ? (
-          <RadioItemSkeleton itemsLength={POSSIBLE_OPTIONS_LIST.length} />
+          <RadioItemSkeleton
+            itemsLength={POSSIBLE_OPTIONS_LIST.length}
+            data-testid="radioitemskeleton-opqy"
+          />
         ) : (
-          <Field required name="requestFormType" component={RadioField} options={options} />
+          <Field
+            required
+            name="requestFormType"
+            component={RadioField}
+            options={options}
+            data-testid="field-iquw"
+          />
         )}
       </OuterLabelFieldWrapper>
     </div>

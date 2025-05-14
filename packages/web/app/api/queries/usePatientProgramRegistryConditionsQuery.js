@@ -17,14 +17,19 @@ export const usePatientProgramRegistryConditionsQuery = (
   );
 };
 
-export const useProgramRegistryConditionsQuery = programRegistryId => {
+export const useProgramRegistryConditionsQuery = (programRegistryId) => {
   const api = useApi();
-  return useQuery(['programRegistryConditions'], () =>
-    api
-      .get(`programRegistry/${programRegistryId}/conditions`, {
-        orderBy: 'name',
-        order: 'ASC',
-      })
-      .then(response => response.data),
+  return useQuery(
+    ['programRegistryConditions', programRegistryId],
+    () =>
+      api
+        .get(`programRegistry/${programRegistryId}/conditions`, {
+          orderBy: 'name',
+          order: 'ASC',
+        })
+        .then(response => response.data),
+    {
+      enabled: Boolean(programRegistryId),
+    },
   );
 };

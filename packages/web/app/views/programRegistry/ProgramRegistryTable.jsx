@@ -4,42 +4,58 @@ import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { ClinicalStatusCell } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
+import { useTranslation } from '../../contexts/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const { getTranslation } = useTranslation();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
       {
         key: 'registrationStatus',
         title: '',
-        accessor: data => (
-          <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
+        accessor: (data) => (
+          <RegistrationStatusIndicator
+            patientProgramRegistration={data}
+            hideText
+            data-testid="registrationstatusindicator-wejg"
+          />
         ),
         sortable: false,
       },
       {
         key: 'displayId',
         title: (
-          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+          <TranslatedText
+            stringId="general.localisedField.displayId.label.short"
+            fallback="NHN"
+            data-testid="translatedtext-tze9"
+          />
         ),
         accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
         key: 'patientName',
-        title: <TranslatedText stringId="general.patientName.label" fallback="Patient name" />,
+        title: (
+          <TranslatedText
+            stringId="general.patientName.label"
+            fallback="Patient name"
+            data-testid="translatedtext-8o4r"
+          />
+        ),
         accessor: ({ patient }) => `${patient.firstName} ${patient.lastName}`,
         maxWidth: 200,
       },
@@ -49,29 +65,46 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           <TranslatedText
             stringId="general.localisedField.dateOfBirth.label.short"
             fallback="DOB"
+            data-testid="translatedtext-t2my"
           />
         ),
-        accessor: ({ patient }) => <DateDisplay date={patient.dateOfBirth} />,
+        accessor: ({ patient }) => (
+          <DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-p1cb" />
+        ),
       },
       {
         key: 'sex',
-        title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+        title: (
+          <TranslatedText
+            stringId="general.localisedField.sex.label"
+            fallback="Sex"
+            data-testid="translatedtext-62g1"
+          />
+        ),
         accessor: ({ patient }) => patient.sex && patient.sex.slice(0, 1).toUpperCase(),
         sortable: false,
       },
       {
         key: 'homeVillage',
         title: (
-          <TranslatedText stringId="programRegistry.homeVillage.label" fallback="Home village" />
+          <TranslatedText
+            stringId="programRegistry.homeVillage.label"
+            fallback="Home village"
+            data-testid="translatedtext-07sc"
+          />
         ),
         accessor: ({ patient }) => patient.village.name,
       },
       {
         key: 'currentlyIn',
         title: (
-          <TranslatedText stringId="programRegistry.currentlyIn.label" fallback="Currently in" />
+          <TranslatedText
+            stringId="programRegistry.currentlyIn.label"
+            fallback="Currently in"
+            data-testid="translatedtext-b7jb"
+          />
         ),
-        accessor: row => {
+        accessor: (row) => {
           if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
           if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
           return '';
@@ -83,14 +116,18 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           <TranslatedText
             stringId="programRegistry.relatedConditions.label"
             fallback="Related conditions"
+            data-testid="translatedtext-sl0n"
           />
         ),
         sortable: false,
         accessor: ({ conditions }) => {
-          const conditionsText = Array.isArray(conditions)
-            ? conditions.map(x => ` ${x}`).toString()
-            : '';
-          return conditionsText;
+          return conditions
+            ?.map((condition) => {
+              const { id, name } = condition;
+              return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+            })
+            .sort((a, b) => b.localeCompare(a))
+            .join(', ');
         },
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
@@ -101,6 +138,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           <TranslatedText
             stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
+            data-testid="translatedtext-9hbo"
           />
         ),
         accessor: ({ registeringFacility }) => registeringFacility.name,
@@ -108,7 +146,11 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'division',
         title: (
-          <TranslatedText stringId="general.localisedField.division.label" fallback="Division" />
+          <TranslatedText
+            stringId="general.localisedField.division.label"
+            fallback="Division"
+            data-testid="translatedtext-hv6t"
+          />
         ),
         accessor: ({ patient }) => patient.division.name,
       },
@@ -118,38 +160,59 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           <TranslatedText
             stringId="general.localisedField.subdivision.label"
             fallback="Subdivision"
+            data-testid="translatedtext-eymk"
           />
         ),
         accessor: ({ patient }) => patient.subdivision.name,
       },
       {
         key: 'clinicalStatus',
-        title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
-        accessor: row => {
-          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
-        },
+        title: (
+          <TranslatedText
+            stringId="programRegistry.clinicalStatus.label"
+            fallback="Status"
+            data-testid="translatedtext-f3lm"
+          />
+        ),
+        CellComponent: ClinicalStatusCell,
         maxWidth: 200,
       },
       {
         key: 'actions',
         title: '',
-        accessor: row => {
+        accessor: (row) => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
           let actions = [
             {
               label: (
-                <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
+                <TranslatedText
+                  stringId="general.action.changeStatus"
+                  fallback="Change status"
+                  data-testid="translatedtext-z6xe"
+                />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
             },
             {
-              label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+              label: (
+                <TranslatedText
+                  stringId="general.action.remove"
+                  fallback="Remove"
+                  data-testid="translatedtext-5iqz"
+                />
+              ),
               action: () => setOpenModal({ action: 'Remove', data: row }),
             },
             {
-              label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+              label: (
+                <TranslatedText
+                  stringId="general.action.delete"
+                  fallback="Delete"
+                  data-testid="translatedtext-962y"
+                />
+              ),
               action: () => setOpenModal({ action: 'Delete', data: row }),
             },
           ];
@@ -157,11 +220,23 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           if (isRemoved)
             actions = [
               {
-                label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+                label: (
+                  <TranslatedText
+                    stringId="general.action.activate"
+                    fallback="Activate"
+                    data-testid="translatedtext-fgjj"
+                  />
+                ),
                 action: () => setOpenModal({ action: 'Activate', data: row }),
               },
               {
-                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                label: (
+                  <TranslatedText
+                    stringId="general.action.delete"
+                    fallback="Delete"
+                    data-testid="translatedtext-fs18"
+                  />
+                ),
                 action: () => setOpenModal({ action: 'Delete', data: row }),
               },
             ];
@@ -169,15 +244,27 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           if (isDeleted)
             actions = [
               {
-                label: <TranslatedText stringId="general.action.activate" fallback="Activate" />,
+                label: (
+                  <TranslatedText
+                    stringId="general.action.activate"
+                    fallback="Activate"
+                    data-testid="translatedtext-a4v9"
+                  />
+                ),
                 action: () => setOpenModal({ action: 'Activate', data: row }),
               },
               {
-                label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
+                label: (
+                  <TranslatedText
+                    stringId="general.action.remove"
+                    fallback="Remove"
+                    data-testid="translatedtext-7igi"
+                  />
+                ),
                 action: () => setOpenModal({ action: 'Remove', data: row }),
               },
             ];
-          return <MenuButton onClick={() => {}} actions={actions} />;
+          return <MenuButton onClick={() => {}} actions={actions} data-testid="menubutton-nz7n" />;
         },
         sortable: false,
         dontCallRowInput: true,
@@ -188,7 +275,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 
   const dispatch = useDispatch();
-  const selectRegistration = async registration => {
+  const selectRegistration = async (registration) => {
     const { patient, programRegistry } = registration;
     if (patient.id) {
       await dispatch(reloadPatient(patient.id));
@@ -210,6 +297,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           <TranslatedText
             stringId="programRegistry.registryTable.noDataMessage"
             fallback="No program registry found"
+            data-testid="translatedtext-7bm8"
           />
         }
         onRowClick={selectRegistration}
@@ -221,8 +309,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           order: 'desc',
           orderBy: 'displayId',
         }}
+        data-testid="searchtable-8bmj"
       />
-
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
         <ChangeStatusFormModal
           patientProgramRegistration={openModal?.data}
@@ -231,9 +319,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             setOpenModal(undefined);
           }}
           open
+          data-testid="changestatusformmodal-yxag"
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Activate' && (
         <ActivatePatientProgramRegistry
           patientProgramRegistration={openModal?.data}
@@ -242,9 +330,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             setOpenModal(undefined);
           }}
           open
+          data-testid="activatepatientprogramregistry-hayl"
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Remove' && (
         <RemoveProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
@@ -253,9 +341,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             setOpenModal(undefined);
           }}
           open
+          data-testid="removeprogramregistryformmodal-h14o"
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Delete' && (
         <DeleteProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
@@ -264,6 +352,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             setOpenModal(undefined);
           }}
           open
+          data-testid="deleteprogramregistryformmodal-286b"
         />
       )}
     </>

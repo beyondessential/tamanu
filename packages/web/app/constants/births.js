@@ -1,7 +1,4 @@
-import {
-  BIRTH_DELIVERY_TYPES,
-  BIRTH_TYPES,
-} from '@tamanu/constants';
+import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES } from '@tamanu/constants';
 
 export const BIRTH_DELIVERY_TYPE_LABELS = {
   [BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY]: 'Normal vaginal delivery',

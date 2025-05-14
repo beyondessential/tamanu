@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.29.0",
+  "version": "2.32.0",
   "private": true,
   "description": "BES - Database",
   "main": "dist/cjs/index.js",
@@ -60,6 +60,11 @@
       "require": "./dist/cjs/utils/fhir/index.js",
       "import": "./dist/esm/utils/fhir/index.js",
       "types": "./dist/esm/utils/fhir/index.d.ts"
+    },
+    "./utils/audit": {
+      "require": "./dist/cjs/utils/audit/index.js",
+      "import": "./dist/esm/utils/audit/index.js",
+      "types": "./dist/esm/utils/audit/index.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -102,6 +107,7 @@
     "jsonpath": "^1.1.1",
     "lodash": "^4.17.11",
     "ms": "^2.1.3",
+    "mushi": "^0.0.12",
     "sequelize": "^6.21.3",
     "tiny-async-pool": "^1.2.0",
     "uuid": "^11.0.3"

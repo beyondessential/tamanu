@@ -1,4 +1,4 @@
-@server = https://central.main.internal.tamanu.io
+@server = https://central.main.cd.tamanu.app
 @token = {{login.response.body.token}}
 
 ### Login

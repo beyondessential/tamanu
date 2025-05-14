@@ -32,10 +32,12 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
   }, []);
 
   return (
-    <Modal title="Login timeout" open={open} onClose={onStayLoggedIn}>
-      <WarningModalContainer>
-        <Typography>Your login is about to expire due to inactivity.</Typography>
-        <Typography>
+    <Modal title="Login timeout" open={open} onClose={onStayLoggedIn} data-testid="modal-9qld">
+      <WarningModalContainer data-testid="warningmodalcontainer-qvo3">
+        <Typography data-testid="typography-lqau">
+          Your login is about to expire due to inactivity.
+        </Typography>
+        <Typography data-testid="typography-d127">
           You will be logged out in{' '}
           <span style={{ fontWeight: 'bold' }}>
             {open ? Math.ceil(remainingDuration() / 1000) : '-'}
@@ -48,6 +50,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
         cancelText="Logout"
         onConfirm={onStayLoggedIn}
         onCancel={onTimeout}
+        data-testid="modalactionrow-39hf"
       />
     </Modal>
   );
@@ -60,8 +63,12 @@ export const UserActivityMonitor = () => {
   const { getSetting } = useSettings();
 
   // Can't fetch localisation prior to login so add defaults
-  const { enabled = false, timeoutDuration = 0, warningPromptDuration = 0, refreshInterval = 0 } =
-    getSetting('features.idleTimeout') || {};
+  const {
+    enabled = false,
+    timeoutDuration = 0,
+    warningPromptDuration = 0,
+    refreshInterval = 0,
+  } = getSetting('features.idleTimeout') || {};
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal
@@ -99,6 +106,7 @@ export const UserActivityMonitor = () => {
         reset();
       }}
       onTimeout={onTimeout}
+      data-testid="idlewarningmodal-wvqz"
     />
   );
 };

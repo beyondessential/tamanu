@@ -27,28 +27,19 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
+import { useProgramRegistryConditionsQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
-  const { data: { data: conditions } = {} } = useQuery(
-    ['programRegistryConditions', selectedProgramRegistryId],
-    () =>
-      api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
-        orderBy: 'name',
-        order: 'ASC',
-      }),
-    {
-      enabled: !!selectedProgramRegistryId,
-    },
-  );
+  const { data: conditions = [] } = useProgramRegistryConditionsQuery(selectedProgramRegistryId);
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -61,7 +52,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   return (
     <Form
       showInlineErrorsOnly
-      onSubmit={async data => {
+      onSubmit={async (data) => {
         return onSubmit({
           ...data,
           conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
@@ -71,7 +62,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       render={({ submitForm, values, setValues }) => {
         const handleCancel = () => onCancel && onCancel();
-        const getButtonText = isCompleted => {
+        const getButtonText = (isCompleted) => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
           return 'Submit';
@@ -82,26 +73,31 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
         return (
           <div>
-            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
+            <FormGrid
+              style={{ paddingLeft: '32px', paddingRight: '32px' }}
+              data-testid="formgrid-69rn"
+            >
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-hjfz">
                 <Field
                   name="programRegistryId"
                   label={
                     <TranslatedText
                       stringId="programRegistry.programRegistry.label"
                       fallback="Program registry"
+                      data-testid="translatedtext-8r1b"
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
-                  onChange={event => {
+                  onChange={(event) => {
                     if (selectedProgramRegistryId !== event.target.value) {
                       setValues({ ...values, clinicalStatusId: null, conditions: null });
                       setSelectedProgramRegistryId(event.target.value);
                     }
                   }}
+                  data-testid="field-7obg"
                 />
                 <Field
                   name="date"
@@ -109,26 +105,30 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.registrationDate.label"
                       fallback="Date of registration"
+                      data-testid="translatedtext-ufg3"
                     />
                   }
                   saveDateAsString
                   required
                   component={DateField}
+                  data-testid="field-shvm"
                 />
               </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-q6bs">
                 <Field
                   name="clinicianId"
                   label={
                     <TranslatedText
                       stringId="programRegistry.registeredBy.label"
                       fallback="Registered by"
+                      data-testid="translatedtext-2k8k"
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
+                  data-testid="field-lau7"
                 />
                 <Field
                   name="registeringFacilityId"
@@ -136,20 +136,23 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.registeringFacility.label"
                       fallback="Registering facility"
+                      data-testid="translatedtext-wsci"
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
+                  data-testid="field-3s4y"
                 />
               </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
+              <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-icsp">
                 <FieldWithTooltip
                   disabledTooltipText={
                     <TranslatedText
                       stringId="programRegistry.registryForm.clinicalStatus.disabledTooltip"
                       fallback="Select a program registry to set the status"
+                      data-testid="translatedtext-vhlb"
                     />
                   }
                   name="clinicalStatusId"
@@ -157,12 +160,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.clinicalStatus.label"
                       fallback="Status"
+                      data-testid="translatedtext-qo8f"
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
+                  data-testid="fieldwithtooltip-e4px"
                 />
                 <FieldWithTooltip
                   disabledTooltipText={
@@ -170,11 +175,13 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       <TranslatedText
                         stringId="programRegistry.registryForm.relatedConditions.disabledTooltip"
                         fallback="Select a program registry to add related conditions"
+                        data-testid="translatedtext-a1c7"
                       />
                     ) : (
                       <TranslatedText
                         stringId="programRegistry.registryForm.relatedConditions.noConditionsTooltip"
                         fallback="No conditions have been configured for this program registry"
+                        data-testid="translatedtext-obax"
                       />
                     )
                   }
@@ -183,25 +190,28 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     <TranslatedText
                       stringId="programRegistry.relatedConditions.label"
                       fallback="Related conditions"
+                      data-testid="translatedtext-5f8m"
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={BaseMultiselectField}
-                  options={conditions?.map?.(condition => ({
+                  options={conditions?.map?.((condition) => ({
                     label: (
                       <TranslatedReferenceData
                         fallback={condition.name}
                         value={condition.id}
-                        category="prCondition"
+                        category="programRegistryCondition"
+                        data-testid={`translatedreferencedata-lrzc-${condition.code}`}
                       />
                     ),
                     value: condition.id,
                     searchString: getTranslation(
-                      getReferenceDataStringId(condition.id, 'prCondition'),
+                      getReferenceDataStringId(condition.id, 'programRegistryCondition'),
                       condition.name,
                     ),
                   }))}
                   disabled={!conditions || conditions.length === 0}
+                  data-testid="fieldwithtooltip-ca2k"
                 />
               </FormGrid>
             </FormGrid>
@@ -211,12 +221,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 marginTop: '30px',
                 marginBottom: '30px',
               }}
+              data-testid="divider-5h1b"
             />
             <ConfirmCancelRow
               style={{ paddingLeft: '32px', paddingRight: '32px' }}
               onCancel={handleCancel}
               onConfirm={submitForm}
               confirmText={buttonText}
+              data-testid="confirmcancelrow-qpmx"
             />
           </div>
         );
@@ -233,20 +245,27 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           <TranslatedText
             stringId="programRegistry.programRegistry.label"
             fallback="Program registry"
+            data-testid="translatedtext-0ili"
           />,
         ),
         clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
         clinicianId: foreignKey().translatedLabel(
-          <TranslatedText stringId="programRegistry.registeredBy.label" fallback="Registered by" />,
+          <TranslatedText
+            stringId="programRegistry.registeredBy.label"
+            fallback="Registered by"
+            data-testid="translatedtext-25an"
+          />,
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
             stringId="programRegistry.registeringFacility.label"
             fallback="Registering facility"
+            data-testid="translatedtext-z0ih"
           />,
         ),
       })}
+      data-testid="form-un0j"
     />
   );
 };

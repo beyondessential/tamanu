@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
+import { Box } from '@material-ui/core';
 
-import { ContentPane } from '../../../components';
+import { CompactContentPane as ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
@@ -28,7 +29,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
   const onViewEncounter = useCallback(
-    id => {
+    (id) => {
       (async () => {
         await loadEncounter(id);
         navigateToEncounter(id);
@@ -41,32 +42,42 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
 
   return (
     <>
-      <ContentPane>
+      <Box height={5} />
+      <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
           openCheckin={() => setModalOpen(true)}
           patient={patient}
           disabled={disabled}
+          data-testid="patientencountersummary-z703"
         />
       </ContentPane>
       {showOutpatientAppointments && (
-        <ContentPane>
-          <OutpatientAppointmentsTable patient={patient} />
+        <ContentPane data-testid="contentpane-dvc2">
+          <OutpatientAppointmentsTable
+            patient={patient}
+            data-testid="outpatientappointmentstable-27ad"
+          />
         </ContentPane>
       )}
       {showLocationBookings && (
-        <ContentPane>
-          <LocationBookingsTable patient={patient} />
+        <ContentPane data-testid="contentpane-epfl">
+          <LocationBookingsTable patient={patient} data-testid="locationbookingstable-v4jv" />
         </ContentPane>
       )}
-      <ContentPane>
-        <PatientHistory patient={patient} onItemClick={onViewEncounter} />
+      <ContentPane data-testid="contentpane-n51k">
+        <PatientHistory
+          patient={patient}
+          onItemClick={onViewEncounter}
+          data-testid="patienthistory-yw6n"
+        />
       </ContentPane>
       <EncounterModal
         open={isModalOpen}
         onClose={onCloseModal}
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
+        data-testid="encountermodal-pnpe"
       />
     </>
   );

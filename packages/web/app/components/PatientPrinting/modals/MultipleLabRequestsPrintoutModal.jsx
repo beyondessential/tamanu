@@ -12,6 +12,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const api = useApi();
@@ -24,10 +25,10 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
     () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(encounter.patientId);
 
   const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
     ['village', encounter.patientId],
@@ -44,7 +45,11 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
   return (
     <Modal
       title={
-        <TranslatedText stringId="lab.modal.printMultiple.title" fallback="Print lab requests" />
+        <TranslatedText
+          stringId="lab.modal.printMultiple.title"
+          fallback="Print lab requests"
+          data-testid="translatedtext-9eip"
+        />
       }
       width="md"
       open={open}
@@ -52,8 +57,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       color={Colors.white}
       printable
       onPrint={() => printPDF('lab-request-printout')}
+      data-testid="modal-bsyg"
     >
-      <PDFLoader isLoading={isLoading} id="lab-request-printout">
+      <PDFLoader isLoading={isLoading} id="lab-request-printout" data-testid="pdfloader-1ibd">
         <MultipleLabRequestsPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
@@ -61,6 +67,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           labRequests={labRequests}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>
     </Modal>

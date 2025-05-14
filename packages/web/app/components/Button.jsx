@@ -10,13 +10,7 @@ import {
   CircularProgress,
   IconButton,
 } from '@material-ui/core';
-import {
-  AddBoxOutlined,
-  ChevronLeft,
-  IndeterminateCheckBox,
-  Lock,
-  Refresh,
-} from '@material-ui/icons';
+import { ChevronLeft, Lock } from '@material-ui/icons';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
@@ -26,7 +20,7 @@ import { withPermissionTooltip } from './withPermissionTooltip';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
-export const ButtonBase = props => {
+export const ButtonBase = (props) => {
   delete props.functionallyDisabled;
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} />;
@@ -47,7 +41,7 @@ const StyledButton = styled(({ ...props }) => {
 
   /* Button is already disabled functionally,
   this is only to visually make it more obvious that the button is disabled */
-  ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
+  ${(props) => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -61,7 +55,18 @@ const StyledButton = styled(({ ...props }) => {
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${(props) => props.theme.palette.primary.main};
+  }
+
+  &.MuiButton-containedPrimary.Mui-disabled {
+    color: ${Colors.white};
+    box-shadow: none;
+    background-color: ${Colors.primary30};
+  }
+
+  &.MuiButton-outlinedPrimary.Mui-disabled {
+    color: ${Colors.primary30};
+    border-color: ${Colors.primary30};
   }
 
   ${props => props.confirmStyle ?? ''}
@@ -91,7 +96,7 @@ const BaseButton = ({
         // see the disabled prop so it won't add its own styling, but the underlying button element
         // is still disabled.
         // eslint-disable-next-line react/button-has-type
-        <button type={type} {...buttonProps} ref={ref} disabled />
+        <button type={type} {...buttonProps} ref={ref} disabled data-testid="button-0nnt" />
       ))
     : undefined;
 
@@ -104,8 +109,14 @@ const BaseButton = ({
       functionallyDisabled={functionallyDisabled}
       {...(buttonComponent && { component: buttonComponent })}
     >
-      {displayLock && <Lock />}
-      {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} />}
+      {displayLock && <Lock data-testid="lock-zz2l" />}
+      {showLoadingIndicator && (
+        <StyledCircularProgress
+          color={loadingColor}
+          size={25}
+          data-testid="styledcircularprogress-4end"
+        />
+      )}
       {!showLoadingIndicator && children}
     </StyledButton>
   );
@@ -137,22 +148,22 @@ BaseButton.defaultProps = {
 };
 
 const StyledOutlinedButton = styled(StyledButton)`
-  border-color: ${props => props.theme.palette.primary.main};
+  border-color: ${(props) => props.theme.palette.primary.main};
   :disabled {
     border-color: ${Colors.softText};
   }
 `;
 
-export const OutlinedButton = props => (
+export const OutlinedButton = (props) => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
-export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled((props) => <StyledButton {...props} />)`
   border: 1px solid #dedede;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${(props) => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled((props) => <StyledButton {...props} />)`
   border: 1px solid ${Colors.alert};
   color: ${Colors.alert};
 `;
@@ -161,14 +172,14 @@ const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
+  border: 1px solid ${(props) => props.theme.palette.primary.main};
 `;
 
-export const LargeButton = props => (
+export const LargeButton = (props) => (
   <StyledLargeButton variant="contained" color="primary" {...props} />
 );
 
-export const LargeOutlineButton = props => (
+export const LargeOutlineButton = (props) => (
   <StyledLargeButton variant="outlined" color="primary" {...props} />
 );
 
@@ -181,7 +192,7 @@ const StyledDeleteButton = styled(Button)`
   }
 `;
 
-export const DeleteButton = props => {
+export const DeleteButton = (props) => {
   const { children } = props;
   return (
     <StyledDeleteButton variant="contained" {...props}>
@@ -231,24 +242,6 @@ export const BackButton = ({ to, text = true, ...props }) => (
   </StyledNavButton>
 );
 
-export const PlusIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <AddBoxOutlined fontSize="inherit" />
-  </IconButton>
-);
-
-export const MinusIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <IndeterminateCheckBox fontSize="inherit" />
-  </IconButton>
-);
-
-export const RefreshIconButton = ({ ...props }) => (
-  <IconButton color="primary" {...props}>
-    <Refresh fontSize="inherit" />
-  </IconButton>
-);
-
 export const FormSubmitButton = ({
   children,
   text = 'Confirm',
@@ -276,7 +269,13 @@ export const FormSubmitButton = ({
 export const FormCancelButton = ({ ...props }) => {
   const { isSubmitting } = useFormikContext();
 
-  return <OutlinedButton functionallyDisabled={isSubmitting} {...props} />;
+  return (
+    <OutlinedButton
+      functionallyDisabled={isSubmitting}
+      {...props}
+      data-testid="outlinedbutton-8rnr"
+    />
+  );
 };
 
 export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
@@ -290,19 +289,21 @@ const StyledLargeSubmitButton = styled(FormSubmitButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
+  border: 1px solid ${(props) => props.theme.palette.primary.main};
 `;
 
-export const LargeSubmitButton = props => (
+export const LargeSubmitButton = (props) => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const LargeOutlinedSubmitButton = props => (
+export const LargeOutlinedSubmitButton = (props) => (
   <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
 );
 
 export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props}>{children}</IconButton>
+  <IconButton {...props} data-testid="iconbutton-zsiq">
+    {children}
+  </IconButton>
 ))`
   border-radius: 20%;
   padding: 0px;
@@ -342,39 +343,40 @@ export const UnstyledHtmlButton = styled.button`
  * override the styles declared here.
  */
 export const ToggleButton = styled(MuiToggleButton)`
- .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+  .${toggleButtonGroupClasses.root}
+    &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
    .${toggleButtonGroupClasses.firstButton},
    .${toggleButtonGroupClasses.middleButton},
    .${toggleButtonGroupClasses.lastButton}
  ) {
-   appearance: none;
-   background-color: ${Colors.white};
-   border-color: ${Colors.softText};
-   border-radius: calc(infinity * 1px);
-   border-style: solid;
-   border-width: max(0.0625rem, 1px);
-   color: ${Colors.softText};
-   cursor: pointer;
-   display: initial;
-   font-family: inherit;
-   font-size: inherit;
-   font-style: inherit;
-   font-weight: inherit;;
-   inline-size: fit-content;
-   line-height: inherit;
-   margin: 0;
-   padding: 0;
-   text-align: center;
-   text-decoration-thickness: from-font;
-   text-transform: none;
-   touch-action: manipulation;
+    appearance: none;
+    background-color: ${Colors.white};
+    border-color: ${Colors.softText};
+    border-radius: calc(infinity * 1px);
+    border-style: solid;
+    border-width: max(0.0625rem, 1px);
+    color: ${Colors.softText};
+    cursor: pointer;
+    display: initial;
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    inline-size: fit-content;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    text-decoration-thickness: from-font;
+    text-transform: none;
+    touch-action: manipulation;
 
-   &:disabled,
-   &.${toggleButtonClasses.disabled} {
-     background-color: ${Colors.softOutline};
-     border-color: ${Colors.softText};
-     color: ${Colors.softText};
-     cursor: not-allowed;
-   }
- }
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: ${Colors.softOutline};
+      border-color: ${Colors.softText};
+      color: ${Colors.softText};
+      cursor: not-allowed;
+    }
+  }
 `;

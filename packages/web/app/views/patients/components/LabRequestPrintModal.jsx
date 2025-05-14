@@ -25,10 +25,8 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     labRequest.encounterId,
   );
 
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
 
@@ -61,8 +59,9 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       color={Colors.white}
       printable
       onPrint={() => printPDF('lab-request-printout')}
+      data-testid="modal-wdy6"
     >
-      <PDFLoader isLoading={isLoading} id="lab-request-printout">
+      <PDFLoader isLoading={isLoading} id="lab-request-printout" data-testid="pdfloader-lgg6">
         <MultipleLabRequestsPrintout
           labRequests={[{ ...labRequest, tests: testsData?.data, notes: notes?.data || [] }]}
           patientData={{ ...patient, additionalData, village }}
@@ -70,6 +69,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
           certificateData={certificateData}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          data-testid="multiplelabrequestsprintout-ttpy"
         />
       </PDFLoader>
     </Modal>
