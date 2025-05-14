@@ -321,8 +321,8 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async getCurrentBrowserDateISOFormat(page: Page) {
-    const browserDate = await page.evaluate(() => {
+  async getCurrentBrowserDateISOFormat() {
+    const browserDate = await this.page.evaluate(() => {
       return new Date().toISOString().split('T')[0];
     });
     return browserDate;
