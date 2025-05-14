@@ -85,9 +85,4 @@ export class CarePlanModal extends BasePatientModal {
   getAdditionalNoteKebabMenu(clinicianName: string) {
     return this.completedCarePlan.filter({ hasText: clinicianName }).getByTestId('openbutton-d1ec');
   }
-
-  async getTrimmedDateFromDateField() {
-    const date = this.carePlanDate;
-    const formattedDate = await date.toISOString().split('T')[0];
-  }
 }
