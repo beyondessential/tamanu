@@ -68,7 +68,7 @@ export async function up(query: QueryInterface): Promise<void> {
       record_data
     )
     SELECT
-      uuid_generate_v5(uuid_generate_v5(uuid_nil(), 'patient_program_registrations'), ppr.id),
+      uuid_generate_v5(uuid_generate_v5(uuid_nil(), 'patient_program_registrations'), ppr.id::text),
       ${tableOid},
       'public',
       'patient_program_registrations',
