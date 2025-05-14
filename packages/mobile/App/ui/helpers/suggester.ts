@@ -70,7 +70,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     return this.model.findVisible(options);
   }
 
-  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
+  fetchCurrentOption = async (
+    value: string | null,
+    language: string = 'en',
+  ): Promise<OptionType> => {
     if (!value) return undefined;
     try {
       const dataType = getReferenceDataTypeFromSuggester(this);
@@ -83,7 +86,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           'translation.stringId = :prefix || entity.id AND translation.language = :language',
           {
             prefix: `refData.${dataType}.`,
-            language: 'en',
+            language,
           },
         )
         .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')

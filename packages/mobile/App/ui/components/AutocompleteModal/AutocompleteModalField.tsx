@@ -16,6 +16,7 @@ import { TranslatedTextElement, TranslatedText } from '../Translations/Translate
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -50,6 +51,7 @@ export const AutocompleteModalField = ({
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
+  const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
@@ -65,7 +67,7 @@ export const AutocompleteModalField = ({
   useEffect(() => {
     if (!suggester) return;
     (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value);
+      const data = await suggester.fetchCurrentOption(value, language);
       if (data) {
         const refDataType = getReferenceDataTypeFromSuggester(suggester);
         setLabel(
