@@ -181,8 +181,6 @@ export const RelatedConditionsForm = ({
         );
       });
 
-    console.log('updatedConditions', updatedConditions);
-
     await onSubmit({ ...data, conditions: updatedConditions });
     setWarningOpen(false);
     onClose();
