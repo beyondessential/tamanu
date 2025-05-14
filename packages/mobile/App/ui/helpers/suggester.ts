@@ -33,22 +33,19 @@ export const getReferenceDataTypeFromSuggester = (suggester: Suggester<any>): st
 };
 
 const defaultFormatter = (record): OptionType => ({
-  label: record.entity_translated_name,
+  label: record.entity_display_label,
   value: record.entity_id,
 });
 
-const getTranslationJoin = (model, language: string) => {
-  const dataType = getReferenceDataTypeFromSuggester(model);
-  return {
-    entity: 'translated_strings',
-    alias: 'translation',
-    condition: 'translation.stringId = :prefix || entity.id AND translation.language = :language',
-    parameters: {
-      prefix: `refData.${dataType}.`,
-      language,
-    },
-  };
-};
+const getTranslationJoinParams = (dataType: string, language: string) => [
+  'translated_strings',
+  'translation',
+  'translation.stringId = :prefix || entity.id AND translation.language = :language',
+  {
+    prefix: `refData.${dataType}.`,
+    language,
+  },
+];
 
 export class Suggester<ModelType> {
   model: ModelType;
@@ -109,16 +106,8 @@ export class Suggester<ModelType> {
       const query = this.model
         .getRepository()
         .createQueryBuilder('entity')
-        .leftJoinAndSelect(
-          'translated_strings',
-          'translation',
-          'translation.stringId = :prefix || entity.id AND translation.language = :language',
-          {
-            prefix: `refData.${dataType}.`,
-            language,
-          },
-        )
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
+        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
+        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label')
         .where('entity.id = :id', { id: value });
 
       const result = await query.getRawAndEntities();
@@ -133,11 +122,13 @@ export class Suggester<ModelType> {
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
+    const { parentId, relationType, referenceType, isFirstLevel } = this.hierarchyOptions || {};
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
 
+      // JOINS
       if (this.hierarchyOptions) {
         query = query.leftJoinAndSelect('entity.parents', 'parents');
       }
@@ -149,20 +140,15 @@ export class Suggester<ModelType> {
       }
 
       query = query
-        .leftJoinAndSelect(
-          'translated_strings',
-          'translation',
-          'translation.stringId = :prefix || entity.id AND translation.language = :language',
-          {
-            prefix: `refData.${dataType}.`,
-            language,
-          },
-        )
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_translated_name')
+        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
+        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label');
+
+      // WHERE
+      query = query
         .where(
           new Brackets((qb) => {
             if (search) {
-              qb.where('entity_translated_name LIKE :search', { search: `%${search}%` });
+              qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
             }
           }),
         )
@@ -176,21 +162,16 @@ export class Suggester<ModelType> {
 
       if (this.hierarchyOptions) {
         query = query.andWhere('entity.type = :referenceType', {
-          referenceType: this.hierarchyOptions.referenceType,
+          referenceType,
         });
       }
-
-      if (
-        this.hierarchyOptions &&
-        !this.hierarchyOptions.isFirstLevel &&
-        this.hierarchyOptions.parentId
-      ) {
+      if (this.hierarchyOptions && !isFirstLevel && parentId) {
         query = query
           .andWhere('parents.referenceDataParentId = :parentId', {
-            parentId: this.hierarchyOptions.parentId,
+            parentId,
           })
           .andWhere('parents.type = :relationType', {
-            relationType: this.hierarchyOptions.relationType,
+            relationType,
           });
       }
 
