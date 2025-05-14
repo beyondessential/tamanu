@@ -61,10 +61,9 @@ export const HierarchyFieldItem = ({
         );
       }
 
-      query = query.orderBy('entity.name', 'ASC');
+      query = query.orderBy('entity.name', 'ASC').limit(25);
 
       const data = await query.getRawAndEntities();
-
       const formattedData = data.raw.map((item) => ({
         label: item.entity_translated_name,
         value: item.entity_id,
