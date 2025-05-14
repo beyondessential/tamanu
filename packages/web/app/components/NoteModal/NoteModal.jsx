@@ -25,6 +25,12 @@ const StyledMuiDialog = styled(MuiDialog)`
   }
 `;
 
+const StyledConfirmModal = styled(ConfirmModal)`
+  &.MuiDialog-root {
+    z-index: 1600 !important;
+  }
+`;
+
 const FloatingMuiDialog = withModalFloating(StyledMuiDialog);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
@@ -66,6 +72,7 @@ const MemoizedNoteModalContents = React.memo(
         baseWidth={535}
         baseHeight={775}
         minConstraints={getMinConstraints(noteFormMode, note)}
+        maxConstraints={[535, 775]}
       >
         <NoteModalDialogTitle title={title} onClose={onClose} />
         <NoteForm
@@ -141,7 +148,7 @@ export const MuiNoteModalComponent = ({
 
   return (
     <>
-      <ConfirmModal
+      <StyledConfirmModal
         title={<TranslatedText stringId="note.modal.delete.title" fallback="Discard note" />}
         open={openNoteCancelConfirmModal}
         width="sm"
