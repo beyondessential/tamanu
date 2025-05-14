@@ -125,12 +125,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.familyHistoryDateRecordedField = this.page
       .getByTestId('field-wrp3-input')
       .getByRole('textbox');
-    this.familyHistoryRelationshipField = this.page
-      .getByTestId('field-t0k5-input');
-    this.familyHistoryClinicianField = this.page
-      .getByTestId('field-kbwi-input');
-    this.familyHistoryNotes = this.page
-      .getByTestId('field-mgiu-input');
+    this.familyHistoryRelationshipField = this.page.getByTestId('field-t0k5-input');
+    this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
+    this.familyHistoryNotes = this.page.getByTestId('field-mgiu-input');
     this.submitNewFamilyHistoryAddButton = this.page
       .getByTestId('formgrid-kjns')
       .getByTestId('formsubmitbutton-ygc6');
@@ -327,7 +324,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async getCurrentBrowserDateISOFormat(page: Page) {
     const browserDate = await page.evaluate(() => {
       return new Date().toISOString().split('T')[0];
-  });
+    });
     return browserDate;
   }
 }

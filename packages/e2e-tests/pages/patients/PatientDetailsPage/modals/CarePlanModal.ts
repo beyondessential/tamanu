@@ -44,7 +44,9 @@ export class CarePlanModal extends BasePatientModal {
     this.carePlanHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
     this.completedCarePlan = this.page.getByTestId('notecontainer-6fi4');
     this.completedMainCarePlan = this.completedCarePlan.filter({ hasText: 'Main care plan' });
-    this.completedSystemAdditionalCarePlan = this.completedCarePlan.filter({ hasText: 'On behalf of System' });
+    this.completedSystemAdditionalCarePlan = this.completedCarePlan.filter({
+      hasText: 'On behalf of System',
+    });
     this.additionalNoteClinicianDropdown = this.page.getByTestId('field-hh8q-input');
     this.completedMainCarePlanKebabMenu = this.completedMainCarePlan.getByTestId('openbutton-d1ec');
     this.completedCarePlanEditButton = this.completedCarePlan.getByTestId('item-8ybn-0');
@@ -55,7 +57,10 @@ export class CarePlanModal extends BasePatientModal {
       .getByTestId('editablenoteformcontainer-mx3i')
       .getByTestId('formsubmitbutton-ygc6');
     this.additionalNoteEditButton = this.page.getByTestId('item-8ybn-0');
-    this.additionalNoteSavedDate = this.page.getByTestId('editablenoteformcontainer-mx3i').getByTestId('field-qouz-input').getByRole('textbox');
+    this.additionalNoteSavedDate = this.page
+      .getByTestId('editablenoteformcontainer-mx3i')
+      .getByTestId('field-qouz-input')
+      .getByRole('textbox');
     this.additionalNoteDeleteButton = this.page.getByTestId('item-8ybn-1');
   }
 

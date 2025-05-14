@@ -14,7 +14,9 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(patientDetailsPage.page);
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(
+      patientDetailsPage.page,
+    );
 
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
@@ -43,7 +45,6 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOnGoingConditionClinician).toHaveValue('Initial Admin');
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is a note');
   });
-
 
   test('Skipping mandatory field should throw error', async ({ patientDetailsPage }) => {
     await patientDetailsPage.initiateNewOngoingConditionAddButton.click();
@@ -124,7 +125,9 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(patientDetailsPage.page);
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(
+      patientDetailsPage.page,
+    );
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Dust mites');
@@ -135,10 +138,9 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedAllergyDate).toHaveValue(currentBrowserDate);
   });
 
-
   test('Add allergy with all fields', async ({}) => {
     //TODO: can't do this until figured out how to import reference data for reaction
-    });
+  });
 
   test('Edit allergy', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Eggs');
@@ -184,7 +186,9 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(patientDetailsPage.page);
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(
+      patientDetailsPage.page,
+    );
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
     await expect(patientDetailsPage.firstListItem).toContainText('Hair alopecia');
@@ -253,7 +257,9 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.initiateNewOtherPatientIssuesAddButton.click();
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(patientDetailsPage.page);
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(
+      patientDetailsPage.page,
+    );
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
     await expect(patientDetailsPage.firstListItem).toContainText('New issue note');
@@ -333,7 +339,9 @@ test.describe('Patient Side Bar', () => {
   test('Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(patientDetailsPage.page);
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat(
+      patientDetailsPage.page,
+    );
     const defaultDate = await newCarePlanModal.carePlanDate.inputValue();
     await expect(defaultDate).toContain(currentBrowserDate);
 
@@ -352,7 +360,7 @@ test.describe('Patient Side Bar', () => {
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'On behalf of Initial Admin',
     );
-    
+
     await completedCarePlanModal.addAdditionalCarePlanNote(
       'This is an additional care plan note',
       'System',
@@ -396,7 +404,8 @@ test.describe('Patient Side Bar', () => {
       'This is the main care plan note which should not be edited',
     );
 
-    const completedCarePlanModal = await patientDetailsPage.navigateToCarePlan('Cardiovascular disease');
+    const completedCarePlanModal =
+      await patientDetailsPage.navigateToCarePlan('Cardiovascular disease');
 
     await completedCarePlanModal.addAdditionalCarePlanNote(
       'This is the additional care plan note which should be edited',
@@ -406,16 +415,24 @@ test.describe('Patient Side Bar', () => {
     const additionalNoteKebabMenu = completedCarePlanModal.getAdditionalNoteKebabMenu('System');
     await additionalNoteKebabMenu.click();
     await completedCarePlanModal.additionalNoteEditButton.click();
-    
+
     await completedCarePlanModal.additionalNoteSavedDate.fill('2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
     await completedCarePlanModal.saveEditedNoteButton.click();
 
-    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText('Edited note');
-    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText('04/26/2025');
-    await expect(completedCarePlanModal.completedMainCarePlan).toContainText('This is the main care plan note which should not be edited');
+    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
+      'Edited note',
+    );
+    await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
+      '04/26/2025',
+    );
+    await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
+      'This is the main care plan note which should not be edited',
+    );
     await expect(
-      completedCarePlanModal.page.getByText('This is the additional care plan note which should be edited'),
+      completedCarePlanModal.page.getByText(
+        'This is the additional care plan note which should be edited',
+      ),
     ).toBeHidden();
   });
 
