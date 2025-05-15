@@ -162,9 +162,11 @@ export async function loginHandler(req, res, next) {
       );
     }
 
+    log.info('Available facilities: ', availableFacilities);
+
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken(user),
+      buildToken(user, availableFacilities[0]),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -212,6 +214,7 @@ export async function refreshHandler(req, res) {
 }
 
 async function decodeToken(token) {
+  log.info('Decoding token: ', token);
   try {
     return await verify(token, jwtSecretKey);
   } catch (e) {
@@ -257,6 +260,7 @@ export const authMiddleware = async (req, res, next) => {
     const token = getTokenFromHeaders(req);
     const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
+    log.info('Decoded token: ', { userId, facilityId });
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
