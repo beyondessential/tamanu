@@ -164,6 +164,10 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
   );
 };
 
+const hierarchyFieldComponents = {
+  [ADDRESS_HIERARCHY_VILLAGE_ID]: AddressHierarchyField,
+};
+
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
@@ -174,14 +178,14 @@ function getComponentForField(
   if (selectFields.includes(fieldName)) {
     return SelectField;
   }
-  if (fieldName === ADDRESS_HIERARCHY_VILLAGE_ID) {
-    return AddressHierarchyField;
-  }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
+  }
+  if (hierarchyFieldComponents[fieldName]) {
+    return hierarchyFieldComponents[fieldName];
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
