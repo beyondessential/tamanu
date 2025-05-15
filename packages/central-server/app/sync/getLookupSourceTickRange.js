@@ -12,7 +12,7 @@ export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil)
     where: {
       lookupEndTick: {
         [Op.gt]: pullSince,
-        [Op.lte]: pullUntil,
+        [Op.lt]: pullUntil,
       },
     },
     order: [['lookupEndTick', 'ASC']],

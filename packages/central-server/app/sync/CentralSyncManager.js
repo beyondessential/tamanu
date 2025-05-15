@@ -270,6 +270,13 @@ export class CentralSyncManager {
             sourceStartTick: previouslyUpToTick,
             lookupEndTick: currentTick,
           });
+          // update the last successful lookup table in the same transaction - if updating the cursor fails,
+          // we want to roll back the rest of the saves so that the next update can still detect the records that failed
+          // to be updated last time
+          log.debug('CentralSyncManager.updateLookupTable()', {
+            lastSuccessfulLookupTableUpdate: currentTick,
+          });
+          await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
         } else {
           transaction.afterCommit(async () => {
             // Wrap inside transaction so that any writes to currentSyncTick
@@ -281,6 +288,13 @@ export class CentralSyncManager {
                 sourceStartTick: previouslyUpToTick,
                 lookupEndTick: lookupEndTick,
               });
+              // update the last successful lookup table in the same transaction - if updating the cursor fails,
+              // we want to roll back the rest of the saves so that the next update can still detect the records that failed
+              // to be updated last time
+              log.debug('CentralSyncManager.updateLookupTable()', {
+                lastSuccessfulLookupTableUpdate: currentTick,
+              });
+              await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
             });
           });
         }
@@ -299,14 +313,6 @@ export class CentralSyncManager {
           syncLookupTick,
           debugObject,
         );
-
-        // update the last successful lookup table in the same transaction - if updating the cursor fails,
-        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
-        // to be updated last time
-        log.debug('CentralSyncManager.updateLookupTable()', {
-          lastSuccessfulLookupTableUpdate: currentTick,
-        });
-        await store.models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, currentTick);
       });
     } catch (error) {
       log.error('CentralSyncManager.updateLookupTable encountered an error', {
