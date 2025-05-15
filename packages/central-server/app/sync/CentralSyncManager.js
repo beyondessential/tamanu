@@ -360,8 +360,14 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(
+        this.store,
+        since,
+        tick
+      );
+
       await models.SyncSession.update(
-        { pullSince: since, pullUntil: tick },
+        { pullSince: since, pullUntil: tick, minSourceTick, maxSourceTick },
         { where: { id: sessionId } },
       );
 
@@ -575,20 +581,17 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const sourceTickRange = await getLookupSourceTickRange(
-      this.store,
-      session.pullSince,
-      session.pullUntil
-    );
-    if (!sourceTickRange) {
+    const { minSourceTick, maxSourceTick } = session;
+    if (!minSourceTick && !maxSourceTick) {
       return snapshotRecords;
     }
     const recordsForPull = await attachChangelogToSnapshotRecords(
       this.store,
       snapshotRecords,
       {
-        ...sourceTickRange,
         tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+        minSourceTick,
+        maxSourceTick,
       }
     );
     return recordsForPull;
