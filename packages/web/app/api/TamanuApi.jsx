@@ -151,7 +151,9 @@ export class TamanuApi extends ApiClient {
       token,
     });
     this.setToken(token);
+    console.log('WEB CLIENT TOKEN IS NOW', token);
     const user = await this.get('user/me');
+    console.log('WEB CLIENT TOKEN AFTER FETCHING ME IS NOW', token);
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
@@ -205,7 +207,7 @@ export class TamanuApi extends ApiClient {
       ...otherConfig
     } = config;
 
-    console.log('WEB CLIENT Fetch request:', {
+    console.log('WEB CLIENT Fetch request at time:', Date.now(), {
       endpoint,
       hasAuthHeader: !!this.authHeader,
       authHeaderValue: this.authHeader?.authorization?.substring(0, 20) + '...',

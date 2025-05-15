@@ -58,6 +58,12 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     role,
   } = loginInfo;
 
+  const currentToken = localStorage.getItem('authToken');
+  console.log(
+    'Current token in localStorage before setFacility:',
+    currentToken ? currentToken.substring(0, 20) + '...' : 'null',
+  );
+
   console.log('Login info:', {
     hasUser: !!user,
     hasToken: !!token,

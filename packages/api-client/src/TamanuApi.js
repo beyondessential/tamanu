@@ -112,7 +112,9 @@ export class TamanuApi {
   }
 
   setToken(token) {
+    console.log(`API client setToken being called with token: ${token} at time: ${Date.now()}`);
     this.#authHeader = { authorization: `Bearer ${token}` };
+    console.log(`API client authHeader is now: ${this.#authHeader} at time: ${Date.now()}`);
   }
 
   async fetch(endpoint, query = {}, moreConfig = {}) {
