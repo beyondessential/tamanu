@@ -92,19 +92,19 @@ absent under normal conditions.
 {% enddocs %}
 
 {% docs logs__changes__record_created_at %}
-TODO
+The created_at metadata from record the changelog was recoredd against
 {% enddocs %}
 
 {% docs logs__changes__record_updated_at %}
-TODO
+The updated_at metadata from record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_deleted_at %}
-TODO
+The deleted_at metadata from record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_sync_tick %}
-TODO
+The updated_at_sync_tick of the record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_data %}
@@ -115,6 +115,3 @@ data in a Tamanu system is transported using JSON via the sync system anyway, so
 it is expected that all data trivially round-trips via JSON.
 {% enddocs %}
 
-{% docs logs__changes__updated_at_sync_tick %}
-TODO
-{% enddocs %}
