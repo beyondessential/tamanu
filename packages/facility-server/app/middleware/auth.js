@@ -163,11 +163,19 @@ export async function loginHandler(req, res, next) {
     }
 
     log.info('Available facilities: ', availableFacilities);
-    log.error('Available facilities: ', availableFacilities);
+    availableFacilities.forEach((facility) => {
+      log.error('Available facility: ', facility);
+      log.error('Available facility id: ', facility?.id);
+    });
+
+    const selectedFacility = availableFacilities[0];
+
+    log.info('Selected facility: ', selectedFacility);
+    log.info('Selected facility id: ', selectedFacility?.id);
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken(user, availableFacilities[0]),
+      buildToken(user, selectedFacility?.id),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -178,7 +186,7 @@ export async function loginHandler(req, res, next) {
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
       availableFacilities,
-      facilityId: availableFacilities[0],
+      facilityId: selectedFacility?.id,
     });
   } catch (e) {
     next(e);
