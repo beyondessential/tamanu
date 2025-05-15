@@ -10,11 +10,9 @@ export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil)
   const { SyncLookupTick } = models;
   const lookupTicks = await SyncLookupTick.findAll({
     where: {
-      sourceStartTick: {
-        [Op.gte]: pullSince,
-      },
       lookupEndTick: {
-        [Op.lt]: pullUntil,
+        [Op.gt]: pullSince,
+        [Op.lte]: pullUntil,
       },
     },
     order: [['lookupEndTick', 'ASC']],
