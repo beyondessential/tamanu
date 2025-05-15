@@ -78,7 +78,7 @@ export async function up(query: QueryInterface): Promise<void> {
       CASE WHEN ppr.deleted_at IS NOT NULL THEN now() ELSE NULL END,
       ${changesHasUpdatedAtSyncTick ? updatedAtSyncTickSelect : ''}
       COALESCE(ppr.clinician_id::text, '${SYSTEM_USER_UUID}'),
-      ppr.id,
+      latest_registrations.latest_registration_id,
       NOT registration_summary.is_insert,
       ppr.created_at,
       ppr.updated_at,
@@ -98,7 +98,16 @@ export async function up(query: QueryInterface): Promise<void> {
         END AS is_insert
       FROM patient_program_registrations
       ORDER BY patient_id, program_registry_id, date ASC
-    ) registration_summary ON ppr.id = registration_summary.id;
+    ) registration_summary ON ppr.id = registration_summary.id
+    JOIN (
+      SELECT DISTINCT ON (patient_id, program_registry_id)
+        patient_id,
+        program_registry_id,
+        id as latest_registration_id
+      FROM patient_program_registrations
+      WHERE is_most_recent = TRUE
+      ORDER BY patient_id, program_registry_id, date DESC
+    ) latest_registrations ON ppr.patient_id = latest_registrations.patient_id AND ppr.program_registry_id = latest_registrations.program_registry_id
   `);
 
   // Reset time zone for containment
