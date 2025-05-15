@@ -59,16 +59,16 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
         },
       });
 
-      // TODO: hacking just to get it working for now
-      const patientToUpdate = await Patient.findOne({ where: { id: patient.id } });
-      const village = await ReferenceData.findOne({
-        where: { id: values?.villageId },
+      // Specifically for the case where village is within a hierarchy field in the PAD form
+      const updatedPatient = await Patient.updateValues(patient.id, {
+        villageId: values?.villageId || null,
       });
-      patientToUpdate.villageId = values?.villageId || null;
-      patientToUpdate.village = values?.villageId ? village : null;
-      await patientToUpdate.save();
 
-      await PatientAdditionalData.updateForPatient(patient.id, values);
+      const sanitizedValues = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [key, value === '' ? null : value]),
+      );
+
+      await PatientAdditionalData.updateForPatient(patient.id, sanitizedValues);
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter((key) =>
@@ -84,7 +84,7 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
         ),
       );
 
-      setSelectedPatient(patientToUpdate);
+      setSelectedPatient(updatedPatient);
 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
