@@ -15,7 +15,7 @@ been logged.
 {% enddocs %}
 
 {% docs logs__changes__id %}
-The ID of the change log row. This is auto incremented
+The ID of the change log row. UUID
 {% enddocs %}
 
 {% docs logs__changes__table_oid %}
