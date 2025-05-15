@@ -130,18 +130,19 @@ export const DateDisplay = React.memo(
     fontWeight,
     noTooltip = false,
     timeOnlyTooltip = false,
+    style,
     ...props
   }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
 
     if (noTooltip) {
-      return <span style={{ color, fontWeight }}>{displayDateString}</span>;
+      return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
     }
 
     const dateObj = parseDate(dateValue);
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip} data-testid="datetooltip-mhkq">
-        <span style={{ color, fontWeight }}>{displayDateString}</span>
+        <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
   },

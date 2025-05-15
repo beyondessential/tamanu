@@ -8,10 +8,11 @@
 // string is fine).
 
 export const Routes = {
-  Autocomplete: {
+  Forms: {
     Index: '',
-    Modal: '',
+    AutocompleteModal: '',
     MultiSelectModal: '',
+    SelectModal: '',
   },
   SignUpStack: {
     Index: '',
@@ -150,7 +151,7 @@ export const Routes = {
 // and providing autocompletes etc.
 //
 export function transformRoutes(baseKey, routes): void {
-  Object.keys(routes).map(k => {
+  Object.keys(routes).map((k) => {
     const val = routes[k];
     const routeString = [baseKey, k].join('/');
     if (typeof val === 'object') {
