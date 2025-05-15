@@ -250,8 +250,8 @@ export const EditAdministrationRecordModal = ({
                       disabled={!dirty}
                       label={
                         <TranslatedText
-                          stringId="mar.details.reasonForChangeOptional.label"
-                          fallback="Reason for change (Optional)"
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
                         />
                       }
                     />
@@ -333,8 +333,8 @@ export const EditAdministrationRecordModal = ({
                       disabled={!dirty}
                       label={
                         <TranslatedText
-                          stringId="mar.details.reasonForChangeOptional.label"
-                          fallback="Reason for change (Optional)"
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
                         />
                       }
                     />
