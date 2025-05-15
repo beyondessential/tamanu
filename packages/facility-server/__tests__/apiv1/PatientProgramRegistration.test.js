@@ -946,6 +946,12 @@ describe('PatientProgramRegistration', () => {
             name: 'Test Status',
           }),
         );
+        const clinicalStatus2 = await models.ProgramRegistryClinicalStatus.create(
+          fake(models.ProgramRegistryClinicalStatus, {
+            programRegistryId: programRegistry.id,
+            name: 'Test Status 2',
+          }),
+        );
 
         // Create initial registration
         const registration = await models.PatientProgramRegistration.create(
@@ -961,7 +967,7 @@ describe('PatientProgramRegistration', () => {
 
         // Update registration
         await registration.update({
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+          clinicalStatusId: clinicalStatus2.id,
           date: TEST_DATE_LATE,
         });
 
@@ -987,8 +993,7 @@ describe('PatientProgramRegistration', () => {
 
         // Check the first entry (most recent)
         const latestEntry = history[0];
-        expect(latestEntry).toHaveProperty('registrationStatus', REGISTRATION_STATUSES.INACTIVE);
-        expect(latestEntry).toHaveProperty('clinicalStatusId', clinicalStatus.id);
+        expect(latestEntry).toHaveProperty('clinicalStatusId', clinicalStatus2.id);
         expect(latestEntry).toHaveProperty('registrationDate', TEST_DATE_LATE);
       });
     });
