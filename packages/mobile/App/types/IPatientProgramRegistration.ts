@@ -33,5 +33,10 @@ export interface IPatientProgramRegistration {
   villageId?: ID;
   village?: IReferenceData;
 
+  deactivated_clinician_id?: ID;
+  deactivatedClinician?: IUser;
+
+  deactivated_date?: DateTimeString;
+
   conditions: IPatientProgramRegistrationCondition[];
 }
