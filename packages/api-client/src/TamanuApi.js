@@ -120,6 +120,13 @@ export class TamanuApi {
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
+
+    console.log('API client Fetch request:', {
+      endpoint,
+      hasAuthHeader: !!this.#authHeader,
+      authHeaderValue: this.#authHeader?.authorization?.substring(0, 20) + '...',
+    });
+
     const config = {
       headers: {
         ...this.#authHeader,

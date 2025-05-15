@@ -126,7 +126,7 @@ export class TamanuApi extends ApiClient {
       deviceId: getDeviceId(),
     });
 
-    this.interceptors.request.use((config) => {
+    this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
       return config;
@@ -147,6 +147,9 @@ export class TamanuApi extends ApiClient {
     if (!token) {
       throw new Error('No stored session found.');
     }
+    console.log('WEB CLIENT restoreSession:', {
+      token,
+    });
     this.setToken(token);
     const user = await this.get('user/me');
     this.user = user;
@@ -181,6 +184,11 @@ export class TamanuApi extends ApiClient {
 
   async setFacility(facilityId) {
     const { token, settings } = await this.post('setFacility', { facilityId });
+    console.log('WEB CLIENT setFacility:', {
+      token,
+      facilityId,
+      settings,
+    });
     this.setToken(token);
     saveToLocalStorage({
       token,
@@ -196,6 +204,12 @@ export class TamanuApi extends ApiClient {
       showUnknownErrorToast = false,
       ...otherConfig
     } = config;
+
+    console.log('WEB CLIENT Fetch request:', {
+      endpoint,
+      hasAuthHeader: !!this.authHeader,
+      authHeaderValue: this.authHeader?.authorization?.substring(0, 20) + '...',
+    });
 
     try {
       return await super.fetch(endpoint, query, otherConfig);
