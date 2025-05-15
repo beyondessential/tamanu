@@ -129,7 +129,6 @@ export class Suggester<ModelType> {
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
         .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label');
 
-      // WHERE
       query = query.where(
         new Brackets((qb) => {
           if (search) {
