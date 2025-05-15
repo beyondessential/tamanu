@@ -49,21 +49,14 @@ const getTranslationJoinParams = (dataType: string, language: string) => [
 
 export class Suggester<ModelType> {
   model: ModelType;
-
   options: SuggesterOptions<ModelType>;
-
   formatter: (entity: BaseModel) => OptionType;
-
   filter?: (entity: BaseModel) => boolean;
-
   lastUpdatedAt: number;
-
   cachedData: any;
-
   hierarchyOptions: {
     parentId?: string;
     relationType?: string;
-    referenceType?: string;
     isFirstLevel?: boolean;
   };
 
@@ -76,7 +69,6 @@ export class Suggester<ModelType> {
     hierarchyOptions?: {
       parentId?: string;
       relationType?: string;
-      referenceType?: string;
       isFirstLevel?: boolean;
     },
   ) {
@@ -111,7 +103,7 @@ export class Suggester<ModelType> {
         .where('entity.id = :id', { id: value });
 
       const result = await query.getRawAndEntities();
-      if (!result.raw.length) return undefined;
+      if (result.raw.length === 0) return undefined;
 
       return this.formatter(result.raw[0]);
     } catch (e) {
@@ -122,16 +114,11 @@ export class Suggester<ModelType> {
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
-    const { parentId, relationType, referenceType, isFirstLevel } = this.hierarchyOptions || {};
+    const { parentId, relationType, isFirstLevel } = this.hierarchyOptions || {};
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
-
-      // JOINS
-      if (this.hierarchyOptions) {
-        query = query.leftJoinAndSelect('entity.parents', 'parents');
-      }
 
       if (relations) {
         relations.forEach((relation) => {
@@ -139,32 +126,24 @@ export class Suggester<ModelType> {
         });
       }
 
+      // Assign a label property using the translation if it exists otherwise use the original entity name
       query = query
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
         .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label');
 
       // WHERE
-      query = query
-        .where(
-          new Brackets((qb) => {
-            if (search) {
-              qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
-            }
-          }),
-        )
-        .andWhere(
-          new Brackets((qb) => {
-            Object.entries(where).forEach(([key, value]) => {
-              qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
-            });
-          }),
-        );
+      query = query.where(
+        new Brackets((qb) => {
+          if (search) {
+            qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
+          }
+        }),
+      );
 
-      if (this.hierarchyOptions) {
-        query = query.andWhere('entity.type = :referenceType', {
-          referenceType,
-        });
-      }
+      Object.entries(where).forEach(([key, value]) => {
+        query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
+      });
+
       if (this.hierarchyOptions && !isFirstLevel && parentId) {
         query = query
           .andWhere('parents.referenceDataParentId = :parentId', {
@@ -179,9 +158,8 @@ export class Suggester<ModelType> {
 
       const data = await query.getRawAndEntities();
 
-      const formattedData = this.filter
-        ? data.raw.filter(this.filter).map(this.formatter)
-        : data.raw.map(this.formatter);
+      const filteredData = this.filter ? data.raw.filter(this.filter) : data.raw;
+      const formattedData = filteredData.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {
         this.cachedData = formattedData;

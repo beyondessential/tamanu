@@ -3,6 +3,7 @@ import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalFie
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
 import { useBackend } from '~/ui/hooks';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const HierarchyFieldItem = ({
   isFirstLevel,
@@ -20,7 +21,9 @@ export const HierarchyFieldItem = ({
     {
       where: {
         type: referenceType,
+        visibilityStatus: VisibilityStatus.Current,
       },
+      relations: ['parents'],
     },
     undefined,
     undefined,
