@@ -5,7 +5,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { validatePatientProgramRegistrationRequest } from './utils';
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 
 export const patientProgramRegistration = express.Router();
 
