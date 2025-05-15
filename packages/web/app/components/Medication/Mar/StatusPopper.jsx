@@ -5,7 +5,7 @@ import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@ma
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { addHours, set } from 'date-fns';
+import { addHours, format, set } from 'date-fns';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
@@ -289,11 +289,11 @@ const GivenScreen = ({
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToGiven({
-      dueAt,
+      dueAt: format(dueAt, 'yyyy-MM-dd HH:mm:ss'),
       prescriptionId,
       dose: {
         doseAmount,
-        givenTime,
+        givenTime: format(givenTime, 'yyyy-MM-dd HH:mm:ss'),
       },
     });
   };
@@ -447,7 +447,7 @@ export const StatusPopper = ({
     await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt,
+      dueAt: format(dueAt, 'yyyy-MM-dd HH:mm:ss'),
       prescriptionId,
     });
 

@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { format } from 'date-fns';
 import { Field, Form, TextField, NumberField, AutocompleteField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
@@ -138,7 +139,7 @@ export const EditAdministrationRecordModal = ({
       }
       await updateMarDose({
         doseAmount: Number(doseAmount),
-        givenTime,
+        givenTime: format(givenTime, 'yyyy-MM-dd HH:mm:ss'),
         givenByUserId,
         recordedByUserId,
         reasonForChange,

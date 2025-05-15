@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { datetimeCustomValidation, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
 import {
@@ -463,7 +463,7 @@ const givenMarUpdateSchema = z
   .object({
     dose: z.object({
       doseAmount: z.number(),
-      givenTime: z.string().datetime(),
+      givenTime: datetimeCustomValidation,
       givenByUserId: z.string().optional(),
       recordedByUserId: z.string().optional(),
     }),
@@ -540,9 +540,9 @@ const givenMarCreateSchema = z
   .object({
     dose: z.object({
       doseAmount: z.number(),
-      givenTime: z.string().datetime(),
+      givenTime: datetimeCustomValidation,
     }),
-    dueAt: z.string().datetime(),
+    dueAt: datetimeCustomValidation,
     prescriptionId: z.string(),
     changingStatusReason: z.string().optional(),
   })
@@ -703,7 +703,7 @@ medication.put(
 const notGivenInputCreateSchema = z
   .object({
     reasonNotGivenId: z.string(),
-    dueAt: z.string().datetime(),
+    dueAt: datetimeCustomValidation,
     prescriptionId: z.string(),
     changingStatusReason: z.string().optional(),
   })
@@ -750,7 +750,7 @@ const updateMarInputSchema = z
         z
           .object({
             doseAmount: z.number(),
-            givenTime: z.string().datetime(),
+            givenTime: datetimeCustomValidation,
             givenByUserId: z.string(),
             recordedByUserId: z.string(),
           })
@@ -858,7 +858,7 @@ medication.get(
 
 const updateDoseSchema = z.object({
   doseAmount: z.number(),
-  givenTime: z.string().datetime(),
+  givenTime: datetimeCustomValidation,
   givenByUserId: z.string(),
   recordedByUserId: z.string(),
   reasonForChange: z.string().optional(),
