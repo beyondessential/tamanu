@@ -43,6 +43,50 @@ function getPadFieldData(data: PatientAdditionalData, fieldName: string): string
   return data?.[fieldName];
 }
 
+const getAddressHierarchyData = (
+  patient: Patient,
+  patientAdditionalData: PatientAdditionalData,
+) => {
+  return [
+    [
+      ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.divisionId}
+        category={ReferenceDataType.Division}
+        fallback={patientAdditionalData?.division?.name}
+        value={patientAdditionalData?.divisionId}
+      />,
+    ],
+    [
+      ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.subdivisionId}
+        category={ReferenceDataType.Subdivision}
+        fallback={patientAdditionalData?.subdivision?.name}
+        value={patientAdditionalData?.subdivisionId}
+      />,
+    ],
+    [
+      ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.settlementId}
+        category={ReferenceDataType.Settlement}
+        fallback={patientAdditionalData?.settlement?.name}
+        value={patientAdditionalData?.settlementId}
+      />,
+    ],
+    [
+      PATIENT_DATA_FIELDS.VILLAGE_ID,
+      <TranslatedReferenceData
+        key={patient.villageId}
+        category={ReferenceDataType.Village}
+        fallback={patient.village?.name}
+        value={patient.villageId}
+      />,
+    ],
+  ];
+};
+
 export const AdditionalInfo = ({
   patient,
   onEdit,
@@ -81,44 +125,7 @@ export const AdditionalInfo = ({
       const fieldsWithData = [];
       fields.map((field: string) => {
         if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
-          fieldsWithData.push(
-            [
-              ADDITIONAL_DATA_FIELDS.DIVISION_ID,
-              <TranslatedReferenceData
-                key={patientAdditionalData?.divisionId}
-                category={ReferenceDataType.Division}
-                fallback={patientAdditionalData?.division?.name}
-                value={patientAdditionalData?.divisionId}
-              />,
-            ],
-            [
-              ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
-              <TranslatedReferenceData
-                key={patientAdditionalData?.subdivisionId}
-                category={ReferenceDataType.Subdivision}
-                fallback={patientAdditionalData?.subdivision?.name}
-                value={patientAdditionalData?.subdivisionId}
-              />,
-            ],
-            [
-              ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
-              <TranslatedReferenceData
-                key={patientAdditionalData?.settlementId}
-                category={ReferenceDataType.Settlement}
-                fallback={patientAdditionalData?.settlement?.name}
-                value={patientAdditionalData?.settlementId}
-              />,
-            ],
-            [
-              PATIENT_DATA_FIELDS.VILLAGE_ID,
-              <TranslatedReferenceData
-                key={patient.villageId}
-                category={ReferenceDataType.Village}
-                fallback={patient.village?.name}
-                value={patient.villageId}
-              />,
-            ],
-          );
+          fieldsWithData.push(...getAddressHierarchyData(patient, patientAdditionalData));
         } else if (Object.keys(customDataById).includes(field)) {
           fieldsWithData.push([field, customDataById[field]]);
         } else {
