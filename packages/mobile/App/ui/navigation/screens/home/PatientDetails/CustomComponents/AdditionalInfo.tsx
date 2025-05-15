@@ -16,7 +16,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { ReferenceDataType } from '~/types/IReferenceData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
-import { ADDRESS_HIERARCHY_VILLAGE_ID } from '../fields';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '../fields';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
@@ -124,7 +124,7 @@ export const AdditionalInfo = ({
 
       const fieldsWithData = [];
       fields.map((field: string) => {
-        if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
+        if (field === ADDRESS_HIERARCHY_FIELD_ID) {
           fieldsWithData.push(...getAddressHierarchyData(patient, patientAdditionalData));
         } else if (Object.keys(customDataById).includes(field)) {
           fieldsWithData.push([field, customDataById[field]]);

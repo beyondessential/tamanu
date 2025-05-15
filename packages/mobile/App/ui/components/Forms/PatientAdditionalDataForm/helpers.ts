@@ -15,7 +15,7 @@ import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'lodash';
-import { ADDRESS_HIERARCHY_VILLAGE_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -199,7 +199,7 @@ export const getInitialAdditionalValues = (
   const values = {};
   for (const field of fields) {
     // TODO: special case
-    if (field === ADDRESS_HIERARCHY_VILLAGE_ID) {
+    if (field === ADDRESS_HIERARCHY_FIELD_ID) {
       values.divisionId = data.divisionId;
       values.settlementId = data.settlementId;
       values.subdivisionId = data.subdivisionId;

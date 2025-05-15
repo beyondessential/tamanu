@@ -2,7 +2,7 @@ import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
-export const ADDRESS_HIERARCHY_VILLAGE_ID = 'addressHierarchyVillageId';
+export const ADDRESS_HIERARCHY_FIELD_ID = 'addressHierarchyId';
 
 export const ADDITIONAL_DATA_SECTIONS = [
   {
@@ -85,7 +85,7 @@ export const ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: [
-      ADDRESS_HIERARCHY_VILLAGE_ID,
+      ADDRESS_HIERARCHY_FIELD_ID,
       ADDITIONAL_DATA_FIELDS.CITY_TOWN,
       ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
       ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,

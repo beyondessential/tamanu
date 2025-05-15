@@ -8,7 +8,7 @@ import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { ReferenceDataType } from '~/types/IReferenceData';
-import { ADDRESS_HIERARCHY_VILLAGE_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
 
 export const ADDRESS_HIERARCHY_FIELDS = [
   {
@@ -66,5 +66,5 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
 };
 
 export const hierarchyFieldComponents = {
-  [ADDRESS_HIERARCHY_VILLAGE_ID]: AddressHierarchyField,
+  [ADDRESS_HIERARCHY_FIELD_ID]: AddressHierarchyField,
 };
