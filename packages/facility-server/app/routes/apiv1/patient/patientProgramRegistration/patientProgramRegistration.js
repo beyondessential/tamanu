@@ -307,11 +307,7 @@ patientProgramRegistration.get(
     const changes = await ChangeLog.findAll({
       where: {
         tableName: 'patient_program_registrations',
-        recordId: {
-          [Op.in]: Sequelize.literal(
-            `(SELECT id::text FROM patient_program_registrations WHERE id = :registrationId)`,
-          ),
-        },
+        recordId: registration.id,
       },
       include: [
         {
@@ -321,9 +317,6 @@ patientProgramRegistration.get(
         },
       ],
       order: [['loggedAt', 'DESC']],
-      replacements: {
-        registrationId: registration.id,
-      },
     });
 
     // Get all unique clinical status IDs from the changes
