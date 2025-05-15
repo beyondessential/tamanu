@@ -253,6 +253,10 @@ export class CentralSyncManager {
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick: currentTick } = await this.tickTockGlobalClock();
 
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10000);
+      });
+
       await this.waitForPendingEdits(currentTick);
 
       const previouslyUpToTick =
