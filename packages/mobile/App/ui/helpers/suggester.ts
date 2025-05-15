@@ -47,6 +47,18 @@ const getTranslationJoinParams = (dataType: string, language: string) => [
   },
 ];
 
+export interface SuggesterConfig<ModelType> {
+  model: ModelType;
+  options: SuggesterOptions<ModelType>;
+  formatter?: (entity: BaseModel) => OptionType;
+  filter?: (entity: BaseModel) => boolean;
+  hierarchyOptions?: {
+    parentId?: string;
+    relationType?: string;
+    isFirstLevel?: boolean;
+  };
+}
+
 export class Suggester<ModelType> {
   model: ModelType;
   options: SuggesterOptions<ModelType>;
@@ -60,28 +72,14 @@ export class Suggester<ModelType> {
     isFirstLevel?: boolean;
   };
 
-  // TODO: parameterize
-  constructor(
-    model: ModelType,
-    options,
-    formatter = defaultFormatter,
-    filter?: (entity: BaseModel) => boolean,
-    hierarchyOptions?: {
-      parentId?: string;
-      relationType?: string;
-      isFirstLevel?: boolean;
-    },
-  ) {
-    this.model = model;
-    this.options = options;
-    // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
-    this.formatter = formatter;
-    // Frontend filter applied to the data received. Use this to filter by permission
-    // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
-    this.filter = filter;
+  constructor(config: SuggesterConfig<ModelType>) {
+    this.model = config.model;
+    this.options = config.options;
+    this.formatter = config.formatter || defaultFormatter;
+    this.filter = config.filter;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
-    this.hierarchyOptions = hierarchyOptions;
+    this.hierarchyOptions = config.hierarchyOptions;
   }
 
   async fetch(options): Promise<BaseModel[]> {

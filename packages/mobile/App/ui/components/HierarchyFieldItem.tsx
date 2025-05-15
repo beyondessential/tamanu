@@ -16,24 +16,22 @@ export const HierarchyFieldItem = ({
 }) => {
   const { models } = useBackend();
 
-  const suggesterInstance = new Suggester(
-    models.ReferenceData,
-    {
+  const suggesterInstance = new Suggester({
+    model: models.ReferenceData,
+    options: {
       where: {
         type: referenceType,
         visibilityStatus: VisibilityStatus.Current,
       },
       relations: ['parents'],
     },
-    undefined,
-    undefined,
-    {
+    hierarchyOptions: {
       parentId,
       relationType,
       referenceType,
       isFirstLevel,
     },
-  );
+  });
 
   return (
     <Field
