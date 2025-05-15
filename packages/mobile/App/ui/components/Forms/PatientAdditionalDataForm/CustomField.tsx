@@ -17,7 +17,7 @@ export const CustomField = ({ fieldName, required }): ReactElement => {
   return getCustomFieldComponent(fieldDefinition, required);
 };
 
-const getCustomFieldComponent = (
+export const getCustomFieldComponent = (
   { id, name, options, fieldType }: PatientFieldDefinition,
   required?: boolean,
 ) => {

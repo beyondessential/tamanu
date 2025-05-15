@@ -8,7 +8,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { PlainField } from './PlainField';
 import { SelectField } from './SelectField';
 import { RelationField } from './RelationField';
-import { CustomField } from './CustomField';
+import { CustomField, getCustomFieldComponent } from './CustomField';
 import { hierarchyFieldComponents } from './HierarchyField';
 
 function getComponentForField(
