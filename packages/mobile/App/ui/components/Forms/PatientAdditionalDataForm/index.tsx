@@ -10,7 +10,6 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Patient } from '~/models/Patient';
-import { ReferenceData } from '~/models/ReferenceData';
 import { Routes } from '~/ui/helpers/routes';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
