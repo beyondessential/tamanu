@@ -79,7 +79,7 @@ export async function up(query: QueryInterface): Promise<void> {
       ${changesHasUpdatedAtSyncTick ? updatedAtSyncTickSelect : ''}
       COALESCE(ppr.clinician_id::text, '${SYSTEM_USER_UUID}'),
       ppr.id,
-      registration_summary.is_insert,
+      NOT registration_summary.is_insert,
       ppr.created_at,
       ppr.updated_at,
       ppr.deleted_at,
