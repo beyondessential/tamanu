@@ -215,6 +215,7 @@ async function decodeToken(token) {
   try {
     return await verify(token, jwtSecretKey);
   } catch (e) {
+    log.error('Facility error while decoding token: ', e);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
@@ -229,6 +230,7 @@ function getTokenFromHeaders(request) {
   }
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) {
+    log.error('Facility error while getting token from headers: ', bearer);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
@@ -241,6 +243,7 @@ function getTokenFromHeaders(request) {
 async function getUser(models, userId) {
   const user = await models.User.findByPk(userId);
   if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    log.error('Facility error while getting user: ', user);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
