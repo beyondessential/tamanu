@@ -23,7 +23,6 @@ export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil)
   }
 
   const minSourceTick = lookupTicks.at(0).sourceStartTick;
-  const maxSourceTick = lookupTicks.at(-1).lookupEndTick;
 
-  return { minSourceTick, maxSourceTick };
+  return { minSourceTick };
 };
