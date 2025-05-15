@@ -163,6 +163,7 @@ export async function loginHandler(req, res, next) {
     }
 
     log.info('Available facilities: ', availableFacilities);
+    log.error('Available facilities: ', availableFacilities);
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
@@ -177,6 +178,7 @@ export async function loginHandler(req, res, next) {
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
       availableFacilities,
+      facilityId: availableFacilities[0],
     });
   } catch (e) {
     next(e);
