@@ -65,7 +65,6 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   ) {
     const repo = this.getRepository();
 
-    // First attempt with relation type filter
     let recordWithParents = await repo.findOne({
       where: {
         ...where,
