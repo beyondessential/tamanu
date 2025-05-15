@@ -28,7 +28,6 @@ export const HierarchyFieldItem = ({
     hierarchyOptions: {
       parentId,
       relationType,
-      referenceType,
       isFirstLevel,
     },
   });
