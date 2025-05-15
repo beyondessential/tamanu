@@ -18,10 +18,9 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData =
-      await models.PatientProgramRegistration.getRegistrationsForPatient(
-        params.patientId,
-      );
+    const registrationData = await models.PatientProgramRegistration.getRegistrationsForPatient(
+      params.patientId,
+    );
 
     const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
@@ -286,17 +285,31 @@ patientProgramRegistration.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;
-    const { ChangeLog, User, ProgramRegistryClinicalStatus } = models;
+    const { ChangeLog, User, PatientProgramRegistration, ProgramRegistryClinicalStatus } = models;
 
     req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistration');
+
+    const registration = await PatientProgramRegistration.findOne({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+    });
+
+    if (!registration) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+    }
 
     const changes = await ChangeLog.findAll({
       where: {
         tableName: 'patient_program_registrations',
         recordId: {
           [Op.in]: Sequelize.literal(
-            `(SELECT id::text FROM patient_program_registrations WHERE patient_id = :patientId AND program_registry_id = :programRegistryId)`,
+            `(SELECT id::text FROM patient_program_registrations WHERE id = :registrationId)`,
           ),
         },
       },
@@ -309,8 +322,7 @@ patientProgramRegistration.get(
       ],
       order: [['loggedAt', 'DESC']],
       replacements: {
-        patientId,
-        programRegistryId,
+        registrationId: registration.id,
       },
     });
 
