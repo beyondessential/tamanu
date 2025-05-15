@@ -25,16 +25,15 @@ export const ProgramRegistrySection = (): ReactElement => {
   const { ability } = useAuth();
   const { getTranslation } = useTranslation();
 
-  const ProgramRegistrySuggester = new Suggester(
-    models.ProgramRegistry,
-    {
+  const ProgramRegistrySuggester = new Suggester({
+    model: models.ProgramRegistry,
+    options: {
       where: {
         visibilityStatus: VisibilityStatus.Current,
       },
     },
-    undefined,
-    ({ id }) => ability.can('read', subject('ProgramRegistry', { id })),
-  );
+    formatter: ({ id }) => ability.can('read', subject('ProgramRegistry', { id })),
+  });
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) => {
