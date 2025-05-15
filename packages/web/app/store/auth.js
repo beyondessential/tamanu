@@ -19,44 +19,65 @@ const SET_FACILITY_ID = 'SET_FACILITY_ID';
 const SET_TOKEN = 'SET_TOKEN';
 const SET_SETTINGS = 'SET_SETTINGS';
 
-export const restoreSession =
-  () =>
-  async (dispatch, getState, { api }) => {
-    try {
-      const loginInfo = await api.restoreSession();
-      await handleLoginSuccess(dispatch, loginInfo);
-    } catch (e) {
-      // no action required -- this just means we haven't logged in
-    }
-  };
+export const restoreSession = () => async (dispatch, getState, { api }) => {
+  console.log('=== restoreSession started ===');
+  try {
+    console.log('Calling api.restoreSession()');
+    const loginInfo = await api.restoreSession();
+    console.log('api.restoreSession returned:', JSON.stringify(loginInfo, null, 2));
+    console.log('Calling handleLoginSuccess');
+    await handleLoginSuccess(dispatch, loginInfo);
+    console.log('handleLoginSuccess completed');
+  } catch (e) {
+    console.error('restoreSession error:', e);
+    // no action required -- this just means we haven't logged in
+  }
+  console.log('=== restoreSession completed ===');
+};
 
-export const login =
-  (email, password) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: LOGIN_START });
-    try {
-      const loginInfo = await api.login(email, password);
-      await handleLoginSuccess(dispatch, loginInfo);
-    } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, error: error.message });
-    }
-  };
+export const login = (email, password) => async (dispatch, getState, { api }) => {
+  dispatch({ type: LOGIN_START });
+  try {
+    const loginInfo = await api.login(email, password);
+    await handleLoginSuccess(dispatch, loginInfo);
+  } catch (error) {
+    dispatch({ type: LOGIN_FAILURE, error: error.message });
+  }
+};
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role } =
-    loginInfo;
+  console.log('=== handleLoginSuccess started ===');
+  const {
+    user,
+    token,
+    localisation,
+    server,
+    availableFacilities,
+    facilityId,
+    ability,
+    role,
+  } = loginInfo;
+
+  console.log('Login info:', {
+    hasUser: !!user,
+    hasToken: !!token,
+    facilityId,
+    availableFacilities: JSON.stringify(availableFacilities),
+  });
 
   if (facilityId) {
+    console.log('Setting facility from existing facilityId:', facilityId);
     await dispatch(setFacilityId(facilityId));
   } else {
-    // if there's just one facility the user has access to, select it immediately
-    // otherwise they will be prompted to select a facility after login
     const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
+    console.log('Checking for single facility. onlyFacilityId:', onlyFacilityId);
     if (onlyFacilityId) {
+      console.log('Setting facility from only available facility:', onlyFacilityId);
       await dispatch(setFacilityId(onlyFacilityId));
     }
   }
 
+  console.log('Dispatching LOGIN_SUCCESS');
   dispatch({
     type: LOGIN_SUCCESS,
     user,
@@ -67,34 +88,33 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
   });
+  console.log('=== handleLoginSuccess completed ===');
 };
 
-export const setFacilityId =
-  (facilityId) =>
-  async (dispatch, getState, { api }) => {
-    try {
-      const { settings } = await api.setFacility(facilityId);
-      dispatch({
-        type: SET_FACILITY_ID,
-        facilityId,
-      });
-      dispatch({
-        type: SET_SETTINGS,
-        settings,
-      });
-    } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, error: error.message });
-    }
-  };
+export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
+  try {
+    const { settings } = await api.setFacility(facilityId);
+    dispatch({
+      type: SET_FACILITY_ID,
+      facilityId,
+    });
+    dispatch({
+      type: SET_SETTINGS,
+      settings,
+    });
+  } catch (error) {
+    dispatch({ type: LOGIN_FAILURE, error: error.message });
+  }
+};
 
-export const authFailure = () => async (dispatch) => {
+export const authFailure = () => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
     error: 'Your session has expired. Please log in again.',
   });
 };
 
-export const versionIncompatible = (message) => async (dispatch) => {
+export const versionIncompatible = message => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
     error: message,
@@ -110,49 +130,43 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const requestPasswordReset =
-  (email) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: REQUEST_PASSWORD_RESET_START });
+export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
+  dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
-    try {
-      await api.requestPasswordReset(email);
-      dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
-    } catch (error) {
-      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
-    }
-  };
+  try {
+    await api.requestPasswordReset(email);
+    dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
+  } catch (error) {
+    dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
+  }
+};
 
-export const restartPasswordResetFlow = () => async (dispatch) => {
+export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const validateResetCode =
-  (data) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: VALIDATE_RESET_CODE_START });
+export const validateResetCode = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: VALIDATE_RESET_CODE_START });
 
-    await api.post('changePassword/validate-reset-code', data);
-    dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
-  };
+  await api.post('changePassword/validate-reset-code', data);
+  dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
+};
 
-export const changePassword =
-  (data) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: CHANGE_PASSWORD_START });
+export const changePassword = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: CHANGE_PASSWORD_START });
 
-    try {
-      await api.changePassword(data);
-      dispatch({ type: CHANGE_PASSWORD_SUCCESS });
-    } catch (error) {
-      dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });
-    }
-  };
+  try {
+    await api.changePassword(data);
+    dispatch({ type: CHANGE_PASSWORD_SUCCESS });
+  } catch (error) {
+    dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });
+  }
+};
 
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
 export const getServerType = ({ auth }) => auth?.server?.type;
-export const checkIsLoggedIn = (state) => !!getCurrentUser(state);
+export const checkIsLoggedIn = state => !!getCurrentUser(state);
 export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 
 // reducer
@@ -200,7 +214,7 @@ const actionHandlers = {
     loading: true,
     ...resetState,
   }),
-  [LOGIN_SUCCESS]: (action) => ({
+  [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
     ability: action.ability,
@@ -219,10 +233,10 @@ const actionHandlers = {
   [SET_FACILITY_ID]: action => ({
     facilityId: action.facilityId,
   }),
-  [SET_SETTINGS]: (action) => ({
+  [SET_SETTINGS]: action => ({
     settings: action.settings,
   }),
-  [LOGIN_FAILURE]: (action) => ({
+  [LOGIN_FAILURE]: action => ({
     loading: false,
     error: action.error,
   }),
@@ -254,7 +268,7 @@ const actionHandlers = {
       ...defaultState.resetPassword,
     },
   }),
-  [REQUEST_PASSWORD_RESET_FAILURE]: (action) => ({
+  [REQUEST_PASSWORD_RESET_FAILURE]: action => ({
     resetPassword: {
       ...defaultState.resetPassword,
       error: action.error,
@@ -273,7 +287,7 @@ const actionHandlers = {
       success: true,
     },
   }),
-  [CHANGE_PASSWORD_FAILURE]: (action) => ({
+  [CHANGE_PASSWORD_FAILURE]: action => ({
     changePassword: {
       ...defaultState.changePassword,
       error: action.error,
