@@ -136,7 +136,7 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
   // and SYNC_TICK_FLAGS.UPDATED_ELSEWHERE (not marked for sync) on facility
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
-  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : SYNC_TICK_FLAGS.OVERWRITE_WITH_CURRENT_TICK;
+  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0
   for (const { schema, table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${schema}.${table}`);
     await sequelize.query(`
