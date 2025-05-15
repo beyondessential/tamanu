@@ -30,7 +30,6 @@ import { VaccineField } from './VaccineField';
 import { LocationField } from './LocationField';
 import { FacilityField } from './FacilityField';
 import { PatientField } from './PatientField';
-import { useSuggester } from '../../api';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
