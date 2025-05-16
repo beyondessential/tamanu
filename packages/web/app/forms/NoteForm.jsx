@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -8,10 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 import { Form } from '../components/Field';
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
-import { EditNoteForm } from './EditNoteForm';
-import { NoteChangelogForm } from './NoteChangelogForm';
-import { CreateNoteForm } from './CreateNoteForm';
-import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
+import { CreateEditNoteForm } from './CreateEditNoteForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -21,55 +18,30 @@ export const NoteForm = ({
   noteTypeCountByType,
   noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
-  setNoteContent,
 }) => {
   const { currentUser } = useAuth();
 
-  const handleNoteContentChange = useCallback(
-    (e) => setNoteContent(e.target.value),
-    [setNoteContent],
-  );
-
   const renderForm = ({ submitForm, values, setValues }) => {
-    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
-      const props = {
-        note,
-        onNoteContentChange: handleNoteContentChange,
-        onSubmit: submitForm,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <EditTreatmentPlanNoteForm {...props} data-testid="edittreatmentplannoteform-2i5e" />
-      ) : (
-        <EditNoteForm {...props} data-testid="editnoteform-4rft" />
-      );
-    }
-
-    if (noteFormMode === NOTE_FORM_MODES.VIEW_NOTE) {
-      const props = {
-        note,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <TreatmentPlanNoteChangelogForm
-          {...props}
-          data-testid="treatmentplannotechangelogform-pmzk"
+    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+      return (
+        <EditTreatmentPlanNoteForm
+          note={note}
+          onSubmit={submitForm}
+          onCancel={onCancel}
+          noteTypeCountByType={noteTypeCountByType}
         />
-      ) : (
-        <NoteChangelogForm {...props} data-testid="notechangelogform-iv9k" />
       );
     }
 
     return (
-      <CreateNoteForm
+      <CreateEditNoteForm
         note={note}
-        onNoteContentChange={handleNoteContentChange}
         onSubmit={submitForm}
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
         values={values}
+        noteFormMode={noteFormMode}
         setValues={setValues}
-        data-testid="createnoteform-d2fj"
       />
     );
   };
@@ -93,32 +65,16 @@ export const NoteForm = ({
           .string()
           .oneOf(Object.values(NOTE_TYPES))
           .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="note.noteType.label"
-              fallback="Note type"
-              data-testid="translatedtext-1t9l"
-            />,
-          ),
+          .translatedLabel(<TranslatedText stringId="note.noteType.label" fallback="Note type" />),
         date: yup
           .date()
           .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="general.date.label"
-              fallback="Date"
-              data-testid="translatedtext-hdxx"
-            />,
-          ),
+          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
         content: yup
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText
-              stringId="note.validation.content.path"
-              fallback="Content"
-              data-testid="translatedtext-pnq4"
-            />,
+            <TranslatedText stringId="note.validation.content.path" fallback="Content" />,
           ),
         writtenById: foreignKey().translatedLabel(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
@@ -126,23 +82,19 @@ export const NoteForm = ({
             <TranslatedText
               stringId="validation.rule.updatedByOnBehalfOf"
               fallback="Updated by (or on behalf of)"
-              data-testid="translatedtext-2ibl"
             />
           ) : (
             <TranslatedText
               stringId="validation.rule.createdByOnBehalfOf"
               fallback="Created by (or on behalf of)"
-              data-testid="translatedtext-1gy9"
             />
           ),
         ),
       })}
-      data-testid="form-jsgj"
     />
   );
 };
 
 NoteForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  setNoteContent: PropTypes.func.isRequired,
 };

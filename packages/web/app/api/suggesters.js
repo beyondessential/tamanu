@@ -3,14 +3,20 @@ import { useApi } from './useApi';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { DateDisplay } from '../components/DateDisplay';
 import { useAuth } from '../contexts/Auth';
+import { useMemo } from 'react';
 
 export const useSuggester = (type, options) => {
   const api = useApi();
   const { facilityId } = useAuth();
-  return new Suggester(api, type, {
-    ...options,
-    baseQueryParameters: { facilityId, ...options?.baseQueryParameters },
-  });
+
+  return useMemo(
+    () =>
+      new Suggester(api, type, {
+        ...options,
+        baseQueryParameters: { facilityId, ...options?.baseQueryParameters },
+      }),
+    [api, type, facilityId, options],
+  );
 };
 
 export const usePatientSuggester = () => {

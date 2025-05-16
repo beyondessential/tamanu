@@ -3,9 +3,17 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
-
+import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
+import {
+  AutocompleteField,
+  AutocompleteInput,
+  DateTimeField,
+  Field,
+  TextField,
+  TranslatedSelectField,
+  DateTimeInput,
+} from './Field';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -27,7 +35,7 @@ const StyledInfoCard = styled(InfoCard)`
   }
 `;
 
-const StyledTooltip = styled((props) => (
+const StyledTooltip = styled(props => (
   <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-gupn">
     {props.children}
   </Tooltip>
@@ -63,6 +71,37 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
+
+export const PreviouslyWrittenByField = ({
+  label = (
+    <TranslatedText
+      stringId="note.writtenBy.label"
+      fallback="Written by (or on behalf of)"
+      data-testid="translatedtext-rzft"
+    />
+  ),
+  value,
+  size,
+}) => {
+  return (
+    <AutocompleteInput
+      label={label}
+      disabled
+      value={value}
+      size={size}
+      allowFreeTextForExistingValue
+    />
+  );
+};
+
+export const PreviousDateTimeField = ({
+  label = <TranslatedText stringId="note.dateTime.label" fallback="Date & time" />,
+  value,
+  size,
+}) => {
+  return <DateTimeInput label={label} disabled value={value} size={size} />;
+};
+
 export const WrittenByField = ({
   label = (
     <TranslatedText
@@ -73,6 +112,7 @@ export const WrittenByField = ({
   ),
   required,
   disabled,
+  size,
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -84,12 +124,13 @@ export const WrittenByField = ({
       component={AutocompleteField}
       suggester={practitionerSuggester}
       disabled={disabled}
+      size={size}
       data-testid="field-ar9q"
     />
   );
 };
 
-export const NoteDateTimeField = ({ required, disabled }) => {
+export const NoteDateTimeField = ({ required, disabled, size }) => {
   const { getSetting } = useSettings();
 
   return (
@@ -106,9 +147,44 @@ export const NoteDateTimeField = ({ required, disabled }) => {
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
+      size={size}
       data-testid="field-nwwl"
     />
   );
+};
+
+/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+and deals with in-field scrolling at small heights */
+
+const NoteContentBox = styled(Box)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 1.2rem;
+  margin-bottom: 30px;
+`;
+
+const fieldWrapperSx = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+};
+
+const inputContainerSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  alignItems: 'start',
+  flex: 1,
+};
+
+const textareaSx = {
+  flex: 1,
+  minHeight: 0,
+  overflow: 'auto',
+  width: '100%',
 };
 
 export const NoteContentField = ({
@@ -120,17 +196,27 @@ export const NoteContentField = ({
     />
   ),
   onChange,
+  size,
 }) => (
-  <Field
-    name="content"
-    label={label}
-    required
-    component={TextField}
-    multiline
-    onChange={onChange}
-    minRows={18}
-    data-testid="field-wxzr"
-  />
+  <NoteContentBox>
+    <Field
+      name="content"
+      label={label}
+      required
+      component={TextField}
+      multiline
+      onChange={onChange}
+      style={fieldWrapperSx}
+      InputProps={{
+        style: inputContainerSx,
+      }}
+      inputProps={{
+        style: textareaSx,
+      }}
+      data-testid="field-wxzr"
+      size={size}
+    />
+  </NoteContentBox>
 );
 
 export const NoteInfoSection = ({
@@ -140,12 +226,14 @@ export const NoteInfoSection = ({
   writtenByLabel,
   writtenBy,
   dateLabel,
+  size,
 }) => (
   <StyledInfoCard
     gridRowGap={10}
     elevated={false}
     numberOfColumns={numberOfColumns}
     contentPadding={12}
+    size={size}
     data-testid="styledinfocard-t83a"
   >
     <InfoCardItem
@@ -183,7 +271,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
   <Field
     name="noteType"
     label={
@@ -196,10 +284,10 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
-    transformOptions={(types) =>
+    transformOptions={types =>
       types
-        .filter((option) => !option.hideFromDropdown)
-        .map((option) => ({
+        .filter(option => !option.hideFromDropdown)
+        .map(option => ({
           ...option,
           isDisabled:
             noteTypeCountByType &&
@@ -207,13 +295,17 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
             !!noteTypeCountByType[option.value],
         }))
     }
-    formatOptionLabel={(option) => renderOptionLabel(option, noteTypeCountByType)}
+    formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     onChange={onChange}
+    menuPosition="absolute"
+    menuPlacement="auto"
+    size={size}
+    disabled={disabled}
     data-testid="field-a0mv"
   />
 );
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
+export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
   const templateSuggester = useSuggester('template', {
     baseQueryParameters: { type: noteType },
   });
@@ -230,8 +322,9 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
       }
       suggester={templateSuggester}
       component={AutocompleteField}
-      onChange={(e) => onChangeTemplate(e.target.value)}
-      disabled={!noteType}
+      onChange={e => onChangeTemplate(e.target.value)}
+      disabled={!noteType || disabled}
+      size={size}
       data-testid="field-ej08"
     />
   );
