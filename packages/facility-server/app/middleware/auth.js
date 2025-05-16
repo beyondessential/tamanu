@@ -162,9 +162,20 @@ export async function loginHandler(req, res, next) {
       );
     }
 
+    log.info('Available facilities: ', availableFacilities);
+    availableFacilities.forEach((facility) => {
+      log.error('Available facility: ', facility);
+      log.error('Available facility id: ', facility?.id);
+    });
+
+    const selectedFacility = availableFacilities[0];
+
+    log.info('Selected facility: ', selectedFacility);
+    log.info('Selected facility id: ', selectedFacility?.id);
+
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken(user),
+      buildToken(user, selectedFacility?.id),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -175,6 +186,7 @@ export async function loginHandler(req, res, next) {
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
       availableFacilities,
+      facilityId: selectedFacility?.id,
     });
   } catch (e) {
     next(e);
@@ -212,9 +224,11 @@ export async function refreshHandler(req, res) {
 }
 
 async function decodeToken(token) {
+  log.info('Decoding token: ', token);
   try {
     return await verify(token, jwtSecretKey);
   } catch (e) {
+    log.error('Facility error while decoding token: ', e);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
@@ -229,6 +243,7 @@ function getTokenFromHeaders(request) {
   }
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) {
+    log.error('Facility error while getting token from headers: ', bearer);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
@@ -241,6 +256,7 @@ function getTokenFromHeaders(request) {
 async function getUser(models, userId) {
   const user = await models.User.findByPk(userId);
   if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    log.error('Facility error while getting user: ', user);
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
     );
@@ -254,6 +270,7 @@ export const authMiddleware = async (req, res, next) => {
     const token = getTokenFromHeaders(req);
     const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
+    log.info('Decoded token: ', { userId, facilityId });
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates

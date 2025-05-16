@@ -112,7 +112,9 @@ export class TamanuApi {
   }
 
   setToken(token) {
+    console.log(`API client setToken being called with token: ${token} at time: ${Date.now()}`);
     this.#authHeader = { authorization: `Bearer ${token}` };
+    console.log(`API client authHeader is now: ${this.#authHeader} at time: ${Date.now()}`);
   }
 
   async fetch(endpoint, query = {}, moreConfig = {}) {
@@ -120,6 +122,13 @@ export class TamanuApi {
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
+
+    console.log('API client Fetch request:', {
+      endpoint,
+      hasAuthHeader: !!this.#authHeader,
+      authHeaderValue: this.#authHeader?.authorization?.substring(0, 20) + '...',
+    });
+
     const config = {
       headers: {
         ...this.#authHeader,
