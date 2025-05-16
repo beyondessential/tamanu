@@ -588,9 +588,10 @@ export class CentralSyncManager {
       return snapshotRecords;
     }
 
-    const tableWhitelist = this.store.models.filter(
+    const tableWhitelist = Object.values(this.store.models).filter(
       (model) => model.auditSyncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL,
     ).map((model) => model.tableName);
+
     const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
       tableWhitelist,
       minSourceTick,
