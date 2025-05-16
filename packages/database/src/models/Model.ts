@@ -10,7 +10,12 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 import type { InitOptions, Models } from '../types/model';
-import type { SyncHookSnapshotChanges, ModelSanitizeArgs, SessionConfig, SyncSnapshotAttributes } from '../types/sync';
+import type {
+  SyncHookSnapshotChanges,
+  ModelSanitizeArgs,
+  SessionConfig,
+  SyncSnapshotAttributes,
+} from '../types/sync';
 
 const firstLetterLowercase = (s: string) => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -35,11 +40,19 @@ export class Model<
     _sessionConfig: SessionConfig,
   ) => string | null;
   declare static adjustDataPostSyncPush?: (ids: string[]) => Promise<void>;
-  declare static incomingSyncHook?: (changes: SyncSnapshotAttributes[]) => Promise<SyncHookSnapshotChanges | undefined>;
+  declare static incomingSyncHook?: (
+    changes: SyncSnapshotAttributes[],
+  ) => Promise<SyncHookSnapshotChanges | undefined>;
 
   static init(
     modelAttributes: ModelAttributes,
-    { syncDirection, timestamps = true, schema, ...options }: Omit<InitOptions, 'primaryKey'>,
+    {
+      syncDirection,
+      auditSyncDirection,
+      timestamps = true,
+      schema,
+      ...options
+    }: Omit<InitOptions, 'primaryKey'>,
   ) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
@@ -77,6 +90,7 @@ export class Model<
       );
     }
     this.syncDirection = syncDirection;
+    this.auditSyncDirection = auditSyncDirection;
     this.validateSync(timestamps);
     this.usesPublicSchema = usesPublicSchema;
 
@@ -91,7 +105,7 @@ export class Model<
    * Generates a uuid via the database
    */
   static async generateDbUuid() {
-    const result: any  = await this.sequelize.query(`SELECT gen_random_uuid();`);
+    const result: any = await this.sequelize.query(`SELECT gen_random_uuid();`);
     return result[0][0].gen_random_uuid;
   }
 
