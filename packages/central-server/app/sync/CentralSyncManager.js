@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -24,9 +24,12 @@ import {
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
-  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
+import {
+  insertChangelogRecords,
+  extractChangelogFromSnapshotRecords,
+  attachChangelogToSnapshotRecords,
+} from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
@@ -290,7 +293,9 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
+        const syncLookupTick = isInitialBuildOfLookupTable
+          ? null
+          : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
@@ -360,8 +365,11 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
+      const { minSourceTick, maxSourceTick } =
+        (await getLookupSourceTickRange(this.store, since, tick)) || {};
+
       await models.SyncSession.update(
-        { pullSince: since, pullUntil: tick },
+        { pullSince: since, pullUntil: tick, minSourceTick, maxSourceTick },
         { where: { id: sessionId } },
       );
 
@@ -575,22 +583,20 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const sourceTickRange = await getLookupSourceTickRange(
-      this.store,
-      session.pullSince,
-      session.pullUntil
-    );
-    if (!sourceTickRange) {
+    const { minSourceTick, maxSourceTick } = session;
+    if (!minSourceTick && !maxSourceTick) {
       return snapshotRecords;
     }
-    const recordsForPull = await attachChangelogToSnapshotRecords(
-      this.store,
-      snapshotRecords,
-      {
-        ...sourceTickRange,
-        tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
-      }
-    );
+
+    const tableWhitelist = Object.values(this.store.models).filter(
+      (model) => model.auditSyncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL,
+    ).map((model) => model.tableName);
+
+    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+      tableWhitelist,
+      minSourceTick,
+      maxSourceTick,
+    });
     return recordsForPull;
   }
 
@@ -677,7 +683,8 @@ export class CentralSyncManager {
       sessionId,
     });
 
-    const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
+    const { snapshotRecords, changelogRecords } =
+      extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
     await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
     await insertChangelogRecords(this.store.models, changelogRecords);
   }

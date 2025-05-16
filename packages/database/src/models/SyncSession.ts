@@ -30,6 +30,8 @@ export class SyncSession extends Model {
         startedAtTick: { type: DataTypes.BIGINT },
         pullSince: { type: DataTypes.BIGINT },
         pullUntil: { type: DataTypes.BIGINT },
+        minSourceTick: { type: DataTypes.BIGINT },
+        maxSourceTick: { type: DataTypes.BIGINT },
         errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
       },
