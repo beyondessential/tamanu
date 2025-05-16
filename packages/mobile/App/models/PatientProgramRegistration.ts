@@ -88,10 +88,10 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @ManyToOne(() => User, undefined, { nullable: true })
   deactivatedClinician?: IUser;
   @RelationId(({ deactivatedClinician }) => deactivatedClinician)
-  deactivated_clinician_id?: ID;
+  deactivatedClinicianId?: ID;
 
   @Column({ type: 'varchar', nullable: true })
-  deactivated_date?: DateTimeString;
+  deactivatedDate?: DateTimeString;
 
   @OneToMany<PatientProgramRegistrationCondition>(
     () => PatientProgramRegistrationCondition,

@@ -3,36 +3,38 @@ import { getTable } from './utils/queryRunner';
 
 const TABLE_NAME = 'patient_program_registrations';
 
-export class addPatientProgramRegistrationInactiveFields1747346950000 implements MigrationInterface {
+export class addPatientProgramRegistrationInactiveFields1747346950000
+  implements MigrationInterface
+{
   async up(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, TABLE_NAME);
 
-    // Add deactivated_clinician_id column
+    // Add deactivatedClinicianId column
     await queryRunner.addColumn(
       tableObject,
       new TableColumn({
-        name: 'deactivated_clinician_id',
+        name: 'deactivatedClinicianId',
         type: 'varchar',
         isNullable: true,
       }),
     );
 
-    // Add foreign key for deactivated_clinician_id
+    // Add foreign key for deactivatedClinicianId
     await queryRunner.createForeignKey(
       TABLE_NAME,
       new TableForeignKey({
-        columnNames: ['deactivated_clinician_id'],
+        columnNames: ['deactivatedClinicianId'],
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'SET NULL',
       }),
     );
 
-    // Add deactivated_date column
+    // Add deactivatedDate column
     await queryRunner.addColumn(
       tableObject,
       new TableColumn({
-        name: 'deactivated_date',
+        name: 'deactivatedDate',
         type: 'varchar',
         isNullable: true,
       }),
@@ -40,17 +42,17 @@ export class addPatientProgramRegistrationInactiveFields1747346950000 implements
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop foreign key for deactivated_clinician_id
+    // Drop foreign key for deactivatedClinicianId
     const table = await getTable(queryRunner, TABLE_NAME);
     const foreignKey = table.foreignKeys.find(
-      fk => fk.columnNames.indexOf('deactivated_clinician_id') !== -1,
+      (fk) => fk.columnNames.indexOf('deactivatedClinicianId') !== -1,
     );
     if (foreignKey) {
       await queryRunner.dropForeignKey(TABLE_NAME, foreignKey);
     }
 
     // Drop columns
-    await queryRunner.dropColumn(TABLE_NAME, 'deactivated_clinician_id');
-    await queryRunner.dropColumn(TABLE_NAME, 'deactivated_date');
+    await queryRunner.dropColumn(TABLE_NAME, 'deactivatedClinician_id');
+    await queryRunner.dropColumn(TABLE_NAME, 'deactivatedDate');
   }
 }
