@@ -18,5 +18,3 @@ export const SYNC_TICK_FLAGS = {
   LOOKUP_PENDING_UPDATE: -2,
   OVERWRITE_WITH_CURRENT_TICK: 0,
 };
-
-export const SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES = ['patient_program_registrations'];

@@ -25,6 +25,7 @@ export class Model<
   declare sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   declare static sequelize: { models: Models } & Omit<Sequelize, 'models'>;
   declare static syncDirection: InitOptions['syncDirection'];
+  declare static auditSyncDirection?: InitOptions['auditSyncDirection'];
   declare static defaultIdValue?: string | number;
   declare static usesPublicSchema: boolean;
   declare static buildSyncFilter: () => string | null;

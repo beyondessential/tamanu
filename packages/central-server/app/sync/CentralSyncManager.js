@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -24,7 +24,6 @@ import {
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
-  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
 import {
   insertChangelogRecords,
@@ -588,8 +587,12 @@ export class CentralSyncManager {
     if (!minSourceTick && !maxSourceTick) {
       return snapshotRecords;
     }
+
+    const tableWhitelist = this.store.models.filter(
+      (model) => model.auditSyncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL,
+    ).map((model) => model.tableName);
     const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
-      tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
+      tableWhitelist,
       minSourceTick,
       maxSourceTick,
     });
