@@ -14,6 +14,15 @@ export async function up(query: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: true,
   });
+
+  // Populate the deactivated_date field for existing inactive registrations
+  // We're leaving deactivated_clinician_id as NULL since we don't have information
+  // about which clinician deactivated these records
+  await query.sequelize.query(`
+    UPDATE patient_program_registrations
+    SET deactivated_date = NOW()
+    WHERE registration_status = 'inactive' AND deactivated_date IS NULL
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
