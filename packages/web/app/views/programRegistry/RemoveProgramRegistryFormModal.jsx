@@ -11,6 +11,7 @@ import {
 import { Colors } from '../../constants';
 import { TranslatedReferenceData } from '../../components/Translation';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
+import { useAuth } from '../../contexts/Auth';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -63,12 +64,14 @@ const Value = styled.div`
 
 export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const { patientId, id } = patientProgramRegistration;
+  const { currentUser } = useAuth();
   const { mutateAsync } = useUpdateProgramRegistryMutation(patientId, id);
 
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
     await mutateAsync({
+      clinicianId: currentUser?.id,
       registrationStatus: REGISTRATION_STATUSES.INACTIVE,
     });
     onClose();

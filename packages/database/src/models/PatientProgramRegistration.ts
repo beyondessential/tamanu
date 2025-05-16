@@ -15,8 +15,8 @@ export class PatientProgramRegistration extends Model {
   declare registeringFacilityId?: string;
   declare facilityId?: string;
   declare villageId?: string;
-  declare deactivated_clinician_id?: string;
-  declare deactivated_date?: string;
+  declare deactivatedClinicianId?: string;
+  declare deactivatedDate?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -31,14 +31,9 @@ export class PatientProgramRegistration extends Model {
           type: DataTypes.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
-        deactivated_clinician_id: {
-          type: DataTypes.STRING,
+        deactivatedDate: dateTimeType('deactivatedDate', {
           allowNull: true,
-        },
-        deactivated_date: {
-          type: DataTypes.STRING,
-          allowNull: true,
-        },
+        }),
       },
       {
         ...options,
@@ -85,7 +80,7 @@ export class PatientProgramRegistration extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'deactivated_clinician_id',
+      foreignKey: 'deactivatedClinicianId',
       as: 'deactivatedClinician',
     });
 

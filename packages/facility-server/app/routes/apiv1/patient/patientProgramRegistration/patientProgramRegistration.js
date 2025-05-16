@@ -129,17 +129,22 @@ patientProgramRegistration.put(
       reasonForChange: condition.reasonForChange,
     }));
 
-    // If the registration status is being changed to INACTIVE, set the deactivated fields
     let updatedRegistrationData = { ...registrationData };
+
+    // If the registration status is being changed to INACTIVE, set the deactivated fields
     if (registrationData.registrationStatus === REGISTRATION_STATUSES.INACTIVE) {
       updatedRegistrationData = {
         ...updatedRegistrationData,
         deactivatedDate: registrationData.deactivatedDate || new Date().toISOString(),
         deactivatedClinicianId: registrationData.clinicianId,
       };
+    } else if (registrationData.registrationStatus === REGISTRATION_STATUSES.ACTIVE) {
+      updatedRegistrationData = {
+        ...updatedRegistrationData,
+        deactivatedDate: null,
+        deactivatedClinicianId: null,
+      };
     }
-
-    // Todo: handle re-activating
 
     const [registration] = await db.transaction(async () => {
       return Promise.all([
@@ -227,7 +232,13 @@ patientProgramRegistration.get(
       facilityId,
     });
 
-    res.send(registration);
+    res.send({
+      ...registration,
+      registrationDate: registration.date,
+      registrationClinician: registration.clinician,
+      dateRemoved: registration.deactivatedDate,
+      removedBy: registration.deactivatedClinician,
+    });
   }),
 );
 
