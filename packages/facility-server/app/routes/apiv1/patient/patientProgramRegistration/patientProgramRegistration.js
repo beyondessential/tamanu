@@ -301,18 +301,22 @@ patientProgramRegistration.get(
       return acc;
     }, {});
 
-    const history = changes.map((change) => {
-      const data = change.recordData;
-      return {
-        id: change.id,
-        date: change.loggedAt,
-        registrationStatus: data.registration_status,
-        clinicalStatusId: data.clinical_status_id,
-        clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
-        clinician: change.updatedByUser,
-        registrationDate: data.date,
-      };
-    });
+    const history = changes
+      .map((change) => {
+        const data = change.recordData;
+        return {
+          id: change.id,
+          date: change.loggedAt,
+          registrationStatus: data.registration_status,
+          clinicalStatusId: data.clinical_status_id,
+          clinicalStatus: data.clinical_status_id
+            ? clinicalStatusMap[data.clinical_status_id]
+            : null,
+          clinician: change.updatedByUser,
+          registrationDate: data.date,
+        };
+      })
+      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE);
 
     res.send({
       count: history.length,
