@@ -19,7 +19,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown
     value={value}
-    options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
+    options={INJECTION_SITE_OPTIONS.map((o) => ({ label: o, value: o }))}
     onChange={onChange}
     label={label}
     selectPlaceholderText={selectPlaceholderText}
@@ -95,9 +95,12 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
-  const departmentSuggester = new Suggester(models.Department, {
-    where: {
-      facility: facilityId,
+  const departmentSuggester = new Suggester({
+    model: models.Department,
+    options: {
+      where: {
+        facility: facilityId,
+      },
     },
   });
 

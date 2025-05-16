@@ -23,26 +23,35 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
   const { getTranslation } = useTranslation();
   const { models } = useBackend();
-  const practitionerSuggester = new Suggester(
-    models.User,
-    { column: 'displayName' },
-    (model): OptionType => ({ label: model.displayName, value: model.id }),
-  );
-  const facilitySuggester = new Suggester(models.Facility, {
-    where: {
-      visibilityStatus: VisibilityStatus.Current,
+  const practitionerSuggester = new Suggester({
+    model: models.User,
+    options: { column: 'displayName' },
+    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
+  });
+  const facilitySuggester = new Suggester({
+    model: models.Facility,
+    options: {
+      where: {
+        visibilityStatus: VisibilityStatus.Current,
+      },
     },
   });
-  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
-    where: {
-      programRegistry: programRegistry.id,
+  const conditionSuggester = new Suggester({
+    model: models.ProgramRegistryCondition,
+    options: {
+      where: {
+        programRegistry: programRegistry.id,
+      },
     },
   });
 
@@ -55,13 +64,13 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         },
       });
 
-      return statuses.map(status => {
+      return statuses.map((status) => {
         const translatedName = getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
         );
         return {
-            ...status,
+          ...status,
           translatedName,
         };
       });
@@ -192,7 +201,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({
+                        label: x.translatedName,
+                        value: x.id,
+                      })) || []
                     }
                   />
                 </StyledView>
@@ -206,20 +218,16 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     }
                     labelFontSize={14}
                     component={MultiSelectModalField}
-                    modalTitle={
-                      getTranslation('programRegistry.conditions.label', 'Conditions')
-                    }
+                    modalTitle={getTranslation('programRegistry.conditions.label', 'Conditions')}
                     suggester={conditionSuggester}
                     placeholder={getTranslation('general.placeholder.search', 'Search')}
                     navigation={navigation}
                     name="conditions"
                     value={values.conditions}
-                    searchPlaceholder={
-                      getTranslation(
-                        'programRegistry.search.conditions',
-                        'Search conditions...',
-                      )
-                    }
+                    searchPlaceholder={getTranslation(
+                      'programRegistry.search.conditions',
+                      'Search conditions...',
+                    )}
                   />
                 </StyledView>
                 <Button

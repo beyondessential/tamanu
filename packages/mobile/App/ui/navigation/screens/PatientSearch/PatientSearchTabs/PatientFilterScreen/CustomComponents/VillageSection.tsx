@@ -16,9 +16,12 @@ export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
 
-  const villageSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.Village,
+  const villageSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.Village,
+      },
     },
   });
 

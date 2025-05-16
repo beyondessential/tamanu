@@ -58,9 +58,12 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigateToHistory();
   }, []);
 
-  const medicationSuggester = new Suggester(ReferenceData, {
-    where: {
-      type: ReferenceDataType.Drug,
+  const medicationSuggester = new Suggester({
+    model: ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.Drug,
+      },
     },
   });
 

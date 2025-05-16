@@ -20,7 +20,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
-import { LocalisedPatientDetailsLayout } from './layouts/LocalisedPatientDetailsLayout';
+import { PatientDetails } from './PatientDetails';
 import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -121,7 +121,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <LocalisedPatientDetailsLayout navigation={navigation} patient={selectedPatient} />
+          <PatientDetails navigation={navigation} patient={selectedPatient} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
         </StyledScrollView>
       </FullView>
