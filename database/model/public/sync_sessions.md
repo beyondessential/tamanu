@@ -49,3 +49,11 @@ Timestamp the sync session snapshot started at
 {% docs sync_sessions__errors %}
 If a sync fails, the error(s).
 {% enddocs %}
+
+{% docs sync_sessions__min_source_tick %}
+The minimum `source_start_tick` from SyncLookupTick records that fall within the sync session's pull range. Used to determine the lower bounds in filtering which changelog records should be pulled down to facilities.
+{% enddocs %}
+
+{% docs sync_sessions__max_source_tick %}
+The maximum `lookup_end_tick` from SyncLookupTick records that fall within the sync session's pull range. Used to determine the upper bounds in filtering which changelog records should be pulled down to facilities.
+{% enddocs %}

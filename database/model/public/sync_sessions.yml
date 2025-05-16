@@ -65,3 +65,9 @@ sources:
           - name: errors
             data_type: array
             description: "{{ doc('sync_sessions__errors') }}"
+          - name: min_source_tick
+            data_type: bigint
+            description: "{{ doc('sync_sessions__min_source_tick') }}"
+          - name: max_source_tick
+            data_type: bigint
+            description: "{{ doc('sync_sessions__max_source_tick') }}"
