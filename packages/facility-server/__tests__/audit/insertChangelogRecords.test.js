@@ -189,6 +189,6 @@ describe('insertChangeLogRecords', () => {
 
     // Assert
     const [changelog] = await models.ChangeLog.findAll();
-    expect(JSON.parse(changelog.recordData)).toMatchObject(recordData);
+    expect(changelog.recordData).toMatchObject(recordData);
   });
 });
