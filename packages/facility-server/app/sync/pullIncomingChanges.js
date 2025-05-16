@@ -1,7 +1,8 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { insertSnapshotRecords, SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { extractChangelogFromSnapshotRecords, insertChangelogRecords } from '@tamanu/database/utils/audit'
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
@@ -41,9 +42,9 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => ({
+    const recordsToSave = records.map((r) => ({
       ...r,
-      data: { ...r.data, updatedAtSyncTick: -1 }, // mark as never updated, so we don't push it back to the central server until the next local update
+      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
@@ -53,7 +54,10 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     // 2. When a huge number of data is imported to sync and the facility syncs it down
     // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
-      await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
+      const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(batchOfRows);
+
+      await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
+      await insertChangelogRecords(sequelize.models, changelogRecords);
 
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }

@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
-import { buildSyncLookupSelect, SYNC_LOOKUP_PENDING_UPDATE_FLAG } from '@tamanu/database/sync';
+import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
 const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
@@ -116,12 +116,12 @@ export const updateLookupTable = withConfig(
   async (outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
-        m =>
+        (m) =>
           ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
             m.syncDirection,
           ),
       )
-      .map(m => m.tableName);
+      .map((m) => m.tableName);
 
     if (invalidModelNames.length) {
       throw new Error(
@@ -168,7 +168,7 @@ export const updateSyncLookupPendingRecords = withConfig(async (store, currentTi
     {
       replacements: {
         currentTick,
-        pendingTick: SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+        pendingTick: SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE,
       },
     },
   );

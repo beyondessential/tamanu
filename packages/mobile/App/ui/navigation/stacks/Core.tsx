@@ -11,6 +11,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
 import { MultiSelectModalScreen } from '~/ui/components/MultiSelectModal';
+import { SelectModalScreen } from '~/ui/components/SelectModal';
 
 const Stack = createStackNavigator();
 
@@ -30,11 +31,9 @@ export const Core: FunctionComponent<any> = () => {
 
   return (
     <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
-      <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
-      <Stack.Screen
-        name={Routes.Autocomplete.MultiSelectModal}
-        component={MultiSelectModalScreen}
-      />
+      <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
+      <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
+      <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
       <Stack.Screen
         name={Routes.SignUpStack.Index}
         component={SignUpStack}
