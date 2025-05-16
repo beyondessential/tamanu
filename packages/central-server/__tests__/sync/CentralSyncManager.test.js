@@ -514,7 +514,6 @@ describe('CentralSyncManager', () => {
         ]),
       );
     });
-    // TODO: I don't think this setup is correct, make sure testing this is correct
     it('doesnt include previously synced audit changes in outgoing changes', async () => {
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
