@@ -15,6 +15,8 @@ export class PatientProgramRegistration extends Model {
   declare registeringFacilityId?: string;
   declare facilityId?: string;
   declare villageId?: string;
+  declare deactivatedClinicianId?: string;
+  declare deactivatedDate?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -29,6 +31,9 @@ export class PatientProgramRegistration extends Model {
           type: DataTypes.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        deactivatedDate: dateTimeType('deactivatedDate', {
+          allowNull: true,
+        }),
       },
       {
         ...options,
@@ -42,6 +47,7 @@ export class PatientProgramRegistration extends Model {
       'programRegistry',
       'clinicalStatus',
       'clinician',
+      'deactivatedClinician',
       'registeringFacility',
       'facility',
       'village',
@@ -49,7 +55,7 @@ export class PatientProgramRegistration extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['clinicalStatus', 'clinician'];
+    return ['clinicalStatus', 'clinician', 'deactivatedClinician'];
   }
 
   static initRelations(models: Models) {
@@ -71,6 +77,11 @@ export class PatientProgramRegistration extends Model {
     this.belongsTo(models.User, {
       foreignKey: { name: 'clinicianId', allowNull: false },
       as: 'clinician',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'deactivatedClinicianId',
+      as: 'deactivatedClinician',
     });
 
     this.belongsTo(models.Facility, {
@@ -102,7 +113,7 @@ export class PatientProgramRegistration extends Model {
         registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },
-      include: ['clinicalStatus', 'programRegistry'],
+      include: ['clinicalStatus', 'programRegistry', 'deactivatedClinician'],
       order: [
         // "active" > "removed"
         ['registrationStatus', 'ASC'],
