@@ -122,7 +122,7 @@ describe('Patient', () => {
 
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
-    const result = await app.get(`/api/patient/${patient.id}/lastInpatientEncounter`);
+    const result = await app.get(`/api/patient/${patient.id}/lastInpatientDischargeMedications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 1,
