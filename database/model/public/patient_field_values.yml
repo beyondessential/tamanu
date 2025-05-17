@@ -45,8 +45,7 @@ sources:
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_field_values."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_field_values."
             data_tests:
               - not_null
           - name: id

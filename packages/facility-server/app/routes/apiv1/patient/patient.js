@@ -194,7 +194,7 @@ patientRoute.get(
   '/:id/lastDischargedEncounter/medications',
   asyncHandler(async (req, res) => {
     const {
-      models: { Encounter, EncounterMedication },
+      models: { Encounter, Prescription },
       params,
       query,
     } = req;
@@ -203,7 +203,7 @@ patientRoute.get(
 
     req.checkPermission('read', 'Patient');
     req.checkPermission('read', 'Encounter');
-    req.checkPermission('list', 'EncounterMedication');
+    req.checkPermission('list', 'Prescription');
 
     const lastDischargedEncounter = await Encounter.findOne({
       where: {
@@ -223,13 +223,19 @@ patientRoute.get(
     }
 
     // Find and return all associated encounter medications
-    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
-      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+    const lastPrescriptions = await Prescription.findAndCountAll({
       include: [
-        ...EncounterMedication.getFullReferenceAssociations(),
+        ...Prescription.getListReferenceAssociations(),
         {
-          association: 'encounter',
-          include: [{ association: 'location', include: ['facility'] }],
+          association: 'encounters',
+          where: { id: lastDischargedEncounter.id },
+          through: { where: { isDischarge: true } },
+          include: [
+            {
+              association: 'location',
+              include: ['facility'],
+            },
+          ],
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
@@ -237,9 +243,11 @@ patientRoute.get(
       offset: page * rowsPerPage,
     });
 
-    const { count } = lastEncounterMedications;
-    const data = lastEncounterMedications.rows.map((x) => x.forResponse());
-
+    const { count } = lastPrescriptions;
+    const data = lastPrescriptions.rows.map((x) => ({
+      ...x.forResponse(),
+      encounters: x.encounters.map((e) => e.forResponse()),
+    }));
     res.send({
       count,
       data,
@@ -524,6 +532,30 @@ patientRoute.post(
     });
 
     res.send(dbRecordToResponse(ipsRequest, facilityId));
+  }),
+);
+
+patientRoute.get(
+  '/:id/ongoingPrescriptions',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('list', 'Prescription');
+
+    const { models, params } = req;
+    const { PatientOngoingPrescription, Prescription } = models;
+
+    const ongoingPrescriptions = await PatientOngoingPrescription.findAll({
+      where: { patientId: params.id },
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          include: Prescription.getListReferenceAssociations(),
+        },
+      ],
+    });
+
+    res.json({ data: ongoingPrescriptions, count: ongoingPrescriptions.length });
   }),
 );
 

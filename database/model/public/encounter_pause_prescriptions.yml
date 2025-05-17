@@ -1,0 +1,71 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: encounter_pause_prescriptions
+        description: '{{ doc("table__encounter_pause_prescriptions") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in encounter_pause_prescriptions."
+            data_tests:
+              - unique
+              - not_null
+          - name: encounter_prescription_id
+            data_type: uuid
+            description: "{{ doc('encounter_pause_prescriptions__encounter_prescription_id') }}"
+            data_tests:
+              - not_null
+          - name: pause_duration
+            data_type: numeric
+            description: "{{ doc('encounter_pause_prescriptions__pause_duration') }}"
+            data_tests:
+              - not_null
+          - name: pause_time_unit
+            data_type: character varying(255)
+            description: "{{ doc('encounter_pause_prescriptions__pause_time_unit') }}"
+            data_tests:
+              - not_null
+          - name: pause_start_date
+            data_type: character(19)
+            description: "{{ doc('encounter_pause_prescriptions__pause_start_date') }}"
+            data_tests:
+              - not_null
+          - name: pause_end_date
+            data_type: character(19)
+            description: "{{ doc('encounter_pause_prescriptions__pause_end_date') }}"
+            data_tests:
+              - not_null
+          - name: notes
+            data_type: text
+            description: "{{ doc('encounter_pause_prescriptions__notes') }}"
+          - name: pausing_clinician_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_pause_prescriptions__pausing_clinician_id') }}"
+          - name: created_by
+            data_type: character varying(255)
+            description: "{{ doc('encounter_pause_prescriptions__created_by') }}"
+          - name: updated_by
+            data_type: character varying(255)
+            description: "{{ doc('generic__updated_by') }} in encounter_pause_prescriptions."
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in encounter_pause_prescriptions."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in encounter_pause_prescriptions."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in encounter_pause_prescriptions."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in encounter_pause_prescriptions."
+            data_tests:
+              - not_null

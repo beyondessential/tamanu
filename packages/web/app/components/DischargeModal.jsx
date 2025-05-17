@@ -11,10 +11,17 @@ import { reloadPatient } from '../store/patient';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
 import { useSettings } from '../contexts/Settings';
+import styled from 'styled-components';
 
 const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
 const DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY = 'IN-';
 const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
+
+const StyledFormModal = styled(FormModal)`
+  .MuiPaper-root {
+    max-width: 764px;
+  }
+`;
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -92,7 +99,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <FormModal
+    <StyledFormModal
       title={title}
       open={open}
       onClose={onClose}
@@ -108,6 +115,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         dispositionSuggester={dispositionSuggester}
         data-testid="dischargeform-xolc"
       />
-    </FormModal>
+    </StyledFormModal>
   );
 });

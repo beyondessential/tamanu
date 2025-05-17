@@ -5,6 +5,7 @@ export const NOTE_RECORD_TYPES = {
   PATIENT_CARE_PLAN: 'PatientCarePlan',
   LAB_REQUEST: 'LabRequest',
   IMAGING_REQUEST: 'ImagingRequest',
+  MEDICATION_ADMINISTRATION: 'MedicationAdministrationRecord',
   // IMPORTANT: if you add any more record types, you must also alter buildNoteLinkedSyncFilter
 };
 

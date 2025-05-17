@@ -68,7 +68,6 @@ sources:
             description: "{{ doc('patient_family_histories__recorded_date_legacy') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_family_histories."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_family_histories."
             data_tests:
               - not_null

@@ -40,7 +40,13 @@ import { TEMPLATE_TYPE_LABELS } from './templates.js';
 import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
 import { ASSET_NAME_LABELS } from './importable.js';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
+import {
+  ADMINISTRATION_STATUS_LABELS,  
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
+  REPEATS_LABELS,
+} from './medications.js';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks.js';
@@ -62,6 +68,7 @@ type EnumEntries = [EnumKeys, EnumValues][];
  * of new enum constants when maintaining translations
  */
 export const registeredEnums = {
+  ADMINISTRATION_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
@@ -70,6 +77,8 @@ export const registeredEnums = {
   BLOOD_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
@@ -114,6 +123,7 @@ export const registeredEnums = {
  * ['patient.property.sex.male', 'patient.property.female', 'patient.property.other']
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
+  ADMINISTRATION_STATUS_LABELS: 'medication.property.status',
   APPOINTMENT_STATUSES: 'appointment.property.status',
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
@@ -122,6 +132,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   BLOOD_LABELS: 'patient.property.blood',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
+  DRUG_UNIT_LABELS: 'medication.property.unit',
+  DRUG_UNIT_SHORT_LABELS: 'medication.property.unitShort',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',

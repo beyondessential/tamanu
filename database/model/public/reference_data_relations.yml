@@ -41,7 +41,6 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              reference_data_relations."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in reference_data_relations."
             data_tests:
               - not_null

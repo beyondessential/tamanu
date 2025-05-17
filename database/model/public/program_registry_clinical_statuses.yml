@@ -17,20 +17,17 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              program_registry_clinical_statuses."
+            description: "{{ doc('generic__created_at') }} in program_registry_clinical_statuses."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              program_registry_clinical_statuses."
+            description: "{{ doc('generic__updated_at') }} in program_registry_clinical_statuses."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              program_registry_clinical_statuses."
+            description: "{{ doc('generic__deleted_at') }} in program_registry_clinical_statuses."
           - name: code
             data_type: text
             description: "{{ doc('program_registry_clinical_statuses__code') }}"
@@ -47,12 +44,10 @@ sources:
             description: "{{ doc('program_registry_clinical_statuses__color') }}"
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }} in
-              program_registry_clinical_statuses."
+            description: "{{ doc('generic__visibility_status') }} in program_registry_clinical_statuses."
           - name: program_registry_id
             data_type: character varying(255)
-            description: "{{ doc('program_registry_clinical_statuses__program_registry_id')
-              }}"
+            description: "{{ doc('program_registry_clinical_statuses__program_registry_id') }}"
             data_tests:
               - not_null
               - relationships:
@@ -60,7 +55,6 @@ sources:
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              program_registry_clinical_statuses."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in program_registry_clinical_statuses."
             data_tests:
               - not_null

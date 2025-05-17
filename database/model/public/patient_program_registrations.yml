@@ -17,20 +17,17 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              patient_program_registrations."
+            description: "{{ doc('generic__created_at') }} in patient_program_registrations."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              patient_program_registrations."
+            description: "{{ doc('generic__updated_at') }} in patient_program_registrations."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              patient_program_registrations."
+            description: "{{ doc('generic__deleted_at') }} in patient_program_registrations."
           - name: date
             data_type: character(19)
             description: "{{ doc('generic__date') }} in patient_program_registrations."
@@ -74,8 +71,7 @@ sources:
                   field: id
           - name: registering_facility_id
             data_type: character varying(255)
-            description: "{{ doc('patient_program_registrations__registering_facility_id')
-              }}"
+            description: "{{ doc('patient_program_registrations__registering_facility_id') }}"
             data_tests:
               - relationships:
                   to: source('tamanu', 'facilities')
@@ -97,8 +93,7 @@ sources:
                   to_condition: type = 'village'
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_program_registrations."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registrations."
             data_tests:
               - not_null
           - name: is_most_recent
