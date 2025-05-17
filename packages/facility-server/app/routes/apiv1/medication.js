@@ -24,10 +24,46 @@ export const medication = express.Router();
 medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
 
 medication.post(
-  '/$',
+  '/patientOngoingPrescription/:patientId',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const { encounterId, ...data } = req.body;
+    const patientId = req.params.patientId;
+    const data = req.body;
+    const { Prescription, PatientOngoingPrescription } = models;
+    req.checkPermission('create', 'Prescription');
+
+    const existingPrescription = await Prescription.findByPk(req.body.id, {
+      paranoid: false,
+    });
+    if (existingPrescription) {
+      throw new InvalidOperationError(
+        `Cannot create prescription with id (${req.body.id}), it already exists`,
+      );
+    }
+
+    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
+      data.durationValue = null;
+      data.durationUnit = null;
+    }
+
+    if (data.durationValue && data.durationUnit) {
+      data.endDate = add(new Date(data.startDate), {
+        [data.durationUnit]: data.durationValue,
+      });
+    }
+
+    const prescription = await Prescription.create(data);
+    await PatientOngoingPrescription.create({ patientId, prescriptionId: prescription.id });
+
+    res.send(prescription.forResponse());
+  }),
+);
+medication.post(
+  '/encounterPrescription/:encounterId',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const encounterId = req.params.encounterId;
+    const data = req.body;
     const { Prescription, EncounterPrescription } = models;
     req.checkPermission('create', 'Prescription');
 

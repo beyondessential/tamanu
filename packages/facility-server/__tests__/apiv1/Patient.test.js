@@ -71,7 +71,7 @@ describe('Patient', () => {
     });
 
     // Expect result data to be empty since there are no discharged encounters or medications
-    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/lastInpatientDischargeMedications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 0,
@@ -119,24 +119,20 @@ describe('Patient', () => {
       encounterOne.update({ endDate }),
       encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
     ]);
-    
+
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
-    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/lastInpatientEncounter`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 1,
       data: expect.any(Array),
+      lastInpatientEncounter: expect.any(Object),
     });
-    
+
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
-      encounters: expect.arrayContaining([
-        expect.objectContaining({
-          location: expect.any(Object),
-        }),
-      ]),
     });
   });
 
