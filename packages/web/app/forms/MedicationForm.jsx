@@ -543,7 +543,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     setSubmittedMedication(newMedication);
 
     if (loadEncounter && encounterId) {
-      loadEncounter(encounterId);
+      loadEncounter(encounterId, false);
     }
   };
 

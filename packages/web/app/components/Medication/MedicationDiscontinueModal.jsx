@@ -49,7 +49,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, data);
     onDiscontinue(updatedMedication);
     if (loadEncounter && encounter) {
-      loadEncounter(encounter.id);
+      loadEncounter(encounter.id, false);
     }
     onClose();
   };
