@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes } from 'sequelize';
+import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
 import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
@@ -8,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
+  DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
 
@@ -541,8 +542,9 @@ patientRoute.get(
     req.checkPermission('read', 'Patient');
     req.checkPermission('list', 'Prescription');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { PatientOngoingPrescription, Prescription } = models;
+    const { order = 'ASC', orderBy = 'prescription.medication.name' } = query;
 
     const ongoingPrescriptions = await PatientOngoingPrescription.findAll({
       where: { patientId: params.id },
@@ -552,6 +554,24 @@ patientRoute.get(
           as: 'prescription',
           include: Prescription.getListReferenceAssociations(),
         },
+      ],
+      order: [
+        [
+          literal(
+            'CASE WHEN "prescription"."discontinued" IS NULL OR "prescription"."discontinued" = false THEN 1 ELSE 0 END',
+          ),
+          'DESC',
+        ],
+        orderBy === 'prescription.route'
+          ? [
+              literal(
+                `CASE "prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                  .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
+                  .join(' ')} ELSE "prescription"."route" END`,
+              ),
+              order.toUpperCase(),
+            ]
+          : [...orderBy.split('.'), order.toUpperCase()],
       ],
     });
 

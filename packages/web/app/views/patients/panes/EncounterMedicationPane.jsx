@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import { Box } from '@mui/material';
 
-import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
@@ -58,8 +57,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const { navigateToMar } = usePatientNavigation();
 
-  const { loadEncounter } = useEncounter();
-
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
@@ -69,7 +66,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClose={() => setCreateMedicationModalOpen(false)}
           onSaved={async () => {
             setCreateMedicationModalOpen(false);
-            await loadEncounter(encounter.id);
           }}
           data-testid="medicationmodal-s2hv"
         />
