@@ -11,7 +11,7 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -84,10 +84,12 @@ describe('Patient', () => {
     const encounterOne = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION
     });
     const encounterTwo = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION
     });
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),

@@ -8,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
 
@@ -511,7 +512,7 @@ patientRoute.get(
     const lastInpatientEncounter = await Encounter.findOne({
       where: {
         patientId,
-        encounterType: 'admission',
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
         endDate: {
           [Op.not]: null,
         },
