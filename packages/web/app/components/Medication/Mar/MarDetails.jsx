@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { getDose } from '@tamanu/shared/utils/medication';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
+import { format } from 'date-fns';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
@@ -242,7 +243,7 @@ export const MarDetails = ({
       ...data,
       doses: data.doses.map(dose => ({
         ...dose,
-        givenTime: new Date(dose.givenTime),
+        givenTime: format(dose.givenTime, 'yyyy-MM-dd HH:mm:ss'),
         doseAmount: Number(dose.doseAmount),
       })),
     });
