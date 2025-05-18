@@ -52,7 +52,7 @@ export interface SuggesterConfig<ModelType> {
   filter?: (entity: BaseModel) => boolean;
 }
 
-export class Suggester<ModelType> {
+export class Suggester<ModelType extends BaseModelSubclass> {
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
