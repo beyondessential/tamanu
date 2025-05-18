@@ -17,6 +17,7 @@ import './fonts.css';
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
     const { auth } = store.getState();
+    console.log(`INDEX.JS INIT PERSISTOR IS CALLING SET TOKEN WITH TOKEN ${auth.token.toString()}`);
     api.setToken(auth.token);
   });
 
