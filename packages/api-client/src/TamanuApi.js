@@ -210,6 +210,11 @@ export class TamanuApi {
 
     // handle auth expiring
     if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
+      console.log('API client extractError: 401 error detected');
+      console.log('API client extractError: error:', error);
+      console.log('API client extractError: endpoint:', endpoint);
+      console.log('API client extractError: this.#onAuthFailure:', this.#onAuthFailure);
+      console.log('API client extractError: response:', response);
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
       throw new AuthExpiredError(message);

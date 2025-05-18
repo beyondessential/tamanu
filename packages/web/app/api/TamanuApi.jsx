@@ -185,6 +185,7 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
+    console.log('WEB CLIENT IS TRYING TO SET FACILITY', facilityId.toString());
     const { token, settings } = await this.post('setFacility', { facilityId });
     console.log('WEB CLIENT setFacility:', {
       token,
