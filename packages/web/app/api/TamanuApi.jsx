@@ -150,6 +150,7 @@ export class TamanuApi extends ApiClient {
     console.log('WEB CLIENT restoreSession:', {
       token,
     });
+    console.log(`WEB CLIENT RESTORE SESSION IS CALLING SET TOKEN WITH TOKEN ${token.toString()}`);
     this.setToken(token);
     console.log('WEB CLIENT TOKEN IS NOW', token);
     const user = await this.get('user/me');
@@ -192,6 +193,7 @@ export class TamanuApi extends ApiClient {
       facilityId,
       settings,
     });
+    console.log(`WEB CLIENT SET FACILITY IS CALLING SET TOKEN WITH TOKEN ${token.toString()}`);
     this.setToken(token);
     saveToLocalStorage({
       token,

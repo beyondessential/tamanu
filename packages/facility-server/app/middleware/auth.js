@@ -224,7 +224,7 @@ export async function refreshHandler(req, res) {
 }
 
 async function decodeToken(token) {
-  log.info('Decoding token: ', token);
+  log.info(`Decoding token: ${token.toString()}`);
   try {
     return await verify(token, jwtSecretKey);
   } catch (e) {

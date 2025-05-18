@@ -77,6 +77,7 @@ export class TamanuApi {
     } = await response.json();
     server.type = serverType;
     server.centralHost = centralHost;
+    console.log(`API CLIENT LOGIN IS CALLING SET TOKEN WITH TOKEN ${token.toString()}`);
     this.setToken(token);
 
     const { user, ability } = await this.fetchUserData(permissions);
@@ -104,6 +105,7 @@ export class TamanuApi {
     try {
       const response = await this.post('refresh');
       const { token } = response;
+      console.log(`API CLIENT REFRESH TOKEN IS CALLING SET TOKEN WITH TOKEN ${token.toString()}`);
       this.setToken(token);
     } catch (e) {
       // eslint-disable-next-line no-console
