@@ -249,6 +249,7 @@ export const MarDetails = ({
     });
     setFieldValue('isError', false);
     setFieldValue('doses', []);
+    onClose();
   };
 
   return (
