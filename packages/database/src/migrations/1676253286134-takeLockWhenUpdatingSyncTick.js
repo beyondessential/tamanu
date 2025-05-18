@@ -1,5 +1,3 @@
-import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
-
 // copied from 1669675313161-renameTriggerFunctionForUpdatedAtSyncTick with advisory lock added
 export async function up(query) {
   await query.sequelize.query(`
@@ -8,13 +6,13 @@ export async function up(query) {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        -- If setting to "${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER}" representing "not marked as updated on this client", we actually use
-        -- a different number, "${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}", to represent that in the db, so that we can identify the
-        -- difference between explicitly setting it to not marked as updated (when NEW contains ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER}),
+        -- If setting to "-1" representing "not marked as updated on this client", we actually use
+        -- a different number, "-999", to represent that in the db, so that we can identify the
+        -- difference between explicitly setting it to not marked as updated (when NEW contains -1),
         -- and having other fields updated without the updated_at_sync_tick being altered (in which
-        -- case NEW will contain ${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}, easily distinguished from ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER})
-        IF NEW.updated_at_sync_tick = ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER} THEN
-          NEW.updated_at_sync_tick := ${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE};
+        -- case NEW will contain -999, easily distinguished from -1)
+        IF NEW.updated_at_sync_tick = -1 THEN
+          NEW.updated_at_sync_tick := -999;
         ELSE
           SELECT value FROM local_system_facts WHERE key = 'currentSyncTick' INTO NEW.updated_at_sync_tick;
 
@@ -36,13 +34,13 @@ export async function down(query) {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        -- If setting to "${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER}" representing "not marked as updated on this client", we actually use
-        -- a different number, "${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}", to represent that in the db, so that we can identify the
-        -- difference between explicitly setting it to not marked as updated (when NEW contains ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER}),
+        -- If setting to "-1" representing "not marked as updated on this client", we actually use
+        -- a different number, "-999", to represent that in the db, so that we can identify the
+        -- difference between explicitly setting it to not marked as updated (when NEW contains -1),
         -- and having other fields updated without the updated_at_sync_tick being altered (in which
-        -- case NEW will contain ${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}, easily distinguished from ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER})
-        IF NEW.updated_at_sync_tick = ${SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER} THEN
-          NEW.updated_at_sync_tick := ${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE};
+        -- case NEW will contain -999, easily distinguished from -1)
+        IF NEW.updated_at_sync_tick = -1 THEN
+          NEW.updated_at_sync_tick := -999;
         ELSE
           SELECT value FROM local_system_facts WHERE key = 'currentSyncTick' INTO NEW.updated_at_sync_tick;
         END IF;
