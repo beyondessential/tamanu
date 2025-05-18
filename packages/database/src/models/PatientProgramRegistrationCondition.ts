@@ -39,7 +39,7 @@ export class PatientProgramRegistrationCondition extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

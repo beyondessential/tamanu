@@ -32,7 +32,7 @@ export class PatientProgramRegistration extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
