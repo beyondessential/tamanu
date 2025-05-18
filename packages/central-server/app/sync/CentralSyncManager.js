@@ -24,7 +24,6 @@ import {
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
-  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
 import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
