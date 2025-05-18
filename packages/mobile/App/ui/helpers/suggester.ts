@@ -50,11 +50,6 @@ export interface SuggesterConfig<ModelType> {
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
   filter?: (entity: BaseModel) => boolean;
-  hierarchyOptions?: {
-    parentId?: string;
-    relationType?: string;
-    isFirstLevel?: boolean;
-  };
 }
 
 export class Suggester<ModelType> {
