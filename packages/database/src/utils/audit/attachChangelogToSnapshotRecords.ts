@@ -6,19 +6,14 @@ import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from
 type QueryConfig = {
   minSourceTick: number;
   maxSourceTick?: number;
-  tableWhitelist?: string[];
 };
 
 export const attachChangelogToSnapshotRecords = async (
   { models, sequelize }: { models: Models, sequelize: Sequelize },
   snapshotRecords: SyncSnapshotAttributes[],
-  { minSourceTick, maxSourceTick, tableWhitelist }: QueryConfig,
+  { minSourceTick, maxSourceTick }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
-  const relevantRecords = tableWhitelist
-    ? snapshotRecords.filter(({ recordType }) => tableWhitelist.includes(recordType))
-    : snapshotRecords;
-
-  if (!relevantRecords.length) {
+  if (!snapshotRecords.length) {
     return snapshotRecords;
   }
 
@@ -27,7 +22,6 @@ export const attachChangelogToSnapshotRecords = async (
    SELECT * FROM logs.changes
     WHERE record_sync_tick >= :minSourceTick
     ${maxSourceTick ? 'AND record_sync_tick <= :maxSourceTick' : ''}
-    ${tableWhitelist ? `AND table_name IN (:tableWhitelist)` : ''}
     AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
     AND deleted_at IS NULL;
     `,
@@ -38,8 +32,7 @@ export const attachChangelogToSnapshotRecords = async (
       replacements: {
         minSourceTick,
         maxSourceTick,
-        tableWhitelist,
-        recordTypeAndIds: relevantRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`),
+        recordTypeAndIds: snapshotRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`),
       },
     },
   );

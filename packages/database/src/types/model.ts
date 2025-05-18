@@ -13,7 +13,6 @@ type PrimaryKey = {
 
 export interface InitOptions extends BaseInitOptions {
   syncDirection: SyncDirectionValues;
-  auditSyncDirection?: SyncDirectionValues;
   primaryKey: PrimaryKey;
   hackToSkipEncounterValidation?: boolean;
 }
