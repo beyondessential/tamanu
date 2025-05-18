@@ -586,10 +586,7 @@ export class CentralSyncManager {
     const recordsForPull = await attachChangelogToSnapshotRecords(
       this.store,
       snapshotRecords,
-      {
-        ...sourceTickRange,
-        tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
-      }
+      sourceTickRange
     );
     return recordsForPull;
   }
