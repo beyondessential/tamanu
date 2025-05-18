@@ -45,12 +45,7 @@ export class Model<
 
   static init(
     modelAttributes: ModelAttributes,
-    {
-      syncDirection,
-      timestamps = true,
-      schema,
-      ...options
-    }: Omit<InitOptions, 'primaryKey'>,
+    { syncDirection, timestamps = true, schema, ...options }: Omit<InitOptions, 'primaryKey'>,
   ) {
     // this is used in our database init code to make it easier to create models,
     // but shouldn't be passed down to sequelize. instead of forcing every model
