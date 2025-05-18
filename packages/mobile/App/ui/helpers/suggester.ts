@@ -75,7 +75,10 @@ export class Suggester<ModelType> {
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
     this.options = config.options;
+    // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
     this.formatter = config.formatter || defaultFormatter;
+    // Frontend filter applied to the data received. Use this to filter by permission
+    // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = config.filter;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
