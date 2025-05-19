@@ -590,7 +590,7 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -606,7 +606,9 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        if (!isMobile) {
+          await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        }
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
