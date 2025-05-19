@@ -267,10 +267,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       imagingName: imagingTypeNames[imagingRequest.imagingType],
     }));
 
-  // Remove discontinued medications and sort by date
+  // Remove discontinued medications and sort by medication name
   const medications = encounter.medications
-    .filter((medication) => !medication.discontinued)
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter((note) => {
     return note.noteType !== NOTE_TYPES.SYSTEM;
