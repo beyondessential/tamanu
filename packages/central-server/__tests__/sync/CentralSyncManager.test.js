@@ -2021,6 +2021,67 @@ describe('CentralSyncManager', () => {
         expect.arrayContaining(incomingChanges),
       );
     });
+
+    it('persists records when isMobile is true during completePush', async () => {
+      await models.Setting.set('audit.changes.enabled', true);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patient_program_registrations',
+          recordId: crypto.randomUUID(),
+          data: {
+            ...fake(models.PatientProgramRegistration),
+            programRegistryId: programRegistry.id,
+            clinicianId: clinician.id,
+            patientId: patient.id,
+            facilityId: facility.id,
+          },
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      // Push changes with isMobile=true
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id, ['patient_program_registrations'], true);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      // Verify changelog records were created
+      const changelogRecords = await sequelize.query(
+        `SELECT * FROM logs.changes WHERE record_id = :recordId;`,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: {
+            recordId: changes[0].recordId,
+          },
+        },
+      );
+
+      expect(changelogRecords).toHaveLength(1);
+      expect(changelogRecords[0]).toMatchObject({
+        table_name: 'patient_program_registrations',
+        record_id: changes[0].recordId,
+        record_data: expect.objectContaining({
+          programRegistryId: programRegistry.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          facilityId: facility.id,
+        }),
+      });
+    });
   });
 
   describe('updateLookupTable', () => {
