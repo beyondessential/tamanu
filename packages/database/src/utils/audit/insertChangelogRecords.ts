@@ -17,7 +17,9 @@ export const insertChangelogRecords = async (models: Models, changelogRecords: C
   const existingIds = existingRecords.map(({ id }) => id);
   const recordsToInsert = changelogRecords
     .filter(({ id }) => !existingIds.includes(id))
-    .map((changelogRecord) => changelogRecord.get({ plain: true }));
+    .map((changelogRecord) => ({
+      ...changelogRecord,
+    }));
 
   await ChangeLog.bulkCreate(recordsToInsert);
 };

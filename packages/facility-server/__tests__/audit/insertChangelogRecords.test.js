@@ -38,6 +38,7 @@ describe('insertChangeLogRecords', () => {
       recordCreatedAt: new Date(),
       recordUpdatedAt: new Date(),
       updatedAtSyncTick: 100,
+      recordSyncTick: 100,
       updatedByUserId: SYSTEM_USER_UUID,
       recordId: '1',
       recordUpdate: true,
@@ -59,6 +60,7 @@ describe('insertChangeLogRecords', () => {
         recordId: '1',
         recordData: { first_name: 'Patient Updated' },
         updatedAtSyncTick: 100,
+        recordSyncTick: 100,
       },
       {
         // New record
@@ -74,6 +76,7 @@ describe('insertChangeLogRecords', () => {
         recordId: '2',
         recordData: { first_name: 'Patient 2' },
         updatedAtSyncTick: 100,
+        recordSyncTick: 100,
       },
       {
         // New record
@@ -89,6 +92,7 @@ describe('insertChangeLogRecords', () => {
         recordId: '3',
         recordData: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
         updatedAtSyncTick: 100,
+        recordSyncTick: 100,
       },
     ];
 
