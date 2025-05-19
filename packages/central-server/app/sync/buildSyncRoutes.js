@@ -208,8 +208,8 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const { sessionId } = params;
-      const { tablesToInclude, deviceId } = body;
-      await syncManager.completePush(sessionId, deviceId, tablesToInclude);
+      const { tablesToInclude, deviceId, isMobile } = body;
+      await syncManager.completePush(sessionId, deviceId, tablesToInclude, isMobile);
       res.json({});
     }),
   );
