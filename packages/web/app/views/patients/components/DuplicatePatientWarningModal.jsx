@@ -1,6 +1,6 @@
 import React from 'react';
 import { ConfirmModal } from '../../../components/ConfirmModal';
-import { Table } from '../../../components';
+import { Heading3, Heading4, LargeBodyText, SmallBodyText, Table } from '../../../components';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { culturalName, dateOfBirth, firstName, lastName, sex, village } from '../columns';
 
@@ -37,21 +37,21 @@ export const DuplicatePatientWarningModal = ({
       }}
       customContent={
         <>
-          <h3>Possible duplicate patient record{hasMultipleDuplicates ? 's' : ''}</h3>
-          <p>
+          <Heading3>Possible duplicate patient record{hasMultipleDuplicates ? 's' : ''}</Heading3>
+          <LargeBodyText color="textTertiary">
             The below patient record{hasMultipleDuplicates ? 's' : ''} already exist
             {hasMultipleDuplicates ? '' : 's'}. Please review the patient details and ensure you are
             not adding a duplicate record. If the patient you are creating is listed below, please
             select the required record to continue. Otherwise, click &apos;Add new patient&apos; to
             continue adding a new patient record.
-          </p>
-          <h3>Existing patient record{hasMultipleDuplicates ? 's' : ''} in Tamanu</h3>
+          </LargeBodyText>
+          <Heading4>Existing patient record{hasMultipleDuplicates ? 's' : ''} in Tamanu</Heading4>
           <Table
             columns={COLUMNS}
             data={potentialDuplicates}
             onRowClick={row => navigateToPatient(row.id)}
           />
-          <h3>Proposed new patient record</h3>
+          <Heading4>Proposed new patient record</Heading4>
           <Table columns={COLUMNS} data={[proposedPatient]} />
         </>
       }
