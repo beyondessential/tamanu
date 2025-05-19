@@ -1,5 +1,6 @@
-import { test as base } from '@playwright/test';
+import { test as base, APIRequestContext, Page } from '@playwright/test';
 
+import { createPatient, createApiContext } from '../utils/apiHelpers';
 import {
   DashboardPage,
   LoginPage,
@@ -24,6 +25,8 @@ import {
 } from '../pages';
 
 type BaseFixtures = {
+  api: APIRequestContext;
+  newPatient: Awaited<ReturnType<typeof createPatient>>;
   dashboardPage: DashboardPage;
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
@@ -45,8 +48,20 @@ type BaseFixtures = {
   locationBookingsPage: LocationBookingsPage;
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
 };
-
 export const test = base.extend<BaseFixtures>({
+  api: async ({ page }: { page: Page }, use) => {
+    const apiContext = await createApiContext({ page });
+    await use(apiContext);
+    await apiContext.dispose();
+  },
+
+  newPatient: async (
+    { page, api }: { page: Page; api: APIRequestContext },
+    use: (arg: Awaited<ReturnType<typeof createPatient>>) => Promise<void>,
+  ) => {
+    await use(await createPatient(api, page));
+  },
+
   dashboardPage: async ({ page }, use) => {
     await use(new DashboardPage(page));
   },
