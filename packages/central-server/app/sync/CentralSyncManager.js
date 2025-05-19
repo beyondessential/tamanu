@@ -680,13 +680,13 @@ export class CentralSyncManager {
     await insertChangelogRecords(this.store.models, changelogRecords);
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude) {
+  async completePush(sessionId, deviceId, tablesToInclude, isMobile) {
     await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
+    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile).finally(
       unmarkSessionAsProcessing,
     );
   }
