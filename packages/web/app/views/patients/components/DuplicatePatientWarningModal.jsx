@@ -1,6 +1,6 @@
 import React from 'react';
 import { ConfirmModal } from '../../../components/ConfirmModal';
-import { Heading3, Heading4, LargeBodyText, SmallBodyText, Table } from '../../../components';
+import { Heading3, Heading4, LargeBodyText, Table } from '../../../components';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { culturalName, dateOfBirth, firstName, lastName, sex, village } from '../columns';
 
@@ -22,6 +22,7 @@ export const DuplicatePatientWarningModal = ({
 
   const hasMultipleDuplicates = potentialDuplicates.length > 1;
 
+  // TODO: use other modal probably. need 3 buttons back, cancel and add new patient
   return (
     <ConfirmModal
       width="md"
