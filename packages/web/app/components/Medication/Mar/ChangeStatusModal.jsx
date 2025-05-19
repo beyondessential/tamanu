@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { format } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   Field,
   Form,
@@ -146,7 +146,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
       await updateMarToGiven({
         dose: {
           doseAmount: Number(doseAmount),
-          givenTime: format(givenTime, 'yyyy-MM-dd HH:mm:ss'),
+          givenTime: toDateTimeString(givenTime),
           givenByUserId,
           recordedByUserId,
         },

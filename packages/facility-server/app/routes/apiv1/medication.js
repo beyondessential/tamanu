@@ -104,6 +104,7 @@ const discontinueInputSchema = z
   .object({
     discontinuingClinicianId: z.string(),
     discontinuingReason: z.string().optional(),
+    discontinuingDate: datetimeCustomValidation.optional(),
   })
   .strip();
 medication.post(
@@ -126,7 +127,9 @@ medication.post(
 
     Object.assign(prescription, {
       ...data,
-      discontinuedDate: getCurrentDateTimeString(),
+      discontinuedDate: data.discontinuingDate
+        ? toDateTimeString(data.discontinuingDate)
+        : getCurrentDateTimeString(),
       discontinued: true,
     });
     await prescription.save();
@@ -148,6 +151,7 @@ const pauseMedicationSchema = z
       errorMap: () => ({ message: 'Pause time unit must be either "Hours" or "Days"' }),
     }),
     notes: z.string().optional(),
+    pauseStartDate: datetimeCustomValidation.optional(),
   })
   .strip();
 // Pause a medication
@@ -158,8 +162,13 @@ medication.post(
     const { Prescription, EncounterPrescription, EncounterPausePrescription } = models;
 
     // Validate request body against the schema
-    const { encounterId, pauseDuration, pauseTimeUnit, notes } =
-      await pauseMedicationSchema.parseAsync(req.body);
+    const {
+      encounterId,
+      pauseDuration,
+      pauseTimeUnit,
+      notes,
+      pauseStartDate: pauseStartDateInput,
+    } = await pauseMedicationSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Prescription');
 
@@ -194,7 +203,9 @@ medication.post(
     }
 
     // Calculate the pause end date to validate against prescription end date
-    const pauseStartDate = getCurrentDateTimeString();
+    const pauseStartDate = pauseStartDateInput
+      ? toDateTimeString(pauseStartDateInput)
+      : getCurrentDateTimeString();
     const pauseEndDate = add(new Date(pauseStartDate), {
       [pauseTimeUnit]: pauseDuration,
     });
