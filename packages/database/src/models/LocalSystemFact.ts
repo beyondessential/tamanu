@@ -7,7 +7,7 @@ import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
 
 import type * as Facts from '@tamanu/constants/facts';
-export type FactName = typeof Facts [keyof typeof Facts];
+export type FactName = (typeof Facts)[keyof typeof Facts];
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
@@ -84,9 +84,8 @@ export class LocalSystemFact extends Model {
     if (deviceKey) {
       return new EndpointKey(deviceKey);
     }
-    const newDeviceKey = EndpointKey.generateFor('ecdsa256')
+    const newDeviceKey = EndpointKey.generateFor('ecdsa256');
     await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
     return newDeviceKey;
   }
-
 }

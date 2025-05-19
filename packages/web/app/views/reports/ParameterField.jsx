@@ -27,7 +27,9 @@ import { LabTestCategorySensitiveField } from './LabTestCategorySensitiveField';
 import { AppointmentTypeField } from './AppointmentTypeField';
 import { BookingTypeField } from './BookingTypeField';
 import { VaccineField } from './VaccineField';
+import { LocationField } from './LocationField';
 import { FacilityField } from './FacilityField';
+import { PatientField } from './PatientField';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
@@ -49,7 +51,7 @@ export const FIELD_TYPES_SUPPORTING_FILTER_BY_SELECTED_FACILITY = [
 const useReportSuggesterOptions = (parameters, suggesterOptions = {}) => {
   // Get name of facility select field if it exists
   const facilityField = useMemo(
-    () => parameters.find((param) => param.parameterField === 'FacilityField'),
+    () => parameters.find(param => param.parameterField === 'FacilityField'),
     [parameters],
   );
   const [{ value: facilityIdValue }] = useField(facilityField?.name || 'facilityId');
@@ -115,10 +117,12 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestCategorySensitiveField,
   LabTestLaboratoryField,
   LabTestTypeField,
+  LocationField,
   ParameterAutocompleteField,
   ParameterMultiselectField,
   ParameterSelectField,
   ParameterSuggesterSelectField,
+  PatientField,
   PractitionerField,
   VaccineCategoryField,
   VaccineField,
