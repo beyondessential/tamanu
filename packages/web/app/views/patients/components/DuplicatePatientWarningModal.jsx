@@ -2,15 +2,9 @@ import React from 'react';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { Table } from '../../../components';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { culturalName, dateOfBirth, firstName, lastName, sex, village } from '../columns';
 
-const COLUMNS = [
-  { key: 'firstName', title: 'First Name', sortable: false },
-  { key: 'lastName', title: 'Last Name', sortable: false },
-  { key: 'culturalName', title: 'Cultural Name', sortable: false },
-  { key: 'dateOfBirth', title: 'Date of Birth', sortable: false },
-  { key: 'sex', title: 'Sex', sortable: false },
-  { key: 'village', title: 'Village', sortable: false },
-];
+const COLUMNS = [firstName, lastName, culturalName, dateOfBirth, sex, village];
 
 export const DuplicatePatientWarningModal = ({
   open,
