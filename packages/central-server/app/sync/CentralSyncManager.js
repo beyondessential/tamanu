@@ -25,7 +25,11 @@ import {
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
+import {
+  insertChangelogRecords,
+  extractChangelogFromSnapshotRecords,
+  attachChangelogToSnapshotRecords,
+} from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
@@ -289,7 +293,9 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
+        const syncLookupTick = isInitialBuildOfLookupTable
+          ? null
+          : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
@@ -577,7 +583,7 @@ export class CentralSyncManager {
     const sourceTickRange = await getLookupSourceTickRange(
       this.store,
       session.pullSince,
-      session.pullUntil
+      session.pullUntil,
     );
     if (!sourceTickRange) {
       return snapshotRecords;
@@ -585,12 +591,12 @@ export class CentralSyncManager {
     const recordsForPull = await attachChangelogToSnapshotRecords(
       this.store,
       snapshotRecords,
-      sourceTickRange
+      sourceTickRange,
     );
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -606,7 +612,9 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        if (!isMobile) {
+          await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        }
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -673,18 +681,19 @@ export class CentralSyncManager {
       sessionId,
     });
 
-    const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
+    const { snapshotRecords, changelogRecords } =
+      extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
     await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
     await insertChangelogRecords(this.store.models, changelogRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
+    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude, session.debugInfo.isMobile).finally(
       unmarkSessionAsProcessing,
     );
   }
