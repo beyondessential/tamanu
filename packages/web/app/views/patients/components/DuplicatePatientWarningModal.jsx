@@ -35,9 +35,7 @@ export const DuplicatePatientWarningModal = ({
       width="md"
       title={'Add new patient'}
       open={open}
-      onClose={() => {
-        handleClose(false);
-      }}
+      onClose={() => handleClose(false)}
       data-testid="modal-dgog"
     >
       <Heading3>Possible duplicate patient record{hasMultipleDuplicates ? 's' : ''}</Heading3>
