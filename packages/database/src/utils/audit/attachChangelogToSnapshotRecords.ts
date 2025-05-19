@@ -13,7 +13,6 @@ export const attachChangelogToSnapshotRecords = async (
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
-
   if (!snapshotRecords.length) {
     return snapshotRecords;
   }
