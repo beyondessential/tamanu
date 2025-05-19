@@ -1,4 +1,4 @@
-import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column, Like } from 'typeorm';
+import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
