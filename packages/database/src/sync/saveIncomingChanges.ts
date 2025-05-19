@@ -12,6 +12,8 @@ import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChang
 import type { Models } from '../types/model';
 import type { Model } from '../models/Model';
 import type { ModelSanitizeArgs, RecordType } from '../types/sync';
+import { extractChangelogFromSnapshotRecords } from 'utils/audit/extractChangelogFromSnapshotRecords';
+import { insertChangelogRecords } from 'utils/audit/insertChangelogRecords';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 
@@ -155,7 +157,10 @@ const saveChangesForModelInBatches = async (
         total: syncRecordsCount,
       });
 
-      await saveChangesForModel(model, batchRecords, isCentralServer, log);
+      const { snapshotRecords, changelogRecords } =
+        extractChangelogFromSnapshotRecords(batchRecords);
+      await saveChangesForModel(model, snapshotRecords, isCentralServer, log);
+      await insertChangelogRecords(model.sequelize.models, changelogRecords);
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
     } catch (error) {
