@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
-import { GeneralInfo } from '.GeneralInfo';
+import { GeneralInfo } from './GeneralInfo';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
