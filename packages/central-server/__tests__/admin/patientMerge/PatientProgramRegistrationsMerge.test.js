@@ -10,6 +10,7 @@ describe('Merging Patient Program Registrations', () => {
   let ctx;
   let models;
   let programRegistry;
+  let secondProgramRegistry;
   let clinician;
 
   beforeAll(async () => {
@@ -17,6 +18,7 @@ describe('Merging Patient Program Registrations', () => {
     models = ctx.store.models;
     clinician = await models.User.create(fake(models.User));
     programRegistry = await setupProgramRegistry(models);
+    secondProgramRegistry = await setupProgramRegistry(models);
   });
 
   afterAll(async () => {
@@ -52,7 +54,7 @@ describe('Merging Patient Program Registrations', () => {
     );
     await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
-        programRegistryId: programRegistry.id,
+        programRegistryId: secondProgramRegistry.id,
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
