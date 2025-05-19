@@ -1,5 +1,4 @@
 import React from 'react';
-import { ConfirmModal } from '../../../components/ConfirmModal';
 import {
   ButtonRow,
   Heading3,
