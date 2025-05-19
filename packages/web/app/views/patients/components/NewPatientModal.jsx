@@ -33,6 +33,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth,
         });
+
         const { data: potentialDuplicates } = await api.get(
           `patient/checkDuplicates?${params.toString()}`,
         );
