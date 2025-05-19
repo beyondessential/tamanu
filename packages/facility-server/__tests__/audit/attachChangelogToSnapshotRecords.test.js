@@ -25,28 +25,28 @@ describe('attachChangelogToSnapshotRecords', () => {
     await Promise.all([
       ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        recordSyncTick: 100,
+        updatedAtSyncTick: 100,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
         recordData: { name: 'John Doe' },
       })),
       ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        recordSyncTick: 150,
+        updatedAtSyncTick: 150,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
         recordData: { name: 'John Doe Jr' },
       })),
       ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'patients',
-        recordSyncTick: 200,
+        updatedAtSyncTick: 200,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '2',
         recordData: { name: 'Jane Smith' },
       })),
       ChangeLog.create(fake(models.ChangeLog, {
         tableName: 'encounters',
-        recordSyncTick: 300,
+        updatedAtSyncTick: 300,
         updatedByUserId: SYSTEM_USER_UUID,
         recordId: '1',
         recordData: { type: 'checkup' },
@@ -72,12 +72,12 @@ describe('attachChangelogToSnapshotRecords', () => {
     // Check patient 1 has both changelog records
     const patient1 = result.find((r) => r.recordId === '1');
     expect(patient1?.changelogRecords).toHaveLength(2);
-    expect(patient1?.changelogRecords.map((r) => r.recordSyncTick).sort()).toEqual(["100", "150"]);
+    expect(patient1?.changelogRecords.map((r) => r.updatedAtSyncTick).sort()).toEqual(["100", "150"]);
 
     // Check patient 2 has one changelog record
     const patient2 = result.find((r) => r.recordId === '2');
     expect(patient2?.changelogRecords).toHaveLength(1);
-    expect(patient2?.changelogRecords[0].recordSyncTick).toBe("200");
+    expect(patient2?.changelogRecords[0].updatedAtSyncTick).toBe("200");
 
     // Check encounter 1 has no changelog records (outside tick range)
     const encounter1 = result.find((r) => r.recordId === '1' && r.recordType === 'encounters');
