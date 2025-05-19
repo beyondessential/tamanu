@@ -1,7 +1,6 @@
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
   'logs.fhir_writes',
-  'logs.changes',
   'public.fhir_materialise_jobs',
   'public.local_system_facts',
   'public.one_time_logins',
