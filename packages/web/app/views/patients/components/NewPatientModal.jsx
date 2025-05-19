@@ -9,7 +9,6 @@ import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
-import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
@@ -20,7 +19,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-  const handleShowWarningModal = async () =>
+  const confirmUniquePatientWithUser = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
@@ -39,14 +38,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
           `patient/checkDuplicates?${params.toString()}`,
         );
 
-        // TODO: maybe this should be done in the function
-        const transformedDuplicates = potentialDuplicates.map(renameObjectKeys);
-
         if (potentialDuplicates.length > 0) {
-          setPotentialDuplicates(transformedDuplicates);
+          setPotentialDuplicates(potentialDuplicates);
           setProposedPatient(data);
-          const confirmedNotDuplicate = await handleShowWarningModal();
-          if (!confirmedNotDuplicate) return;
+          const confirmed = await confirmUniquePatientWithUser();
+          if (!confirmed) return;
         }
 
         const newPatient = await api.post('patient', {

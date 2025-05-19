@@ -48,12 +48,7 @@ patientRoute.get(
       },
     );
 
-    // Convert snake_case keys to camelCase
-    const transformedDuplicates = potentialDuplicates.map((duplicate) =>
-      renameObjectKeys(duplicate),
-    );
-
-    res.send({ data: transformedDuplicates });
+    res.send({ data: potentialDuplicates.map(renameObjectKeys) });
   }),
 );
 
