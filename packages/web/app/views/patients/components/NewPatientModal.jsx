@@ -8,41 +8,13 @@ import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
-import { ConfirmModal } from '../../../components/ConfirmModal';
-
-// TODO: this should be pulled out into a component and matched to design
-const DuplicatePatientWarningModal = ({
-  open,
-  setShowWarningModal,
-  resolveFn,
-  potentialDuplicates,
-}) => {
-  const handleClose = confirmed => {
-    setShowWarningModal(false);
-    resolveFn(confirmed);
-  };
-  return (
-    <ConfirmModal
-      title={'Duplicate patients detected'}
-      subText={JSON.stringify(potentialDuplicates)}
-      open={open}
-      onConfirm={() => {
-        handleClose(true);
-      }}
-      cancelButtonText={'Back to creating'}
-      confirmButtonText={'Continue'}
-      onCancel={() => {
-        handleClose(false);
-      }}
-      data-testid="confirmmodal-x4fg"
-    />
-  );
-};
+import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
   const { facilityId } = useAuth();
 
+  const [proposedPatient, setProposedPatient] = useState({});
   const [potentialDuplicates, setPotentialDuplicates] = useState([]);
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -53,11 +25,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
       setShowWarningModal(true);
     });
 
-  const checkIfDuplicateExists = async () => {
-    const confirmedNotDuplicate = await handleShowWarningModal();
-    if (!confirmedNotDuplicate) return;
-  };
-
   const onSubmit = useCallback(
     async data => {
       try {
@@ -66,11 +33,15 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth,
         });
-        const potentialDuplicates = await api.get(`patient/checkDuplicates?${params.toString()}`);
+        const { data: potentialDuplicates } = await api.get(
+          `patient/checkDuplicates?${params.toString()}`,
+        );
 
-        if (potentialDuplicates.data.length > 0) {
-          setPotentialDuplicates(potentialDuplicates.data);
-          await checkIfDuplicateExists();
+        if (potentialDuplicates.length > 0) {
+          setPotentialDuplicates(potentialDuplicates);
+          setProposedPatient(data);
+          const confirmedNotDuplicate = await handleShowWarningModal();
+          if (!confirmedNotDuplicate) return;
         }
 
         const newPatient = await api.post('patient', {
@@ -112,6 +83,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
         data-testid="warningmodal-h7av"
+        proposedPatient={proposedPatient}
         potentialDuplicates={potentialDuplicates}
       />
     </>
