@@ -35,18 +35,25 @@ patientRoute.get(
 
     const { models, query } = req;
     const { firstName, lastName, dateOfBirth } = query;
-    const { Patient } = models;
 
-    // TODO: Call postgres function here
-    const potentialDuplicates = await Patient.findAll({
-      where: {
-        firstName,
-        lastName,
-        dateOfBirth,
+    const potentialDuplicates = await models.Patient.sequelize.query(
+      `SELECT * FROM find_potential_patient_duplicates(:firstName, :lastName, :dateOfBirth)`,
+      {
+        replacements: {
+          firstName,
+          lastName,
+          dateOfBirth,
+        },
+        type: QueryTypes.SELECT,
       },
-    });
+    );
 
-    res.send({ data: potentialDuplicates });
+    // Convert snake_case keys to camelCase
+    const transformedDuplicates = potentialDuplicates.map((duplicate) =>
+      renameObjectKeys(duplicate),
+    );
+
+    res.send({ data: transformedDuplicates });
   }),
 );
 

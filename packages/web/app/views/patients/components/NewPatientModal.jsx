@@ -9,6 +9,7 @@ import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
+import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
@@ -38,8 +39,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
           `patient/checkDuplicates?${params.toString()}`,
         );
 
+        // TODO: maybe this should be done in the function
+        const transformedDuplicates = potentialDuplicates.map(renameObjectKeys);
+
         if (potentialDuplicates.length > 0) {
-          setPotentialDuplicates(potentialDuplicates);
+          setPotentialDuplicates(transformedDuplicates);
           setProposedPatient(data);
           const confirmedNotDuplicate = await handleShowWarningModal();
           if (!confirmedNotDuplicate) return;
