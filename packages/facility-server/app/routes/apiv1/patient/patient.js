@@ -29,6 +29,28 @@ import { patientContact } from './patientContact';
 const patientRoute = express.Router();
 
 patientRoute.get(
+  '/checkDuplicates',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, query } = req;
+    const { firstName, lastName, dateOfBirth } = query;
+    const { Patient } = models;
+
+    // TODO: Call postgres function here
+    const potentialDuplicates = await Patient.findAll({
+      where: {
+        firstName,
+        lastName,
+        dateOfBirth,
+      },
+    });
+
+    res.send({ data: potentialDuplicates });
+  }),
+);
+
+patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {

@@ -13,8 +13,19 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const api = useApi();
   const { facilityId } = useAuth();
   const onSubmit = useCallback(
-    async (data) => {
+    async data => {
       try {
+        const params = new URLSearchParams({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dateOfBirth: data.dateOfBirth,
+        });
+        const potentialDuplicates = await api.get(`patient/checkDuplicates?${params.toString()}`);
+
+        if (potentialDuplicates.data.length > 0) {
+          alert(`Potential duplicates: ${potentialDuplicates.data.length}`);
+          return;
+        }
         const newPatient = await api.post('patient', {
           ...data,
           registeredById: api.user.id,
