@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 
 import { IPatientFieldValue } from '~/types';
 import { Patient } from './Patient';
@@ -9,6 +9,9 @@ import { BaseModel } from './BaseModel';
 @Entity('patient_field_values')
 export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @PrimaryColumn()
+  id: string;
 
   @Column({ nullable: false })
   value: string;
