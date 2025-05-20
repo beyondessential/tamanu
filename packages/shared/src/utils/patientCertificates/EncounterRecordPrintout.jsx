@@ -307,10 +307,6 @@ const NotesSection = ({ notes }) => {
   );
 };
 
-const MedicationText = ({ children, lineThrough = false }) => (
-  <Text style={{ textDecoration: lineThrough ? 'line-through' : 'none' }}>{children}</Text>
-);
-
 const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
@@ -344,8 +340,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],
@@ -365,8 +360,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
         style: { width: '35%' },
       },
     ],
@@ -477,21 +471,18 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'medication',
         title: getTranslation('medication.medication.label', 'Medication'),
-        accessor: ({ medication, discontinued }) => (
-          <MedicationText lineThrough={discontinued}>{medication?.name}</MedicationText>
-        ),
+        accessor: ({ medication }) => medication?.name,
         style: { width: '41%' },
       },
       {
         key: 'dose',
         title: getTranslation('pdf.table.column.dose', 'Dose'),
         accessor: (medication) => {
-          console.log('medication', medication);
           return (
-            <MedicationText lineThrough={medication?.discontinued}>
+            <Text>
               {getDose(medication, getTranslation, getEnumTranslation)}
               {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
-            </MedicationText>
+            </Text>
           );
         },
         style: { width: '13%' },
@@ -499,37 +490,25 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'frequency',
         title: getTranslation('pdf.table.column.frequency', 'Frequency'),
-        accessor: ({ frequency, discontinued }) => (
-          <MedicationText lineThrough={discontinued}>
-            {getTranslatedFrequency(frequency, getTranslation)}
-          </MedicationText>
-        ),
+        accessor: ({ frequency }) => getTranslatedFrequency(frequency, getTranslation),
         style: { width: '14%' },
       },
       {
         key: 'route',
         title: getTranslation('medication.route.label', 'Route'),
-        accessor: ({ route, discontinued }) => (
-          <MedicationText lineThrough={discontinued}>
-            {route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''}
-          </MedicationText>
-        ),
+        accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
         style: { width: '10%' },
       },
       {
         key: 'quantity',
         title: getTranslation('pdf.table.column.quantity', 'Quantity'),
-        accessor: ({ quantity, discontinued }) => (
-          <MedicationText lineThrough={discontinued}>{quantity}</MedicationText>
-        ),
+        accessor: ({ quantity }) => quantity,
         style: { width: '12%' },
       },
       {
         key: 'repeats',
         title: getTranslation('pdf.table.column.repeat', 'Repeat'),
-        accessor: ({ repeats, discontinued }) => (
-          <MedicationText lineThrough={discontinued}>{repeats || 0}</MedicationText>
-        ),
+        accessor: ({ repeats }) => repeats || 0,
         style: { width: '10%' },
       },
     ],
