@@ -31,8 +31,9 @@ const StyledTextButton = styled(TextButton)`
   font-weight: 500;
   .MuiSvgIcon-root {
     margin-right: 4px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
   }
 `;
 
@@ -96,7 +97,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                 </div>
               </ThemedTooltip>
             </StyledTextButton>
-
             <div />
             <StyledTextButton
               onClick={() => setPrintMedicationModalOpen(true)}

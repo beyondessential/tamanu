@@ -1,6 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  datetimeCustomValidation,
+  getCurrentDateTimeString,
+  toDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
 import {
@@ -13,6 +17,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
@@ -463,7 +468,7 @@ const givenMarUpdateSchema = z
   .object({
     dose: z.object({
       doseAmount: z.number(),
-      givenTime: z.string().datetime(),
+      givenTime: datetimeCustomValidation,
       givenByUserId: z.string().optional(),
       recordedByUserId: z.string().optional(),
     }),
@@ -540,9 +545,9 @@ const givenMarCreateSchema = z
   .object({
     dose: z.object({
       doseAmount: z.number(),
-      givenTime: z.string().datetime(),
+      givenTime: datetimeCustomValidation,
     }),
-    dueAt: z.string().datetime(),
+    dueAt: datetimeCustomValidation,
     prescriptionId: z.string(),
     changingStatusReason: z.string().optional(),
   })
@@ -703,7 +708,7 @@ medication.put(
 const notGivenInputCreateSchema = z
   .object({
     reasonNotGivenId: z.string(),
-    dueAt: z.string().datetime(),
+    dueAt: datetimeCustomValidation,
     prescriptionId: z.string(),
     changingStatusReason: z.string().optional(),
   })
@@ -750,7 +755,7 @@ const updateMarInputSchema = z
         z
           .object({
             doseAmount: z.number(),
-            givenTime: z.string().datetime(),
+            givenTime: datetimeCustomValidation,
             givenByUserId: z.string(),
             recordedByUserId: z.string(),
           })
@@ -765,12 +770,24 @@ medication.put(
     req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
     const marId = params.id;
-    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
+    const {
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
+      User,
+      Prescription,
+      Note,
+    } = models;
 
     const { isError, errorNotes, doses } = await updateMarInputSchema.parseAsync(req.body);
 
     const existingMar = await MedicationAdministrationRecord.findByPk(marId, {
-      include: ['prescription'],
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          include: ['encounterPrescription', 'medication'],
+        },
+      ],
     });
     if (!existingMar) {
       throw new InvalidOperationError(`MAR with id ${marId} not found`);
@@ -814,13 +831,14 @@ medication.put(
     }
 
     const currentDate = getCurrentDateTimeString();
-    await existingMar.createNote({
+    await Note.create({
       content:
-        `Medication error recorded for ${existingMar.prescription.name} dose recorded at ${currentDate}. ${errorNotes}`.trim(),
+        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes}`.trim(),
       authorId: req.user.id,
-      recordId: existingMar.id,
+      recordId: existingMar.prescription.encounterPrescription.encounterId,
       date: currentDate,
       noteType: NOTE_TYPES.SYSTEM,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     });
 
     res.send(existingMar.forResponse());
@@ -858,7 +876,7 @@ medication.get(
 
 const updateDoseSchema = z.object({
   doseAmount: z.number(),
-  givenTime: z.string().datetime(),
+  givenTime: datetimeCustomValidation,
   givenByUserId: z.string(),
   recordedByUserId: z.string(),
   reasonForChange: z.string().optional(),

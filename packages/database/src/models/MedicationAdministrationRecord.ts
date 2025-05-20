@@ -309,14 +309,6 @@ export class MedicationAdministrationRecord extends Model {
       foreignKey: 'recordedByUserId',
       as: 'recordedByUser',
     });
-    this.hasMany(models.Note, {
-      foreignKey: 'recordId',
-      as: 'notes',
-      constraints: false,
-      scope: {
-        recordType: this.name,
-      },
-    });
   }
 
   static buildSyncFilter() {
