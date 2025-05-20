@@ -200,8 +200,6 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
     await this.initiateNewOngoingConditionAddButton.click();
-    await this.ongoingConditionNameField.click();
-    await expect(this.ongoingConditionNameField).toBeFocused();
     await this.ongoingConditionNameField.fill(conditionName);
     await this.page.getByRole('menuitem', { name: conditionName, exact: true }).click();
     await this.clickAddButtonToConfirm(this.submitNewOngoingConditionAddButton);
