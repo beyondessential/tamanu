@@ -7,5 +7,5 @@ Represents the previous lookup up to tick.
 {% enddocs %}
 
 {% docs sync_lookup_ticks__lookup_end_tick %}
-Represents the new sync tick at time of updating lookup pending records.
+Represents the new sync tick at time of updating lookup-pending records.
 {% enddocs %}
