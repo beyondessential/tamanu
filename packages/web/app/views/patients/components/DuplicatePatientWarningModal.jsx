@@ -11,6 +11,8 @@ import {
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { culturalName, dateOfBirth, firstName, lastName, sex, village } from '../columns';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
+import { reloadPatient } from '../../../store';
+import { useDispatch } from 'react-redux';
 
 const COLUMNS = [firstName, lastName, culturalName, dateOfBirth, sex, village];
 
@@ -23,13 +25,14 @@ export const DuplicatePatientWarningModal = ({
   proposedPatient,
 }) => {
   const { navigateToPatient } = usePatientNavigation();
+  const dispatch = useDispatch();
 
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
 
-  const hasMultipleDuplicates = potentialDuplicates.length > 1;
+  const plural = potentialDuplicates.length > 1 ? 's' : '';
 
   return (
     <Modal
@@ -39,20 +42,22 @@ export const DuplicatePatientWarningModal = ({
       onClose={() => handleClose(false)}
       data-testid="modal-dgog"
     >
-      <Heading3>Possible duplicate patient record{hasMultipleDuplicates ? 's' : ''}</Heading3>
-      {/* TODO: plural handling */}
+      <Heading3>Possible duplicate patient record{plural}</Heading3>
       <LargeBodyText color="textTertiary">
-        The below patient records already exist. Please review the patient details and ensure you
-        are not adding a duplicate record. If the patient you are creating is listed below, please
-        select the required record to continue. Otherwise, click 'Add new patient' to continue
-        adding a new patient record.
+        The below patient record{plural} already exists. Please review the patient details and
+        ensure you are not adding a duplicate record. If the patient you are creating is listed
+        below, please select the required record to continue. Otherwise, click &apos;Add new
+        patient&apos; to continue adding a new patient record.
       </LargeBodyText>
-      <Heading4>Existing patient record{hasMultipleDuplicates ? 's' : ''} in Tamanu</Heading4>
+      <Heading4>Existing patient record{plural} in Tamanu</Heading4>
       <Table
         columns={COLUMNS}
         data={potentialDuplicates}
-        // TODO: not working??
-        onRowClick={row => navigateToPatient(row.id)}
+        onRowClick={row => {
+          // TODO: why do i have to do this? take another look
+          dispatch(reloadPatient(row.id));
+          navigateToPatient(row.id);
+        }}
       />
       <Heading4>Proposed new patient record</Heading4>
       <Table columns={COLUMNS} data={[proposedPatient]} />
