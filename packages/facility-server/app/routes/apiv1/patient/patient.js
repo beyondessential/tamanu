@@ -33,17 +33,12 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, query } = req;
-    const { firstName, lastName, dateOfBirth } = query;
+    const { models, query: patient } = req;
 
     const potentialDuplicates = await models.Patient.sequelize.query(
-      `SELECT * FROM find_potential_patient_duplicates(:firstName, :lastName, :dateOfBirth)`,
+      `SELECT * FROM find_potential_patient_duplicates(:patient)`,
       {
-        replacements: {
-          firstName,
-          lastName,
-          dateOfBirth,
-        },
+        replacements: { patient: JSON.stringify(patient) },
         type: QueryTypes.SELECT,
       },
     );
