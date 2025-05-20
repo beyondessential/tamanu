@@ -330,7 +330,7 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
-    if (!marInfo || isDiscontinued) return null;
+    if (!marInfo || isDiscontinued || (!status && isPaused)) return null;
     let color = Colors.green;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
@@ -402,6 +402,16 @@ export const MarStatus = ({
         <Box maxWidth={105}>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
           <div>{format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}</div>
+        </Box>
+      );
+    }
+    if (isPaused && !status) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationPaused.tooltip"
+            fallback="Medication paused"
+          />
         </Box>
       );
     }
@@ -486,16 +496,6 @@ export const MarStatus = ({
             </Box>
           );
       }
-    }
-    if (isPaused) {
-      return (
-        <Box maxWidth={69}>
-          <TranslatedText
-            stringId="medication.mar.medicationPaused.tooltip"
-            fallback="Medication paused"
-          />
-        </Box>
-      );
     }
     return null;
   };
