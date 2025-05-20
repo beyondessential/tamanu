@@ -32,7 +32,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   async assignIdAsPatientIdDefinitionId(): Promise<void> {
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patient.replace(';', ':')};${this.definition.replace(';', ':')}`;
+    this.id = `${this.patient.replaceAll(';', ':')};${this.definition.replaceAll(';', ':')}`;
   }
 
   static async getForPatientAndDefinition(
