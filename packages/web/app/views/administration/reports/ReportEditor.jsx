@@ -7,7 +7,6 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMAS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_DB_SCHEMA_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
@@ -49,23 +48,19 @@ const generateDefaultParameter = () => ({
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setFieldValue }) => {
   const { ability } = useAuth();
   const api = useApi();
-  const setQuery = (query) => setValues({ ...values, query });
+  const setQuery = query => setValues({ ...values, query });
   const params =
-    values.parameters.map((param) => ({ ...generateDefaultParameter(), ...param })) || [];
-  const setParams = (newParams) => setValues({ ...values, parameters: newParams });
+    values.parameters.map(param => ({ ...generateDefaultParameter(), ...param })) || [];
+  const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
 
-  const onParamsDelete = (paramId) => setParams(params.filter((p) => p.id !== paramId));
+  const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
 
   const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
     api.get(`admin/reports/dbSchemaOptions`),
   );
-
-  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
-  const showDataSourceField =
-    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
 
   return (
     <>
@@ -121,23 +116,21 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             />
           </Grid>
         )}
-        {showDataSourceField && (
-          <Grid item xs={4} data-testid="grid-q96h">
-            <StyledField
-              label={
-                <TranslatedText
-                  stringId="admin.report.canBeRunOn.label"
-                  fallback="Can be run on"
-                  data-testid="translatedtext-75m8"
-                />
-              }
-              name="dataSources"
-              component={TranslatedMultiSelectField}
-              enumValues={REPORT_DATA_SOURCE_LABELS}
-              data-testid="styledfield-3liy"
-            />
-          </Grid>
-        )}
+        <Grid item xs={4} data-testid="grid-q96h">
+          <StyledField
+            label={
+              <TranslatedText
+                stringId="admin.report.canBeRunOn.label"
+                fallback="Can be run on"
+                data-testid="translatedtext-75m8"
+              />
+            }
+            name="dataSources"
+            component={TranslatedMultiSelectField}
+            enumValues={REPORT_DATA_SOURCE_LABELS}
+            data-testid="styledfield-3liy"
+          />
+        </Grid>
         <Grid item xs={12} data-testid="grid-0hxf">
           <StyledField
             label={
@@ -176,7 +169,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           <Grid container spacing={2} data-testid="grid-z7ao">
             <Grid item xs={8} data-testid="grid-52vl">
               <SQLQueryEditor
-                customKeywords={params.map((p) => p.name)}
+                customKeywords={params.map(p => p.name)}
                 onChange={setQuery}
                 value={values.query}
                 data-testid="sqlqueryeditor-8lhz"
@@ -262,13 +255,16 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
               'admin.report.validation.rule.atLeast1DataSource',
               'Select at least one data source',
             ),
-            (val) => {
+            val => {
               const values = val || [];
-              return values.length && values.every((v) => REPORT_DATA_SOURCE_VALUES.includes(v));
+              return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
             },
           )
           .required(),
-        defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
+        defaultDateRange: yup
+          .string()
+          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
+          .required(),
         dbSchema: yup
           .string()
           .nullable()
@@ -306,7 +302,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                 />,
               ),
             suggesterEndpoint: yup.string().when('parameterField', {
-              is: (parameterField) => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
+              is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
               then: yup
                 .string()
                 .required()
@@ -320,7 +316,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
               otherwise: yup.string(),
             }),
             options: yup.array().when('parameterField', {
-              is: (parameterField) => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
+              is: parameterField => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
               then: yup
                 .array()
                 .test(
@@ -329,7 +325,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
                     'admin.report.validation.rule.optionMustContainLabelAndValue',
                     'Each option must contain a label and value',
                   ),
-                  (val) => val.every((o) => o.label && o.value),
+                  val => val.every(o => o.label && o.value),
                 ),
               otherwise: yup.array(),
             }),
@@ -359,7 +355,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
       })}
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       initialValues={initialValues}
-      render={(formikContext) => (
+      render={formikContext => (
         <ReportEditorForm {...formikContext} isEdit={isEdit} data-testid="reporteditorform-5mmm" />
       )}
       data-testid="form-v39s"
