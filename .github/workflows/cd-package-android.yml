@@ -100,14 +100,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: yarn
 
-      - name: Run Yarn Install
-        working-directory: packages/mobile
-        run: |
-          npm install
+      - working-directory: packages/mobile
+        run: npm install --legacy-peer-deps
 
-      - name: Build shared packages
-        run: |
-          npm run build-shared
+      - run: npm run build-shared
 
       - name: Build release
         working-directory: packages/mobile/android
