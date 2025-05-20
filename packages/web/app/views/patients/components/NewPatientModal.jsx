@@ -28,10 +28,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const onSubmit = useCallback(
     async data => {
       try {
-        // TODO: these args depend on what maui needs
-        const params = new URLSearchParams(data).toString();
-
-        const { data: potentialDuplicates } = await api.get(`patient/checkDuplicates?${params}`);
+        const { data: potentialDuplicates } = await api.post('patient/checkDuplicates', data);
 
         if (potentialDuplicates.length > 0) {
           setPotentialDuplicates(potentialDuplicates);
