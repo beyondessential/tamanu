@@ -28,15 +28,10 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const onSubmit = useCallback(
     async data => {
       try {
-        const params = new URLSearchParams({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          dateOfBirth: data.dateOfBirth,
-        });
+        // TODO: these args depend on what maui needs
+        const params = new URLSearchParams(data).toString();
 
-        const { data: potentialDuplicates } = await api.get(
-          `patient/checkDuplicates?${params.toString()}`,
-        );
+        const { data: potentialDuplicates } = await api.get(`patient/checkDuplicates?${params}`);
 
         if (potentialDuplicates.length > 0) {
           setPotentialDuplicates(potentialDuplicates);
@@ -86,6 +81,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="warningmodal-h7av"
         proposedPatient={proposedPatient}
         potentialDuplicates={potentialDuplicates}
+        onCancelNewPatient={onCancel}
       />
     </>
   );

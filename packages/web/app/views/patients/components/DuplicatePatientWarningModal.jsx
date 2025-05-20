@@ -18,6 +18,7 @@ export const DuplicatePatientWarningModal = ({
   open,
   setShowWarningModal,
   resolveFn,
+  onCancelNewPatient,
   potentialDuplicates,
   proposedPatient,
 }) => {
@@ -39,25 +40,34 @@ export const DuplicatePatientWarningModal = ({
       data-testid="modal-dgog"
     >
       <Heading3>Possible duplicate patient record{hasMultipleDuplicates ? 's' : ''}</Heading3>
+      {/* TODO: plural handling */}
       <LargeBodyText color="textTertiary">
-        The below patient record{hasMultipleDuplicates ? 's' : ''} already exist
-        {hasMultipleDuplicates ? '' : 's'}. Please review the patient details and ensure you are not
-        adding a duplicate record. If the patient you are creating is listed below, please select
-        the required record to continue. Otherwise, click &apos;Add new patient&apos; to continue
+        The below patient records already exist. Please review the patient details and ensure you
+        are not adding a duplicate record. If the patient you are creating is listed below, please
+        select the required record to continue. Otherwise, click 'Add new patient' to continue
         adding a new patient record.
       </LargeBodyText>
       <Heading4>Existing patient record{hasMultipleDuplicates ? 's' : ''} in Tamanu</Heading4>
       <Table
         columns={COLUMNS}
         data={potentialDuplicates}
+        // TODO: not working??
         onRowClick={row => navigateToPatient(row.id)}
       />
       <Heading4>Proposed new patient record</Heading4>
       <Table columns={COLUMNS} data={[proposedPatient]} />
       <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
       <ButtonRow data-testid="buttonrow-5x0v">
-        <OutlinedButton data-testid="outlinedbutton-p957">Back</OutlinedButton>
         <OutlinedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
+          Back
+        </OutlinedButton>
+        <OutlinedButton
+          data-testid="outlinedbutton-p957"
+          onClick={() => {
+            handleClose(false);
+            onCancelNewPatient();
+          }}
+        >
           Cancel
         </OutlinedButton>
         <OutlinedButton
