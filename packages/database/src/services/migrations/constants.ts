@@ -19,6 +19,7 @@ export const NON_SYNCING_TABLES = [
 
 export const NON_LOGGED_TABLES = [
   'logs.changes',
+  'logs.debug_logs',
   // internal authentication tables
   'public.one_time_logins',
   'public.refresh_tokens',

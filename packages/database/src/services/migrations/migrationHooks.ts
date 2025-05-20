@@ -61,9 +61,8 @@ const tablesWithoutTrigger = (
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
-        AND (t.table_schema || '.' || t.table_name) NOT IN ($excludes);
     `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
        rows
@@ -71,14 +70,14 @@ const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`) && !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
     );
 
 const tablesWithTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
-  excludes: string[] = [],
+  excludes: string[] = NON_SYNCING_TABLES,
 ) =>
   sequelize
     .query(
@@ -98,9 +97,8 @@ const tablesWithTrigger = (
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
-        AND (t.table_schema || '.' || t.table_name) NOT IN ($excludes);
     `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
       rows
@@ -108,7 +106,7 @@ const tablesWithTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
     );
 
 export async function runPreMigration(log: Logger, sequelize: Sequelize) {
