@@ -100,9 +100,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: yarn
 
+      - run: npm ci
       - working-directory: packages/mobile
         run: npm install --legacy-peer-deps
-
       - run: npm run build-shared
 
       - name: Build release
