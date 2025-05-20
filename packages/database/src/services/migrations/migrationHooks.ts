@@ -47,10 +47,11 @@ const tablesWithoutTrigger = (
       `
       SELECT
         t.table_schema as schema,
-        t.table_name as table
+        t.table_name as table,
+        t.table_schema || '.' || t.table_name as full_name
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+        ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
       WHERE
         NOT EXISTS (
           SELECT *
@@ -65,12 +66,12 @@ const tablesWithoutTrigger = (
       { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
     )
     .then((rows) =>
-      rows
+       rows
         .map((row) => ({
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`) && !excludes.includes(`${schema}.${table}`)),
     );
 
 const tablesWithTrigger = (
@@ -87,7 +88,7 @@ const tablesWithTrigger = (
         t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+        ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
       WHERE
         EXISTS (
           SELECT *
