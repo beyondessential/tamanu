@@ -3,8 +3,9 @@ import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { validatePatientProgramRegistrationRequest } from './utils';
 import { Op } from 'sequelize';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { validatePatientProgramRegistrationRequest } from './utils';
 
 export const patientProgramRegistration = express.Router();
 
@@ -137,7 +138,7 @@ patientProgramRegistration.put(
     // If the registration status is being changed to INACTIVE, set the deactivated fields
     if (registrationData.registrationStatus === REGISTRATION_STATUSES.INACTIVE) {
       updatedRegistrationData.deactivatedDate =
-        registrationData.deactivatedDate || new Date().toISOString();
+        registrationData.deactivatedDate || getCurrentDateTimeString();
       updatedRegistrationData.deactivatedClinicianId = registrationData.clinicianId;
     }
 
