@@ -16,6 +16,7 @@ import {
   TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -369,6 +370,48 @@ createSuggester(
     afterCreated: afterCreatedReferenceData,
   },
   true,
+);
+
+createSuggester(
+  REFERENCE_TYPES.MEDICATION_SET,
+  'ReferenceData',
+  (search) => ({
+    name: { [Op.iLike]: search },
+    type: REFERENCE_TYPES.MEDICATION_SET,
+    ...VISIBILITY_CRITERIA,
+  }),
+  {
+    mapper: (item) => item,
+    creatingBodyBuilder: (req) =>
+      referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
+    includeBuilder: (req) => {
+      const {
+        models: { ReferenceData, MedicationTemplate },
+      } = req;
+
+      return [
+        {
+          model: ReferenceData,
+          as: 'children',
+          through: {
+            attributes: [],
+            where: {
+              type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+              deleted_at: null,
+            },
+          },
+          include: {
+            model: MedicationTemplate,
+            as: 'medicationTemplate',
+            include: {
+              model: ReferenceData,
+              as: 'medication',
+            },
+          },
+        },
+      ];
+    },
+  },
 );
 
 REFERENCE_TYPE_VALUES.forEach((typeName) => {

@@ -10,8 +10,10 @@ import { EncounterMedicationTable } from '../../../components/Medication/Medicat
 import { Button, ButtonWithPermissionCheck, TextButton } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { Colors } from '../../../constants';
+import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
+import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -50,22 +52,36 @@ const TableContainer = styled.div`
   border-radius: 3px;
 `;
 
-export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
-  const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
+export const EncounterMedicationPane = React.memo(({ patient, encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const { navigateToMar } = usePatientNavigation();
-
+  const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
+  const [prescriptionType, setPrescriptionType] = useState(null);
   const { loadEncounter } = useEncounter();
+
+  const handleContinue = (prescriptionType) => {
+    setPrescriptionType(prescriptionType);
+    setPrescriptionTypeModalOpen(false);
+  };
 
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
+        <PrescriptionTypeModal 
+          open={prescriptionTypeModalOpen}
+          onClose={() => setPrescriptionTypeModalOpen(false)}
+          onContinue={handleContinue}
+        />
+        <MedicationSetModal
+          open={prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET}
+          onClose={() => setPrescriptionType(null)}
+        />
         <MedicationModal
-          open={createMedicationModalOpen}
+          open={prescriptionType === PRESCRIPTION_TYPES.SINGLE_MEDICATION}
           encounterId={encounter.id}
-          onClose={() => setCreateMedicationModalOpen(false)}
+          onClose={() => setPrescriptionType(null)}
           onSaved={async () => {
-            setCreateMedicationModalOpen(false);
+            setPrescriptionType(null);
             await loadEncounter(encounter.id);
           }}
           data-testid="medicationmodal-s2hv"
@@ -113,7 +129,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               />
             </StyledButton>
             <StyledButtonWithPermissionCheck
-              onClick={() => setCreateMedicationModalOpen(true)}
+              onClick={() => setPrescriptionTypeModalOpen(true)}
               disabled={readonly}
               verb="create"
               noun="Prescription"
