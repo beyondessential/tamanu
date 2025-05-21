@@ -356,6 +356,7 @@ export class CentralSyncManager {
       await models.SyncSession.addDebugInfo(sessionId, {
         isMobile,
         tablesForFullResync,
+        useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
       const modelsToInclude = tablesToInclude
