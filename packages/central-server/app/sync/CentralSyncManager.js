@@ -584,7 +584,7 @@ export class CentralSyncManager {
       limit,
     );
     const { minSourceTick, maxSourceTick } = session.debugInfo;
-    if (!minSourceTick && !maxSourceTick) {
+    if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
 
