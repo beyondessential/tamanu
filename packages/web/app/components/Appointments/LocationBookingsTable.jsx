@@ -21,7 +21,6 @@ import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingM
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
 import { useAuth } from '../../contexts/Auth';
-import { CompactContentPane as ContentPane } from '../ContentPane';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
