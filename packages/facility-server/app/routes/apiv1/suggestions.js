@@ -12,7 +12,6 @@ import {
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
   DEFAULT_LANGUAGE_CODE,
@@ -24,7 +23,11 @@ export const suggestions = express.Router();
 
 const defaultLimit = 25;
 
-const defaultMapper = ({ entity_display_label, code, id }) => ({ entity_display_label, code, id });
+const defaultMapper = ({ entity_display_label, code, id }) => ({
+  name: entity_display_label,
+  code,
+  id,
+});
 
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
@@ -76,8 +79,6 @@ function createSuggesterRoute(
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
-      const dataType = getDataType(endpoint);
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
       const where = whereBuilder(`%${searchQuery}%`, query, req);
 
