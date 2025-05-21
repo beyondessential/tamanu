@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { type InitOptions } from '../types/model';
+import { log } from '@tamanu/shared/services/logging';
 
 export class SyncSession extends Model {
   declare id: string;
@@ -41,7 +42,11 @@ export class SyncSession extends Model {
   }
 
   static async addDebugInfo(id: string, info: object) {
-    const session = await this.findOne({ where: { id } });
+    // the SKIP LOCKED means we don't lock the sync_sessions table's row
+    // if it's already contended. but that also means that we might lose
+    // some debug info in some cases. so let's debug log it as well.
+    log.debug('Sync session debug', { id, ...info });
+    const session = await this.findOne({ where: { id }, skipLocked: true });
     await session?.update({
       debugInfo: { ...session.debugInfo, ...info },
     });
