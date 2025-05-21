@@ -85,15 +85,19 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @RelationId(({ clinician }) => clinician)
   clinicianId: ID;
 
+  @ManyToOne(() => User, undefined, { nullable: true })
+  deactivatedClinician?: IUser;
+  @RelationId(({ deactivatedClinician }) => deactivatedClinician)
+  deactivatedClinicianId?: ID;
+
+  @Column({ type: 'varchar', nullable: true })
+  deactivatedDate?: DateTimeString;
+
   @OneToMany<PatientProgramRegistrationCondition>(
     () => PatientProgramRegistrationCondition,
     ({ patientProgramRegistration }) => patientProgramRegistration,
   )
   conditions: IPatientProgramRegistrationCondition[];
-
-  // dateRemoved: DateTimeString;
-  // removedBy?: IUser;
-  // removedById?: ID;
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {

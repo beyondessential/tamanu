@@ -21,6 +21,13 @@ const StyledFormTable = styled(FormTable)`
 
   table tr td {
     border: none;
+
+    // This table doesn't have form fields so don't need to move the spans and buttons down for alignment
+    > span,
+    > button {
+      position: static;
+      top: 0;
+    }
   }
 `;
 

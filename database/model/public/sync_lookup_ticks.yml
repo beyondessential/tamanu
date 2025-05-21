@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: sync_lookup_ticks
+        description: '{{ doc("table__sync_lookup_ticks") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: bigint
+            description: "{{ doc('generic__id') }} in sync_lookup_ticks."
+          - name: source_start_tick
+            data_type: bigint
+            description: "{{ doc('sync_lookup_ticks__source_start_tick') }}"
+            data_tests:
+              - not_null
+          - name: lookup_end_tick
+            data_type: bigint
+            description: "{{ doc('sync_lookup_ticks__lookup_end_tick') }}"
+            data_tests:
+              - unique
+              - not_null

@@ -537,6 +537,12 @@ export class CentralSyncManager {
   async checkPullReady(sessionId) {
     await this.connectToSession(sessionId);
 
+    // if the sync_lookup table is enabled, wait until it has finished its first update run
+    const syncLookupUpToTick = await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+    if (this.constructor.config.sync.lookupTable.enabled && syncLookupUpToTick === undefined) {
+      return false;
+    }
+
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
     if (snapshotIsProcessing) {
@@ -611,7 +617,11 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
+        // Don't produce audit logs for changes made through sync
+        // Audit changelogs are generated on facility servers and will sync in to central
+        // Mobile changelogs are currently not implemented
         await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
