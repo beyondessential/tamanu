@@ -455,7 +455,7 @@ export const LocationBookingsTable = ({ patient }) => {
   }
 
   return (
-    <ContentPane>
+    <div>
       <StyledTable
         isLoading={isLoading}
         data={appointments}
@@ -494,6 +494,6 @@ export const LocationBookingsTable = ({ patient }) => {
           data-testid="pastbookingsmodal-x4ug"
         />
       )}
-    </ContentPane>
+    </div>
   );
 };
