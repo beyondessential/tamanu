@@ -24,7 +24,6 @@ import {
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
-  SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
 } from '@tamanu/database/sync';
 import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
@@ -592,10 +591,7 @@ export class CentralSyncManager {
     const recordsForPull = await attachChangelogToSnapshotRecords(
       this.store,
       snapshotRecords,
-      {
-        ...sourceTickRange,
-        tableWhitelist: SYNC_CHANGELOG_TO_FACILITY_FOR_THESE_TABLES,
-      }
+      sourceTickRange
     );
     return recordsForPull;
   }

@@ -84,49 +84,6 @@ describe('attachChangelogToSnapshotRecords', () => {
     expect(encounter1?.changelogRecords).toHaveLength(0);
   });
 
-  it('should filter changelog records by table whitelist', async () => {
-    // Insert test data
-    const { ChangeLog } = models;
-    await Promise.all([
-      ChangeLog.create(fake(models.ChangeLog, {
-        tableName: 'patients',
-        recordSyncTick: 100,
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordId: '1',
-        recordData: { name: 'John Doe' },
-      })),
-      ChangeLog.create(fake(models.ChangeLog, {
-        tableName: 'encounters',
-        recordSyncTick: 100,
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordId: '1',
-        recordData: { type: 'checkup' },
-      })),
-    ]);
-
-    const snapshotRecords = [
-      { recordType: 'patients', recordId: '1' },
-      { recordType: 'encounters', recordId: '1' },
-    ];
-
-    const result = await attachChangelogToSnapshotRecords({
-      models,
-      sequelize
-    }, snapshotRecords, {
-      minSourceTick: 0,
-      tableWhitelist: ['patients'],
-    });
-
-    expect(result).toHaveLength(2);
-
-    // Check only patient records have changelog entries
-    const patient1 = result.find((r) => r.recordType === 'patients');
-    expect(patient1?.changelogRecords).toHaveLength(1);
-
-    const encounter1 = result.find((r) => r.recordType === 'encounters');
-    expect(encounter1?.changelogRecords).toHaveLength(0);
-  });
-
   it('should handle empty snapshot records', async () => {
     const result = await attachChangelogToSnapshotRecords({
       models,
