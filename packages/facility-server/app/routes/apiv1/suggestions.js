@@ -96,13 +96,18 @@ function createSuggesterRoute(
 
       const where =
         isTranslatable && hasTranslations
-          ? Sequelize.literal(`EXISTS (
-            SELECT 1 
-            FROM translated_strings 
-            WHERE language = :language
-            AND string_id = '${translationPrefix}' || "${modelName}"."id"
-            AND text ILIKE :searchQuery
-          )`)
+          ? {
+              [Op.and]: [
+                Sequelize.literal(`EXISTS (
+                  SELECT 1 
+                  FROM translated_strings 
+                  WHERE language = :language
+                  AND string_id = '${translationPrefix}' || "${modelName}"."id"
+                  AND text ILIKE :searchQuery
+                )`),
+                VISIBILITY_CRITERIA,
+              ],
+            }
           : whereBuilder(`%${searchQuery}%`, query, req);
 
       if (endpoint === 'location' && query.locationGroupId) {
