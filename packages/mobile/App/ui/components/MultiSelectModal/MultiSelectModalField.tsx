@@ -25,7 +25,7 @@ interface MultiSelectModalFieldProps {
 }
 
 const extractLabel = (items: OptionType[]) => {
-  return items.map(x => x.label).join(', ');
+  return items.map((x) => x.label).join(', ');
 };
 
 export const MultiSelectModalField = ({
@@ -35,7 +35,7 @@ export const MultiSelectModalField = ({
   placeholder = 'Select',
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.MultiSelectModal,
+  modalRoute = Routes.Forms.MultiSelectModal,
   error,
   required,
   marginTop = 0,
@@ -61,26 +61,29 @@ export const MultiSelectModalField = ({
 
   // This function is not in use, however, it's meant to be used when
   // initial values are set. Pay extra care to the value format it expects.
-  const loadInitialLabel = useCallback(async (values: string[]) => {
-    if (values.length === 0) {
-      return;
-    }
-    const selectedValues: OptionType[] = [];
-    for (const x of values) {
-      const data = await suggester.fetchCurrentOption(x);
-      selectedValues.push(data);
-    }
+  const loadInitialLabel = useCallback(
+    async (values: string[]) => {
+      if (values.length === 0) {
+        return;
+      }
+      const selectedValues: OptionType[] = [];
+      for (const x of values) {
+        const data = await suggester.fetchCurrentOption(x);
+        selectedValues.push(data);
+      }
 
-    const updatedLabel = extractLabel(selectedValues);
-    setLabel(updatedLabel);
-  }, [suggester]);
+      const updatedLabel = extractLabel(selectedValues);
+      setLabel(updatedLabel);
+    },
+    [suggester],
+  );
 
   useEffect(() => {
     if (!value) return;
     loadInitialLabel(value);
-  // Disabling the linter because we only want to run this on mount
-  // if the component has an initial value and ignore value updates.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Disabling the linter because we only want to run this on mount
+    // if the component has an initial value and ignore value updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

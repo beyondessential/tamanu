@@ -10,6 +10,11 @@ interface TranslatedEnumProps extends Partial<TranslatedTextProps> {
   enumFallback?: string;
 }
 
+export const getEnumStringId = (value, enumValues) => {
+  const prefix = getEnumPrefix(enumValues);
+  return `${prefix}.${toCamelCase(value)}`;
+};
+
 /**
  * Converts a string from formats like SNAKE_CASE to camelCase
  * Keep in sync with packages/shared/src/utils/enumRegistry.js
@@ -26,16 +31,13 @@ export const TranslatedEnum = ({
   enumFallback = 'Unknown',
   ...restProps
 }: TranslatedEnumProps) => {
-  const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
       <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} {...restProps} />
     );
   }
 
+  const stringId = getEnumStringId(value, enumValues);
   const fallback = enumValues[value];
-  // convert the enum value to a string id
-  const camelCaseValue = toCamelCase(value);
-  const stringId = `${prefix}.${camelCaseValue}`;
   return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
 };

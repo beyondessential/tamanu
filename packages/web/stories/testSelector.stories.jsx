@@ -13,16 +13,16 @@ export default {
       options: Object.values(LAB_REQUEST_FORM_TYPES),
     },
   },
-  title: 'Forms/TestSelector',
+  title: 'Form Fields/TestSelector',
   component: TestSelectorInput,
 };
 
-const Template = args => {
+const Template = (args) => {
   const { requestFormType } = args;
   const [selected, setSelected] = React.useState([]);
   const changeAction = action('change');
   const onChange = React.useCallback(
-    e => {
+    (e) => {
       const newValue = e.target.value;
       changeAction(newValue);
       setSelected(newValue);

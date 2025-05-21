@@ -4,13 +4,13 @@ import { DateTimeString } from './DateString';
 import { IFacility, IPatient, IReferenceData, IUser } from '.';
 import { IProgramRegistry } from './IProgramRegistry';
 import { RegistrationStatus } from '~/constants/programRegistries';
+import { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
 
 export interface IPatientProgramRegistration {
   id: ID;
   date: DateTimeString;
 
   registrationStatus: RegistrationStatus;
-  isMostRecent: boolean;
 
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
@@ -32,4 +32,11 @@ export interface IPatientProgramRegistration {
 
   villageId?: ID;
   village?: IReferenceData;
+
+  deactivatedClinicianId?: ID;
+  deactivatedClinician?: IUser;
+
+  deactivatedDate?: DateTimeString;
+
+  conditions: IPatientProgramRegistrationCondition[];
 }

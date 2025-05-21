@@ -385,7 +385,6 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
             },
           ],
         });
-        console.log(response.body);
 
         // assert
         const ires = await ImagingResult.findOne({

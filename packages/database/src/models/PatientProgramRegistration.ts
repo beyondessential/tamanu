@@ -8,7 +8,6 @@ export class PatientProgramRegistration extends Model {
   declare id: string;
   declare date: string;
   declare registrationStatus: string;
-  declare isMostRecent: boolean;
   declare patientId: string;
   declare programRegistryId: string;
   declare clinicalStatusId?: string;
@@ -16,6 +15,8 @@ export class PatientProgramRegistration extends Model {
   declare registeringFacilityId?: string;
   declare facilityId?: string;
   declare villageId?: string;
+  declare deactivatedClinicianId?: string;
+  declare deactivatedDate?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -30,11 +31,9 @@ export class PatientProgramRegistration extends Model {
           type: DataTypes.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
-        isMostRecent: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
+        deactivatedDate: dateTimeType('deactivatedDate', {
+          allowNull: true,
+        }),
       },
       {
         ...options,
@@ -48,6 +47,7 @@ export class PatientProgramRegistration extends Model {
       'programRegistry',
       'clinicalStatus',
       'clinician',
+      'deactivatedClinician',
       'registeringFacility',
       'facility',
       'village',
@@ -55,7 +55,7 @@ export class PatientProgramRegistration extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['clinicalStatus', 'clinician'];
+    return ['clinicalStatus', 'clinician', 'deactivatedClinician'];
   }
 
   static initRelations(models: Models) {
@@ -79,6 +79,11 @@ export class PatientProgramRegistration extends Model {
       as: 'clinician',
     });
 
+    this.belongsTo(models.User, {
+      foreignKey: 'deactivatedClinicianId',
+      as: 'deactivatedClinician',
+    });
+
     this.belongsTo(models.Facility, {
       foreignKey: 'registeringFacilityId',
       as: 'registeringFacility',
@@ -95,48 +100,20 @@ export class PatientProgramRegistration extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
-  }
 
-  static async create(values: any): Promise<any> {
-    const { programRegistryId, patientId, ...restOfUpdates } = values;
-    const existingRegistration = await this.sequelize.models.PatientProgramRegistration.findOne({
-      where: {
-        isMostRecent: true,
-        programRegistryId,
-        patientId,
-      },
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'patientProgramRegistrationId',
+      as: 'conditions',
     });
-
-    // Most recent registration will now be the new one
-    if (existingRegistration) {
-      await existingRegistration.update({ isMostRecent: false });
-    }
-
-    const newRegistrationValues = {
-      patientId,
-      programRegistryId,
-      ...(existingRegistration?.dataValues ?? {}),
-      // today's date should absolutely override the date of the previous registration record,
-      // but if a date was provided in the function params, we should go with that.
-      date: getCurrentDateTimeString(),
-      ...restOfUpdates,
-      isMostRecent: true,
-    };
-
-    // Ensure a new id is generated, rather than using the one from existingRegistration
-    delete newRegistrationValues.id;
-
-    return super.create(newRegistrationValues);
   }
 
-  static async getMostRecentRegistrationsForPatient(patientId: string) {
+  static async getRegistrationsForPatient(patientId: string) {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
-        isMostRecent: true,
         registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },
-      include: ['clinicalStatus', 'programRegistry'],
+      include: ['clinicalStatus', 'programRegistry', 'deactivatedClinician'],
       order: [
         // "active" > "removed"
         ['registrationStatus', 'ASC'],

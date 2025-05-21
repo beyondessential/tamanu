@@ -1,6 +1,7 @@
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
   'logs.fhir_writes',
+  'logs.changes',
   'public.fhir_materialise_jobs',
   'public.local_system_facts',
   'public.one_time_logins',
@@ -9,6 +10,7 @@ export const NON_SYNCING_TABLES = [
   'public.SequelizeMeta',
   'public.signers',
   'public.sync_device_ticks',
+  'public.sync_lookup_ticks',
   'public.sync_lookup',
   'public.sync_queued_devices',
   'public.sync_sessions',
@@ -26,6 +28,7 @@ export const NON_LOGGED_TABLES = [
   'sync_queued_devices',
   'sync_lookup',
   'sync_device_ticks',
+  'sync_lookup_ticks',
 
   // caches
   'user_localisation_caches',

@@ -39,14 +39,14 @@ export default {
       control: 'boolean',
     },
   },
-  title: 'FormControls/DynamicSelectField',
+  title: 'Form Fields/DynamicSelectField',
   component: DynamicSelectField,
 };
 
 const Template = ({ name, suggesterEndpoint, ...args }) => {
   const suggester = useSuggester(suggesterEndpoint);
   const [value, setValue] = useState(null);
-  const handleChange = e => {
+  const handleChange = (e) => {
     setValue(e.target.value);
   };
   return (
