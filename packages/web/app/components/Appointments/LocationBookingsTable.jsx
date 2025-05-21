@@ -206,7 +206,6 @@ const DateText = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  margin: 10px 30px;
   padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
