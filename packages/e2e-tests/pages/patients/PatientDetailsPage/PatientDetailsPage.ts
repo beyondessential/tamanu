@@ -300,7 +300,9 @@ export class PatientDetailsPage extends BasePatientPage {
     await expect(this.vaccineTab).toBeVisible();
   }
 
-  //the waitForLoadStates on either side are to avoid flakiness that can occur here
+  /**
+   * Helper method for clicking add button with waitForLoadStates on either side to avoid flakiness
+   */
   async clickAddButtonToConfirm(buttonLocator: Locator) {
     await this.page.waitForLoadState('networkidle');
     await buttonLocator.click();
