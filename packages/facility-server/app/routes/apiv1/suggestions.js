@@ -29,8 +29,18 @@ const defaultMapper = ({ dataValues: { translation }, name, code, id }) => ({
   id,
 });
 
-const DEFAULT_WHERE_BUILDER = (search) => ({
-  name: { [Op.iLike]: search },
+const getTranslationWhere = (modelName) =>
+  Sequelize.literal(`EXISTS (
+      SELECT 1 
+      FROM "translated_strings" 
+      WHERE "language" = :language
+      AND "string_id" = :translationPrefix || "${modelName}"."id"
+      AND "text" ILIKE :searchQuery
+  )`);
+
+const DEFAULT_WHERE_BUILDER = (search, _, __, modelName) => ({
+  // TODO: this isnt great as it searches for english under the hood also so would become an issue between languages that share characters
+  [Op.or]: [getTranslationWhere(modelName), { name: { [Op.iLike]: search } }],
   ...VISIBILITY_CRITERIA,
 });
 
@@ -43,38 +53,22 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
-const getTranslationPrefix = (dataType) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
 
-const getTranslationAttributes = (endpoint, modelName) => {
-  const dataType = getDataType(endpoint);
+const getTranslationAttributes = (modelName) => {
   return {
     include: [
       [
         Sequelize.literal(`(
-        SELECT "text" 
-        FROM "translated_strings" 
-        WHERE "language" = :language
-        AND "string_id" = '${getTranslationPrefix(dataType)}' || "${modelName}"."id"
-        LIMIT 1
+          SELECT "text" 
+          FROM "translated_strings" 
+          WHERE "language" = :language
+          AND "string_id" = :translationPrefix || "${modelName}"."id"
+          LIMIT 1
       )`),
         'translation',
       ],
     ],
   };
-};
-
-// TODO: replace every name match in
-const getTranslationSearchLiteral = ({ dataType, modelName, searchColumn }) => {
-  const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
-  return Sequelize.literal(
-    `LOWER(COALESCE(
-      (SELECT "text" FROM "translated_strings" 
-        WHERE "language" = :language
-        AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
-        LIMIT 1),
-      "${modelName}"."${searchColumn}"
-    )) LIKE LOWER(:searchQuery)`,
-  );
 };
 
 function createSuggesterRoute(
@@ -97,7 +91,7 @@ function createSuggesterRoute(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
-      const where = whereBuilder(`%${searchQuery}%`, query, req);
+      const where = whereBuilder(`%${searchQuery}%`, query, req, modelName);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -109,7 +103,7 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         include,
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(modelName),
         order: [
           ...(order ? [order] : []),
           positionQuery,
@@ -119,6 +113,7 @@ function createSuggesterRoute(
           positionMatch: searchQuery,
           language,
           searchQuery: `%${searchQuery}%`,
+          translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
@@ -143,12 +138,16 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       } = req;
       req.checkPermission('list', modelName);
 
+      const dataType = getDataType(endpoint);
+      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+
       const record = await models[modelName].findOne({
         where: { id: params.id },
         replacements: {
           language,
+          translationPrefix,
         },
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(modelName),
       });
 
       if (!record) throw new NotFoundError();
@@ -175,12 +174,17 @@ function createAllRecordsRoute(
 
       const where = whereBuilder('%', query, req);
 
+      const dataType = getDataType(endpoint);
+      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(searchColumn), 'ASC']],
-        attributes: getTranslationAttributes(endpoint, modelName),
+        order: [[Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+        attributes: getTranslationAttributes(modelName),
         replacements: {
           language,
+          translationPrefix,
+          searchQuery: '%',
           ...extraReplacementsBuilder(query),
         },
       });
@@ -351,7 +355,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
     typeName,
     'ReferenceData',
     (search) => ({
-      name: { [Op.iLike]: search },
+      [Op.or]: [getTranslationWhere('ReferenceData'), { name: { [Op.iLike]: search } }],
       type: typeName,
       ...VISIBILITY_CRITERIA,
     }),
