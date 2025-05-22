@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX, AUDIT_PAUSE_KEY } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
@@ -130,6 +130,13 @@ async function connectToDatabase(dbOptions) {
     sequelize.query(`SELECT set_session_config($key, $value, true)`, {
       bind: { key, value },
     });
+
+  sequelize.transactionWithPausedAudit = (callback) => {
+    return sequelize.transaction(async (transaction) => {
+      await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+      return callback(transaction);
+    });
+  };
 
   if (!disableChangesAudit) {
     class QueryWithAuditConfig extends sequelize.dialect.Query {

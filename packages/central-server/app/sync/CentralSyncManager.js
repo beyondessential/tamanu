@@ -615,13 +615,13 @@ export class CentralSyncManager {
       : getModelsForPush(models);
 
     try {
+
+      // currently we do not create audit logs on mobile devices
+      // so we rely on sync process to create audit logs
+      const transaction = isMobile ? sequelize.transactionWithPausedAudit : sequelize.transaction;
+
       // commit the changes to the db
-      const persistedAtSyncTick = await sequelize.transaction(async () => {
-        // currently we do not create audit logs on mobile devices
-        // so we rely on sync process to create audit logs
-        if (!isMobile) {
-          await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
-        }
+      const persistedAtSyncTick = await transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
