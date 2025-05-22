@@ -126,6 +126,10 @@ export class Prescription extends Model {
       as: 'encounters',
     });
 
+    this.hasOne(models.PatientOngoingPrescription, {
+      foreignKey: 'prescriptionId',
+      as: 'patientOngoingPrescription',
+    });
     this.belongsToMany(models.Patient, {
       through: models.PatientOngoingPrescription,
       foreignKey: 'prescriptionId',

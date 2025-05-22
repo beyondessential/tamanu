@@ -130,12 +130,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) 
     key: 'medication.name',
     title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
     accessor: data => getMedicationName(data, getEnumTranslation),
-    CellComponent: props => (
-      <LimitedLinesCell
-        {...props}
-        disableTooltip={disableTooltip}
-      />
-    ),
+    CellComponent: props => <LimitedLinesCell {...props} disableTooltip={disableTooltip} />,
   },
   {
     key: 'dose',
@@ -280,10 +275,6 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         disablePagination
         onRowClick={row => setSelectedMedication(row)}
         refreshCount={refreshCount}
-        initialSort={{
-          orderBy: 'discontinued',
-          order: 'desc',
-        }}
       />
     </div>
   );

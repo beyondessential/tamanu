@@ -45,8 +45,9 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
-import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoiginPrescriptionsQuery';
+import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEncounterPrescriptionsQuery } from '../api/queries/useEncounterPrescriptionsQuery';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -643,7 +644,7 @@ export const DischargeForm = ({
   onTitleChange,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
 
@@ -658,16 +659,13 @@ export const DischargeForm = ({
     d => !['error', 'disproven'].includes(d.certainty),
   );
 
+  const { data: encounterMedications } = useEncounterPrescriptionsQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications = encounter.medications
-    ?.filter(medication => !medication.discontinued)
-    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
+  const activeMedications =
+    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
   const onGoingMedications =
-    ongoingPrescriptions?.data
-      ?.map(p => p.prescription)
-      .filter(p => !p.discontinued)
-      .sort((a, b) => a.medication.name.localeCompare(b.medication.name)) || [];
+    ongoingPrescriptions?.data?.map(p => p.prescription).filter(p => !p.discontinued) || [];
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,
@@ -716,7 +714,7 @@ export const DischargeForm = ({
 
   const onDiscontinueMedication = () => {
     queryClient.invalidateQueries(['patient-ongoing-prescriptions', encounter.patientId]);
-    loadEncounter(encounter.id, false);
+    queryClient.invalidateQueries(['encounter-medications', encounter.id]);
   };
 
   return (

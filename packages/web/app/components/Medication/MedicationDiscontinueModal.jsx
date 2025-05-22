@@ -18,6 +18,7 @@ import {
 import { Colors, FORM_TYPES } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { useEncounter } from '../../contexts/Encounter';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -43,6 +44,7 @@ const validationSchema = yup.object().shape({
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
+  const { encounter, loadEncounter } = useEncounter();
 
   const onSubmit = async data => {
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
@@ -50,6 +52,9 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
       discontinuingDate: getCurrentDateTimeString(),
     });
     onDiscontinue(updatedMedication);
+    if (loadEncounter && encounter) {
+      loadEncounter(encounter.id, false);
+    }
     onClose();
   };
 
