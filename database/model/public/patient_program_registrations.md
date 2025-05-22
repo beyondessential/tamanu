@@ -52,3 +52,11 @@ registration is from.
 Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
 (`type=village`) this program registration is from.
 {% enddocs %}
+
+{% docs patient_program_registrations__deactivated_clinician_id %}
+The clinician that removed the patient from the program registry.
+{% enddocs %}
+
+{% docs patient_program_registrations__deactivated_date %}
+The date that the patient from the program registry.
+{% enddocs %}
