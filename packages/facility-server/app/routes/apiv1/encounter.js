@@ -89,7 +89,23 @@ encounter.put(
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { quantity, repeats } = medicationValues;
-          const medication = await models.Prescription.findByPk(medicationId);
+          const medication = await models.Prescription.findByPk(medicationId, {
+            include: [
+              {
+                model: models.EncounterPrescription,
+                as: 'encounterPrescription',
+                attributes: ['encounterId'],
+                required: false,
+              },
+              {
+                model: models.PatientOngoingPrescription,
+                as: 'patientOngoingPrescription',
+                attributes: ['patientId'],
+                required: false,
+              },
+            ],
+          });
+
           if (!medication || medication.discontinued) continue;
 
           await medication.update({ quantity, repeats });
@@ -98,16 +114,11 @@ encounter.put(
             { where: { encounterId: id, prescriptionId: medication.id } },
           );
           // If the medication is ongoing, we need to add it to the patient's ongoing medications
-          if (medication.isOngoing) {
-            const patientOngoingPrescription = await models.PatientOngoingPrescription.findOne({
-              where: { patientId: encounterObject.patientId, prescriptionId: medication.id },
+          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+            await models.PatientOngoingPrescription.create({
+              patientId: encounterObject.patientId,
+              prescriptionId: medication.id,
             });
-            if (!patientOngoingPrescription) {
-              await models.PatientOngoingPrescription.create({
-                patientId: encounterObject.patientId,
-                prescriptionId: medication.id,
-              });
-            }
           }
         }
       }
@@ -193,19 +204,22 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
     const baseQueryOptions = {
-      order: orderBy
-        ? [
-            [...orderBy.split('.'), order.toUpperCase()],
-            ['date', 'ASC'],
-          ]
-        : undefined,
+      order: [
+        [
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
+          'DESC',
+        ],
+        ...(orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : []),
+        ['date', 'ASC'],
+      ],
+
       include: [
         ...associations,
         {

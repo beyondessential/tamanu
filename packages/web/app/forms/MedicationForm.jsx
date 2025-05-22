@@ -62,6 +62,7 @@ import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
+import { useEncounter } from '../contexts/Encounter';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -491,6 +492,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
+  const { loadEncounter } = useEncounter();
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -553,6 +555,10 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
     const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 
     setSubmittedMedication(newMedication);
+
+    if (loadEncounter && encounterId) {
+      loadEncounter(encounterId, false);
+    }
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm }) => {

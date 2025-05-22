@@ -1,6 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { datetimeCustomValidation, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  datetimeCustomValidation,
+  getCurrentDateTimeString,
+  toDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
 import {
@@ -13,6 +17,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
@@ -135,6 +140,7 @@ const discontinueInputSchema = z
   .object({
     discontinuingClinicianId: z.string(),
     discontinuingReason: z.string().optional(),
+    discontinuingDate: datetimeCustomValidation.optional(),
   })
   .strip();
 medication.post(
@@ -157,7 +163,9 @@ medication.post(
 
     Object.assign(prescription, {
       ...data,
-      discontinuedDate: getCurrentDateTimeString(),
+      discontinuedDate: data.discontinuingDate
+        ? toDateTimeString(data.discontinuingDate)
+        : getCurrentDateTimeString(),
       discontinued: true,
     });
     await prescription.save();
@@ -179,6 +187,7 @@ const pauseMedicationSchema = z
       errorMap: () => ({ message: 'Pause time unit must be either "Hours" or "Days"' }),
     }),
     notes: z.string().optional(),
+    pauseStartDate: datetimeCustomValidation.optional(),
   })
   .strip();
 // Pause a medication
@@ -189,8 +198,13 @@ medication.post(
     const { Prescription, EncounterPrescription, EncounterPausePrescription } = models;
 
     // Validate request body against the schema
-    const { encounterId, pauseDuration, pauseTimeUnit, notes } =
-      await pauseMedicationSchema.parseAsync(req.body);
+    const {
+      encounterId,
+      pauseDuration,
+      pauseTimeUnit,
+      notes,
+      pauseStartDate: pauseStartDateInput,
+    } = await pauseMedicationSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Prescription');
 
@@ -225,7 +239,9 @@ medication.post(
     }
 
     // Calculate the pause end date to validate against prescription end date
-    const pauseStartDate = getCurrentDateTimeString();
+    const pauseStartDate = pauseStartDateInput
+      ? toDateTimeString(pauseStartDateInput)
+      : getCurrentDateTimeString();
     const pauseEndDate = add(new Date(pauseStartDate), {
       [pauseTimeUnit]: pauseDuration,
     });
@@ -801,12 +817,24 @@ medication.put(
     req.checkPermission('write', 'MedicationAdministrationRecord');
     const { models, params } = req;
     const marId = params.id;
-    const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
+    const {
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
+      User,
+      Prescription,
+      Note,
+    } = models;
 
     const { isError, errorNotes, doses } = await updateMarInputSchema.parseAsync(req.body);
 
     const existingMar = await MedicationAdministrationRecord.findByPk(marId, {
-      include: ['prescription'],
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          include: ['encounterPrescription', 'medication'],
+        },
+      ],
     });
     if (!existingMar) {
       throw new InvalidOperationError(`MAR with id ${marId} not found`);
@@ -850,13 +878,14 @@ medication.put(
     }
 
     const currentDate = getCurrentDateTimeString();
-    await existingMar.createNote({
+    await Note.create({
       content:
-        `Medication error recorded for ${existingMar.prescription.name} dose recorded at ${currentDate}. ${errorNotes}`.trim(),
+        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes}`.trim(),
       authorId: req.user.id,
-      recordId: existingMar.id,
+      recordId: existingMar.prescription.encounterPrescription.encounterId,
       date: currentDate,
       noteType: NOTE_TYPES.SYSTEM,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     });
 
     res.send(existingMar.forResponse());

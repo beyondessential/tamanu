@@ -21,6 +21,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort, formatTime } from '@tamanu/utils/dateTime';
+import { getDose, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 
@@ -306,6 +307,10 @@ const NotesSection = ({ notes }) => {
   );
 };
 
+const MedicationText = ({ children, lineThrough = false }) => (
+  <Text style={{ textDecoration: lineThrough ? 'line-through' : 'none' }}>{children}</Text>
+);
+
 const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
@@ -339,7 +344,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
@@ -359,7 +365,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
@@ -470,32 +477,60 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'medication',
         title: getTranslation('medication.medication.label', 'Medication'),
-        accessor: ({ medication }) => medication?.name,
-        style: { width: '20%' },
+        accessor: ({ medication, discontinued }) => (
+          <MedicationText lineThrough={discontinued}>{medication?.name}</MedicationText>
+        ),
+        style: { width: '41%' },
       },
       {
-        key: 'instructions',
-        title: getTranslation('medication.medication.instructions', 'Instructions'),
-        accessor: ({ prescription }) => prescription || '',
-        style: { width: '30%' },
+        key: 'dose',
+        title: getTranslation('pdf.table.column.dose', 'Dose'),
+        accessor: (medication) => {
+          console.log('medication', medication);
+          return (
+            <MedicationText lineThrough={medication?.discontinued}>
+              {getDose(medication, getTranslation, getEnumTranslation)}
+              {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+            </MedicationText>
+          );
+        },
+        style: { width: '13%' },
+      },
+      {
+        key: 'frequency',
+        title: getTranslation('pdf.table.column.frequency', 'Frequency'),
+        accessor: ({ frequency, discontinued }) => (
+          <MedicationText lineThrough={discontinued}>
+            {getTranslatedFrequency(frequency, getTranslation)}
+          </MedicationText>
+        ),
+        style: { width: '14%' },
       },
       {
         key: 'route',
         title: getTranslation('medication.route.label', 'Route'),
-        accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
-        style: { width: '12.5%' },
+        accessor: ({ route, discontinued }) => (
+          <MedicationText lineThrough={discontinued}>
+            {route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''}
+          </MedicationText>
+        ),
+        style: { width: '10%' },
       },
       {
-        key: 'prescriber',
-        title: getTranslation('medication.prescriber.label', 'Prescriber'),
-        accessor: ({ prescriber }) => prescriber?.displayName,
-        style: { width: '25%' },
+        key: 'quantity',
+        title: getTranslation('pdf.table.column.quantity', 'Quantity'),
+        accessor: ({ quantity, discontinued }) => (
+          <MedicationText lineThrough={discontinued}>{quantity}</MedicationText>
+        ),
+        style: { width: '12%' },
       },
       {
-        key: 'prescriptionDate',
-        title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-        style: { width: '22.5%' },
+        key: 'repeats',
+        title: getTranslation('pdf.table.column.repeat', 'Repeat'),
+        accessor: ({ repeats, discontinued }) => (
+          <MedicationText lineThrough={discontinued}>{repeats || 0}</MedicationText>
+        ),
+        style: { width: '10%' },
       },
     ],
   };
