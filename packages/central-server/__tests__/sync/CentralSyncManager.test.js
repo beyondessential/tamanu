@@ -2054,9 +2054,19 @@ describe('CentralSyncManager', () => {
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+          isMobile: true,
+        },
+        () => true,
+      );
+
       // Push changes with isMobile=true
       await centralSyncManager.addIncomingChanges(sessionId, changes);
-      await centralSyncManager.completePush(sessionId, facility.id, ['patient_program_registrations'], true);
+      await centralSyncManager.completePush(sessionId, facility.id, ['patient_program_registrations']);
       await waitForPushCompleted(centralSyncManager, sessionId);
 
       // Verify changelog records were created
