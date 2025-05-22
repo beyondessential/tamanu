@@ -146,13 +146,6 @@ async function connectToDatabase(dbOptions) {
     sequelize.dialect.Query = QueryWithAuditConfig;
   }
 
-  sequelize.transactionWithPausedAudit = function(callback) {
-    return sequelize.transaction(async (transaction) => {
-      await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
-      return callback(transaction);
-    });
-  };
-
   setupQuote(sequelize);
   await sequelize.authenticate();
 
