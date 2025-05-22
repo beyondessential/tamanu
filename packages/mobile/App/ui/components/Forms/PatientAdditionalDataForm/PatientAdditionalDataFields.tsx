@@ -19,7 +19,7 @@ import {
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { labels } from '~/ui/navigation/screens/home/PatientDetails/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
@@ -92,7 +92,7 @@ const getCustomFieldComponent = (
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+      options={options?.split(',')?.map((option) => ({ label: option, value: option }))}
       required={required}
     />
   );
@@ -146,7 +146,7 @@ export const PatientAdditionalDataFields = ({
   );
 
   if (isCustomSection)
-    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
+    return fields.map((field) => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 

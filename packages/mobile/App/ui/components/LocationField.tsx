@@ -20,16 +20,22 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
-  const locationGroupSuggester = new Suggester(models.LocationGroup, {
-    where: {
-      facility: facilityId,
+  const locationGroupSuggester = new Suggester({
+    model: models.LocationGroup,
+    options: {
+      where: {
+        facility: facilityId,
+      },
     },
   });
 
-  const locationSuggester = new Suggester(models.Location, {
-    where: {
-      facility: facilityId,
-      locationGroup: values.locationGroupId,
+  const locationSuggester = new Suggester({
+    model: models.Location,
+    options: {
+      where: {
+        facility: facilityId,
+        locationGroup: values.locationGroupId,
+      },
     },
   });
 
