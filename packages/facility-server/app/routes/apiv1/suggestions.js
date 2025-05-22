@@ -19,8 +19,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
 
-export const suggestions = express.Router();
-
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
@@ -59,6 +57,8 @@ const getTranslationWhereLiteral = (modelName, searchColumn) =>
         LIMIT 1),
       "${modelName}"."${searchColumn}"
     ) ILIKE :searchQuery`);
+
+export const suggestions = express.Router();
 
 function createSuggesterRoute(
   endpoint,
@@ -279,7 +279,7 @@ createSuggester(
   'multiReferenceData',
   'ReferenceData',
   ({ search, query: { types } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData', isTranslated: false }),
+    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData' }),
     type: { [Op.in]: types },
   }),
   {
