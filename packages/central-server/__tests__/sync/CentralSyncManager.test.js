@@ -2084,10 +2084,10 @@ describe('CentralSyncManager', () => {
         table_name: 'patient_program_registrations',
         record_id: patientProgramRegistrationData.id,
         record_data: expect.objectContaining({
-          programRegistryId: programRegistry.id,
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          facilityId: facility.id,
+          program_registry_id: programRegistry.id,
+          clinician_id: clinician.id,
+          patient_id: patient.id,
+          facility_id: facility.id,
         }),
       }));
     });
