@@ -52,20 +52,25 @@ export interface SuggesterConfig<ModelType> {
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
   filter?: (entity: BaseModel) => boolean;
+  hierarchyOptions?: {
+    parentId?: string;
+    relationType?: string;
+    isFirstLevel?: boolean;
+  };
 }
 
-export class Suggester<ModelType extends BaseModelSubclass> {
+export class Suggester<ModelType> {
   model: ModelType;
-
   options: SuggesterOptions<ModelType>;
-
   formatter: (entity: BaseModel) => OptionType;
-
   filter?: (entity: BaseModel) => boolean;
-
   lastUpdatedAt: number;
-
   cachedData: any;
+  hierarchyOptions: {
+    parentId?: string;
+    relationType?: string;
+    isFirstLevel?: boolean;
+  };
 
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
@@ -77,13 +82,17 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     this.filter = config.filter;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
+    this.hierarchyOptions = config.hierarchyOptions;
   }
 
   async fetch(options): Promise<BaseModel[]> {
     return this.model.findVisible(options);
   }
 
-  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
+  fetchCurrentOption = async (
+    value: string | null,
+    language: string = 'en',
+  ): Promise<OptionType> => {
     if (!value) return undefined;
     try {
       const dataType = getReferenceDataTypeFromSuggester(this);
@@ -106,6 +115,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
+    const { parentId, relationType, isFirstLevel } = this.hierarchyOptions || {};
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
@@ -133,6 +143,16 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       Object.entries(where).forEach(([key, value]) => {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       });
+
+      if (this.hierarchyOptions && !isFirstLevel && parentId) {
+        query = query
+          .andWhere('parents.referenceDataParentId = :parentId', {
+            parentId,
+          })
+          .andWhere('parents.type = :relationType', {
+            relationType,
+          });
+      }
 
       query = query.orderBy(`entity.${column}`, 'ASC').limit(25);
 
