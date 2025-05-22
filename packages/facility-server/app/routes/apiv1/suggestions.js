@@ -29,18 +29,18 @@ const defaultMapper = ({ dataValues: { translation }, name, code, id }) => ({
   id,
 });
 
-const getTranslationWhereLiteral = (modelName) =>
-  Sequelize.literal(`EXISTS (
-      SELECT 1 
-      FROM "translated_strings" 
-      WHERE "language" = :language
-      AND "string_id" = :translationPrefix || "${modelName}"."id"
-      AND "text" ILIKE :searchQuery
-  )`);
+const getTranslationWhereLiteral = (modelName, searchColumn) =>
+  Sequelize.literal(`COALESCE(
+      (SELECT "text" 
+       FROM "translated_strings" 
+       WHERE "language" = :language
+       AND "string_id" = :translationPrefix || "${modelName}"."id"
+       LIMIT 1),
+      "${modelName}"."${searchColumn}"
+    ) ILIKE :searchQuery`);
 
-const DEFAULT_WHERE_BUILDER = ({ search, modelName }) => ({
-  // TODO: this isn't great as it searches for english under the hood also so would become an issue between languages that share characters
-  [Op.or]: [getTranslationWhereLiteral(modelName, 'name'), { name: { [Op.iLike]: search } }],
+const DEFAULT_WHERE_BUILDER = ({ modelName, searchColumn = 'name' }) => ({
+  [Op.or]: [getTranslationWhereLiteral(modelName, searchColumn)],
   ...VISIBILITY_CRITERIA,
 });
 
@@ -91,7 +91,13 @@ function createSuggesterRoute(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
-      const where = whereBuilder({ search: `%${searchQuery}%`, query, req, modelName });
+      const where = whereBuilder({
+        search: `%${searchQuery}%`,
+        query,
+        req,
+        modelName,
+        searchColumn,
+      });
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -172,7 +178,7 @@ function createAllRecordsRoute(
 
       const model = models[modelName];
 
-      const where = whereBuilder({ search: '%', query, req, modelName });
+      const where = whereBuilder({ search: '%', query, req, modelName, searchColumn });
 
       const dataType = getDataType(endpoint);
       const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
@@ -280,9 +286,8 @@ createSuggester(
   'multiReferenceData',
   'ReferenceData',
   ({ search, query: { types } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData', isTranslated: false }),
     type: { [Op.in]: types },
-    name: { [Op.iLike]: search },
-    ...VISIBILITY_CRITERIA,
   }),
   {
     includeBuilder: (req) => {
@@ -355,9 +360,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
     typeName,
     'ReferenceData',
     ({ search }) => ({
-      [Op.or]: [getTranslationWhereLiteral('ReferenceData'), { name: { [Op.iLike]: search } }],
+      ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData' }),
       type: typeName,
-      ...VISIBILITY_CRITERIA,
     }),
     {
       includeBuilder: (req) => {
