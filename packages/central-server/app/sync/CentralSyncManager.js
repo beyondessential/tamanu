@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { AUDIT_PAUSE_KEY, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -29,6 +29,7 @@ import {
   insertChangelogRecords,
   extractChangelogFromSnapshotRecords,
   attachChangelogToSnapshotRecords,
+  pauseAudit,
 } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
@@ -620,7 +621,7 @@ export class CentralSyncManager {
         // currently we do not create audit logs on mobile devices
         // so we rely on sync process to create audit logs
         if (!isMobile) {
-          await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+          await pauseAudit(sequelize);
         }
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by

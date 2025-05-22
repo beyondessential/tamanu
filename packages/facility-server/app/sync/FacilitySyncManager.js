@@ -14,14 +14,13 @@ import {
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
-import { attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
+import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -245,7 +244,7 @@ export class FacilitySyncManager {
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
-        await this.sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        await pauseAudit(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
       }
