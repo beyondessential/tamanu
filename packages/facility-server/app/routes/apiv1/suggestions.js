@@ -389,8 +389,8 @@ createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 });
 
-const filterByFacilityWhereBuilder = ({ search, query }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+const filterByFacilityWhereBuilder = ({ search, query, modelName }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName });
   // Parameters are passed as strings, so we need to check for 'true'
   const shouldFilterByFacility =
     query.filterByFacility === 'true' || query.filterByFacility === true;
@@ -427,7 +427,7 @@ createSuggester(
   'Location',
   // Allow filtering by parent location group
   ({ search, query }) => {
-    const baseWhere = filterByFacilityWhereBuilder({ search, query });
+    const baseWhere = filterByFacilityWhereBuilder({ search, modelName: 'Location', query });
 
     const { ...filters } = query;
     delete filters.q;
@@ -466,12 +466,20 @@ createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuild
 
 // Location groups filtered by facility. Used in the survey form autocomplete
 createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ search, query }) =>
-  filterByFacilityWhereBuilder({ search, query: { ...query, filterByFacility: true } }),
+  filterByFacilityWhereBuilder({
+    search,
+    modelName: 'LocationGroup',
+    query: { ...query, filterByFacility: true },
+  }),
 );
 
 // Location groups filtered by isBookable. Used in location bookings view
 createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ search, query }) => ({
-  ...filterByFacilityWhereBuilder({ search, query: { ...query, filterByFacility: true } }),
+  ...filterByFacilityWhereBuilder({
+    search,
+    modelName: 'LocationGroup',
+    query: { ...query, filterByFacility: true },
+  }),
   isBookable: true,
 }));
 
@@ -564,7 +572,7 @@ createSuggester(
 );
 
 createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ search }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+  const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData' });
   return {
     ...baseWhere,
     type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
@@ -581,7 +589,7 @@ createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ search }) => 
 });
 
 createSuggester('sensitiveLabTestCategory', 'ReferenceData', ({ search }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+  const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData' });
   return {
     ...baseWhere,
     type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
@@ -602,7 +610,7 @@ createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
   ({ search, query, req }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+    const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'ReferenceData' });
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
@@ -662,7 +670,7 @@ createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
   ({ search, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+    const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'LabTestPanel' });
 
     if (!query.patientId) {
       return baseWhere;
@@ -704,7 +712,7 @@ createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
   ({ search, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ search }),
+    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ProgramRegistryClinicalStatus' }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -713,7 +721,7 @@ createSuggester(
   'programRegistry',
   'ProgramRegistry',
   ({ search, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+    const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'ProgramRegistry' });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -748,7 +756,7 @@ createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
   ({ search, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ search }),
+    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ProgramRegistryClinicalStatus' }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -757,7 +765,7 @@ createNameSuggester(
   'programRegistryCondition',
   'ProgramRegistryCondition',
   ({ search, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ search }),
+    ...DEFAULT_WHERE_BUILDER({ search, modelName: 'ProgramRegistryCondition' }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -766,7 +774,7 @@ createNameSuggester(
   'programRegistry',
   'ProgramRegistry',
   ({ search, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+    const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'ProgramRegistry' });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -801,7 +809,7 @@ createNameSuggester(
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
 createNameSuggester('template', 'Template', ({ search, query }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ search });
+  const baseWhere = DEFAULT_WHERE_BUILDER({ search, modelName: 'Template' });
   const { type } = query;
 
   if (!type) {
