@@ -22,7 +22,7 @@ const useParent = (api, enabled, parentId) => {
   const {
     data: additionalData,
     isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(parentId, enabled);
+  } = usePatientAdditionalDataQuery(parentId, { enabled });
 
   const { data: village, isLoading: isVillageLoading } = useQuery(
     ['village', parentData?.villageId],
