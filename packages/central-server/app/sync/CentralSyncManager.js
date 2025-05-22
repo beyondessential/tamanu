@@ -365,8 +365,7 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const lookupTickRange = await getLookupSourceTickRange(this.store, since, tick)
-      const { minSourceTick, maxSourceTick } = lookupTickRange || {};
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
