@@ -365,16 +365,18 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const lookupTickRange = await getLookupSourceTickRange(this.store, since, tick);
 
       await models.SyncSession.update(
-        { pullSince: since, pullUntil: tick, ...lookupTickRange },
+        { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
       );
+
+      const lookupTickRange = await getLookupSourceTickRange(this.store, since, tick);
 
       await models.SyncSession.addDebugInfo(sessionId, {
         isMobile,
         tablesForFullResync,
+        ...lookupTickRange
       });
 
       const modelsToInclude = tablesToInclude
