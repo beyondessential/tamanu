@@ -2082,7 +2082,7 @@ describe('CentralSyncManager', () => {
       );
 
       expect(changelogRecords).toHaveLength(1);
-      expect(changelogRecords[0]).toMatchObject({
+      expect(changelogRecords[0]).toMatchObject(expect.objectContaining({
         table_name: 'patient_program_registrations',
         record_id: patientProgramRegistrationData.id,
         record_data: expect.objectContaining({
@@ -2091,7 +2091,7 @@ describe('CentralSyncManager', () => {
           patientId: patient.id,
           facilityId: facility.id,
         }),
-      });
+      }));
     });
   });
 
