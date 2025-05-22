@@ -49,6 +49,7 @@ const getTranslationAttributes = (modelName) => {
   };
 };
 
+// Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (modelName, searchColumn) =>
   Sequelize.literal(`COALESCE(
       (SELECT "text" 
@@ -166,7 +167,7 @@ function createAllRecordsRoute(
 
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC']],
+        order: [[Sequelize.literal(searchColumn), 'ASC']],
         attributes: getTranslationAttributes(modelName),
         replacements: {
           language,
