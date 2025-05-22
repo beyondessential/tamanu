@@ -232,7 +232,7 @@ export class CentralServerConnection {
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
-      { tablesToInclude, deviceId: this.deviceId, isMobile: true },
+      { tablesToInclude, deviceId: this.deviceId },
     );
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
