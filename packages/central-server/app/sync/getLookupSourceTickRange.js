@@ -23,7 +23,7 @@ export const getLookupSourceTickRange = async (
   });
 
   if (!lookupTicks.length) {
-    return null;
+    return {};
   }
 
   const minSourceTick = lookupTicks.at(0).sourceStartTick;

@@ -363,7 +363,7 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const lookupTickRange = await getLookupSourceTickRange(this.store, since, tick)
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
@@ -373,7 +373,8 @@ export class CentralSyncManager {
       await models.SyncSession.addDebugInfo(sessionId, {
         isMobile,
         tablesForFullResync,
-        ...lookupTickRange,
+        minSourceTick,
+        maxSourceTick,
       });
 
       const modelsToInclude = tablesToInclude
@@ -588,7 +589,7 @@ export class CentralSyncManager {
       limit,
     );
     const { minSourceTick, maxSourceTick } = session.debugInfo;
-    if (!minSourceTick && !maxSourceTick) {
+    if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
 
