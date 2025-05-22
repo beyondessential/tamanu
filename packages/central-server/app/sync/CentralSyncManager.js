@@ -366,6 +366,8 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
+
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
@@ -374,6 +376,8 @@ export class CentralSyncManager {
       await models.SyncSession.addDebugInfo(sessionId, {
         isMobile,
         tablesForFullResync,
+        minSourceTick,
+        maxSourceTick,
       });
 
       const modelsToInclude = tablesToInclude
@@ -587,15 +591,15 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const sourceTickRange = await getLookupSourceTickRange(
-      this.store,
-      session.pullSince,
-      session.pullUntil
-    );
-    if (!sourceTickRange) {
+    const { minSourceTick, maxSourceTick } = session.debugInfo;
+    if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
-    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, sourceTickRange);
+
+    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+      minSourceTick,
+      maxSourceTick,
+    });
     return recordsForPull;
   }
 
