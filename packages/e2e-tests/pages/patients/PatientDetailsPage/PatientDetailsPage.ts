@@ -293,7 +293,9 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.carePlanModal;
   }
 
-  //this is a helper method to check that the entire patient details page has loaded before any other actions happen
+  /**
+   * Helper method to check that entire patient details page has loaded before any other actions happen
+   */
   async confirmPatientDetailsPageHasLoaded() {
     await expect(this.vaccineTab).toBeVisible();
   }
