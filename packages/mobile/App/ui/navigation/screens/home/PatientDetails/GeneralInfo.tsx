@@ -3,13 +3,13 @@ import React, { ReactElement } from 'react';
 import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
-import { PatientSection } from '../../CustomComponents/PatientSection';
+import { PatientSection } from './CustomComponents/PatientSection';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
 import { getFieldData, PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { ErrorScreen } from '../../../../../../components/ErrorScreen';
+import { ErrorScreen } from '../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
@@ -45,9 +45,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
-  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter(fieldName =>
+  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter((fieldName) =>
     getSetting<boolean>(`fields.${fieldName}.requiredPatientData`),
-  ).map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
+  ).map((fieldName) => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;
   }
