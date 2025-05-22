@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 
-export const usePatientAdditionalDataQuery = (patientId) => {
+export const usePatientAdditionalDataQuery = (patientId, fetchOptions) => {
   const api = useApi();
   const { facilityId } = useAuth();
   return useQuery(
@@ -10,6 +10,7 @@ export const usePatientAdditionalDataQuery = (patientId) => {
     () => api.get(`patient/${encodeURIComponent(patientId)}/additionalData`, { facilityId }),
     {
       enabled: !!patientId,
+      ...fetchOptions,
     },
   );
 };
