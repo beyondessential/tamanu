@@ -132,14 +132,11 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       } = req;
       req.checkPermission('list', modelName);
 
-      const dataType = getDataType(endpoint);
-      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
-
       const record = await models[modelName].findOne({
         where: { id: params.id },
         replacements: {
           language,
-          translationPrefix,
+          translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
         },
         attributes: getTranslationAttributes(modelName),
       });
@@ -165,11 +162,7 @@ function createAllRecordsRoute(
       const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
-
       const where = whereBuilder({ search: '%', query, req, modelName, searchColumn });
-
-      const dataType = getDataType(endpoint);
-      const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
 
       const results = await model.findAll({
         where,
@@ -177,7 +170,7 @@ function createAllRecordsRoute(
         attributes: getTranslationAttributes(modelName),
         replacements: {
           language,
-          translationPrefix,
+          translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
           searchQuery: '%',
           ...extraReplacementsBuilder(query),
         },
