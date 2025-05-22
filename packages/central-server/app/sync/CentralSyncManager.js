@@ -365,11 +365,10 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const { minSourceTick, maxSourceTick } =
-        (await getLookupSourceTickRange(this.store, since, tick)) || {};
+      const lookupTickRange = await getLookupSourceTickRange(this.store, since, tick);
 
       await models.SyncSession.update(
-        { pullSince: since, pullUntil: tick, minSourceTick, maxSourceTick },
+        { pullSince: since, pullUntil: tick, ...lookupTickRange },
         { where: { id: sessionId } },
       );
 
@@ -699,9 +698,12 @@ export class CentralSyncManager {
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude, session.debugInfo.isMobile).finally(
-      unmarkSessionAsProcessing,
-    );
+    this.persistIncomingChanges(
+      sessionId,
+      deviceId,
+      tablesToInclude,
+      session.debugInfo.isMobile,
+    ).finally(unmarkSessionAsProcessing);
   }
 
   async checkPushComplete(sessionId) {
