@@ -2065,12 +2065,10 @@ describe('CentralSyncManager', () => {
         () => true,
       );
 
-      // Push changes with isMobile=true
       await centralSyncManager.addIncomingChanges(sessionId, changes);
       await centralSyncManager.completePush(sessionId, facility.id, ['patient_program_registrations']);
       await waitForPushCompleted(centralSyncManager, sessionId);
 
-      // Verify changelog records were created
       const changelogRecords = await sequelize.query(
         `SELECT * FROM logs.changes WHERE record_id = :recordId;`,
         {
