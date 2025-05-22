@@ -21,29 +21,7 @@ import { customAlphabet } from 'nanoid';
 
 export const suggestions = express.Router();
 
-const defaultLimit = 25;
-
-const defaultMapper = ({ dataValues: { translation }, name, code, id }) => ({
-  name: translation || name,
-  code,
-  id,
-});
-
-const getTranslationWhereLiteral = (modelName, searchColumn) =>
-  Sequelize.literal(`COALESCE(
-      (SELECT "text" 
-       FROM "translated_strings" 
-       WHERE "language" = :language
-       AND "string_id" = :translationPrefix || "${modelName}"."id"
-       LIMIT 1),
-      "${modelName}"."${searchColumn}"
-    ) ILIKE :searchQuery`);
-
-const DEFAULT_WHERE_BUILDER = ({ modelName, searchColumn = 'name' }) => ({
-  [Op.or]: [getTranslationWhereLiteral(modelName, searchColumn)],
-  ...VISIBILITY_CRITERIA,
-});
-
+const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
@@ -70,6 +48,16 @@ const getTranslationAttributes = (modelName) => {
     ],
   };
 };
+
+const getTranslationWhereLiteral = (modelName, searchColumn) =>
+  Sequelize.literal(`COALESCE(
+      (SELECT "text" 
+        FROM "translated_strings" 
+        WHERE "language" = :language
+        AND "string_id" = :translationPrefix || "${modelName}"."id"
+        LIMIT 1),
+      "${modelName}"."${searchColumn}"
+    ) ILIKE :searchQuery`);
 
 function createSuggesterRoute(
   endpoint,
@@ -122,7 +110,7 @@ function createSuggesterRoute(
           translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
           ...extraReplacementsBuilder(query),
         },
-        limit: defaultLimit,
+        limit: DEFAULT_LIMIT,
       });
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));
@@ -222,6 +210,17 @@ function createSuggesterCreateRoute(
   );
 }
 
+const DEFAULT_WHERE_BUILDER = ({ modelName, searchColumn = 'name' }) => ({
+  [Op.or]: [getTranslationWhereLiteral(modelName, searchColumn)],
+  ...VISIBILITY_CRITERIA,
+});
+
+const DEFAULT_MAPPER = ({ dataValues: { translation } = {}, name, code, id }) => ({
+  name: translation || name,
+  code,
+  id,
+});
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -234,7 +233,7 @@ function createSuggester(
   allowCreatingNewSuggestion,
 ) {
   const options = {
-    mapper: defaultMapper,
+    mapper: DEFAULT_MAPPER,
     searchColumn: 'name',
     extraReplacementsBuilder: () => {},
     ...optionOverrides,
