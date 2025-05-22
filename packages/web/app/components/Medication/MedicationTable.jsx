@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_UNITS_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation } from 'react-router-dom';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -100,7 +100,7 @@ const getMedicationName = (
           (<TranslatedText stringId="medication.table.pausing" fallback="Paused" />,{' '}
           {pauseData.pauseDuration}{' '}
           {singularize(
-            getEnumTranslation(MEDICATION_DURATION_UNITS_LABELS, pauseData.pauseTimeUnit),
+            getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, pauseData.pauseTimeUnit),
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
