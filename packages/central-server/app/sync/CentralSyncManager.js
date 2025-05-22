@@ -616,6 +616,8 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
+        // currently we do not create audit logs on mobile devices
+        // so we rely on sync process to create audit logs
         if (!isMobile) {
           await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
         }
