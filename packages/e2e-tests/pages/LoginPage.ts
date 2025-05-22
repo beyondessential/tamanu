@@ -16,7 +16,7 @@ export class LoginPage extends BasePage {
     this.passwordInput = page.getByTestId('styledfield-a9k6-input');
   }
 
-  async login(email, password) {
+  async login(email: string, password: string) {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.loginButton.click();
