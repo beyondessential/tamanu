@@ -88,13 +88,13 @@ sources:
           - name: record_deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('logs__changes__record_deleted_at') }}"
-          - name: record_sync_tick
-            data_type: bigint
-            description: "{{ doc('logs__changes__record_sync_tick') }}"
-            data_tests:
-              - not_null
           - name: record_data
             data_type: jsonb
             description: "{{ doc('logs__changes__record_data') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('logs__changes__updated_at_sync_tick') }}"
             data_tests:
               - not_null

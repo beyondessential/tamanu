@@ -102,14 +102,14 @@ The `updated_at` metadata from record the changelog was recorded against
 The `deleted_at` metadata from record the changelog was recorded against
 {% enddocs %}
 
-{% docs logs__changes__record_sync_tick %}
-The `updated_at_sync_tick` of the record the changelog was recorded against
-{% enddocs %}
-
 {% docs logs__changes__record_data %}
 The full row data of the change.
 
 Note that as this is `JSONB`, some type information may be lost. However, row
 data in a Tamanu system is transported using JSON via the sync system anyway, so
 it is expected that all data trivially round-trips via JSON.
+{% enddocs %}
+
+{% docs logs__changes__updated_at_sync_tick %}
+TODO
 {% enddocs %}
