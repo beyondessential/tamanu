@@ -1020,4 +1020,99 @@ globalMedicationRequests.get('/$', (req, res, next) =>
   })(req, res, next),
 );
 
+// Medication Administration Record Changelog endpoint
+medication.get(
+  '/medication-administration-record/:id/changelog',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'MedicationAdministrationRecord');
+    const { models, params } = req;
+    const { MedicationAdministrationRecord, sequelize } = models;
+    const marId = params.id;
+
+    // Verify the MAR exists
+    const mar = await MedicationAdministrationRecord.findByPk(marId);
+    if (!mar) {
+      throw new InvalidOperationError(`MAR with id ${marId} not found`);
+    }
+
+    // Use raw SQL query to get changelog data
+    const query = `
+      select
+        case
+          when c.table_name = 'medication_administration_records' then 'mar'
+          when c.table_name = 'medication_administration_record_doses' then 'dose'
+        end as type,
+        c.record_data->>'id' id,
+        medication.name mar_medication_name,
+        c.record_data->>'status' mar_status,
+        c.record_data->>'reason_for_removal' reason_for_removal,
+        c.record_data->>'changing_status_reason' mar_changing_status_reason,
+        c.record_data->>'changing_not_given_info_reason' mar_changing_not_given_info_reason,
+        reason_not_given.name mar_not_given_reason,
+        c.record_data->>'dose_index' dose_index,
+        c.record_data->>'given_time' dose_given_time,
+        c.record_data->>'dose_amount' dose_amount,
+        given_by_user.display_name dose_given_user,
+        c.record_data->>'reason_for_change' dose_reason_for_change,
+        recorded_by_user.display_name recorded_by_user,
+        c.logged_at,
+        case
+          when c.record_data->>'is_removed' = 'true' then c.logged_at
+          else c.deleted_at
+        end deleted_at,
+        case
+          when c.record_update = true and (c.deleted_at is null and (c.record_data->>'is_removed' is null or c.record_data->>'is_removed' <> 'true')) then c.updated_at
+          else null
+        end updated_at,
+        case
+          when c.record_update = false then c.created_at
+          else null
+        end created_at,
+        updated_by_user.display_name as changed_by_user
+      from logs.changes c
+      left join public.users updated_by_user on updated_by_user.id = c.updated_by_user_id
+      left join public.reference_data reason_not_given on reason_not_given.type = 'medicationNotGivenReason' and reason_not_given.id = c.record_data->>'reason_not_given_id'
+      left join public.users recorded_by_user on recorded_by_user.id = c.record_data->>'recorded_by_user_id'
+      left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
+      left join public.prescriptions prescription on prescription.id = c.record_data->>'prescription_id'
+      left join public.reference_data medication on medication.type = 'drug' AND medication.id = prescription.medication_id
+      where c.table_schema = 'public'
+      and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
+      and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
+      order by c.logged_at desc
+    `;
+
+    const results = await sequelize.query(query, {
+      replacements: { marId },
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    // Transform results for the response
+    const transformedResults = results.map((result) => ({
+      type: result.type,
+      id: result.id,
+      marMedicationName: result.mar_medication_name,
+      marStatus: result.mar_status,
+      reasonForRemoval: result.reason_for_removal,
+      marChangingStatusReason: result.mar_changing_status_reason,
+      marChangingNotGivenInfoReason: result.mar_changing_not_given_info_reason,
+      marNotGivenReason: result.mar_not_given_reason,
+      doseIndex: result.dose_index,
+      doseGivenTime: result.dose_given_time,
+      doseAmount: result.dose_amount,
+      doseGivenByUser: result.dose_given_user,
+      doseReasonForChange: result.dose_reason_for_change,
+      recordedByUser: result.recorded_by_user,
+      changedByUser: result.changed_by_user,
+      loggedAt: result.logged_at,
+      deletedAt: result.deleted_at,
+      updatedAt: result.updated_at,
+      createdAt: result.created_at,
+      changeType: result.deleted_at ? 'DELETED' : result.updated_at ? 'UPDATED' : 'CREATED',
+    }));
+
+    res.send(transformedResults);
+  }),
+);
+
 medication.use(globalMedicationRequests);
