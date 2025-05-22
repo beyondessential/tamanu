@@ -76,7 +76,7 @@ export async function down(query: QueryInterface): Promise<void> {
     RETURNS trigger AS $$
     BEGIN
       IF NOT logs.is_audit_changes_enabled() THEN
-        RETURN NEW;x
+        RETURN NEW;
       END IF;
 
       INSERT INTO logs.changes (
