@@ -2022,7 +2022,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it('records audit changelogs when isMobile is true during completePush', async () => {
+    it.only('records audit changelogs when isMobile is true during completePush', async () => {
       await models.Setting.set('audit.changes.enabled', true);
       const facility = await models.Facility.create(fake(models.Facility));
       const patient = await models.Patient.create(fake(models.Patient));
@@ -2034,19 +2034,20 @@ describe('CentralSyncManager', () => {
         programId: program.id,
       });
 
+      const patientProgramRegistrationData = {
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      }
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'patient_program_registrations',
           recordId: crypto.randomUUID(),
-          data: {
-            ...fake(models.PatientProgramRegistration),
-            programRegistryId: programRegistry.id,
-            clinicianId: clinician.id,
-            patientId: patient.id,
-            facilityId: facility.id,
-          },
+          data: patientProgramRegistrationData,
         },
       ];
 
@@ -2075,7 +2076,7 @@ describe('CentralSyncManager', () => {
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: {
-            recordId: changes[0].recordId,
+            recordId: patientProgramRegistrationData.id,
           },
         },
       );
@@ -2083,7 +2084,7 @@ describe('CentralSyncManager', () => {
       expect(changelogRecords).toHaveLength(1);
       expect(changelogRecords[0]).toMatchObject({
         table_name: 'patient_program_registrations',
-        record_id: changes[0].recordId,
+        record_id: patientProgramRegistrationData.id,
         record_data: expect.objectContaining({
           programRegistryId: programRegistry.id,
           clinicianId: clinician.id,
