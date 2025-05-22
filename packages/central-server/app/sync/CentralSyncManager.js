@@ -25,7 +25,11 @@ import {
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
-import { insertChangelogRecords, extractChangelogFromSnapshotRecords, attachChangelogToSnapshotRecords } from '@tamanu/database/utils/audit';
+import {
+  insertChangelogRecords,
+  extractChangelogFromSnapshotRecords,
+  attachChangelogToSnapshotRecords,
+} from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
@@ -289,7 +293,9 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
+        const syncLookupTick = isInitialBuildOfLookupTable
+          ? null
+          : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
@@ -359,6 +365,8 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
+
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
@@ -367,6 +375,8 @@ export class CentralSyncManager {
       await models.SyncSession.addDebugInfo(sessionId, {
         isMobile,
         tablesForFullResync,
+        minSourceTick,
+        maxSourceTick,
       });
 
       const modelsToInclude = tablesToInclude
@@ -580,19 +590,15 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const sourceTickRange = await getLookupSourceTickRange(
-      this.store,
-      session.pullSince,
-      session.pullUntil
-    );
-    if (!sourceTickRange) {
+    const { minSourceTick, maxSourceTick } = session.debugInfo;
+    if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
-    const recordsForPull = await attachChangelogToSnapshotRecords(
-      this.store,
-      snapshotRecords,
-      sourceTickRange
-    );
+
+    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+      minSourceTick,
+      maxSourceTick,
+    });
     return recordsForPull;
   }
 
@@ -683,7 +689,8 @@ export class CentralSyncManager {
       sessionId,
     });
 
-    const { snapshotRecords, changelogRecords } = extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
+    const { snapshotRecords, changelogRecords } =
+      extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
     await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
     await insertChangelogRecords(this.store.models, changelogRecords);
   }
