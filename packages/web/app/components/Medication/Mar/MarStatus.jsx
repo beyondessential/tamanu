@@ -330,7 +330,7 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
-    if (!marInfo || isDiscontinued || (!status && isPaused)) return null;
+    if (!marInfo || isDiscontinued || isEnd || (!status && isPaused)) return null;
     let color = Colors.green;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
