@@ -3,7 +3,7 @@ import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
-import { User } from '@tamanu/database';
+import { Patient, User } from '@tamanu/database';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
   const token = await getItemFromLocalStorage(page, 'apiToken');
@@ -22,7 +22,7 @@ const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-export const createPatient = async (api: APIRequestContext, page: Page) => {
+export const createPatient = async (api: APIRequestContext, page: Page): Promise<Patient> => {
   const patientUrl = constructFacilityUrl('/api/patient');
 
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');

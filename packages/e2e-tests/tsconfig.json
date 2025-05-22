@@ -10,7 +10,11 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tamanu/*": ["../../packages/*/src"]
+      "@tamanu/*": ["../../packages/*/src"],
+      "@fixtures/*": ["fixtures/*"],
+      "@utils/*": ["utils/*"],
+      "@pages/*": ["pages/*"],
+      "@config/*": ["config/*"]
     }
   },
   "include": ["**/*.ts"],
