@@ -23,7 +23,7 @@ export class AllPatientsPage extends BasePage {
     gender: string;
     formattedDOB: string;
     nhn: string;
-    village: String,
+    village: string,
     culturalName: string
     };
   readonly nhnSearchInput: Locator;
@@ -133,7 +133,7 @@ export class AllPatientsPage extends BasePage {
   }
 
   async waitForTableToLoad() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
     await this.allPatientsTableLoadingCell.waitFor({ state: 'hidden' });
   }
 
