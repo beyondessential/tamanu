@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import {
   BaseModal,
@@ -76,7 +77,10 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
   const api = useApi();
 
   const onSubmit = async data => {
-    await api.post(`medication/${medication.id}/pause`, data);
+    await api.post(`medication/${medication.id}/pause`, {
+      ...data,
+      pauseStartDate: getCurrentDateTimeString(),
+    });
     onPause();
     onClose();
   };

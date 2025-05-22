@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MedicationSummary } from './MedicationSummary';
 import {
   AutocompleteField,
@@ -44,7 +45,10 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const practitionerSuggester = useSuggester('practitioner');
 
   const onSubmit = async data => {
-    const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, data);
+    const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
+      ...data,
+      discontinuingDate: getCurrentDateTimeString(),
+    });
     onDiscontinue(updatedMedication);
     onClose();
   };
