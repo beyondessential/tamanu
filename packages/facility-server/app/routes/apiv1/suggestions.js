@@ -12,7 +12,6 @@ import {
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
   DEFAULT_LANGUAGE_CODE,
@@ -24,14 +23,16 @@ export const suggestions = express.Router();
 
 const defaultLimit = 25;
 
-const defaultMapper = ({ name, code, id }) => ({ name, code, id });
+const defaultMapper = ({ dataValues: { translation }, name, code, id }) => ({
+  name: translation || name,
+  code,
+  id,
+});
 
-const replaceDataLabelWithTranslation = (item) => {
-  if (item.dataValues.translated_name) {
-    item.setDataValue('name', item.dataValues.translated_name);
-  }
-  return item;
-};
+const DEFAULT_WHERE_BUILDER = (search) => ({
+  name: { [Op.iLike]: search },
+  ...VISIBILITY_CRITERIA,
+});
 
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
@@ -56,10 +57,24 @@ const getTranslationAttributes = (endpoint, modelName) => {
         AND "string_id" = '${getTranslationPrefix(dataType)}' || "${modelName}"."id"
         LIMIT 1
       )`),
-        'translated_name',
+        'translation',
       ],
     ],
   };
+};
+
+// TODO: replace every name match in
+const getTranslationSearchLiteral = ({ dataType, modelName, searchColumn }) => {
+  const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+  return Sequelize.literal(
+    `LOWER(COALESCE(
+      (SELECT "text" FROM "translated_strings" 
+        WHERE "language" = :language
+        AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
+        LIMIT 1),
+      "${modelName}"."${searchColumn}"
+    )) LIKE LOWER(:searchQuery)`,
+  );
 };
 
 function createSuggesterRoute(
@@ -81,34 +96,8 @@ function createSuggesterRoute(
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
-      const dataType = getDataType(endpoint);
-      const translationPrefix = getTranslationPrefix(dataType);
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-      const hasTranslations = await models.TranslatedString.count({
-        where: {
-          language,
-          stringId: {
-            [Op.startsWith]: translationPrefix,
-          },
-        },
-      });
-
-      const where =
-        isTranslatable && hasTranslations
-          ? {
-              [Op.and]: [
-                Sequelize.literal(`EXISTS (
-                  SELECT 1 
-                  FROM translated_strings 
-                  WHERE language = :language
-                  AND string_id = '${translationPrefix}' || "${modelName}"."id"
-                  AND text ILIKE :searchQuery
-                )`),
-                VISIBILITY_CRITERIA,
-              ],
-            }
-          : whereBuilder(`%${searchQuery}%`, query, req);
+      const where = whereBuilder(`%${searchQuery}%`, query, req);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -134,11 +123,8 @@ function createSuggesterRoute(
         },
         limit: defaultLimit,
       });
-
-      const translatedData = results.map(replaceDataLabelWithTranslation);
-
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(translatedData.map(mapper)));
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -159,19 +145,15 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const record = await models[modelName].findOne({
         where: { id: params.id },
-        attributes: getTranslationAttributes(endpoint, modelName),
         replacements: {
           language,
         },
+        attributes: getTranslationAttributes(endpoint, modelName),
       });
 
       if (!record) throw new NotFoundError();
 
-      req.checkPermission('read', record);
-
-      const translatedRecord = replaceDataLabelWithTranslation(record);
-
-      res.send(await mapper(translatedRecord));
+      res.send(await mapper(record));
     }),
   );
 }
@@ -195,18 +177,15 @@ function createAllRecordsRoute(
 
       const results = await model.findAll({
         where,
-        attributes: getTranslationAttributes(endpoint, modelName),
         order: [[Sequelize.literal(searchColumn), 'ASC']],
+        attributes: getTranslationAttributes(endpoint, modelName),
         replacements: {
           language,
           ...extraReplacementsBuilder(query),
         },
       });
-
-      const translatedResults = results.map(replaceDataLabelWithTranslation);
-
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(translatedResults.map(mapper)));
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -407,11 +386,6 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
-});
-
-const DEFAULT_WHERE_BUILDER = (search) => ({
-  name: { [Op.iLike]: search },
-  ...VISIBILITY_CRITERIA,
 });
 
 const filterByFacilityWhereBuilder = (search, query) => {
