@@ -6,6 +6,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
@@ -18,7 +19,6 @@ import { Field, Form, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
-import { useAuth } from '../../../contexts/Auth';
 import { isWithinTimeSlot } from '../../../utils/medications';
 
 const StyledPaper = styled(Paper)`
@@ -239,7 +239,6 @@ const GivenScreen = ({
   isPast,
   isVariableDose,
 }) => {
-  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
@@ -253,7 +252,7 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMar } = useGivenMarMutation(marId, {
+  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       queryClient.invalidateQueries(['marDoses', marId]);
@@ -290,15 +289,12 @@ const GivenScreen = ({
       seconds: timeGiven.getSeconds(),
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
-      dueAt,
+    await updateMarToGiven({
+      dueAt: toDateTimeString(dueAt),
       prescriptionId,
-      recordedByUserId: currentUser?.id,
       dose: {
         doseAmount,
-        givenTime,
-        givenByUserId: currentUser?.id,
-        recordedByUserId: currentUser?.id,
+        givenTime: toDateTimeString(givenTime),
       },
     });
   };
@@ -422,14 +418,13 @@ export const StatusPopper = ({
   isFuture,
   isPast,
 }) => {
-  const { currentUser } = useAuth();
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
+  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     },
@@ -450,12 +445,11 @@ export const StatusPopper = ({
 
   const handleReasonSelect = async reasonNotGivenId => {
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
+    await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt,
+      dueAt: toDateTimeString(dueAt),
       prescriptionId,
-      recordedByUserId: currentUser?.id,
     });
 
     setShowReasonScreen(false);

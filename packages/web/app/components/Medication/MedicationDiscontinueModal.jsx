@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MedicationSummary } from './MedicationSummary';
 import {
   AutocompleteField,
@@ -17,6 +18,7 @@ import {
 import { Colors, FORM_TYPES } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { useEncounter } from '../../contexts/Encounter';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -42,10 +44,17 @@ const validationSchema = yup.object().shape({
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
+  const { encounter, loadEncounter } = useEncounter();
 
   const onSubmit = async data => {
-    const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, data);
+    const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
+      ...data,
+      discontinuingDate: getCurrentDateTimeString(),
+    });
     onDiscontinue(updatedMedication);
+    if (loadEncounter && encounter) {
+      loadEncounter(encounter.id, false);
+    }
     onClose();
   };
 

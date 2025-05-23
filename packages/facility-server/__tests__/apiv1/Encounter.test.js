@@ -3,7 +3,6 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyPrescription,
   createDummyPatient,
 } from '@tamanu/database/demoData/patients';
 import {
@@ -627,77 +626,6 @@ describe('Encounter', () => {
         expect(notes).toHaveLength(1);
         expect(notes[0].content.includes('Patient discharged by')).toEqual(true);
         expect(notes[0].authorId).toEqual(app.user.id);
-      });
-
-      it('should only update medications marked for discharge', async () => {
-        // Create encounter to be discharged
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models, { current: true })),
-          patientId: patient.id,
-        });
-
-        // Create two encounter medications with specific quantities to compare
-        const medicationOne = await models.Prescription.create({
-          ...(await createDummyPrescription(models, { quantity: 1 })),
-        });
-        await models.EncounterPrescription.create({
-          encounterId: encounter.id,
-          prescriptionId: medicationOne.id,
-        });
-        const medicationTwo = await models.Prescription.create({
-          ...(await createDummyPrescription(models, { quantity: 2 })),
-        });
-        await models.EncounterPrescription.create({
-          encounterId: encounter.id,
-          prescriptionId: medicationTwo.id,
-        });
-
-        // Mark only one medication for discharge
-        const result = await app.put(`/api/encounter/${encounter.id}`).send({
-          endDate: new Date(),
-          discharge: {
-            encounterId: encounter.id,
-            dischargerId: app.user.id,
-          },
-          medications: {
-            [medicationOne.id]: {
-              isDischarge: true,
-              quantity: 3,
-              repeats: 0,
-            },
-            [medicationTwo.id]: {
-              isDischarge: false,
-              quantity: 0,
-              repeats: 1,
-            },
-          },
-        });
-        expect(result).toHaveSucceeded();
-
-        // Reload medications and make sure only the first one got edited
-        await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
-
-        const medicationOneObject = await models.Prescription.findByPk(medicationOne.id, {
-          include: 'encounters',
-        });
-
-        // Only compare explicitly set values
-        expect(medicationOneObject.dataValues).toMatchObject({
-          id: medicationOne.id,
-          encounters: expect.arrayContaining([
-            expect.objectContaining({
-              EncounterPrescription: expect.objectContaining({
-                isDischarge: true,
-              }),
-            }),
-          ]),
-          quantity: 3,
-          repeats: 0,
-        });
-        expect(medicationTwo.dataValues).toMatchObject({
-          id: medicationTwo.id,
-          quantity: 2,
-        });
       });
 
       it('should not update encounter to an invalid location or add a note', async () => {

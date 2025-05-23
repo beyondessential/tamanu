@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import PrintIcon from '@material-ui/icons/Print';
+import { Box } from '@mui/material';
 
-import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
@@ -12,6 +11,8 @@ import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Colors } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -29,8 +30,9 @@ const StyledTextButton = styled(TextButton)`
   font-weight: 500;
   .MuiSvgIcon-root {
     margin-right: 4px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
   }
 `;
 
@@ -55,8 +57,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const { navigateToMar } = usePatientNavigation();
 
-  const { loadEncounter } = useEncounter();
-
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
@@ -66,7 +66,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClose={() => setCreateMedicationModalOpen(false)}
           onSaved={async () => {
             setCreateMedicationModalOpen(false);
-            await loadEncounter(encounter.id);
           }}
           data-testid="medicationmodal-s2hv"
         />
@@ -79,11 +78,20 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         <TableButtonRow data-testid="tablebuttonrow-dl51">
           <ButtonGroup>
             <StyledTextButton disabled={readonly}>
-              <AddRoundedIcon />
-              <TranslatedText
-                stringId="medication.action.addOngoingMedications"
-                fallback="Add ongoing medications"
-              />
+              <ThemedTooltip
+                title={
+                  <Box width="147px" fontWeight={400}>
+                    <TranslatedText
+                      stringId="medication.action.addOngoingMedications.tooltip"
+                      fallback="Add existing ongoing medication to encounter"
+                    />
+                  </Box>
+                }
+              >
+                <div>
+                  <AddMedicationIcon />
+                </div>
+              </ThemedTooltip>
             </StyledTextButton>
             <div />
             <StyledTextButton
@@ -92,12 +100,20 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               color="primary"
               data-testid="styledtextbutton-hbja"
             >
-              <PrintIcon />
-              <TranslatedText
-                stringId="general.action.print"
-                fallback="Print"
-                data-testid="translatedtext-pikt"
-              />
+              <ThemedTooltip
+                title={
+                  <Box width="60px" fontWeight={400}>
+                    <TranslatedText
+                      stringId="medication.action.printPrescription"
+                      fallback="Print prescription"
+                    />
+                  </Box>
+                }
+              >
+                <div>
+                  <PrintIcon />
+                </div>
+              </ThemedTooltip>
             </StyledTextButton>
           </ButtonGroup>
           <ButtonGroup>
