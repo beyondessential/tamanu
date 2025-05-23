@@ -14,6 +14,7 @@ import {
   EncounterView,
   ImagingRequestView,
   LabRequestView,
+  PatientListingView,
   PatientView,
 } from '../views';
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
@@ -46,78 +47,107 @@ const ProgramRegistryTitle = () => {
   );
 };
 
+const getPatientPaths = ({
+  prefix = '',
+  patient,
+  encounter,
+  navigateToPatient,
+  navigateToEncounter,
+  navigateToProgramRegistry,
+}) => {
+  return {
+    path: `${prefix}${PATIENT_PATHS.PATIENT}`,
+    component: PatientView,
+    navigateTo: () => navigateToPatient(patient.id),
+    title: getPatientNameAsString(patient || {}),
+    routes: [
+      {
+        path: `${prefix}${PATIENT_PATHS.PATIENT}/programs/new`,
+        component: ProgramsView,
+        title: 'New Form',
+      },
+      {
+        path: `${prefix}${PATIENT_PATHS.PATIENT}/referrals/new`,
+        component: ReferralsView,
+        title: 'New Referral',
+      },
+      {
+        path: `${prefix}${PATIENT_PATHS.ENCOUNTER}/:modal?`,
+        component: EncounterView,
+        navigateTo: () => navigateToEncounter(encounter.id),
+        title: getEncounterType(encounter || {}),
+        routes: [
+          {
+            path: `${prefix}${PATIENT_PATHS.SUMMARY}/view`,
+            component: DischargeSummaryView,
+            title: (
+              <TranslatedText
+                stringId="encounter.dischargeSummary.title"
+                fallback="Discharge Summary"
+              />
+            ),
+          },
+          {
+            path: `${prefix}${PATIENT_PATHS.ENCOUNTER}/programs/new`,
+            component: ProgramsView,
+            title: 'New Form',
+          },
+          {
+            path: `${prefix}${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
+            component: LabRequestView,
+            title: 'Lab Request',
+          },
+          {
+            path: `${prefix}${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
+            component: ImagingRequestView,
+            title: 'Imaging Request',
+          },
+        ],
+      },
+      {
+        path: PATIENT_PATHS.PROGRAM_REGISTRY,
+        component: PatientProgramRegistryView,
+        navigateTo: () => navigateToProgramRegistry(),
+        title: <ProgramRegistryTitle />,
+        routes: [
+          {
+            path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
+            component: ProgramRegistrySurveyView,
+            title: 'Survey',
+          },
+        ],
+      },
+    ],
+  };
+};
+
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToPatient, navigateToProgramRegistry } =
-    usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const {
+    navigateToEncounter,
+    navigateToPatient,
+    navigateToProgramRegistry,
+  } = usePatientNavigation();
+  const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
 
   return [
+    getPatientPaths({
+      patient,
+      encounter,
+      navigateToPatient,
+      navigateToEncounter,
+      navigateToProgramRegistry,
+    }),
     {
-      path: PATIENT_PATHS.PATIENT,
-      component: PatientView,
-      navigateTo: () => navigateToPatient(patient.id),
-      title: getPatientNameAsString(patient || {}),
-      routes: [
-        {
-          path: `${PATIENT_PATHS.PATIENT}/programs/new`,
-          component: ProgramsView,
-          title: 'New Form',
-        },
-        {
-          path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
-          component: ReferralsView,
-          title: 'New Referral',
-        },
-        {
-          path: `${PATIENT_PATHS.ENCOUNTER}/:modal?`,
-          component: EncounterView,
-          navigateTo: () => navigateToEncounter(encounter.id),
-          title: getEncounterType(encounter || {}),
-          routes: [
-            {
-              path: `${PATIENT_PATHS.SUMMARY}/view`,
-              component: DischargeSummaryView,
-              title: (
-                <TranslatedText
-                  stringId="encounter.dischargeSummary.title"
-                  fallback="Discharge Summary"
-                />
-              ),
-            },
-            {
-              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
-              component: ProgramsView,
-              title: 'New Form',
-            },
-            {
-              path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
-              component: LabRequestView,
-              title: 'Lab Request',
-            },
-            {
-              path: `${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
-              component: ImagingRequestView,
-              title: 'Imaging Request',
-            },
-          ],
-        },
-        {
-          path: PATIENT_PATHS.PROGRAM_REGISTRY,
-          component: PatientProgramRegistryView,
-          navigateTo: () => navigateToProgramRegistry(),
-          title: <ProgramRegistryTitle />,
-          routes: [
-            {
-              path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
-              component: ProgramRegistrySurveyView,
-              title: 'Survey',
-            },
-          ],
-        },
-      ],
+      path: `create/${PATIENT_PATHS.PATIENT}`,
+      navigateTo: () => {
+        history.push(`/patients?modal=duplicate`);
+      },
+      title: 'Create new patient',
+      component: PatientListingView,
+      routes: [getPatientPaths('create/')],
     },
   ];
 };
@@ -127,7 +157,7 @@ const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextP
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
     <Route exact path={path} component={component} />
-    {routes?.map((subRoute) => (
+    {routes?.map(subRoute => (
       <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
     ))}
   </>
@@ -159,7 +189,7 @@ export const PatientRoutes = React.memo(() => {
            that they have access to the programRegistryId url param */}
           {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
           <Switch>
-            {patientRoutes.map((route) => (
+            {patientRoutes.map(route => (
               <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
             ))}
           </Switch>
