@@ -75,8 +75,9 @@ export async function down(query: QueryInterface): Promise<void> {
     ALTER TABLE patient_program_registration_conditions RENAME COLUMN patient_program_registration_old_id TO patient_program_registration_id;
   `);
 
-  // Set primary key and foreign key constraint again
+  // Drop composite foreign key, set primary key and foreign key constraint
   await query.sequelize.query(`
+    ALTER TABLE patient_program_registrations DROP CONSTRAINT patient_program_registrations_pkey;
     ALTER TABLE patient_program_registrations ADD PRIMARY KEY (id);
     ALTER TABLE patient_program_registration_conditions
       ADD CONSTRAINT patient_program_registration__patient_program_registration_fkey
