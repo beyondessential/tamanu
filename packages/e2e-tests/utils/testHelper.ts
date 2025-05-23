@@ -71,10 +71,11 @@ export async function SelectingFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,
-  timeout: number = 5000
+  timeout: number = 10000
 ): Promise<void> {
   try {
     await searchBox.fill(searchText);
+    await searchBox.waitFor({ state: 'visible', timeout });
     const suggestionOption = suggestionList.getByText(searchText);
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
