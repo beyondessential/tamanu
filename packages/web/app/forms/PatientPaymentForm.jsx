@@ -12,6 +12,7 @@ import {
   DateField,
   Field,
   Form,
+  NoteBlock,
   NumberField,
   TextField,
   TranslatedText,
@@ -21,8 +22,9 @@ import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
+import { DefaultIconButton } from '../components/Button';
 
-const IconButton = styled.div`
+const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
   color: ${Colors.primary};
   position: absolute;
@@ -55,8 +57,9 @@ export const PatientPaymentForm = ({
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const [amount, setAmount] = useState(editingPayment?.amount ?? '');
 
-  const { mutate: createPatientPayment, isLoading: isCreatingPayment } =
-    useCreatePatientPayment(invoice);
+  const { mutate: createPatientPayment, isLoading: isCreatingPayment } = useCreatePatientPayment(
+    invoice,
+  );
   const { mutate: updatePatientPayment, isLoading: isUpdatingPayment } = useUpdatePatientPayment(
     invoice,
     editingPayment?.id,
@@ -72,7 +75,7 @@ export const PatientPaymentForm = ({
     return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
   };
 
-  const validateDecimalPlaces = (e) => {
+  const validateDecimalPlaces = e => {
     const value = e.target.value;
     if (value.includes('.')) {
       const decimalPlaces = value.split('.')[1].length;
@@ -153,52 +156,60 @@ export const PatientPaymentForm = ({
       render={({ submitForm, setFieldValue }) => (
         <FormRow data-testid="formrow-su8c">
           <FieldContainer width="19%" data-testid="fieldcontainer-1p4t">
-            <Field
-              name="date"
-              required
-              component={DateField}
-              saveDateAsString
-              size="small"
-              data-testid="field-cx1w"
-            />
+            <NoteBlock>
+              <Field
+                name="date"
+                required
+                component={DateField}
+                saveDateAsString
+                size="small"
+                data-testid="field-cx1w"
+              />
+            </NoteBlock>
           </FieldContainer>
           <FieldContainer width="19%" data-testid="fieldcontainer-mgnx">
-            <Field
-              name="methodId"
-              required
-              component={AutocompleteField}
-              suggester={paymentMethodSuggester}
-              size="small"
-              onChange={(e) => onDataChange({ paymentMethod: e.target })}
-              data-testid="field-c2nv"
-            />
+            <NoteBlock>
+              <Field
+                name="methodId"
+                required
+                component={AutocompleteField}
+                suggester={paymentMethodSuggester}
+                size="small"
+                onChange={e => onDataChange({ paymentMethod: e.target })}
+                data-testid="field-c2nv"
+              />
+            </NoteBlock>
           </FieldContainer>
           {renderChequeNumberField()}
           <FieldContainer width="13%" data-testid="fieldcontainer-8d8a">
-            <Field
-              name="amount"
-              required
-              component={NumberField}
-              size="small"
-              min={0}
-              onInput={validateDecimalPlaces}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              data-testid="field-773f"
-            />
+            <NoteBlock>
+              <Field
+                name="amount"
+                required
+                component={NumberField}
+                size="small"
+                min={0}
+                onInput={validateDecimalPlaces}
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                data-testid="field-773f"
+              />
+            </NoteBlock>
           </FieldContainer>
           <FieldContainer
             sx={{ width: '18%', position: 'relative', marginRight: '23px' }}
             data-testid="fieldcontainer-4dkq"
           >
-            <Field
-              name="receiptNumber"
-              required
-              component={TextField}
-              size="small"
-              onChange={(e) => setFieldValue('receiptNumber', e.target.value)}
-              data-testid="field-9boo"
-            />
+            <NoteBlock>
+              <Field
+                name="receiptNumber"
+                required
+                component={TextField}
+                size="small"
+                onChange={e => setFieldValue('receiptNumber', e.target.value)}
+                data-testid="field-9boo"
+              />
+            </NoteBlock>
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -209,27 +220,31 @@ export const PatientPaymentForm = ({
               }
               data-testid="themedtooltip-i9dx"
             >
-              <IconButton
-                onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
-                data-testid="iconbutton-9yvq"
-              >
-                <CachedIcon data-testid="cachedicon-vghh" />
-              </IconButton>
+              <NoteBlock>
+                <IconButton
+                  onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
+                  data-testid="iconbutton-9yvq"
+                >
+                  <CachedIcon data-testid="cachedicon-vghh" />
+                </IconButton>
+              </NoteBlock>
             </ThemedTooltip>
           </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }} data-testid="box-t4yy">
-            <Button
-              size="small"
-              onClick={submitForm}
-              disabled={isCreatingPayment || isUpdatingPayment}
-              data-testid="button-dre1"
-            >
-              <TranslatedText
-                stringId="invoice.modal.payment.action.record"
-                fallback="Record"
-                data-testid="translatedtext-dpmj"
-              />
-            </Button>
+            <NoteBlock>
+              <Button
+                size="small"
+                onClick={submitForm}
+                disabled={isCreatingPayment || isUpdatingPayment}
+                data-testid="button-dre1"
+              >
+                <TranslatedText
+                  stringId="invoice.modal.payment.action.record"
+                  fallback="Record"
+                  data-testid="translatedtext-dpmj"
+                />
+              </Button>
+            </NoteBlock>
           </Box>
           {openConfirmPaidModal && (
             <ConfirmPaidModal
@@ -285,7 +300,7 @@ export const PatientPaymentForm = ({
               fallback="Cannot be more than outstanding balance"
               data-testid="translatedtext-dzh7"
             />,
-            function (value) {
+            function(value) {
               const editingAmount = Number(editingPayment?.amount)
                 ? Number(editingPayment.amount)
                 : 0;

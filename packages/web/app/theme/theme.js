@@ -5,8 +5,17 @@
 
 import { createTheme } from '@material-ui/core/styles';
 import { Colors, MUI_SPACING_UNIT } from '../constants';
+import { createGlobalStyle } from 'styled-components';
 
 const themeName = 'Tamanu';
+
+// Global styles component
+export const GlobalStyles = createGlobalStyle`
+  .pointer-events-none {
+    pointer-events: none;
+  }
+`;
+
 const palette = {
   primary: {
     main: Colors.primary,

@@ -8,9 +8,10 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors, NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedEnum, TranslatedText } from './Translation';
+import { useNoteModal } from '../contexts/NoteModal';
+import { NoteChangelogModal } from './NoteChangelogModal';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -31,7 +32,7 @@ const NoteContentContainer = styled.div`
   overflow: hidden;
   display: -webkit-box;
   white-space: pre-line;
-  ${(props) =>
+  ${props =>
     !props.$expanded
       ? `
     text-overflow: clip;
@@ -148,6 +149,7 @@ const NoteContent = ({
   isNotFilteredByNoteType,
 }) => {
   const { currentUser, ability } = useAuth();
+
   const hasIndividualNotePermission = getIndividualNotePermissionCheck(ability, currentUser, note);
   const noteContentContainerRef = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
@@ -288,65 +290,48 @@ const NoteTable = ({
   noteType,
 }) => {
   const { currentUser } = useAuth();
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-  const [modalNoteFormMode, setModalNoteFormMode] = useState(NOTE_FORM_MODES.EDIT_NOTE);
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalCancelText, setModalCancelText] = useState('');
-  const [modalNote, setModalNote] = useState(null);
+  const { openNoteModal } = useNoteModal();
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isNoteChangelogModalOpen, setIsNoteChangelogModalOpen] = useState(false);
 
   const handleEditNote = useCallback(
-    (note) => {
-      setModalTitle(
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-          <TranslatedText
-            stringId="note.modal.updateTreatmentPlan.title"
-            fallback="Update treatment plan"
-            data-testid="translatedtext-qmf7"
-          />
-        ) : (
-          <TranslatedText
-            stringId="note.modal.edit.title"
-            fallback="Edit note"
-            data-testid="translatedtext-ioxf"
-          />
-        ),
-      );
-      setModalCancelText(
-        <TranslatedText
-          stringId="general.action.cancel"
-          fallback="Cancel"
-          data-testid="translatedtext-c0km"
-        />,
-      );
-      setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
-      setIsNoteModalOpen(true);
-      setModalNote(note);
+    note => {
+      if (!hasEncounterNoteWritePermission) {
+        return;
+      }
+
+      openNoteModal({
+        title:
+          note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+            <TranslatedText
+              stringId="note.modal.updateTreatmentPlan.title"
+              fallback="Update treatment plan"
+            />
+          ) : (
+            <TranslatedText stringId="note.modal.edit.title" fallback="Edit note" />
+          ),
+        cancelText: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+        noteFormMode: NOTE_FORM_MODES.EDIT_NOTE,
+        note: note,
+        onSaved: noteModalOnSaved,
+        encounterId,
+        confirmText: <TranslatedText stringId="general.action.save" fallback="Save" />,
+      });
     },
-    [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote, setModalNoteFormMode],
+    [openNoteModal, hasEncounterNoteWritePermission, encounterId, noteModalOnSaved],
   );
 
-  const handleViewNoteChangeLog = useCallback(
-    (note) => {
-      setModalTitle(
-        <TranslatedText
-          stringId="note.modal.changeLog.title"
-          fallback="Change Log"
-          data-testid="translatedtext-xmf3"
-        />,
-      );
-      setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
-      setIsNoteModalOpen(true);
-      setModalNote(note);
-    },
-    [setModalTitle, setIsNoteModalOpen, setModalNote, setModalNoteFormMode],
-  );
+  const handleViewNoteChangeLog = useCallback(note => {
+    setSelectedNote(note);
+    setIsNoteChangelogModalOpen(true);
+  }, []);
 
   const COLUMNS = useMemo(
     () => [
       {
         key: 'content',
         title: 'Content',
-        accessor: (note) => (
+        accessor: note => (
           <NoteContent
             note={note}
             hasEncounterNoteWritePermission={hasEncounterNoteWritePermission}
@@ -371,34 +356,11 @@ const NoteTable = ({
 
   return (
     <>
-      {hasEncounterNoteWritePermission && (
-        <NoteModal
-          open={isNoteModalOpen}
-          encounterId={encounterId}
-          onClose={() => setIsNoteModalOpen(false)}
-          onSaved={noteModalOnSaved}
-          note={modalNote}
-          title={modalTitle}
-          cancelText={modalCancelText}
-          noteFormMode={modalNoteFormMode}
-          confirmText={
-            modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
-              <TranslatedText
-                stringId="general.action.close"
-                fallback="Close"
-                data-testid="translatedtext-3cqs"
-              />
-            ) : (
-              <TranslatedText
-                stringId="general.action.save"
-                fallback="Save"
-                data-testid="translatedtext-uimh"
-              />
-            )
-          }
-          data-testid="notemodal-pvyd"
-        />
-      )}
+      <NoteChangelogModal
+        open={isNoteChangelogModalOpen}
+        note={selectedNote}
+        onCancel={() => setIsNoteChangelogModalOpen(false)}
+      />
       <DataFetchingTable
         lazyLoading
         hideHeader
