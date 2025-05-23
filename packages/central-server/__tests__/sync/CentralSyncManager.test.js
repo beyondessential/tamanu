@@ -2022,7 +2022,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it.only('records audit changelogs when isMobile is true during completePush', async () => {
+    it('records audit changelogs when isMobile is true during completePush', async () => {
       await models.Setting.set('audit.changes.enabled', true);
       const facility = await models.Facility.create(fake(models.Facility));
       const patient = await models.Patient.create(fake(models.Patient));
