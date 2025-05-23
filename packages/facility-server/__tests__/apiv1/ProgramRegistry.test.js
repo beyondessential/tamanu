@@ -105,7 +105,7 @@ describe('ProgramRegistry', () => {
 
       // Should show (patient already has registration but it's deleted):
       const { id: registryId2 } = await createProgramRegistry();
-      await models.PatientProgramRegistration.create(
+      const registrationOne = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -114,19 +114,13 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          date: '2023-09-04 09:00:00',
-          patientId: testPatient.id,
-          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-          programRegistryId: registryId2,
-          clinicianId: app.user.id,
-        }),
-      );
+      await registrationOne.update({
+        registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+      })
 
       // Shouldn't show (patient has a registration but it's been deleted before):
       const { id: registryId3 } = await createProgramRegistry();
-      await models.PatientProgramRegistration.create(
+      const registrationTwo = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -135,15 +129,9 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          date: '2023-09-04 09:00:00',
-          patientId: testPatient.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          programRegistryId: registryId3,
-          clinicianId: app.user.id,
-        }),
-      );
+      await registrationTwo.update({
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+      });
 
       const result = await app
         .get('/api/programRegistry')
@@ -255,20 +243,16 @@ describe('ProgramRegistry', () => {
 
       // Patient 2: Should show most recent registration only
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2' }));
-      await models.PatientProgramRegistration.create(
+      const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
           date: '2023-09-04 08:00:00',
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          ...baseRegistrationData,
-          patientId: patient2.id,
-          date: '2023-09-05 08:00:00',
-        }),
-      );
+      await registration.update({
+        date: '2023-09-05 08:00:00',
+      });
 
       const result = await app
         .get(`/api/programRegistry/${programRegistryId}/registrations`)
@@ -305,6 +289,7 @@ describe('ProgramRegistry', () => {
           patient: {
             displayId: '2',
           },
+          date: '2023-09-05 08:00:00',
         },
       ]);
     });
