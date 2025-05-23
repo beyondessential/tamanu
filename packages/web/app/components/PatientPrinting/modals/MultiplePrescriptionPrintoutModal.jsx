@@ -12,6 +12,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -40,10 +41,10 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encounter.patientId}/additionalData`),
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(encounter.patientId);
 
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['village', encounter.patientId],
@@ -70,7 +71,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       title={
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
-          fallback="Print prescriptions"
+          fallback="Print prescription"
           data-testid="translatedtext-v5oy"
         />
       }

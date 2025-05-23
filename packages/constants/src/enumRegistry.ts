@@ -181,13 +181,21 @@ export const prefixMap = new Map(
   ]),
 );
 
+/**
+ * Converts a string from formats like SNAKE_CASE to camelCase
+ * Keep in sync with packages/shared/src/utils/enumRegistry.js
+ * @param {string} value - The string to convert
+ * @returns {string} The converted string in camelCase
+ */
+const toCamelCase = (value: string): string => {
+  return value.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase());
+};
+
 /** The list of all translatable enums string id and fallback */
 export const enumTranslations = (Object.entries(registeredEnums) as EnumEntries).flatMap(
   ([key, value]) =>
     Object.entries(value).map(([enumKey, enumValue]) => [
-      `${translationPrefixes[key]}.${enumKey
-        .toLowerCase()
-        .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
+      `${translationPrefixes[key]}.${toCamelCase(enumKey)}`,
       enumValue,
     ]),
 );

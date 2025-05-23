@@ -10,7 +10,6 @@ import { DataItem } from './printComponents/DataItem';
 import { getDisplayDate } from './getDisplayDate';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { P } from './Typography';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { getDose, getTranslatedFrequency } from '../medication';
@@ -57,21 +56,14 @@ const columns = (getTranslation, getEnumTranslation) => [
   },
   {
     key: 'repeats',
-    title: getTranslation('pdf.table.column.repeat', 'Repeat'),
-    accessor: ({ repeats }) => repeats || 0,
+    title: getTranslation('pdf.table.column.repeats', 'Repeats'),
+    accessor: ({ repeats }) => repeats,
   },
 ];
 
 const prescriptionSectionStyles = StyleSheet.create({
   tableContainer: {
     marginTop: 12,
-  },
-});
-
-const notesSectionStyles = StyleSheet.create({
-  notesContainer: {
-    border: '1px solid black',
-    height: 69,
   },
 });
 
@@ -129,15 +121,6 @@ const PrescriptionSigningSection = () => (
   </View>
 );
 
-const NotesSection = () => (
-  <View>
-    <P bold fontSize={11} mb={3}>
-      Notes
-    </P>
-    <View style={notesSectionStyles.notesContainer} />
-  </View>
-);
-
 const PrescriptionPrintoutComponent = ({
   patientData,
   prescriptions,
@@ -169,9 +152,6 @@ const PrescriptionPrintoutComponent = ({
               getLocalisation={getLocalisation}
               getSetting={getSetting}
             />
-          </SectionContainer>
-          <SectionContainer>
-            <NotesSection />
           </SectionContainer>
           <SectionContainer>
             <PrescriptionSigningSection />

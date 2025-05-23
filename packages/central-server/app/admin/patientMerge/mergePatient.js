@@ -68,6 +68,10 @@ const omittedColumns = [
   'updatedAtByField',
 ];
 
+// This is for cases where we never want to update the patient_id
+// even after merge
+const omittedModels = ['AccessLog'];
+
 function isNullOrEmptyString(value) {
   return value === null || value === '';
 }
@@ -90,7 +94,7 @@ const modelReferencesPatient = ([, model]) =>
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
-  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
+  const coveredModels = [...simpleUpdateModels, ...specificUpdateModels, ...omittedModels];
   const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;

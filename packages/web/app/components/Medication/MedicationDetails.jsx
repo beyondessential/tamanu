@@ -6,7 +6,7 @@ import { CheckSharp } from '@material-ui/icons';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  MEDICATION_DURATION_UNITS_LABELS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -118,10 +118,10 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
           {
             label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
             value: medication.durationValue
-              ? `${medication.durationValue} ${getTranslation(
-                  'medication.duration.unit',
-                  `${medication.durationUnit.slice(0, -1)}(s)`,
-                )}`
+              ? `${medication.durationValue} ${singularize(
+                  getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, medication.durationUnit),
+                  medication.durationValue,
+                ).toLowerCase()}`
               : '-',
           },
         ]),
@@ -284,7 +284,7 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         {pauseData.pauseDuration}{' '}
                         {singularize(
                           getEnumTranslation(
-                            MEDICATION_DURATION_UNITS_LABELS,
+                            MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
                             pauseData.pauseTimeUnit,
                           ),
                           pauseData.pauseDuration,
