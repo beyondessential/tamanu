@@ -27,8 +27,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.pull_request.body;
-            const e2eMatch = body.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
+            const body = context.payload.pull_request?.body;
+            const e2eMatch = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
             core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
 
   node_modules_cache:

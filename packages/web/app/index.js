@@ -17,7 +17,9 @@ import './fonts.css';
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
     const { auth } = store.getState();
-    api.setToken(auth.token);
+    if (auth.token) {
+      api.setToken(auth.token);
+    }
   });
 
   // if you run into problems with redux state, call "purge()" in the dev console

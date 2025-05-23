@@ -7,8 +7,7 @@ These triggers are applied by Tamanu rather than being hardcoded in migrations.
 
 Some tables are excluded from logging. These are listed in the `NON_LOGGED_TABLES`
 constant in the database package, and include the sync subsystem and other
-internal system tables. However, notably, the `SequelizeMeta` table _is_ logged,
-which provides a permanent record of when schema migrations were done.
+internal system tables.
 
 Note that changes before this table was put in service will of course not have
 been logged.
