@@ -1,6 +1,7 @@
 import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
 import { getItemFromLocalStorage, getCurrentUser } from "./generateNewPatient";
 import { constructFacilityUrl } from "./navigation";
+import { Locator } from '@playwright/test';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateString: string): string => {
@@ -56,4 +57,28 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
   }
 
   return response.json();
+}
+
+/**
+ * Utility method to handle search box suggestions
+ * @param searchBox The search box locator
+ * @param suggestionList The suggestion list locator
+ * @param searchText The text to search for
+ * @param timeout Optional timeout in milliseconds (default: 5000)
+ * @throws Error if the suggestion is not found in the list
+ */
+export async function SelectingFromSearchBox(
+  searchBox: Locator,
+  suggestionList: Locator,
+  searchText: string,
+  timeout: number = 5000
+): Promise<void> {
+  try {
+    await searchBox.fill(searchText);
+    const suggestionOption = suggestionList.getByText(searchText);
+    await suggestionOption.waitFor({ state: 'visible', timeout });
+    await suggestionOption.click();
+  } catch (error) {
+    throw new Error(`Failed to handle search box suggestion: ${error.message}`);
+  }
 }

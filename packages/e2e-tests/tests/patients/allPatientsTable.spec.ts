@@ -107,9 +107,11 @@ test.describe('All patient table pagination', () => {
     await allPatientsPage.pageRecordCountDropDown.click();
     await allPatientsPage.patientPageRecordCount25.click();
     await allPatientsPage.waitForTableToLoad();
+    await allPatientsPage.waitForTableRowCount(25);
     await allPatientsPage.validateNumberOfPatients(25);
     await allPatientsPage.patientPage2.click();
     await allPatientsPage.waitForTableToLoad();
+    await allPatientsPage.waitForTableRowCount(25);
     await allPatientsPage.validateNumberOfPatients(25);
     await expect(allPatientsPage.pageRecordCount).toContainText('26–50 of');
 
@@ -120,9 +122,11 @@ test.describe('All patient table pagination', () => {
     await allPatientsPage.pageRecordCountDropDown.click();
     await allPatientsPage.patientPageRecordCount50.click();
     await allPatientsPage.waitForTableToLoad();
+    await allPatientsPage.waitForTableRowCount(50);
     await allPatientsPage.validateNumberOfPatients(50);
     await allPatientsPage.patientPage2.click();
     await allPatientsPage.waitForTableToLoad();
+    await allPatientsPage.waitForTableRowCount(50);
     await allPatientsPage.validateNumberOfPatients(50);
     await expect(allPatientsPage.pageRecordCount).toContainText('51–100 of');
   });

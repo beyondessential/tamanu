@@ -2,7 +2,7 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat } from '../../utils/testHelper';
+import { SelectingFromSearchBox, convertDateFormat } from '../../utils/testHelper';
 
 
 export class AllPatientsPage extends BasePage {
@@ -133,8 +133,37 @@ export class AllPatientsPage extends BasePage {
   }
 
   async waitForTableToLoad() {
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-    await this.allPatientsTableLoadingCell.waitFor({ state: 'hidden' });
+    try {
+      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+      await this.allPatientsTableLoadingCell.waitFor({ state: 'hidden' });      
+    } catch (error) {
+      throw new Error(`Failed to wait for table to load: ${error.message}`);
+    }
+  }
+
+  /**
+   * Waits for the table to have a specific number of rows
+   * @param expectedRowCount The number of rows to wait for
+   * @param timeout Optional timeout in milliseconds (default: 10000)
+   * @throws Error if the expected row count is not reached within the timeout
+   */
+  async waitForTableRowCount(expectedRowCount: number, timeout: number = 10000) {
+    try {
+      await this.page.waitForFunction(
+        (count) => {
+          const table = document.querySelector('table');
+          if (!table) return false;
+          const rows = table.querySelectorAll('tbody tr');
+          return rows.length === count;
+        },
+        expectedRowCount,
+        { timeout }
+      );
+    } catch (error) {
+      throw new Error(
+        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`
+      );
+    }
   }
 
   async clickOnFirstRow() {
@@ -196,8 +225,11 @@ export class AllPatientsPage extends BasePage {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
     }
     if (searchCriteria.village) {
-      await this.villageSearchBox.fill(searchCriteria.village);
-      await this.villageSuggestionList.getByText(searchCriteria.village).click();
+      await SelectingFromSearchBox(
+        this.villageSearchBox,
+        this.villageSuggestionList,
+        searchCriteria.village
+      );
     }
     if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
@@ -242,7 +274,8 @@ export class AllPatientsPage extends BasePage {
       const locatorText = "styledtablecell-2gyy-" + i + "-" + columnName;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
-      await expect(cellText?.toLowerCase()).toContain(lowerExpectedText);
+      const actualText = cellText || '';
+      await expect(actualText.toLowerCase()).toContain(lowerExpectedText);
     }
   }
 
