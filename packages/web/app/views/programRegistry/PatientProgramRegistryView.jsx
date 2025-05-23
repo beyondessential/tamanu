@@ -65,14 +65,14 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
+  const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,
   );
 
   const patientRoutes = usePatientRoutes();
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <LoadingIndicator />;
   }
 

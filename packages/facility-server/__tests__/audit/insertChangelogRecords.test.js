@@ -1,9 +1,8 @@
 import { insertChangelogRecords } from '@tamanu/database';
 import { createTestContext } from '../utilities';
-import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { ENCOUNTER_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
-describe('insertChangeLogRecords', () => {
+describe('insertChangelogRecords', () => {
   let ctx;
   let models;
   let sequelize;
@@ -38,10 +37,8 @@ describe('insertChangeLogRecords', () => {
       loggedAt: new Date(),
       recordCreatedAt: new Date(),
       recordUpdatedAt: new Date(),
-      recordSyncTick: 100,
       updatedByUserId: SYSTEM_USER_UUID,
       recordId: '1',
-      recordUpdate: true,
       recordData: { first_name: 'Patient 1' },
     });
 
@@ -54,12 +51,10 @@ describe('insertChangeLogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'patients',
         tableSchema: 'public',
         recordId: '1',
         recordData: { first_name: 'Patient Updated' },
-        recordSyncTick: '100',
       },
       {
         // New record
@@ -69,12 +64,10 @@ describe('insertChangeLogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'patients',
         tableSchema: 'public',
         recordId: '2',
         recordData: { first_name: 'Patient 2' },
-        recordSyncTick: '100',
       },
       {
         // New record
@@ -84,12 +77,10 @@ describe('insertChangeLogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'encounters',
         tableSchema: 'public',
         recordId: '3',
         recordData: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
-        recordSyncTick: '100',
       },
     ];
 
@@ -109,86 +100,5 @@ describe('insertChangeLogRecords', () => {
     expect(results[1].tableName).toBe('patients');
     expect(results[2].recordId).toBe('3');
     expect(results[2].tableName).toBe('encounters');
-  });
-
-  it('should set recordSyncTick to SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE for facility records', async () => {
-    // Arrange
-    const changelogRecords = [
-      {
-        tableOid: 1234,
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
-        tableName: 'patients',
-        tableSchema: 'public',
-        recordId: '1',
-        recordData: { first_name: 'Patient 1' },
-        recordSyncTick: '123',
-      },
-    ];
-
-    // Act
-    await insertChangelogRecords(models, changelogRecords, true);
-
-    // Assert
-    const result = await models.ChangeLog.findAll();
-    expect(result).toHaveLength(1);
-    expect(result[0].recordSyncTick).toBe(`${SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE}`);
-  });
-
-  it('should preserve recordSyncTick for non-facility records', async () => {
-    // Arrange
-    const changelogRecords = [
-      {
-        tableOid: 1234,
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
-        tableName: 'patients',
-        tableSchema: 'public',
-        recordId: '2',
-        recordData: { first_name: 'Patient 2' },
-        recordSyncTick: '123',
-      },
-    ];
-
-    // Act
-    await insertChangelogRecords(models, changelogRecords, false);
-
-    // Assert
-    const result = await models.ChangeLog.findAll();
-    expect(result).toHaveLength(1);
-    expect(result[0].recordSyncTick).toBe("123");
-  });
-
-  it('should stringify recordData before inserting', async () => {
-    // Arrange
-    const recordData = { first_name: 'Patient 1', age: 30 };
-    const changelogRecords = [
-      {
-        tableOid: 1234,
-        loggedAt: new Date(),
-        recordCreatedAt: new Date(),
-        recordUpdatedAt: new Date(),
-        updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
-        tableName: 'patients',
-        tableSchema: 'public',
-        recordId: '1',
-        recordData: recordData,
-        recordSyncTick: '123',
-      },
-    ];
-
-    // Act
-    await insertChangelogRecords(models, changelogRecords);
-
-    // Assert
-    const [changelog] = await models.ChangeLog.findAll();
-    expect(changelog.recordData).toMatchObject(recordData);
   });
 });

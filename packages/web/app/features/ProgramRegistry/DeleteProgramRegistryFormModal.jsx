@@ -31,18 +31,18 @@ const Body = styled.div`
 const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, onSuccess) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { id, patientId } = patientProgramRegistration;
+  const { id: registrationId, patientId } = patientProgramRegistration;
 
   return useMutation({
     mutationFn: async () => {
-      return api.delete(`patient/programRegistration/${id}`);
+      return api.delete(`patient/programRegistration/${registrationId}`);
     },
     onSuccess: async () => {
-      onSuccess();
-      await queryClient.invalidateQueries(['patient', patientId]);
+      await queryClient.resetQueries(['patient', patientId]);
       await queryClient.invalidateQueries([
         `infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`,
       ]);
+      onSuccess();
     },
   });
 };

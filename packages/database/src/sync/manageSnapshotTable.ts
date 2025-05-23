@@ -40,6 +40,7 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
       saved_at_sync_tick bigint, -- saved_at_sync_tick is used to check whether record has been updated between incoming and outgoing phase of a single session
       updated_at_by_field_sum bigint, -- updated_at_by_field_sum is used to check whether record has had changes to field during merge and save component of push phase
       sync_lookup_id bigint,
+      changelog_records json,
       requires_repull boolean DEFAULT false
     ) WITH (
       autovacuum_enabled = off
@@ -87,7 +88,7 @@ export const insertSnapshotRecords = async (
   const queryInterface = sequelize.getQueryInterface();
   const sanitizedRecords = records
     .map((r) => snakeKey(r))
-    .map((r) => ({ ...r, data: JSON.stringify(r.data) }));
+    .map((r) => ({ ...r, data: JSON.stringify(r.data), changelog_records: JSON.stringify(r.changelog_records) }));
   await queryInterface.bulkInsert({ tableName: sessionId, schema: SCHEMA }, sanitizedRecords);
 };
 
