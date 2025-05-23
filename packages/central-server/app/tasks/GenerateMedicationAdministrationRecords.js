@@ -25,16 +25,39 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
   }
 
   async run() {
+    await this.cleanupInvalidMedicationAdministrationRecords();
     await this.generateMedicationAdministrationRecords();
+  }
+
+  async cleanupInvalidMedicationAdministrationRecords() {
+    const { MedicationAdministrationRecord } = this.models;
+    await MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords();
   }
 
   async generateMedicationAdministrationRecords() {
     const { Prescription, MedicationAdministrationRecord } = this.models;
     const baseQueryOptions = {
       where: {
-        endDate: { [Op.gt]: getCurrentDateTimeString() },
-        discontinuedDate: null,
+        endDate: { [Op.or]: [{ [Op.gt]: getCurrentDateTimeString() }, { [Op.is]: null }] },
+        discontinued: { [Op.not]: true },
       },
+      include: [
+        {
+          model: this.models.EncounterPrescription,
+          required: true,
+          as: 'encounterPrescription',
+          include: [
+            {
+              model: this.models.Encounter,
+              as: 'encounter',
+              // do not generate MARs for encounters that are discharged
+              where: {
+                endDate: null,
+              },
+            },
+          ],
+        },
+      ],
     };
 
     const toProcess = await Prescription.count({

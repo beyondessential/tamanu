@@ -15,7 +15,6 @@ import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
-import type { Encounter } from './Encounter';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export class MedicationAdministrationRecord extends Model {
@@ -202,7 +201,7 @@ export class MedicationAdministrationRecord extends Model {
           nextDueDate < new Date(prescription.startDate) ||
           nextDueDate > endDate ||
           (lastMedicationAdministrationRecord &&
-            nextDueDate < new Date(lastMedicationAdministrationRecord.dueAt)) ||
+            nextDueDate <= new Date(lastMedicationAdministrationRecord.dueAt)) ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
           continue;
@@ -242,47 +241,66 @@ export class MedicationAdministrationRecord extends Model {
     }
   }
 
-  static async onEncounterDischarged(encounter: Encounter, transaction?: Transaction) {
+  /**
+   * Removes medication administration records that are no longer valid due to:
+   * 1. The encounter being discharged (MARs with due dates after the encounter end date)
+   * 2. The prescription being discontinued (MARs with due dates after the prescription discontinued date)
+   *
+   * @param {Transaction} [transaction] - Optional transaction to use for the database operations
+   */
+  static async removeInvalidMedicationAdministrationRecords(transaction?: Transaction | null) {
     const { models } = this.sequelize;
-    const encounterId = encounter.id;
+    const { Prescription, EncounterPrescription } = models;
 
-    const encounterPrescriptions = await models.EncounterPrescription.findAll({
+    const marsToRemove = await this.findAll({
       where: {
-        encounterId,
+        [Op.or]: [
+          // Case 1: Discontinued prescriptions
+          {
+            '$prescription.discontinued$': true,
+            dueAt: {
+              [Op.gt]: {
+                [Op.col]: 'prescription.discontinued_date',
+              },
+            },
+          },
+          // Case 2: Prescriptions from discharged encounters
+          {
+            '$prescription.encounterPrescription.encounter.end_date$': {
+              [Op.not]: null,
+            },
+            dueAt: {
+              [Op.gt]: {
+                [Op.col]: 'prescription.encounterPrescription.encounter.end_date',
+              },
+            },
+          },
+        ],
+        status: null,
       },
-      attributes: ['prescriptionId'],
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          required: true,
+          include: [
+            {
+              model: EncounterPrescription,
+              as: 'encounterPrescription',
+              required: true,
+              include: ['encounter'],
+            },
+          ],
+        },
+      ],
       transaction,
     });
 
-    await models.MedicationAdministrationRecord.destroy({
+    await this.destroy({
       where: {
-        dueAt: {
-          [Op.gt]: encounter.endDate,
+        id: {
+          [Op.in]: marsToRemove.map((mar) => mar.id),
         },
-        prescriptionId: {
-          [Op.in]: encounterPrescriptions.map(
-            (encounterPrescription) => encounterPrescription.prescriptionId,
-          ),
-        },
-        status: null,
-      },
-      transaction,
-    });
-  }
-
-  static async onPrescriptionDiscontinued(
-    prescription: Prescription,
-    transaction?: Transaction | null,
-  ) {
-    const { models } = this.sequelize;
-
-    await models.MedicationAdministrationRecord.destroy({
-      where: {
-        prescriptionId: prescription.id,
-        dueAt: {
-          [Op.gt]: prescription.discontinuedDate,
-        },
-        status: null,
       },
       transaction,
     });

@@ -24,7 +24,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
-
+import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -548,9 +548,15 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
       durationValue: data.durationValue || undefined,
       idealTimes,
     };
-    const medicationSubmission = await (isOngoingPrescription
-      ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
-      : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+    let medicationSubmission;
+    try {
+      medicationSubmission = await (isOngoingPrescription
+        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
+        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+    } catch (error) {
+      toast.error(error.message);
+      return Promise.reject(error);
+    }
     // The return from the post doesn't include the joined tables like medication and prescriber
     const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 

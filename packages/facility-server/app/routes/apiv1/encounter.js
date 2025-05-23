@@ -223,13 +223,6 @@ encounterRelations.get(
       include: [
         ...associations,
         {
-          model: models.Encounter,
-          as: 'encounters',
-          through: { attributes: [] },
-          where: { id: params.id },
-          attributes: ['id'],
-        },
-        {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
           include: {
@@ -241,8 +234,12 @@ encounterRelations.get(
                 [Op.gt]: getCurrentDateTimeString(),
               },
             },
+            required: false,
           },
-          attributes: ['id'],
+          attributes: ['id', 'encounterId', 'isDischarge'],
+          where: {
+            encounterId: params.id,
+          },
         },
       ],
     };

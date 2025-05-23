@@ -34,16 +34,12 @@ medication.post(
     const { models } = req;
     const patientId = req.params.patientId;
     const data = req.body;
-    const { Prescription, PatientOngoingPrescription } = models;
+    const { Prescription, Patient, PatientOngoingPrescription } = models;
     req.checkPermission('create', 'Prescription');
 
-    const existingPrescription = await Prescription.findByPk(req.body.id, {
-      paranoid: false,
-    });
-    if (existingPrescription) {
-      throw new InvalidOperationError(
-        `Cannot create prescription with id (${req.body.id}), it already exists`,
-      );
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) {
+      throw new InvalidOperationError(`Patient with id ${patientId} not found`);
     }
 
     if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
@@ -69,15 +65,16 @@ medication.post(
     const { models } = req;
     const encounterId = req.params.encounterId;
     const data = req.body;
-    const { Prescription, EncounterPrescription } = models;
+    const { Prescription, Encounter, EncounterPrescription } = models;
     req.checkPermission('create', 'Prescription');
 
-    const existingPrescription = await Prescription.findByPk(req.body.id, {
-      paranoid: false,
-    });
-    if (existingPrescription) {
+    const encounter = await Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
+    }
+    if (new Date(data.startDate) < new Date(encounter.startDate)) {
       throw new InvalidOperationError(
-        `Cannot create prescription with id (${req.body.id}), it already exists`,
+        `Cannot create prescription with start date (${data.startDate}) before encounter start date (${encounter.startDate})`,
       );
     }
 
@@ -880,7 +877,7 @@ medication.put(
     const currentDate = getCurrentDateTimeString();
     await Note.create({
       content:
-        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes}`.trim(),
+        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes || ''}`.trim(),
       authorId: req.user.id,
       recordId: existingMar.prescription.encounterPrescription.encounterId,
       date: currentDate,
