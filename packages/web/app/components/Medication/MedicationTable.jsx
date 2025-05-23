@@ -231,12 +231,11 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) 
   },
 ];
 
-export const EncounterMedicationTable = React.memo(({ encounterId }) => {
+export const EncounterMedicationTable = React.memo(({ encounterId, onReloadTable, refreshCount }) => {
   const location = useLocation();
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -262,7 +261,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
       {selectedMedication && (
         <MedicationDetails
           initialMedication={selectedMedication}
-          onReloadTable={() => setRefreshCount(refreshCount + 1)}
+          onReloadTable={onReloadTable}
           onClose={() => setSelectedMedication(null)}
         />
       )}

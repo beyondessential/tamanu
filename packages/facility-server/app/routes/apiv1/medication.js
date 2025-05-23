@@ -18,7 +18,6 @@ import {
   ADMINISTRATION_STATUS,
   DRUG_ROUTES,
   DRUG_UNITS,
-  MEDICATION_DURATION_UNITS_LABELS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
@@ -109,7 +108,6 @@ medication.post(
       }
 
       const prescriptions = await Prescription.bulkCreate(medicationSet);
-      console.log('prescriptions', prescriptions);
       await EncounterPrescription.bulkCreate(
         prescriptions.map((prescription) => ({
           encounterId: encounter.id,

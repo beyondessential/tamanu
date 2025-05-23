@@ -138,24 +138,23 @@ const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
   );
 };
 
-export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal }) => {
-  const { encounter, loadEncounter } = useEncounter();
+export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
+  const { encounter } = useEncounter();
   const { currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
   );
-  const { mutateAsync: createMedicationSet, isLoading: isCreatingMedicationSet } = useCreateMedicationSetMutation({
-    onSuccess: () => {
-      loadEncounter();
-    },
+  const {
+    mutateAsync: createMedicationSet,
+    isLoading: isCreatingMedicationSet,
+  } = useCreateMedicationSetMutation({
+    onSuccess: () => onReloadTable(),
   });
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
-  console.log('editingMedication', editingMedication);
 
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
-  console.log('selectedMedicationSet', selectedMedicationSet);
   const onSelect = medicationSet => {
     setSelectedMedicationSet(medicationSet);
   };
@@ -175,7 +174,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal })
         ),
       })),
     };
-    console.log('payload', payload);
     await createMedicationSet(payload);
     onClose();
   };
@@ -311,15 +309,35 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal })
   const getModalTitle = () => {
     switch (screen) {
       case MODAL_SCREENS.DISCARD_CHANGES:
-        return <TranslatedText stringId="medication.modal.discardChanges.title" fallback="Discard changes to medication set" />;
+        return (
+          <TranslatedText
+            stringId="medication.modal.discardChanges.title"
+            fallback="Discard changes to medication set"
+          />
+        );
       case MODAL_SCREENS.REMOVE_MEDICATION:
-        return <TranslatedText stringId="medication.modal.removeMedication.title" fallback="Remove medication" />;
+        return (
+          <TranslatedText
+            stringId="medication.modal.removeMedication.title"
+            fallback="Remove medication"
+          />
+        );
       case MODAL_SCREENS.EDIT_MEDICATION:
         return selectedMedicationSet.name;
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
-        return <TranslatedText stringId="medication.modal.reviewMedicationSet.title" fallback="Review medication set" />;
+        return (
+          <TranslatedText
+            stringId="medication.modal.reviewMedicationSet.title"
+            fallback="Review medication set"
+          />
+        );
       default:
-        return <TranslatedText stringId="medication.modal.selectMedicationSet.title" fallback="Select medication set" />;
+        return (
+          <TranslatedText
+            stringId="medication.modal.selectMedicationSet.title"
+            fallback="Select medication set"
+          />
+        );
     }
   };
 

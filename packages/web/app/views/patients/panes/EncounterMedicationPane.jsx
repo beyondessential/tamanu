@@ -59,6 +59,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const { navigateToMar } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0);
   const [prescriptionType, setPrescriptionType] = useState(null);
   const { loadEncounter } = useEncounter();
 
@@ -80,6 +81,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             open={true}
             onClose={() => setPrescriptionType(null)}
             openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
+            onReloadTable={() => setRefreshCount(refreshCount + 1)}
           />
         )}
         <MedicationModal
@@ -168,6 +170,8 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         </TableButtonRow>
         <EncounterMedicationTable
           encounterId={encounter.id}
+          onReloadTable={() => setRefreshCount(refreshCount + 1)}
+          refreshCount={refreshCount}
           data-testid="encountermedicationtable-gs0p"
         />
       </TableContainer>
