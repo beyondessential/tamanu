@@ -94,8 +94,7 @@ export class Prescription extends Model {
               );
             }
             if (prescription.changed('discontinued') && prescription.discontinued) {
-              await models.MedicationAdministrationRecord.onPrescriptionDiscontinued(
-                prescription,
+              await models.MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords(
                 options.transaction,
               );
             }

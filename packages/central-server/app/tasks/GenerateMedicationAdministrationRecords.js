@@ -25,7 +25,13 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
   }
 
   async run() {
+    await this.cleanupInvalidMedicationAdministrationRecords();
     await this.generateMedicationAdministrationRecords();
+  }
+
+  async cleanupInvalidMedicationAdministrationRecords() {
+    const { MedicationAdministrationRecord } = this.models;
+    await MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords();
   }
 
   async generateMedicationAdministrationRecords() {
@@ -33,8 +39,25 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
     const baseQueryOptions = {
       where: {
         endDate: { [Op.or]: [{ [Op.gt]: getCurrentDateTimeString() }, { [Op.is]: null }] },
-        discontinuedDate: null,
+        discontinued: { [Op.not]: true },
       },
+      include: [
+        {
+          model: this.models.EncounterPrescription,
+          required: true,
+          as: 'encounterPrescription',
+          include: [
+            {
+              model: this.models.Encounter,
+              as: 'encounter',
+              // do not generate MARs for encounters that are discharged
+              where: {
+                endDate: null,
+              },
+            },
+          ],
+        },
+      ],
     };
 
     const toProcess = await Prescription.count({

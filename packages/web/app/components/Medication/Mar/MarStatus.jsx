@@ -330,21 +330,19 @@ export const MarStatus = ({
   };
 
   const renderStatus = () => {
-    if (!marInfo || isDiscontinued || isEnd || (!status && isPaused)) return null;
-    let color = Colors.green;
+    if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
         return (
-          <IconWrapper $color={color}>
+          <IconWrapper $color={Colors.green}>
             <CheckCircleIcon />
             {isAlert && <StyledPriorityHighIcon />}
             {isEdited && <EditedIcon>*</EditedIcon>}
           </IconWrapper>
         );
       case ADMINISTRATION_STATUS.NOT_GIVEN:
-        color = Colors.alert;
         return (
-          <IconWrapper $color={color}>
+          <IconWrapper $color={Colors.alert}>
             <CancelIcon />
             {isAlert && <StyledPriorityHighIcon />}
             {isEdited && <EditedIcon>*</EditedIcon>}
@@ -352,10 +350,8 @@ export const MarStatus = ({
         );
       default: {
         if (isPast) {
-          if (isPrn) return null;
-          color = Colors.darkOrange;
-          return (
-            <IconWrapper $color={color}>
+          return isPrn ? null : (
+            <IconWrapper $color={Colors.darkOrange}>
               <HelpOutlineIcon />
             </IconWrapper>
           );
@@ -385,8 +381,6 @@ export const MarStatus = ({
   };
 
   const getTooltipText = () => {
-    // Do not show tooltip for past due PRN medication as they are hidden
-    if (isPrn && isPast && !status) return null;
     if (isDiscontinued) {
       return (
         <Box maxWidth={69}>
@@ -472,7 +466,7 @@ export const MarStatus = ({
             );
           }
           if (isPast) {
-            return (
+            return isPrn ? null : (
               <Box maxWidth={69}>
                 <TranslatedText
                   stringId="medication.mar.missed.tooltip"
