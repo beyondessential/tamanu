@@ -313,8 +313,8 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         }
         confirmText={
           <TranslatedText
-            stringId="medication.action.printPrescriptions"
-            fallback="Print prescriptions"
+            stringId="medication.action.printPrescription"
+            fallback="Print prescription"
             data-testid="translatedtext-ojsa"
           />
         }
