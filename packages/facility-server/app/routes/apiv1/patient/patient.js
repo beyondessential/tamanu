@@ -28,6 +28,24 @@ import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
 
+patientRoute.post(
+  '/checkDuplicates',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    const { models, body: patient } = req;
+
+    const potentialDuplicates = await models.Patient.sequelize.query(
+      `SELECT * FROM find_potential_patient_duplicates(:patient)`,
+      {
+        replacements: { patient: JSON.stringify(patient) },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({ data: potentialDuplicates.map(renameObjectKeys) });
+  }),
+);
+
 patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
