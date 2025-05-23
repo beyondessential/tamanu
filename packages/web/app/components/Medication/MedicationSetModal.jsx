@@ -9,6 +9,9 @@ import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 import { MedicationForm } from '../../forms/MedicationForm';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -136,26 +139,45 @@ const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
 };
 
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal }) => {
-  const { encounter } = useEncounter();
+  const { encounter, loadEncounter } = useEncounter();
+  const { currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
   );
+  const { mutateAsync: createMedicationSet, isLoading: isCreatingMedicationSet } = useCreateMedicationSetMutation({
+    onSuccess: () => {
+      loadEncounter();
+    },
+  });
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
+  console.log('editingMedication', editingMedication);
 
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
+  console.log('selectedMedicationSet', selectedMedicationSet);
   const onSelect = medicationSet => {
     setSelectedMedicationSet(medicationSet);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const payload = {
+      encounterId: encounter.id,
       medicationSet: selectedMedicationSet.children.map(({ medicationTemplate }) => ({
         ...medicationTemplate,
+        prescriberId: medicationTemplate.prescriberId || currentUser.id,
+        date: medicationTemplate.date || getCurrentDateString(),
+        startDate: medicationTemplate.startDate || getCurrentDateTimeString(),
+        doseAmount: Number(medicationTemplate.doseAmount),
+        durationValue: Number(medicationTemplate.durationValue),
+        route: Object.keys(DRUG_ROUTE_LABELS).find(
+          key => DRUG_ROUTE_LABELS[key] === medicationTemplate.route,
+        ),
       })),
     };
     console.log('payload', payload);
+    await createMedicationSet(payload);
+    onClose();
   };
 
   const onEdit = medication => {
@@ -317,7 +339,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal })
           <ConfirmCancelBackRow
             confirmText={getConfirmText()}
             onConfirm={onNext}
-            confirmDisabled={!selectedMedicationSet}
+            confirmDisabled={!selectedMedicationSet || isCreatingMedicationSet}
             cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
             onCancel={onCancel}
             backText={<TranslatedText stringId="general.action.back" fallback="Back" />}
