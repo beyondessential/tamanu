@@ -119,16 +119,6 @@ export class PatientProgramRegistration extends Model {
     });
   }
 
-  static async create(values: any): Promise<any> {
-    // Generated columns are not supported on Sequelize yet. However, we've found
-    // that it works except when primaryKey is specified, to overcome this, having
-    // an id specified produces the correct SQL query.
-    return super.create({
-      ...values,
-      id: 'id-to-be-able-to-use-generated-column',
-    });
-  }
-
   static async getRegistrationsForPatient(patientId: string) {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
