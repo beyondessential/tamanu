@@ -47,9 +47,6 @@ The value of the `created_at` field of the change data.
 This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
-This is extracted from the data to make it easier to query on.
-{% enddocs %}
-
 {% docs logs__changes__updated_by_user_id %}
 The value of the `updated_by_user_id` field of the change data.
 
