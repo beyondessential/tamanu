@@ -30,6 +30,7 @@ import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { ChangeLogModal } from './ChangeLogModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -205,6 +206,7 @@ export const MarDetails = ({
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
+  const [showChangeLogModal, setShowChangeLogModal] = useState(false);
 
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo.id);
   const { mutateAsync: updateMar } = useUpdateMarMutation(marInfo?.id, {
@@ -297,7 +299,11 @@ export const MarDetails = ({
           render={({ values, setFieldValue, errors }) => (
             <>
               <Container>
-                <MarInfoPane medication={medication} marInfo={marInfo} />
+                <MarInfoPane
+                  medication={medication}
+                  marInfo={marInfo}
+                  onViewChangeLog={() => setShowChangeLogModal(true)}
+                />
                 <DetailsContainer mt={'14px'} display={'flex'} flexDirection={'column'}>
                   {marInfo?.isError ? (
                     <Box display={'flex'} flexDirection={'column'}>
@@ -692,6 +698,13 @@ export const MarDetails = ({
           timeSlot={timeSlot}
           showDoseIndex={marDoses?.length > 1}
           doseInfo={showEditDoseModal}
+        />
+      )}
+      {!!showChangeLogModal && (
+        <ChangeLogModal
+          open={showChangeLogModal}
+          onClose={() => setShowChangeLogModal(false)}
+          medication={medication}
         />
       )}
     </>
