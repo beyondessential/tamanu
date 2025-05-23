@@ -52,14 +52,14 @@ const TableContainer = styled.div`
   border-radius: 3px;
 `;
 
-export const EncounterMedicationPane = React.memo(({ patient, encounter, readonly }) => {
+export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const { navigateToMar } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
   const { loadEncounter } = useEncounter();
 
-  const handleContinue = (prescriptionType) => {
+  const handleContinue = prescriptionType => {
     setPrescriptionType(prescriptionType);
     setPrescriptionTypeModalOpen(false);
   };
@@ -67,15 +67,18 @@ export const EncounterMedicationPane = React.memo(({ patient, encounter, readonl
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
-        <PrescriptionTypeModal 
+        <PrescriptionTypeModal
           open={prescriptionTypeModalOpen}
           onClose={() => setPrescriptionTypeModalOpen(false)}
           onContinue={handleContinue}
         />
-        <MedicationSetModal
-          open={prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET}
-          onClose={() => setPrescriptionType(null)}
-        />
+        {prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET && (
+          <MedicationSetModal
+            open={true}
+            onClose={() => setPrescriptionType(null)}
+            openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
+          />
+        )}
         <MedicationModal
           open={prescriptionType === PRESCRIPTION_TYPES.SINGLE_MEDICATION}
           encounterId={encounter.id}

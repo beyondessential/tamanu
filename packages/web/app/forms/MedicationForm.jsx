@@ -472,7 +472,25 @@ const MedicationAdministrationForm = () => {
   );
 };
 
-export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
+const MedicationBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 12px 20px;
+  background-color: ${Colors.white};
+  grid-column: 1 / -1;
+`;
+
+export const MedicationForm = ({
+  encounterId,
+  onCancel,
+  onSaved,
+  onConfirmEdit,
+  onCancelEdit,
+  editingMedication,
+}) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
@@ -546,60 +564,93 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     await submitForm(data);
   };
 
+  const getInitialValues = () => {
+    if (editingMedication) {
+      return {
+        ...editingMedication,
+        startDate: getCurrentDateTimeString(),
+        date: getCurrentDateString(),
+        prescriberId: currentUser.id,
+        timeSlots: [],
+        route: Object.keys(DRUG_ROUTE_LABELS).find(
+          key => DRUG_ROUTE_LABELS[key] === editingMedication.route,
+        ),
+      };
+    }
+    return {
+      date: getCurrentDateString(),
+      prescriberId: currentUser.id,
+      timeSlots: [],
+      isVariableDose: false,
+      startDate: getCurrentDateTimeString(),
+    };
+  };
+
   return (
     <>
       <Form
         suppressErrorDialog
-        onSubmit={onSubmit}
+        onSubmit={onConfirmEdit || onSubmit}
         onSuccess={async () => {
+          if (onConfirmEdit) return;
           await queryClient.invalidateQueries(['encounterMedication', encounterId]);
           if (!awaitingPrint) {
             onSaved();
           }
         }}
-        initialValues={{
-          date: getCurrentDateString(),
-          prescriberId: currentUser.id,
-          timeSlots: [],
-          isVariableDose: false,
-          startDate: getCurrentDateTimeString(),
-        }}
+        initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
           <StyledFormGrid>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-              <span style={{ fontWeight: 500 }}>
-                {!isLoadingAllergies &&
-                  (allergiesList || (
-                    <TranslatedText
-                      stringId="medication.allergies.noRecord"
-                      fallback="None recorded"
-                    />
-                  ))}
-              </span>
-            </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Field
-                name="medicationId"
-                label={
+            {!onConfirmEdit ? (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                  <span style={{ fontWeight: 500 }}>
+                    {!isLoadingAllergies &&
+                      (allergiesList || (
+                        <TranslatedText
+                          stringId="medication.allergies.noRecord"
+                          fallback="None recorded"
+                        />
+                      ))}
+                  </span>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Field
+                    name="medicationId"
+                    label={
+                      <TranslatedText
+                        stringId="medication.medication.label"
+                        fallback="Medication"
+                      />
+                    }
+                    component={AutocompleteField}
+                    suggester={drugSuggester}
+                    required
+                    onChange={e => {
+                      const referenceDrug = e.target.referenceDrug;
+                      setValues({
+                        ...values,
+                        route: referenceDrug?.route?.toLowerCase() || '',
+                        units: referenceDrug?.units || '',
+                        notes: referenceDrug?.notes || '',
+                      });
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <MedicationBox>
+                <BodyText color={Colors.midText}>
                   <TranslatedText stringId="medication.medication.label" fallback="Medication" />
-                }
-                component={AutocompleteField}
-                suggester={drugSuggester}
-                required
-                onChange={e => {
-                  const referenceDrug = e.target.referenceDrug;
-                  setValues({
-                    ...values,
-                    route: referenceDrug?.route?.toLowerCase() || '',
-                    units: referenceDrug?.units || '',
-                    notes: referenceDrug?.notes || '',
-                  });
-                }}
-              />
-            </div>
+                </BodyText>
+                <BodyText color={Colors.darkestText} fontWeight={500}>
+                  {editingMedication.medication.name}
+                </BodyText>
+              </MedicationBox>
+            )}
             <CheckboxGroup>
               <Field
                 name="isOngoing"
@@ -810,7 +861,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                       replacements={{ unit: weightUnit }}
                     />
                   }
-                  onChange={(e) => setPatientWeight(e.target.value)}
+                  onChange={e => setPatientWeight(e.target.value)}
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
@@ -822,26 +873,42 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               <Divider />
             </div>
             <ButtonRow>
-              <FormSubmitButton
-                color="primary"
-                onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
-                variant="outlined"
-                startIcon={<PrintIcon />}
-              >
-                <TranslatedText
-                  stringId="medication.action.finaliseAndPrint"
-                  fallback="Finalise & Print"
-                />
-              </FormSubmitButton>
-              <Box display="flex" sx={{ gap: '16px' }}>
-                <FormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              {!onConfirmEdit && (
+                <FormSubmitButton
+                  color="primary"
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
+                  variant="outlined"
+                  startIcon={<PrintIcon />}
+                >
+                  <TranslatedText
+                    stringId="medication.action.finaliseAndPrint"
+                    fallback="Finalise & Print"
+                  />
+                </FormSubmitButton>
+              )}
+              <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
+                <FormCancelButton onClick={onCancelEdit || onCancel}>
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.cancelChanges"
+                      fallback="Cancel changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  )}
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
                 >
-                  <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.confirmChanges"
+                      fallback="Confirm changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  )}
                 </FormSubmitButton>
               </Box>
             </ButtonRow>

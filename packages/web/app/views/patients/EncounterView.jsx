@@ -347,13 +347,7 @@ export const EncounterView = () => {
         encounter={encounter}
         data-testid="encountertopbar-bp4b"
       >
-        {(facilityId === encounter.location.facilityId || encounter.endDate) &&
-          // Hide all actions if encounter type is Vaccination or Survey Response,
-          // as they should only contain 1 survey response or vaccination and discharged automatically,
-          // no need to show any summaries or actions
-          ![ENCOUNTER_TYPES.VACCINATION, ENCOUNTER_TYPES.SURVEY_RESPONSE].includes(
-            encounter.encounterType,
-          ) && <EncounterActions encounter={encounter} data-testid="encounteractions-8368" />}
+        <EncounterActions encounter={encounter} data-testid="encounteractions-8368" />
       </EncounterTopBar>
       <EncounterInfoPane
         encounter={encounter}

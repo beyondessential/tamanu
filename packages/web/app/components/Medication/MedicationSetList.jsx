@@ -1,25 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
 import CheckIcon from '@material-ui/icons/Check';
-import {
-  BodyText,
-  Heading4,
-  TranslatedText,
-} from '..';
+import { Box, IconButton } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
+import { BodyText, Heading4, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 
-const ListContainer = styled.div`
+const ListContainer = styled(Box)`
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 6px 0px;
   border-radius: 3px;
   background-color: ${Colors.white};
-  width: 100%;
   height: calc(100vh - 444px);
   border: 1px solid ${Colors.outline};
+  overflow-y: auto;
 `;
 
 const ListItem = styled.div`
@@ -40,6 +38,7 @@ const MedicationListItem = styled.div`
   flex-direction: column;
   gap: 3px;
   margin: 0px 16px;
+  position: relative;
 `;
 
 const SelectOverlay = styled.div`
@@ -59,8 +58,32 @@ const SelectOverlay = styled.div`
   }
 `;
 
+const StyledIconButton = styled(IconButton)`
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  padding: 0;
+  svg {
+    width: 18px;
+    height: 18px;
+    color: ${Colors.primary};
+  }
+`;
 
-export const MedicationSetList = ({ medicationSets, isLoading, onSelect, selectedMedicationSet }) => {
+const RemoveText = styled(BodyText)`
+  text-decoration: underline;
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+`;
+
+export const MedicationSetList = ({
+  medicationSets,
+  isLoading,
+  onSelect,
+  selectedMedicationSet,
+}) => {
   if (isLoading)
     return (
       <ListContainer>
@@ -89,10 +112,15 @@ export const MedicationSetList = ({ medicationSets, isLoading, onSelect, selecte
   );
 };
 
-export const MedicationSetMedicationsList = ({ medicationSet }) => {
+export const MedicationSetMedicationsList = ({
+  medicationSet,
+  editable = false,
+  onEdit,
+  onRemove,
+}) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   return (
-    <ListContainer>
+    <ListContainer width="420px">
       <Heading4 textAlign="center" mt="6px" mb="12px">
         {medicationSet.name}
       </Heading4>
@@ -103,10 +131,19 @@ export const MedicationSetMedicationsList = ({ medicationSet }) => {
             <BodyText fontWeight="500">{medication.name}</BodyText>
             <BodyText>
               {getDose(medicationTemplate, getTranslation, getEnumTranslation)},{' '}
-              {getTranslatedFrequency(frequency, getTranslation)},{' '}
-              {route}
+              {getTranslatedFrequency(frequency, getTranslation)}, {route}
             </BodyText>
             {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+            {editable && (
+              <>
+                <StyledIconButton onClick={() => onEdit(medicationTemplate)}>
+                  <EditIcon />
+                </StyledIconButton>
+                <RemoveText onClick={() => onRemove(medicationTemplate)}>
+                  <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                </RemoveText>
+              </>
+            )}
           </MedicationListItem>
         );
       })}
