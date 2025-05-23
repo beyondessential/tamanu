@@ -49,27 +49,24 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // There should be no deleted records in the changelog table
   await query.sequelize.query(`
-    ALTER TABLE logs.changes ADD COLUMN record_sync_tick bigint;
-    UPDATE logs.changes SET record_sync_tick = (record_data->>'updated_at_sync_tick')::bigint;
-  `);
-
-  await query.sequelize.query(`
-    ALTER TABLE logs.changes ADD COLUMN record_updated boolean;
-    UPDATE logs.changes SET record_updated = (record_updated_at != record_created_at)::boolean;
-    ALTER TABLE logs.changes ALTER COLUMN record_updated SET NOT NULL;
+    ALTER TABLE logs.changes ADD COLUMN deleted_at timestamp with time zone;
   `)
-
   await query.sequelize.query(`
     ALTER TABLE logs.changes ADD COLUMN updated_at timestamp with time zone;
     UPDATE logs.changes SET updated_at = created_at;
     ALTER TABLE logs.changes ALTER COLUMN updated_at SET NOT NULL;
   `)
-
-  // There should be no deleted records in the changelog table
   await query.sequelize.query(`
-    ALTER TABLE logs.changes ADD COLUMN deleted_at timestamp with time zone;
+    ALTER TABLE logs.changes ADD COLUMN record_updated boolean;
+    UPDATE logs.changes SET record_updated = (record_updated_at != record_created_at)::boolean;
+    ALTER TABLE logs.changes ALTER COLUMN record_updated SET NOT NULL;
   `)
+  await query.sequelize.query(`
+    ALTER TABLE logs.changes ADD COLUMN record_sync_tick bigint;
+    UPDATE logs.changes SET record_sync_tick = (record_data->>'updated_at_sync_tick')::bigint;
+  `);
 
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.record_change()
