@@ -49,10 +49,6 @@ export class ChangeLog extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        recordUpdate: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
         recordCreatedAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -64,10 +60,6 @@ export class ChangeLog extends Model {
         recordDeletedAt: {
           type: DataTypes.DATE,
           allowNull: true,
-        },
-        recordSyncTick: {
-          type: DataTypes.BIGINT,
-          allowNull: false,
         },
         recordData: {
           type: DataTypes.JSONB,
