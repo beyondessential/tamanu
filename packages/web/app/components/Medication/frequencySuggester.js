@@ -4,7 +4,14 @@ export class FrequencySuggester {
   }
 
   fetchCurrentOption = async value => {
-    return value;
+    if (!value || typeof value !== 'string') {
+      return null;
+    }
+    // Find the suggestion object that matches the given value (ID)
+    const selectedSuggestion = this.suggestions.find(
+      suggestion => suggestion.value === value,
+    );
+    return selectedSuggestion || null;
   };
 
   fetchSuggestions = async search => {

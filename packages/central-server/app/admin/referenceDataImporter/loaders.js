@@ -451,7 +451,7 @@ export async function drugLoader(item, { models }) {
 
 export async function medicationTemplateLoader(item, { models, pushError }) {
   const {
-    id,
+    id: referenceDataId,
     medication: drugReferenceDataId,
     prnMedication,
     doseAmount,
@@ -468,7 +468,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
 
   // Validate Drug
   if (!drugReferenceDataId) {
-    pushError(`Medication is required for template "${id}".`);
+    pushError(`Medication is required for template "${referenceDataId}".`);
     return [];
   }
   const drug = await models.ReferenceData.findOne({
@@ -476,26 +476,26 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
   });
   if (!drug) {
     pushError(
-      `Drug with ID "${drugReferenceDataId}" not found or not of type DRUG for template "${id}".`,
+      `Drug with ID "${drugReferenceDataId}" not found or not of type DRUG for template "${referenceDataId}".`,
     );
     return [];
   }
 
   // Validate Units
   if (!units) {
-    pushError(`Units are required for template "${id}".`);
+    pushError(`Units are required for template "${referenceDataId}".`);
     return [];
   }
 
   // Validate Frequency
   if (!frequency) {
-    pushError(`Frequency is required for template "${id}".`);
+    pushError(`Frequency is required for template "${referenceDataId}".`);
     return [];
   }
 
   // Validate Route
   if (!route) {
-    pushError(`Route is required for template "${id}".`);
+    pushError(`Route is required for template "${referenceDataId}".`);
     return [];
   }
 
@@ -504,14 +504,14 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
   );
 
   const existingTemplate = await models.MedicationTemplate.findOne({
-    where: { id: id },
+    where: { referenceDataId },
   });
 
   const [durationValue, durationUnit] = duration?.trim().split(' ') || [];
 
   const newTemplate = {
     id: existingTemplate?.id || uuidv4(),
-    referenceDataId: id,
+    referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn,
     doseAmount: doseAmount ? doseAmount.toString() : null,
