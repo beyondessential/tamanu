@@ -65,7 +65,8 @@ medication.post(
     const { models } = req;
     const encounterId = req.params.encounterId;
     const data = req.body;
-    const { Prescription, Encounter, EncounterPrescription } = models;
+    const { Prescription, Encounter, EncounterPrescription, MedicationAdministrationRecord } =
+      models;
     req.checkPermission('create', 'Prescription');
 
     const encounter = await Encounter.findByPk(encounterId);
@@ -91,6 +92,7 @@ medication.post(
 
     const prescription = await Prescription.create(data);
     await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
+    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
 
     res.send(prescription.forResponse());
   }),

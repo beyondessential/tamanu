@@ -556,17 +556,11 @@ patientRoute.get(
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
-          model: Encounter,
-          as: 'encounters',
-          through: { attributes: [] },
-          where: { id: lastInpatientEncounter.id },
-          attributes: ['id'],
-        },
-        {
           model: EncounterPrescription,
           as: 'encounterPrescription',
           where: {
             isDischarge: true,
+            encounterId: lastInpatientEncounter.id,
           },
         },
       ],
