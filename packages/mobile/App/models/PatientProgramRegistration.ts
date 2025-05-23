@@ -117,7 +117,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     // primary key of patientId plus programRegistryId
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patient.replace(';', ':')};${this.programRegistry.replace(';', ':')}`;
+    this.id = `${this.patient.replaceAll(';', ':')};${this.programRegistry.replaceAll(';', ':')}`;
   }
 
   static async getRecentOne(
