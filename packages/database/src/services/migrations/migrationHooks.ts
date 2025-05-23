@@ -47,8 +47,7 @@ const tablesWithoutTrigger = (
       `
       SELECT
         t.table_schema as schema,
-        t.table_name as table,
-        t.table_schema || '.' || t.table_name as full_name
+        t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
         ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
