@@ -735,8 +735,7 @@ describe('Encounter', () => {
       });
 
       it('should record a medication', async () => {
-        const result = await app.post('/api/medication').send({
-          encounterId: medicationEncounter.id,
+        const result = await app.post(`/api/medication/encounterPrescription/${medicationEncounter.id}`).send({
           medicationId: testMedication.id,
           prescriberId: app.user.id,
           doseAmount: 1,

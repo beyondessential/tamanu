@@ -32,24 +32,24 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   useEffect(() => {
     setPatientLoading(true);
     (async () => {
-      if (encounter.patientId) {
+      if (encounter?.patientId) {
         const res = await api.get(`patient/${encounter.patientId}`);
         setPatient(res);
       }
       setPatientLoading(false);
     })();
-  }, [api, encounter.patientId]);
+  }, [api, encounter?.patientId]);
 
   useEffect(() => {
     setAdditionalDataLoading(true);
     (async () => {
-      if (encounter.patientId) {
+      if (encounter?.patientId) {
         const res = await api.get(`patient/${encounter.patientId}/additionalData`);
         setAdditionalData(res);
       }
       setAdditionalDataLoading(false);
     })();
-  }, [api, encounter.patientId]);
+  }, [api, encounter?.patientId]);
 
   useEffect(() => {
     setVillageLoading(true);
@@ -76,7 +76,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
-  
+
   const isLoading =
     isLoadingEncounter ||
     patientLoading ||
