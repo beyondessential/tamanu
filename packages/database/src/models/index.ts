@@ -139,4 +139,5 @@ export * from './SyncDeviceTick';
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
+export * from './MedicationTemplate';
 export * from './AccessLog';
