@@ -56,7 +56,6 @@ sources:
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              lab_request_attachments."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_request_attachments."
             data_tests:
               - not_null

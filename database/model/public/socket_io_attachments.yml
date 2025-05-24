@@ -23,7 +23,6 @@ sources:
             description: "{{ doc('socket_io_attachments__payload') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              socket_io_attachments."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in socket_io_attachments."
             data_tests:
               - not_null

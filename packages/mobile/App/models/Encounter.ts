@@ -16,7 +16,6 @@ import { BaseModel, IdRelation } from './BaseModel';
 import { EncounterType, IEncounter } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
-import { Medication } from './Medication';
 import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
@@ -34,6 +33,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 import { Note } from './Note';
+import { EncounterPrescription } from './EncounterPrescription';
 
 const TIME_OFFSET = 3;
 
@@ -108,8 +108,11 @@ export class Encounter extends BaseModel implements IEncounter {
   })
   diagnoses: Diagnosis[];
 
-  @OneToMany(() => Medication, ({ encounter }) => encounter)
-  medications: Medication[];
+  @OneToMany(
+    () => EncounterPrescription,
+    encounterPrescription => encounterPrescription.encounter,
+  )
+  encounterPrescriptions: EncounterPrescription[];
 
   @OneToMany(() => Referral, (referral) => referral.initiatingEncounter)
   initiatedReferrals: Referral[];

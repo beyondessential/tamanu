@@ -11,7 +11,7 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
       title={
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
-          fallback="Print prescriptions"
+          fallback="Print prescription"
           data-testid="translatedtext-rrc8"
         />
       }
