@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -17,8 +17,8 @@ export class Prescription extends Model {
   declare date: string;
   declare startDate: string;
   declare endDate?: string;
-  declare durationValue?: number;
-  declare durationUnit?: string;
+  declare durationValue?: number | null;
+  declare durationUnit?: string | null;
   declare indication?: string;
   declare isPhoneOrder?: boolean;
   declare notes?: string;
@@ -80,6 +80,22 @@ export class Prescription extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
+          afterCreate: async (prescription: Prescription) => {
+            if (prescription.durationValue && prescription.durationUnit) {
+              const { add } = await import('date-fns');
+              prescription.endDate = add(new Date(prescription.startDate), {
+                [prescription.durationUnit]: prescription.durationValue,
+              }).toISOString();
+            }
+            if (
+              prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
+              prescription.isOngoing
+            ) {
+              prescription.durationValue = null;
+              prescription.durationUnit = null;
+            }
+            await prescription.save();
+          },
           afterUpdate: async (prescription: Prescription, options) => {
             if (prescription.changed('pharmacyNotes')) {
               await models.Notification.pushNotification(

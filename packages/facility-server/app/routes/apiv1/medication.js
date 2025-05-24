@@ -31,7 +31,7 @@ medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
 medication.post(
   '/patientOngoingPrescription/:patientId',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, db } = req;
     const patientId = req.params.patientId;
     const data = req.body;
     const { Prescription, Patient, PatientOngoingPrescription } = models;
@@ -42,27 +42,22 @@ medication.post(
       throw new InvalidOperationError(`Patient with id ${patientId} not found`);
     }
 
-    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
-      data.durationValue = null;
-      data.durationUnit = null;
-    }
+    const result = await db.transaction(async (transaction) => {
+      const prescription = await Prescription.create(data, { transaction });
+      await PatientOngoingPrescription.create(
+        { patientId, prescriptionId: prescription.id },
+        { transaction },
+      );
+      return prescription;
+    });
 
-    if (data.durationValue && data.durationUnit) {
-      data.endDate = add(new Date(data.startDate), {
-        [data.durationUnit]: data.durationValue,
-      });
-    }
-
-    const prescription = await Prescription.create(data);
-    await PatientOngoingPrescription.create({ patientId, prescriptionId: prescription.id });
-
-    res.send(prescription.forResponse());
+    res.send(result.forResponse());
   }),
 );
 medication.post(
   '/encounterPrescription/:encounterId',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, db } = req;
     const encounterId = req.params.encounterId;
     const data = req.body;
     const { Prescription, Encounter, EncounterPrescription, MedicationAdministrationRecord } =
@@ -79,22 +74,17 @@ medication.post(
       );
     }
 
-    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
-      data.durationValue = null;
-      data.durationUnit = null;
-    }
+    const result = await db.transaction(async (transaction) => {
+      const prescription = await Prescription.create(data, { transaction });
+      await EncounterPrescription.create(
+        { encounterId, prescriptionId: prescription.id },
+        { transaction },
+      );
+      await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+      return prescription;
+    });
 
-    if (data.durationValue && data.durationUnit) {
-      data.endDate = add(new Date(data.startDate), {
-        [data.durationUnit]: data.durationValue,
-      });
-    }
-
-    const prescription = await Prescription.create(data);
-    await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-    await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
-
-    res.send(prescription.forResponse());
+    res.send(result.forResponse());
   }),
 );
 
