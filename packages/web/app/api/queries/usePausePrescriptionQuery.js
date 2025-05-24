@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { isErrorUnknownAllow404s } from '../TamanuApi';
 
-export const usePausePrescriptionQuery = (prescriptionId, encounterId) => {
+export const usePausePrescriptionQuery = ({ prescriptionId, encounterId }, options) => {
   const api = useApi();
 
   return useQuery(
@@ -14,7 +14,7 @@ export const usePausePrescriptionQuery = (prescriptionId, encounterId) => {
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     {
-      enabled: !!prescriptionId && !!encounterId,
+      ...options,
     },
   );
 };

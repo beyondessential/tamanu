@@ -215,11 +215,16 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   );
 };
 
-const ReasonScreen = ({ reasonsNotGiven, onReasonSelect }) => {
+const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven }) => {
   return (
     <PopperContent>
       {reasonsNotGiven?.data?.map(reason => (
-        <Button key={reason.id} variant="outlined" onClick={() => onReasonSelect(reason.id)}>
+        <Button
+          key={reason.id}
+          variant="outlined"
+          onClick={() => onReasonSelect(reason.id)}
+          disabled={isUpdatingMarToNotGiven}
+        >
           <TranslatedText stringId={reason.name} fallback={reason.name} />
         </Button>
       ))}
@@ -252,13 +257,16 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marId, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-      queryClient.invalidateQueries(['marDoses', marId]);
-      onClose();
+  const { mutateAsync: updateMarToGiven, isLoading: isUpdatingMarToGiven } = useGivenMarMutation(
+    marId,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+        queryClient.invalidateQueries(['marDoses', marId]);
+        onClose();
+      },
     },
-  });
+  );
   const handleDecreaseDose = (doseAmount, setFieldValue) => {
     if (doseAmount <= 0.25) return;
     setFieldValue('doseAmount', doseAmount - 0.25);
@@ -370,7 +378,8 @@ const GivenScreen = ({
                 onClick={submitForm}
                 variant="outlined"
                 size="small"
-                disabled={!values.doseAmount}
+                disabled={!values.doseAmount || isUpdatingMarToGiven}
+                isSubmitting={isUpdatingMarToGiven}
               >
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
               </ConfirmButton>
@@ -424,7 +433,10 @@ export const StatusPopper = ({
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marId, {
+  const {
+    mutateAsync: updateMarToNotGiven,
+    isLoading: isUpdatingMarToNotGiven,
+  } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     },
@@ -464,7 +476,13 @@ export const StatusPopper = ({
 
   const getContent = () => {
     if (showReasonScreen) {
-      return <ReasonScreen reasonsNotGiven={reasonsNotGiven} onReasonSelect={handleReasonSelect} />;
+      return (
+        <ReasonScreen
+          reasonsNotGiven={reasonsNotGiven}
+          onReasonSelect={handleReasonSelect}
+          isUpdatingMarToNotGiven={isUpdatingMarToNotGiven}
+        />
+      );
     }
     if (showGivenScreen) {
       return (

@@ -142,6 +142,15 @@ const CurrentTimeOverlay = styled.div`
   pointer-events: none;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  border-left: 1px solid ${Colors.outline};
+  height: 42px;
+`;
+
 const formatTime = time => {
   return format(time, 'ha').toLowerCase();
 };
@@ -171,9 +180,12 @@ export const MarTable = ({ selectedDate }) => {
   const scrollableContentRef = useRef(null);
   const [overlayHeight, setOverlayHeight] = useState('100%');
 
-  const { data: medicationsData } = useEncounterMedicationQuery(encounter?.id, {
-    marDate: toDateString(selectedDate),
-  });
+  const { data: medicationsData, isLoading: isLoadingMedications } = useEncounterMedicationQuery(
+    encounter?.id,
+    {
+      marDate: toDateString(selectedDate),
+    },
+  );
   const medications = (medicationsData?.data || []).sort((a, b) => {
     if (a.discontinued === b.discontinued) {
       return 0;
@@ -313,24 +325,34 @@ export const MarTable = ({ selectedDate }) => {
                 stringId="medication.mar.scheduledMedication.label"
               />
             </SubHeader>
-            <MedicationGrid>
-              {scheduledMedications.length ? (
-                scheduledMedications.map(medication => (
-                  <MarTableRow
-                    key={medication?.id}
-                    medication={medication}
-                    selectedDate={selectedDate}
-                  />
-                ))
-              ) : (
-                <EmptyMessage>
-                  <TranslatedText
-                    fallback="No scheduled medication to display"
-                    stringId="medication.mar.noScheduledMedication.label"
-                  />
-                </EmptyMessage>
-              )}
-            </MedicationGrid>
+            {isLoadingMedications ? (
+              <LoadingContainer>
+                <TranslatedText
+                  stringId="general.table.loading"
+                  fallback="Loading..."
+                  data-testid="translatedtext-yvlt"
+                />
+              </LoadingContainer>
+            ) : (
+              <MedicationGrid>
+                {scheduledMedications.length ? (
+                  scheduledMedications.map(medication => (
+                    <MarTableRow
+                      key={medication?.id}
+                      medication={medication}
+                      selectedDate={selectedDate}
+                    />
+                  ))
+                ) : (
+                  <EmptyMessage>
+                    <TranslatedText
+                      fallback="No scheduled medication to display"
+                      stringId="medication.mar.noScheduledMedication.label"
+                    />
+                  </EmptyMessage>
+                )}
+              </MedicationGrid>
+            )}
           </div>
 
           {/* PRN medications section */}
@@ -341,24 +363,34 @@ export const MarTable = ({ selectedDate }) => {
                 stringId="medication.mar.prnMedication.label"
               />
             </SubHeader>
-            <MedicationGrid>
-              {prnMedications.length ? (
-                prnMedications.map(medication => (
-                  <MarTableRow
-                    key={medication?.id}
-                    medication={medication}
-                    selectedDate={selectedDate}
-                  />
-                ))
-              ) : (
-                <EmptyMessage>
-                  <TranslatedText
-                    fallback="No PRN medication to display"
-                    stringId="medication.mar.noPrnMedication.label"
-                  />
-                </EmptyMessage>
-              )}
-            </MedicationGrid>
+            {isLoadingMedications ? (
+              <LoadingContainer>
+                <TranslatedText
+                  stringId="general.table.loading"
+                  fallback="Loading..."
+                  data-testid="translatedtext-yvlt"
+                />
+              </LoadingContainer>
+            ) : (
+              <MedicationGrid>
+                {prnMedications.length ? (
+                  prnMedications.map(medication => (
+                    <MarTableRow
+                      key={medication?.id}
+                      medication={medication}
+                      selectedDate={selectedDate}
+                    />
+                  ))
+                ) : (
+                  <EmptyMessage>
+                    <TranslatedText
+                      fallback="No PRN medication to display"
+                      stringId="medication.mar.noPrnMedication.label"
+                    />
+                  </EmptyMessage>
+                )}
+              </MedicationGrid>
+            )}
           </div>
         </ScrollableContent>
       </MedicationContainer>

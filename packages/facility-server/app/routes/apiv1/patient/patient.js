@@ -8,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
@@ -21,7 +22,6 @@ import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
 import { patientProgramRegistration } from './patientProgramRegistration';
-import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
@@ -188,71 +188,6 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
-  }),
-);
-
-patientRoute.get(
-  '/:id/lastDischargedEncounter/medications',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Encounter, Prescription },
-      params,
-      query,
-    } = req;
-
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
-    req.checkPermission('list', 'Prescription');
-
-    const lastDischargedEncounter = await Encounter.findOne({
-      where: {
-        patientId: params.id,
-        endDate: { [Op.not]: null },
-      },
-      order: [['endDate', 'DESC']],
-    });
-
-    // Return empty values if there isn't a discharged encounter
-    if (!lastDischargedEncounter) {
-      res.send({
-        count: 0,
-        data: [],
-      });
-      return;
-    }
-
-    // Find and return all associated encounter medications
-    const lastPrescriptions = await Prescription.findAndCountAll({
-      include: [
-        ...Prescription.getListReferenceAssociations(),
-        {
-          association: 'encounters',
-          where: { id: lastDischargedEncounter.id },
-          through: { where: { isDischarge: true } },
-          include: [
-            {
-              association: 'location',
-              include: ['facility'],
-            },
-          ],
-        },
-      ],
-      order: orderBy ? getOrderClause(order, orderBy) : undefined,
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
-    });
-
-    const { count } = lastPrescriptions;
-    const data = lastPrescriptions.rows.map((x) => ({
-      ...x.forResponse(),
-      encounters: x.encounters.map((e) => e.forResponse()),
-    }));
-    res.send({
-      count,
-      data,
-    });
   }),
 );
 
@@ -576,6 +511,67 @@ patientRoute.get(
     });
 
     res.json({ data: ongoingPrescriptions, count: ongoingPrescriptions.length });
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastInpatientDischargeMedications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, Discharge, Prescription, EncounterPrescription },
+      params,
+      query,
+    } = req;
+    const patientId = params.id;
+
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('list', 'Prescription');
+
+    const { order = 'ASC', orderBy = 'medication.name' } = query;
+
+    const lastInpatientEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        endDate: {
+          [Op.not]: null,
+        },
+      },
+      include: [
+        {
+          model: Discharge,
+          as: 'discharge',
+          attributes: ['facilityName'],
+        },
+      ],
+      order: [['endDate', 'DESC']],
+    });
+
+    if (!lastInpatientEncounter) {
+      res.json({ data: [], count: 0 });
+      return;
+    }
+
+    const dischargeMedications = await Prescription.findAll({
+      include: [
+        ...Prescription.getListReferenceAssociations(),
+        {
+          model: EncounterPrescription,
+          as: 'encounterPrescription',
+          where: {
+            isDischarge: true,
+            encounterId: lastInpatientEncounter.id,
+          },
+        },
+      ],
+      order: [[...orderBy.split('.'), order.toUpperCase()]],
+    });
+
+    res.json({
+      data: dischargeMedications,
+      count: dischargeMedications.length,
+      lastInpatientEncounter,
+    });
   }),
 );
 
