@@ -6,6 +6,7 @@ import {
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -445,5 +446,151 @@ export async function drugLoader(item, { models }) {
     values: newDrug,
   });
 
+  return rows;
+}
+
+export async function medicationTemplateLoader(item, { models, pushError }) {
+  const {
+    id,
+    medication: drugReferenceDataId,
+    prnMedication,
+    doseAmount,
+    units,
+    frequency,
+    route,
+    duration,
+    notes,
+    dischargeQuantity,
+    visibilityStatus,
+  } = item;
+
+  const rows = [];
+
+  // Validate Drug
+  if (!drugReferenceDataId) {
+    pushError(`Medication is required for template "${id}".`);
+    return [];
+  }
+  const drug = await models.ReferenceData.findOne({
+    where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
+  });
+  if (!drug) {
+    pushError(
+      `Drug with ID "${drugReferenceDataId}" not found or not of type DRUG for template "${id}".`,
+    );
+    return [];
+  }
+
+  // Validate Units
+  if (!units) {
+    pushError(`Units are required for template "${id}".`);
+    return [];
+  }
+
+  // Validate Frequency
+  if (!frequency) {
+    pushError(`Frequency is required for template "${id}".`);
+    return [];
+  }
+
+  // Validate Route
+  if (!route) {
+    pushError(`Route is required for template "${id}".`);
+    return [];
+  }
+
+  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount must be a number or "variable" for template "${id}".`);
+    return [];
+  }
+
+  const isPrn = ['true', 'yes', 't', 'y'].includes(
+    (prnMedication || 'false').toString().toLowerCase(),
+  );
+
+  const existingTemplate = await models.MedicationTemplate.findOne({
+    where: { referenceDataId: id },
+  });
+
+  const [durationValue, durationUnit] = duration?.trim().split(' ') || [];
+
+  const newTemplate = {
+    id: existingTemplate?.id || uuidv4(),
+    referenceDataId: id,
+    medicationId: drugReferenceDataId,
+    isPrn,
+    isVariableDose: doseAmount.toString().toLowerCase() === 'variable',
+    doseAmount: parseFloat(doseAmount) || null,
+    units,
+    frequency,
+    route,
+    durationValue: durationValue || null,
+    durationUnit: durationUnit || null,
+    notes: notes || null,
+    dischargeQuantity: dischargeQuantity || null,
+    visibilityStatus: visibilityStatus || VISIBILITY_STATUSES.CURRENT,
+  };
+
+  rows.push({
+    model: 'MedicationTemplate',
+    values: newTemplate,
+  });
+
+  return rows;
+}
+
+export async function medicationSetLoader(item, { models, pushError }) {
+  const {
+    id,
+    medicationTemplates: medicationTemplateIdsString,
+  } = stripNotes(item);
+
+  const rows = [];
+
+  const medicationTemplateIds = (medicationTemplateIdsString || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  let existingTemplateIds = [];
+  if (medicationTemplateIds.length > 0) {
+    const existingTemplates = await models.ReferenceData.findAll({
+      where: {
+        id: { [Op.in]: medicationTemplateIds },
+        type: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+      },
+    });
+    existingTemplateIds = existingTemplates.map(({ id }) => id);
+
+    const nonExistentTemplateIds = medicationTemplateIds.filter(
+      (id) => !existingTemplateIds.includes(id),
+    );
+    if (nonExistentTemplateIds.length > 0) {
+      pushError(
+        `Medication Templates ${nonExistentTemplateIds.join(', ')} for set "${id}" not found or not of type MEDICATION_TEMPLATE.`,
+      );
+    }
+  }
+
+  // Remove relations for templates no longer in the set
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: id,
+      type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+      referenceDataId: { [Op.notIn]: existingTemplateIds },
+    },
+  });
+
+  // Upsert relations for templates in the set
+  for (const templateId of existingTemplateIds) {
+    rows.push({
+      model: 'ReferenceDataRelation',
+      values: {
+        referenceDataParentId: id,
+        referenceDataId: templateId,
+        type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+      },
+    });
+  }
   return rows;
 }

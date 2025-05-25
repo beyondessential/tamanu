@@ -9,7 +9,9 @@ import {
   taskSetLoader,
   translatedStringLoader,
   userLoader,
-  drugLoader
+  drugLoader,
+  medicationTemplateLoader,
+  medicationSetLoader
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -93,5 +95,11 @@ export default {
 
   [REFERENCE_TYPES.DRUG]: {
     loader: drugLoader,
+  },
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: {
+    loader: medicationTemplateLoader,
+  },
+  [REFERENCE_TYPES.MEDICATION_SET]: {
+    loader: medicationSetLoader,
   },
 };

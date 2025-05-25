@@ -55,6 +55,8 @@ export const REFERENCE_TYPES = {
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
+  MEDICATION_TEMPLATE: 'medicationTemplate',
+  MEDICATION_SET: 'medicationSet',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
