@@ -7,7 +7,7 @@ export const useSuggestionsQuery = (endpoint) => {
 
   return useQuery(
     ['suggestions', endpoint],
-    () => api.get(`suggestions/${encodeURIComponent(endpoint)}/all`),
+    () => api.get(`suggestions/${encodeURIComponent(endpoint)}`),
     {
       enabled: !!endpoint,
     },
