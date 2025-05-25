@@ -565,6 +565,12 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
     if (loadEncounter && encounterId) {
       loadEncounter(encounterId, false);
     }
+    if (encounterId) {
+      queryClient.invalidateQueries(['encounterMedication', encounterId]);
+    }
+    if (patient) {
+      queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
+    }
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm }) => {
@@ -578,9 +584,6 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
         suppressErrorDialog
         onSubmit={onSubmit}
         onSuccess={() => {
-          if (encounterId) {
-            queryClient.invalidateQueries(['encounterMedication', encounterId]);
-          }
           if (!awaitingPrint) {
             onSaved();
           }
