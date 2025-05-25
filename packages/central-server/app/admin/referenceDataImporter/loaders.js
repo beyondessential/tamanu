@@ -499,6 +499,11 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     return [];
   }
 
+  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount must be a number or "variable" for template "${referenceDataId}".`);
+    return [];
+  }
+
   const isPrn = ['true', 'yes', 't', 'y'].includes(
     (prnMedication || 'false').toString().toLowerCase(),
   );
