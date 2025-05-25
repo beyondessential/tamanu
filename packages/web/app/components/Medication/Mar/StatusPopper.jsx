@@ -6,6 +6,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation';
@@ -18,7 +19,6 @@ import { Field, Form, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
-import { useAuth } from '../../../contexts/Auth';
 import { isWithinTimeSlot } from '../../../utils/medications';
 
 const StyledPaper = styled(Paper)`
@@ -215,11 +215,16 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   );
 };
 
-const ReasonScreen = ({ reasonsNotGiven, onReasonSelect }) => {
+const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven }) => {
   return (
     <PopperContent>
       {reasonsNotGiven?.data?.map(reason => (
-        <Button key={reason.id} variant="outlined" onClick={() => onReasonSelect(reason.id)}>
+        <Button
+          key={reason.id}
+          variant="outlined"
+          onClick={() => onReasonSelect(reason.id)}
+          disabled={isUpdatingMarToNotGiven}
+        >
           <TranslatedText stringId={reason.name} fallback={reason.name} />
         </Button>
       ))}
@@ -239,7 +244,6 @@ const GivenScreen = ({
   isPast,
   isVariableDose,
 }) => {
-  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const [containerWidth, setContainerWidth] = useState(null);
@@ -253,13 +257,16 @@ const GivenScreen = ({
     }
   }, []);
 
-  const { mutateAsync: updateMar } = useGivenMarMutation(marId, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-      queryClient.invalidateQueries(['marDoses', marId]);
-      onClose();
+  const { mutateAsync: updateMarToGiven, isLoading: isUpdatingMarToGiven } = useGivenMarMutation(
+    marId,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+        queryClient.invalidateQueries(['marDoses', marId]);
+        onClose();
+      },
     },
-  });
+  );
   const handleDecreaseDose = (doseAmount, setFieldValue) => {
     if (doseAmount <= 0.25) return;
     setFieldValue('doseAmount', doseAmount - 0.25);
@@ -290,15 +297,12 @@ const GivenScreen = ({
       seconds: timeGiven.getSeconds(),
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
-      dueAt,
+    await updateMarToGiven({
+      dueAt: toDateTimeString(dueAt),
       prescriptionId,
-      recordedByUserId: currentUser?.id,
       dose: {
         doseAmount,
-        givenTime,
-        givenByUserId: currentUser?.id,
-        recordedByUserId: currentUser?.id,
+        givenTime: toDateTimeString(givenTime),
       },
     });
   };
@@ -374,7 +378,8 @@ const GivenScreen = ({
                 onClick={submitForm}
                 variant="outlined"
                 size="small"
-                disabled={!values.doseAmount}
+                disabled={!values.doseAmount || isUpdatingMarToGiven}
+                isSubmitting={isUpdatingMarToGiven}
               >
                 <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
               </ConfirmButton>
@@ -422,14 +427,16 @@ export const StatusPopper = ({
   isFuture,
   isPast,
 }) => {
-  const { currentUser } = useAuth();
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
 
-  const { mutateAsync: updateMar } = useNotGivenMarMutation(marId, {
+  const {
+    mutateAsync: updateMarToNotGiven,
+    isLoading: isUpdatingMarToNotGiven,
+  } = useNotGivenMarMutation(marId, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
     },
@@ -450,12 +457,11 @@ export const StatusPopper = ({
 
   const handleReasonSelect = async reasonNotGivenId => {
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
-    await updateMar({
+    await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt,
+      dueAt: toDateTimeString(dueAt),
       prescriptionId,
-      recordedByUserId: currentUser?.id,
     });
 
     setShowReasonScreen(false);
@@ -470,7 +476,13 @@ export const StatusPopper = ({
 
   const getContent = () => {
     if (showReasonScreen) {
-      return <ReasonScreen reasonsNotGiven={reasonsNotGiven} onReasonSelect={handleReasonSelect} />;
+      return (
+        <ReasonScreen
+          reasonsNotGiven={reasonsNotGiven}
+          onReasonSelect={handleReasonSelect}
+          isUpdatingMarToNotGiven={isUpdatingMarToNotGiven}
+        />
+      );
     }
     if (showGivenScreen) {
       return (

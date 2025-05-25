@@ -24,7 +24,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
-
+import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -57,11 +57,12 @@ import { FrequencySearchField } from '../components/Medication/FrequencySearchIn
 import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip } from '../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
+import { useEncounter } from '../contexts/Encounter';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -116,6 +117,7 @@ const validationSchema = yup.object().shape({
 });
 
 const CheckboxGroup = styled.div`
+  position: relative;
   .MuiTypography-body1 {
     font-size: 14px;
   }
@@ -125,6 +127,9 @@ const CheckboxGroup = styled.div`
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
+  > div {
+    max-width: fit-content;
+  }
 `;
 
 const ButtonRow = styled.div`
@@ -202,6 +207,14 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   max-width: 200px;
   .MuiTooltip-tooltip {
     font-weight: 400;
+  }
+`;
+
+const StyledOngoingTooltip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+    width: 180px;
+    padding: 8px 16px;
   }
 `;
 
@@ -472,19 +485,20 @@ const MedicationAdministrationForm = () => {
   );
 };
 
-export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
+export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescription }) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
+  const { loadEncounter } = useEncounter();
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth).years;
-  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState();
@@ -528,17 +542,29 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     }
 
     const idealTimes = data.timeSlots.map(slot => slot.value);
-    const medicationSubmission = await api.post('medication', {
+    const payload = {
       ...data,
       doseAmount: data.doseAmount || undefined,
       durationValue: data.durationValue || undefined,
       idealTimes,
-      encounterId,
-    });
+    };
+    let medicationSubmission;
+    try {
+      medicationSubmission = await (isOngoingPrescription
+        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
+        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+    } catch (error) {
+      toast.error(error.message);
+      return Promise.reject(error);
+    }
     // The return from the post doesn't include the joined tables like medication and prescriber
     const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 
     setSubmittedMedication(newMedication);
+
+    if (loadEncounter && encounterId) {
+      loadEncounter(encounterId, false);
+    }
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm }) => {
@@ -551,8 +577,10 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
       <Form
         suppressErrorDialog
         onSubmit={onSubmit}
-        onSuccess={async () => {
-          await queryClient.invalidateQueries(['encounterMedication', encounterId]);
+        onSuccess={() => {
+          if (encounterId) {
+            queryClient.invalidateQueries(['encounterMedication', encounterId]);
+          }
           if (!awaitingPrint) {
             onSaved();
           }
@@ -563,6 +591,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
           timeSlots: [],
           isVariableDose: false,
           startDate: getCurrentDateTimeString(),
+          isOngoing: isOngoingPrescription,
         }}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
@@ -601,6 +630,27 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               />
             </div>
             <CheckboxGroup>
+              {isOngoingPrescription && (
+                <StyledOngoingTooltip
+                  title={
+                    <TranslatedText
+                      stringId="medication.isOngoing.tooltip"
+                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                    />
+                  }
+                >
+                  <Box
+                    component={'span'}
+                    width={32}
+                    height={16}
+                    position={'absolute'}
+                    zIndex={1}
+                    top={2.5}
+                    left={-9}
+                  />
+                </StyledOngoingTooltip>
+              )}
+
               <Field
                 name="isOngoing"
                 label={
@@ -610,6 +660,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                   />
                 }
                 component={CheckField}
+                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                {...(isOngoingPrescription && { value: true })}
               />
               <Field
                 name="isPrn"
@@ -781,21 +833,25 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 </FieldContent>
               </div>
             )}
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
-            <Field
-              name="quantity"
-              label={
-                <TranslatedText
-                  stringId="medication.dischargeQuantity.label"
-                  fallback="Discharge quantity"
+            {!isOngoingPrescription && (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Divider />
+                </div>
+                <Field
+                  name="quantity"
+                  label={
+                    <TranslatedText
+                      stringId="medication.dischargeQuantity.label"
+                      fallback="Discharge quantity"
+                    />
+                  }
+                  min={0}
+                  component={NumberField}
+                  onInput={preventInvalidNumber}
                 />
-              }
-              min={0}
-              component={NumberField}
-              onInput={preventInvalidNumber}
-            />
+              </>
+            )}
             {showPatientWeight && (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -810,7 +866,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                       replacements={{ unit: weightUnit }}
                     />
                   }
-                  onChange={(e) => setPatientWeight(e.target.value)}
+                  onChange={e => setPatientWeight(e.target.value)}
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
@@ -822,17 +878,21 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               <Divider />
             </div>
             <ButtonRow>
-              <FormSubmitButton
-                color="primary"
-                onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
-                variant="outlined"
-                startIcon={<PrintIcon />}
-              >
-                <TranslatedText
-                  stringId="medication.action.finaliseAndPrint"
-                  fallback="Finalise & Print"
-                />
-              </FormSubmitButton>
+              {isOngoingPrescription ? (
+                <div />
+              ) : (
+                <FormSubmitButton
+                  color="primary"
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
+                  variant="outlined"
+                  startIcon={<PrintIcon />}
+                >
+                  <TranslatedText
+                    stringId="medication.action.finaliseAndPrint"
+                    fallback="Finalise & Print"
+                  />
+                </FormSubmitButton>
+              )}
               <Box display="flex" sx={{ gap: '16px' }}>
                 <FormCancelButton onClick={onCancel}>
                   <TranslatedText stringId="general.action.cancel" fallback="Cancel" />

@@ -6,7 +6,7 @@ import { CheckSharp } from '@material-ui/icons';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
-  MEDICATION_DURATION_UNITS_LABELS,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -37,6 +37,9 @@ import { singularize } from '../../utils';
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 670px;
+  }
+  .MuiTypography-root {
+    padding: 0 8px;
   }
 `;
 const Container = styled.div`
@@ -77,7 +80,13 @@ const PausedText = styled(Box)`
   color: ${Colors.primary};
 `;
 
-export const MedicationDetails = ({ initialMedication, onClose, onReloadTable }) => {
+export const MedicationDetails = ({
+  initialMedication,
+  onClose,
+  onReloadTable,
+  isOngoingPrescription,
+  allowDiscontinue,
+}) => {
   const { encounter } = useEncounter();
   const { ability } = useAuth();
   const api = useApi();
@@ -91,8 +100,13 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
   const [medication, setMedication] = useState(initialMedication);
 
   const { data, refetch: refetchPauseData } = usePausePrescriptionQuery(
-    medication.id,
-    encounter.id,
+    {
+      prescriptionId: medication.id,
+      encounterId: encounter?.id,
+    },
+    {
+      enabled: !!medication.id && !!encounter?.id && !isOngoingPrescription,
+    },
   );
   const pauseData = data?.pauseRecord;
   const isPausing = !!pauseData && !medication.discontinued;
@@ -118,10 +132,10 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
           {
             label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
             value: medication.durationValue
-              ? `${medication.durationValue} ${getTranslation(
-                  'medication.duration.unit',
-                  `${medication.durationUnit.slice(0, -1)}(s)`,
-                )}`
+              ? `${medication.durationValue} ${singularize(
+                  getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, medication.durationUnit),
+                  medication.durationValue,
+                ).toLowerCase()}`
               : '-',
           },
         ]),
@@ -284,7 +298,7 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                         {pauseData.pauseDuration}{' '}
                         {singularize(
                           getEnumTranslation(
-                            MEDICATION_DURATION_UNITS_LABELS,
+                            MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
                             pauseData.pauseTimeUnit,
                           ),
                           pauseData.pauseDuration,
@@ -387,11 +401,12 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
                       !canCreateMedicationPharmacyNote ||
                       (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
                       medication.discontinued ||
-                      isPausing
+                      isPausing ||
+                      isOngoingPrescription
                     }
                   />
                 </div>
-                {!medication.discontinued && !isPausing && (
+                {!medication.discontinued && !isPausing && !isOngoingPrescription && (
                   <div style={{ gridColumn: '1/-1', marginTop: '-12px' }}>
                     <Field
                       name="displayPharmacyNotesInMar"
@@ -458,26 +473,29 @@ export const MedicationDetails = ({ initialMedication, onClose, onReloadTable })
               ) : (
                 <>
                   <Box display={'flex'} style={{ gap: '10px' }}>
-                    <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
-                      <TranslatedText
-                        stringId="medication.details.discontinue"
-                        fallback="Discontinue"
-                      />
-                    </OutlinedButton>
-                    {isPausing ? (
-                      <OutlinedButton onClick={() => setOpenResumeModal(true)}>
-                        <TranslatedText stringId="medication.details.resume" fallback="Resume" />
-                      </OutlinedButton>
-                    ) : (
-                      <OutlinedButton
-                        onClick={() => setOpenPauseModal(true)}
-                        disabled={medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
-                      >
-                        <TranslatedText stringId="medication.details.pause" fallback="Pause" />
+                    {allowDiscontinue && (
+                      <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
+                        <TranslatedText
+                          stringId="medication.details.discontinue"
+                          fallback="Discontinue"
+                        />
                       </OutlinedButton>
                     )}
+                    {!isOngoingPrescription &&
+                      (isPausing ? (
+                        <OutlinedButton onClick={() => setOpenResumeModal(true)}>
+                          <TranslatedText stringId="medication.details.resume" fallback="Resume" />
+                        </OutlinedButton>
+                      ) : (
+                        <OutlinedButton
+                          onClick={() => setOpenPauseModal(true)}
+                          disabled={medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                        >
+                          <TranslatedText stringId="medication.details.pause" fallback="Pause" />
+                        </OutlinedButton>
+                      ))}
                   </Box>
-                  {isPausing ? (
+                  {isPausing || isOngoingPrescription ? (
                     <Button onClick={onClose}>
                       <TranslatedText stringId="general.action.close" fallback="Close" />
                     </Button>

@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Field, Form, TextField, NumberField, AutocompleteField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
@@ -99,7 +100,8 @@ export const EditAdministrationRecordModal = ({
   timeSlot,
   showDoseIndex,
 }) => {
-  const practitionerSuggester = useSuggester('practitioner');
+  const recordedBySuggester = useSuggester('practitioner');
+  const givenBySuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
@@ -137,7 +139,7 @@ export const EditAdministrationRecordModal = ({
       }
       await updateMarDose({
         doseAmount: Number(doseAmount),
-        givenTime,
+        givenTime: toDateTimeString(givenTime),
         givenByUserId,
         recordedByUserId,
         reasonForChange,
@@ -190,7 +192,7 @@ export const EditAdministrationRecordModal = ({
       title={
         <TranslatedText
           stringId="modal.mar.editAdministrationRecordModal.title"
-          fallback="Edit Administration Record"
+          fallback="Edit administration record"
         />
       }
     >
@@ -200,7 +202,7 @@ export const EditAdministrationRecordModal = ({
           <TranslatedText
             stringId="modal.mar.doseIndex.label"
             fallback="Dose :index"
-            replacements={{ index: doseInfo?.doseIndex }}
+            replacements={{ index: doseInfo?.doseIndex + 1 }}
           />
         </DoseLabel>
       ) : (
@@ -231,15 +233,15 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="reasonNotGivenId"
                     component={AutocompleteField}
-                    label="Reason"
+                    label={<TranslatedText stringId="mar.details.reason.label" fallback="Reason" />}
                     suggester={medicationReasonNotGivenSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
-                    suggester={practitionerSuggester}
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    suggester={recordedBySuggester}
                     required
                   />
                   <div style={{ gridColumn: '1 / -1' }}>
@@ -247,7 +249,12 @@ export const EditAdministrationRecordModal = ({
                       name="changingNotGivenInfoReason"
                       component={TextField}
                       disabled={!dirty}
-                      label="Reason for change (Optional)"
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
+                        />
+                      }
                     />
                   </div>
                 </>
@@ -266,7 +273,13 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="doseAmount"
                     component={NumberField}
-                    label={`Dose given (${medication?.units})`}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.doseGiven.label"
+                        values={{ units: medication?.units }}
+                        fallback={`Dose given (${medication?.units})`}
+                      />
+                    }
                     required
                   />
                   <div>
@@ -303,15 +316,15 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label="Given by"
-                    suggester={practitionerSuggester}
+                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
+                    suggester={givenBySuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label="Recorded by"
-                    suggester={practitionerSuggester}
+                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    suggester={recordedBySuggester}
                     required
                   />
                   <div style={{ gridColumn: '1 / -1' }}>
@@ -319,7 +332,12 @@ export const EditAdministrationRecordModal = ({
                       name="reasonForChange"
                       component={TextField}
                       disabled={!dirty}
-                      label="Reason for change (Optional)"
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
+                        />
+                      }
                     />
                   </div>
                 </>

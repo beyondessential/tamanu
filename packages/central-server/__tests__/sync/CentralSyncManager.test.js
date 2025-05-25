@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Op } from 'sequelize';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
 import {
@@ -18,6 +19,7 @@ import {
   DEBUG_LOG_TYPES,
   APPOINTMENT_STATUSES,
   REPEAT_FREQUENCY,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
@@ -161,6 +163,12 @@ describe('CentralSyncManager', () => {
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
+    await models.User.create({
+      id: SYSTEM_USER_UUID,
+      email: 'system',
+      displayName: 'System',
+      role: 'system',
+    });
   });
 
   afterAll(() => ctx.close());
@@ -401,7 +409,7 @@ describe('CentralSyncManager', () => {
       const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
         limit: 10,
       });
-      expect(changes.length).toBe(1);
+      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(1);
     });
     it('returns all the outgoing changes with multiple facilities', async () => {
       const facility1 = await models.Facility.create(fake(models.Facility));
@@ -423,7 +431,7 @@ describe('CentralSyncManager', () => {
       const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
         limit: 10,
       });
-      expect(changes.length).toBe(3);
+      expect(changes.filter(({ recordId }) => recordId !== SYSTEM_USER_UUID)).toHaveLength(3);
     });
   });
 
@@ -725,7 +733,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          ({ recordId }) => recordId !== SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -777,7 +787,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
+          ({ recordId }) => recordId !== SYSTEM_USER_UUID,
+        );
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
           [facility, program, survey].map((r) => r.id).sort(),
@@ -866,7 +878,9 @@ describe('CentralSyncManager', () => {
 
         // Check if only 3 pre inserted records were snapshotted
         // and not the ones that were inserted in the middle of the snapshot process
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionIdOne, {});
+        const outgoingChanges = (
+          await centralSyncManager.getOutgoingChanges(sessionIdOne, {})
+        ).filter(({ recordId }) => recordId !== SYSTEM_USER_UUID);
 
         expect(outgoingChanges.length).toBe(3);
         expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
@@ -897,7 +911,14 @@ describe('CentralSyncManager', () => {
             cascade: true,
             force: true,
           });
-          await models.User.truncate({ cascade: true, force: true });
+          await models.User.destroy({
+            where: {
+              id: {
+                [Op.not]: SYSTEM_USER_UUID,
+              },
+            },
+            force: true,
+          });
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
           await models.LabRequest.truncate({ cascade: true, force: true });
@@ -1652,7 +1673,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1696,7 +1723,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(1);
       expect(lookupData[0]).toEqual(
@@ -1728,7 +1761,13 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)) - 1;
 
@@ -1778,7 +1817,13 @@ describe('CentralSyncManager', () => {
 
       await centralSyncManager.updateLookupTable();
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       expect(lookupData).toHaveLength(2);
       expect(lookupData.find((d) => d.recordType === 'patients')).toEqual(
@@ -1810,7 +1855,13 @@ describe('CentralSyncManager', () => {
       await patient1.save();
 
       await centralSyncManager.updateLookupTable();
-      const lookupData2 = await models.SyncLookup.findAll({});
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       const newCurrentSyncTime = (await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)) - 1;
 
@@ -1898,7 +1949,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       // only expect 3 records as it should not include the 3 records inserted manually
       expect(lookupData).toHaveLength(3);
@@ -1944,7 +2001,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
 
       // only expect 3 records as it should not include the 3 records inserted from the importer
       expect(lookupData).toHaveLength(3);
@@ -2018,8 +2081,13 @@ describe('CentralSyncManager', () => {
 
       await updateLookupTablePromise;
 
-      const lookupData = await models.SyncLookup.findAll({});
-
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
     });

@@ -151,7 +151,9 @@ export class Encounter extends Model {
           afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
               await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
-              await models.MedicationAdministrationRecord.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
+              await models.MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords(
+                opts?.transaction,
+              );
             }
           },
         },

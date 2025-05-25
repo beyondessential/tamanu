@@ -41,7 +41,7 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
-encounter.get('/:id', simpleGet('Encounter'));
+encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -88,14 +88,37 @@ encounter.put(
         // only isDischarge, quantity and repeats fields are edited
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { isDischarge, quantity, repeats } = medicationValues;
-          if (isDischarge) {
-            const medication = await models.Prescription.findByPk(medicationId);
-            await medication.update({ quantity, repeats });
-            await models.EncounterPrescription.update(
-              { isDischarge },
-              { where: { encounterId: id, prescriptionId: medication.id } },
-            );
+          const { quantity, repeats } = medicationValues;
+          const medication = await models.Prescription.findByPk(medicationId, {
+            include: [
+              {
+                model: models.EncounterPrescription,
+                as: 'encounterPrescription',
+                attributes: ['encounterId'],
+                required: false,
+              },
+              {
+                model: models.PatientOngoingPrescription,
+                as: 'patientOngoingPrescription',
+                attributes: ['patientId'],
+                required: false,
+              },
+            ],
+          });
+
+          if (!medication || medication.discontinued) continue;
+
+          await medication.update({ quantity, repeats });
+          await models.EncounterPrescription.update(
+            { isDischarge: true },
+            { where: { encounterId: id, prescriptionId: medication.id } },
+          );
+          // If the medication is ongoing, we need to add it to the patient's ongoing medications
+          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+            await models.PatientOngoingPrescription.create({
+              patientId: encounterObject.patientId,
+              prescriptionId: medication.id,
+            });
           }
         }
       }
@@ -170,7 +193,10 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
-encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
+encounterRelations.get(
+  '/:id/discharge',
+  simpleGetHasOne('Discharge', 'encounterId', { auditAccess: true }),
+);
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get(
@@ -178,28 +204,24 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
     req.checkPermission('list', 'Prescription');
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
     const baseQueryOptions = {
-      order: orderBy
-        ? [
-            [...orderBy.split('.'), order.toUpperCase()],
-            ['date', 'ASC'],
-          ]
-        : undefined,
+      order: [
+        [
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
+          'DESC',
+        ],
+        ...(orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : []),
+        ['date', 'ASC'],
+      ],
+
       include: [
         ...associations,
-        {
-          model: models.Encounter,
-          as: 'encounters',
-          through: { attributes: [] },
-          where: { id: params.id },
-          attributes: ['id'],
-        },
         {
           model: models.EncounterPrescription,
           as: 'encounterPrescription',
@@ -212,8 +234,12 @@ encounterRelations.get(
                 [Op.gt]: getCurrentDateTimeString(),
               },
             },
+            required: false,
           },
-          attributes: ['id'],
+          attributes: ['id', 'encounterId', 'isDischarge'],
+          where: {
+            encounterId: params.id,
+          },
         },
       ],
     };
@@ -380,7 +406,10 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+);
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
