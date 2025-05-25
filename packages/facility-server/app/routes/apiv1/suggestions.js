@@ -37,8 +37,8 @@ const getTranslationAttributes = (modelName) => {
         Sequelize.literal(`(
           SELECT "text" 
           FROM "translated_strings" 
-          WHERE "language" = :language
-          AND "string_id" = :translationPrefix || "${modelName}"."id"
+          WHERE "language" = $language
+          AND "string_id" = $translationPrefix || "${modelName}"."id"
           LIMIT 1
       )`),
         'translation',
@@ -52,11 +52,11 @@ const getTranslationWhereLiteral = (modelName, searchColumn) =>
   Sequelize.literal(`COALESCE(
       (SELECT "text" 
         FROM "translated_strings" 
-        WHERE "language" = :language
-        AND "string_id" = :translationPrefix || "${modelName}"."id"
+        WHERE "language" = $language
+        AND "string_id" = $translationPrefix || "${modelName}"."id"
         LIMIT 1),
       "${modelName}"."${searchColumn}"
-    ) ILIKE :searchQuery`);
+    ) ILIKE $searchQuery`);
 
 export const suggestions = express.Router();
 
@@ -77,7 +77,7 @@ function createSuggesterRoute(
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
-        `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
+        `POSITION(LOWER($positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
       const where = whereBuilder({
@@ -104,7 +104,7 @@ function createSuggesterRoute(
           positionQuery,
           [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
         ],
-        replacements: {
+        bind: {
           positionMatch: searchQuery,
           language,
           searchQuery: `%${searchQuery}%`,
@@ -135,7 +135,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
 
       const record = await models[modelName].findOne({
         where: { id: params.id },
-        replacements: {
+        bind: {
           language,
           translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
         },
@@ -169,7 +169,7 @@ function createAllRecordsRoute(
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
         attributes: getTranslationAttributes(modelName),
-        replacements: {
+        bind: {
           language,
           translationPrefix: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`,
           searchQuery: '%',
@@ -323,7 +323,7 @@ createSuggester(
       if (!types?.length) return;
 
       const caseStatement = types
-        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
+        .map((_, index) => `WHEN $type${index} THEN ${index + 1}`)
         .join(' ');
 
       return [
@@ -623,8 +623,8 @@ createSuggester(
           FROM lab_requests
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
@@ -642,8 +642,8 @@ createSuggester(
             ON (lab_requests.id = lab_tests.lab_request_id)
           INNER JOIN lab_test_types
             ON (lab_test_types.id = lab_tests.lab_test_type_id)
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
             AND lab_test_types.is_sensitive IS FALSE
@@ -691,8 +691,8 @@ createSuggester(
             lab_requests ON lab_requests.id = lab_tests.lab_request_id
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
@@ -737,7 +737,7 @@ createSuggester(
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = :patient_id
+            ppr.patient_id = $patient_id
           AND
             ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
@@ -790,7 +790,7 @@ createNameSuggester(
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = :patient_id
+            ppr.patient_id = $patient_id
           AND
             ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
