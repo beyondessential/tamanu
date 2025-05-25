@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: medication_templates
-        description: "{{ doc('table__medication_templates') }}"
+        description: '{{ doc("table__medication_templates") }}'
         tags: []
         columns:
           - name: id
@@ -28,7 +28,7 @@ sources:
             data_tests:
               - not_null
           - name: dose_amount
-            data_type: character varying(255)
+            data_type: numeric
             description: "{{ doc('medication_templates__dose_amount') }}"
             data_tests:
               - not_null
@@ -74,7 +74,6 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in medication_templates."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              medication_templates."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in medication_templates."
             data_tests:
               - not_null
