@@ -72,6 +72,7 @@ export class ChangeLog extends Model {
         tableName: 'changes',
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'logs',
+        timestamps: false
       },
     );
   }

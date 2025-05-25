@@ -9,6 +9,8 @@ const TABLE = {
 export async function up(query: QueryInterface): Promise<void> {
   await query.removeColumn(TABLE, 'record_sync_tick');
   await query.removeColumn(TABLE, 'record_update');
+  await query.removeColumn(TABLE, 'updated_at');
+  await query.removeColumn(TABLE, 'deleted_at');
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION logs.record_change()
     RETURNS trigger AS $$
@@ -45,6 +47,15 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // There should be no deleted records in the changelog table
+  await query.sequelize.query(`
+    ALTER TABLE logs.changes ADD COLUMN deleted_at timestamp with time zone;
+  `)
+  await query.sequelize.query(`
+    ALTER TABLE logs.changes ADD COLUMN updated_at timestamp with time zone;
+    UPDATE logs.changes SET updated_at = created_at;
+    ALTER TABLE logs.changes ALTER COLUMN updated_at SET NOT NULL;
+  `)
   await query.sequelize.query(`
     ALTER TABLE logs.changes ADD COLUMN record_updated boolean;
     UPDATE logs.changes SET record_updated = (record_updated_at != record_created_at)::boolean;
