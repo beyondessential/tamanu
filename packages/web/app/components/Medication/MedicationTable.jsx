@@ -280,7 +280,7 @@ export const EncounterMedicationTable = ({
 
   const handleRefreshTable = () => {
     setRefreshCount(refreshCount + 1);
-    queryClient.invalidateQueries({ queryKey: ['encounter-medications', encounter?.id] });
+    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
   };
 
   const onMedicationsFetched = useCallback(({ data }) => {

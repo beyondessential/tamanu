@@ -13,10 +13,9 @@ import { Colors } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
-import { useEncounterPrescriptionsQuery } from '../../../api/queries/useEncounterPrescriptionsQuery';
-import { useQueryClient } from '@tanstack/react-query';
 import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
+import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -60,18 +59,19 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
+  const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
   const { navigateToMar } = usePatientNavigation();
-  const queryClient = useQueryClient();
 
-  const { data: encounterPrescriptionsData } = useEncounterPrescriptionsQuery(encounter.id);
+  const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
   const { data: patientOngoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
     encounter.patientId,
   );
-  const importableOngoingPrescriptions = patientOngoingPrescriptions?.data
-    ?.map(p => p.prescription)
-    ?.filter(p => !p.discontinued);
+  const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
+    p => !p.discontinued,
+  );
   const encounterPrescriptions = encounterPrescriptionsData?.data;
-  const canImportOngoingPrescriptions = !!importableOngoingPrescriptions?.length;
+  const canImportOngoingPrescriptions =
+    !!importableOngoingPrescriptions?.length && !encounter.endDate;
 
   return (
     <TabPane data-testid="tabpane-u787">
@@ -82,7 +82,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClose={() => setCreateMedicationModalOpen(false)}
           onSaved={async () => {
             setCreateMedicationModalOpen(false);
-            queryClient.invalidateQueries({ queryKey: ['encounter-medications', encounter.id] });
+            setRefreshEncounterMedications(prev => prev + 1);
           }}
           data-testid="medicationmodal-s2hv"
         />
@@ -97,6 +97,9 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             encounter={encounter}
             open={medicationImportModalOpen}
             onClose={() => setMedicationImportModalOpen(false)}
+            onSaved={() => {
+              setRefreshEncounterMedications(prev => prev + 1);
+            }}
             data-testid="medicationimportmodal-1zpq"
           />
         )}
@@ -177,7 +180,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           </ButtonGroup>
         </TableButtonRow>
         <EncounterMedicationTable
-          key={`${createMedicationModalOpen}-${medicationImportModalOpen}`}
+          key={refreshEncounterMedications}
           encounter={encounter}
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}

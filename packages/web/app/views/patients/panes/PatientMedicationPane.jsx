@@ -152,17 +152,17 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 
 const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
-    key: 'prescription.medication.name',
+    key: 'medication.name',
     title: (
       <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
     ),
     sortable: true,
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
+      <CellText discontinued={data?.discontinued}>
         <TranslatedReferenceData
-          fallback={data?.prescription?.medication?.name}
-          value={data?.prescription?.medication?.id}
-          category={data?.prescription?.medication?.type}
+          fallback={data?.medication?.name}
+          value={data?.medication?.id}
+          category={data?.medication?.type}
         />
       </CellText>
     ),
@@ -171,8 +171,8 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'dose',
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
-        {getDose(data.prescription, getTranslation, getEnumTranslation)}
+      <CellText discontinued={data?.discontinued}>
+        {getDose(data, getTranslation, getEnumTranslation)}
       </CellText>
     ),
     sortable: false,
@@ -183,43 +183,37 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
       <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
     ),
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
-        {data.prescription.frequency
-          ? getTranslatedFrequency(data.prescription.frequency, getTranslation)
-          : ''}
+      <CellText discontinued={data?.discontinued}>
+        {data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : ''}
       </CellText>
     ),
     sortable: false,
   },
   {
-    key: 'prescription.route',
+    key: 'route',
     title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
-        <TranslatedEnum value={data.prescription.route} enumValues={DRUG_ROUTE_LABELS} />
+      <CellText discontinued={data?.discontinued}>
+        <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />
       </CellText>
     ),
     sortable: true,
   },
   {
-    key: 'prescription.date',
+    key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
-        {`${formatShortest(data.prescription.date)}`}
-      </CellText>
+      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
     ),
     sortable: true,
   },
   {
-    key: 'prescription.prescriber.displayName',
+    key: 'prescriber.displayName',
     title: (
       <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
     ),
     accessor: data => (
-      <CellText discontinued={data?.prescription?.discontinued}>
-        {data?.prescription?.prescriber?.displayName ?? ''}
-      </CellText>
+      <CellText discontinued={data?.discontinued}>{data?.prescriber?.displayName ?? ''}</CellText>
     ),
     sortable: true,
   },
@@ -378,7 +372,7 @@ export const PatientMedicationPane = ({ patient }) => {
           $noData={ongoingPrescriptions.length === 0}
           refreshCount={refreshCount}
           onClickRow={(_, data) => {
-            setSelectedMedication(data?.prescription);
+            setSelectedMedication(data);
             setAllowDiscontinue(true);
           }}
         />

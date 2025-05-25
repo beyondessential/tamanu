@@ -20,6 +20,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op } from 'sequelize';
@@ -60,8 +61,13 @@ medication.post(
     const { models, db } = req;
     const encounterId = req.params.encounterId;
     const data = req.body;
-    const { Prescription, Encounter, EncounterPrescription, MedicationAdministrationRecord } =
-      models;
+    const {
+      Prescription,
+      Encounter,
+      EncounterPrescription,
+      MedicationAdministrationRecord,
+      PatientOngoingPrescription,
+    } = models;
     req.checkPermission('create', 'Prescription');
 
     const encounter = await Encounter.findByPk(encounterId);
@@ -75,6 +81,34 @@ medication.post(
     }
 
     const result = await db.transaction(async (transaction) => {
+      // Check for existing ongoing medications with the same medication
+      const existingOngoingPrescriptions = await Prescription.findAll({
+        where: {
+          medicationId: data.medicationId,
+          discontinued: { [Op.not]: true },
+        },
+        include: [
+          {
+            model: PatientOngoingPrescription,
+            as: 'patientOngoingPrescription',
+            where: {
+              patientId: encounter.patientId,
+            },
+          },
+        ],
+        transaction,
+      });
+
+      // Discontinue any existing ongoing medications with the same medication
+      for (const existingOngoingPrescription of existingOngoingPrescriptions) {
+        existingOngoingPrescription.discontinued = true;
+        existingOngoingPrescription.discontinuingClinicianId = SYSTEM_USER_UUID;
+        existingOngoingPrescription.discontinuedReason =
+          'Discontinued due to new prescription of same medication';
+        existingOngoingPrescription.discontinuedDate = getCurrentDateTimeString();
+        await existingOngoingPrescription.save({ transaction });
+      }
+
       const prescription = await Prescription.create(data, { transaction });
       await EncounterPrescription.create(
         { encounterId, prescriptionId: prescription.id },
@@ -1055,7 +1089,7 @@ const importOngoingMedicationsSchema = z
 medication.post(
   '/importOngoing',
   asyncHandler(async (req, res) => {
-    const { models, db, user } = req;
+    const { models, db } = req;
     const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription } = models;
 
     const { prescriptionIds, prescriberId, encounterId } =
@@ -1106,6 +1140,8 @@ medication.post(
           {
             ...prescription.toJSON(),
             id: undefined,
+            createdAt: undefined,
+            updatedAt: undefined,
             prescriberId,
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
@@ -1123,7 +1159,8 @@ medication.post(
 
         // Discontinue the original ongoing prescription
         prescription.discontinued = true;
-        prescription.discontinuingClinicianId = user.id;
+        prescription.discontinuingClinicianId = SYSTEM_USER_UUID;
+        prescription.discontinuedReason = 'Imported from ongoing medications';
         prescription.discontinuedDate = getCurrentDateTimeString();
         await prescription.save({ transaction });
 

@@ -111,7 +111,7 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
   },
 ];
 
-export const MedicationImportModal = ({ encounter, open, onClose }) => {
+export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => {
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
@@ -121,7 +121,7 @@ export const MedicationImportModal = ({ encounter, open, onClose }) => {
 
   const { data, isLoading, error } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
   const medications = useMemo(
-    () => data?.data.map(p => p.prescription).filter(p => !p.discontinued) || [],
+    () => data?.data.filter(p => !p.discontinued) || [],
     [data],
   );
 
@@ -144,6 +144,10 @@ export const MedicationImportModal = ({ encounter, open, onClose }) => {
       queryClient.invalidateQueries({
         queryKey: ['patient-ongoing-prescriptions', encounter.patientId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['encounterMedication', encounter.id],
+      });
+      onSaved();
       onClose();
     } catch (error) {
       toast.error(error.message);

@@ -478,31 +478,30 @@ patientRoute.get(
     req.checkPermission('list', 'Prescription');
 
     const { models, params, query } = req;
+    const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
-    const { order = 'ASC', orderBy = 'prescription.medication.name' } = query;
+    const { order = 'ASC', orderBy = 'medication.name' } = query;
 
-    const ongoingPrescriptions = await PatientOngoingPrescription.findAll({
-      where: { patientId: params.id },
+    const ongoingPrescriptions = await Prescription.findAll({
       include: [
+        ...Prescription.getListReferenceAssociations(),
         {
-          model: Prescription,
-          as: 'prescription',
-          include: Prescription.getListReferenceAssociations(),
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: { patientId },
         },
       ],
       order: [
         [
-          literal(
-            'CASE WHEN "prescription"."discontinued" IS NULL OR "prescription"."discontinued" = false THEN 1 ELSE 0 END',
-          ),
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
           'DESC',
         ],
-        orderBy === 'prescription.route'
+        orderBy === 'route'
           ? [
               literal(
-                `CASE "prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                `CASE "route" ${Object.entries(DRUG_ROUTE_LABELS)
                   .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
-                  .join(' ')} ELSE "prescription"."route" END`,
+                  .join(' ')} ELSE "route" END`,
               ),
               order.toUpperCase(),
             ]

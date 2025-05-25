@@ -47,7 +47,7 @@ import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEncounterPrescriptionsQuery } from '../api/queries/useEncounterPrescriptionsQuery';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -659,13 +659,12 @@ export const DischargeForm = ({
     d => !['error', 'disproven'].includes(d.certainty),
   );
 
-  const { data: encounterMedications } = useEncounterPrescriptionsQuery(encounter.id);
+  const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
   const activeMedications =
     encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications =
-    ongoingPrescriptions?.data?.map(p => p.prescription).filter(p => !p.discontinued) || [];
+  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,
@@ -714,7 +713,7 @@ export const DischargeForm = ({
 
   const onDiscontinueMedication = () => {
     queryClient.invalidateQueries(['patient-ongoing-prescriptions', encounter.patientId]);
-    queryClient.invalidateQueries(['encounter-medications', encounter.id]);
+    queryClient.invalidateQueries(['encounterMedication', encounter.id]);
   };
 
   return (
