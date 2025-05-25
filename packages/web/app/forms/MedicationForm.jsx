@@ -1,8 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import {
+  Box,
+  Divider,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  IconButton,
+} from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
+import CloseIcon from '@material-ui/icons/Close';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
@@ -496,6 +504,15 @@ const MedicationBox = styled.div`
   grid-column: 1 / -1;
 `;
 
+const StyledIconButton = styled(IconButton)`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  svg {
+    font-size: 2rem;
+  }
+`;
+
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -503,7 +520,8 @@ export const MedicationForm = ({
   onConfirmEdit,
   onCancelEdit,
   editingMedication,
-  isOngoingPrescription
+  isOngoingPrescription,
+  onCustomClose,
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
@@ -623,6 +641,11 @@ export const MedicationForm = ({
 
   return (
     <>
+      {onCustomClose && (
+        <StyledIconButton onClick={onCustomClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      )}
       <Form
         suppressErrorDialog
         onSubmit={onConfirmEdit || onSubmit}

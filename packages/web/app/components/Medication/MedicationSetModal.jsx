@@ -36,6 +36,7 @@ const MODAL_SCREENS = {
   EDIT_MEDICATION: 'edit_medication',
   REMOVE_MEDICATION: 'remove_medication',
   DISCARD_CHANGES: 'discard_changes',
+  CANCEL_MEDICATION_SET: 'cancel_medication_set',
 };
 
 const RemoveScreen = ({ medicationName }) => {
@@ -64,6 +65,20 @@ const DiscardChangesScreen = () => {
     </Box>
   );
 };
+
+const CancelMedicationSetScreen = () => {
+  return (
+    <Box width="80%" mt="78px" mb="96px" mx="auto">
+      <BodyText>
+        <TranslatedText
+          stringId="medication.modal.cancelMedicationSet.description"
+          fallback="Are you sure you would like to cancel creating the new medication set prescription?"
+        />
+      </BodyText>
+    </Box>
+  );
+};
+
 const SelectScreen = ({
   allergies,
   medicationSets,
@@ -212,6 +227,9 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
         setSelectedMedicationSet(null);
         break;
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        onClose();
+        break;
     }
   };
 
@@ -234,6 +252,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         break;
       case MODAL_SCREENS.REMOVE_MEDICATION:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+        break;
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
+        setSelectedMedicationSet(null);
         break;
       default:
         onClose();
@@ -263,6 +285,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     setPrintModalOpen(true);
   };
 
+  const onCustomClose = () => {
+    setScreen(MODAL_SCREENS.CANCEL_MEDICATION_SET);
+  };
+
   const renderScreen = () => {
     switch (screen) {
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
@@ -289,12 +315,15 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             onConfirmEdit={onConfirmEdit}
             editingMedication={editingMedication}
             onCancelEdit={onCancel}
+            onCustomClose={onCustomClose}
           />
         );
       case MODAL_SCREENS.REMOVE_MEDICATION:
         return <RemoveScreen medicationName={editingMedication.medication.name} />;
       case MODAL_SCREENS.DISCARD_CHANGES:
         return <DiscardChangesScreen />;
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        return <CancelMedicationSetScreen />;
     }
   };
 
@@ -314,8 +343,29 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             fallback="Discard changes"
           />
         );
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        return (
+          <TranslatedText
+            stringId="medication.modal.action.cancelMedicationSet"
+            fallback="Cancel medication set"
+          />
+        );
       default:
         return <TranslatedText stringId="general.action.continue" fallback="Continue" />;
+    }
+  };
+
+  const getCancelText = () => {
+    switch (screen) {
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        return (
+          <TranslatedText
+            stringId="medication.modal.action.backToMedicationSet"
+            fallback="Back to creating medication set"
+          />
+        );
+      default:
+        return <TranslatedText stringId="general.action.cancel" fallback="Cancel" />;
     }
   };
 
@@ -363,16 +413,18 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         selectedMedicationSet && screen === MODAL_SCREENS.SELECT_MEDICATION_SET ? '986px' : '600px'
       }
     >
-      {printModalOpen && <MultiplePrescriptionPrintoutModal
-        encounter={encounter}
-        prescriberId={currentUser.id}
-        prescriptions={submittedMedications}
-        open={true}
-        onClose={() => {
-          setPrintModalOpen(false);
-          onClose();
-        }}
-      />}
+      {printModalOpen && (
+        <MultiplePrescriptionPrintoutModal
+          encounter={encounter}
+          prescriberId={currentUser.id}
+          prescriptions={submittedMedications}
+          open={true}
+          onClose={() => {
+            setPrintModalOpen(false);
+            onClose();
+          }}
+        />
+      )}
       {renderScreen()}
       {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
         <>
@@ -381,17 +433,25 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             confirmText={getConfirmText()}
             onConfirm={onNext}
             confirmDisabled={!selectedMedicationSet || isCreatingMedicationSet}
-            cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+            cancelText={getCancelText()}
             onCancel={onCancel}
             backText={<TranslatedText stringId="general.action.back" fallback="Back" />}
             onBack={
-              ![MODAL_SCREENS.REMOVE_MEDICATION, MODAL_SCREENS.DISCARD_CHANGES].includes(screen) &&
-              onBack
+              ![
+                MODAL_SCREENS.REMOVE_MEDICATION,
+                MODAL_SCREENS.DISCARD_CHANGES,
+                MODAL_SCREENS.CANCEL_MEDICATION_SET,
+              ].includes(screen) && onBack
             }
-            finaliseText={<Box display="flex" alignItems="center" whiteSpace="nowrap">
-              <Print />
-              <TranslatedText stringId="medication.modal.action.finaliseAllPrint" fallback="Finalise all & print" />
-            </Box>}
+            finaliseText={
+              <Box display="flex" alignItems="center" whiteSpace="nowrap">
+                <Print />
+                <TranslatedText
+                  stringId="medication.modal.action.finaliseAllPrint"
+                  fallback="Finalise all & print"
+                />
+              </Box>
+            }
             finaliseDisabled={isCreatingMedicationSet}
             onFinalise={MODAL_SCREENS.REVIEW_MEDICATION_SET === screen ? onFinalise : undefined}
           />
