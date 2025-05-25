@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
+import { Print } from '@material-ui/icons';
 import { BodyText, ConfirmCancelBackRow, Heading5, Modal, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
@@ -12,6 +13,7 @@ import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -158,24 +160,30 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onSelect = medicationSet => {
     setSelectedMedicationSet(medicationSet);
   };
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [submittedMedications, setSubmittedMedications] = useState([]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (isPrinting = false) => {
+    const medications = selectedMedicationSet.children.map(({ medicationTemplate }) => ({
+      ...medicationTemplate,
+      prescriberId: medicationTemplate.prescriberId || currentUser.id,
+      date: medicationTemplate.date || getCurrentDateString(),
+      startDate: medicationTemplate.startDate || getCurrentDateTimeString(),
+      doseAmount: Number(medicationTemplate.doseAmount),
+      durationValue: Number(medicationTemplate.durationValue),
+      route: Object.keys(DRUG_ROUTE_LABELS).find(
+        key => DRUG_ROUTE_LABELS[key] === medicationTemplate.route,
+      ),
+    }));
     const payload = {
       encounterId: encounter.id,
-      medicationSet: selectedMedicationSet.children.map(({ medicationTemplate }) => ({
-        ...medicationTemplate,
-        prescriberId: medicationTemplate.prescriberId || currentUser.id,
-        date: medicationTemplate.date || getCurrentDateString(),
-        startDate: medicationTemplate.startDate || getCurrentDateTimeString(),
-        doseAmount: Number(medicationTemplate.doseAmount),
-        durationValue: Number(medicationTemplate.durationValue),
-        route: Object.keys(DRUG_ROUTE_LABELS).find(
-          key => DRUG_ROUTE_LABELS[key] === medicationTemplate.route,
-        ),
-      })),
+      medicationSet: medications,
     };
     await createMedicationSet(payload);
-    onClose();
+    setSubmittedMedications(medications);
+    if (!isPrinting) {
+      onClose();
+    }
   };
 
   const onEdit = medication => {
@@ -183,13 +191,13 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     setScreen(MODAL_SCREENS.EDIT_MEDICATION);
   };
 
-  const onNext = () => {
+  const onNext = async () => {
     switch (screen) {
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
-        onSubmit();
+        await onSubmit();
         break;
       case MODAL_SCREENS.REMOVE_MEDICATION: {
         const index = selectedMedicationSet.children.findIndex(
@@ -248,6 +256,11 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       route: DRUG_ROUTE_LABELS[data.route],
     };
     setSelectedMedicationSet(selectedMedicationSet);
+  };
+
+  const onFinalise = async () => {
+    await onSubmit(true);
+    setPrintModalOpen(true);
   };
 
   const renderScreen = () => {
@@ -350,6 +363,16 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         selectedMedicationSet && screen === MODAL_SCREENS.SELECT_MEDICATION_SET ? '986px' : '600px'
       }
     >
+      {printModalOpen && <MultiplePrescriptionPrintoutModal
+        encounter={encounter}
+        prescriberId={currentUser.id}
+        prescriptions={submittedMedications}
+        open={true}
+        onClose={() => {
+          setPrintModalOpen(false);
+          onClose();
+        }}
+      />}
       {renderScreen()}
       {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
         <>
@@ -365,6 +388,12 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
               ![MODAL_SCREENS.REMOVE_MEDICATION, MODAL_SCREENS.DISCARD_CHANGES].includes(screen) &&
               onBack
             }
+            finaliseText={<Box display="flex" alignItems="center" whiteSpace="nowrap">
+              <Print />
+              <TranslatedText stringId="medication.modal.action.finaliseAllPrint" fallback="Finalise all & print" />
+            </Box>}
+            finaliseDisabled={isCreatingMedicationSet}
+            onFinalise={MODAL_SCREENS.REVIEW_MEDICATION_SET === screen ? onFinalise : undefined}
           />
         </>
       )}

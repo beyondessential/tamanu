@@ -129,7 +129,7 @@ const medicationSetInputSchema = z.object({
   medicationSet: z.array(
     z.object({
       date: z.string(),
-      doseAmount: z.number(),
+      doseAmount: z.number().optional().nullable(),
       durationUnit: z.string().optional(),
       durationValue: z.number().optional(),
       frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
