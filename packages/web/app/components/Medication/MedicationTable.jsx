@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
@@ -17,13 +17,17 @@ import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
 import { singularize } from '../../utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '../Button';
+import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
-  max-height: 51vh;
+  max-height: ${props => (props.$noData ? 'unset' : '51vh')};
   border: none;
   border-top: 1px solid ${Colors.outline};
   margin-top: 8px;
   .MuiTableHead-root {
+    ${props => props.$noData && 'display: none;'}
     position: sticky;
     top: 0;
   }
@@ -45,10 +49,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     }
   }
   .MuiTableCell-body {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: ${props => (props.$noData ? '10px' : '4px 10px')};
     height: 44px;
     &:last-child {
       padding-right: 10px;
@@ -74,8 +75,27 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const NoDataContainer = styled.div`
+  height: 420px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${Colors.hoverGrey};
+  color: ${Colors.primary};
+  padding: 0 120px;
+`;
+
 const NoWrapCell = styled(Box)`
   white-space: nowrap;
+`;
+
+const StyledButton = styled(Button)`
+  font-size: 12px;
+  height: 36px;
+  margin-top: 8px;
 `;
 
 const getMedicationName = (
@@ -231,12 +251,19 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) 
   },
 ];
 
-export const EncounterMedicationTable = React.memo(({ encounterId }) => {
+export const EncounterMedicationTable = ({
+  encounter,
+  canImportOngoingPrescriptions,
+  onImportOngoingPrescriptions,
+}) => {
   const location = useLocation();
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [medications, setMedications] = useState([]);
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -251,6 +278,15 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     setSelectedMedication(medication);
   };
 
+  const handleRefreshTable = () => {
+    setRefreshCount(refreshCount + 1);
+    queryClient.invalidateQueries({ queryKey: ['encounter-medications', encounter?.id] });
+  };
+
+  const onMedicationsFetched = useCallback(({ data }) => {
+    setMedications(data);
+  }, []);
+
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
@@ -262,20 +298,52 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
       {selectedMedication && (
         <MedicationDetails
           initialMedication={selectedMedication}
-          onReloadTable={() => setRefreshCount(refreshCount + 1)}
+          onReloadTable={handleRefreshTable}
           onClose={() => setSelectedMedication(null)}
         />
       )}
       <StyledDataFetchingTable
         columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation, !!selectedMedication)}
-        endpoint={`encounter/${encounterId}/medications`}
+        endpoint={`encounter/${encounter.id}/medications`}
         rowStyle={rowStyle}
         elevated={false}
         allowExport={false}
         disablePagination
         onRowClick={row => setSelectedMedication(row)}
         refreshCount={refreshCount}
+        onDataFetched={onMedicationsFetched}
+        $noData={medications.length === 0}
+        noDataMessage={
+          <NoDataContainer>
+            {canImportOngoingPrescriptions ? (
+              <Box color={Colors.darkestText}>
+                <TranslatedText
+                  stringId="medication.table.noMedications"
+                  fallback="This patient has existing ongoing medications. Would you like to add these to this encounter?"
+                />
+                <StyledButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={onImportOngoingPrescriptions}
+                >
+                  <Box mr={1} display="flex">
+                    <AddMedicationIcon />
+                  </Box>
+                  <TranslatedText
+                    stringId="action.importMedications"
+                    fallback="Import existing medications"
+                  />
+                </StyledButton>
+              </Box>
+            ) : (
+              <TranslatedText
+                stringId="medication.table.noMedicationsAndOngoing"
+                fallback="No medications to display and no existing ongoing medications to add to encounter."
+              />
+            )}
+          </NoDataContainer>
+        }
       />
     </div>
   );
-});
+};

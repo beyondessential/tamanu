@@ -1045,4 +1045,99 @@ globalMedicationRequests.get('/$', (req, res, next) =>
   })(req, res, next),
 );
 
+const importOngoingMedicationsSchema = z
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+    prescriptionIds: z.array(z.string().uuid({ message: 'Valid prescription ID is required' })),
+    prescriberId: z.string().uuid({ message: 'Valid prescriber ID is required' }),
+  })
+  .strip();
+medication.post(
+  '/importOngoing',
+  asyncHandler(async (req, res) => {
+    const { models, db, user } = req;
+    const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription } = models;
+
+    const { prescriptionIds, prescriberId, encounterId } =
+      await importOngoingMedicationsSchema.parseAsync(req.body);
+
+    req.checkPermission('create', 'Prescription');
+    req.checkPermission('write', 'Prescription');
+
+    const encounter = await Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
+    }
+    if (encounter.endDate) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} is discharged`);
+    }
+
+    const ongoingPrescriptions = await Prescription.findAll({
+      where: {
+        discontinued: { [Op.not]: true },
+      },
+      include: [
+        {
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: {
+            patientId: encounter.patientId,
+          },
+        },
+      ],
+    });
+
+    const importPrescriptions = [];
+    for (const prescriptionId of prescriptionIds) {
+      const prescription = ongoingPrescriptions.find((p) => p.id === prescriptionId);
+      if (!prescription) {
+        throw new InvalidOperationError(
+          `Prescription with id ${prescriptionId} not found or has been discontinued`,
+        );
+      }
+      importPrescriptions.push(prescription);
+    }
+
+    const result = await db.transaction(async (transaction) => {
+      const newPrescriptions = [];
+
+      for (const prescription of importPrescriptions) {
+        const newPrescription = await Prescription.create(
+          {
+            ...prescription.toJSON(),
+            id: undefined,
+            prescriberId,
+            date: getCurrentDateTimeString(),
+            startDate: getCurrentDateTimeString(),
+          },
+          { transaction },
+        );
+
+        await EncounterPrescription.create(
+          {
+            encounterId: encounter.id,
+            prescriptionId: newPrescription.id,
+          },
+          { transaction },
+        );
+
+        // Discontinue the original ongoing prescription
+        prescription.discontinued = true;
+        prescription.discontinuingClinicianId = user.id;
+        prescription.discontinuedDate = getCurrentDateTimeString();
+        await prescription.save({ transaction });
+
+        newPrescriptions.push(newPrescription);
+      }
+
+      return newPrescriptions;
+    });
+
+    res.send({
+      count: result.length,
+      data: result.map((prescription) => prescription.forResponse()),
+    });
+  }),
+);
+
 medication.use(globalMedicationRequests);
