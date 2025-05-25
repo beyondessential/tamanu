@@ -16,12 +16,17 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
     medication_id: {
-      type: DataTypes.STRING, 
-      allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
       },
+    },
+    is_variable_dose: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     is_prn: {
       type: DataTypes.BOOLEAN,
@@ -29,8 +34,8 @@ export async function up(query: QueryInterface): Promise<void> {
       defaultValue: false,
     },
     dose_amount: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.DECIMAL,
+      allowNull: true,
     },
     units: {
       type: DataTypes.STRING,

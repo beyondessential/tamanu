@@ -7,7 +7,8 @@ export class MedicationTemplate extends Model {
   declare id: string;
   declare referenceDataId: string;
   declare isPrn: boolean;
-  declare doseAmount: string;
+  declare isVariableDose: boolean;
+  declare doseAmount?: number;
   declare units: string;
   declare frequency: string;
   declare route: string;
@@ -15,7 +16,7 @@ export class MedicationTemplate extends Model {
   declare durationUnit?: string;
   declare notes?: string;
   declare dischargeQuantity?: number;
-  declare medicationId?: string;
+  declare medicationId: string;
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
@@ -25,7 +26,12 @@ export class MedicationTemplate extends Model {
           allowNull: false,
           defaultValue: false,
         },
-        doseAmount: DataTypes.STRING,
+        isVariableDose: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        doseAmount: DataTypes.DECIMAL,
         units: {
           type: DataTypes.STRING,
           allowNull: false,
