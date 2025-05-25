@@ -29,7 +29,7 @@ export async function up(query: QueryInterface): Promise<void> {
       defaultValue: false,
     },
     dose_amount: {
-      type: DataTypes.STRING,
+      type: DataTypes.DECIMAL,
       allowNull: false,
     },
     units: {

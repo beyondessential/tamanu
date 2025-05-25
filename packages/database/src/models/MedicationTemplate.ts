@@ -25,7 +25,7 @@ export class MedicationTemplate extends Model {
           allowNull: false,
           defaultValue: false,
         },
-        doseAmount: DataTypes.STRING,
+        doseAmount: DataTypes.DECIMAL,
         units: {
           type: DataTypes.STRING,
           allowNull: false,

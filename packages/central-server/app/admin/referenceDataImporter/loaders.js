@@ -499,9 +499,9 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     return [];
   }
 
-  const isPrn = ['true', 'yes', 't', 'y'].includes(
-    (prnMedication || 'false').toString().toLowerCase(),
-  );
+  const isPrn =
+    ['true', 'yes', 't', 'y'].includes((prnMedication || 'false').toString().toLowerCase()) ||
+    doseAmount.toString().toLowerCase() === 'variable';
 
   const existingTemplate = await models.MedicationTemplate.findOne({
     where: { id: id },
@@ -514,7 +514,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     referenceDataId: id,
     medicationId: drugReferenceDataId,
     isPrn,
-    doseAmount: doseAmount ? doseAmount.toString() : null,
+    doseAmount: parseFloat(doseAmount) || null,
     units,
     frequency,
     route,
