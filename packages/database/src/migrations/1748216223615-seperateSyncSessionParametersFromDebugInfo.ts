@@ -1,13 +1,12 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  // Add the new parameters JSON column
   await query.addColumn('sync_sessions', 'parameters', {
     type: DataTypes.JSON,
     allowNull: true,
   });
 
-        // Migrate existing data from debugInfo to parameters
+  // Migrate existing data from debugInfo to parameters
   await query.sequelize.query(`
     UPDATE sync_sessions
     SET parameters = json_build_object(
@@ -49,6 +48,5 @@ export async function down(query: QueryInterface): Promise<void> {
     WHERE parameters IS NOT NULL;
   `);
 
-  // Remove the parameters column
   await query.removeColumn('sync_sessions', 'parameters');
 }
