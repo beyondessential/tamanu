@@ -16,6 +16,7 @@ export class SyncSession extends Model {
   declare pullUntil?: number;
   declare errors?: string;
   declare debugInfo?: Record<string, object>;
+  declare parameters?: Record<string, object>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -32,6 +33,7 @@ export class SyncSession extends Model {
         pullUntil: { type: DataTypes.BIGINT },
         errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
+        parameters: { type: DataTypes.JSON },
       },
       {
         ...options,
@@ -44,6 +46,13 @@ export class SyncSession extends Model {
     const session = await this.findOne({ where: { id } });
     await session?.update({
       debugInfo: { ...session.debugInfo, ...info },
+    });
+  }
+
+  static async addParameters(id: string, params: object) {
+    const session = await this.findOne({ where: { id } });
+    await session?.update({
+      parameters: { ...session.parameters, ...params },
     });
   }
 
