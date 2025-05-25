@@ -45,14 +45,6 @@ The timestamp this change was logged.
 Then sequelize metadata for the records created time
 {% enddocs %}
 
-{% docs logs__changes__updated_at %}
-Then sequelize metadata for the records updated time
-{% enddocs %}
-
-{% docs logs__changes__deleted_at %}
-Then sequelize metadata for the records deleted time
-{% enddocs %}
-
 {% docs logs__changes__updated_by_user_id %}
 The value of the `updated_by_user_id` field of the change data.
 
