@@ -1,8 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import {
+  Box,
+  Divider,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  IconButton,
+} from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
+import CloseIcon from '@material-ui/icons/Close';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
@@ -485,7 +493,36 @@ const MedicationAdministrationForm = () => {
   );
 };
 
-export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescription }) => {
+const MedicationBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 12px 20px;
+  background-color: ${Colors.white};
+  grid-column: 1 / -1;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  svg {
+    font-size: 2rem;
+  }
+`;
+
+export const MedicationForm = ({
+  encounterId,
+  onCancel,
+  onSaved,
+  onConfirmEdit,
+  onCancelEdit,
+  editingMedication,
+  isOngoingPrescription,
+  onCustomClose,
+}) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
@@ -578,60 +615,102 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
     await submitForm(data);
   };
 
+  const getInitialValues = () => {
+    if (editingMedication) {
+      return {
+        ...editingMedication,
+        startDate: getCurrentDateTimeString(),
+        date: getCurrentDateString(),
+        prescriberId: currentUser.id,
+        timeSlots: [],
+        route: Object.keys(DRUG_ROUTE_LABELS).find(
+          key => DRUG_ROUTE_LABELS[key] === editingMedication.route,
+        ),
+        isOngoing: isOngoingPrescription,
+      };
+    }
+    return {
+      date: getCurrentDateString(),
+      prescriberId: currentUser.id,
+      timeSlots: [],
+      isVariableDose: false,
+      startDate: getCurrentDateTimeString(),
+      isOngoing: isOngoingPrescription,
+    };
+  };
+
   return (
     <>
+      {onCustomClose && (
+        <StyledIconButton onClick={onCustomClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      )}
       <Form
         suppressErrorDialog
-        onSubmit={onSubmit}
+        onSubmit={onConfirmEdit || onSubmit}
         onSuccess={() => {
+          if (onConfirmEdit) return;
+          if (encounterId) {
+            queryClient.invalidateQueries(['encounterMedication', encounterId]);
+          }
           if (!awaitingPrint) {
             onSaved();
           }
         }}
-        initialValues={{
-          date: getCurrentDateString(),
-          prescriberId: currentUser.id,
-          timeSlots: [],
-          isVariableDose: false,
-          startDate: getCurrentDateTimeString(),
-          isOngoing: isOngoingPrescription,
-        }}
+        initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
           <StyledFormGrid>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-              <span style={{ fontWeight: 500 }}>
-                {!isLoadingAllergies &&
-                  (allergiesList || (
-                    <TranslatedText
-                      stringId="medication.allergies.noRecord"
-                      fallback="None recorded"
-                    />
-                  ))}
-              </span>
-            </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Field
-                name="medicationId"
-                label={
+            {!onConfirmEdit ? (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                  <span style={{ fontWeight: 500 }}>
+                    {!isLoadingAllergies &&
+                      (allergiesList || (
+                        <TranslatedText
+                          stringId="medication.allergies.noRecord"
+                          fallback="None recorded"
+                        />
+                      ))}
+                  </span>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Field
+                    name="medicationId"
+                    label={
+                      <TranslatedText
+                        stringId="medication.medication.label"
+                        fallback="Medication"
+                      />
+                    }
+                    component={AutocompleteField}
+                    suggester={drugSuggester}
+                    required
+                    onChange={e => {
+                      const referenceDrug = e.target.referenceDrug;
+                      setValues({
+                        ...values,
+                        route: referenceDrug?.route?.toLowerCase() || '',
+                        units: referenceDrug?.units || '',
+                        notes: referenceDrug?.notes || '',
+                      });
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <MedicationBox>
+                <BodyText color={Colors.midText}>
                   <TranslatedText stringId="medication.medication.label" fallback="Medication" />
-                }
-                component={AutocompleteField}
-                suggester={drugSuggester}
-                required
-                onChange={e => {
-                  const referenceDrug = e.target.referenceDrug;
-                  setValues({
-                    ...values,
-                    route: referenceDrug?.route?.toLowerCase() || '',
-                    units: referenceDrug?.units || '',
-                    notes: referenceDrug?.notes || '',
-                  });
-                }}
-              />
-            </div>
+                </BodyText>
+                <BodyText color={Colors.darkestText} fontWeight={500}>
+                  {editingMedication.medication.name}
+                </BodyText>
+              </MedicationBox>
+            )}
             <CheckboxGroup>
               {isOngoingPrescription && (
                 <StyledOngoingTooltip
@@ -881,7 +960,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
               <Divider />
             </div>
             <ButtonRow>
-              {isOngoingPrescription ? (
+              {isOngoingPrescription || onConfirmEdit ? (
                 <div />
               ) : (
                 <FormSubmitButton
@@ -896,15 +975,29 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved, isOngoingPrescr
                   />
                 </FormSubmitButton>
               )}
-              <Box display="flex" sx={{ gap: '16px' }}>
-                <FormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
+                <FormCancelButton onClick={onCancelEdit || onCancel}>
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.cancelChanges"
+                      fallback="Cancel changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  )}
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
                 >
-                  <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.confirmChanges"
+                      fallback="Confirm changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  )}
                 </FormSubmitButton>
               </Box>
             </ButtonRow>

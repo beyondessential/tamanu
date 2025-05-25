@@ -36,8 +36,7 @@ import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQue
 import { isEqual } from 'lodash';
 import { ChartDataProvider } from '../../contexts/ChartData';
 
-const getIsTriage = (encounter) =>
-  ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const TABS = [
   {
@@ -49,7 +48,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.TASKS,
-    render: (props) => (
+    render: props => (
       <EncounterPaneWithPermissionCheck
         permissionNoun="Tasking"
         data-testid="encounterpanewithpermissioncheck-eiap"
@@ -57,7 +56,7 @@ const TABS = [
         <TasksPane {...props} data-testid="taskspane-s9f4" />
       </EncounterPaneWithPermissionCheck>
     ),
-    condition: (getSetting) => getSetting('features.enableTasking'),
+    condition: getSetting => getSetting('features.enableTasking'),
   },
   {
     label: (
@@ -68,7 +67,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.VITALS,
-    render: (props) => <VitalsPane {...props} data-testid="vitalspane-vu7r" />,
+    render: props => <VitalsPane {...props} data-testid="vitalspane-vu7r" />,
   },
   {
     label: (
@@ -79,12 +78,12 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.CHARTS,
-    render: (props) => (
+    render: props => (
       <ChartDataProvider data-testid="chartdataprovider-dwj3">
         <ChartsPane {...props} data-testid="chartspane-l442" />
       </ChartDataProvider>
     ),
-    condition: (getSetting) => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
+    condition: getSetting => getSetting(SETTING_KEYS.FEATURES_DESKTOP_CHARTING_ENABLED),
   },
   {
     label: (
@@ -95,7 +94,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.NOTES,
-    render: (props) => <NotesPane {...props} data-testid="notespane-tzjl" />,
+    render: props => <NotesPane {...props} data-testid="notespane-tzjl" />,
   },
   {
     label: (
@@ -106,7 +105,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.PROCEDURES,
-    render: (props) => <ProcedurePane {...props} data-testid="procedurepane-oy3x" />,
+    render: props => <ProcedurePane {...props} data-testid="procedurepane-oy3x" />,
   },
   {
     label: (
@@ -117,7 +116,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.LABS,
-    render: (props) => <LabsPane {...props} data-testid="labspane-4b0t" />,
+    render: props => <LabsPane {...props} data-testid="labspane-4b0t" />,
   },
   {
     label: (
@@ -128,7 +127,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.IMAGING,
-    render: (props) => <ImagingPane {...props} data-testid="imagingpane-x8gy" />,
+    render: props => <ImagingPane {...props} data-testid="imagingpane-x8gy" />,
   },
   {
     label: (
@@ -139,7 +138,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.MEDICATION,
-    render: (props) => (
+    render: props => (
       <EncounterMedicationPane {...props} data-testid="encountermedicationpane-vij3" />
     ),
   },
@@ -152,9 +151,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.FORMS,
-    render: (props) => (
-      <EncounterProgramsPane {...props} data-testid="encounterprogramspane-knu4" />
-    ),
+    render: props => <EncounterProgramsPane {...props} data-testid="encounterprogramspane-knu4" />,
   },
   {
     label: (
@@ -165,7 +162,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.DOCUMENTS,
-    render: (props) => <DocumentsPane {...props} data-testid="documentspane-698w" />,
+    render: props => <DocumentsPane {...props} data-testid="documentspane-698w" />,
   },
   {
     label: (
@@ -176,7 +173,7 @@ const TABS = [
       />
     ),
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: (props) => (
+    render: props => (
       <EncounterPaneWithPermissionCheck
         permissionNoun="Invoice"
         data-testid="encounterpanewithpermissioncheck-0zt7"
@@ -184,7 +181,7 @@ const TABS = [
         <EncounterInvoicingPane {...props} data-testid="encounterinvoicingpane-sci0" />
       </EncounterPaneWithPermissionCheck>
     ),
-    condition: (getSetting) => getSetting('features.enableInvoicing'),
+    condition: getSetting => getSetting('features.enableInvoicing'),
   },
 ];
 
@@ -261,7 +258,7 @@ export const EncounterView = () => {
   const query = useUrlSearchParams();
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
@@ -271,7 +268,7 @@ export const EncounterView = () => {
   const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || !!patient.dateOfDeath;
 
-  const visibleTabs = tabs.filter((tab) => !tab.condition || tab.condition(getSetting));
+  const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
 
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
@@ -306,7 +303,7 @@ export const EncounterView = () => {
     return result;
   };
 
-  const handleDragEnd = (result) => {
+  const handleDragEnd = result => {
     if (!result.destination) {
       return;
     }

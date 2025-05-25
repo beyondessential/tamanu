@@ -38,6 +38,7 @@ export const FrequencySearchField = ({ field, ...props }) => {
     <FrequencySearchInput
       name={field.name}
       onChange={field.onChange}
+      value={field.value || ''}
       {...props}
     />
   );

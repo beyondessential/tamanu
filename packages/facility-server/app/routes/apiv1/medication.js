@@ -16,6 +16,8 @@ import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/err
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
+  DRUG_ROUTES,
+  DRUG_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
@@ -119,6 +121,60 @@ medication.post(
     });
 
     res.send(result.forResponse());
+  }),
+);
+
+const medicationSetInputSchema = z.object({
+  encounterId: z.string(),
+  medicationSet: z.array(
+    z.object({
+      date: z.string(),
+      doseAmount: z.number().optional().nullable(),
+      durationUnit: z.string().optional(),
+      durationValue: z.number().optional(),
+      frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
+      idealTimes: z.array(z.string()).optional(),
+      indication: z.string().optional(),
+      isOngoing: z.boolean().optional(),
+      isPhoneOrder: z.boolean().optional(),
+      isPrn: z.boolean().optional(),
+      isVariableDose: z.boolean().optional(),
+      medicationId: z.string(),
+      notes: z.string().optional(),
+      prescriberId: z.string(),
+      route: z.enum(Object.values(DRUG_ROUTES)),
+      startDate: z.string(),
+      timeSlot: z.array().optional(),
+      units: z.enum(Object.values(DRUG_UNITS)),
+    }),
+  ),
+});
+
+medication.post(
+  '/medication-set',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Prescription');
+    const { models } = req;
+    const { Prescription, Encounter, EncounterPrescription } = models;
+
+    const { medicationSet, encounterId } = await medicationSetInputSchema.parseAsync(req.body);
+    await req.db.transaction(async () => {
+      const encounter = await Encounter.findByPk(encounterId);
+      if (!encounter) {
+        throw new InvalidOperationError(
+          `Encounter with id ${encounterId} not found`,
+        );
+      }
+
+      const prescriptions = await Prescription.bulkCreate(medicationSet);
+      await EncounterPrescription.bulkCreate(
+        prescriptions.map((prescription) => ({
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        })),
+      );
+      res.send(prescriptions.map((prescription) => prescription.forResponse()));
+    });
   }),
 );
 
