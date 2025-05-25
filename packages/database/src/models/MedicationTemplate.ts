@@ -7,6 +7,7 @@ export class MedicationTemplate extends Model {
   declare id: string;
   declare referenceDataId: string;
   declare isPrn: boolean;
+  declare isVariableDose: boolean;
   declare doseAmount?: number;
   declare units: string;
   declare frequency: string;
@@ -21,6 +22,11 @@ export class MedicationTemplate extends Model {
       {
         id: primaryKey,
         isPrn: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        isVariableDose: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,

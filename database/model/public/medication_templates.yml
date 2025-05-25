@@ -24,6 +24,11 @@ sources:
             description: "{{ doc('medication_templates__medication_id') }}"
             data_tests:
               - not_null
+          - name: is_variable_dose
+            data_type: boolean
+            description: "{{ doc('medication_templates__is_variable_dose') }}"
+            data_tests:
+              - not_null
           - name: is_prn
             data_type: boolean
             description: "{{ doc('medication_templates__is_prn') }}"

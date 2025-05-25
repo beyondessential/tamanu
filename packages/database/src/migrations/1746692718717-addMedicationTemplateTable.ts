@@ -23,6 +23,11 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
+    is_variable_dose: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     is_prn: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

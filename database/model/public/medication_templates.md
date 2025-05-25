@@ -14,6 +14,10 @@ Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
 Boolean indicating if the medication is to be administered "pro re nata" (as needed).
 {% enddocs %}
 
+{% docs medication_templates__is_variable_dose %}
+Boolean indicating if the medication dose is variable.
+{% enddocs %}
+
 {% docs medication_templates__dose_amount %}
 The amount of medication per dose.
 {% enddocs %}
