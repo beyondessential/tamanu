@@ -1988,8 +1988,77 @@ describe('CentralSyncManager', () => {
       jest.resetModules();
     });
 
+    it('does not record audit changelogs when isMobile is false during completePush', async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '16');
+      await models.Setting.set('audit.changes.enabled', true);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+
+      const patientProgramRegistrationData = {
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      };
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patient_program_registrations',
+          recordId: crypto.randomUUID(),
+          data: patientProgramRegistrationData,
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id, [
+        'patient_program_registrations',
+      ]);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      const changelogRecords = await sequelize.query(
+        `SELECT * FROM logs.changes WHERE record_id = :recordId;`,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: {
+            recordId: patientProgramRegistrationData.id,
+          },
+        },
+      );
+
+      expect(changelogRecords).toHaveLength(0);
+    });
 
     it('records audit changelogs when isMobile is true during completePush', async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '17');
       await models.Setting.set('audit.changes.enabled', true);
       const facility = await models.Facility.create(fake(models.Facility));
       const patient = await models.Patient.create(fake(models.Patient));
