@@ -19,6 +19,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -67,15 +68,28 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [prescriptionType, setPrescriptionType] = useState(null);
   const { loadEncounter } = useEncounter();
 
+  const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
+    'medicationSet',
+  );
+
   const handleContinue = prescriptionType => {
     setPrescriptionType(prescriptionType);
     setPrescriptionTypeModalOpen(false);
+  };
+
+  const handleNewPrescription = () => {
+    if (!medicationSets?.length) {
+      setPrescriptionType(PRESCRIPTION_TYPES.SINGLE_MEDICATION);
+      return;
+    }
+    setPrescriptionTypeModalOpen(true);
   };
 
   const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
   const { data: patientOngoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
     encounter.patientId,
   );
+
   const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
     p => !p.discontinued,
   );
@@ -189,11 +203,12 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               />
             </StyledButton>
             <StyledButtonWithPermissionCheck
-              onClick={() => setPrescriptionTypeModalOpen(true)}
-              disabled={readonly}
+              onClick={handleNewPrescription}
+              disabled={readonly || medicationSetsLoading}
               verb="create"
               noun="Prescription"
               data-testid="styledbuttonwithpermissioncheck-cagj"
+              isLoading={medicationSetsLoading}
             >
               <TranslatedText
                 stringId="medication.action.newPrescription"
