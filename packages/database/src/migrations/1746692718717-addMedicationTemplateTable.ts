@@ -16,8 +16,8 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
     medication_id: {
-      type: DataTypes.STRING, 
-      allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
@@ -30,7 +30,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     dose_amount: {
       type: DataTypes.DECIMAL,
-      allowNull: false,
+      allowNull: true,
     },
     units: {
       type: DataTypes.STRING,
