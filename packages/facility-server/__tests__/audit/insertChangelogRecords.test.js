@@ -38,9 +38,9 @@ describe('insertChangeLogRecords', () => {
       loggedAt: new Date(),
       recordCreatedAt: new Date(),
       recordUpdatedAt: new Date(),
+      recordSyncTick: 100,
       updatedByUserId: SYSTEM_USER_UUID,
       recordId: '1',
-      recordSyncTick: '100',
       recordUpdate: true,
       recordData: { first_name: 'Patient 1' },
     });
