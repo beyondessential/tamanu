@@ -499,12 +499,17 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     return [];
   }
 
+  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount must be a number or "variable" for template "${id}".`);
+    return [];
+  }
+
   const isPrn = ['true', 'yes', 't', 'y'].includes(
     (prnMedication || 'false').toString().toLowerCase(),
   );
 
   const existingTemplate = await models.MedicationTemplate.findOne({
-    where: { id: id },
+    where: { referenceDataId: id },
   });
 
   const [durationValue, durationUnit] = duration?.trim().split(' ') || [];
