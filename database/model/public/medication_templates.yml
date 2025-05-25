@@ -22,6 +22,8 @@ sources:
           - name: medication_id
             data_type: character varying(255)
             description: "{{ doc('medication_templates__medication_id') }}"
+            data_tests:
+              - not_null
           - name: is_prn
             data_type: boolean
             description: "{{ doc('medication_templates__is_prn') }}"
@@ -30,8 +32,6 @@ sources:
           - name: dose_amount
             data_type: numeric
             description: "{{ doc('medication_templates__dose_amount') }}"
-            data_tests:
-              - not_null
           - name: units
             data_type: character varying(255)
             description: "{{ doc('medication_templates__units') }}"
