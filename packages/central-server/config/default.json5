@@ -79,7 +79,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": false,
+      "enabled": true,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
@@ -358,8 +358,8 @@
       },
       "parameters": {
         "_count": {
-          "default": 20,
-          "max": 20
+          "default": 100,
+          "max": 1000
         }
       },
       "extensions": {

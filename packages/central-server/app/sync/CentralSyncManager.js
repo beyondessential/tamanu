@@ -353,9 +353,10 @@ export class CentralSyncManager {
         { where: { id: sessionId } },
       );
 
-      await models.SyncSession.addDebugInfo(sessionId, {
+      await models.SyncSession.setParameters(sessionId, {
         isMobile,
         tablesForFullResync,
+        useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
       const modelsToInclude = tablesToInclude
@@ -516,6 +517,12 @@ export class CentralSyncManager {
 
   async checkPullReady(sessionId) {
     await this.connectToSession(sessionId);
+
+    // if the sync_lookup table is enabled, wait until it has finished its first update run
+    const syncLookupUpToTick = await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+    if (this.constructor.config.sync.lookupTable.enabled && syncLookupUpToTick === undefined) {
+      return false;
+    }
 
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
