@@ -389,7 +389,12 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
-  mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
+  mapper: ({ dataValues: { translation } = {}, name, code, id, labTestCategoryId }) => ({
+    name: translation || name,
+    code,
+    id,
+    labTestCategoryId,
+  }),
 });
 
 const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
@@ -448,12 +453,19 @@ createSuggester(
   {
     mapper: async (location) => {
       const availability = await location.getAvailability();
-      const { name, code, id, maxOccupancy, facilityId } = location;
+      const {
+        dataValues: { translation } = {},
+        name,
+        code,
+        id,
+        maxOccupancy,
+        facilityId,
+      } = location;
 
       const lg = await location.getLocationGroup();
       const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
       return {
-        name,
+        name: translation || name,
         code,
         maxOccupancy,
         id,
@@ -504,6 +516,7 @@ createSuggester(
   {
     mapper: (product) => {
       product.addVirtualFields();
+      product.dataValues.name = product.dataValues.translation || product.name;
       return product;
     },
     includeBuilder: (req) => {
