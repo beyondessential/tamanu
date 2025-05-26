@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails/Screen';
 import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetails/AddPatientIssue';
-import { EditPatientScreen as GenericEditPatientScreen } from '../screens/home/PatientDetails/layouts/generic/EditGeneralInfo';
-import { EditPatientAdditionalDataScreen as GenericEditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/layouts/generic/EditAdditionalInfo';
+import { EditPatientScreen } from '../screens/home/PatientDetails/EditGeneralInfo';
+import { EditPatientAdditionalDataScreen } from '../screens/home/PatientDetails/EditAdditionalInfo';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { ReminderContactScreen } from '../screens/home/PatientDetails/ReminderContacts';
 import { AddReminderContactScreen } from '../screens/home/PatientDetails/AddReminderContact';
@@ -37,14 +37,13 @@ export const PatientDetailsStack = (): ReactElement => (
           name={Routes.HomeStack.PatientDetailsStack.ReminderContactQR}
           component={ReminderContactQRScreen}
         />
-        {/* Generic patient details components */}
         <Stack.Screen
-          name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatient}
-          component={GenericEditPatientScreen}
+          name={Routes.HomeStack.PatientDetailsStack.EditPatient}
+          component={EditPatientScreen}
         />
         <Stack.Screen
-          name={Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData}
-          component={GenericEditPatientAdditionalDataScreen}
+          name={Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData}
+          component={EditPatientAdditionalDataScreen}
         />
       </Stack.Navigator>
     </ReminderContactProvider>
