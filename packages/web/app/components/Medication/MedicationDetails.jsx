@@ -85,7 +85,7 @@ export const MedicationDetails = ({
   onClose,
   onReloadTable,
   isOngoingPrescription,
-  allowDiscontinue,
+  allowDiscontinue = true,
 }) => {
   const { encounter } = useEncounter();
   const { ability } = useAuth();

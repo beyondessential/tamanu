@@ -91,6 +91,7 @@ medications_info as (
   join reference_data medication on medication.id = prescription.medication_id
   where ep.encounter_id = $encounter_id
     and ep.deleted_at is null
+    and prescription.deleted_at is null
   group by ep.encounter_id
 ),
 

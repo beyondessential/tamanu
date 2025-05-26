@@ -1096,45 +1096,6 @@ medication.delete(
   }),
 );
 
-const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
-globalMedicationRequests.get('/$', (req, res, next) =>
-  paginatedGetList('Prescription', '', {
-    additionalFilters: {
-      '$encounter.location.facility.id$': req.query.facilityId,
-    },
-    include: [
-      {
-        model: req.models.Encounter,
-        as: 'encounter',
-        include: [
-          {
-            model: req.models.Patient,
-            as: 'patient',
-          },
-          {
-            model: req.models.Department,
-            as: 'department',
-          },
-          {
-            model: req.models.Location,
-            as: 'location',
-            include: [
-              {
-                model: req.models.Facility,
-                as: 'facility',
-              },
-              {
-                model: req.models.LocationGroup,
-                as: 'locationGroup',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  })(req, res, next),
-);
-
 const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
@@ -1231,6 +1192,45 @@ medication.post(
       data: result.map((prescription) => prescription.forResponse()),
     });
   }),
+);
+
+const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
+globalMedicationRequests.get('/$', (req, res, next) =>
+  paginatedGetList('Prescription', '', {
+    additionalFilters: {
+      '$encounter.location.facility.id$': req.query.facilityId,
+    },
+    include: [
+      {
+        model: req.models.Encounter,
+        as: 'encounter',
+        include: [
+          {
+            model: req.models.Patient,
+            as: 'patient',
+          },
+          {
+            model: req.models.Department,
+            as: 'department',
+          },
+          {
+            model: req.models.Location,
+            as: 'location',
+            include: [
+              {
+                model: req.models.Facility,
+                as: 'facility',
+              },
+              {
+                model: req.models.LocationGroup,
+                as: 'locationGroup',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  })(req, res, next),
 );
 
 medication.use(globalMedicationRequests);
