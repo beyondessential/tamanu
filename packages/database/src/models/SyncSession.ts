@@ -52,7 +52,7 @@ export class SyncSession extends Model {
     await this.sequelize.query(
       `
       UPDATE "sync_sessions"
-      SET "parameters" = (COALESCE("parameters"::jsonb, '{}'::jsonb) || $data::jsonb)::json
+      SET "parameters" = (COALESCE("parameters", '{}'::jsonb) || $data::jsonb)
       WHERE "id" = $id
       `,
       { bind: { id, data: JSON.stringify(params) } },
