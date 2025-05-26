@@ -372,7 +372,6 @@ export class CentralSyncManager {
       );
 
       await models.SyncSession.setParameters(sessionId, {
-        isMobile,
         minSourceTick,
         maxSourceTick,
         tablesForFullResync,
