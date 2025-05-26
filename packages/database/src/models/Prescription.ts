@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { ADMINISTRATION_FREQUENCIES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -86,13 +86,6 @@ export class Prescription extends Model {
               prescription.endDate = add(new Date(prescription.startDate), {
                 [prescription.durationUnit]: prescription.durationValue,
               }).toISOString();
-            }
-            if (
-              prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-              prescription.isOngoing
-            ) {
-              prescription.durationValue = null;
-              prescription.durationUnit = null;
             }
             await prescription.save();
           },

@@ -242,7 +242,7 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   },
 };
 
-const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
+export const MEDICATION_DURATION_UNITS: { [key: string]: keyof Duration } = {
   HOURS: 'hours',
   DAYS: 'days',
   WEEKS: 'weeks',

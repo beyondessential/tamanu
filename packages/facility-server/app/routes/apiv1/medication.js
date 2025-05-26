@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import {
+  dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
   toDateTimeString,
@@ -16,6 +17,9 @@ import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/err
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
+  DRUG_ROUTES,
+  DRUG_UNITS,
+  MEDICATION_DURATION_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
@@ -28,15 +32,80 @@ import { Op } from 'sequelize';
 export const medication = express.Router();
 
 medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
+const medicationInputSchema = z
+  .object({
+    encounterId: z.string().optional().nullable(),
+    patientId: z.string().optional().nullable(),
+    date: dateCustomValidation,
+    notes: z.string().optional().nullable(),
+    indication: z.string().optional().nullable(),
+    route: z.enum(Object.values(DRUG_ROUTES)),
+    medicationId: z.string(),
+    prescriberId: z.string(),
+    quantity: z.coerce.number().int().optional().nullable(),
+    isOngoing: z.boolean().optional().nullable(),
+    isPrn: z.boolean().optional().nullable(),
+    isVariableDose: z.boolean().optional().nullable(),
+    doseAmount: z.coerce.number().positive().optional().nullable(),
+    units: z.enum(Object.values(DRUG_UNITS)),
+    frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
+    startDate: datetimeCustomValidation,
+    durationValue: z.coerce.number().positive().optional().nullable(),
+    durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
+    isPhoneOrder: z.boolean().optional(),
+    idealTimes: z.array(z.string()).optional().nullable(),
+  })
+  .strip()
+  .superRefine((val, ctx) => {
+    if (!val.isVariableDose && !val.doseAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Dose amount is required or isVariableDose must be true',
+      });
+    }
+    if (val.durationValue && !val.durationUnit) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration unit is required when duration value is provided',
+      });
+    }
+    if (val.durationUnit && !val.durationValue) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration value is required when duration unit is provided',
+      });
+    }
+    if (
+      val.frequency !== ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+      val.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
+      !val.idealTimes?.length
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Ideal times are required when frequency is not IMMEDIATELY or AS_DIRECTED',
+      });
+    }
+    if (
+      (val.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || val.isOngoing) &&
+      val.durationValue
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Duration value and unit are not allowed when frequency is IMMEDIATELY or isOngoing',
+      });
+    }
+  });
 
 medication.post(
   '/patientOngoingPrescription/:patientId',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
     const patientId = req.params.patientId;
-    const data = req.body;
     const { Prescription, Patient, PatientOngoingPrescription } = models;
     req.checkPermission('create', 'Prescription');
+
+    const data = await medicationInputSchema.parseAsync(req.body);
 
     const patient = await Patient.findByPk(patientId);
     if (!patient) {
@@ -103,9 +172,9 @@ medication.post(
   asyncHandler(async (req, res) => {
     const { models, db } = req;
     const encounterId = req.params.encounterId;
-    const data = req.body;
     const { Encounter } = models;
     req.checkPermission('create', 'Prescription');
+    const data = await medicationInputSchema.parseAsync(req.body);
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -149,9 +218,10 @@ medication.post(
     const result = [];
     await req.db.transaction(async () => {
       for (const medication of medicationSet) {
+        const data = await medicationInputSchema.parseAsync(medication);
         const prescription = await createEncounterPrescription({
           encounter,
-          data: medication,
+          data,
           models,
         });
         result.push(prescription);

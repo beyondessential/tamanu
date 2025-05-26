@@ -741,6 +741,11 @@ export const MedicationForm = ({
                 component={CheckField}
                 style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
                 {...(isOngoingPrescription && { value: true })}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, durationValue: '', durationUnit: '' });
+                  }
+                }}
               />
               <Field
                 name="isPrn"
@@ -843,7 +848,9 @@ export const MedicationForm = ({
                   component={NumberField}
                   min={0}
                   onInput={preventInvalidNumber}
-                  disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                  disabled={
+                    values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                  }
                 />
               </StyledConditionalTooltip>
               <Field
@@ -854,7 +861,9 @@ export const MedicationForm = ({
                   value,
                   label,
                 }))}
-                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                disabled={
+                  values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                }
               />
             </FormGrid>
             <div />
