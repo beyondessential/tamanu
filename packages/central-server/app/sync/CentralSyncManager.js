@@ -184,8 +184,8 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityIds: session.debugInfo.facilityIds,
-      deviceId: session.debugInfo.deviceId,
+      facilityIds: session.parameters.facilityIds,
+      deviceId: session.parameters.deviceId,
     });
   }
 
@@ -431,7 +431,7 @@ export class CentralSyncManager {
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !session.debugInfo.isMobile && since > -1,
+        syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -703,7 +703,7 @@ export class CentralSyncManager {
       sessionId,
       deviceId,
       tablesToInclude,
-      session.debugInfo.isMobile,
+      session.parameters.isMobile,
     ).finally(unmarkSessionAsProcessing);
   }
 
