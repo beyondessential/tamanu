@@ -12,7 +12,7 @@ export async function up(query: QueryInterface): Promise<void> {
     SET parameters = json_build_object(
       'minSourceTick', debug_info->'minSourceTick',
       'maxSourceTick', debug_info->'maxSourceTick',
-      'isMobile', COALESCE(debug_info->'isMobile', false)
+      'isMobile', COALESCE(debug_info->'isMobile', 'false')
     ),
     debug_info = (
       SELECT json_object_agg(key, value)
