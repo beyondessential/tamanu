@@ -371,8 +371,11 @@ export class CentralSyncManager {
       );
 
       await models.SyncSession.addDebugInfo(sessionId, {
-        isMobile,
         tablesForFullResync,
+      });
+
+      await models.SyncSession.addParameters(sessionId, {
+        isMobile,
         minSourceTick,
         maxSourceTick,
       });
@@ -588,7 +591,7 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.debugInfo;
+    const { minSourceTick, maxSourceTick } = session.parameters;
     if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
