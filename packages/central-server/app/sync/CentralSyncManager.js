@@ -370,14 +370,12 @@ export class CentralSyncManager {
         { where: { id: sessionId } },
       );
 
-      await models.SyncSession.addDebugInfo(sessionId, {
-        tablesForFullResync,
-      });
-
-      await models.SyncSession.addParameters(sessionId, {
+      await models.SyncSession.setParameters(sessionId, {
         isMobile,
         minSourceTick,
         maxSourceTick,
+        tablesForFullResync,
+        useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
       const modelsToInclude = tablesToInclude
