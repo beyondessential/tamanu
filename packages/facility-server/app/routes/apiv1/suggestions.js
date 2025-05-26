@@ -411,9 +411,9 @@ const createNameSuggester = (
   options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
-    mapper: ({ id, name }) => ({
+    mapper: ({ dataValues: { translation } = {}, name, id }) => ({
+      name: translation || name,
       id,
-      name,
     }),
     ...options,
   });
