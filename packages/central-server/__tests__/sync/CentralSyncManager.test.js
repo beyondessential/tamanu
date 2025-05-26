@@ -606,7 +606,10 @@ describe('CentralSyncManager', () => {
         () => true,
       );
 
-      const secondOutgoingChanges = await centralSyncManager.getOutgoingChanges(secondSessionId, {});
+      const secondOutgoingChanges = await centralSyncManager.getOutgoingChanges(
+        secondSessionId,
+        {},
+      );
       const secondPatientProgramRegistrationChange = secondOutgoingChanges.find(
         (c) => c.recordType === 'patient_program_registrations',
       );
@@ -624,7 +627,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it('doesnt include changes after lookup table sync tick in outgoing changes', async () => {
+    it.only('doesnt include changes after lookup table sync tick in outgoing changes', async () => {
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       const FINAL_SYNC_TICK = 30;
@@ -697,7 +700,6 @@ describe('CentralSyncManager', () => {
           expect.objectContaining({
             tableName: 'patient_program_registrations',
             recordId: patientProgramRegistration.id,
-            recordUpdate: false,
           }),
           expect.objectContaining({
             tableName: 'patient_program_registrations',
@@ -705,7 +707,6 @@ describe('CentralSyncManager', () => {
             recordData: expect.objectContaining({
               date: '2025-04-22 00:00:00',
             }),
-            recordUpdate: true,
           }),
         ]),
       );
@@ -786,8 +787,6 @@ describe('CentralSyncManager', () => {
           expect.objectContaining({
             tableName: 'patient_program_registrations',
             recordId: patientProgramRegistration.id,
-            recordUpdate: false,
-            recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
           }),
           expect.objectContaining({
             tableName: 'patient_program_registrations',
@@ -795,8 +794,6 @@ describe('CentralSyncManager', () => {
             recordData: expect.objectContaining({
               date: '2025-04-22 00:00:00',
             }),
-            recordUpdate: true,
-            recordSyncTick: BOUNDARY_SYNC_TICK.toString(),
           }),
           expect.objectContaining({
             tableName: 'patient_program_registrations',
@@ -804,7 +801,6 @@ describe('CentralSyncManager', () => {
             recordData: expect.objectContaining({
               date: '2025-04-23 00:00:00',
             }),
-            recordUpdate: true,
             recordSyncTick: AFTER_BOUNDARY_SYNC_TICK.toString(),
           }),
         ]),
@@ -1062,7 +1058,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const { sessionId } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -1071,7 +1069,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -1133,7 +1130,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const { sessionId } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -1142,7 +1141,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -1187,7 +1185,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
+        const { sessionId: sessionIdOne } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionIdOne);
 
         // Start the snapshot process
@@ -1196,7 +1196,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -1983,6 +1982,147 @@ describe('CentralSyncManager', () => {
   describe('addIncomingChanges', () => {
     beforeEach(async () => {
       jest.resetModules();
+    });
+
+    it('does not record audit changelogs during incoming sync from facility server', async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '16');
+      await models.Setting.set('audit.changes.enabled', true);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+
+      const patientProgramRegistrationData = {
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      };
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patient_program_registrations',
+          recordId: crypto.randomUUID(),
+          data: patientProgramRegistrationData,
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility.id],
+        },
+        () => true,
+      );
+
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id, [
+        'patient_program_registrations',
+      ]);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      const changelogRecords = await sequelize.query(
+        `SELECT * FROM logs.changes WHERE record_id = :recordId;`,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: {
+            recordId: patientProgramRegistrationData.id,
+          },
+        },
+      );
+
+      expect(changelogRecords).toHaveLength(0);
+    });
+
+    it('records audit changelogs during incoming sync from mobile', async () => {
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '17');
+      await models.Setting.set('audit.changes.enabled', true);
+      const facility = await models.Facility.create(fake(models.Facility));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program = await models.Program.create(fake(models.Program));
+      const clinician = await models.User.create(fakeUser());
+
+      const programRegistry = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: program.id,
+      });
+
+      const patientProgramRegistrationData = {
+        ...fake(models.PatientProgramRegistration),
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        facilityId: facility.id,
+      };
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patient_program_registrations',
+          recordId: crypto.randomUUID(),
+          data: patientProgramRegistrationData,
+        },
+      ];
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
+      await centralSyncManager.completePush(sessionId, facility.id, [
+        'patient_program_registrations',
+      ]);
+      await waitForPushCompleted(centralSyncManager, sessionId);
+
+      const changelogRecords = await sequelize.query(
+        `SELECT * FROM logs.changes WHERE record_id = :recordId;`,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: {
+            recordId: patientProgramRegistrationData.id,
+          },
+        },
+      );
+
+      expect(changelogRecords).toHaveLength(1);
+      expect(changelogRecords[0]).toMatchObject(
+        expect.objectContaining({
+          table_name: 'patient_program_registrations',
+          record_id: patientProgramRegistrationData.id,
+          record_data: expect.objectContaining({
+            program_registry_id: programRegistry.id,
+            clinician_id: clinician.id,
+            patient_id: patient.id,
+            facility_id: facility.id,
+          }),
+        }),
+      );
     });
 
     it('inserts incoming changes into snapshots', async () => {

@@ -42,21 +42,7 @@ The timestamp this change was logged.
 {% enddocs %}
 
 {% docs logs__changes__created_at %}
-The value of the `created_at` field of the change data.
-
-This is extracted from the data to make it easier to query on.
-{% enddocs %}
-
-{% docs logs__changes__updated_at %}
-The value of the `updated_at` field of the change data.
-
-This is extracted from the data to make it easier to query on.
-{% enddocs %}
-
-{% docs logs__changes__deleted_at %}
-The value of the `deleted_at` field of the change data.
-
-This is extracted from the data to make it easier to query on.
+Then sequelize metadata for the records created time
 {% enddocs %}
 
 {% docs logs__changes__updated_by_user_id %}
@@ -79,17 +65,6 @@ The value of the `id` field of the change data.
 This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
-{% docs logs__changes__record_update %}
-Whether the change that resulted in this log entry was an `UPDATE` (true) or an
-`INSERT` (false).
-
-For any one `record_id`, there should always only be one `INSERT` change log.
-In some cases it can be that `UPDATE` records from the same `record_id` _predate_
-the `INSERT` log. Software reading the log should also tolerate the presence of
-multiple `INSERT` entries for a single `record_id`, even if those should be
-absent under normal conditions.
-{% enddocs %}
-
 {% docs logs__changes__record_created_at %}
 The `created_at` metadata from record the changelog was recoredd against
 {% enddocs %}
@@ -100,10 +75,6 @@ The `updated_at` metadata from record the changelog was recorded against
 
 {% docs logs__changes__record_deleted_at %}
 The `deleted_at` metadata from record the changelog was recorded against
-{% enddocs %}
-
-{% docs logs__changes__record_sync_tick %}
-The `updated_at_sync_tick` from the record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_data %}
