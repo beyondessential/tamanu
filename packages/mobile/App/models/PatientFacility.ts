@@ -35,6 +35,6 @@ export class PatientFacility extends BaseModel {
     // to avoid clashes on the joined id
 
     //patient actually stores the patientId in @BeforeInsert
-    this.id = `${this.patient.replace(';', ':')};${this.facility.replace(';', ':')}`;
+    this.id = `${this.patient.replaceAll(';', ':')};${this.facility.replaceAll(';', ':')}`;
   }
 }
