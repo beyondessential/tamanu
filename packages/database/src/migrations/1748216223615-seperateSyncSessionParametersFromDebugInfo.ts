@@ -10,9 +10,9 @@ export async function up(query: QueryInterface): Promise<void> {
     UPDATE sync_sessions
     SET
       parameters = (
-        CASE WHEN debug_info->'minSourceTick' IS NOT NULL THEN jsonb_build_object('minSourceTick', debug_info->'minSourceTick') ELSE '{}'::jsonb END ||
-        CASE WHEN debug_info->'maxSourceTick' IS NOT NULL THEN jsonb_build_object('maxSourceTick', debug_info->'maxSourceTick') ELSE '{}'::jsonb END ||
-        CASE WHEN debug_info->'isMobile' IS NOT NULL THEN jsonb_build_object('isMobile', debug_info->'isMobile') ELSE '{}'::jsonb END
+        SELECT jsonb_object_agg(key, value)
+        FROM jsonb_each(debug_info::jsonb)
+        WHERE key IN ('minSourceTick', 'maxSourceTick', 'isMobile')
       ),
       debug_info = (
         SELECT json_object_agg(key, value)
@@ -20,7 +20,7 @@ export async function up(query: QueryInterface): Promise<void> {
         WHERE key NOT IN ('minSourceTick', 'maxSourceTick', 'isMobile')
       )
     WHERE debug_info IS NOT NULL
-    AND (debug_info->'minSourceTick' IS NOT NULL OR debug_info->'maxSourceTick' IS NOT NULL OR debug_info->'isMobile' IS NOT NULL);
+    AND (debug_info::jsonb ? 'minSourceTick' OR debug_info::jsonb ? 'maxSourceTick' OR debug_info::jsonb ? 'isMobile');
   `);
 }
 
