@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, AUDIT_PAUSE_KEY } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -27,6 +27,7 @@ import {
 } from '@tamanu/database/sync';
 import {
   attachChangelogToSnapshotRecords,
+  pauseAudit,
 } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
@@ -343,7 +344,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile, deviceId },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -370,11 +371,11 @@ export class CentralSyncManager {
         { where: { id: sessionId } },
       );
 
-      await models.SyncSession.addDebugInfo(sessionId, {
-        isMobile,
+      await models.SyncSession.setParameters(sessionId, {
         tablesForFullResync,
         minSourceTick,
         maxSourceTick,
+        useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
       const modelsToInclude = tablesToInclude
@@ -428,7 +429,7 @@ export class CentralSyncManager {
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllLabRequests: syncAllLabRequests && !session.debugInfo.isMobile && since > -1,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -600,7 +601,7 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -616,11 +617,11 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        // Don't produce audit logs for changes made through sync
-        // Audit changelogs are generated on facility servers and will sync in to central
-        // Mobile changelogs are currently not implemented
-        await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
-
+        // currently we do not create audit logs on mobile devices
+        // so we rely on sync process to create audit logs
+        if (!isMobile) {
+          await pauseAudit(sequelize);
+        }
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -691,14 +692,17 @@ export class CentralSyncManager {
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
-      unmarkSessionAsProcessing,
-    );
+    this.persistIncomingChanges(
+      sessionId,
+      deviceId,
+      tablesToInclude,
+      session.debugInfo.isMobile,
+    ).finally(unmarkSessionAsProcessing);
   }
 
   async checkPushComplete(sessionId) {

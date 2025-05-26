@@ -129,9 +129,12 @@ export const getSuggester = (
   models: typeof MODELS_MAP,
   type: string,
 ): Suggester<typeof ReferenceData> =>
-  new Suggester(models.ReferenceData, {
-    where: {
-      type,
+  new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type,
+      },
     },
   });
 
