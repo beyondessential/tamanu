@@ -39,7 +39,7 @@ const getTranslationAttributes = (endpoint, modelName) => {
           SELECT "text" 
           FROM "translated_strings" 
           WHERE "language" = $language
-          AND "string_id" = ${translationPrefix} || "${modelName}"."id"
+          AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
           LIMIT 1
       )`),
         'translation',
@@ -199,7 +199,7 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
       (SELECT "text" 
         FROM "translated_strings" 
         WHERE "language" = $language
-        AND "string_id" = ${translationPrefix} || "${modelName}"."id"
+        AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
         LIMIT 1),
       "${modelName}"."${searchColumn}"
     ) ILIKE $searchQuery`);
