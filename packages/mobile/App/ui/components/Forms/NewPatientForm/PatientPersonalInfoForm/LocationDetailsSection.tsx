@@ -16,9 +16,12 @@ export const LocationDetailsSection = (): ReactElement => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
 
-  const villageSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.Village,
+  const villageSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.Village,
+      },
     },
   });
 

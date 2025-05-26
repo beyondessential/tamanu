@@ -33,14 +33,17 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const { programRegistry, editedObject, selectedPatient } = route.params;
   const { getTranslation } = useTranslation();
   const { models } = useBackend();
-  const practitionerSuggester = new Suggester(
-    models.User,
-    { column: 'displayName' },
-    (model): OptionType => ({ label: model.displayName, value: model.id }),
-  );
-  const facilitySuggester = new Suggester(models.Facility, {
-    where: {
-      visibilityStatus: VisibilityStatus.Current,
+  const practitionerSuggester = new Suggester({
+    model: models.User,
+    options: { column: 'displayName' },
+    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
+  });
+  const facilitySuggester = new Suggester({
+    model: models.Facility,
+    options: {
+      where: {
+        visibilityStatus: VisibilityStatus.Current,
+      },
     },
   });
 
