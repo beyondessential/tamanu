@@ -25,10 +25,7 @@ import {
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
-import {
-  attachChangelogToSnapshotRecords,
-  pauseAudit,
-} from '@tamanu/database/utils/audit';
+import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
@@ -90,7 +87,7 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession(debugInfo = {}) {
+  async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
@@ -104,6 +101,7 @@ export class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
       debugInfo,
+      parameters: { deviceId, facilityIds, isMobile },
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
@@ -364,7 +362,11 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(
+        this.store,
+        since,
+        tick,
+      );
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
