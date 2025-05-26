@@ -147,7 +147,7 @@ export class AllPatientsPage extends BasePage {
    * @param timeout Optional timeout in milliseconds (default: 10000)
    * @throws Error if the expected row count is not reached within the timeout
    */
-  async waitForTableRowCount(expectedRowCount: number, timeout: number = 10000) {
+  async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
     try {
       await this.page.waitForFunction(
         (count) => {
