@@ -1988,7 +1988,7 @@ describe('CentralSyncManager', () => {
       jest.resetModules();
     });
 
-    it('does not record audit changelogs when isMobile is false during completePush', async () => {
+    it('does not record audit changelogs during incoming sync from facility server', async () => {
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '16');
       await models.Setting.set('audit.changes.enabled', true);
       const facility = await models.Facility.create(fake(models.Facility));
