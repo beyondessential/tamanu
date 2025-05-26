@@ -2,8 +2,9 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('sync_sessions', 'parameters', {
-    type: DataTypes.JSON,
-    allowNull: true,
+    type: DataTypes.JSONB,
+    allowNull: false,
+    defaultValue: '{}',
   });
 }
 
