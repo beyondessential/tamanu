@@ -2,18 +2,20 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('sync_sessions', 'parameters', {
-    type: DataTypes.JSON,
+    type: DataTypes.JSONB,
     allowNull: true,
   });
 
   // Migrate existing data from debugInfo to parameters
   await query.sequelize.query(`
     UPDATE sync_sessions
-    SET parameters = json_build_object(
-      'minSourceTick', debug_info->'minSourceTick',
-      'maxSourceTick', debug_info->'maxSourceTick',
-      'isMobile', COALESCE(debug_info->'isMobile', 'false')
-    ),
+    SET parameters =
+      COALESCE(
+        CASE WHEN debug_info->'minSourceTick' IS NOT NULL THEN jsonb_build_object('minSourceTick', debug_info->'minSourceTick') ELSE '{}'::jsonb END ||
+        CASE WHEN debug_info->'maxSourceTick' IS NOT NULL THEN jsonb_build_object('maxSourceTick', debug_info->'maxSourceTick') ELSE '{}'::jsonb END ||
+        CASE WHEN debug_info->'isMobile' IS NOT NULL THEN jsonb_build_object('isMobile', debug_info->'isMobile') ELSE '{}'::jsonb END ||
+        '{}'::jsonb
+      ),
     debug_info = (
       SELECT json_object_agg(key, value)
       FROM json_each(debug_info)
@@ -29,25 +31,11 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-    // Move data back from parameters to debugInfo
+  // Move data back from parameters to debugInfo
   await query.sequelize.query(`
     UPDATE sync_sessions
-        SET debug_info = (
-          SELECT json_object_agg(key, value)
-          FROM (
-            SELECT key, value FROM json_each(COALESCE(debug_info, '{}'::json))
-            UNION ALL
-            SELECT key, value FROM json_each(
-              json_build_object(
-                'minSourceTick', parameters->'minSourceTick',
-                'maxSourceTick', parameters->'maxSourceTick',
-                'isMobile', parameters->'isMobile'
-              )
-            )
-            WHERE value IS NOT NULL
-          ) combined
-        )
-        WHERE parameters IS NOT NULL;
+    SET debug_info = COALESCE(debug_info::jsonb, '{}'::jsonb) || parameters
+    WHERE parameters IS NOT NULL;
   `);
 
   await query.removeColumn('sync_sessions', 'parameters');
