@@ -89,7 +89,7 @@ const createEncounterPrescription = async ({ encounter, data, models }) => {
     await existingOngoingPrescription.save();
   }
 
-  const prescription = await Prescription.create(data);
+  const prescription = await Prescription.create({ ...data, id: undefined });
   await EncounterPrescription.create({
     encounterId: encounter.id,
     prescriptionId: prescription.id,
