@@ -346,7 +346,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile, deviceId },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -374,7 +374,6 @@ export class CentralSyncManager {
       );
 
       await models.SyncSession.addDebugInfo(sessionId, {
-        isMobile,
         tablesForFullResync,
         minSourceTick,
         maxSourceTick,
@@ -431,7 +430,7 @@ export class CentralSyncManager {
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllLabRequests: syncAllLabRequests && !session.debugInfo.isMobile && since > -1,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this

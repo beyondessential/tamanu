@@ -1065,7 +1065,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const { sessionId } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -1074,7 +1076,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -1136,7 +1137,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId } = await centralSyncManager.startSession();
+        const { sessionId } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionId);
 
         // Start the snapshot process
@@ -1145,7 +1148,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -1190,7 +1192,9 @@ describe('CentralSyncManager', () => {
         };
 
         const centralSyncManager = initializeCentralSyncManager();
-        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
+        const { sessionId: sessionIdOne } = await centralSyncManager.startSession({
+          isMobile: true,
+        });
         await waitForSession(centralSyncManager, sessionIdOne);
 
         // Start the snapshot process
@@ -1199,7 +1203,6 @@ describe('CentralSyncManager', () => {
           {
             since: 1,
             facilityIds: [facility.id],
-            isMobile: true,
           },
           () => true,
         );
@@ -2095,18 +2098,8 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
-      const { sessionId } = await centralSyncManager.startSession();
+      const { sessionId } = await centralSyncManager.startSession({ isMobile: true }); // TODO: add isMobile to startSession
       await waitForSession(centralSyncManager, sessionId);
-
-      await centralSyncManager.setupSnapshotForPull(
-        sessionId,
-        {
-          since: 1,
-          facilityIds: [facility.id],
-          isMobile: true,
-        },
-        () => true,
-      );
 
       await centralSyncManager.addIncomingChanges(sessionId, changes);
       await centralSyncManager.completePush(sessionId, facility.id, [

@@ -19,7 +19,7 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        body: { facilityIds, deviceId },
+        body: { facilityIds, deviceId, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
@@ -96,6 +96,7 @@ export const buildSyncRoutes = ctx => {
         userId: user.id,
         deviceId,
         facilityIds,
+        isMobile
       });
       res.json({ sessionId, tick });
     }),
@@ -132,7 +133,6 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
-        isMobile,
         deviceId,
       } = body;
       const since = parseInt(sinceString, 10);
@@ -144,7 +144,6 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
-        isMobile,
         deviceId,
       });
       res.json({});
