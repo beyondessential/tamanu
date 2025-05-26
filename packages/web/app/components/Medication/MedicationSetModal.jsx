@@ -14,6 +14,7 @@ import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutati
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
+import { toast } from 'react-toastify';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -194,10 +195,14 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       encounterId: encounter.id,
       medicationSet: medications,
     };
-    await createMedicationSet(payload);
-    setSubmittedMedications(medications);
-    if (!isPrinting) {
-      onClose();
+    try {
+      await createMedicationSet(payload);
+      setSubmittedMedications(medications);
+      if (!isPrinting) {
+        onClose();
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 

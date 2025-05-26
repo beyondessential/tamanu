@@ -22,7 +22,6 @@ export const MultiplePrescriptionPrintoutModal = ({
   onClose,
   patientWeight,
 }) => {
-  console.log('prescriptions', prescriptions);
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();

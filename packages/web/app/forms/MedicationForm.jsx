@@ -58,7 +58,7 @@ import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
@@ -71,6 +71,7 @@ import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -548,11 +549,7 @@ export const MedicationForm = ({
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
   });
 
-  const { data: allergies, isLoading: isLoadingAllergies } = useQuery(
-    [`allergies`, patient?.id],
-    () => api.get(`patient/${patient?.id}/allergies`),
-    { enabled: !!patient?.id },
-  );
+  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
   const allergiesList = allergies?.data
     ?.map(allergyDetail =>
       getTranslation(
@@ -744,6 +741,11 @@ export const MedicationForm = ({
                 component={CheckField}
                 style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
                 {...(isOngoingPrescription && { value: true })}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, durationValue: '', durationUnit: '' });
+                  }
+                }}
               />
               <Field
                 name="isPrn"
@@ -846,7 +848,9 @@ export const MedicationForm = ({
                   component={NumberField}
                   min={0}
                   onInput={preventInvalidNumber}
-                  disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                  disabled={
+                    values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                  }
                 />
               </StyledConditionalTooltip>
               <Field
@@ -857,7 +861,9 @@ export const MedicationForm = ({
                   value,
                   label,
                 }))}
-                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                disabled={
+                  values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                }
               />
             </FormGrid>
             <div />
