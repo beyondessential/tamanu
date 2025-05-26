@@ -48,7 +48,7 @@ sources:
             data_type: jsonb
             description: "{{ doc('sync_sessions__parameters') }}"
               data_tests:
-+              - not_null
+              - not_null
           - name: completed_at
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__completed_at') }}"
