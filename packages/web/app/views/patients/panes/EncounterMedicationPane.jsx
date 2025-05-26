@@ -15,7 +15,6 @@ import { PrescriptionTypeModal } from '../../../components/Medication/Prescripti
 import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
-import { useEncounter } from '../../../contexts/Encounter';
 import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
@@ -66,7 +65,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { navigateToMar } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
-  const { loadEncounter } = useEncounter();
 
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
@@ -119,7 +117,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClose={() => setPrescriptionType(null)}
           onSaved={async () => {
             setPrescriptionType(null);
-            await loadEncounter(encounter.id);
             setRefreshEncounterMedications(prev => prev + 1);
           }}
           data-testid="medicationmodal-s2hv"
