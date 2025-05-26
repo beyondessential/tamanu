@@ -740,7 +740,7 @@ describe('Encounter', () => {
           prescriberId: app.user.id,
           doseAmount: 1,
           units: '%',
-          frequency: 'Daily',
+          frequency: 'Immediately',
           route: 'dermal',
           date: '2025-01-01',
           startDate: getCurrentDateTimeString(),
