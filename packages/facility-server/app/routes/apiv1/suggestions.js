@@ -39,7 +39,7 @@ const getTranslationInclude = (endpoint, modelName, models) => ({
   model: models.TranslatedString,
   as: 'translation',
   required: false,
-  where: {
+  on: {
     stringId: Sequelize.literal(`'${getTranslationPrefix(endpoint)}' || "${modelName}"."id"`),
     language: Sequelize.literal('$language'),
   },
