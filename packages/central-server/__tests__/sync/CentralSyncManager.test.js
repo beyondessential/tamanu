@@ -2057,7 +2057,7 @@ describe('CentralSyncManager', () => {
       expect(changelogRecords).toHaveLength(0);
     });
 
-    it('records audit changelogs when isMobile is true during completePush', async () => {
+    it('records audit changelogs during incoming sync from mobile', async () => {
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '17');
       await models.Setting.set('audit.changes.enabled', true);
       const facility = await models.Facility.create(fake(models.Facility));
