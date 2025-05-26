@@ -71,6 +71,8 @@ function createSuggesterRoute(
         `POSITION(LOWER($positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
+      // We supply the searchQuery to both the whereBuilder and the bind so that we can
+      // either use the bind key in SQL or in the whereBuilder directly using sequelize
       const where = whereBuilder({
         search: `%${searchQuery}%`,
         query,
