@@ -178,6 +178,12 @@ export class AllPatientsPage extends BasePage {
     await this.page.waitForURL('**/#/patients/all/*');
   }
 
+  async navigateToPatientDetailsPage(nhn: string) {
+    await this.goto();
+    await expect(this.patientListingsHeader).toBeVisible();
+    await this.searchForAndSelectPatientByNHN(nhn);
+  }
+
   async fillNewPatientDetails(firstName: string, lastName: string, dob: string, gender: string) {
     await this.NewPatientFirstName.fill(firstName);
     await this.NewPatientLastName.fill(lastName);
@@ -359,4 +365,38 @@ export class AllPatientsPage extends BasePage {
     expect(dateValues).toEqual(sortedValues);
   }
 
+
+  async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
+    let attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        await this.nhnSearchInput.fill(nhn);
+        await this.patientSearchButton.click();
+        await this.waitForTableToLoad();
+
+        //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
+        if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
+          attempts++;
+          continue;
+        }
+
+        //the below if statement is required because sometimes the search results load all results instead of the specific result
+        if (await this.secondNHNResultCell.isVisible()) {
+          await this.page.reload();
+          await this.page.waitForTimeout(3000);
+          attempts++;
+          continue;
+        }
+
+        await this.clickOnSearchResult(nhn);
+        return;
+      } catch (error) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          throw error;
+        }
+        await this.page.waitForTimeout(1000);
+      }
+    }
+  }
 }

@@ -11,7 +11,6 @@ function generateNHN() {
   return generatedId;
 }
 
-
 function generatePatientData() {
   const gender = faker.helpers.arrayElement(['male', 'female']);
   const firstName = faker.person.firstName(gender);
@@ -94,5 +93,3 @@ export async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, 
 
   return response;
 }
-
-
