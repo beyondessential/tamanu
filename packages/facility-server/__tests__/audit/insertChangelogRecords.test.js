@@ -37,10 +37,8 @@ describe('insertChangelogRecords', () => {
       loggedAt: new Date(),
       recordCreatedAt: new Date(),
       recordUpdatedAt: new Date(),
-      recordSyncTick: 100,
       updatedByUserId: SYSTEM_USER_UUID,
       recordId: '1',
-      recordUpdate: true,
       recordData: { first_name: 'Patient 1' },
     });
 
@@ -53,12 +51,10 @@ describe('insertChangelogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'patients',
         tableSchema: 'public',
         recordId: '1',
         recordData: { first_name: 'Patient Updated' },
-        recordSyncTick: '100',
       },
       {
         // New record
@@ -68,12 +64,10 @@ describe('insertChangelogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'patients',
         tableSchema: 'public',
         recordId: '2',
         recordData: { first_name: 'Patient 2' },
-        recordSyncTick: '100',
       },
       {
         // New record
@@ -83,12 +77,10 @@ describe('insertChangelogRecords', () => {
         recordCreatedAt: new Date(),
         recordUpdatedAt: new Date(),
         updatedByUserId: SYSTEM_USER_UUID,
-        recordUpdate: true,
         tableName: 'encounters',
         tableSchema: 'public',
         recordId: '3',
         recordData: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
-        recordSyncTick: '100',
       },
     ];
 
