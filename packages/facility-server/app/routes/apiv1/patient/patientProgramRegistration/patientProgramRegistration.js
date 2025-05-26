@@ -114,7 +114,9 @@ patientProgramRegistration.put(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+    const existingRegistration = await PatientProgramRegistration.findOne({
+      where: { id },
+    });
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
@@ -156,7 +158,9 @@ patientProgramRegistration.delete(
 
     req.checkPermission('delete', 'PatientProgramRegistration');
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+    const existingRegistration = await PatientProgramRegistration.findOne({
+      where: { id },
+    });
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
