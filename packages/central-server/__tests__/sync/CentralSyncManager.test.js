@@ -2098,7 +2098,7 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
-      const { sessionId } = await centralSyncManager.startSession({ isMobile: true }); // TODO: add isMobile to startSession
+      const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.addIncomingChanges(sessionId, changes);

@@ -7,11 +7,13 @@ import {
 import { fake } from '@tamanu/fake-data/fake';
 
 
+
 describe('FacilitySyncManager integration', () => {
   let ctx;
   let models;
   let sequelize;
   let syncManager;
+
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -22,9 +24,79 @@ describe('FacilitySyncManager integration', () => {
 
   afterAll(() => ctx.close());
 
+  const mockCentralServer = {
+    startSyncSession: jest.fn().mockResolvedValue({
+      sessionId: 'test-session-sync',
+      startedAtTick: 200
+    }),
+    endSyncSession: jest.fn().mockResolvedValue({}),
+    initiatePull: jest.fn().mockResolvedValue({
+      totalToPull: 3,
+      pullUntil: 200
+    }),
+    completePush: jest.fn(),
+    push: jest.fn(),
+    pull: jest.fn().mockImplementation(async () => [
+        {
+          id: '1',
+          recordType: 'patients',
+          recordId: 'patient-1',
+          isDeleted: false,
+          data: {
+            ...fake(models.Patient, {
+              id: 'patient-1',
+              displayId: 'SYNC001',
+              firstName: 'Test',
+              lastName: 'Patient1'
+            }),
+            updatedAtSyncTick: -1
+          }
+        },
+        {
+          id: '2',
+          recordType: 'patients',
+          recordId: 'patient-2',
+          isDeleted: false,
+          data: {
+            ...fake(models.Patient, {
+              id: 'patient-2',
+              displayId: 'SYNC002',
+              firstName: 'Test',
+              lastName: 'Patient2'
+            }),
+            updatedAtSyncTick: -1
+          }
+        },
+        {
+          id: '3',
+          recordType: 'facilities',
+          recordId: 'facility-1',
+          isDeleted: false,
+          data: {
+            ...fake(models.Facility, {
+              id: 'facility-1',
+              code: 'TESTSYNC',
+              name: 'Test Sync Facility'
+            }),
+            updatedAtSyncTick: -1
+          }
+      }
+    ])
+  };
+
   beforeEach(async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '50');
     await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '0');
+    FacilitySyncManager.overrideConfig({
+      sync: {
+        enabled: true,
+      }
+    });
+    syncManager = new FacilitySyncManager({
+      models,
+      sequelize,
+      centralServer: mockCentralServer
+    });
   });
 
   afterEach(async () => {
@@ -34,80 +106,6 @@ describe('FacilitySyncManager integration', () => {
   });
 
   it('does not record audit changelogs during incoming sync from central server', async () => {
-    const mockCentralServer = {
-      startSyncSession: jest.fn().mockResolvedValue({
-        sessionId: 'test-session-sync',
-        startedAtTick: 200
-      }),
-      endSyncSession: jest.fn().mockResolvedValue({}),
-      initiatePull: jest.fn().mockResolvedValue({
-        totalToPull: 3,
-        pullUntil: 200
-      }),
-      completePush: jest.fn(),
-      push: jest.fn(),
-      pull: jest.fn().mockImplementation(async () => [
-          {
-            id: '1',
-            recordType: 'patients',
-            recordId: 'patient-1',
-            isDeleted: false,
-            data: {
-              ...fake(models.Patient, {
-                id: 'patient-1',
-                displayId: 'SYNC001',
-                firstName: 'Test',
-                lastName: 'Patient1'
-              }),
-              updatedAtSyncTick: -1
-            }
-          },
-          {
-            id: '2',
-            recordType: 'patients',
-            recordId: 'patient-2',
-            isDeleted: false,
-            data: {
-              ...fake(models.Patient, {
-                id: 'patient-2',
-                displayId: 'SYNC002',
-                firstName: 'Test',
-                lastName: 'Patient2'
-              }),
-              updatedAtSyncTick: -1
-            }
-          },
-          {
-            id: '3',
-            recordType: 'facilities',
-            recordId: 'facility-1',
-            isDeleted: false,
-            data: {
-              ...fake(models.Facility, {
-                id: 'facility-1',
-                code: 'TESTSYNC',
-                name: 'Test Sync Facility'
-              }),
-              updatedAtSyncTick: -1
-            }
-        }
-      ])
-    };
-
-    syncManager = new FacilitySyncManager({
-      models,
-      sequelize,
-      centralServer: mockCentralServer
-    });
-
-    // Configure sync to enable
-    FacilitySyncManager.overrideConfig({
-      sync: {
-        enabled: true,
-        assertIfPulledRecordsUpdatedAfterPushSnapshot: false
-      }
-    });
-
     // Verify that normal operations DO create audit logs
     await models.Patient.create({
       ...fake(models.Patient, {
