@@ -65,6 +65,7 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
+      // TODO: this needs to match on translation
       const positionQuery = literal(
         `POSITION(LOWER($positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
@@ -94,7 +95,7 @@ function createSuggesterRoute(
         order: [
           ...(order ? [order] : []),
           positionQuery,
-          [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
+          [getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC'],
         ],
         bind: {
           positionMatch: searchQuery,
@@ -195,10 +196,16 @@ function createSuggesterCreateRoute(
 
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
-  return Sequelize.literal(`COALESCE(
-      ${getTranslationSubquery(endpoint, modelName)},
-      "${modelName}"."${searchColumn}"
-    ) ILIKE $searchQuery`);
+  return Sequelize.literal(
+    `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}") ILIKE $searchQuery`,
+  );
+};
+
+// Order against the translation if it exists, otherwise order against the searchColumn
+const getTranslationOrderLiteral = (endpoint, modelName, searchColumn) => {
+  return Sequelize.literal(
+    `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`,
+  );
 };
 
 const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
