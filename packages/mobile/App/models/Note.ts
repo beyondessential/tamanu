@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
@@ -34,18 +34,12 @@ export class Note extends BaseModel implements INote {
   @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 
-  @ManyToOne(
-    () => User,
-    user => user.authoredNotes,
-  )
+  @ManyToOne(() => User, (user) => user.authoredNotes)
   author?: IUser;
   @RelationId(({ author }) => author)
   authorId?: ID;
 
-  @ManyToOne(
-    () => User,
-    user => user.onBehalfOfNotes,
-  )
+  @ManyToOne(() => User, (user) => user.onBehalfOfNotes)
   onBehalfOf?: IUser;
   @RelationId(({ onBehalfOf }) => onBehalfOf)
   onBehalfOfId?: ID;

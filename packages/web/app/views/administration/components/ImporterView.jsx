@@ -10,12 +10,25 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
+import { FormSubmitButton } from '../../../components/Button';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useFormikContext } from 'formik';
 
 const ColorText = styled.span`
-  color: ${props => props.color};
+  color: ${(props) => props.color};
+`;
+
+const ContentRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+`;
+
+const ContentColumn = (props) => <FormGrid columns={1} {...props} data-testid="formgrid-9c0n" />;
+
+const StyledButtonRow = styled(ButtonRow)`
+  ${(p) => (p.alignment === 'right' ? `width: 50%` : '')};
 `;
 
 const ERROR_COLUMNS = [
@@ -25,13 +38,17 @@ const ERROR_COLUMNS = [
   {
     key: 'error',
     title: 'Message',
-    accessor: data => <ColorText color="red">{data.message}</ColorText>,
+    accessor: (data) => (
+      <ColorText color="red" data-testid="colortext-xmxk">
+        {data.message}
+      </ColorText>
+    ),
     sortable: false,
   },
 ];
 
 const ImportErrorsTable = ({ errors }) => (
-  <Table columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} />
+  <Table columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} data-testid="table-gzgr" />
 );
 
 const STATS_COLUMNS = [
@@ -42,7 +59,9 @@ const STATS_COLUMNS = [
     key: 'errored',
     title: 'Errored',
     accessor: ({ errored }) => (
-      <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>
+      <ColorText color={errored > 0 ? 'red' : 'green'} data-testid="colortext-u8it">
+        {errored}
+      </ColorText>
     ),
     sortable: false,
   },
@@ -54,45 +73,83 @@ const ImportStatsDisplay = ({ stats }) => (
     columns={STATS_COLUMNS}
     noDataMessage="Nothing there"
     data={Object.entries(stats).map(([key, data]) => ({ key, ...data }))}
+    data-testid="table-5r1y"
   />
 );
 
-const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
-  <FormGrid columns={1}>
-    <Field
-      component={FileChooserField}
-      filters={[FILTER_EXCEL]}
-      label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
-      name="file"
-      required
-    />
-    {dataTypes && dataTypesSelectable && (
+const ImportForm = ({
+  submitForm,
+  dataTypes,
+  dataTypesSelectable,
+  ImportButton = FormSubmitButton,
+}) => {
+  const { values } = useFormikContext();
+  const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
+  const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
+  return (
+    <ContentContainer data-testid="contentcontainer-2r6k">
       <Field
-        name="includedDataTypes"
+        component={FileChooserField}
+        filters={[FILTER_EXCEL]}
         label={
           <TranslatedText
-            stringId="admin.import.includedDataTypes.label"
-            fallback="Select data types to import"
+            stringId="general.selectFile.label"
+            fallback="Select file"
+            data-testid="translatedtext-3ola"
           />
         }
-        component={ExpandedMultiSelectField}
-        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
+        name="file"
+        required
+        data-testid="field-s1qp"
       />
-    )}
-    <ButtonRow>
-      <LargeOutlinedSubmitButton
-        text={<TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />}
-        onSubmit={event => submitForm(event, { dryRun: true })}
-      />
-      <LargeSubmitButton
-        text={<TranslatedText stringId="general.action.import" fallback="Import" />}
-      />
-    </ButtonRow>
-  </FormGrid>
-);
+      {dataTypes && dataTypesSelectable && (
+        <Field
+          name="includedDataTypes"
+          label={
+            <TranslatedText
+              stringId="admin.import.includedDataTypes.label"
+              fallback="Select data types to import"
+              data-testid="translatedtext-rnwc"
+            />
+          }
+          component={ExpandedMultiSelectField}
+          options={dataTypes.map((value) => ({ value, label: startCase(value) }))}
+          data-testid="field-3a98"
+        />
+      )}
+      <StyledButtonRow alignment={buttonRowAlignment} data-testid="styledbuttonrow-tgi2">
+        <ImportButton
+          variant="outlined"
+          onSubmit={(event, extraFormData) => {
+            submitForm(event, { dryRun: true, ...extraFormData });
+          }}
+          disabled={!values.file}
+          data-testid="importbutton-52k1"
+        >
+          <TranslatedText
+            stringId="admin.import.action.testImport"
+            fallback="Test import"
+            data-testid="translatedtext-pxbf"
+          />
+        </ImportButton>
+        <ImportButton
+          disabled={!values.file}
+          onSubmit={(event, extraFormData) => submitForm(event, extraFormData)}
+          data-testid="importbutton-o5nh"
+        >
+          <TranslatedText
+            stringId="general.action.import"
+            fallback="Import"
+            data-testid="translatedtext-7esu"
+          />
+        </ImportButton>
+      </StyledButtonRow>
+    </ContentContainer>
+  );
+};
 
 function sumStat(stats, fields = ['created', 'updated', 'errored']) {
-  return sum(Object.values(stats).map(stat => sum(fields.map(f => stat[f]))));
+  return sum(Object.values(stats).map((stat) => sum(fields.map((f) => stat[f]))));
 }
 
 const OutcomeHeader = ({ result }) => {
@@ -132,85 +189,98 @@ const OutcomeDisplay = ({ result }) => {
 
   return (
     <div>
-      <OutcomeHeader result={result} />
+      <OutcomeHeader result={result} data-testid="outcomeheader-sa5i" />
       <hr />
       <h4>Summary</h4>
-      {result.stats && <ImportStatsDisplay stats={result.stats} />}
+      {result.stats && (
+        <ImportStatsDisplay stats={result.stats} data-testid="importstatsdisplay-8zpt" />
+      )}
       {result?.errors?.length > 0 && (
         <>
           <h4>Errors</h4>
-          <ImportErrorsTable errors={result?.errors} />
+          <ImportErrorsTable errors={result?.errors} data-testid="importerrorstable-wyj8" />
         </>
       )}
     </div>
   );
 };
 
-export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
-  const [resetKey, setResetKey] = useState(Math.random());
-  const [result, setResult] = useState(null);
+export const ImporterView = memo(
+  ({ endpoint, dataTypes, dataTypesSelectable, setIsLoading, ImportButton }) => {
+    const [resetKey, setResetKey] = useState(Math.random());
+    const [result, setResult] = useState(null);
 
-  const api = useApi();
+    const api = useApi();
 
-  const onSubmitUpload = useCallback(
-    async ({ file, ...data }) => {
-      setResult(null);
-      setIsLoading(true);
-      try {
-        const intermediateResult = await api.postWithFileUpload(
-          `admin/import/${endpoint}`,
-          file,
-          data,
-        );
+    const onSubmitUpload = useCallback(
+      async ({ file, ...data }) => {
+        setResult(null);
+        setIsLoading(true);
+        try {
+          const intermediateResult = await api.postWithFileUpload(
+            `admin/import/${endpoint}`,
+            file,
+            data,
+          );
 
-        if (intermediateResult.sentData) {
-          // reset the form
-          setResetKey(Math.random());
+          if (intermediateResult.sentData) {
+            // reset the form
+            setResetKey(Math.random());
+          }
+
+          setResult(intermediateResult);
+          return true;
+        } finally {
+          setIsLoading(false);
         }
+      },
+      [api, endpoint, setIsLoading],
+    );
 
-        setResult(intermediateResult);
-        return true;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [api, endpoint, setIsLoading],
-  );
+    const renderForm = useCallback(
+      (props) => (
+        <ImportForm
+          dataTypes={dataTypes}
+          dataTypesSelectable={dataTypesSelectable}
+          ImportButton={ImportButton}
+          {...props}
+          data-testid="importform-ynzi"
+        />
+      ),
+      [dataTypes, dataTypesSelectable, ImportButton],
+    );
 
-  const renderForm = useCallback(
-    props => (
-      <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
+    const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
-  const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
-
-  return (
-    <>
-      <Form
-        key={resetKey}
-        onSubmit={onSubmitUpload}
-        formType={FORM_TYPES.CREATE_FORM}
-        validationSchema={yup.object().shape({
-          includedDataTypes: dataTypesSelectable
-            ? yup
-                .array()
-                .of(yup.string())
-                .required()
-                .min(1)
-            : undefined,
-          file: yup
-            .string()
-            .required()
-            .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
-        })}
-        initialValues={{
-          includedDataTypes: initialDataTypes,
-        }}
-        render={renderForm}
-      />
-      <OutcomeDisplay result={result} />
-    </>
-  );
-});
+    return (
+      <>
+        <Form
+          key={resetKey}
+          onSubmit={onSubmitUpload}
+          formType={FORM_TYPES.CREATE_FORM}
+          validationSchema={yup.object().shape({
+            includedDataTypes: dataTypesSelectable
+              ? yup.array().of(yup.string()).required().min(1)
+              : undefined,
+            file: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="general.file.label"
+                  fallback="File"
+                  data-testid="translatedtext-600w"
+                />,
+              ),
+          })}
+          initialValues={{
+            includedDataTypes: initialDataTypes,
+          }}
+          render={renderForm}
+          data-testid="form-ezfx"
+        />
+        <OutcomeDisplay result={result} data-testid="outcomedisplay-587u" />
+      </>
+    );
+  },
+);

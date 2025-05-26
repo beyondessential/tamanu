@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/central-server",
-  "version": "2.24.0",
+  "version": "2.33.0",
   "private": true,
   "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -107,15 +107,17 @@
     "request-promise": "^4.2.2",
     "sequelize": "^6.21.3",
     "socket.io": "^4.8.1",
+    "timesimp": "^1.0.2",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",
+    "undici": "^7.5.0",
+    "uuid": "^11.0.3",
     "wait-for-expect": "^3.0.2",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9",
-    "zod": "^3.23.8",
-    "uuid": "^11.0.3"
+    "zod": "^3.23.8"
   }
 }

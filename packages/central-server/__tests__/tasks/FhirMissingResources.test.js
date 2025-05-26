@@ -1,4 +1,4 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { Op } from 'sequelize';
 import { createTestContext } from '../utilities';
 import {
@@ -7,7 +7,7 @@ import {
   fakeResourcesOfFhirSpecimen,
 } from '../fake/fhir';
 import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
-import { JOB_PRIORITIES } from '@tamanu/constants';
+import { JOB_PRIORITIES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 describe('FhirMissingResources task', () => {
   let ctx;
@@ -50,8 +50,8 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
-    rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
+    expect(count).toEqual(4); // 1 Organization, 1 ServiceRequest, 1 Specimen, 1 Practitioner
+    rows.forEach((job) => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
 
     await labRequest.destroy();
   });
@@ -75,7 +75,7 @@ describe('FhirMissingResources task', () => {
     const name = fhirMissingResourcesWorker.getName();
     expect(name).toEqual('FhirMissingResources');
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(2); // 1 MediciReport AND 1 ServiceRequest
+    expect(countQueue).toEqual(3); // 1 MediciReport, 1 ServiceRequest, 1 Practitioner
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -111,7 +111,7 @@ describe('FhirMissingResources task', () => {
     );
 
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(1);
+    expect(countQueue).toEqual(2);
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -125,7 +125,11 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(fhirJob).toBeNull();
+    expect(fhirJob).toMatchObject({
+      payload: expect.objectContaining({
+        upstreamId: SYSTEM_USER_UUID,
+      }),
+    });
     await encounter.destroy();
   });
 
@@ -155,7 +159,7 @@ describe('FhirMissingResources task', () => {
     });
 
     const countQueue = await fhirMissingResourcesCreatedAfterWorker.countQueue();
-    expect(countQueue).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
+    expect(countQueue).toEqual(4); // 1 Organization, 1 ServiceRequest, 1 Specimen, 1 Practitioner
     await fhirMissingResourcesCreatedAfterWorker.run();
 
     const { count, rows } = await FhirJob.findAndCountAll({
@@ -169,8 +173,10 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(2);
-    rows.forEach(job => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
+    expect(count).toEqual(3);
+    rows
+      .filter((job) => job.payload.upstreamId !== SYSTEM_USER_UUID)
+      .forEach((job) => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
 
     await oldLabRequest.destroy();
     await newLabRequest.destroy();

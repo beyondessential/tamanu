@@ -1,8 +1,21 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, type BelongsToGetAssociationMixin } from 'sequelize';
+import { omit } from 'lodash';
+
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import type { ReadSettings } from '@tamanu/settings';
+
 import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { AppointmentSchedule, type AppointmentScheduleCreateData } from './AppointmentSchedule';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
+
+interface CreateWithScheduleParams {
+  appointmentData: AppointmentCreateData;
+  settings: ReadSettings;
+  scheduleData: AppointmentScheduleCreateData;
+}
+
+export type AppointmentCreateData = Omit<Appointment, 'id' | 'createdAt' | 'deletedAt'>;
 
 export class Appointment extends Model {
   declare id: string;
@@ -18,6 +31,9 @@ export class Appointment extends Model {
   declare bookingTypeId?: string;
   declare appointmentTypeId?: string;
   declare encounterId?: string;
+  declare scheduleId?: string;
+
+  declare getSchedule: BelongsToGetAssociationMixin<AppointmentSchedule>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -52,6 +68,7 @@ export class Appointment extends Model {
       'appointmentType',
       'bookingType',
       'encounter',
+      'schedule',
     ];
   }
 
@@ -90,6 +107,11 @@ export class Appointment extends Model {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
+
+    this.belongsTo(models.AppointmentSchedule, {
+      foreignKey: 'scheduleId',
+      as: 'schedule',
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
@@ -124,5 +146,26 @@ export class Appointment extends Model {
         LEFT JOIN locations ON appointments.location_id = locations.id
       `,
     };
+  }
+
+  static async createWithSchedule({
+    settings,
+    appointmentData,
+    scheduleData,
+  }: CreateWithScheduleParams) {
+    return this.sequelize.transaction(async () => {
+      const schedule = await this.sequelize.models.AppointmentSchedule.create(scheduleData);
+      const appointments = await schedule.generateRepeatingAppointment(settings, appointmentData);
+      return { firstAppointment: appointments[0], schedule };
+    });
+  }
+
+  /** Convert the appointment to a data object that can be used to create a new appointment. */
+  toCreateData() {
+    return omit(this.get({ plain: true }), [
+      'id',
+      'createdAt',
+      'updatedAt',
+    ]) as AppointmentCreateData;
   }
 }

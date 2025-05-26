@@ -2,30 +2,36 @@ sql: |
   SELECT
     id,
     errors::text,
-    debug_info->>'facilityId' AS facility_id,
+    json_array_elements_text(debug_info->'facilityIds') AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
   FROM sync_sessions
   WHERE
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
-  AND errors <> ARRAY['could not serialize access due to concurrent update'];
+  AND (
+    (
+      debug_info->>'isMobile' <> 'true'
+      AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
+    )
+    OR errors <> ARRAY['could not serialize access due to concurrent update']
+  )
+  ORDER BY created_at DESC
 
 send:
   - target: external
     id: default
     subject: '[Tamanu Alert] Sync session error ({{ hostname }})'
     template: |
-      <p>Server: {{ hostname }}</p>
-      <p>Alert: {{ filename }}</p>
-      <h1>Sync sessions with an error in the last minute</h1>
-      <p><b>Report this immediately to support.</b></p>
-      <ul>
-        {% for row in rows | slice(end=5) %}
-        <li><b>{{ row.id }}</b>: <i>{{ row.errors }}</i> ({{ row.facility_id }},  duration {{ row.duration }}, start {{ row.created }})</li>
-        {% endfor %}
-        {% if rows | length > 5 %}
-        <li>... and {{ rows | length - 5 }} more</li>
-        {% endif %}
-      </ul>
-      <p>For more information, please check the logs.</p>
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      Sync sessions with an error in the last minute:
+      {% for row in rows | slice(end=5) %}
+      - **{{ row.id }}**: _{{ row.errors }}_ ({{ row.facility_id }},  duration {{ row.duration }}, start {{ row.created }})
+      {% endfor %}
+      {% if rows | length > 5 %}
+      - ... and {{ rows | length - 5 }} more
+      {% endif %}

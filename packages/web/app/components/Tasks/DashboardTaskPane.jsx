@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+
 import { Colors } from '../../constants';
 import { CheckInput, Heading4, LocationInput, TranslatedText } from '../../components';
 import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
@@ -57,12 +58,12 @@ const FilterGrid = styled.div`
 
 export const DashboardTaskPane = React.memo(() => {
   const { facilityId } = useAuth();
-  const userPreferencesMutation = useUserPreferencesMutation();
+  const userPreferencesMutation = useUserPreferencesMutation(facilityId);
   const { data: userPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
-    userPreferences?.clinicianDashboardTaskingTableFilter?.[facilityId] || {};
+    userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = e => {
+  const onLocationIdChange = (e) => {
     const { value } = e.target;
 
     const newParams = value
@@ -71,11 +72,11 @@ export const DashboardTaskPane = React.memo(() => {
 
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: { [facilityId]: newParams },
+      value: newParams,
     });
   };
 
-  const onHighPriorityOnlyChange = e => {
+  const onHighPriorityOnlyChange = (e) => {
     const { checked } = e.target;
 
     const newParams = checked
@@ -84,21 +85,22 @@ export const DashboardTaskPane = React.memo(() => {
 
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: { [facilityId]: newParams },
+      value: newParams,
     });
   };
 
   return (
-    <TabPane>
-      <TopBar>
-        <Heading4 whiteSpace="nowrap">
+    <TabPane data-testid="tabpane-s00l">
+      <TopBar data-testid="topbar-r96r">
+        <Heading4 whiteSpace="nowrap" data-testid="heading4-ng7b">
           <TranslatedText
             stringId="dashboard.tasks.upcomingTasks.title"
             fallback="Upcoming tasks"
+            data-testid="translatedtext-0dpr"
           />
         </Heading4>
-        <ActionRow>
-          <FilterGrid>
+        <ActionRow data-testid="actionrow-iw9x">
+          <FilterGrid data-testid="filtergrid-t0gc">
             <LocationInput
               name="locationId"
               onChange={onLocationIdChange}
@@ -107,32 +109,40 @@ export const DashboardTaskPane = React.memo(() => {
                 <TranslatedText
                   stringId="general.localisedField.locationId.label"
                   fallback="Location"
+                  data-testid="translatedtext-u95d"
                 />
               }
               locationGroupLabel={
                 <TranslatedText
                   stringId="general.localisedField.locationGroupId.label"
                   fallback="Area"
+                  data-testid="translatedtext-kbsm"
                 />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
               autofill={false}
               isMulti={true}
+              data-testid="locationinput-aabz"
             />
             <StyledCheckInput
               label={
                 <TranslatedText
                   stringId="dashboard.tasks.table.highPriorityOnly.label"
                   fallback="High priority only"
+                  data-testid="translatedtext-crsm"
                 />
               }
               value={clinicianDashboardTaskingTableFilter.highPriority}
               onChange={onHighPriorityOnlyChange}
+              data-testid="styledcheckinput-fzec"
             />
           </FilterGrid>
         </ActionRow>
       </TopBar>
-      <DashboardTasksTable searchParameters={clinicianDashboardTaskingTableFilter} />
+      <DashboardTasksTable
+        searchParameters={clinicianDashboardTaskingTableFilter}
+        data-testid="dashboardtaskstable-lyo3"
+      />
     </TabPane>
   );
 });

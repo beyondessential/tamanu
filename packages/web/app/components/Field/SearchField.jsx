@@ -3,7 +3,7 @@ import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { TextField } from './TextField';
+import { TextInput } from './TextField';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 
@@ -14,7 +14,7 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
-const StyledTextField = styled(TextField)`
+const StyledTextInput = styled(TextInput)`
   .MuiInputBase-root {
     padding-left: 10px;
   }
@@ -32,15 +32,12 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SearchField = props => {
-  const { getTranslation } = useTranslation();
-
+// N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
+// component for standalone search fields
+export const SearchField = (props) => {
   const {
-    field: { value, name },
+    field: { value, name, onChange },
     form: { setFieldValue } = {},
-    label,
-    placeholder,
-    onChange,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -51,27 +48,36 @@ export const SearchField = props => {
   const clearSearch = () => {
     setSearchValue('');
     setFieldValue?.(name, '');
-
-    // For some reason, using `clearSearch` doesn’t fire the `SearchField`’s change event
-    onChange?.({
-      target: {
-        value: '',
-        type: 'change',
-      },
-    });
   };
 
   return (
-    <StyledTextField
+    <SearchInput
+      {...props}
+      name={name}
+      value={searchValue}
+      onChange={onChange}
+      onClear={clearSearch}
+    />
+  );
+};
+
+// N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
+export const SearchInput = (props) => {
+  const { getTranslation } = useTranslation();
+
+  const { label, placeholder, value, onChange, onClear } = props;
+
+  return (
+    <StyledTextInput
       InputProps={{
         startAdornment: (
-          <Icon position="start">
-            <Search />
+          <Icon position="start" data-testid="icon-5uu4">
+            <Search data-testid="search-ne6p" />
           </Icon>
         ),
-        endAdornment: searchValue && (
-          <StyledIconButton onClick={clearSearch}>
-            <StyledClearIcon />
+        endAdornment: value && (
+          <StyledIconButton onClick={onClear} data-testid="stylediconbutton-l48b">
+            <StyledClearIcon data-testid="styledclearicon-ywim" />
           </StyledIconButton>
         ),
       }}
@@ -79,7 +85,8 @@ export const SearchField = props => {
       placeholder={
         placeholder ?? (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }
-      value={searchValue}
+      value={value}
+      onChange={onChange}
     />
   );
 };

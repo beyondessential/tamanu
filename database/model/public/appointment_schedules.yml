@@ -1,0 +1,68 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: appointment_schedules
+        description: '{{ doc("table__appointment_schedules") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in appointment_schedules."
+            data_tests:
+              - unique
+              - not_null
+          - name: until_date
+            data_type: character(10)
+            description: "{{ doc('appointment_schedules__until_date') }}"
+          - name: interval
+            data_type: integer
+            description: "{{ doc('appointment_schedules__interval') }}"
+            data_tests:
+              - not_null
+          - name: frequency
+            data_type: character varying(255)
+            description: "{{ doc('appointment_schedules__frequency') }}"
+            data_tests:
+              - not_null
+          - name: days_of_week
+            data_type: array
+            description: "{{ doc('appointment_schedules__days_of_week') }}"
+          - name: nth_weekday
+            data_type: integer
+            description: "{{ doc('appointment_schedules__nth_weekday') }}"
+          - name: occurrence_count
+            data_type: integer
+            description: "{{ doc('appointment_schedules__occurrence_count') }}"
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in appointment_schedules."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in appointment_schedules."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in appointment_schedules."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              appointment_schedules."
+            data_tests:
+              - not_null
+          - name: is_fully_generated
+            data_type: boolean
+            description: "{{ doc('appointment_schedules__is_fully_generated') }}"
+            data_tests:
+              - not_null
+          - name: generated_until_date
+            data_type: character(10)
+            description: "{{ doc('appointment_schedules__generated_until_date') }}"
+          - name: cancelled_at_date
+            data_type: character(10)
+            description: "{{ doc('appointment_schedules__cancelled_at_date') }}"

@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.24.0",
+  "version": "2.33.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -42,7 +42,9 @@
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
     "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
     "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
-    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js"
+    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
+    "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
+    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
   },
   "engines": {
     "node": "^20.9.0"
@@ -63,7 +65,9 @@
       "packages/api-client",
       "packages/mobile",
       "packages/database",
-      "packages/utils"
+      "packages/utils",
+      "packages/fake-data",
+      "packages/e2e-tests"
     ]
   },
   "devDependencies": {

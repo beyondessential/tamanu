@@ -2,7 +2,7 @@ import { beforeAll, describe, it } from '@jest/globals';
 import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   createSnapshotTable,
   findSyncSnapshotRecords,
@@ -11,6 +11,7 @@ import {
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 describe('sanitize binary data', () => {
   let ctx;
@@ -28,7 +29,7 @@ describe('sanitize binary data', () => {
     const { Asset, LocalSystemFact, SyncSession } = models;
 
     await fc.assert(
-      fc.asyncProperty(fc.uint8Array(), data =>
+      fc.asyncProperty(fc.uint8Array(), (data) =>
         ctx.store.sequelize.transaction(
           { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
           async () => {
@@ -37,7 +38,7 @@ describe('sanitize binary data', () => {
               startTime,
               lastConnectionTime: startTime,
             });
-            const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
+            const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
 
             const asset = await Asset.create(
               fake(Asset, {

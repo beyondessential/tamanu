@@ -1,4 +1,5 @@
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { REPORT_DEFAULT_DATE_RANGES, REPORT_STATUSES } from '@tamanu/constants';
 
 export function testReportPermissions(getCtx, makeRequest) {
@@ -97,7 +98,7 @@ export async function setupReportPermissionsTest(baseApp, models) {
       .map(() => fake(ReportDefinition)),
   );
   await ReportDefinitionVersion.bulkCreate(
-    reports.map(r =>
+    reports.map((r) =>
       fake(ReportDefinitionVersion, {
         id: `${r.id}_version-1`,
         versionNumber: 1,
@@ -115,6 +116,8 @@ export async function setupReportPermissionsTest(baseApp, models) {
   );
   const permittedReports = reports.slice(0, 2);
   const restrictedReports = reports.slice(2);
-  const app = await baseApp.asNewRole(permittedReports.map(r => ['run', 'ReportDefinition', r.id]));
+  const app = await baseApp.asNewRole(
+    permittedReports.map((r) => ['run', 'ReportDefinition', r.id]),
+  );
   return { app, role: app.role, user: app.user, permittedReports, restrictedReports };
 }

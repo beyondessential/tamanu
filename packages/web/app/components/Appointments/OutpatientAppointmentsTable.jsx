@@ -110,9 +110,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-body {
-    padding: 6px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 11px 6px;
     &:first-child {
       position: relative;
       padding-left: 10px;
@@ -140,6 +138,8 @@ const StyledTable = styled(Table)`
       }
       position: relative;
       border-bottom: none;
+      padding-top: 0;
+      padding-bottom: 0;
       &:before {
         content: '';
         position: absolute;
@@ -167,6 +167,18 @@ const StyledTable = styled(Table)`
     cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
       background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        .MuiTableCell-body {
+          border-bottom: none;
+          &:before {
+            height: 0;
+          }
+        }
+      }
     }
   }
 `;
@@ -224,17 +236,19 @@ const ActionRow = styled.div`
 `;
 
 const getDate = ({ startTime }) => (
-  <DateText>{`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}</DateText>
+  <DateText data-testid="datetext-axl2">{`${formatShortest(startTime)} ${formatTime(
+    startTime,
+  ).replace(' ', '')}`}</DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
-    <CustomCellContainer ref={ref} maxWidth={$maxWidth}>
+    <CustomCellContainer ref={ref} maxWidth={$maxWidth} data-testid="customcellcontainer-yqs8">
       {!isOverflowing ? (
         value
       ) : (
-        <TableTooltip title={value}>
+        <TableTooltip title={value} data-testid="tabletooltip-5q2m">
           <div>{value}</div>
         </TableTooltip>
       )}
@@ -242,37 +256,43 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
   );
 };
 
-const TableHeader = ({ title, patient }) => {
+const TableHeader = ({ title, patient, hasPastAppointments }) => {
   const { ability } = useAuth();
   const history = useHistory();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
 
   const canCreateAppointment = ability.can('create', 'Appointment');
   return (
-    <TableTitleContainer>
-      <Box component={'span'} fontSize="16px" fontWeight={500}>
+    <TableTitleContainer data-testid="tabletitlecontainer-nioe">
+      <Box component={'span'} fontSize="16px" fontWeight={500} data-testid="box-1pwh">
         {title}
       </Box>
-      <ActionRow>
-        <ViewPastBookingsButton
-          component={'span'}
-          onClick={() => setIsViewPastBookingsModalOpen(true)}
-          mr="6px"
-        >
-          <TranslatedText
-            stringId="patient.appointments.table.viewPastAppointments"
-            fallback="View past appointments"
-          />
-        </ViewPastBookingsButton>
-        {canCreateAppointment && (
+      <ActionRow data-testid="actionrow-1l1y">
+        {hasPastAppointments && (
+          <ViewPastBookingsButton
+            component={'span'}
+            onClick={() => setIsViewPastBookingsModalOpen(true)}
+            mr="6px"
+            data-testid="viewpastbookingsbutton-3n25"
+          >
+            <TranslatedText
+              stringId="patient.appointments.table.viewPastAppointments"
+              fallback="View past appointments"
+              data-testid="translatedtext-vw2l"
+            />
+          </ViewPastBookingsButton>
+        )}
+        {canCreateAppointment && !patient?.dateOfDeath && (
           <Button
             variant="outlined"
             color="primary"
             onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
+            data-testid="button-q06c"
           >
             <TranslatedText
               stringId="patient.appointments.table.bookAppointment"
               fallback="+ Book appointment"
+              data-testid="translatedtext-xzcy"
             />
           </Button>
         )}
@@ -282,6 +302,7 @@ const TableHeader = ({ title, patient }) => {
           open={true}
           onClose={() => setIsViewPastBookingsModalOpen(false)}
           patient={patient}
+          data-testid="pastappointmentmodal-2d8a"
         />
       )}
     </TableTitleContainer>
@@ -289,11 +310,23 @@ const TableHeader = ({ title, patient }) => {
 };
 
 export const OutpatientAppointmentsTable = ({ patient }) => {
+  const { ability } = useAuth();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'asc',
   });
 
+  // Query to check if there are past appointments
+  const pastAppointmentsQuery = useOutpatientAppointmentsQuery({
+    patientId: patient?.id,
+    before: getCurrentDateTimeString(),
+    after: '1970-01-01 00:00',
+    rowsPerPage: 1,
+  });
+
+  const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
+
+  // Query for future appointments
   const { data, isLoading } = useOutpatientAppointmentsQuery(
     {
       all: true,
@@ -312,7 +345,13 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid="translatedtext-wwhp"
+        />
+      ),
       action: () => setIsCancelModalOpen(true),
     },
   ];
@@ -322,17 +361,33 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
     history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   const COLUMNS = [
     {
       key: 'startTime',
-      title: <TranslatedText stringId="patient.appointments.table.column.date" fallback="Date" />,
+      title: (
+        <TranslatedText
+          stringId="patient.appointments.table.column.date"
+          fallback="Date"
+          data-testid="translatedtext-vnct"
+        />
+      ),
       accessor: getDate,
     },
     {
       key: 'outpatientAppointmentArea',
-      title: <TranslatedText stringId="patient.appointments.table.column.area" fallback="Area" />,
+      title: (
+        <TranslatedText
+          stringId="patient.appointments.table.column.area"
+          fallback="Area"
+          data-testid="translatedtext-lnn7"
+        />
+      ),
       accessor: ({ locationGroup }) => locationGroup?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={248} />,
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={248} data-testid="customcellcomponent-2uhm" />
+      ),
     },
     {
       key: 'clinician',
@@ -340,10 +395,13 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.clinician"
           fallback="Clinician"
+          data-testid="translatedtext-yyqg"
         />
       ),
       accessor: ({ clinician }) => clinician?.displayName || '-',
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={139} />,
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={139} data-testid="customcellcomponent-6zgq" />
+      ),
     },
     {
       key: 'appointmentType',
@@ -351,35 +409,49 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
         <TranslatedText
           stringId="patient.appointments.table.column.appointmentType"
           fallback="Appointment type"
+          data-testid="translatedtext-yiuf"
         />
       ),
       accessor: ({ appointmentType }) => appointmentType?.name,
-      CellComponent: ({ value }) => <CustomCellComponent value={value} $maxWidth={155} />,
-    },
-    {
-      key: '',
-      title: '',
-      dontCallRowInput: true,
-      sortable: false,
-      CellComponent: ({ data }) => (
-        <MenuContainer className="menu-container" onMouseEnter={() => setSelectedAppointment(data)}>
-          <StyledMenuButton actions={actions} />
-        </MenuContainer>
+      CellComponent: ({ value }) => (
+        <CustomCellComponent value={value} $maxWidth={155} data-testid="customcellcomponent-d6gg" />
       ),
     },
+    ...(canWriteAppointment
+      ? [
+          {
+            key: '',
+            title: '',
+            dontCallRowInput: true,
+            sortable: false,
+            CellComponent: ({ data }) => (
+              <MenuContainer
+                className="menu-container"
+                onMouseEnter={() => setSelectedAppointment(data)}
+                data-testid="menucontainer-o790"
+              >
+                <StyledMenuButton actions={actions} data-testid="styledmenubutton-ynql" />
+              </MenuContainer>
+            ),
+          },
+        ]
+      : []),
   ];
 
   if (!appointments.length && !isLoading) {
     return (
-      <NoDataContainer>
+      <NoDataContainer data-testid="nodatacontainer-zxmc">
         <TableHeader
           title={
             <TranslatedText
               stringId="patient.appointments.table.noData"
               fallback="No outpatient appointments"
+              data-testid="translatedtext-sb9h"
             />
           }
           patient={patient}
+          data-testid="tableheader-sd66"
+          hasPastAppointments={hasPastAppointments}
         />
       </NoDataContainer>
     );
@@ -398,20 +470,25 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
               <TranslatedText
                 stringId="patient.appointments.table.title"
                 fallback="Outpatient appointments"
+                data-testid="translatedtext-ian9"
               />
             }
             patient={patient}
+            data-testid="tableheader-kfdu"
+            hasPastAppointments={hasPastAppointments}
           />
         }
         onClickRow={handleRowClick}
         orderBy={orderBy}
         order={order}
         onChangeOrderBy={onChangeOrderBy}
+        data-testid="styledtable-covg"
       />
       <CancelAppointmentModal
         appointment={selectedAppointment}
         open={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+        data-testid="cancelappointmentmodal-l4f9"
       />
     </div>
   );

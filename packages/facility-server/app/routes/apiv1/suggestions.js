@@ -3,10 +3,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy, omit } from 'lodash';
+import { camelCase } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
-  ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
@@ -16,6 +15,7 @@ import {
   TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -26,23 +26,41 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-// Translation helpers
-const extractDataId = ({ stringId }) => stringId.split('.').pop();
-const replaceDataLabelsWithTranslations = ({ data, translations }) => {
-  const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => {
-    const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
-    return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
-  });
+const replaceDataLabelWithTranslation = (item) => {
+  if (item.dataValues.translated_name) {
+    item.setDataValue('name', item.dataValues.translated_name);
+  }
+  return item;
 };
+
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
   ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
-const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+const getTranslationPrefix = (dataType) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.`;
+
+const getTranslationAttributes = (endpoint, modelName) => {
+  const dataType = getDataType(endpoint);
+  return {
+    include: [
+      [
+        Sequelize.literal(`(
+        SELECT "text" 
+        FROM "translated_strings" 
+        WHERE "language" = :language
+        AND "string_id" = '${getTranslationPrefix(dataType)}' || "${modelName}"."id"
+        LIMIT 1
+      )`),
+        'translated_name',
+      ],
+    ],
+  };
+};
 
 function createSuggesterRoute(
   endpoint,
@@ -55,7 +73,7 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { language } = query;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
 
@@ -64,30 +82,28 @@ function createSuggesterRoute(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
       const dataType = getDataType(endpoint);
+      const translationPrefix = getTranslationPrefix(dataType);
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-
-      const translations = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: dataType,
-            queryString: searchQuery,
-            limit: defaultLimit,
-          })
-        : [];
-      const suggestedIds = translations.map(extractDataId);
-
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
-
-      const where = {
-        [Op.or]: [
-          whereQuery,
-          {
-            id: { [Op.in]: suggestedIds },
-            ...omit(whereQuery, 'name'),
+      const hasTranslations = await models.TranslatedString.count({
+        where: {
+          language,
+          stringId: {
+            [Op.startsWith]: translationPrefix,
           },
-        ],
-      };
+        },
+      });
+
+      const where =
+        isTranslatable && hasTranslations
+          ? Sequelize.literal(`EXISTS (
+            SELECT 1 
+            FROM translated_strings 
+            WHERE language = :language
+            AND string_id = '${translationPrefix}' || "${modelName}"."id"
+            AND text ILIKE :searchQuery
+          )`)
+          : whereBuilder(`%${searchQuery}%`, query, req);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -99,6 +115,7 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         include,
+        attributes: getTranslationAttributes(endpoint, modelName),
         order: [
           ...(order ? [order] : []),
           positionQuery,
@@ -106,15 +123,17 @@ function createSuggesterRoute(
         ],
         replacements: {
           positionMatch: searchQuery,
+          language,
+          searchQuery: `%${searchQuery}%`,
           ...extraReplacementsBuilder(query),
         },
         limit: defaultLimit,
       });
 
-      // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(r => mapper(r)));
+      const translatedData = results.map(replaceDataLabelWithTranslation);
 
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(translatedData.map(mapper)));
     }),
   );
 }
@@ -129,40 +148,25 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       const {
         models,
         params,
-        query: { language = ENGLISH_LANGUAGE_CODE },
+        query: { language = DEFAULT_LANGUAGE_CODE },
       } = req;
       req.checkPermission('list', modelName);
-      const record = await models[modelName].findByPk(params.id);
+
+      const record = await models[modelName].findOne({
+        where: { id: params.id },
+        attributes: getTranslationAttributes(endpoint, modelName),
+        replacements: {
+          language,
+        },
+      });
+
       if (!record) throw new NotFoundError();
 
       req.checkPermission('read', record);
-      const mappedRecord = await mapper(record);
 
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedRecord);
-        return;
-      }
+      const translatedRecord = replaceDataLabelWithTranslation(record);
 
-      const translation = await models.TranslatedString.findOne({
-        where: {
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
-          language,
-        },
-        attributes: ['stringId', 'text'],
-        raw: true,
-      });
-
-      if (!translation) {
-        res.send(mappedRecord);
-        return;
-      }
-
-      const translatedRecord = replaceDataLabelsWithTranslations({
-        data: [mappedRecord],
-        translations: [translation],
-      })[0];
-
-      res.send(translatedRecord);
+      res.send(await mapper(translatedRecord));
     }),
   );
 }
@@ -178,36 +182,26 @@ function createAllRecordsRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
+
       const where = whereBuilder('%', query, req);
+
       const results = await model.findAll({
         where,
+        attributes: getTranslationAttributes(endpoint, modelName),
         order: [[Sequelize.literal(searchColumn), 'ASC']],
-        replacements: extraReplacementsBuilder(query),
-      });
-
-      const mappedResults = await Promise.all(results.map(mapper));
-
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedResults);
-        return;
-      }
-
-      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByDataType(
-        {
-          language: query.language,
-          refDataType: getDataType(endpoint),
+        replacements: {
+          language,
+          ...extraReplacementsBuilder(query),
         },
-      );
-
-      const translatedResults = replaceDataLabelsWithTranslations({
-        data: mappedResults,
-        translations: translatedStrings,
       });
+
+      const translatedResults = results.map(replaceDataLabelWithTranslation);
 
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(translatedResults);
+      res.send(await Promise.all(translatedResults.map(mapper)));
     }),
   );
 }
@@ -303,7 +297,7 @@ createSuggester(
     ...VISIBILITY_CRITERIA,
   }),
   {
-    includeBuilder: req => {
+    includeBuilder: (req) => {
       const {
         models: { ReferenceData, TaskTemplate },
         query: { relationType },
@@ -337,43 +331,48 @@ createSuggester(
         },
       ];
     },
-    orderBuilder: req => {
+    orderBuilder: (req) => {
       const { query } = req;
-      const types = query.types
+      const types = query.types;
       if (!types?.length) return;
 
-      const caseStatement = query.types
-        .map((value, index) => `WHEN '${value}' THEN ${index + 1}`)
+      const caseStatement = types
+        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
         .join(' ');
 
       return [
         Sequelize.literal(`
-        CASE "ReferenceData"."type"
-          ${caseStatement}
-          ELSE ${query.types.length + 1}
-        END
-      `),
+          CASE "ReferenceData"."type"
+            ${caseStatement}
+            ELSE ${types.length + 1}
+          END
+        `),
       ];
     },
-    mapper: item => item,
-    creatingBodyBuilder: req =>
+    extraReplacementsBuilder: (query) =>
+      query.types.reduce((acc, value, index) => {
+        acc[`type${index}`] = value;
+        return acc;
+      }, {}),
+    mapper: (item) => item,
+    creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
   },
   true,
 );
 
-REFERENCE_TYPE_VALUES.forEach(typeName => {
+REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    search => ({
+    (search) => ({
       name: { [Op.iLike]: search },
       type: typeName,
       ...VISIBILITY_CRITERIA,
     }),
     {
-      includeBuilder: req => {
+      includeBuilder: (req) => {
         const {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
@@ -393,7 +392,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
-      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+      creatingBodyBuilder: (req) =>
+        referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
     },
     true,
@@ -404,7 +404,7 @@ createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 });
 
-const DEFAULT_WHERE_BUILDER = search => ({
+const DEFAULT_WHERE_BUILDER = (search) => ({
   name: { [Op.iLike]: search },
   ...VISIBILITY_CRITERIA,
 });
@@ -463,7 +463,7 @@ createSuggester(
     };
   },
   {
-    mapper: async location => {
+    mapper: async (location) => {
       const availability = await location.getAvailability();
       const { name, code, id, maxOccupancy, facilityId } = location;
 
@@ -506,17 +506,17 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 createSuggester(
   'invoiceProducts',
   'InvoiceProduct',
-  search => ({
+  (search) => ({
     name: { [Op.iLike]: search },
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
     ...VISIBILITY_CRITERIA,
   }),
   {
-    mapper: product => {
+    mapper: (product) => {
       product.addVirtualFields();
       return product;
     },
-    includeBuilder: req => {
+    includeBuilder: (req) => {
       return [
         {
           model: req.models.ReferenceData,
@@ -531,7 +531,7 @@ createSuggester(
 createSuggester(
   'practitioner',
   'User',
-  search => ({
+  (search) => ({
     displayName: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
@@ -544,38 +544,93 @@ createSuggester(
   },
 );
 
+// Remove whitespace from the start and end of each string then combine with a space in between
+// E.g. 'William ' + 'Horoto' => 'William Horoto'
+const trimAndConcat = (col1, col2) =>
+  Sequelize.fn(
+    'concat',
+    Sequelize.fn('trim', Sequelize.col(col1)),
+    ' ',
+    Sequelize.fn('trim', Sequelize.col(col2)),
+  );
 createSuggester(
   'patient',
   'Patient',
-  search => ({
+  (search) => ({
     [Op.or]: [
-      Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
-        { [Op.iLike]: search },
-      ),
+      Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
+      Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
       { displayId: { [Op.iLike]: search } },
     ],
   }),
-  { mapper: patient => patient, searchColumn: 'first_name' },
+  {
+    mapper: (patient) => patient,
+    searchColumn: 'first_name',
+    orderBuilder: (req) => {
+      const searchQuery = (req.query.q || '').trim().toLowerCase();
+      const escapedQuery = req.db.escape(searchQuery);
+      const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
+      return Sequelize.literal(`
+          CASE
+            WHEN LOWER(display_id) = ${escapedQuery} THEN 0
+            WHEN LOWER(display_id) LIKE ${escapedPartialMatch} THEN 1
+            WHEN LOWER(TRIM(first_name) || ' ' || TRIM(last_name)) LIKE ${escapedPartialMatch} THEN 2
+            WHEN LOWER(TRIM(last_name) || ' ' || TRIM(first_name)) LIKE ${escapedPartialMatch} THEN 3
+            ELSE 4
+          END
+        `);
+    },
+  },
 );
+
+createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', (search) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS FALSE
+          )`,
+      ),
+    },
+  };
+});
+
+createSuggester('sensitiveLabTestCategory', 'ReferenceData', (search) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+            SELECT DISTINCT(lab_test_category_id)
+            FROM lab_test_types
+            WHERE lab_test_types.is_sensitive IS TRUE
+          )`,
+      ),
+    },
+  };
+});
 
 // Specifically fetches lab test categories that have a lab request against a patient
 createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
-  (search, query) => {
+  (search, query, req) => {
     const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
     }
 
-    return {
-      ...baseWhere,
-      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      id: {
-        [Op.in]: Sequelize.literal(
-          `(
+    const idBaseFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
           SELECT DISTINCT(lab_test_category_id)
           FROM lab_requests
           INNER JOIN
@@ -585,12 +640,37 @@ createSuggester(
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
-        ),
-      },
+      ),
+    };
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    const idSensitiveFilter = {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_types.lab_test_category_id)
+          FROM lab_requests
+          INNER JOIN encounters
+            ON (encounters.id = lab_requests.encounter_id)
+          INNER JOIN lab_tests
+            ON (lab_requests.id = lab_tests.lab_request_id)
+          INNER JOIN lab_test_types
+            ON (lab_test_types.id = lab_tests.lab_test_type_id)
+          WHERE lab_requests.status = :lab_request_status
+            AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
+            AND lab_test_types.is_sensitive IS FALSE
+        )`,
+      ),
+    };
+
+    return {
+      ...baseWhere,
+      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      id: canListSensitive ? idBaseFilter : idSensitiveFilter,
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -633,7 +713,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -678,7 +758,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: query => ({
+    extraReplacementsBuilder: (query) => ({
       patient_id: query.patientId,
     }),
   },
@@ -702,31 +782,40 @@ createNameSuggester(
   }),
 );
 
-createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.patientId) {
-    return baseWhere;
-  }
+createNameSuggester(
+  'programRegistry',
+  'ProgramRegistry',
+  (search, query) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+    if (!query.patientId) {
+      return baseWhere;
+    }
 
-  return {
-    ...baseWhere,
-    // Only suggest program registries this patient isn't already part of
-    id: {
-      [Op.notIn]: Sequelize.literal(
-        `(
+    return {
+      ...baseWhere,
+      // Only suggest program registries this patient isn't already part of
+      id: {
+        [Op.notIn]: Sequelize.literal(
+          `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = '${query.patientId}'
+            ppr.patient_id = :patient_id
           AND
             ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
-      ),
-    },
-  };
-});
+        ),
+      },
+    };
+  },
+  {
+    extraReplacementsBuilder: (query) => ({
+      patient_id: query.patientId,
+    }),
+  },
+);
 
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
@@ -745,20 +834,20 @@ createNameSuggester('template', 'Template', (search, query) => {
   };
 });
 
-const routerEndpoints = suggestions.stack.map(layer => {
+const routerEndpoints = suggestions.stack.map((layer) => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
   return root;
 });
 const rootElements = [...new Set(routerEndpoints)];
-SUGGESTER_ENDPOINTS.forEach(endpoint => {
+SUGGESTER_ENDPOINTS.forEach((endpoint) => {
   if (!rootElements.includes(endpoint)) {
     throw new Error(
       `Suggester endpoint exists in shared constant but not included in router: ${endpoint}`,
     );
   }
 });
-rootElements.forEach(endpoint => {
+rootElements.forEach((endpoint) => {
   if (!SUGGESTER_ENDPOINTS.includes(endpoint)) {
     throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
   }

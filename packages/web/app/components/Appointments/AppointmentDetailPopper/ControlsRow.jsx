@@ -5,6 +5,7 @@ import Close from '@mui/icons-material/Close';
 
 import { MenuButton } from '../../MenuButton';
 import { TranslatedText } from '../../Translation';
+import { useAuth } from '../../../contexts/Auth';
 
 const ControlsContainer = styled('div')`
   z-index: 1;
@@ -42,23 +43,44 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 export const ControlsRow = ({ onClose, onCancel, onEdit, additionalActions = [] }) => {
+  const { ability } = useAuth();
+  const canWriteAppointment = ability.can('write', 'Appointment');
+
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.modify"
+          fallback="Modify"
+          data-testid="translatedtext-5996"
+        />
+      ),
       action: onEdit,
     },
     {
-      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.cancel"
+          fallback="Cancel"
+          data-testid="translatedtext-vb4b"
+        />
+      ),
       action: onCancel,
     },
     ...additionalActions,
   ];
 
   return (
-    <ControlsContainer>
-      <StyledMenuButton actions={actions} placement="bottom-start" />
-      <StyledIconButton onClick={onClose}>
-        <Close />
+    <ControlsContainer data-testid="controlscontainer-5uec">
+      {canWriteAppointment && (
+        <StyledMenuButton
+          actions={actions}
+          placement="bottom-start"
+          data-testid="styledmenubutton-5ofi"
+        />
+      )}
+      <StyledIconButton onClick={onClose} data-testid="stylediconbutton-5htw">
+        <Close data-testid="close-j8rj" />
       </StyledIconButton>
     </ControlsContainer>
   );

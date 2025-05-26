@@ -1,4 +1,4 @@
-import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
+import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import {
   IMAGING_REQUEST_STATUS_TYPES,

@@ -12,13 +12,13 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const queryClient = useQueryClient();
   const diagnosisSuggester = useSuggester('diagnosis');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
 
-  const recordPatientDeath = async data => {
+  const recordPatientDeath = async (data) => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/death`, data);
     queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
@@ -30,9 +30,16 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
 
   return (
     <FormModal
-      title={<TranslatedText stringId="death.modal.title" fallback="Record patient death" />}
+      title={
+        <TranslatedText
+          stringId="death.modal.title"
+          fallback="Record patient death"
+          data-testid="translatedtext-anoc"
+        />
+      }
       open={open}
       onClose={onClose}
+      data-testid="formmodal-301r"
     >
       <DeathForm
         onSubmit={recordPatientDeath}
@@ -42,6 +49,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
         diagnosisSuggester={diagnosisSuggester}
         practitionerSuggester={practitionerSuggester}
         facilitySuggester={facilitySuggester}
+        data-testid="deathform-4faj"
       />
     </FormModal>
   );

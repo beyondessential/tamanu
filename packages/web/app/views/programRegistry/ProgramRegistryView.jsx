@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { Colors } from '../../constants';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ProgramRegistrySearchBar } from './ProgramRegistrySearchBar';
 import { ProgramRegistryTable } from './ProgramRegistryTable';
+import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -28,31 +29,49 @@ const Container = styled.div`
 `;
 
 export const ProgramRegistryView = () => {
+  const { programRegistryId } = useParams();
   const searchParams = useUrlSearchParams();
   const [searchParameters, setSearchParameters] = useState({});
   const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) return <LoadingIndicator data-testid="loadingindicator-08mp" />;
   if (
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
-    programRegistries.data.find(x => x.name === searchParams.get('name'))
+    programRegistries.data.find((x) => x.id === programRegistryId)
   )
     return (
       <>
-        <ViewHeader>
-          <h1>{searchParams.get('name')}</h1>
+        <ViewHeader data-testid="viewheader-0ae2">
+          <h1>
+            <TranslatedReferenceData
+              fallback={searchParams.get('name')}
+              value={programRegistryId}
+              category="programRegistry"
+              data-testid="translatedreferencedata-ouwu"
+            />
+          </h1>
         </ViewHeader>
-        <Container>
-          <span>Program patient search</span>
+        <Container data-testid="container-u94j">
+          <span>
+            <TranslatedText
+              stringId="programRegistry.patientSearch.title"
+              fallback="Program patient search"
+              data-testid="translatedtext-4bug"
+            />
+          </span>
           <ProgramRegistrySearchBar
             searchParameters={searchParameters}
             setSearchParameters={setSearchParameters}
+            data-testid="programregistrysearchbar-nyxg"
           />
-          <ProgramRegistryTable searchParameters={searchParameters} />
+          <ProgramRegistryTable
+            searchParameters={searchParameters}
+            data-testid="programregistrytable-o95j"
+          />
         </Container>
       </>
     );
-  return <Redirect to="/patients/all" />;
+  return <Redirect to="/patients/all" data-testid="redirect-knps" />;
 };

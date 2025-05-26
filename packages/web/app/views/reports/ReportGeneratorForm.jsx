@@ -75,13 +75,15 @@ const AboutReportButton = styled(TextButton)`
 const ReportIdField = ({ onValueChange, ...props }) => {
   const { field } = props;
   const changeCallback = useCallback(
-    event => {
+    (event) => {
       onValueChange(event.target.value);
       field.onChange(event);
     },
     [onValueChange, field],
   );
-  return <AutocompleteField {...props} onChange={changeCallback} />;
+  return (
+    <AutocompleteField {...props} onChange={changeCallback} data-testid="autocompletefield-pky7" />
+  );
 };
 
 const buildParameterFieldValidation = ({ name, required }) => {
@@ -98,7 +100,7 @@ const useFileName = () => {
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
-  return reportName => {
+  return (reportName) => {
     const dashedName = `${reportName}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
@@ -108,9 +110,9 @@ const useFileName = () => {
   };
 };
 
-const getAboutReportString = reportName => `About ${reportName}`;
+const getAboutReportString = (reportName) => `About ${reportName}`;
 
-const isJsonString = str => {
+const isJsonString = (str) => {
   try {
     JSON.parse(str);
   } catch (e) {
@@ -137,7 +139,7 @@ export const ReportGeneratorForm = () => {
   const reportOptions = useMemo(
     () =>
       orderBy(
-        availableReports.map(r => ({ value: r.id, label: r.name })),
+        availableReports.map((r) => ({ value: r.id, label: r.name })),
         'label',
       ),
     [availableReports],
@@ -146,10 +148,14 @@ export const ReportGeneratorForm = () => {
   const {
     parameters = [],
     dateRangeLabel = (
-      <TranslatedText stringId="report.generate.dateRange.label" fallback="Date range" />
+      <TranslatedText
+        stringId="report.generate.dateRange.label"
+        fallback="Date range"
+        data-testid="translatedtext-hf3l"
+      />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
-    filterDateRangeAsStrings = false,
+    filterDateRangeAsStrings = true,
   } = reportsById[selectedReportId] || {};
 
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
@@ -171,6 +177,7 @@ export const ReportGeneratorForm = () => {
             <TranslatedText
               stringId="report.generate.requestError.loadFailure"
               fallback="Unable to load available reports"
+              data-testid="translatedtext-jzpc"
             />
           )} - ${error.message}`,
         );
@@ -178,7 +185,7 @@ export const ReportGeneratorForm = () => {
     })();
   }, [api]);
 
-  const submitRequestReport = async formValues => {
+  const submitRequestReport = async (formValues) => {
     const { reportId, ...filterValues } = formValues;
     delete filterValues.emails;
 
@@ -232,6 +239,7 @@ export const ReportGeneratorForm = () => {
           <TranslatedText
             stringId="report.generate.message.request.success"
             fallback="Report successfully requested. You will receive an email soon."
+            data-testid="translatedtext-byjn"
           />,
         );
       }
@@ -241,6 +249,7 @@ export const ReportGeneratorForm = () => {
           stringId="reportGenerator.error.cantSubmitRequest"
           fallback="Unable to submit report request - :errorMessage"
           replacements={{ errorMessage: e.message }}
+          data-testid="translatedtext-mrf5"
         />,
       );
     }
@@ -260,6 +269,7 @@ export const ReportGeneratorForm = () => {
         <TranslatedText
           stringId="report.generate.message.export.success"
           fallback="Report successfully exported"
+          data-testid="translatedtext-mr0n"
         />,
       );
     } catch (error) {
@@ -271,7 +281,7 @@ export const ReportGeneratorForm = () => {
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
   if (Array.isArray(availableReports) === false && !requestError) {
-    return <LoadingIndicator backgroundColor="#f7f9fb" />;
+    return <LoadingIndicator backgroundColor="#f7f9fb" data-testid="loadingindicator-y4n3" />;
   }
 
   return (
@@ -299,24 +309,31 @@ export const ReportGeneratorForm = () => {
       })}
       render={({ values, submitForm, clearForm }) => (
         <>
-          <FormGrid columns={2}>
+          <FormGrid columns={2} data-testid="formgrid-8gz6">
             <Field
               name="reportId"
-              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
+              label={
+                <TranslatedText
+                  stringId="report.generate.report.label"
+                  fallback="Report"
+                  data-testid="translatedtext-2jvz"
+                />
+              }
               component={ReportIdField}
               options={reportOptions}
               required
-              onValueChange={reportId => {
+              onValueChange={(reportId) => {
                 setSelectedReportId(reportId);
                 clearForm();
                 resetDownload();
               }}
+              data-testid="field-sg1t"
             />
             <Field
               name="dataSource"
               label=" "
               value={dataSource}
-              onChange={e => {
+              onChange={(e) => {
                 setDataSource(e.target.value);
                 resetDownload();
               }}
@@ -326,6 +343,7 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.thisFacility"
                       fallback="This facility"
+                      data-testid="translatedtext-jqr4"
                     />
                   ),
                   value: REPORT_DATA_SOURCES.THIS_FACILITY,
@@ -335,6 +353,7 @@ export const ReportGeneratorForm = () => {
                     <TranslatedText
                       stringId="report.generate.dataSource.option.allFacilities"
                       fallback="All facilities"
+                      data-testid="translatedtext-mdzf"
                     />
                   ),
                   value: REPORT_DATA_SOURCES.ALL_FACILITIES,
@@ -342,12 +361,16 @@ export const ReportGeneratorForm = () => {
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
+              data-testid="field-ran8"
             />
           </FormGrid>
           {reportsById[selectedReportId]?.notes && (
             <>
-              <FormGrid columns={1}>
-                <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
+              <FormGrid columns={1} data-testid="formgrid-seem">
+                <AboutReportButton
+                  onClick={() => setIsReportModalOpen(true)}
+                  data-testid="aboutreportbutton-xxge"
+                >
                   {getAboutReportString(reportsById[selectedReportId].name)}
                 </AboutReportButton>
               </FormGrid>
@@ -356,13 +379,14 @@ export const ReportGeneratorForm = () => {
                 open={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
                 content={reportsById[selectedReportId].notes}
+                data-testid="reportaboutmodal-8od0"
               />
             </>
           )}
           {parameters.length > 0 ? (
             <>
-              <Spacer />
-              <FormGrid columns={3}>
+              <Spacer data-testid="spacer-98f7" />
+              <FormGrid columns={3} data-testid="formgrid-iobt">
                 {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
                   return (
                     <ParameterField
@@ -375,34 +399,49 @@ export const ReportGeneratorForm = () => {
                       parameters={parameters}
                       onChange={() => resetDownload()}
                       {...restOfProps}
+                      data-testid={`parameterfield-g4og-${name || parameterField}`}
                     />
                   );
                 })}
               </FormGrid>
             </>
           ) : null}
-          <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
-          <FormGrid columns={2} style={{ marginBottom: 30 }}>
+          <DateRangeLabel variant="body1" data-testid="daterangelabel-r96n">
+            {dateRangeLabel}
+          </DateRangeLabel>
+          <FormGrid columns={2} style={{ marginBottom: 30 }} data-testid="formgrid-v8bv">
             <Field
               name="fromDate"
               label={
-                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
+                <TranslatedText
+                  stringId="report.generate.fromDate.label"
+                  fallback="From date"
+                  data-testid="translatedtext-ckj1"
+                />
               }
               onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
+              data-testid="field-nozf"
             />
             <Field
               name="toDate"
-              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
+              label={
+                <TranslatedText
+                  stringId="report.generate.toDate.label"
+                  fallback="To date"
+                  data-testid="translatedtext-5ucj"
+                />
+              }
               onChange={() => resetDownload()}
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
+              data-testid="field-2d95"
             />
           </FormGrid>
           {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
-            <EmailInputContainer>
-              <EmailField onChange={() => resetDownload()} />
+            <EmailInputContainer data-testid="emailinputcontainer-hss0">
+              <EmailField onChange={() => resetDownload()} data-testid="emailfield-t4vt" />
             </EmailInputContainer>
           )}
           {requestError && (
@@ -412,6 +451,7 @@ export const ReportGeneratorForm = () => {
               onClose={() => {
                 setRequestError(null);
               }}
+              data-testid="alert-us27"
             >
               Error: {requestError}
             </Alert>
@@ -423,15 +463,25 @@ export const ReportGeneratorForm = () => {
               onClose={() => {
                 setSuccessMessage(null);
               }}
+              data-testid="alert-vt6q"
             >
-              <AlertTitle>Success</AlertTitle>
+              <AlertTitle data-testid="alerttitle-8846">Success</AlertTitle>
               {successMessage}
             </Alert>
           )}
-          <Box display="flex" justifyContent="flex-end" gridGap="1em">
+          <Box display="flex" justifyContent="flex-end" gridGap="1em" data-testid="box-5cle">
             {dataReadyForSaving ? (
-              <Button onClick={onDownload} startIcon={<GetAppIcon />}>
-                <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
+              <Button
+                onClick={onDownload}
+                startIcon={<GetAppIcon data-testid="getappicon-xgvk" />}
+                data-testid="button-f4xo"
+              >
+                <TranslatedText
+                  stringId="report.generate.action.download"
+                  fallback="Download"
+                  data-testid="translatedtext-97hn"
+                />{' '}
+                (
                 {(
                   (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
                   1024
@@ -448,9 +498,10 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateXLSX"
                         fallback="Generate as .XLSX"
+                        data-testid="translatedtext-2hhw"
                       />
                     ),
-                    onClick: event => {
+                    onClick: (event) => {
                       setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
                       submitForm(event);
                     },
@@ -460,19 +511,22 @@ export const ReportGeneratorForm = () => {
                       <TranslatedText
                         stringId="report.generate.action.generateCSV"
                         fallback="Generate as .CSV"
+                        data-testid="translatedtext-h038"
                       />
                     ),
-                    onClick: event => {
+                    onClick: (event) => {
                       setBookFormat(REPORT_EXPORT_FORMATS.CSV);
                       submitForm(event);
                     },
                   },
                 ]}
+                data-testid="formsubmitdropdownbutton-2ik1"
               />
             )}
           </Box>
         </>
       )}
+      data-testid="form-o74s"
     />
   );
 };

@@ -56,6 +56,7 @@ user.get(
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,
       })),
+      makeFilter(true, `patients.merged_into_id IS NULL`),
     ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(filters);
@@ -69,6 +70,7 @@ user.get(
         patients.last_name,
         patients.sex,
         patients.date_of_birth,
+        patients.date_of_death,
         encounters.id AS encounter_id,
         encounters.encounter_type,
         user_recently_viewed_patients.updated_at AS last_accessed_on
@@ -124,16 +126,17 @@ user.post(
 );
 
 user.get(
-  '/userPreferences',
+  '/userPreferences/:facilityId',
   asyncHandler(async (req, res) => {
     const {
       models: { UserPreference },
       user: currentUser,
+      params: { facilityId },
     } = req;
 
     req.checkPermission('read', currentUser);
 
-    const userPreferences = await UserPreference.getAllPreferences(currentUser.id);
+    const userPreferences = await UserPreference.getAllPreferences(currentUser.id, facilityId);
 
     // Return {} as default if no user preferences exist
     res.send(userPreferences || {});
@@ -146,16 +149,16 @@ user.post(
     const {
       models: { UserPreference },
       user: currentUser,
-      body,
+      body: { facilityId = null, key, value },
     } = req;
 
     req.checkPermission('write', currentUser);
 
-    const { key, value } = body;
     const [userPreferences] = await UserPreference.upsert({
       key,
       value,
       userId: currentUser.id,
+      facilityId,
       deletedAt: null,
     });
 
@@ -168,28 +171,17 @@ const clinicianTasksQuerySchema = z.object({
     .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
     .optional()
     .default('dueTime'),
-  order: z
-    .enum(['asc', 'desc'])
-    .optional()
-    .default('asc'),
+  order: z.enum(['asc', 'desc']).optional().default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
-    .transform(value => value === 'true')
+    .transform((value) => value === 'true')
     .optional()
     .default('false'),
-  page: z.coerce
-    .number()
-    .optional()
-    .default(0),
-  rowsPerPage: z.coerce
-    .number()
-    .max(50)
-    .min(10)
-    .optional()
-    .default(25),
+  page: z.coerce.number().optional().default(0),
+  rowsPerPage: z.coerce.number().max(50).min(10).optional().default(25),
   facilityId: z.string(),
 });
 user.get(

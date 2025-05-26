@@ -4,10 +4,10 @@ import {
   randomReferenceData,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
-import { randomDate, randomLabRequest } from '@tamanu/database/demoData';
+import { randomDate, randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
@@ -813,6 +813,25 @@ describe('Patient relations', () => {
       response.body.data.forEach((labTest) => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
+    });
+
+    it('excludes sensitive lab test results', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const labRequestData = await randomSensitiveLabRequest(models, {
+        patientId: labTestsPatient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        sampleTime: randomDate(),
+      });
+      await models.LabRequest.createWithTests(labRequestData);
+
+      const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(10);
+      expect(response.body.data.length).toEqual(10);
     });
 
     test.todo('Allows filtering lab tests by panel');

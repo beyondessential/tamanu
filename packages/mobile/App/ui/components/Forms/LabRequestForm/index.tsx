@@ -13,44 +13,66 @@ import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
+  const { ability } = useAuth();
+  const canCreateSensitive = ability.can('create', 'SensitiveLabRequest');
   const [labTestTypes, setLabTestTypes] = useState([]);
   const { models } = useBackend();
 
-  const labRequestCategorySuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabTestCategory,
+  const labRequestCategorySuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabTestCategory,
+      },
     },
   });
-  const labRequestPrioritySuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabTestPriority,
+  const labRequestPrioritySuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabTestPriority,
+      },
     },
   });
-  const labSampleSiteSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabSampleSite,
+  const labSampleSiteSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabSampleSite,
+      },
     },
   });
-  const specimenTypeSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.SpecimenType,
+  const specimenTypeSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.SpecimenType,
+      },
     },
   });
 
-  const practitionerSuggester = new Suggester(
-    models.User,
-    { column: 'displayName' },
-    (model): OptionType => ({ label: model.displayName, value: model.id }),
-  );
+  const practitionerSuggester = new Suggester({
+    model: models.User,
+    options: { column: 'displayName' },
+    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
+  });
 
-  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
+  const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
+    const where: any = {
+      labTestCategory: { id: selectedValue },
+      visibilityStatus: VisibilityStatus.Current,
+    };
+    if (!canCreateSensitive) {
+      where.isSensitive = false;
+    }
     const selectedLabTestTypes = await models.LabTestType.find({
-      where: { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current },
+      where,
       order: { name: 'ASC' },
     });
-    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
+    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
       id: labTestType.id,
       text: (
         <TranslatedReferenceData

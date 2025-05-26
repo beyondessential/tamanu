@@ -3,10 +3,14 @@ import { Ability, AbilityBuilder } from '@casl/ability';
 export function buildAbility(permissions, options = {}) {
   const { can, build } = new AbilityBuilder(Ability);
 
-  permissions.forEach(a => {
+  permissions.forEach((a) => {
     if (a.objectId) {
       can(a.verb, a.noun, { id: a.objectId });
     } else {
+      if (a.verb === 'list' || a.verb === 'read') {
+        can('listOrRead', a.noun);
+      }
+
       can(a.verb, a.noun);
     }
   });
@@ -41,7 +45,7 @@ export function buildAbilityForUser(user, permissions) {
 // from the class name, in the same way that sequelize does it)
 export function buildAbilityForTests(permissions) {
   return buildAbility(permissions, {
-    detectSubjectType: obj => {
+    detectSubjectType: (obj) => {
       if (typeof obj === 'string') {
         return obj;
       }

@@ -3,13 +3,11 @@ import { Op } from 'sequelize';
 
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
-import { fake } from '@tamanu/shared/test-helpers/fake';
-import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
+import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../dist/subCommands/migrateDataInBatches/migrateDataInBatches';
-
-const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 
 const addSystemNote = async (models, recordId, content, date, user) =>
   models.Note.create({
@@ -18,7 +16,7 @@ const addSystemNote = async (models, recordId, content, date, user) =>
     date,
     noteType: NOTE_TYPES.SYSTEM,
     content,
-    authorId: user?.id || DEFAULT_USER_ID,
+    authorId: user?.id || SYSTEM_USER_UUID,
   });
 
 const addLocationChangeNote = async (
@@ -121,7 +119,6 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let patient;
   let facility1;
   let locationGroup1;
-  let defaultUser;
 
   const NOTE_SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
 
@@ -185,7 +182,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       force: true,
       where: {
         id: {
-          [Op.not]: DEFAULT_USER_ID,
+          [Op.not]: SYSTEM_USER_UUID,
         },
       },
     });
@@ -194,7 +191,6 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    defaultUser = await createUser('default user', { id: DEFAULT_USER_ID });
 
     patient = await models.Patient.create(await createDummyPatient(models));
     facility1 = await models.Facility.create({
@@ -272,7 +268,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: EncounterChangeType.Location,
-        actorId: defaultUser.id,
+        actorId: SYSTEM_USER_UUID,
         date: locationChangeNoteDate,
       });
     });
@@ -379,7 +375,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Location,
-        actorId: defaultUser.id,
+        actorId: SYSTEM_USER_UUID,
       });
 
       // Department change history
@@ -390,7 +386,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Department,
-        actorId: defaultUser.id,
+        actorId: SYSTEM_USER_UUID,
       });
 
       // Clinician change history
@@ -401,7 +397,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: newUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Examiner,
-        actorId: defaultUser.id,
+        actorId: SYSTEM_USER_UUID,
       });
 
       // Encounter type change history
@@ -412,7 +408,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: newUser.id,
         encounterType: newEncounterType,
         changeType: EncounterChangeType.EncounterType,
-        actorId: defaultUser.id,
+        actorId: SYSTEM_USER_UUID,
       });
     });
   });

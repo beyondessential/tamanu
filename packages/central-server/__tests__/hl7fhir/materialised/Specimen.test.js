@@ -235,8 +235,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       it('correctly includes a practitioner', async () => {
         const { models } = ctx.store;
-        const { FhirSpecimen, FhirPractitioner } = models;
+        const { FhirSpecimen, FhirServiceRequest, FhirPractitioner } = models;
         const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
+        await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
         const materialisePractitioner = await FhirPractitioner.materialiseFromUpstream(
           labRequest.collectedById,

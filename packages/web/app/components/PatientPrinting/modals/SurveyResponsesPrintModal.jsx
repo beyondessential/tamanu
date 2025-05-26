@@ -29,10 +29,8 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const {
-      data: additionalData,
-      isLoading: isAdditionalDataLoading,
-    } = usePatientAdditionalDataQuery(patient.id);
+    const { data: additionalData, isLoading: isAdditionalDataLoading } =
+      usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
@@ -42,7 +40,9 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(surveyResponseId);
+    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(
+      surveyResponseId,
+    );
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', surveyResponse?.userId],
@@ -63,7 +63,11 @@ export const SurveyResponsesPrintModal = React.memo(
     return (
       <Modal
         title={
-          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+          <TranslatedText
+            stringId="surveyResponse.modal.details.title"
+            fallback="Form response"
+            data-testid="translatedtext-wxg3"
+          />
         }
         open={open}
         onClose={onClose}
@@ -71,8 +75,13 @@ export const SurveyResponsesPrintModal = React.memo(
         color={Colors.white}
         printable
         onPrint={() => printPDF('survey-responses-printout')}
+        data-testid="modal-65lj"
       >
-        <PDFLoader isLoading={isLoading} id="survey-responses-printout">
+        <PDFLoader
+          isLoading={isLoading}
+          id="survey-responses-printout"
+          data-testid="pdfloader-8yz5"
+        >
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
             surveyResponse={{
@@ -86,6 +95,7 @@ export const SurveyResponsesPrintModal = React.memo(
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
+            data-testid="surveyresponsesprintout-7nfz"
           />
         </PDFLoader>
       </Modal>

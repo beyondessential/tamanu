@@ -39,7 +39,7 @@ export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
         }),
       );
     })();
-  }, [searchValue]);
+  }, [searchValue, value, suggester]);
 
   return (
     <FullView background={theme.colors.WHITE}>

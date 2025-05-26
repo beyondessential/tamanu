@@ -87,13 +87,13 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async data => {
-    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
+  const handleSubmit = async (data) => {
+    const invoiceItems = data.invoiceItems.filter((item) => !!item.productId);
     updateInvoice(
       {
         ...invoice,
         items: invoiceItems,
-        insurers: data.insurers.map(insurer => ({
+        insurers: data.insurers.map((insurer) => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -104,7 +104,7 @@ export const EditInvoiceModal = ({
     );
   };
 
-  const handleShowErrorDialog = errors => {
+  const handleShowErrorDialog = (errors) => {
     return Object.keys(errors).length === 1 && errors['totalInsurerPercentage'];
   };
 
@@ -116,19 +116,24 @@ export const EditInvoiceModal = ({
             is: (productId, orderedByUserId) => productId || orderedByUserId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+              .required(
+                <TranslatedText
+                  stringId="validation.required.inline"
+                  fallback="*Required"
+                  data-testid="translatedtext-8g9w"
+                />,
+              ),
             otherwise: yup.string(),
           }),
           productId: yup.string().when(['orderDate', 'orderedByUserId'], {
             is: (orderDate, orderedByUserId) => orderDate || orderedByUserId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(
+              .required(
                 <TranslatedText
-                  stringId="invoice.modal.editInvoice.details.label"
-                  fallback="Details"
+                  stringId="validation.required.inline"
+                  fallback="*Required"
+                  data-testid="translatedtext-wff4"
                 />,
               ),
             otherwise: yup.string(),
@@ -137,14 +142,36 @@ export const EditInvoiceModal = ({
             is: (orderDate, productId) => orderDate || productId,
             then: yup
               .string()
-              .required()
-              .translatedLabel(
+              .required(
                 <TranslatedText
-                  stringId="invoice.modal.editInvoice.orderedBy.label"
-                  fallback="Ordered by"
+                  stringId="validation.required.inline"
+                  fallback="*Required"
+                  data-testid="translatedtext-dz1y"
                 />,
               ),
             otherwise: yup.string(),
+          }),
+          quantity: yup
+            .number()
+            .required(
+              <TranslatedText
+                stringId="general.required"
+                fallback="Required"
+                data-testid="translatedtext-029d"
+              />,
+            ),
+          productPrice: yup.number().when(['productId'], {
+            is: (productId) => !!productId,
+            then: yup
+              .number()
+              .required(
+                <TranslatedText
+                  stringId="general.required"
+                  fallback="Required"
+                  data-testid="translatedtext-h29b"
+                />,
+              ),
+            otherwise: yup.number(),
           }),
         },
         [
@@ -163,11 +190,18 @@ export const EditInvoiceModal = ({
             <TranslatedText
               stringId="invoice.modal.editInvoice.insurer.label"
               fallback="Insurer"
+              data-testid="translatedtext-ufad"
             />,
           ),
         percentage: yup
           .number()
-          .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          .required(
+            <TranslatedText
+              stringId="general.required"
+              fallback="Required"
+              data-testid="translatedtext-vh20"
+            />,
+          ),
       }),
     ),
     totalInsurerPercentage: yup
@@ -177,8 +211,9 @@ export const EditInvoiceModal = ({
         <TranslatedText
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
+          data-testid="translatedtext-ddnm"
         />,
-        function(_, context) {
+        function (_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -194,26 +229,34 @@ export const EditInvoiceModal = ({
             invoice={invoice}
             invoiceItems={values.invoiceItems}
             formArrayMethods={formArrayMethods}
+            data-testid="potentialinvoiceitemstable-7w6m"
           />
         )
       );
     }
-    return <PaymentTablesGroup invoice={invoice} />;
+    return <PaymentTablesGroup invoice={invoice} data-testid="paymenttablesgroup-bdmf" />;
   };
 
   return (
     <Modal
       width="lg"
       title={
-        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-          <Box display="flex" alignItems="center" flex={1}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+          data-testid="box-8k4x"
+        >
+          <Box display="flex" alignItems="center" flex={1} data-testid="box-ju8n">
             <TranslatedText
               stringId="invoice.modal.view.title"
               fallback="Invoice number: :invoiceNumber"
               replacements={{ invoiceNumber: invoice.displayId }}
+              data-testid="translatedtext-8v3p"
             />
-            <StatusContainer>
-              <InvoiceStatus status={invoice.status} />
+            <StatusContainer data-testid="statuscontainer-ns5o">
+              <InvoiceStatus status={invoice.status} data-testid="invoicestatus-rk2s" />
             </StatusContainer>
           </Box>
           {isPatientView && !editable && (
@@ -221,20 +264,31 @@ export const EditInvoiceModal = ({
               onClick={() => setPrintModalOpen(true)}
               color="primary"
               variant="outlined"
-              startIcon={<PrintIcon />}
+              startIcon={<PrintIcon data-testid="printicon-700j" />}
               size="small"
+              data-testid="printbutton-7m03"
             >
-              <TranslatedText stringId="general.action.print" fallback="Print" />
+              <TranslatedText
+                stringId="general.action.print"
+                fallback="Print"
+                data-testid="translatedtext-oqyn"
+              />
             </PrintButton>
           )}
           {printModalOpen && (
-            <InvoiceRecordModal open onClose={() => setPrintModalOpen(false)} invoice={invoice} />
+            <InvoiceRecordModal
+              open
+              onClose={() => setPrintModalOpen(false)}
+              invoice={invoice}
+              data-testid="invoicerecordmodal-ep8b"
+            />
           )}
         </Box>
       }
       open={open}
       onClose={onClose}
       overrideContentPadding
+      data-testid="modal-4e1e"
     >
       <>
         {(finalisable || cancelable || deletable) && (
@@ -245,12 +299,14 @@ export const EditInvoiceModal = ({
               alignItems="center"
               paddingX="36px"
               marginBottom="-16px"
+              data-testid="box-bf9z"
             >
               {finalisable && (
-                <Button onClick={handleFinaliseInvoice}>
+                <Button onClick={handleFinaliseInvoice} data-testid="button-yicz">
                   <TranslatedText
                     stringId="invoice.modal.finaliseButton.label"
                     fallback="Finalise invoice"
+                    data-testid="translatedtext-upzu"
                   />
                 </Button>
               )}
@@ -262,6 +318,7 @@ export const EditInvoiceModal = ({
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.cancelInvoice"
                           fallback="Cancel invoice"
+                          data-testid="translatedtext-agjc"
                         />
                       ),
                       onClick: handleCancelInvoice,
@@ -272,12 +329,14 @@ export const EditInvoiceModal = ({
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.deleteInvoice"
                           fallback="Delete invoice"
+                          data-testid="translatedtext-o4n6"
                         />
                       ),
                       onClick: handleDeleteInvoice,
                       hidden: !deletable,
                     },
                   ]}
+                  data-testid="threedotmenu-4xaq"
                 />
               )}
             </Box>
@@ -286,6 +345,7 @@ export const EditInvoiceModal = ({
                 style={{
                   margin: '30px 36px -15px 36px',
                 }}
+                data-testid="divider-x5gi"
               />
             )}
           </>
@@ -296,7 +356,7 @@ export const EditInvoiceModal = ({
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map(insurer => ({
+              ? invoice.insurers.map((insurer) => ({
                   ...insurer,
                   percentage: insurer.percentage * 100,
                 }))
@@ -304,12 +364,12 @@ export const EditInvoiceModal = ({
           }}
           validationSchema={schema}
           render={({ submitForm, values }) => (
-            <FieldArray name="invoiceItems">
-              {formArrayMethods => {
+            <FieldArray name="invoiceItems" data-testid="fieldarray-3xyn">
+              {(formArrayMethods) => {
                 return (
-                  <FormContainer>
-                    <InvoiceItemHeader />
-                    <Box paddingBottom="10px">
+                  <FormContainer data-testid="formcontainer-fssp">
+                    <InvoiceItemHeader data-testid="invoiceitemheader-dhmx" />
+                    <Box paddingBottom="10px" data-testid="box-wvt7">
                       {values.invoiceItems?.map((item, index) => (
                         <InvoiceItemRow
                           key={item.id}
@@ -319,37 +379,55 @@ export const EditInvoiceModal = ({
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
                           editable={editable && canWriteInvoice}
+                          data-testid={`invoiceitemrow-ri5o-${index}`}
                         />
                       ))}
                     </Box>
                     {editable && canWriteInvoice && (
-                      <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
+                      <LinkText
+                        onClick={() => formArrayMethods.push(getDefaultRow())}
+                        data-testid="linktext-v8q2"
+                      >
                         {'+ '}
                         <TranslatedText
                           stringId="invoice.modal.editInvoice.action.newRow"
                           fallback="Add new row"
+                          data-testid="translatedtext-9vs0"
                         />
                       </LinkText>
                     )}
-                    <ModalSection>
+                    <ModalSection data-testid="modalsection-42ld">
                       {renderDataTables(values, formArrayMethods)}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
                         editable={editable && canWriteInvoice}
                         handleEditDiscount={handleEditDiscount}
+                        data-testid="invoicesummarypanel-kin9"
                       />
                     </ModalSection>
-                    <StyledDivider />
+                    <StyledDivider data-testid="styleddivider-w87c" />
                     <FormSubmitCancelRow
                       confirmText={
                         !isUpdatingInvoice ? (
                           editable && canWriteInvoice ? (
-                            <TranslatedText stringId="general.action.save" fallback="Save" />
+                            <TranslatedText
+                              stringId="general.action.save"
+                              fallback="Save"
+                              data-testid="translatedtext-26ji"
+                            />
                           ) : (
-                            <TranslatedText stringId="general.action.close" fallback="Close" />
+                            <TranslatedText
+                              stringId="general.action.close"
+                              fallback="Close"
+                              data-testid="translatedtext-qol5"
+                            />
                           )
                         ) : (
-                          <CircularProgress size={14} color={Colors.white} />
+                          <CircularProgress
+                            size={14}
+                            color={Colors.white}
+                            data-testid="circularprogress-b1j8"
+                          />
                         )
                       }
                       onConfirm={editable && canWriteInvoice ? submitForm : onClose}
@@ -362,12 +440,14 @@ export const EditInvoiceModal = ({
                           opacity: 0.3;
                         }
                       `}
+                      data-testid="formsubmitcancelrow-9g6q"
                     />
                   </FormContainer>
                 );
               }}
             </FieldArray>
           )}
+          data-testid="form-6f50"
         />
       </>
     </Modal>

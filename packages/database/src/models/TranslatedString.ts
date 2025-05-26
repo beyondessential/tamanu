@@ -1,13 +1,14 @@
-import {
-  SYNC_DIRECTIONS,
-  ENGLISH_LANGUAGE_CODE,
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
+
+type TranslationOptions = {
+  replacements: Record<string, string>;
+  casing: 'uppercase' | 'lowercase' | 'sentence';
+};
 
 export class TranslatedString extends Model {
   declare id: string;
@@ -92,38 +93,22 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
+      where: {
+        language: {
+          [Op.not]: DEFAULT_LANGUAGE_CODE,
+        },
+      },
     });
 
     const languageNames = await TranslatedString.findAll({
       where: { stringId: 'languageName' },
     });
 
-    return { languagesInDb, languageNames };
-  };
-
-  static getReferenceDataTranslationsByDataType = async ({
-    language = ENGLISH_LANGUAGE_CODE,
-    refDataType,
-    queryString,
-    limit,
-  }: {
-    language: string;
-    refDataType: string;
-    queryString: string;
-    limit: number;
-  }) => {
-    return this.findAll({
-      where: {
-        language,
-        stringId: {
-          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
-        },
-        ...(queryString ? { text: { [Op.iLike]: `%${queryString}%` } } : {}),
-      },
-      attributes: ['stringId', 'text'],
-      raw: true,
-      limit,
+    const countryCodes = await TranslatedString.findAll({
+      where: { stringId: 'countryCode' },
     });
+
+    return { languagesInDb, languageNames, countryCodes };
   };
 
   static getTranslations = async (language: string, prefixIds: string[]) => {
@@ -147,15 +132,9 @@ export class TranslatedString extends Model {
   static getTranslationFunction = async (language: string, prefixIds: string[] = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (
-      stringId: string,
-      fallback: string,
-      replacements: Record<string, string>,
-      uppercase: boolean,
-      lowercase: boolean,
-    ) => {
+    return (stringId: string, fallback: string, translationOptions: TranslationOptions) => {
       const translationFunc = translationFactory(translations);
-      const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+      const { value } = translationFunc(stringId, fallback, translationOptions);
       return value;
     };
   };

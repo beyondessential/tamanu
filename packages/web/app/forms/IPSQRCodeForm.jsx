@@ -43,34 +43,41 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
   return (
     <>
       <p>
-        You will be asked to enter the patient&apos;s data of birth in order to log into the IPS
+        You will be asked to enter the patient&apos;s date of birth in order to log into the IPS
         portal. Please ensure this is correct otherwise amend in the{' '}
         <StyledPatientDetailsLink
           onClick={() => {
             navigateToPatient(patient.id, { tab: PATIENT_TABS.DETAILS });
             onCancel();
           }}
+          data-testid="styledpatientdetailslink-n7g6"
         >
           patient&apos;s details
         </StyledPatientDetailsLink>{' '}
         section.
       </p>
-
-      <StyledDateOfBirthWrapper>
-        <StyledDateOfBirthContainer>
-          <StyledDateOfBirthText>Date of birth: </StyledDateOfBirthText>
-          <DateDisplay date={patient.dateOfBirth} fontWeight={500} />
+      <StyledDateOfBirthWrapper data-testid="styleddateofbirthwrapper-byuz">
+        <StyledDateOfBirthContainer data-testid="styleddateofbirthcontainer-3qce">
+          <StyledDateOfBirthText data-testid="styleddateofbirthtext-smlj">
+            Date of birth:{' '}
+          </StyledDateOfBirthText>
+          <DateDisplay date={patient.dateOfBirth} fontWeight={500} data-testid="datedisplay-bo0s" />
         </StyledDateOfBirthContainer>
       </StyledDateOfBirthWrapper>
-
       <p>Enter the email address you would like the patient IPS QR code sent to.</p>
-
-      <FormGrid columns={1}>
+      <FormGrid columns={1} data-testid="formgrid-fhz8">
         <Field
           name="email"
-          label={<TranslatedText stringId="patient.email.label" fallback="Patient email" />}
+          label={
+            <TranslatedText
+              stringId="patient.email.label"
+              fallback="Patient email"
+              data-testid="translatedtext-xfxp"
+            />
+          }
           component={TextField}
           required
+          data-testid="field-4vh6"
         />
         <Field
           name="confirmEmail"
@@ -78,16 +85,25 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
             <TranslatedText
               stringId="patient.confirmEmail.label"
               fallback="Confirm patient email"
+              data-testid="translatedtext-pac5"
             />
           }
           component={TextField}
           required
+          data-testid="field-sg75"
         />
         <FormSubmitCancelRow
-          confirmText={<TranslatedText stringId="general.action.send" fallback="Send" />}
+          confirmText={
+            <TranslatedText
+              stringId="general.action.send"
+              fallback="Send"
+              data-testid="translatedtext-bsph"
+            />
+          }
           onConfirm={onSubmit}
           confirmDisabled={confirmDisabled}
           onCancel={onCancel}
+          data-testid="formsubmitcancelrow-qcio"
         />
       </FormGrid>
     </>
@@ -118,8 +134,10 @@ export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) 
           onSubmit={submitForm}
           confirmDisabled={confirmDisabled}
           onCancel={onCancel}
+          data-testid="ipsqrcodeformcomponent-8ya5"
         />
       )}
+      data-testid="form-gqhc"
     />
   );
 };

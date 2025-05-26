@@ -6,10 +6,7 @@ import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
 import { useTranslation } from '../contexts/Translation';
 
-const base64ToUint8Array = base64 => {
-  const binString = atob(base64);
-  return Uint8Array.from(binString, m => m.codePointAt(0));
-};
+const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
 
 export const useDocumentActions = () => {
   const api = useApi();
@@ -39,7 +36,7 @@ export const useDocumentActions = () => {
   }, [dataUrl]);
 
   const onDownload = useCallback(
-    async document => {
+    async (document) => {
       try {
         // Give feedback to user that download is starting
         notify(
@@ -47,7 +44,7 @@ export const useDocumentActions = () => {
             'document.notification.downloadStart',
             'Your download has started, please wait.',
           ),
-          { type: 'info' },
+          { replacement: { type: 'info' } },
         );
 
         await saveFile({
@@ -72,7 +69,7 @@ export const useDocumentActions = () => {
   );
 
   const onPrintPDF = useCallback(
-    async attachmentId => {
+    async (attachmentId) => {
       try {
         const { data } = await api.get(`attachment/${attachmentId}`, {
           base64: true,

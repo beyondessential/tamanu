@@ -7,15 +7,15 @@
     "ignoreDeprecations": "5.0",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "module": "ES2020",
-    "lib": ["es2020"],
+    "module": "ES2022",
+    "lib": ["es2022"],
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2020"
+    "target": "es2022"
   },
   "exclude": [
     "build",

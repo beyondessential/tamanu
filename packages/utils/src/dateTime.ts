@@ -17,6 +17,9 @@ import {
   startOfDay,
   startOfWeek,
   sub,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
   type DurationUnit,
   type Interval,
 } from 'date-fns';
@@ -294,7 +297,7 @@ export const isStartOfThisWeek = (date: Date | number) => {
 
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
 export const datetimeCustomValidation = z.string().refine(
-  (val) => {
+  (val: string) => {
     const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
     if (!regex.test(val)) return false;
 
@@ -327,3 +330,9 @@ export const minValidDate = (dates: (Date | number)[]) => {
   const validDates = dates.filter(isValid);
   return validDates.length === 0 ? null : min(validDates);
 };
+
+export const eachDayInMonth = (date: Date) =>
+  eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
+  });

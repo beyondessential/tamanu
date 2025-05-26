@@ -6,7 +6,8 @@ import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
-import { LanguageFlag } from './LanguageFlag.jsx';
+import { ReactCountryFlag } from 'react-country-flag';
+import { isISO31661Alpha2 } from 'validator';
 
 const LanguageSelectorContainer = styled.div`
   position: absolute;
@@ -18,7 +19,7 @@ const LanguageSelectorContainer = styled.div`
     font-size: 11px;
     font-weight: 400;
     line-height: 15px;
-    color: ${Colors.midText}};
+    color: ${Colors.midText};
   }
 `;
 
@@ -29,7 +30,7 @@ const LanguageOptionLabel = styled.div`
 `;
 
 const customStyles = {
-  control: provided => ({
+  control: (provided) => ({
     ...provided,
     '&:hover': {
       borderColor: 'transparent',
@@ -41,7 +42,7 @@ const customStyles = {
     fontSize: '11px',
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: provided => ({
+  menu: (provided) => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -62,14 +63,18 @@ export const LanguageSelector = () => {
   const { updateStoredLanguage, storedLanguage } = useTranslation();
   const { data = {}, error } = useTranslationLanguagesQuery();
 
-  const { languageNames = [], languagesInDb = [] } = data;
+  const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
 
   const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
   const languageOptions = languagesInDb.map(({ language }) => {
+    const countryCode = languageCountryCodes[language];
     return {
       label: (
-        <LanguageOptionLabel>
-          <LanguageFlag languageCode={language} />
+        <LanguageOptionLabel data-testid={`languageoptionlabel-lxsu-${language}`}>
+          {countryCode && isISO31661Alpha2(countryCode) && (
+            <ReactCountryFlag countryCode={countryCode} style={{ width: '22px' }} svg />
+          )}
           {languageDisplayNames[language]}
         </LanguageOptionLabel>
       ),
@@ -80,21 +85,28 @@ export const LanguageSelector = () => {
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
 
-  const handleLanguageChange = event => {
+  const handleLanguageChange = (event) => {
     updateStoredLanguage(event.target.value);
   };
 
   return (
-    <LanguageSelectorContainer>
+    <LanguageSelectorContainer data-testid="languageselectorcontainer-1xer">
       <SelectInput
         options={languageOptions}
-        label={<TranslatedText stringId="login.languageSelector.label" fallback="Language" />}
+        label={
+          <TranslatedText
+            stringId="login.languageSelector.label"
+            fallback="Language"
+            data-testid="translatedtext-3qat"
+          />
+        }
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
         name="Language"
         value={storedLanguage}
         onChange={handleLanguageChange}
+        data-testid="selectinput-2jq3"
       />
     </LanguageSelectorContainer>
   );

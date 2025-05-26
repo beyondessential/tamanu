@@ -7,12 +7,16 @@ export const useAppointmentMutation = (existingAppointmentId = null, useMutation
   const { facilityId } = useAuth();
   const api = useApi();
   const queryClient = useQueryClient();
-  const isEdit = !!existingAppointmentId
+  const isEdit = !!existingAppointmentId;
 
   return useMutation(
-    payload =>
+    (payload) =>
       isEdit
-        ? api.put(`appointments/${existingAppointmentId}`, { ...payload, facilityId }, { throwResponse: true })
+        ? api.put(
+            `appointments/${existingAppointmentId}`,
+            { ...payload, facilityId },
+            { throwResponse: true },
+          )
         : api.post('appointments', { ...payload, facilityId }, { throwResponse: true }),
     {
       ...useMutationOptions,

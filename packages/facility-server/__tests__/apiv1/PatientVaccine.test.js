@@ -17,11 +17,11 @@ import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/database/demoData/vaccines';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { subDays } from 'date-fns';
+import { subDays, addWeeks } from 'date-fns';
 
 describe('PatientVaccine', () => {
   const [facilityId] = selectFacilityIds(config);
@@ -553,6 +553,8 @@ describe('PatientVaccine', () => {
   describe('Upcoming vaccination', () => {
     let scheduledVax1;
     let scheduledVax2;
+    let scheduledVax3;
+    let administeredVax2Date;
     let patient1;
     let patient2;
 
@@ -580,6 +582,16 @@ describe('PatientVaccine', () => {
         }),
       );
 
+      scheduledVax3 = await models.ScheduledVaccine.create(
+        await createScheduledVaccine(models, {
+          category: VACCINE_CATEGORIES.ROUTINE,
+          schedule: 'Dose 3',
+          index: 3,
+          weeksFromLastVaccinationDue: 4,
+          vaccineId: drug.id,
+        }),
+      );
+
       patient1 = await models.Patient.create({
         ...fake(models.Patient),
         dateOfBirth: toDateString(subDays(new Date(), 1)),
@@ -592,7 +604,13 @@ describe('PatientVaccine', () => {
 
       await recordAdministeredVaccine(patient2, scheduledVax1, {
         status: VACCINE_STATUS.GIVEN,
-        date: toDateString(subDays(new Date(), 1)),
+        date: toDateString(subDays(new Date(), 18)),
+      });
+
+      administeredVax2Date = subDays(new Date(), 9);
+      await recordAdministeredVaccine(patient2, scheduledVax2, {
+        status: VACCINE_STATUS.GIVEN,
+        date: toDateString(administeredVax2Date),
       });
     });
 
@@ -603,11 +621,18 @@ describe('PatientVaccine', () => {
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
     });
 
-    it('should second dose in schedule for patient 2', async () => {
+    it('should third dose in schedule for patient 2', async () => {
       const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
-      expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax2.id);
+
+      const upcomingVax = result.body.data.at(0);
+      expect(upcomingVax.scheduledVaccineId).toEqual(scheduledVax3.id);
+
+      // Check if due date is correct according to the schedule in scheduled_vaccines
+      expect(upcomingVax.dueDate).toEqual(
+        toDateString(addWeeks(administeredVax2Date, scheduledVax3.weeksFromLastVaccinationDue)),
+      );
     });
   });
 });

@@ -1,7 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { EndpointKey } from 'mushi';
+
+import { SYNC_DIRECTIONS, FACT_DEVICE_KEY } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
+import { randomUUID } from 'node:crypto';
+
+import type * as Facts from '@tamanu/constants/facts';
+export type FactName = (typeof Facts)[keyof typeof Facts];
 
 // stores data written _by the server_
 // e.g. which host did we last connect to?
@@ -32,21 +38,26 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: string) {
+  static async get(key: FactName) {
     const result = await this.findOne({ where: { key } });
     return result?.value;
   }
 
-  static async set(key: string, value?: string) {
+  static async set(key: FactName, value?: string) {
     const existing = await this.findOne({ where: { key } });
     if (existing) {
       await this.update({ value }, { where: { key } });
     } else {
-      await this.create({ key, value });
+      // This function is used in the migration code, and in Postgres
+      // version 12 `gen_random_uuid()` is not available in a blank
+      // database, and it's used to default the ID. So instead, create
+      // random UUIDs here in code, so the default isn't invoked. We
+      // use Node's native function so it's just as fast.
+      await this.create({ id: randomUUID(), key, value });
     }
   }
 
-  static async incrementValue(key: string, amount: number = 1) {
+  static async incrementValue(key: FactName, amount: number = 1) {
     const [rowsAffected] = await this.sequelize.query(
       `
         UPDATE
@@ -66,5 +77,15 @@ export class LocalSystemFact extends Model {
     }
     const fact = rowsAffected[0] as LocalSystemFact;
     return fact.value;
+  }
+
+  static async getDeviceKey() {
+    const deviceKey = await this.get(FACT_DEVICE_KEY);
+    if (deviceKey) {
+      return new EndpointKey(deviceKey);
+    }
+    const newDeviceKey = EndpointKey.generateFor('ecdsa256');
+    await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
+    return newDeviceKey;
   }
 }

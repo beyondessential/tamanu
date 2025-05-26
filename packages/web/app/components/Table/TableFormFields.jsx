@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
+import TableContainer from '@material-ui/core/TableContainer';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { TableFooter } from '@material-ui/core';
+import TableFooter from '@material-ui/core/TableFooter';
 
 import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
@@ -25,7 +26,7 @@ const StyledFixedTable = styled(MaterialTable)`
   width: 100%;
 
   &:last-child {
-    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
+    border-bottom: ${(props) => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -34,7 +35,7 @@ const StyledTableHead = styled(TableHead)`
 `;
 
 const StyledTableHeaderCell = styled(TableCell)`
-  width: ${props => (props.width ? props.width : 'auto')};
+  width: ${(props) => (props.width ? props.width : 'auto')};
   padding: 1.5%;
   text-align: center;
 `;
@@ -50,6 +51,11 @@ const StyledTableFooter = styled(TableFooter)`
   tr:last-child td {
     border-bottom: none;
   }
+`;
+
+const PaginationRow = styled(TableRow)`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const NoDataTableCell = styled(TableCell)`
@@ -71,9 +77,11 @@ Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
 export const TableFormFields = React.memo(
-  ({ columns, data, className = '', pagination = false }) => {
+  ({ columns, data, className = '', pagination = false, ...props }) => {
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(pagination ? ROWS_PER_PAGE_OPTIONS[0] : data.length);
+    const [rowsPerPage, setRowsPerPage] = useState(
+      pagination ? ROWS_PER_PAGE_OPTIONS[0] : data.length,
+    );
     const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
 
     // When the data to be displayed is changed (e.g. by search), update the rows and set to page 1
@@ -89,7 +97,7 @@ export const TableFormFields = React.memo(
     };
 
     // Display the new amount of rows per page and set to page 1
-    const handleRowsPerPageChange = event => {
+    const handleRowsPerPageChange = (event) => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
       setPage(0);
@@ -97,36 +105,58 @@ export const TableFormFields = React.memo(
     };
 
     return (
-      <StyledFixedTable className={className} $pagination={pagination}>
-        <StyledTableHead>
-          <TableRow>
-            {columns.map(({ key, title, width }) => (
-              <StyledTableHeaderCell key={key} width={width}>
-                {title}
-              </StyledTableHeaderCell>
-            ))}
-          </TableRow>
-        </StyledTableHead>
-        <TableBody>
-          {pageRows && pageRows.length > 0 ? (
-            pageRows.map((rowData, i) => (
-              <TableRow key={rowData.id || i}>
-                {columns.map(({ key, accessor }) => (
-                  <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+      <>
+        <TableContainer data-testid="tablecontainer-aex2">
+          <StyledFixedTable
+            className={className}
+            $pagination={pagination}
+            {...props}
+            data-testid="styledfixedtable-ab5k"
+          >
+            <StyledTableHead data-testid="styledtablehead-86fw">
+              <TableRow data-testid="tablerow-xx17">
+                {columns.map(({ key, title, width }) => (
+                  <StyledTableHeaderCell
+                    key={key}
+                    width={width}
+                    data-testid={`styledtableheadercell-wvus-${key}`}
+                  >
+                    {title}
+                  </StyledTableHeaderCell>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <NoDataTableCell colSpan={columns.length}>
-                <TranslatedText stringId="general.table.noData" fallback="No data found" />
-              </NoDataTableCell>
-            </TableRow>
-          )}
-        </TableBody>
+            </StyledTableHead>
+            <TableBody data-testid="tablebody-l659">
+              {pageRows && pageRows.length > 0 ? (
+                pageRows.map((rowData, i) => (
+                  <TableRow key={rowData.id || i} data-testid={`tablerow-r1a3-${i}`}>
+                    {columns.map(({ key, accessor }) => (
+                      <StyledTableDataCell
+                        key={key}
+                        data-testid={`styledtabledatacell-bsji-${i}-${key}`}
+                      >
+                        {accessor(rowData, i)}
+                      </StyledTableDataCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow data-testid="tablerow-d2it">
+                  <NoDataTableCell colSpan={columns.length} data-testid="nodatatablecell-2yp7">
+                    <TranslatedText
+                      stringId="general.table.noData"
+                      fallback="No data found"
+                      data-testid="translatedtext-ddgw"
+                    />
+                  </NoDataTableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </StyledFixedTable>
+        </TableContainer>
         {pagination && (
-          <StyledTableFooter>
-            <TableRow>
+          <StyledTableFooter data-testid="styledtablefooter-pzhl">
+            <PaginationRow data-testid="paginationrow-o0vp">
               <Paginator
                 rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
                 colSpan={columns.length}
@@ -135,11 +165,12 @@ export const TableFormFields = React.memo(
                 rowsPerPage={rowsPerPage}
                 onPageChange={handlePageChange}
                 onRowsPerPageChange={handleRowsPerPageChange}
+                data-testid="paginator-0pad"
               />
-            </TableRow>
+            </PaginationRow>
           </StyledTableFooter>
         )}
-      </StyledFixedTable>
+      </>
     );
   },
 );

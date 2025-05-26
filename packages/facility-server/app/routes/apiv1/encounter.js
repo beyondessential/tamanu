@@ -13,6 +13,7 @@ import {
   CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
+  SURVEY_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -40,7 +41,7 @@ import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
-encounter.get('/:id', simpleGet('Encounter'));
+encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -106,10 +107,8 @@ encounter.put(
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
-
     res.send(encounterObject);
   }),
 );
@@ -167,7 +166,10 @@ encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMeta
 encounter.delete('/:id', deleteEncounter);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
-encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
+encounterRelations.get(
+  '/:id/discharge',
+  simpleGetHasOne('Discharge', 'encounterId', { auditAccess: true }),
+);
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
@@ -233,12 +235,12 @@ encounterRelations.get(
     });
 
     const data = await Promise.all(
-      objects.map(async ir => {
+      objects.map(async (ir) => {
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map(a => a.forResponse()),
-          results: ir.results.map(result => result.forResponse()),
+          areas: ir.areas.map((a) => a.forResponse()),
+          results: ir.results.map((result) => result.forResponse()),
         };
       }),
     );
@@ -259,7 +261,7 @@ encounterRelations.get(
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
-    noteTypeCounts.forEach(n => {
+    noteTypeCounts.forEach((n) => {
       noteTypeToCount[n.noteType] = n.count;
     });
     res.send({ data: noteTypeToCount });
@@ -271,7 +273,10 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+);
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
@@ -469,8 +474,54 @@ async function getAnswersWithHistory(req) {
     },
   );
 
-  const data = result.map(r => r.result);
+  const data = result.map((r) => r.result);
   return { count, data };
+}
+
+async function getGraphData(req, dateDataElementId) {
+  const { models, params, query } = req;
+  const { id: encounterId, dataElementId } = params;
+  const { startDate, endDate } = query;
+  const { SurveyResponse, SurveyResponseAnswer } = models;
+
+  const dateAnswers = await SurveyResponseAnswer.findAll({
+    include: [
+      {
+        model: SurveyResponse,
+        required: true,
+        as: 'surveyResponse',
+        where: { encounterId },
+      },
+    ],
+    where: {
+      dataElementId: dateDataElementId,
+      body: { [Op.gte]: startDate, [Op.lte]: endDate },
+    },
+  });
+
+  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+
+  const answers = await SurveyResponseAnswer.findAll({
+    where: {
+      responseId: responseIds,
+      dataElementId,
+      body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
+    },
+  });
+
+  const data = answers
+    .map((answer) => {
+      const { responseId } = answer;
+      const recordedDateAnswer = dateAnswers.find(
+        (dateAnswer) => dateAnswer.responseId === responseId,
+      );
+      const recordedDate = recordedDateAnswer.body;
+      return { ...answer.dataValues, recordedDate };
+    })
+    .sort((a, b) => {
+      return a.recordedDate > b.recordedDate ? 1 : -1;
+    });
+  return data;
 }
 
 encounterRelations.get(
@@ -487,51 +538,51 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/vitals/:dataElementId',
+  '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
     req.checkPermission('list', 'Vitals');
-    const { id: encounterId, dataElementId } = params;
-    const { startDate, endDate } = query;
-    const { SurveyResponse, SurveyResponseAnswer } = models;
+    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
-    const dateAnswers = await SurveyResponseAnswer.findAll({
+    res.send({
+      count: data.length,
+      data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/initialChart$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Survey');
+    const { models, params } = req;
+    const { id: encounterId } = params;
+    const chartSurvey = await models.SurveyResponse.findOne({
+      attributes: ['survey.*'],
+      where: { encounterId },
       include: [
         {
-          model: SurveyResponse,
+          attributes: ['id', 'name'],
           required: true,
-          as: 'surveyResponse',
-          where: { encounterId },
+          model: models.Survey,
+          as: 'survey',
+          where: { surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] },
         },
       ],
-      where: {
-        dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
-        body: { [Op.gte]: startDate, [Op.lte]: endDate },
-      },
+      order: [['survey', 'name', 'ASC']],
+      group: [['survey.id']],
     });
 
-    const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
-
-    const answers = await SurveyResponseAnswer.findAll({
-      where: {
-        responseId: responseIds,
-        dataElementId,
-        body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
-      },
+    res.send({
+      data: chartSurvey,
     });
+  }),
+);
 
-    const data = answers
-      .map(answer => {
-        const { responseId } = answer;
-        const recordedDateAnswer = dateAnswers.find(
-          dateAnswer => dateAnswer.responseId === responseId,
-        );
-        const recordedDate = recordedDateAnswer.body;
-        return { ...answer.dataValues, recordedDate };
-      })
-      .sort((a, b) => {
-        return a.recordedDate > b.recordedDate ? 1 : -1;
-      });
+encounterRelations.get(
+  '/:id/graphData/charts/:dataElementId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Charting');
+    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -555,29 +606,17 @@ encounterRelations.get(
 
 const encounterTasksQuerySchema = z.object({
   order: z.preprocess(
-    value => (typeof value === 'string' ? value.toUpperCase() : value),
-    z
-      .enum(['ASC', 'DESC'])
-      .optional()
-      .default('ASC'),
+    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    z.enum(['ASC', 'DESC']).optional().default('ASC'),
   ),
-  orderBy: z
-    .enum(['dueTime', 'name'])
-    .optional()
-    .default('dueTime'),
+  orderBy: z.enum(['dueTime', 'name']).optional().default('dueTime'),
   statuses: z
     .array(z.enum(Object.values(TASK_STATUSES)))
     .optional()
     .default([TASK_STATUSES.TODO]),
   assignedTo: z.string().optional(),
-  page: z.coerce
-    .number()
-    .optional()
-    .default(0),
-  rowsPerPage: z.coerce
-    .number()
-    .optional()
-    .default(10),
+  page: z.coerce.number().optional().default(0),
+  rowsPerPage: z.coerce.number().optional().default(10),
 });
 encounterRelations.get(
   '/:id/tasks',
@@ -622,9 +661,9 @@ encounterRelations.get(
       ],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
-      include: Task.getFullReferenceAssociations(),
+      include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
-    const results = queryResults.map(x => x.forResponse());
+    const results = queryResults.map((x) => x.forResponse());
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });

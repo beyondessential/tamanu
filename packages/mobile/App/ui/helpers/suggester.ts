@@ -1,5 +1,5 @@
 import { keyBy } from 'lodash';
-import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm/browser';
+import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 import { BaseModel } from '~/models/BaseModel';
 import { TranslatedString } from '~/models/TranslatedString';
 
@@ -13,6 +13,7 @@ export type BaseModelSubclass = typeof BaseModel;
 interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
+  relations?: Array<string>;
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
@@ -20,6 +21,9 @@ const MODEL_TO_REFERENCE_DATA_TYPE = {
   Facility: 'facility',
   Department: 'department',
   Location: 'location',
+  ProgramRegistry: 'programRegistry',
+  ProgramRegistryClinicalStatus: 'programRegistryClinicalStatus',
+  ProgramRegistryCondition: 'programRegistryCondition',
 };
 
 const TRANSLATABLE_MODELS = ['ReferenceData', ...Object.keys(MODEL_TO_REFERENCE_DATA_TYPE)];
@@ -36,11 +40,17 @@ const extractDataId = ({ stringId }) => stringId.split('.').pop();
 
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => ({
+  return data.map((item) => ({
     ...item,
     name: translationsByDataId[item.id]?.text ?? item.name,
   }));
 };
+export interface SuggesterConfig<ModelType> {
+  model: ModelType;
+  options: SuggesterOptions<ModelType>;
+  formatter?: (entity: BaseModel) => OptionType;
+  filter?: (entity: BaseModel) => boolean;
+}
 
 export class Suggester<ModelType extends BaseModelSubclass> {
   model: ModelType;
@@ -51,19 +61,20 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   filter?: (entity: BaseModel) => boolean;
 
-  constructor(
-    model: ModelType,
-    options,
-    formatter = defaultFormatter,
-    filter?: (entity: BaseModel) => boolean,
-  ) {
-    this.model = model;
-    this.options = options;
+  lastUpdatedAt: number;
+
+  cachedData: any;
+
+  constructor(config: SuggesterConfig<ModelType>) {
+    this.model = config.model;
+    this.options = config.options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
-    this.formatter = formatter;
+    this.formatter = config.formatter || defaultFormatter;
     // Frontend filter applied to the data received. Use this to filter by permission
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
-    this.filter = filter;
+    this.filter = config.filter;
+    this.lastUpdatedAt = -Infinity;
+    this.cachedData = null;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -73,7 +84,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
     if (!value) return undefined;
     try {
-      const data = await this.model.getRepository().findOne(value);
+      const data = await this.model.getRepository().findOne({ where: { id: value } });
 
       return this.formatter(data);
     } catch (e) {
@@ -82,6 +93,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   };
 
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
+    const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
@@ -98,7 +110,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .getRepository()
         .createQueryBuilder('entity')
         .where(
-          new Brackets(qb => {
+          new Brackets((qb) => {
             if (search) {
               qb.where(`${column} LIKE :search`, {
                 search: `%${search}%`,
@@ -107,7 +119,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           }),
         )
         .andWhere(
-          new Brackets(qb => {
+          new Brackets((qb) => {
             Object.entries(where).forEach(([key, value]) => {
               qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
             });
@@ -117,7 +129,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .limit(25);
 
       if (relations) {
-        relations.forEach(relation => {
+        relations.forEach((relation) => {
           query = query.leftJoinAndSelect(`entity.${relation}`, relation);
         });
       }
@@ -126,7 +138,16 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       data = replaceDataLabelsWithTranslations({ data, translations });
 
-      return this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);
+      const formattedData = this.filter
+        ? data.filter(this.filter).map(this.formatter)
+        : data.map(this.formatter);
+
+      if (this.lastUpdatedAt < requestedAt) {
+        this.cachedData = formattedData;
+        this.lastUpdatedAt = requestedAt;
+      }
+
+      return this.cachedData;
     } catch (e) {
       return [];
     }

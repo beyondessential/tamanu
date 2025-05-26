@@ -1,8 +1,10 @@
 import { beforeAll, describe, expect, it } from '@jest/globals';
 
-import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
-import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { withErrorShown } from '@tamanu/shared/test-helpers';
+import { fakeReferenceData } from '@tamanu/fake-data/fake';
+import { getModelsForPush, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
@@ -16,7 +18,7 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
-    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+    outgoingModels = getModelsForPush(models);
   });
 
   afterAll(() => ctx.close());
@@ -25,7 +27,7 @@ describe('snapshotOutgoingChanges', () => {
     'if nothing changed returns empty array',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tick - 1);
       expect(result).toEqual([]);
@@ -36,7 +38,7 @@ describe('snapshotOutgoingChanges', () => {
     'throws error when outgoing models contain invalid sync direction',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
 
       await expect(snapshotOutgoingChanges(ctx.sequelize, models, tick - 1)).rejects.toThrowError();
     }),
@@ -46,7 +48,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
-      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
 
       const row = await ReferenceData.create(fakeReferenceData());
 
@@ -75,10 +77,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tickBefore = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.incrementValue('currentSyncTick');
+      await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       const row = await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore);
@@ -106,10 +108,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tickBefore = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       const rowBefore = await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.incrementValue('currentSyncTick');
+      await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       const rowAfter = await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore - 1);
@@ -165,7 +167,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
@@ -186,7 +188,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.sequelize.transaction(async transaction => {
+      const after = ctx.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(
           {
             ...fakeReferenceData(),
@@ -244,7 +246,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.incrementValue('currentSyncTick');
+      const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
@@ -262,7 +264,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      const after = ctx.sequelize.transaction(async transaction => {
+      const after = ctx.sequelize.transaction(async (transaction) => {
         await ReferenceData.create(
           {
             ...fakeReferenceData(),
@@ -343,18 +345,18 @@ describe('snapshotOutgoingChanges', () => {
     const { LocalSystemFact } = models;
 
     // start a sync session
-    const tock = await LocalSystemFact.incrementValue('currentSyncTick', 2);
+    const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
 
     // create a bunch of records, more than the call stack limit
     await ctx.sequelize.query(`
       INSERT INTO reference_data (id, created_at, updated_at, type, code, name)
       SELECT
-        uuid_generate_v4() as id,
+        gen_random_uuid() as id,
         now() as created_at,
         now() as updated_at,
         'test' as type,
-        uuid_generate_v4() || '-' || generate_series as code,
-        uuid_generate_v4() || '-' || generate_series as name
+        gen_random_uuid() || '-' || generate_series as code,
+        gen_random_uuid() || '-' || generate_series as name
       FROM generate_series(1, ${limit + 100});
     `);
 

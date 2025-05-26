@@ -3,7 +3,7 @@ import React from 'react';
 export const ImportStatsDisplay = ({ stats = {} }) => {
   const { total, ...records } = stats.records;
   const rows = Object.entries(records).map(([k, v]) => (
-    <tr key={k}>
+    <tr data-testid={`tr-35kg-${k}`} key={k}>
       <td>{k}</td>
       <td>{v}</td>
     </tr>
@@ -11,7 +11,7 @@ export const ImportStatsDisplay = ({ stats = {} }) => {
   return (
     <table>
       {rows}
-      <tr>
+      <tr data-testid="tr-gh3g">
         <td>TOTAL</td>
         <td>{total}</td>
       </tr>

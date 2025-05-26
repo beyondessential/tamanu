@@ -4,6 +4,7 @@ import { GraphDataProviderFactory } from './GraphData';
 import { useChartsVisualisationConfigsQuery } from '../api/queries/useChartsVisualisationConfigsQuery';
 
 export const VitalChartDataContext = React.createContext({
+  isVital: false,
   visualisationConfigs: [],
   allGraphedChartKeys: [],
   vitalChartModalOpen: false,
@@ -25,6 +26,7 @@ export const VitalChartDataProvider = ({ children }) => {
     <GraphDataProviderFactory
       visualisationConfigQueryFn={useVitalsVisualisationConfigsQuery}
       Context={VitalChartDataContext}
+      isVital
     >
       {children}
     </GraphDataProviderFactory>

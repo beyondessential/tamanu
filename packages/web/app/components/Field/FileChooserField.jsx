@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import MuiTextField from '@material-ui/core/TextField';
-import PublishIcon from '@material-ui/icons/Publish';
+import { Colors } from '../../constants';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -14,13 +13,16 @@ const FieldButtonRow = styled.div`
   margin-top: 0.5rem;
   grid-template-columns: max-content auto;
   grid-gap: 1rem;
-  &.has-value {
-    grid-template-columns: auto max-content;
-  }
 `;
 
 const HintText = styled.div`
   font-size: 0.9em;
+`;
+
+const ChangeSelectionButton = styled.a`
+  color: ${Colors.primary};
+  font-weight: 500;
+  cursor: pointer;
 `;
 
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
@@ -28,7 +30,7 @@ export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 
 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
   // Convert the given filters into string format for the accept attribute of file input
-  const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
+  const acceptString = filters.map((filter) => `.${filter.extensions.join(', .')}`).join(', ');
 
   const inputRef = useRef(null);
 
@@ -36,7 +38,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
     inputRef.current.click();
   };
 
-  const selectFile = event => {
+  const selectFile = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -51,30 +53,51 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
         onChange={selectFile}
         accept={acceptString}
         style={{ display: 'none' }}
+        data-testid="input-q5no"
       />
-      <OuterLabelFieldWrapper label={label} {...props}>
-        <FieldButtonRow className={value ? 'has-value' : ''}>
+      <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
+        <FieldButtonRow className={value ? 'has-value' : ''} data-testid="fieldbuttonrow-snj9">
           {value ? (
             <>
-              <MuiTextField readOnly value={value.name} variant="outlined" />
-              <Button onClick={showFileDialog} variant="outlined">
-                <PublishIcon />
-                <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
-              </Button>
+              {value.name}
+              <ChangeSelectionButton
+                onClick={showFileDialog}
+                data-testid="changeselectionbutton-fvw1"
+              >
+                <TranslatedText
+                  stringId="chooseFile.button.changeSelection.label"
+                  fallback="Change selection"
+                  data-testid="translatedtext-qw1d"
+                />
+              </ChangeSelectionButton>
             </>
           ) : (
             <>
-              <Button onClick={showFileDialog} variant="outlined" color="primary">
-                <TranslatedText stringId="chooseFile.button.label" fallback="Choose file" />
+              <Button
+                onClick={showFileDialog}
+                variant="outlined"
+                color="primary"
+                data-testid="button-1mo9"
+              >
+                <TranslatedText
+                  stringId="chooseFile.button.label"
+                  fallback="Choose file"
+                  data-testid="translatedtext-9peo"
+                />
               </Button>
-              <HintText>
-                <TranslatedText stringId="chooseFile.hint.max10Mb.label" fallback="Max 10 MB" />
+              <HintText data-testid="hinttext-oxv8">
+                <TranslatedText
+                  stringId="chooseFile.hint.max10Mb.label"
+                  fallback="Max 10 MB"
+                  data-testid="translatedtext-u0s3"
+                />
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
                   fallback="Supported file types"
+                  data-testid="translatedtext-k2w3"
                 />
-                : {filters.map(filter => filter.name).join(', ')}
+                : {filters.map((filter) => filter.name).join(', ')}
               </HintText>
             </>
           )}
@@ -90,5 +113,6 @@ export const FileChooserField = ({ field, ...props }) => (
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
+    data-testid="filechooserinput-0fxi"
   />
 );

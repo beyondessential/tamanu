@@ -6,7 +6,13 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 const OuterContainer = styled.div`
   position: relative;
   background-color: white;
-  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -26,14 +32,14 @@ const Title = styled.h1`
 `;
 
 export const AdminViewContainer = ({ title, showLoadingIndicator, children, className }) => (
-  <OuterContainer className={className}>
+  <OuterContainer className={className} data-testid="outercontainer-ueni">
     {showLoadingIndicator && (
-      <LoadingContainer>
-        <LoadingIndicator />
+      <LoadingContainer data-testid="loadingcontainer-0uay">
+        <LoadingIndicator data-testid="loadingindicator-z2hl" />
       </LoadingContainer>
     )}
-    <ContentContainer>
-      <Title>{title}</Title>
+    <ContentContainer data-testid="contentcontainer-andg">
+      <Title data-testid="title-6kns">{title}</Title>
       {children}
     </ContentContainer>
   </OuterContainer>

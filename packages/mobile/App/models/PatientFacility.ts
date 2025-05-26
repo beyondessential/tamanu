@@ -1,5 +1,4 @@
-import { RelationId } from 'typeorm';
-import { BeforeInsert, Entity, ManyToOne, PrimaryColumn } from 'typeorm/browser';
+import { BeforeInsert, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
@@ -36,6 +35,6 @@ export class PatientFacility extends BaseModel {
     // to avoid clashes on the joined id
 
     //patient actually stores the patientId in @BeforeInsert
-    this.id = `${this.patient.replace(';', ':')};${this.facility.replace(';', ':')}`;
+    this.id = `${this.patient.replaceAll(';', ':')};${this.facility.replaceAll(';', ':')}`;
   }
 }

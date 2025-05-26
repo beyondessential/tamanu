@@ -28,7 +28,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { get } from 'lodash';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
-const preventInputCallback = e => {
+const preventInputCallback = (e) => {
   e.stopPropagation();
   e.preventDefault();
 };
@@ -50,7 +50,11 @@ const CellError = React.memo(({ error }) => {
     console.log(error);
   }, [error]);
 
-  return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
+  return (
+    <CellErrorMessage onClick={showMessage} data-testid="cellerrormessage-6ffz">
+      ERROR
+    </CellErrorMessage>
+  );
 });
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -61,7 +65,7 @@ const CenteredLoadingIndicatorContainer = styled.div`
 `;
 
 const StyledTableRow = styled(TableRow)`
-  ${p =>
+  ${(p) =>
     p.onClick
       ? `
       cursor: pointer;
@@ -71,9 +75,9 @@ const StyledTableRow = styled(TableRow)`
     `
       : ''}
 
-  ${p => (p.$rowStyle ? p.$rowStyle : '')}
+  ${(p) => (p.$rowStyle ? p.$rowStyle : '')}
 
-  ${p =>
+  ${(p) =>
     p.$lazyLoading
       ? `
       &.MuiTableRow-root {
@@ -83,8 +87,6 @@ const StyledTableRow = styled(TableRow)`
       }
     `
       : ''}
-
-
 `;
 
 const StyledTableContainer = styled.div`
@@ -92,14 +94,14 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   width: 100%;
-  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
-  ${props => (props.$elevated ? PaperStyles : null)};
-  ${props => (props.containerStyle ? props.containerStyle : null)}
+  border: 1px solid ${(props) => (props.$borderColor ? props.$borderColor : Colors.outline)};
+  ${(props) => (props.$elevated ? PaperStyles : null)};
+  ${(props) => (props.containerStyle ? props.containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
   &.MuiTableBody-root {
-    ${props =>
+    ${(props) =>
       props.$lazyLoading
         ? `
         overflow: auto;
@@ -111,7 +113,7 @@ const StyledTableBody = styled(TableBody)`
 `;
 
 const StyledTableCellContent = styled.div`
-  max-width: ${props => props.maxWidth}px;
+  max-width: ${(props) => props.maxWidth}px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -121,7 +123,7 @@ const StyledTableCell = styled(TableCell)`
   padding: 15px;
   font-size: 14px;
   line-height: 18px;
-  background: ${props => props.background};
+  background: ${(props) => props.background};
 
   &.MuiTableCell-body {
     padding: 20px 15px;
@@ -134,12 +136,12 @@ const StyledTableCell = styled(TableCell)`
   &:last-child {
     padding-right: 20px;
   }
-  ${props => (props.$cellStyle ? props.$cellStyle : '')}
+  ${(props) => (props.$cellStyle ? props.$cellStyle : '')}
 `;
 
 const StyledTable = styled(MaterialTable)`
   border-collapse: unset;
-  background: ${props => props.$backgroundColor};
+  background: ${(props) => props.$backgroundColor};
 
   &:last-child {
     border-bottom: none;
@@ -147,7 +149,7 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  ${props =>
+  ${(props) =>
     props.$lazyLoading
       ? `
       display: table;
@@ -156,20 +158,20 @@ const StyledTableHead = styled(TableHead)`
       padding-right: 15px;
     `
       : ''}
-  ${props =>
+  ${(props) =>
     props.$isBodyScrollable
       ? `
       position: sticky;
       top: 0;
   `
       : ``}
-  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+  background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
-    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
-    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+    background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
+    ${(props) => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
   }
-  ${props => (props.$headStyle ? props.$headStyle : '')}
+  ${(props) => (props.$headStyle ? props.$headStyle : '')}
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -192,7 +194,15 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
+const getTableRow = ({
+  children,
+  lazyLoading,
+  rowStyle,
+  onClick,
+  className,
+  onMouseEnter,
+  onMouseLeave,
+}) => (
   <StyledTableRow
     className={className}
     onClick={onClick}
@@ -226,7 +236,11 @@ const RowTooltip = ({ title, children }) => (
 
 const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
   if (rowTooltip) {
-    return <RowTooltip title={rowTooltip}>{getTableRow(rowProps)}</RowTooltip>;
+    return (
+      <RowTooltip title={rowTooltip} data-testid="rowtooltip-18ht">
+        {getTableRow(rowProps)}
+      </RowTooltip>
+    );
   }
   return getTableRow(rowProps);
 });
@@ -234,10 +248,10 @@ const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
     padding: 60px;
-    ${props => (props.$color ? `color: ${props.$color};` : '')}
+    ${(props) => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
   }
-  ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
+  ${(props) => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
 const Row = React.memo(
@@ -258,7 +272,7 @@ const Row = React.memo(
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-        const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
+        const onChange = cellOnChange ? (event) => cellOnChange(event, key, rowIndex, data) : null;
         const passingData = { refreshTable, onChange, ...data, rowIndex };
         const value = accessor ? React.createElement(accessor, passingData) : get(data, key);
         const displayValue = value === 0 ? '0' : value;
@@ -266,17 +280,29 @@ const Row = React.memo(
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
+            onClick={dontCallRowInput ? preventInputCallback : (e) => onClickRow?.(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
-            data-test-class={`table-column-${key}`}
+            data-test-class={`table-column-${rowIndex}-${key}`}
+            data-testid={`styledtablecell-2gyy-${rowIndex}-${key}`}
           >
-            <ErrorBoundary ErrorComponent={CellError}>
+            <ErrorBoundary
+              ErrorComponent={CellError}
+              data-testid={`errorboundary-vajt-${rowIndex}-${key}`}
+            >
               {CellComponent ? (
-                <CellComponent value={displayValue} data={data} />
+                <CellComponent
+                  value={displayValue}
+                  data={data}
+                  data-testid={`cellcomponent-pz8j-${rowIndex}-${key}`}
+                />
               ) : (
-                <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
+                <DisplayValue
+                  maxWidth={maxWidth}
+                  displayValue={displayValue}
+                  data-testid={`displayvalue-ds9w-${rowIndex}-${key}`}
+                />
               )}
             </ErrorBoundary>
           </StyledTableCell>
@@ -291,6 +317,7 @@ const Row = React.memo(
         onMouseEnter={onMouseEnter && (() => onMouseEnter(data))}
         onMouseLeave={onMouseLeave && (() => onMouseLeave(data))}
         rowTooltip={getRowTooltip && getRowTooltip(data)}
+        data-testid="rowcontainer-42fq"
       >
         {cells}
       </RowContainer>
@@ -305,7 +332,11 @@ const ErrorSpan = styled.span`
 const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   const title = typeof displayValue === 'string' ? displayValue : null;
   return maxWidth ? (
-    <StyledTableCellContent title={title} maxWidth={maxWidth}>
+    <StyledTableCellContent
+      title={title}
+      maxWidth={maxWidth}
+      data-testid="styledtablecellcontent-t9n3"
+    >
       {displayValue}
     </StyledTableCellContent>
   ) : (
@@ -314,12 +345,13 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 });
 
 const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
-  <RowContainer className={className}>
+  <RowContainer className={className} data-testid="rowcontainer-x9xp">
     <StatusTableCell
       $color={textColor}
       colSpan={colSpan}
       align="center"
       $statusCellStyle={statusCellStyle}
+      data-testid="statustablecell-rwkq"
     >
       {children}
     </StatusTableCell>
@@ -329,7 +361,14 @@ const StatusRow = React.memo(({ className, colSpan, children, textColor, statusC
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
-    if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
+    if (isLoading)
+      return (
+        <TranslatedText
+          stringId="general.table.loading"
+          fallback="Loading..."
+          data-testid="translatedtext-yvlt"
+        />
+      );
     if (errorMessage) return errorMessage;
     if (isEmpty || !data.length) return noDataMessage;
     return null;
@@ -340,7 +379,7 @@ class TableComponent extends React.Component {
     if (onChangePage) onChangePage(newPage - 1);
   };
 
-  handleScroll = event => {
+  handleScroll = (event) => {
     const { count, lazyLoading, isLoadingMore, onChangePage, page, rowsPerPage } = this.props;
     if (!lazyLoading || isLoadingMore || !onChangePage) return;
     const bottom =
@@ -352,7 +391,7 @@ class TableComponent extends React.Component {
     if (bottom && isNotLastPage) onChangePage(page + 1);
   };
 
-  handleChangeRowsPerPage = event => {
+  handleChangeRowsPerPage = (event) => {
     const { onChangeRowsPerPage, onChangePage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
@@ -362,13 +401,13 @@ class TableComponent extends React.Component {
   renderHeaders() {
     const { columns, order, orderBy, onChangeOrderBy, titleData, headerOnChange } = this.props;
     const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
-      const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
+      const onChange = headerOnChange ? (event) => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
       const titleCellComponent = TitleCellComponent ? (
-        <TitleCellComponent value={displayTitle} />
+        <TitleCellComponent value={displayTitle} data-testid={`titlecellcomponent-si8a-${key}`} />
       ) : null;
 
       const defaultHeaderElement = sortable ? (
@@ -377,17 +416,20 @@ class TableComponent extends React.Component {
           direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
+          data-testid={`tablesortlabel-0qxx-${key}`}
         >
           {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || key}</span>
+        <span data-testid={`tablelabel-0eff-${key}`}>{displayTitle ?? key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
 
       return tooltip ? (
-        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
+        <ThemedTooltip title={tooltip} data-testid={`themedtooltip-fnr7-${key}`}>
+          {headerElement}
+        </ThemedTooltip>
       ) : (
         headerElement
       );
@@ -395,7 +437,7 @@ class TableComponent extends React.Component {
 
     return columns.map(
       ({ key, title, numeric, titleAccessor, sortable = true, tooltip, TitleCellComponent }) => (
-        <HeaderContainer key={key} numeric={numeric}>
+        <HeaderContainer key={key} numeric={numeric} data-testid={`headercontainer-6mxd-${key}`}>
           {getContent({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent })}
         </HeaderContainer>
       ),
@@ -426,8 +468,13 @@ class TableComponent extends React.Component {
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow className="statusRow" colSpan={columns.length} statusCellStyle={statusCellStyle}>
-          {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
+        <StatusRow
+          className="statusRow"
+          colSpan={columns.length}
+          statusCellStyle={statusCellStyle}
+          data-testid="statusrow-fsiy"
+        >
+          {errorMessage ? <ErrorSpan data-testid="errorspan-dbf1">{status}</ErrorSpan> : status}
         </StatusRow>
       );
     }
@@ -454,18 +501,20 @@ class TableComponent extends React.Component {
                 onMouseEnter={onMouseEnterRow}
                 onMouseLeave={onMouseLeaveRow}
                 getRowTooltip={getRowTooltip}
+                data-testid="row-1kia"
               />
             );
           })}
         {isLoadingMore && (
-          <StyledTableRow $lazyLoading={lazyLoading}>
-            <CenteredLoadingIndicatorContainer>
+          <StyledTableRow $lazyLoading={lazyLoading} data-testid="styledtablerow-b6kf">
+            <CenteredLoadingIndicatorContainer data-testid="centeredloadingindicatorcontainer-38t4">
               <LoadingIndicator
                 backgroundColor="transparent"
                 opacity={1}
                 height="24px"
                 width="20px"
                 size="20px"
+                data-testid="loadingindicator-ur6w"
               />
             </CenteredLoadingIndicatorContainer>
           </StyledTableRow>
@@ -485,12 +534,22 @@ class TableComponent extends React.Component {
         rowsPerPage={rowsPerPage}
         onPageChange={this.handleChangePage}
         onRowsPerPageChange={this.handleChangeRowsPerPage}
+        data-testid="paginator-vq9f"
       />
     );
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } = this.props;
+    const {
+      page,
+      lazyLoading,
+      exportName,
+      columns,
+      data,
+      allowExport,
+      count,
+      ExportButton,
+    } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
@@ -498,11 +557,17 @@ class TableComponent extends React.Component {
     }
 
     return (
-      <StyledTableFooter>
-        <StyledTableRow $lazyLoading={lazyLoading}>
+      <StyledTableFooter data-testid="styledtablefooter-7pgn">
+        <StyledTableRow $lazyLoading={lazyLoading} data-testid="styledtablerow-oomc">
           {allowExport ? (
-            <TableCell colSpan={page !== null ? 2 : columns.length}>
-              <DownloadDataButton exportName={exportName} columns={columns} data={data} ExportButton={ExportButton} />
+            <TableCell colSpan={page !== null ? 2 : columns.length} data-testid="tablecell-zqda">
+              <DownloadDataButton
+                exportName={exportName}
+                columns={columns}
+                data={data}
+                ExportButton={ExportButton}
+                data-testid="downloaddatabutton-w1c5"
+              />
             </TableCell>
           ) : null}
           {page !== null && !lazyLoading && this.renderPaginator()}
@@ -540,10 +605,12 @@ class TableComponent extends React.Component {
             ? noDataBackgroundColor
             : Colors.outline
         }
+        data-testid="styledtablecontainer-3ttp"
       >
         {TableHeader && TableHeader}
         <StyledTable
           $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
+          data-testid="styledtable-1dlu"
         >
           {!hideHeader && (
             <StyledTableHead
@@ -552,6 +619,7 @@ class TableComponent extends React.Component {
               $lazyLoading={lazyLoading}
               $isBodyScrollable={isBodyScrollable}
               $headStyle={headStyle}
+              data-testid="styledtablehead-ays3"
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -560,6 +628,7 @@ class TableComponent extends React.Component {
             onScroll={lazyLoading ? this.handleScroll : undefined}
             $lazyLoading={!this.getStatusMessage() && lazyLoading}
             ref={tableRef}
+            data-testid="styledtablebody-a0jz"
           >
             {this.renderBodyContent()}
           </StyledTableBody>
@@ -616,7 +685,13 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
+  noDataMessage: (
+    <TranslatedText
+      stringId="general.table.noDataMessage"
+      fallback="No data found"
+      data-testid="translatedtext-d4jv"
+    />
+  ),
   count: 0,
   hideHeader: false,
   isLoading: false,
@@ -661,6 +736,7 @@ export const Table = React.forwardRef(
         exportName={getTranslation('general.table.action.export', exportName)}
         tableRef={ref}
         {...props}
+        data-testid="tablecomponent-9jgd"
       />
     );
   },

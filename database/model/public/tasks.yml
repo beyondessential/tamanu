@@ -1,0 +1,127 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: tasks
+        description: '{{ doc("table__tasks") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in tasks."
+            data_tests:
+              - unique
+              - not_null
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__encounter_id') }}"
+            data_tests:
+              - not_null
+          - name: name
+            data_type: text
+            description: "{{ doc('tasks__name') }}"
+            data_tests:
+              - not_null
+          - name: due_time
+            data_type: character(19)
+            description: "{{ doc('tasks__due_time') }}"
+            data_tests:
+              - not_null
+          - name: end_time
+            data_type: character(19)
+            description: "{{ doc('tasks__end_time') }}"
+          - name: requested_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__requested_by_user_id') }}"
+            data_tests:
+              - not_null
+          - name: request_time
+            data_type: character(19)
+            description: "{{ doc('tasks__request_time') }}"
+            data_tests:
+              - not_null
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('tasks__status') }}"
+            data_tests:
+              - not_null
+          - name: note
+            data_type: text
+            description: "{{ doc('tasks__note') }}"
+          - name: frequency_value
+            data_type: numeric
+            description: "{{ doc('tasks__frequency_value') }}"
+          - name: frequency_unit
+            data_type: character varying(255)
+            description: "{{ doc('tasks__frequency_unit') }}"
+          - name: high_priority
+            data_type: boolean
+            description: "{{ doc('tasks__high_priority') }}"
+          - name: parent_task_id
+            data_type: uuid
+            description: "{{ doc('tasks__parent_task_id') }}"
+          - name: completed_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__completed_by_user_id') }}"
+          - name: completed_time
+            data_type: character(19)
+            description: "{{ doc('tasks__completed_time') }}"
+          - name: completed_note
+            data_type: text
+            description: "{{ doc('tasks__completed_note') }}"
+          - name: not_completed_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__not_completed_by_user_id') }}"
+          - name: not_completed_time
+            data_type: character(19)
+            description: "{{ doc('tasks__not_completed_time') }}"
+          - name: not_completed_reason_id
+            data_type: text
+            description: "{{ doc('tasks__not_completed_reason_id') }}"
+          - name: todo_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__todo_by_user_id') }}"
+          - name: todo_time
+            data_type: character(19)
+            description: "{{ doc('tasks__todo_time') }}"
+          - name: todo_note
+            data_type: text
+            description: "{{ doc('tasks__todo_note') }}"
+          - name: deleted_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__deleted_by_user_id') }}"
+          - name: deleted_time
+            data_type: character(19)
+            description: "{{ doc('tasks__deleted_time') }}"
+          - name: deleted_reason_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__deleted_reason_id') }}"
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in tasks."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in tasks."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in tasks."
+          - name: deleted_reason_for_sync_id
+            data_type: character varying(255)
+            description: "{{ doc('tasks__deleted_reason_for_sync_id') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in tasks."
+            data_tests:
+              - not_null
+          - name: duration_value
+            data_type: numeric
+            description: "{{ doc('tasks__duration_value') }}"
+          - name: duration_unit
+            data_type: character varying(255)
+            description: "{{ doc('tasks__duration_unit') }}"

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { TranslatedReferenceData } from '../../components';
 
 const Spacer = styled.div`
   display: flex;
@@ -32,13 +33,35 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
       onClick={() => {
         navigateToProgramRegistry(programRegistry.id, programRegistry?.name);
       }}
+      data-testid="listitem-n444"
     >
-      <Spacer>
-        <RowContents style={{ width: '60%' }}>
-          <RegistrationStatusIndicator patientProgramRegistration={item} hideText />
-          <NameContainer style={{ width: '90%' }}>{programRegistry?.name}</NameContainer>
+      <Spacer data-testid="spacer-8zgz">
+        <RowContents style={{ width: '60%' }} data-testid="rowcontents-lq5c">
+          <RegistrationStatusIndicator
+            patientProgramRegistration={item}
+            hideText
+            data-testid="registrationstatusindicator-fpkc"
+          />
+          <NameContainer style={{ width: '90%' }} data-testid="namecontainer-yxfz">
+            <TranslatedReferenceData
+              value={programRegistry?.id}
+              fallback={programRegistry?.name}
+              category="programRegistry"
+              data-testid="translatedreferencedata-gsb7"
+            />
+          </NameContainer>
         </RowContents>
-        <NameContainer style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}>{clinicalStatus?.name}</NameContainer>
+        <NameContainer
+          style={{ width: '38%', textAlign: 'right', paddingRight: '8px' }}
+          data-testid="namecontainer-cg55"
+        >
+          <TranslatedReferenceData
+            fallback={clinicalStatus?.name}
+            value={clinicalStatus?.id}
+            category="programRegistryClinicalStatus"
+            data-testid="translatedreferencedata-h9ub"
+          />
+        </NameContainer>
       </Spacer>
     </ListItem>
   );

@@ -51,12 +51,35 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
   const noColor = value === false ? 'primary' : '';
 
   return (
-    <MuiButtonGroup size="small" variant="contained" disableElevation>
-      <MuiButton disabled={disabled} onClick={onClickTrue} color={yesColor}>
-        <TranslatedText stringId="general.action.yes" fallback="Yes" />
+    <MuiButtonGroup
+      size="small"
+      variant="contained"
+      disableElevation
+      data-testid="muibuttongroup-6w6p"
+    >
+      <MuiButton
+        disabled={disabled}
+        onClick={onClickTrue}
+        color={yesColor}
+        data-testid="muibutton-ys2a"
+      >
+        <TranslatedText
+          stringId="general.action.yes"
+          fallback="Yes"
+          data-testid="translatedtext-3qw1"
+        />
       </MuiButton>
-      <MuiButton disabled={disabled} onClick={onClickFalse} color={noColor}>
-        <TranslatedText stringId="general.action.no" fallback="No" />
+      <MuiButton
+        disabled={disabled}
+        onClick={onClickFalse}
+        color={noColor}
+        data-testid="muibutton-bif9"
+      >
+        <TranslatedText
+          stringId="general.action.no"
+          fallback="No"
+          data-testid="translatedtext-02o7"
+        />
       </MuiButton>
     </MuiButtonGroup>
   );
@@ -64,18 +87,29 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
 
 export const NullableBooleanInput = React.memo(
   ({ label, helperText, className, style, error, required, inputRef, ...props }) => (
-    <FormControl style={style} error={error} className={className} ref={inputRef}>
+    <FormControl
+      style={style}
+      error={error}
+      className={className}
+      ref={inputRef}
+      data-testid="formcontrol-aoaf"
+    >
       <ControlLabel
         labelPlacement="top"
-        control={<NullableBooleanControl {...props} />}
+        control={<NullableBooleanControl {...props} data-testid="nullablebooleancontrol-y1ik" />}
         label={
           <div>
             {label}
             {required && <RequiredLabel>*</RequiredLabel>}
           </div>
         }
+        data-testid="controllabel-q0hy"
       />
-      {helperText && <StyledFormHelperText>{helperText}</StyledFormHelperText>}
+      {helperText && (
+        <StyledFormHelperText data-testid="styledformhelpertext-y0km">
+          {helperText}
+        </StyledFormHelperText>
+      )}
     </FormControl>
   ),
 );

@@ -1,5 +1,5 @@
 import React from 'react';
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import styled from '@mui/system/styled';
 import { Colors } from '../../../constants';
 import { ConfirmCancelRow } from '../../ButtonRow';
@@ -24,9 +24,9 @@ const Value = styled(`span`)`
 `;
 
 const DetailDisplay = ({ label, value }) => (
-  <FlexCol>
-    <Label>{label}</Label>
-    <Value>{value ?? '—'}</Value>
+  <FlexCol data-testid="flexcol-ylre">
+    <Label data-testid="label-ss5l">{label}</Label>
+    <Value data-testid="value-8515">{value ?? '—'}</Value>
   </FlexCol>
 );
 
@@ -35,6 +35,13 @@ const AppointmentDetailsContainer = styled(FlexRow)`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   padding-block: 1.5rem;
+`;
+
+const OptionsContainer = styled(FlexCol)`
+  font-size: 0.875rem;
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  padding: 1.5rem;
 `;
 
 const AppointmentDetailsColumn = styled(FlexCol)`
@@ -70,4 +77,5 @@ export {
   BottomModalContainer,
   StyledConfirmCancelRow,
   BodyContainer,
+  OptionsContainer,
 };

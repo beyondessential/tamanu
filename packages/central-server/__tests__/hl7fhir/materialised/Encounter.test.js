@@ -2,7 +2,7 @@
 
 import { addDays, getYear } from 'date-fns';
 
-import { chance, fake } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/fake-data/fake';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -163,6 +163,22 @@ describe(`Materialised FHIR - Encounter`, () => {
         location: [
           {
             location: {
+              display: resources.department.name,
+              id: resources.department.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'jdn',
+                  display: 'Jurisdiction',
+                },
+              ],
+            },
+          },
+          {
+            location: {
               display: resources.locationGroup.name,
               id: resources.locationGroup.id,
             },
@@ -277,7 +293,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(12);
-        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+        expect(response.body.entry.map((entry) => entry.resource.id)).toEqual(
           encounters.map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
@@ -289,7 +305,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(12);
-        expect(response.body.entry.map(entry => entry.resource.id)).toEqual(
+        expect(response.body.entry.map((entry) => entry.resource.id)).toEqual(
           encounters.map(([, mat]) => mat.id).reverse(),
         );
         expect(response).toHaveSucceeded();
@@ -304,7 +320,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         expect(
           response.body.entry
             .slice(0, 6)
-            .map(entry => entry.resource.id)
+            .map((entry) => entry.resource.id)
             .sort(),
         ).toEqual(
           encounters
@@ -315,7 +331,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         expect(
           response.body.entry
             .slice(6, 12)
-            .map(entry => entry.resource.id)
+            .map((entry) => entry.resource.id)
             .sort(),
         ).toEqual(
           encounters
@@ -352,7 +368,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
         response.body.entry
           .filter(({ search: { mode } }) => mode === 'include')
-          .forEach(entry => {
+          .forEach((entry) => {
             // should only be 1
             expect(entry.resource.id).toBe(organization.id);
           });
@@ -370,7 +386,7 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(1);
-        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
+        expect(response.body.entry.map((ent) => ent.resource.id)).toStrictEqual(
           [[newEncounter, newMat]].map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
@@ -382,8 +398,11 @@ describe(`Materialised FHIR - Encounter`, () => {
         );
 
         expect(response.body.total).toBe(6);
-        expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
-          encounters.slice(6).map(([, mat]) => mat.id),
+        expect(response.body.entry.map((ent) => ent.resource.id).sort()).toStrictEqual(
+          encounters
+            .slice(6)
+            .map(([, mat]) => mat.id)
+            .sort(),
         );
         expect(response).toHaveSucceeded();
       });

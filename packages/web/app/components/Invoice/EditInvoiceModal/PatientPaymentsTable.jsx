@@ -50,6 +50,7 @@ const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
       onMouseEnter={() => setShowRowTooltip(false)}
       onMouseLeave={() => setShowRowTooltip(true)}
       ref={ref}
+      data-testid="chequenumbercontainer-grfe"
     >
       {chequeNumber}
     </ChequeNumberContainer>
@@ -58,20 +59,28 @@ const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
   if (!isOverflowing) {
     return renderChequeNumber();
   }
-  return <ThemedTooltip title={chequeNumber}>{renderChequeNumber()}</ThemedTooltip>;
+  return (
+    <ThemedTooltip title={chequeNumber} data-testid="themedtooltip-frvt">
+      {renderChequeNumber()}
+    </ThemedTooltip>
+  );
 };
 
-const getRowTooltipText = updatedByUser =>
+const getRowTooltipText = (updatedByUser) =>
   updatedByUser?.displayName ? (
-    <TooltipContainer>
-      <TranslatedText stringId="invoice.table.tooltip.recordedBy" fallback="Recorded by" />
+    <TooltipContainer data-testid="tooltipcontainer-kw8l">
+      <TranslatedText
+        stringId="invoice.table.tooltip.recordedBy"
+        fallback="Recorded by"
+        data-testid="translatedtext-qvgm"
+      />
       <div>{updatedByUser.displayName}</div>
     </TooltipContainer>
   ) : null;
 
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments
-    .filter(payment => !!payment?.patientPayment)
+    .filter((payment) => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const [refreshCount, setRefreshCount] = useState(0);
@@ -84,7 +93,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [showRowTooltip, setShowRowTooltip] = useState(false);
 
   const hasChequePaymentMethod = patientPayments.some(
-    payment => !!payment.patientPayment?.chequeNumber,
+    (payment) => !!payment.patientPayment?.chequeNumber,
   );
   const showChequeNumberColumn =
     [
@@ -96,8 +105,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const canCreatePayment = ability.can('create', 'InvoicePayment');
   const canEditPayment = ability.can('write', 'InvoicePayment');
 
-  const updateRefreshCount = useCallback(() => setRefreshCount(prev => prev + 1), []);
-  const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
+  const updateRefreshCount = useCallback(() => setRefreshCount((prev) => prev + 1), []);
+  const updateEditingPayment = useCallback(
+    (editingPayment) => setEditingPayment(editingPayment),
+    [],
+  );
 
   const hideRecordPaymentForm =
     round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
@@ -105,13 +117,25 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const COLUMNS = [
     {
       key: 'date',
-      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+      title: (
+        <TranslatedText
+          stringId="general.date.label"
+          fallback="Date"
+          data-testid="translatedtext-5qcp"
+        />
+      ),
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} />,
+      accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-21cc" />,
     },
     {
       key: 'methodName',
-      title: <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
+      title: (
+        <TranslatedText
+          stringId="invoice.table.payment.column.method"
+          fallback="Method"
+          data-testid="translatedtext-55c8"
+        />
+      ),
       sortable: false,
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
@@ -123,18 +147,29 @@ export const PatientPaymentsTable = ({ invoice }) => {
               <TranslatedText
                 stringId="invoice.table.payment.column.chequeNumber"
                 fallback="Chq no."
+                data-testid="translatedtext-50g8"
               />
             ),
             sortable: false,
-            accessor: prop => (
-              <ChequeNumberDisplay {...prop} setShowRowTooltip={setShowRowTooltip} />
+            accessor: (prop) => (
+              <ChequeNumberDisplay
+                {...prop}
+                setShowRowTooltip={setShowRowTooltip}
+                data-testid="chequenumberdisplay-5mlh"
+              />
             ),
           },
         ]
       : []),
     {
       key: 'amount',
-      title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
+      title: (
+        <TranslatedText
+          stringId="invoice.table.payment.column.amount"
+          fallback="Amount"
+          data-testid="translatedtext-9pxt"
+        />
+      ),
       sortable: false,
       accessor: ({ amount }) => formatDisplayPrice(amount),
     },
@@ -144,26 +179,31 @@ export const PatientPaymentsTable = ({ invoice }) => {
         <TranslatedText
           stringId="invoice.table.payment.column.receiptNumber"
           fallback="Receipt number"
+          data-testid="translatedtext-v87s"
         />
       ),
       sortable: false,
     },
     {
-      key: 'actions',
+      key: '',
       sortable: false,
-      accessor: row =>
+      accessor: (row) =>
         !hideRecordPaymentForm &&
         canEditPayment && (
-          <Box display="flex" justifyContent="flex-end">
-            <Box sx={{ cursor: 'pointer' }} onClick={() => setEditingPayment(row)}>
-              <PencilIcon />
+          <Box display="flex" justifyContent="flex-end" data-testid="box-nleu">
+            <Box
+              sx={{ cursor: 'pointer' }}
+              onClick={() => setEditingPayment(row)}
+              data-testid="box-n25g"
+            >
+              <PencilIcon data-testid="pencilicon-c4w2" />
             </Box>
           </Box>
         ),
     },
   ];
 
-  const sliceIndex = patientPayments.findIndex(payment => payment.id === editingPayment.id);
+  const sliceIndex = patientPayments.findIndex((payment) => payment.id === editingPayment.id);
 
   const cellsWidthString = `
     &:nth-child(1) {
@@ -203,30 +243,32 @@ export const PatientPaymentsTable = ({ invoice }) => {
     rowIdKey: 'id',
   };
 
-  const onCreateDataChange = data => {
+  const onCreateDataChange = (data) => {
     setSelectedCreatePayment(data);
   };
-  const onEditDataChange = data => {
+  const onEditDataChange = (data) => {
     setSelectedEditPayment(data);
   };
   const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
 
   return (
-    <TableContainer>
-      <Title>
-        <Heading4 sx={{ margin: '15px 0 15px 0' }}>
+    <TableContainer data-testid="tablecontainer-g8kz">
+      <Title data-testid="title-jb7x">
+        <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-rklc">
           <TranslatedText
             stringId="invoice.modal.payment.patientPayments"
             fallback="Patient payments"
+            data-testid="translatedtext-ujwm"
           />
         </Heading4>
-        <Heading4 sx={{ margin: '15px 0 15px 0' }}>
+        <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-0rcp">
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
             replacements={{
               remainingBalance: formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance)),
             }}
+            data-testid="translatedtext-e38g"
           />
         </Heading4>
       </Title>
@@ -234,6 +276,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         {...tableProps}
         data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : []}
         {...(showRowTooltip && { getRowTooltip })}
+        data-testid="table-so8f"
       />
       {editingPayment?.id && (
         <>
@@ -246,8 +289,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
             onDataChange={onEditDataChange}
             selectedPayment={selectedEditPayment}
             showChequeNumberColumn={showChequeNumberColumn}
+            data-testid="patientpaymentform-cvbk"
           />
-          <Divider />
+          <Divider data-testid="divider-uc00" />
         </>
       )}
       <Table
@@ -259,6 +303,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         }
         hideHeader
         {...(showRowTooltip && { getRowTooltip })}
+        data-testid="table-no3s"
       />
       {!hideRecordPaymentForm && canCreatePayment && (
         <PatientPaymentForm
@@ -269,6 +314,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           onDataChange={onCreateDataChange}
           selectedPayment={selectedCreatePayment}
           showChequeNumberColumn={showChequeNumberColumn}
+          data-testid="patientpaymentform-ib6a"
         />
       )}
     </TableContainer>

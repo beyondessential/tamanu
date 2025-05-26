@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { PureAbility } from '@casl/ability';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
@@ -23,10 +23,7 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: true })
   name?: string;
 
-  @ManyToOne(
-    () => Program,
-    program => program.surveys,
-  )
+  @ManyToOne(() => Program, (program) => program.surveys)
   program: Program;
 
   components: any;
@@ -80,7 +77,7 @@ export class Survey extends BaseModel implements ISurvey {
     const components = await vitalsSurvey.getComponents({ includeAllVitals });
 
     return {
-      dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
+      dateComponent: components.find((c) => c.dataElementId === VitalsDataElements.dateRecorded),
       components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,

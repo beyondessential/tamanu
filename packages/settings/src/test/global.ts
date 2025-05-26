@@ -3,4 +3,7 @@ export const globalTestSettings = {
     restrictUsersToFacilities: false,
     restrictUsersToSync: false,
   },
+  appointments: {
+    maxRepeatingAppointmentsPerGeneration: 10,
+  },
 };

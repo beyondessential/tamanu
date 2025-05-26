@@ -8,15 +8,25 @@ import { TimeInput } from '../../Field';
  * The resulting date-time will match the provided `date` with the time set by the user.
  */
 export const TimeWithFixedDateField = ({ field, date, ...props }) => {
-  const handleChange = event => {
-    const newValue = toDateTimeString(
-      dateFnsSet(parseISO(event.target.value), {
-        year: getYear(date),
-        date: getDate(date),
-        month: getMonth(date),
-      }),
-    );
+  const handleChange = (event) => {
+    const newValue = event.target.value
+      ? toDateTimeString(
+          dateFnsSet(parseISO(event.target.value), {
+            year: getYear(date),
+            date: getDate(date),
+            month: getMonth(date),
+          }),
+        )
+      : null;
     field.onChange({ target: { value: newValue, name: field.name } });
   };
-  return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;
+  return (
+    <TimeInput
+      name={field.name}
+      value={field.value}
+      {...props}
+      onChange={handleChange}
+      data-testid="timeinput-vbul"
+    />
+  );
 };

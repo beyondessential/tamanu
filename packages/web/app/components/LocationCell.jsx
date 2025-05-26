@@ -14,18 +14,24 @@ export const LocationCell = ({
   return (
     <div style={{ minWidth: 100, ...style }}>
       {locationId ? (
-        <TranslatedReferenceData value={locationId} fallback={locationName} category={category} />
+        <TranslatedReferenceData
+          value={locationId}
+          fallback={locationName}
+          category={category}
+          data-testid="translatedreferencedata-ne0n"
+        />
       ) : (
         locationName
       )}
       {plannedLocationName && (
-        <Typography style={{ fontSize: 12, color: Colors.darkText }}>
+        <Typography style={{ fontSize: 12, color: Colors.darkText }} data-testid="typography-nnh6">
           (Planned -{' '}
           {
             <TranslatedReferenceData
               value={plannedLocationId}
               fallback={plannedLocationName}
               category={category}
+              data-testid="translatedreferencedata-cvff"
             />
           }
           )
@@ -40,7 +46,7 @@ export const LocationGroupCell = ({
   locationGroupId,
   plannedLocationGroupName,
   plannedLocationGroupId,
-  ...props
+  style,
 }) => {
   return (
     <LocationCell
@@ -49,7 +55,8 @@ export const LocationGroupCell = ({
       plannedLocationName={plannedLocationGroupName}
       plannedLocationId={plannedLocationGroupId}
       category="locationGroup"
-      {...props}
+      style={style}
+      data-testid="locationcell-dk36"
     />
   );
 };

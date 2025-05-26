@@ -41,6 +41,18 @@ export const TASK_FREQUENCY_UNIT_LABELS = {
   [TASK_FREQUENCY_UNIT.DAY]: 'day (s)',
 };
 
+export const TASK_DURATION_UNIT = {
+  HOURS: 'hours',
+  DAYS: 'days',
+  OCCURRENCES: 'occurrences',
+};
+
+export const TASK_DURATION_UNIT_LABELS = {
+  [TASK_DURATION_UNIT.HOURS]: 'hour (s)',
+  [TASK_DURATION_UNIT.DAYS]: 'day (s)',
+  [TASK_DURATION_UNIT.OCCURRENCES]: 'occurrence (s)',
+};
+
 export const TASK_NOTE_COMPLETE_OVERDUE_REASON_ID = 'tasknotcompletedreason-taskoverdue';
 
 export const TASK_DELETE_BY_SYSTEM_REASON = 'taskdeletionreason-deletedbysystem';

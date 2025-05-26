@@ -5,31 +5,43 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
+import { OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/database/sync';
 
 import { DataImportError, DryRun } from '../errors';
 import { coalesceStats } from '../stats';
 
-export function normaliseSheetName(name) {
+const normMapping = {
+  // singularize transforms 'reference data' to 'reference datum', which is not what we want
+  referenceDatumRelation: 'referenceDataRelation',
+  vaccineSchedule: OTHER_REFERENCE_TYPES.SCHEDULED_VACCINE,
+  procedure: 'procedureType',
+  // This is needed to handle the way we are exporting that data
+  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFININION_CATEGORY,
+  // We need mapping for program registry imports because program registry data is imported in the
+  // worksheet sheets called registry and registryCondition but the full model names
+  // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
+  // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
+  registry: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY,
+  registryCondition: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
+};
+
+export function normaliseSheetName(name, modelName) {
   const norm = camelCase(
     lowerCase(name)
       .split(/\s+/)
-      .map(word => singularize(word))
+      .map((word) => singularize(word))
       .join(' '),
   );
 
-  // singularize transforms 'reference data' to 'reference datum', which is not what we want
-  if (norm === 'referenceDatumRelation') return 'referenceDataRelation';
+  // Exception because ProgramRegistryClinicalStatus is imported in the registry sheet
+  if (modelName === 'ProgramRegistryClinicalStatus') {
+    return OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+  }
 
-  if (norm === 'vaccineSchedule') return 'scheduledVaccine';
-  if (norm === 'procedure') return 'procedureType';
-
-  // This is needed to handle the way we are exporting that data
-  if (norm === 'patientFieldDefCategory') return 'patientFieldDefinitionCategory';
-
-  return norm;
+  return normMapping[norm] || norm;
 }
 
 /** @internal exported for testing only */
@@ -40,6 +52,7 @@ export async function importerTransaction({
   dryRun = false,
   includedDataTypes = [],
   checkPermission,
+  ...extraOptions
 }) {
   const errors = [];
   const stats = [];
@@ -51,7 +64,7 @@ export async function importerTransaction({
         // strongest level to be sure to read/write good data
         isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
       },
-      async transaction => {
+      async (transaction) => {
         // acquire a lock on the sync time row in the local system facts table, so that all imported
         // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
         // import is still in progress
@@ -60,12 +73,20 @@ export async function importerTransaction({
         // this import, but aren't visible in the db to be snapshot until the transaction commits,
         // so would otherwise be completely skipped over by that sync client
         await models.LocalSystemFact.findAll({
-          where: { key: CURRENT_SYNC_TIME_KEY },
+          where: { key: FACT_CURRENT_SYNC_TICK },
           lock: transaction.LOCK.UPDATE,
         });
 
         try {
-          await importer({ errors, models, stats, file, includedDataTypes, checkPermission });
+          await importer({
+            errors,
+            models,
+            stats,
+            file,
+            includedDataTypes,
+            checkPermission,
+            ...extraOptions,
+          });
         } catch (err) {
           errors.push(err);
         }
@@ -112,6 +133,7 @@ export function createDataImporterEndpoint(importer) {
       deleteFileAfterImport = true,
       dryRun = false,
       includedDataTypes,
+      ...extraOptions
     } = await getUploadedData(req);
 
     const result = await importerTransaction({
@@ -121,16 +143,17 @@ export function createDataImporterEndpoint(importer) {
       dryRun,
       includedDataTypes,
       checkPermission,
+      ...extraOptions,
     });
 
     // we don't need the file any more
     if (deleteFileAfterImport) {
       // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch(ignore => {});
+      await fs.unlink(file).catch((ignore) => {});
     }
 
     result.errors =
-      result.errors?.map(err =>
+      result.errors?.map((err) =>
         (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
           ? new DataImportError('(general)', -3, err)
           : err,

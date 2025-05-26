@@ -1,0 +1,85 @@
+version: 2
+sources:
+  - name: fhir__tamanu
+    schema: fhir
+    description: "{{ doc('fhir__generic__schema') }}"
+    tables:
+      - name: patients
+        description: '{{ doc("fhir__table__patients") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__id') }} in patients."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__version_id') }} in patients."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying(255)
+            description: "{{ doc('fhir__generic__upstream_id') }} in patients."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp without time zone
+            description: "{{ doc('fhir__generic__last_updated') }} in patients."
+            data_tests:
+              - not_null
+          - name: identifier
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__identifier') }}"
+            data_tests:
+              - not_null
+          - name: active
+            data_type: boolean
+            description: "{{ doc('fhir__patients__active') }}"
+            data_tests:
+              - not_null
+          - name: name
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__name') }}"
+            data_tests:
+              - not_null
+          - name: telecom
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__telecom') }}"
+            data_tests:
+              - not_null
+          - name: gender
+            data_type: text
+            description: "{{ doc('fhir__patients__gender') }}"
+            data_tests:
+              - not_null
+          - name: birth_date
+            data_type: text
+            description: "{{ doc('fhir__patients__birth_date') }}"
+          - name: deceased_date_time
+            data_type: text
+            description: "{{ doc('fhir__patients__deceased_date_time') }}"
+          - name: address
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__address') }}"
+            data_tests:
+              - not_null
+          - name: link
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__link') }}"
+          - name: extension
+            data_type: jsonb
+            description: "{{ doc('fhir__patients__extension') }}"
+            data_tests:
+              - not_null
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in patients."
+            data_tests:
+              - not_null
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in patients."
+            data_tests:
+              - not_null

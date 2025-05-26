@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-
+import { camelCase } from 'lodash';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
@@ -14,11 +14,12 @@ import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
+import { TranslatedReferenceData } from '/components/Translations/TranslatedReferenceData';
 
 const BackendAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
   const [refData, error] = useBackendEffect(
-    ({ models }) => models[config.source].getRepository().findOne(answer),
+    ({ models }) => models[config.source].getRepository().findOne({ where: { id: answer } }),
     [question, answer],
   );
   if (!refData) {
@@ -28,9 +29,13 @@ const BackendAnswer = ({ question, answer }): ReactElement => {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
+
+  const displayName = getDisplayNameForModel(config.source, refData);
+  const category = camelCase(config.source);
+
   return (
     <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-      {getDisplayNameForModel(config.source, refData)}
+      <TranslatedReferenceData fallback={displayName} value={answer} category={category} />
     </StyledText>
   );
 };
@@ -168,7 +173,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+    const answerObject = answers.find((a) => a.dataElement.id === q.dataElement.id);
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -180,9 +185,9 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   );
 
   const answerItems = questions
-    .filter(q => q.dataElement.name)
+    .filter((q) => q.dataElement.name)
     .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
+    .filter((q) => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (

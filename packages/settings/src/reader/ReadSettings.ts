@@ -34,9 +34,9 @@ export class ReadSettings<Path = SettingPath> {
     this.facilityId = facilityId;
   }
 
-  async get(key: Path) {
+  async get<T extends string | number | object>(key: Path): Promise<T> {
     const settings = await this.getAll();
-    return lodashGet(settings, key as string);
+    return lodashGet(settings, key as string) as T;
   }
 
   // This is what is called on login. This gets only settings relevant to

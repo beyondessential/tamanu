@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm';
 
 import { ID, IProgramRegistryClinicalStatus } from '~/types';
 import { BaseModel } from './BaseModel';
@@ -8,8 +8,10 @@ import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistry } from './ProgramRegistry';
 
 @Entity('program_registry_clinical_statuses')
-export class ProgramRegistryClinicalStatus extends BaseModel
-  implements IProgramRegistryClinicalStatus {
+export class ProgramRegistryClinicalStatus
+  extends BaseModel
+  implements IProgramRegistryClinicalStatus
+{
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ nullable: false })

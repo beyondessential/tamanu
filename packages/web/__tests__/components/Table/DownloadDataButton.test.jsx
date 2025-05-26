@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * Tests the rendering and translation of the ‘Export’ button itself.
  *
@@ -42,7 +43,7 @@ const chance = new Chance();
 
 const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
 // eslint-disable-next-line no-unused-vars
-const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
+const mockGetTranslation = (stringId, fallback, _translationOptions) =>
   mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
@@ -55,7 +56,7 @@ const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
 /** {@link DownloadDataButton} must be rendered within a translation context */
-const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
+const render = (element) => renderElementWithTranslatedText(element, null, mockTranslationContext);
 
 describe('DownloadDataButton', () => {
   const columns = [
@@ -82,13 +83,10 @@ describe('DownloadDataButton', () => {
 
     const button = screen.getByTestId('download-data-button');
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
-    expect(getTranslationSpy).toHaveBeenCalledWith(
-      'general.action.download',
-      'Download',
-      undefined,
-      undefined,
-      undefined,
-    );
+    expect(getTranslationSpy).toHaveBeenCalledWith('general.action.download', 'Download', {
+      casing: undefined,
+      replacements: undefined,
+    });
     expect(button.textContent).toBe('🌐 Download 🌐');
   });
 
@@ -96,7 +94,7 @@ describe('DownloadDataButton', () => {
     const stringId = chance.string();
     const translationFallback = chance.string();
     const testId = chance.string();
-    const ExportButton = props => (
+    const ExportButton = (props) => (
       <button data-testid={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>
@@ -113,13 +111,10 @@ describe('DownloadDataButton', () => {
 
     const button = screen.getByTestId(testId);
     expect(getTranslationSpy).toHaveBeenCalledTimes(1);
-    expect(getTranslationSpy).toHaveBeenCalledWith(
-      stringId,
-      translationFallback,
-      undefined,
-      undefined,
-      undefined,
-    );
+    expect(getTranslationSpy).toHaveBeenCalledWith(stringId, translationFallback, {
+      casing: undefined,
+      replacements: undefined,
+    });
     expect(button.textContent).toBe(translationFallback);
   });
 

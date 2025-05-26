@@ -75,6 +75,7 @@ survey.get(
         surveyType: req.query.type,
         visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
       },
+      order: [['name', 'ASC']],
     });
     const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
 

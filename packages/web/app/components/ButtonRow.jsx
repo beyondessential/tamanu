@@ -12,15 +12,15 @@ const FlexSpaceBetween = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: flex-end;
+  justify-content: ${(p) => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
   margin-top: 10px;
   width: 100%;
 
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
 
-  > button,
-  > div {
+  > button:not(:first-child),
+  > div:not(:first-child) {
     margin-left: 20px;
   }
 `;
@@ -30,7 +30,7 @@ const ConfirmButton = styled(Button)`
 `;
 
 export const ButtonRow = React.memo(({ children, ...props }) => (
-  <Row items={Children.toArray(children).length || 1} {...props}>
+  <Row items={Children.toArray(children).length || 1} {...props} data-testid="row-atzb">
     {children}
   </Row>
 ));
@@ -39,23 +39,49 @@ export const FormSubmitCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
-    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+    confirmText = (
+      <TranslatedText
+        stringId="general.action.confirm"
+        fallback="Confirm"
+        data-testid="translatedtext-ev3v"
+      />
+    ),
     confirmColor = 'primary',
-    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+    cancelText = (
+      <TranslatedText
+        stringId="general.action.cancel"
+        fallback="Cancel"
+        data-testid="translatedtext-bptd"
+      />
+    ),
     confirmDisabled,
     confirmStyle,
+    CustomConfirmButton,
     ...props
   }) => (
-    <ButtonRow {...props}>
-      {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
-      <FormSubmitButton
-        color={confirmColor}
-        onSubmit={onConfirm}
-        disabled={confirmDisabled}
-        {...(confirmStyle && { confirmStyle })}
-      >
-        {confirmText}
-      </FormSubmitButton>
+    <ButtonRow {...props} data-testid="buttonrow-4wf7">
+      {onCancel && (
+        <FormCancelButton onClick={onCancel} data-testid="formcancelbutton-aseq">
+          {cancelText}
+        </FormCancelButton>
+      )}
+      {CustomConfirmButton ? (
+        <CustomConfirmButton
+          onClick={onConfirm}
+          disabled={confirmDisabled}
+          data-testid="customconfirmbutton-fnmk"
+        />
+      ) : (
+        <FormSubmitButton
+          color={confirmColor}
+          onSubmit={onConfirm}
+          disabled={confirmDisabled}
+          {...(confirmStyle && { confirmStyle })}
+          data-testid="formsubmitbutton-ygc6"
+        >
+          {confirmText}
+        </FormSubmitButton>
+      )}
     </ButtonRow>
   ),
 );
@@ -64,15 +90,36 @@ export const ConfirmCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
-    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+    confirmText = (
+      <TranslatedText
+        stringId="general.action.confirm"
+        fallback="Confirm"
+        data-testid="translatedtext-soz8"
+      />
+    ),
     confirmColor = 'primary',
-    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+    cancelText = (
+      <TranslatedText
+        stringId="general.action.cancel"
+        fallback="Cancel"
+        data-testid="translatedtext-ve03"
+      />
+    ),
     confirmDisabled,
     ...props
   }) => (
-    <ButtonRow {...props}>
-      {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
-      <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
+    <ButtonRow {...props} data-testid="buttonrow-lft2">
+      {onCancel && (
+        <OutlinedButton onClick={onCancel} data-testid="outlinedbutton-95wy">
+          {cancelText}
+        </OutlinedButton>
+      )}
+      <ConfirmButton
+        color={confirmColor}
+        onClick={onConfirm}
+        disabled={confirmDisabled}
+        data-testid="confirmbutton-tok1"
+      >
         {confirmText}
       </ConfirmButton>
     </ButtonRow>
@@ -91,30 +138,47 @@ const GoBackButtonContainer = styled(ButtonRow)`
 
 export const FormConfirmCancelBackRow = ({
   onBack,
-  backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  backButtonText = (
+    <TranslatedText
+      stringId="general.action.back"
+      fallback="Back"
+      data-testid="translatedtext-ypnp"
+    />
+  ),
   ...props
 }) => (
-  <FlexSpaceBetween>
+  <FlexSpaceBetween data-testid="flexspacebetween-p9lh">
     {onBack && (
-      <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+      <GoBackButtonContainer data-testid="gobackbuttoncontainer-pfqw">
+        <OutlinedButton onClick={onBack} data-testid="outlinedbutton-fa5a">
+          {backButtonText}
+        </OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <FormSubmitCancelRow {...props} />
+    <FormSubmitCancelRow {...props} data-testid="formsubmitcancelrow-il44" />
   </FlexSpaceBetween>
 );
 
 export const ConfirmCancelBackRow = ({
   onBack,
-  backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  backButtonText = (
+    <TranslatedText
+      stringId="general.action.back"
+      fallback="Back"
+      data-testid="translatedtext-yfq9"
+    />
+  ),
+  backDisabled = false,
   ...props
 }) => (
-  <FlexSpaceBetween>
+  <FlexSpaceBetween data-testid="flexspacebetween-f194">
     {onBack && (
-      <GoBackButtonContainer>
-        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+      <GoBackButtonContainer data-testid="gobackbuttoncontainer-79x5">
+        <OutlinedButton onClick={onBack} disabled={backDisabled} data-testid="outlinedbutton-1xr6">
+          {backButtonText}
+        </OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <ConfirmCancelRow {...props} />
+    <ConfirmCancelRow {...props} data-testid="confirmcancelrow-lked" />
   </FlexSpaceBetween>
 );

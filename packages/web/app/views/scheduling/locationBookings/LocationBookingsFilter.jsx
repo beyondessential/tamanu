@@ -1,108 +1,111 @@
 import React, { useEffect } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
+import { debounce, omit } from 'lodash';
+import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
-import queryString from 'query-string';
-import { useLocation } from 'react-router-dom';
+
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
-import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
-import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
+import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
+import {
+  LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
+  useLocationBookingsContext,
+} from '../../../contexts/LocationBookings';
 
 const SearchBar = styled('search')`
   display: flex;
   gap: 0.625rem;
 `;
 
-const FormListener = ({ onFilterChange }) => {
+const FormListener = () => {
   const { values } = useFormikContext();
-  const location = useLocation();
-
-  useEffect(() => {
-    onFilterChange(values);
-  }, [values, onFilterChange]);
-
-  useEffect(() => {
-    const { clinicianId } = queryString.parse(location.search);
-    if (clinicianId) {
-      onFilterChange({ clinicianId: [clinicianId] });
-      return;
-    }
-  }, [location.search]);
-
-  return null;
+  const { setFilters } = useLocationBookingsContext();
+  useEffect(() => setFilters(values), [values, setFilters]);
 };
 
-const emptyValues = {
-  locationGroupIds: [],
-  clinicianId: [],
-  bookingTypeId: [],
-  patientNameOrId: '',
-};
-
-export const LocationBookingsFilter = ({ onFilterChange }) => {
+export const LocationBookingsFilter = () => {
+  const { filters, setFilters } = useLocationBookingsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 
-  const { data: userPreferences, isLoading: isUserPreferencesLoading } = useUserPreferencesQuery();
-
-  if (isUserPreferencesLoading) {
-    return <CircularProgress />;
-  }
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  const updateUserPreferences = debounce(
+    (values) =>
+      mutateUserPreferences({
+        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+        value: omit(values, ['patientNameOrId']),
+      }),
+    200,
+  );
 
   return (
     <Form
       enableReinitialize
-      initialValues={{
-        ...userPreferences?.locationBookingFilters?.[facilityId],
-        patientNameOrId: '',
-      }}
+      initialValues={filters}
       onSubmit={async () => {}}
       render={({ setValues }) => (
         <>
-          <FormListener onFilterChange={onFilterChange} />
-          <SearchBar>
+          <SearchBar data-testid="searchbar-lgtv">
             <Field
               name="patientNameOrId"
               component={SearchField}
+              // Avoids [object Object] in the placeholder
               placeholder={getTranslation(
                 'scheduling.filter.placeholder.patientNameOrId',
                 'Search patient name or ID',
-              )} // Avoids [object Object] in the placeholder
+              )}
               style={{ width: '18.75rem' }}
+              data-testid="field-e0qu"
             />
             <Field
               name="locationGroupIds"
               label={getTranslation('general.area.label', 'Area')}
               component={FilterField}
               endpoint="bookableLocationGroup"
+              onChange={(e) =>
+                updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
+              }
+              data-testid="field-67bz"
             />
             <Field
               name="clinicianId"
               label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
               component={FilterField}
               endpoint="practitioner"
+              onChange={(e) => updateUserPreferences({ ...filters, clinicianId: e.target.value })}
+              data-testid="field-a99m"
             />
             <Field
               name="bookingTypeId"
               label={getTranslation('general.type.label', 'Type')}
               component={FilterField}
               endpoint="bookingType"
+              onChange={(e) => updateUserPreferences({ ...filters, bookingTypeId: e.target.value })}
+              data-testid="field-7bfo"
             />
             <TextButton
               onClick={() => {
-                setValues(emptyValues);
-                onFilterChange(emptyValues);
+                setValues(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                setFilters(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
+                updateUserPreferences(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}
+              data-testid="textbutton-xd2o"
             >
-              <TranslatedText stringId="general.action.clear" fallback="Clear" />
+              <TranslatedText
+                stringId="general.action.clear"
+                fallback="Clear"
+                data-testid="translatedtext-cque"
+              />
             </TextButton>
           </SearchBar>
+          <FormListener data-testid="formlistener-i0in" />
         </>
       )}
+      data-testid="form-1bo8"
     />
   );
 };

@@ -1,6 +1,8 @@
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
-import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake, chance } from '@tamanu/fake-data/fake';
+
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
@@ -624,19 +626,28 @@ describe('User', () => {
 
   describe('User preference', () => {
     let user = null;
+    let facilityA = null;
+    let facilityB = null;
     let app = null;
-    const defaultSelectedGraphedVitalsOnFilter = [
-      'data-element-1',
-      'data-element-2',
-      'data-element-3',
-    ].join(',');
-    const updateUserPreference = async (userPreference) => {
-      const result = await app.post('/api/user/userPreferences').send(userPreference);
+
+    const defaultPreferences = {
+      selectedGraphedVitalsOnFilter: ['data-element-1', 'data-element-2', 'data-element-3'].join(
+        ',',
+      ),
+      outpatientAppointmentFilters: {
+        appointmentTypeId: ['appointmentType-other'],
+      },
+    };
+
+    const updateUserPreference = async ({ key, value, facilityId }) => {
+      const result = await app.post('/api/user/userPreferences').send({ key, value, facilityId });
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         id: expect.any(String),
         userId: user.id,
-        ...userPreference,
+        key,
+        value,
+        ...(facilityId ? { facilityId } : {}),
       });
       return result;
     };
@@ -649,31 +660,59 @@ describe('User', () => {
       );
       app = await baseApp.asUser(user);
 
+      facilityA = await models.Facility.create(fake(models.Facility));
+      facilityB = await models.Facility.create(fake(models.Facility));
+
       await updateUserPreference({
         key: 'selectedGraphedVitalsOnFilter',
-        value: defaultSelectedGraphedVitalsOnFilter,
+        value: defaultPreferences.selectedGraphedVitalsOnFilter,
+      });
+
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: defaultPreferences.outpatientAppointmentFilters,
       });
     });
 
     it('should fetch current user existing user preference', async () => {
-      const result = await app.get('/api/user/userPreferences');
+      const result = await app.get(`/api/user/userPreferences/${facilityA.id}`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
-      });
+      expect(result.body).toMatchObject(defaultPreferences);
     });
 
-    it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
-      const result1 = await models.UserPreference.findOne({
-        where: { key: 'selectedGraphedVitalsOnFilter' },
+    it('should prioritise preferences set by facility than fallback to general', async () => {
+      const facilityAOutpatientAppointmentFilters = {
+        appointmentTypeId: ['appointmentType-standard'],
+      };
+      const facilityBOutpatientAppointmentFilters = {
+        appointmentTypeId: ['appointmentType-other'],
+      };
+
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: facilityAOutpatientAppointmentFilters,
+        facilityId: facilityA.id,
       });
-      const result2 = await updateUserPreference({
-        key: 'selectedGraphedVitalsOnFilter',
-        value: defaultSelectedGraphedVitalsOnFilter,
+
+      await updateUserPreference({
+        key: 'outpatientAppointmentFilters',
+        value: facilityBOutpatientAppointmentFilters,
+        facilityId: facilityB.id,
       });
-      const result1Date = new Date(result1.updatedAt);
-      const result2Date = new Date(result2.body.updatedAt);
-      expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
+
+      const resultA = await app.get(`/api/user/userPreferences/${facilityA.id}`);
+      expect(resultA).toHaveSucceeded();
+      expect(resultA.body).toMatchObject({
+        ...defaultPreferences,
+        outpatientAppointmentFilters: facilityAOutpatientAppointmentFilters,
+      });
+
+      const resultB = await app.get(`/api/user/userPreferences/${facilityB.id}`);
+      expect(resultB).toHaveSucceeded();
+      expect(resultB.body).toMatchObject({
+        ...defaultPreferences,
+        outpatientAppointmentFilters: facilityBOutpatientAppointmentFilters,
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPE_VALUES } from './importable';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPE_VALUES } from './importable.js';
 
 export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
   ...REFERENCE_TYPE_VALUES,
@@ -25,4 +25,6 @@ export const SUGGESTER_ENDPOINTS = [
   'programRegistryClinicalStatus',
   'programRegistryCondition',
   'survey',
+  'sensitiveLabTestCategory',
+  'nonSensitiveLabTestCategory',
 ];

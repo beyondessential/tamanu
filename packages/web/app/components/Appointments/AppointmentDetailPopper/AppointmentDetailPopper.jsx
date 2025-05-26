@@ -14,6 +14,7 @@ import { AppointmentStatusSelector } from './AppointmentStatusSelector';
 import { ControlsRow } from './ControlsRow';
 import { PatientDetailsDisplay } from './PatientDetailsDisplay';
 import { CheckInButton } from './CheckInButton';
+import { useAuth } from '../../../contexts/Auth';
 
 export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
@@ -49,6 +50,7 @@ export const AppointmentDetailPopper = ({
   open = false,
   preventOverflowPadding = {},
 }) => {
+  const { ability } = useAuth();
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
@@ -59,7 +61,7 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const handleClickAway = e => {
+  const handleClickAway = (e) => {
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
@@ -84,19 +86,25 @@ export const AppointmentDetailPopper = ({
     },
   ];
 
+  const canWriteAppointment = ability.can('write', 'Appointment');
+  const canCreateEncounter = ability.can('create', 'Encounter');
+
   return (
     <Popper
       anchorEl={anchorEl}
       modifiers={modifiers}
-      onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
+      // Prevent the popper from closing when clicked
+      onClick={(e) => e.stopPropagation()}
       open={open}
       placement="bottom-start"
       sx={{ zIndex: 10 }}
+      data-testid="popper-tymk"
     >
       <ClickAwayListener
         onClickAway={handleClickAway}
         mouseEvent="onMouseDown"
         touchEvent="onTouchStart"
+        data-testid="clickawaylistener-rxja"
       >
         <div>
           <ControlsRow
@@ -104,17 +112,29 @@ export const AppointmentDetailPopper = ({
             onCancel={onCancel}
             onClose={onClose}
             onEdit={onEdit}
+            data-testid="controlsrow-30on"
           />
-          <StyledPaper elevation={0}>
+          <StyledPaper elevation={0} data-testid="styledpaper-mvu3">
             <PatientDetailsDisplay
               additionalData={additionalData}
               onClick={handlePatientDetailsClick}
               patient={appointment.patient}
+              data-testid="patientdetailsdisplay-hxfv"
             />
-            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-            <Footer>
-              <AppointmentStatusSelector appointment={appointment} />
-              <CheckInButton appointment={appointment} />
+            <AppointmentDetailsDisplay
+              appointment={appointment}
+              isOvernight={isOvernight}
+              data-testid="appointmentdetailsdisplay-h1vt"
+            />
+            <Footer data-testid="footer-wcfm">
+              <AppointmentStatusSelector
+                appointment={appointment}
+                disabled={!canWriteAppointment}
+                data-testid="appointmentstatusselector-v277"
+              />
+              {canWriteAppointment && canCreateEncounter && (
+                <CheckInButton appointment={appointment} data-testid="checkinbutton-o3lj" />
+              )}
             </Footer>
           </StyledPaper>
         </div>

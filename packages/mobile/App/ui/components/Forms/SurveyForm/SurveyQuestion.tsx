@@ -4,6 +4,7 @@ import { IPatient, ISurveyScreenComponent, SurveyScreenConfig } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
+import { useBackendEffect } from '~/ui/hooks';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
@@ -36,6 +37,27 @@ function getField(
   return (): Element => <StyledText>{`No field type ${type}`}</StyledText>;
 }
 
+const useGetConfig = component => {
+  const configObject = component.getConfigObject();
+  const [survey] = useBackendEffect(({ models }) => {
+    const { source } = configObject;
+    if (source !== 'ProgramRegistryClinicalStatus') {
+      return null;
+    }
+    return models.Survey.findOne({
+      where: {
+        id: component.surveyId,
+      },
+      relations: ['program', 'program.registry'],
+    });
+  });
+  if (configObject.source === 'ProgramRegistryClinicalStatus' && survey) {
+    configObject.where = { programRegistryId: survey.program.registry.id };
+  }
+
+  return configObject;
+};
+
 export const SurveyQuestion = ({
   component,
   patient,
@@ -43,8 +65,8 @@ export const SurveyQuestion = ({
   zIndex,
   setDisableSubmit,
 }: SurveyQuestionProps): ReactElement => {
+  const config = useGetConfig(component);
   const { dataElement } = component;
-  const config = component && component.getConfigObject();
   const fieldInput: any = getField(dataElement.type, config);
 
   if (!fieldInput) return null;

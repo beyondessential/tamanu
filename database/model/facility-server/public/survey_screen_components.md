@@ -1,1 +1,0 @@
-../../central-server/public/survey_screen_components.md

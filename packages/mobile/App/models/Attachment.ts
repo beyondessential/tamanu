@@ -1,4 +1,4 @@
-import { AfterLoad, Column, Entity } from 'typeorm/browser';
+import { AfterLoad, Column, Entity } from 'typeorm';
 import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { readFileInDocuments } from '../ui/helpers/file';

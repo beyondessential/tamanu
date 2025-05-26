@@ -372,5 +372,8 @@ export const getMaterialisedValues = async (sequelize: Sequelize, upstreamId: st
     },
   });
 
-  return upstream;
+  return {
+    lastUpdated: new Date(),
+    ...upstream,
+  };
 };

@@ -157,10 +157,17 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   ]);
 
   const modalProps = {
-    title: (
+    title: discharge ? (
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter Record"
+        data-testid="translatedtext-fzew"
+      />
+    ) : (
+      <TranslatedText
+        stringId="patient.modal.print.encounterProgressRecord.title"
+        fallback="Patient Encounter Progress Record"
+        data-testid="translatedtext-9czu"
       />
     ),
     color: Colors.white,
@@ -173,8 +180,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   if (allQueries.isError) {
     if (allQueries.errors.some((e) => e instanceof ForbiddenError)) {
       return (
-        <Modal {...modalProps}>
-          <ForbiddenErrorModalContents onClose={onClose} />
+        <Modal {...modalProps} data-testid="modal-5jy7">
+          <ForbiddenErrorModalContents
+            onClose={onClose}
+            data-testid="forbiddenerrormodalcontents-00se"
+          />
         </Modal>
       );
     }
@@ -189,11 +199,15 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     if (!hasOnlyDischargeNotFoundError) {
       // If this next bit ever shows up it means it's a bug - show some detail
       return (
-        <Modal {...modalProps}>
+        <Modal {...modalProps} data-testid="modal-hoyx">
           <p>An unexpected error occurred. Please contact your system administrator.</p>
           <p>Error details:</p>
           <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
-          <ModalActionRow onConfirm={onClose} confirmText="Close" />
+          <ModalActionRow
+            onConfirm={onClose}
+            confirmText="Close"
+            data-testid="modalactionrow-db91"
+          />
         </Modal>
       );
     }
@@ -280,6 +294,21 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
+  const formatValue = (value, config) => {
+    const { rounding = 0, unit = '' } = config || {};
+    const float = Number.parseFloat(value);
+
+    if (isNaN(float)) {
+      return value || '—'; // em dash
+    }
+
+    const unitSuffix = unit && unit.length <= 2 ? unit : '';
+    if (rounding > 0 || rounding === 0) {
+      return `${float.toFixed(rounding)}${unitSuffix}`;
+    }
+    return `${float}${unitSuffix}`;
+  };
+
   const getVitalsColumn = (startIndex) => {
     const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
     return [
@@ -295,8 +324,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           title: getDateTitleArray(date),
           key: date,
           accessor: (cells) => {
-            const { value } = cells[date];
-            return value || '-';
+            const { value, config } = cells[date];
+            return formatValue(value, config);
           },
           style: { width: 60 },
         })),
@@ -304,8 +333,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   };
 
   return (
-    <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
-      <PDFLoader isLoading={allQueries.isFetching} id="encounter-record">
+    <Modal {...modalProps} onPrint={() => printPDF('encounter-record')} data-testid="modal-fxo5">
+      <PDFLoader
+        isLoading={allQueries.isFetching}
+        id="encounter-record"
+        data-testid="pdfloader-d2ja"
+      >
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -326,6 +359,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           medications={medications}
           getLocalisation={getLocalisation}
           translations={translations}
+          data-testid="encounterrecordprintout-yqe1"
         />
       </PDFLoader>
     </Modal>

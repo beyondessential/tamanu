@@ -3,7 +3,13 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../components';
+import {
+  ConfirmCancelRow,
+  DateDisplay,
+  FormSeparatorLine,
+  Modal,
+  TranslatedText,
+} from '../../components';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { TranslatedReferenceData } from '../../components/Translation';
@@ -23,7 +29,7 @@ const InfoDiv = styled.div`
   background-color: ${Colors.white};
   display: flex;
   flex-direction: row;
-  justify-content: center-between;
+  justify-content: space-between;
   width: 100%;
   border: 1px solid ${Colors.softOutline};
   border-radius: 5px;
@@ -83,41 +89,103 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   };
 
   return (
-    <Modal width="md" title="Remove patient" open={open} onClose={onClose}>
-      {/* <div> */}
-      <WarningDiv>
+    <Modal
+      width="md"
+      title={
+        <TranslatedText
+          stringId="programRegistry.modal.removeProgram.title"
+          fallback="Remove patient"
+          data-testid="translatedtext-de7a"
+        />
+      }
+      open={open}
+      onClose={onClose}
+      data-testid="modal-vav5"
+    >
+      <WarningDiv data-testid="warningdiv-y30i">
         <p>
-          Please confirm you would like to remove the patient from the below program registry. Once
-          a patient is removed, you will not be able to update the status or complete program forms.
+          <TranslatedText
+            stringId="programRegistry.modal.removeProgram.body"
+            fallback="Please confirm you would like to remove the patient from the below program registry. Once
+          a patient is removed, you will not be able to update the status or complete program forms."
+            data-testid="translatedtext-fj0u"
+          />
         </p>
       </WarningDiv>
-
-      <InfoDiv>
-        <InfoColumn>
-          <Info>
-            <Label>Program registry</Label>
-            <Value>{patientProgramRegistration.programRegistry?.name || '-'}</Value>
-          </Info>
-          <Info>
-            <Label>Registered by</Label>
-            <Value>{patientProgramRegistration?.clinician?.displayName || '-'}</Value>
-          </Info>
-          <Info>
-            <Label>Status</Label>
-            <Value>{patientProgramRegistration.clinicalStatus?.name || '-'}</Value>
-          </Info>
-        </InfoColumn>
-        <FormSeparatorVerticalLine />
-        <InfoColumn>
-          <Info>
-            <Label>Date of registration</Label>
-            <Value>
-              <DateDisplay date={patientProgramRegistration.date} />
+      <InfoDiv data-testid="infodiv-drt2">
+        <InfoColumn data-testid="infocolumn-448e">
+          <Info data-testid="info-7vp5">
+            <Label data-testid="label-5pdg">
+              <TranslatedText
+                stringId="programRegistry.programRegistry.label"
+                fallback="Program registry"
+                data-testid="translatedtext-7wrm"
+              />
+            </Label>
+            <Value data-testid="value-clws">
+              <TranslatedReferenceData
+                fallback={patientProgramRegistration.programRegistry?.name}
+                value={patientProgramRegistration.programRegistryId}
+                category="programRegistry"
+                placeholder="-"
+                data-testid="translatedreferencedata-7rh5"
+              />
             </Value>
           </Info>
-          <Info>
-            <Label>Registering facility</Label>
-            <Value>
+          <Info data-testid="info-6gdv">
+            <Label data-testid="label-7s6v">
+              <TranslatedText
+                stringId="programRegistry.registeredBy.label"
+                fallback="Registered by"
+                data-testid="translatedtext-pcl4"
+              />
+            </Label>
+            <Value data-testid="value-jxu3">
+              {patientProgramRegistration?.clinician?.displayName || '-'}
+            </Value>
+          </Info>
+          <Info data-testid="info-32a6">
+            <Label data-testid="label-618q">
+              <TranslatedText
+                stringId="programRegistry.clinicalStatus.label"
+                fallback="Status"
+                data-testid="translatedtext-qxed"
+              />
+            </Label>
+            <Value data-testid="value-ixvy">
+              <TranslatedReferenceData
+                fallback={patientProgramRegistration.clinicalStatus?.name}
+                value={patientProgramRegistration.clinicalStatus?.id}
+                category="programRegistryClinicalStatus"
+                placeholder="-"
+                data-testid="translatedreferencedata-kazw"
+              />
+            </Value>
+          </Info>
+        </InfoColumn>
+        <FormSeparatorVerticalLine data-testid="formseparatorverticalline-d4gm" />
+        <InfoColumn data-testid="infocolumn-xjty">
+          <Info data-testid="info-7bjt">
+            <Label data-testid="label-d7me">
+              <TranslatedText
+                stringId="programRegistry.registrationDate.label"
+                fallback="Date of registration"
+                data-testid="translatedtext-1e5f"
+              />
+            </Label>
+            <Value data-testid="value-b3gm">
+              <DateDisplay date={patientProgramRegistration.date} data-testid="datedisplay-ajfm" />
+            </Value>
+          </Info>
+          <Info data-testid="info-e0w6">
+            <Label data-testid="label-3y8d">
+              <TranslatedText
+                stringId="programRegistry.registeringFacility.label"
+                fallback="Registering facility"
+                data-testid="translatedtext-bgtu"
+              />
+            </Label>
+            <Value data-testid="value-w0hu">
               {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility?.name
                 : patientProgramRegistration.facility?.name && (
@@ -125,15 +193,18 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
                       fallback={patientProgramRegistration.facility.name}
                       value={patientProgramRegistration.facility.id}
                       category="facility"
+                      data-testid="translatedreferencedata-ww3k"
                     />
                   )) || '-'}
             </Value>
           </Info>
         </InfoColumn>
       </InfoDiv>
-      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-      <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
-      {/* </div> */}
+      <FormSeparatorLine
+        style={{ marginTop: '30px', marginBottom: '30px' }}
+        data-testid="formseparatorline-8h39"
+      />
+      <ConfirmCancelRow onConfirm={remove} onCancel={onClose} data-testid="confirmcancelrow-t2qb" />
     </Modal>
   );
 };

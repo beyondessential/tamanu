@@ -85,6 +85,7 @@ export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
+export * from './AppointmentSchedule';
 export * from './DocumentMetadata';
 export * from './Template';
 
@@ -128,3 +129,4 @@ export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
+export * from './AccessLog';

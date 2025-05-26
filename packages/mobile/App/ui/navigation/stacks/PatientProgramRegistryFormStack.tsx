@@ -9,6 +9,7 @@ import { FullView } from '~/ui/styled/common';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientProgramRegistryForm } from '../screens/patientProgramRegistration/PatientProgramRegistryForm';
 import { createStackNavigator } from '@react-navigation/stack';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Stack = createStackNavigator();
 interface PatientProgramRegistryProps extends BaseAppProps {
@@ -19,7 +20,15 @@ const PatientProgramRegistryForm_ = ({ navigation }: PatientProgramRegistryProps
   return (
     <ErrorBoundary>
       <FullView>
-        <EmptyStackHeader title="Program registry" onGoBack={() => navigation.goBack()} />
+        <EmptyStackHeader
+          title={
+            <TranslatedText
+              stringId="programRegistry.programRegistry.label"
+              fallback="Program registry"
+            />
+          }
+          onGoBack={() => navigation.goBack()}
+        />
         <Stack.Navigator headerMode="none">
           <Stack.Screen
             name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}

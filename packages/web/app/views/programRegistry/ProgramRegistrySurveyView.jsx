@@ -5,38 +5,37 @@ import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
-import { usePatientAdditionalDataQuery, usePatientProgramRegistrationQuery } from '../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  usePatientProgramRegistrationQuery,
+} from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getAnswersFromData } from '../../utils';
 import { useApi } from '../../api';
+import { TranslatedText } from '../../components/index.js';
 
 export const ProgramRegistrySurveyView = () => {
   const api = useApi();
   const [startTime] = useState(getCurrentDateTimeString());
-  const queryParams = useUrlSearchParams();
   const { navigateToProgramRegistry } = usePatientNavigation();
-  const title = queryParams.get('title');
   const { currentUser, facilityId } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
 
+  const { data: patientProgramRegistration, isLoading: patientProgramRegistrationLoading } =
+    usePatientProgramRegistrationQuery(patient.id, programRegistryId);
+
   const {
-    data: patientProgramRegistration,
-    isLoading: patientProgramRegistrationLoading,
-  } = usePatientProgramRegistrationQuery(patient.id, programRegistryId);
+    data: survey,
+    isLoading,
+    isError,
+  } = usePatientProgramRegistrySurveysQuery(patientId, programRegistryId, surveyId);
 
-  const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveysQuery(
-    patientId,
-    programRegistryId,
-    surveyId,
-  );
-
-  const submitSurveyResponse = async data => {
+  const submitSurveyResponse = async (data) => {
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
@@ -49,9 +48,21 @@ export const ProgramRegistrySurveyView = () => {
     navigateToProgramRegistry();
   };
 
-  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading)
-    return <LoadingIndicator />;
-  if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
+  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading) {
+    return <LoadingIndicator data-testid="loadingindicator-z681" />;
+  }
+
+  if (isError) {
+    return (
+      <p>
+        <TranslatedText
+          stringId="programRegistry.registryNotFoundMessage"
+          fallback="Program registry not found."
+          data-testid="translatedtext-pkuz"
+        />
+      </p>
+    );
+  }
 
   return (
     <SurveyView
@@ -64,6 +75,7 @@ export const ProgramRegistrySurveyView = () => {
       patientAdditionalData={additionalData}
       patientProgramRegistration={patientProgramRegistration}
       currentUser={currentUser}
+      data-testid="surveyview-kuhc"
     />
   );
 };

@@ -21,13 +21,22 @@ export class Suggester {
     this.baseQueryParameters = baseQueryParameters;
     this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
+    this.lastUpdatedAt = -Infinity;
+    this.cachedData = null;
   }
 
   async fetch(suffix, queryParameters) {
-    return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
+    const requestedAt = Date.now();
+    const data = await this.api.get(`${this.endpoint}${suffix}`, queryParameters);
+    if (this.lastUpdatedAt < requestedAt) {
+      this.cachedData = data;
+      this.lastUpdatedAt = requestedAt;
+    }
+
+    return this.cachedData;
   }
 
-  fetchCurrentOption = async value => {
+  fetchCurrentOption = async (value) => {
     if (!this.enable) return undefined;
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`, {
@@ -39,7 +48,7 @@ export class Suggester {
     }
   };
 
-  fetchSuggestions = async search => {
+  fetchSuggestions = async (search) => {
     if (!this.enable) return [];
     try {
       const data = await this.fetch('', {
@@ -53,7 +62,7 @@ export class Suggester {
     }
   };
 
-  createSuggestion = async body => {
+  createSuggestion = async (body) => {
     if (!this.enable) throw new Error('Suggester is disabled');
 
     const data = await this.api.post(`${this.endpoint}/create`, {

@@ -1,10 +1,4 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  ManyToOne,
-  RelationId,
-} from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
 
 import { IPatientFieldValue } from '~/types';
 import { Patient } from './Patient';
@@ -16,13 +10,13 @@ import { BaseModel } from './BaseModel';
 export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
+  @PrimaryColumn()
+  id: string;
+
   @Column({ nullable: false })
   value: string;
 
-  @ManyToOne(
-    () => Patient,
-    patient => patient.patientFieldValues,
-  )
+  @ManyToOne(() => Patient, (patient) => patient.patientFieldValues)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -30,7 +24,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
 
   @ManyToOne(
     () => PatientFieldDefinition,
-    patientFieldDefinition => patientFieldDefinition.patientFieldValues,
+    (patientFieldDefinition) => patientFieldDefinition.patientFieldValues,
   )
   definition: PatientFieldDefinition;
 
@@ -41,7 +35,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   async assignIdAsPatientIdDefinitionId(): Promise<void> {
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patient.replace(';', ':')};${this.definition.replace(';', ':')}`;
+    this.id = `${this.patient.replaceAll(';', ':')};${this.definition.replaceAll(';', ':')}`;
   }
 
   static async getForPatientAndDefinition(

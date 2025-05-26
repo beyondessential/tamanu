@@ -17,7 +17,9 @@ import './fonts.css';
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
     const { auth } = store.getState();
-    api.setToken(auth.token);
+    if (auth.token) {
+      api.setToken(auth.token);
+    }
   });
 
   // if you run into problems with redux state, call "purge()" in the dev console
@@ -34,7 +36,7 @@ function initPersistor(api, store) {
   return persistor;
 }
 
-function start() {
+async function start() {
   registerYup();
 
   if (BUGSNAG_API_KEY) {
@@ -50,8 +52,10 @@ function start() {
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
 
+  const persistor = initPersistor(API, store);
+
   // attempt to restore session from local storage
-  store.dispatch(restoreSession());
+  await store.dispatch(restoreSession());
 
   API.setAuthFailureHandler(() => {
     store.dispatch(authFailure());
@@ -60,8 +64,6 @@ function start() {
   API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
     store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
-
-  const persistor = initPersistor(API, store);
 
   const container = document.getElementById('root');
 

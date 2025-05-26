@@ -1,4 +1,5 @@
 import React from 'react';
+import { omit } from 'lodash';
 import styled from 'styled-components';
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';
@@ -23,6 +24,7 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
+import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
@@ -169,32 +171,40 @@ const BookingsTimelineItem = ({ appointment }) => {
   const showTooltip = isHeadingOverflowing || isBodyOverflowing;
 
   return (
-    <StyledTimelineItem>
-      <StyledTimelineSeparator>
-        <StyledTimelineDot>
-          <AppointmentStatusIndicator appointmentStatus={status} width={13} height={13} />
+    <StyledTimelineItem data-testid="styledtimelineitem-fyu7">
+      <StyledTimelineSeparator data-testid="styledtimelineseparator-vte2">
+        <StyledTimelineDot data-testid="styledtimelinedot-9oqv">
+          <AppointmentStatusIndicator
+            appointmentStatus={status}
+            width={13}
+            height={13}
+            data-testid="appointmentstatusindicator-1xys"
+          />
         </StyledTimelineDot>
-        <StyledTimelineConnector />
+        <StyledTimelineConnector data-testid="styledtimelineconnector-qmh4" />
       </StyledTimelineSeparator>
-      <StyledTimelineContent>
-        <TimeText>{getFormattedBookingTime({ startTime, endTime })}</TimeText>
-        <Box width={0} flex={1}>
+      <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
+        <TimeText data-testid="timetext-4k7e">
+          {getFormattedBookingTime({ startTime, endTime })}
+        </TimeText>
+        <Box width={0} flex={1} data-testid="box-i72x">
           <ConditionalTooltip
             visible={showTooltip}
             title={
               <div>
                 {locationGroup.name} {location.name}
-                <Box fontWeight={400}>
+                <Box fontWeight={400} data-testid="box-qs48">
                   {patient.firstName} {patient.lastName}
                 </Box>
               </div>
             }
+            data-testid="conditionaltooltip-u7j6"
           >
-            <Card $color={APPOINTMENT_STATUS_COLORS[status]}>
-              <CardHeading ref={headingRef}>
+            <Card $color={APPOINTMENT_STATUS_COLORS[status]} data-testid="card-iw4n">
+              <CardHeading ref={headingRef} data-testid="cardheading-1aj8">
                 {locationGroup.name} {location.name}
               </CardHeading>
-              <CardBody ref={bodyRef}>
+              <CardBody ref={bodyRef} data-testid="cardbody-id09">
                 {patient.firstName} {patient.lastName}
               </CardBody>
             </Card>
@@ -207,7 +217,7 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
-  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation();
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
@@ -230,52 +240,60 @@ export const TodayBookingsPane = ({ showTasks }) => {
   const onLocationBookingsClick = async () => {
     await mutateUserPreferences({
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
-      value: { [facilityId]: {} },
+      value: omit(LOCATION_BOOKINGS_EMPTY_FILTER_STATE, ['patientNameOrId']),
     });
     history.push(`/appointments/locations`);
   };
 
   return (
-    <Container showTasks={showTasks}>
-      <TitleContainer>
-        <Heading4 margin={0}>
+    <Container showTasks={showTasks} data-testid="container-jfr4">
+      <TitleContainer data-testid="titlecontainer-xwsk">
+        <Heading4 margin={0} data-testid="heading4-htzn">
           <TranslatedText
             stringId="dashboard.bookings.todayBookings.title"
             fallback="Today's bookings"
+            data-testid="translatedtext-ekxd"
           />
         </Heading4>
         {!!appointments.length && (
-          <ActionLink onClick={onViewAll}>
+          <ActionLink onClick={onViewAll} data-testid="actionlink-5g8z">
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.viewAll"
               fallback="View all..."
+              data-testid="translatedtext-hiv0"
             />
           </ActionLink>
         )}
       </TitleContainer>
       {!appointments.length ? (
-        <NoDataContainer>
-          <Box maxWidth={285}>
+        <NoDataContainer data-testid="nodatacontainer-68oz">
+          <Box maxWidth={285} data-testid="box-yia1">
             <TranslatedText
               stringId="dashboard.bookings.todayBookings.noBookings"
               fallback="You have no bookings scheduled for today. To view other bookings, visit"
+              data-testid="translatedtext-6kc9"
             />
-            <Link onClick={onLocationBookingsClick}>
+            <Link onClick={onLocationBookingsClick} data-testid="link-7f7w">
               <TranslatedText
                 stringId="dashboard.bookings.todayBookings.locationBookings"
                 fallback="Location bookings"
+                data-testid="translatedtext-rq0g"
               />
             </Link>
           </Box>
         </NoDataContainer>
       ) : (
         <>
-          <StyledTimeline length={appointments.length}>
-            {appointments.map(appointment => (
-              <BookingsTimelineItem key={appointment.id} appointment={appointment} />
+          <StyledTimeline length={appointments.length} data-testid="styledtimeline-j8uu">
+            {appointments.map((appointment, index) => (
+              <BookingsTimelineItem
+                key={appointment.id}
+                appointment={appointment}
+                data-testid={`bookingstimelineitem-kl6a-${index}`}
+              />
             ))}
           </StyledTimeline>
-          <Footer />
+          <Footer data-testid="footer-02ym" />
         </>
       )}
     </Container>

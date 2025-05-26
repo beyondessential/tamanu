@@ -14,7 +14,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
-} from './fake';
+} from '@tamanu/fake-data/fake';
 
 // TODO: generic
 
@@ -137,7 +137,7 @@ export const buildSurveyResponseAnswer = async (models, patientId) => {
   return surveyResponseAnswer;
 };
 
-export const buildScheduledVaccine = async models => {
+export const buildScheduledVaccine = async (models) => {
   const scheduledVaccine = fakeScheduledVaccine();
 
   const vaccineId = fakeUUID();

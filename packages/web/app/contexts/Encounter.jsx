@@ -43,7 +43,7 @@ export const EncounterProvider = ({ children }) => {
 
   // get encounter data from the central server and save it to state.
   const loadEncounter = useCallback(
-    async encounterId => {
+    async (encounterId) => {
       setIsLoadingEncounter(true);
       const data = await api.get(`encounter/${encounterId}`);
       const { data: diagnoses } = await getDataOrDefaultOnError(
@@ -75,7 +75,7 @@ export const EncounterProvider = ({ children }) => {
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async data => {
+  const createEncounter = async (data) => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post('encounter', data);
     await loadEncounter(createdEncounter.id);

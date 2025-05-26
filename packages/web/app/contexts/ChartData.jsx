@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { useEncounter } from './Encounter';
+import { useEncounterChartWithResponseQuery } from '../api/queries/useEncounterChartWithResponseQuery';
+import { combineQueries } from '../api';
 
 const ChartDataContext = createContext({
   selectedChartTypeId: null,
@@ -9,14 +12,32 @@ const ChartDataContext = createContext({
 export const useChartData = () => useContext(ChartDataContext);
 
 export const ChartDataProvider = ({ children }) => {
-  const { data: userPreferences } = useUserPreferencesQuery();
-  const [selectedChartTypeId, setSelectedChartTypeId] = useState(
-    userPreferences?.selectedChartTypeId,
-  );
+  const { encounter } = useEncounter();
+  const [isInitiated, setIsInitiated] = useState(false);
+  const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
+  const userPreferencesQuery = useUserPreferencesQuery();
+  const chartWithResponseQuery = useEncounterChartWithResponseQuery(encounter?.id);
+  const {
+    data: [userPreferences, chartWithResponse],
+    isLoading,
+  } = combineQueries([userPreferencesQuery, chartWithResponseQuery]);
+
+  useEffect(() => {
+    if (!isLoading && !isInitiated) {
+      // Only set initial type if encounter has chart responses
+      if (chartWithResponse) {
+        // Prioritize user preference, chart with response is only a fallback
+        const initialChart = userPreferences?.selectedChartTypeId ?? chartWithResponse.id;
+        setSelectedChartTypeId(initialChart);
+      }
+      setIsInitiated(true);
+    }
+  }, [userPreferences, chartWithResponse, isInitiated, isLoading]);
 
   return (
     <ChartDataContext.Provider
       value={{
+        isLoading: !isInitiated,
         selectedChartTypeId,
         setSelectedChartTypeId,
       }}

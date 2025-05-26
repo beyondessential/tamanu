@@ -92,10 +92,14 @@ const BodyCell = styled(BaseCell).attrs({
   role: undefined,
 })`
   align-items: stretch;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  ${({ $clickable }) =>
+    $clickable &&
+    css`
+      cursor: pointer;
+    `};
   ${({ $selected }) =>
     $selected &&
     css`

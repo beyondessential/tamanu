@@ -1,0 +1,107 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
+jobs:
+  check-e2e-request:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request?.body;
+            const e2eMatch = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run E2E Tests\*\* <!-- #e2e -->/);
+            core.setOutput('should_run', e2eMatch?.groups.checked === 'x');
+
+  node_modules_cache:
+    needs: check-e2e-request
+    if: needs.check-e2e-request.outputs.should_run == 'true'
+    name: Cache node modules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - run: npm ci
+      - uses: actions/cache/save@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+  e2e:
+    needs: node_modules_cache
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      FACILITY_FRONTEND_URL: http://localhost:5173
+      ADMIN_FRONTEND_URL: http://localhost:5174
+      LAUNCH_LOCAL_SERVERS_WHEN_RUNNING_TESTS: true
+      IS_PLAYWRIGHT_TEST: true
+      TEST_EMAIL: admin@tamanu.io
+      TEST_PASSWORD: admin
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Setup postgres dbs
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          .github/scripts/e2e-test-setup.sh setup-postgres
+      - name: Setup central server
+        run: .github/scripts/e2e-test-setup.sh setup-central
+      - name: Setup facility server
+        run: .github/scripts/e2e-test-setup.sh setup-facility
+      - name: Start servers
+        run: .github/scripts/e2e-test-setup.sh start-servers
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run Playwright tests
+        run: npm run e2e-test
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            packages/e2e-tests/playwright-report/
+            packages/e2e-tests/test-results/
+          retention-days: 30

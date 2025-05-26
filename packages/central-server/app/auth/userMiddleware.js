@@ -3,12 +3,16 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+
+import { version } from '../../package.json';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
-    const { store, headers } = req;
+    const { store, headers, settings } = req;
 
     const { canonicalHostName } = config;
 
@@ -20,6 +24,8 @@ export const userMiddleware = ({ secret }) =>
 
     // verify token
     const [bearer, token] = authorization.split(/\s/);
+    const sessionId = createSessionIdentifier(token);
+
     if (bearer.toLowerCase() !== 'bearer') {
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
@@ -31,7 +37,12 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new BadAuthenticationError('Invalid token (hG7c)');
+      const errorMessage = 'Auth error: Invalid token (hG7c)';
+      log.debug(errorMessage, { error: e.message });
+      res.status(401).send({
+        error: { message: errorMessage },
+      });
+      return;
     }
 
     const { userId, deviceId } = contents;
@@ -46,7 +57,31 @@ export const userMiddleware = ({ secret }) =>
     // and express also guarantees execution order for middlewares
     req.user = user;
     req.deviceId = deviceId;
+    req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
+
+    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
+    // Auditing middleware
+    // eslint-disable-next-line require-atomic-updates
+    req.audit = {
+      access: async ({ recordId, params, model }) => {
+        if (!auditSettings?.accesses.enabled) return;
+        return req.models.AccessLog.create({
+          userId,
+          recordId,
+          recordType: model.name,
+          sessionId,
+          isMobile: false,
+          frontEndContext: params,
+          backEndContext: { endpoint: req.originalUrl },
+          loggedAt: new Date(),
+          facilityId: null,
+          deviceId: req.deviceId || 'unknown-device',
+          version,
+        });
+      },
+    };
 
     const spanAttributes = user
       ? {

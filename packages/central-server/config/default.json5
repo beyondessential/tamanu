@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io"
+  // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-central",
@@ -36,13 +36,19 @@
       }
     }
   },
+  "metaServer": {
+    "host": "https://meta.tamanu.app",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "updateUrls": {
-    "mobile": ""
+    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
   "log": {
     "path": "",
     "consoleLevel": "http",
-    "color": true
+    "color": true,
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
@@ -64,6 +70,7 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
+    "incomingSyncHookBatchSize": 20000,
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
@@ -72,7 +79,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": false,
+      "enabled": true,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
@@ -252,6 +259,16 @@
       "schedule": "0 1 * * *",
       "batchSize": 50,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "generateRepeatingAppointments": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
+      "generateOffsetDays": 7,
+    },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
     }
   },
   "integrations": {
@@ -331,8 +348,8 @@
       },
       "parameters": {
         "_count": {
-          "default": 20,
-          "max": 20
+          "default": 100,
+          "max": 1000
         }
       },
       "extensions": {
@@ -467,10 +484,13 @@
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
+  "socket.io": {
+    enabled: true,
+  },
   "telegramBot": {
     apiToken: "",
     webhook: {
-      // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io/api/public/telegram-webhook"
+      // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
       url: "",
       secret: ""
     }

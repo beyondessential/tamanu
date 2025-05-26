@@ -39,7 +39,7 @@ const verticalContentInset = { top: 10, bottom: 10, right: 0 };
 
 export const YearlyChart = memo(
   ({ data }: BarChartProps): JSX.Element => {
-    const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), []);
+    const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), [data]);
 
     const yearRange = `${getYear(data[0].date)} - ${getYear(
       data[data.length - 1].date,

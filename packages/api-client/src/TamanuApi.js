@@ -80,7 +80,7 @@ export class TamanuApi {
     this.setToken(token);
 
     const { user, ability } = await this.fetchUserData(permissions);
-    return { user, token, localisation, server, availableFacilities, ability, role };
+    return { user, token, localisation, server, availableFacilities, ability, role, permissions };
   }
 
   async fetchUserData(permissions) {
@@ -118,7 +118,7 @@ export class TamanuApi {
   async fetch(endpoint, query = {}, moreConfig = {}) {
     const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = moreConfig;
     const queryString = qs.stringify(query || {});
-    const path = `${endpoint}${query ? `?${queryString}` : ''}`;
+    const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
       headers: {
@@ -219,7 +219,7 @@ export class TamanuApi {
 
     // Handle resource conflict
     if (response.status === 409) {
-      throw new ResourceConflictError(message)
+      throw new ResourceConflictError(message);
     }
 
     throw new ServerResponseError(`Server error response: ${message}`);

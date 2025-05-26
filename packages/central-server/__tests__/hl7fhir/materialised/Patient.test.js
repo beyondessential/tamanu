@@ -1,6 +1,6 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake } from '@tamanu/fake-data/fake';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -413,7 +413,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(3);
 
         // The first order is actually address[].line[] (so streetVillage)
-        expect(response.body.entry.map(x => x.resource.address[0].city)).toEqual([
+        expect(response.body.entry.map((x) => x.resource.address[0].city)).toEqual([
           'El Paso',
           'Amsterdam',
           'Cabo',
@@ -702,7 +702,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(5);
 
         // Numbers don't repeat so everything else should be in place
-        expect(response.body.entry.map(x => x.resource.telecom[0].value)).toEqual([
+        expect(response.body.entry.map((x) => x.resource.telecom[0].value)).toEqual([
           '123456783',
           '123456781',
           '123456782',
@@ -1062,6 +1062,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const { models } = ctx.store;
       const [keep, merge] = await makeTwoPatients(models);
       const { FhirPatient } = models;
+      await FhirPatient.materialiseFromUpstream(keep.id);
+      await FhirPatient.materialiseFromUpstream(merge.id);
+
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
@@ -1143,8 +1146,7 @@ describe(`Materialised FHIR - Patient`, () => {
             diagnostics: expect.any(String),
             expression: '_page',
             details: {
-              text:
-                'this must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
+              text: 'this must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             },
           },
           {
@@ -1153,8 +1155,7 @@ describe(`Materialised FHIR - Patient`, () => {
             diagnostics: expect.any(String),
             expression: '_count',
             details: {
-              text:
-                'this must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
+              text: 'this must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             },
           },
         ],

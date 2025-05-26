@@ -23,11 +23,12 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',
     'Clinician',
-  ).toLowerCase();
+    { casing: 'lower' },
+  );
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
@@ -55,6 +56,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
       <TranslatedText
         stringId="invoice.modal.print.invoiceRecord.title"
         fallback="Invoice Record"
+        data-testid="translatedtext-hj8p"
       />
     ),
     color: Colors.white,
@@ -65,18 +67,25 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   };
 
   if (allQueries.isError) {
-    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
+    if (allQueries.errors.some((e) => e instanceof ForbiddenError)) {
       return (
-        <Modal {...modalProps}>
-          <ForbiddenErrorModalContents onClose={onClose} />
+        <Modal {...modalProps} data-testid="modal-ncf9">
+          <ForbiddenErrorModalContents
+            onClose={onClose}
+            data-testid="forbiddenerrormodalcontents-a5z6"
+          />
         </Modal>
       );
     }
   }
 
   return (
-    <Modal {...modalProps} onPrint={() => printPDF('invoice-record')}>
-      <PDFLoader isLoading={allQueries.isFetching || isLoadingEncounter} id="invoice-record">
+    <Modal {...modalProps} onPrint={() => printPDF('invoice-record')} data-testid="modal-gylm">
+      <PDFLoader
+        isLoading={allQueries.isFetching || isLoadingEncounter}
+        id="invoice-record"
+        data-testid="pdfloader-yikw"
+      >
         <InvoiceRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -85,6 +94,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
+          data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>
     </Modal>

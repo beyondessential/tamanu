@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
 import { css, styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
@@ -7,8 +7,6 @@ import Box from '@mui/material/Box';
 import {
   addDays,
   addMonths,
-  eachDayOfInterval,
-  endOfMonth,
   format,
   isSameDay,
   isSameMonth,
@@ -19,6 +17,8 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
+
+import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker, TextButton } from '../../../components';
 import { Colors } from '../../../constants';
@@ -129,20 +129,19 @@ const StepperWrapper = styled(Box)`
   inline-size: 100%;
 `;
 
-const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
-
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
   return (
-    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
+    <DayWrapper
+      onClick={onClick}
+      $selected={selected}
+      $isToday={isToday(date)}
+      data-testid={`daywrapper-2vbq-${format(date, 'EEEEE')}-${date.getDate()}`}
+    >
       <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
         {format(date, 'EEEEE')}
       </WeekdayText>
-      <DateText $isWeekend={isWeekendDay} $selected={selected}>
+      <DateText $isWeekend={isWeekendDay} $selected={selected} data-testid="datetext-gl3a">
         {date.getDate()}
       </DateText>
     </DayWrapper>
@@ -150,16 +149,16 @@ const DayButton = ({ date, selected, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
-  const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
+  const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {
-    setViewedDays(getMonthInterval(value));
+    setViewedDays(eachDayInMonth(value));
   }, [value]);
 
-  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
-  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
+  const handleIncrement = () => setViewedDays(eachDayInMonth(addMonths(viewedDays[0], 1)));
+  const handleDecrement = () => setViewedDays(eachDayInMonth(subMonths(viewedDays[0], 1)));
 
-  const handleChange = day => {
+  const handleChange = (day) => {
     onChange({
       target: {
         value: day,
@@ -167,12 +166,12 @@ export const DateSelector = ({ value, onChange }) => {
     });
 
     if (isSameMonth(day, viewedDays[0])) return;
-    setViewedDays(getMonthInterval(day));
+    setViewedDays(eachDayInMonth(day));
   };
 
   const handleChangeToday = () => handleChange(new Date());
 
-  const handleMonthYearChange = newDate => {
+  const handleMonthYearChange = (newDate) => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
       return;
@@ -180,7 +179,7 @@ export const DateSelector = ({ value, onChange }) => {
     handleChange(startOfMonth(newDate));
   };
 
-  const handleOnKeyDown = e => {
+  const handleOnKeyDown = (e) => {
     if (e.key === 'ArrowLeft') {
       if (isSameDay(value, viewedDays[0])) return;
       handleChange(subDays(value, 1));
@@ -195,19 +194,22 @@ export const DateSelector = ({ value, onChange }) => {
   };
 
   return (
-    <Wrapper onKeyDown={handleOnKeyDown}>
+    <Wrapper onKeyDown={handleOnKeyDown} data-testid="wrapper-up3h">
       <StyledMonthPicker
         key={value.valueOf()}
         value={viewedDays[0]}
         onChange={handleMonthYearChange}
+        data-testid="styledmonthpicker-3pmc"
       />
-      <TodayButton onClick={handleChangeToday}>Today</TodayButton>
-      <StepperWrapper>
-        <StepperButton onClick={handleDecrement}>
-          <ArrowBackIos />
+      <TodayButton onClick={handleChangeToday} data-testid="todaybutton-4gqy">
+        Today
+      </TodayButton>
+      <StepperWrapper data-testid="stepperwrapper-4wbc">
+        <StepperButton onClick={handleDecrement} data-testid="stepperbutton-s2jx">
+          <ArrowBackIos data-testid="arrowbackios-jjro" />
         </StepperButton>
-        <DaysWrapper>
-          {viewedDays.map(date => (
+        <DaysWrapper data-testid="dayswrapper-f31b">
+          {viewedDays.map((date) => (
             <DayButton
               aria-pressed={isSameDay(date, value)}
               date={date}
@@ -217,8 +219,8 @@ export const DateSelector = ({ value, onChange }) => {
             />
           ))}
         </DaysWrapper>
-        <StepperButton onClick={handleIncrement}>
-          <ArrowForwardIos />
+        <StepperButton onClick={handleIncrement} data-testid="stepperbutton-3zzm">
+          <ArrowForwardIos data-testid="arrowforwardios-xpst" />
         </StepperButton>
       </StepperWrapper>
     </Wrapper>

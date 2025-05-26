@@ -7,7 +7,7 @@ import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
  * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('@tamanu/database/models')}} injector
  * @returns
  */
-export const defineWebsocketService = injector => {
+export const defineWebsocketService = (injector) => {
   const socketServer = new Server(injector.httpServer, {
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
     cors: {
@@ -20,16 +20,16 @@ export const defineWebsocketService = injector => {
 
   const onMaterializedViewRefreshed =
     injector.dbNotifier.listeners[NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED];
-  onMaterializedViewRefreshed(viewName =>
+  onMaterializedViewRefreshed((viewName) =>
     socketServer.emit(`${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${viewName}`),
   );
 
   const onTableChanged = injector.dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED];
-  onTableChanged(payload => {
+  onTableChanged((payload) => {
     socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
-  onTableChanged(async payload => {
+  onTableChanged(async (payload) => {
     if (payload.table === 'tasks') {
       const task = await injector.models.Task.findOne({
         where: { id: payload.newId },
@@ -51,8 +51,8 @@ export const defineWebsocketService = injector => {
       });
 
       const userIds = new Set(
-        task?.designations?.flatMap(designation =>
-          designation.designationUsers.map(user => user.id),
+        task?.designations?.flatMap((designation) =>
+          designation.designationUsers.map((user) => user.id),
         ) ?? [],
       );
 
@@ -70,7 +70,6 @@ export const defineWebsocketService = injector => {
       });
 
       if (!appointment) {
-        console.error('Appointment not found for ID:', payload.newId);
         return;
       }
 

@@ -18,3 +18,7 @@ export * from './removeEchoedChanges';
 export * from './saveChanges';
 export * from './saveIncomingChanges';
 export * from './waitForPendingEditsUsingSyncTick';
+export * from './bumpSyncTickForRepull';
+export * from './incomingSyncHook';
+export * from './sanitizeRecord';
+export * from './transactions';

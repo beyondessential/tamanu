@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
@@ -52,12 +52,12 @@ export class ImagingRequest extends Model {
         id: {
           type: DataTypes.STRING,
           allowNull: false,
-          defaultValue: DataTypes.UUIDV4,
+          defaultValue: Sequelize.fn('gen_random_uuid'),
           primaryKey: true,
         },
         displayId: {
           type: DataTypes.STRING,
-          defaultValue: DataTypes.UUIDV4,
+          defaultValue: Sequelize.fn('gen_random_uuid'),
           allowNull: false,
         },
 
@@ -113,7 +113,7 @@ export class ImagingRequest extends Model {
             ) {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.IMAGING_REQUEST,
-                imagingRequest,
+                imagingRequest.dataValues,
               );
             }
 

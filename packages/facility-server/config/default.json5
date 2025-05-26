@@ -6,7 +6,7 @@
     "path": "",
     "consoleLevel": "http",
     "color": true,
-    "enableAuditLog": false
+    "timeless": false,
   },
   "honeycomb": {
     "apiKey": "",
@@ -24,7 +24,7 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central.main.internal.tamanu.io",
+    "host": "https://central.main.cd.tamanu.app",
     "email": "",
     "password": "",
     "timeout": 10000,
@@ -79,6 +79,11 @@
       }
     }
   },
+  "metaServer": {
+    "host": "https://meta.tamanu.app",
+    "serverId": null,
+    "timeoutMs": 20000
+  },
   "senaite": {
     "enabled": false,
     "server": "https://192.168.33.100",
@@ -110,6 +115,16 @@
         "schedule": "*/10 * * * *"
       },
     },
+    "sendStatusToMetaServer": {
+      "enabled": true,
+      // every minute
+      "schedule": "* * * * *",
+    },
+    "timeSync": {
+      "enabled": true,
+      // every hour
+      "schedule": "0 * * * *",
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -133,9 +148,6 @@
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
-  "notification": {
-    "recentNotificationsTimeFrame": 48, // hours
-  },
   "tasking": {
     "upcomingTasksTimeFrame": 8, // hours,
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours

@@ -33,7 +33,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
     ({ models: m }) =>
       m.PatientAdditionalData.getRepository().findOne({
-        patient: selectedPatient.id,
+        where: { patient: { id: selectedPatient.id } },
       }),
     [selectedPatient.id],
   );
@@ -79,7 +79,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   // On mobile, date is programmatically submitted
   const visibleComponents = components.filter(
-    c => c.dataElementId !== VitalsDataElements.dateRecorded,
+    (c) => c.dataElementId !== VitalsDataElements.dateRecorded,
   );
 
   return (
@@ -91,7 +91,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       validate={(values: object): object => {
         const errors: { form?: string } = {};
 
-        if (Object.values(values).every(x => x === '' || x === null)) {
+        if (Object.values(values).every((x) => x === '' || x === null)) {
           errors.form = getTranslation(
             'validation.rule.atLeastOneRecording',
             'At least one recording is required',

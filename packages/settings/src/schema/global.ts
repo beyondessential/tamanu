@@ -30,6 +30,32 @@ export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    audit: {
+      description: 'Audit settings',
+      highRisk: true,
+      properties: {
+        accesses: {
+          description: 'Audit accesses',
+          properties: {
+            enabled: {
+              description: 'Enable audit accesses',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        changes: {
+          description: 'Audit changes',
+          properties: {
+            enabled: {
+              description: 'Enable audit changes',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
     auth: {
       highRisk: true,
       description: 'Authentication options',
@@ -50,6 +76,16 @@ export const globalSettings = {
       description: 'Defines the unit with which to display patient ages, depending on their age',
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
+    },
+    appointments: {
+      description: 'Appointment settings',
+      properties: {
+        maxRepeatingAppointmentsPerGeneration: {
+          description: 'The maximum number of appointments that can be generated at once',
+          type: yup.number().min(1),
+          defaultValue: 50,
+        },
+      },
     },
     features: {
       description: 'Toggle features on/off',
@@ -220,6 +256,32 @@ export const globalSettings = {
               unit: 'seconds',
             },
           },
+        },
+        disableInputPasting: {
+          description:
+            'Disable pasting into input fields (except email login and patient data fields)',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        discharge: {
+          description: 'Encounter discharge configuration',
+          properties: {
+            dischargeNoteMandatory: {
+              type: yup.boolean(),
+              defaultValue: false,
+              unit: 'seconds',
+            },
+            dischargeDiagnosisMandatory: {
+              description: 'Require at least one diagnosis to be selected before discharging',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        patientDetailsLocationHierarchy: {
+          description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
@@ -1103,17 +1165,11 @@ export const globalSettings = {
           description: 'The email sent to confirm an appointment',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Appointment confirmation',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
             },
@@ -1127,17 +1183,11 @@ export const globalSettings = {
           description: 'The email sent when the signer runs out',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Tamanu ICAO Certificate Signing Request',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
             },
@@ -1147,17 +1197,11 @@ export const globalSettings = {
           description: 'The email containing patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1167,17 +1211,11 @@ export const globalSettings = {
           description: 'The email containing COVID patient vaccine certificate',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
             },
@@ -1187,17 +1225,11 @@ export const globalSettings = {
           description: 'Email with certificate containing the list of COVID tests for this patient',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1208,17 +1240,11 @@ export const globalSettings = {
             'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'COVID-19 Clearance Certificate now available',
             },
             body: {
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue:
                 'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
             },
@@ -1239,10 +1265,7 @@ export const globalSettings = {
             },
             healthFacility: {
               description: '_',
-              type: yup
-                .string()
-                .trim()
-                .min(1),
+              type: yup.string().trim().min(1),
               defaultValue: 'State level',
             },
           },
@@ -1297,6 +1320,16 @@ export const globalSettings = {
       description: 'Customise the options available for vital reason for edit',
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
+    },
+    notifications: {
+      description: 'Notification settings',
+      properties: {
+        recentNotificationsTimeFrame: {
+          description: 'Settings for the time frame of recent notifications',
+          type: yup.number(),
+          defaultValue: 48,
+        },
+      },
     },
   },
 };

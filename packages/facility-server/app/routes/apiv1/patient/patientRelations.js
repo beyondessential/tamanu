@@ -36,7 +36,7 @@ patientRelations.get(
       encounterType: `
         CASE
           ${ENCOUNTER_TYPE_VALUES.map(
-            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+            (value) => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
           ).join(' ')}
         END
       `,
@@ -104,7 +104,11 @@ patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patient
 patientRelations.get(
   '/:id/additionalData',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
 
     req.checkPermission('read', 'Patient');
 
@@ -114,6 +118,16 @@ patientRelations.get(
     });
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+
+    if (additionalDataRecord) {
+      await req.audit.access({
+        recordId: additionalDataRecord.id,
+        params,
+        model: models.PatientAdditionalData,
+        facilityId,
+      });
+    }
+
     res.send(recordData);
   }),
 );
@@ -329,6 +343,7 @@ patientRelations.get(
   '/:id/labTestResults',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'LabTest');
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
     const {
       db,
       models: { LabTest },
@@ -384,6 +399,10 @@ patientRelations.get(
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
   AND lab_requests.deleted_at IS NULL
+  AND CASE WHEN :canListSensitive IS TRUE
+    THEN TRUE
+    ELSE lab_test_types.is_sensitive IS FALSE
+    END
   ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
   ${
     panelId
@@ -401,14 +420,14 @@ patientRelations.get(
   ORDER BY
     test_category`,
       {
-        replacements: { patientId: params.id, status, categoryId, panelId },
+        replacements: { patientId: params.id, status, categoryId, panelId, canListSensitive },
         model: LabTest,
         type: QueryTypes.SELECT,
         mapToModel: true,
       },
     );
 
-    const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
+    const formattedData = results.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       count: results.length,

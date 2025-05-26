@@ -13,25 +13,23 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
+export const TranslatedText = ({ stringId, fallback, replacements, casing }) => {
   const { getTranslation } = useTranslation();
 
   const translation = useMemo(
-    () =>
-      getTranslation(
-        stringId,
-        fallback?.split('\\n').join('\n'),
-        replacements,
-        uppercase,
-        lowercase,
-      ),
-    [getTranslation, stringId, fallback, replacements, uppercase, lowercase],
+    () => getTranslation(stringId, fallback?.split('\\n').join('\n'), { replacements, casing }),
+    [getTranslation, stringId, fallback, replacements, casing],
   );
 
   const isDebugMode = safeGetIsDebugMode();
   if (isDebugMode)
     return (
-      <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
+      <DebugTooltip
+        stringId={stringId}
+        replacements={replacements}
+        fallback={fallback}
+        data-testid="debugtooltip-kuf4"
+      >
         {translation}
       </DebugTooltip>
     );

@@ -54,7 +54,7 @@ jobs:
           result-encoding: string
           script: |
             const cwd = '${{ github.workspace }}';
-            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { parseBranchConfig } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const ref = parseBranchConfig(context);
             console.log(ref);
             return ref;
@@ -76,7 +76,7 @@ jobs:
           result-encoding: string
           script: |
             const cwd = '${{ github.workspace }}';
-            const { findControlText } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { findControlText } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
             const control = await findControlText(context, github);
             console.log('Control text length:', control?.body?.length);
             return JSON.stringify(control ?? {});
@@ -90,7 +90,7 @@ jobs:
         with:
           script: |
             const cwd = '${{ github.workspace }}';
-            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/gha-cd-helpers.mjs`);
+            const { parseDeployConfig } = await import(`${cwd}/packages/scripts/src/ghaCdHelpers.mjs`);
 
             const allDeploys = parseDeployConfig({
               ...${{ steps.control.outputs.result }},
@@ -160,9 +160,9 @@ jobs:
       matrix:
         platform:
           - arch: amd64
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-24.04
           - arch: arm64
-            runs-on: Linux-ARM64-Ubuntu-24.04
+            runs-on: ubuntu-24.04-arm
         package:
           - name: central
             path: central-server
@@ -173,9 +173,6 @@ jobs:
           - name: frontend
             path: web
             target: frontend
-          - name: toolbox
-            path: none
-            target: toolbox
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -261,7 +258,6 @@ jobs:
           - central
           - facility
           - frontend
-          - toolbox
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
@@ -338,6 +334,22 @@ jobs:
       TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
+  fake-data:
+    needs:
+      - config
+      - deploy-up
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.config.outputs.up) }}
+    name: Add fake data to ${{ matrix.name }}
+    uses: ./.github/workflows/cd-fake-data.yml
+    with:
+      deploy-name: ${{ matrix.name }}
+      options: ${{ matrix.options }}
+    secrets:
+      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+
   package-android-test:
     needs: config
     if: needs.config.outputs.go-mobile == 'true'
@@ -348,7 +360,7 @@ jobs:
     name: Package test Android for ${{ matrix.name }}
     uses: ./.github/workflows/cd-package-android.yml
     with:
-      server: central.${{ matrix.name }}.internal.tamanu.io
+      server: central.${{ matrix.name }}.cd.tamanu.app
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
     secrets:
@@ -363,12 +375,18 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Frontend ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
+    secrets:
+      META_CERT: ${{ secrets.META_CERT }}
+      META_KEY: ${{ secrets.META_KEY }}
 
   package-servers:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     name: Package Servers ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-servers.yml
+    secrets:
+      META_CERT: ${{ secrets.META_CERT }}
+      META_KEY: ${{ secrets.META_KEY }}
 
   package-android-release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -377,6 +395,8 @@ jobs:
     secrets:
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+      META_CERT: ${{ secrets.META_CERT }}
+      META_KEY: ${{ secrets.META_KEY }}
 
   release-notes-images:
     needs:
@@ -398,4 +418,22 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
-            | `ghcr.io/beyondessential/tamanu-toolbox` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-toolbox/${{ github.ref_name }}) |
+
+      - name: Post to meta
+        continue-on-error: true
+        run: |
+          cat << EOF > ./meta.crt
+          ${{ secrets.META_CERT }}
+          EOF
+          cat << EOF > ./meta.key
+          ${{ secrets.META_KEY }}
+          EOF
+
+          version=$(echo "${{ github.ref_name }}" | sed -E 's/^v//')
+
+          for image in central facility frontend; do
+            set -x
+            curl -v "${{ vars.META_URL }}/artifacts/$version/$image/container" \
+              -E meta.crt --key meta.key \
+              --data-binary "oci://ghcr.io/beyondessential/tamanu-$image:${{ github.ref_name }}"
+          done

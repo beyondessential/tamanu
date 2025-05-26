@@ -1,26 +1,29 @@
-const applyCasing = (text, uppercase, lowercase) => {
-  if (lowercase) return text.toLowerCase();
-  if (uppercase) return text.toUpperCase();
-  return text;
+import { upperFirst } from 'lodash';
+
+const applyCasing = (text, casing) => {
+  if (!casing) return text;
+  if (casing === 'lower') return text.toLocaleLowerCase();
+  if (casing === 'upper') return text.toLocaleUpperCase();
+  if (casing === 'sentence') return upperFirst(text);
+  throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
 /**
+ * @typedef {Object} TranslationOptions
+ * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
+ * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
+ */
+
+/**
  * @param {string} templateString
- * @param {object}
- * @key replacements - object with replacement values
- * @key uppercase - boolean
- * @key lowercase - boolean
- * @param {object} translations
+ * @param {TranslationOptions} translationOptions
+ * @param {Object} translations
  * @returns {string}
  *
- * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
+ * @example replaceStringVariables("there are :count users", { replacements: { count: 2 } }) => "there are 2 users"
  */
-export const replaceStringVariables = (
-  templateString,
-  { replacements, uppercase, lowercase },
-  translations,
-) => {
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
+export const replaceStringVariables = (templateString, { replacements, casing } = {}, translations) => {
+  if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -31,30 +34,19 @@ export const replaceStringVariables = (
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.uppercase, replacement.props.lowercase);
+      return applyCasing(translation, replacement.props.casing);
     })
     .join('');
 
-  return applyCasing(result, uppercase, lowercase);
+  return applyCasing(result, casing);
 };
 
-export const translationFactory = translations => (
-  stringId,
-  fallback,
-  replacements,
-  uppercase,
-  lowercase,
-) => {
-  const replacementConfig = {
-    replacements,
-    uppercase,
-    lowercase,
-  };
+export const translationFactory = (translations) => (stringId, fallback, translationOptions) => {
   if (!translations)
-    return { value: replaceStringVariables(fallback, replacementConfig, translations) };
+    return { value: replaceStringVariables(fallback, translationOptions, translations) };
   const translation = translations[stringId] ?? fallback;
   return {
-    value: replaceStringVariables(translation, replacementConfig, translations),
+    value: replaceStringVariables(translation, translationOptions, translations),
     notExisting: !translations[stringId],
   };
 };

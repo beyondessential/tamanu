@@ -3,6 +3,13 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+
+/**
+ * @typedef {Object} TranslationOptions
+ * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
+ * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
+ */
 
 export const TranslationContext = React.createContext(null);
 
@@ -21,12 +28,25 @@ export const TranslationProvider = ({ children }) => {
 
   const translationFunc = translationFactory(translations);
 
-  const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+  /**
+   * @param {string} stringId
+   * @param {string} fallback
+   * @param {TranslationOptions} translationOptions
+   * @returns {string}
+   */
+  const getTranslation = (stringId, fallback, translationOptions = {}) => {
+    const { value } = translationFunc(stringId, fallback, translationOptions);
     return value;
   };
 
-  const updateStoredLanguage = newLanguage => {
+  const getEnumTranslation = (enumValues, currentValue) => {
+    const fallback = enumValues[currentValue];
+    const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+    const { value } = translationFunc(stringId, fallback);
+    return value;
+  };
+
+  const updateStoredLanguage = (newLanguage) => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
     // Save the language in local storage so that it persists between sessions
@@ -37,6 +57,7 @@ export const TranslationProvider = ({ children }) => {
     <TranslationContext.Provider
       value={{
         getTranslation,
+        getEnumTranslation,
         updateStoredLanguage,
         storedLanguage,
         translations,

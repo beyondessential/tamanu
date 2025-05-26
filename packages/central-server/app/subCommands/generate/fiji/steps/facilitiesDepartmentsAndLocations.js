@@ -1,8 +1,8 @@
-import { fake } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 import { NUM_FACILITIES, REF_ID_PREFIX } from '../constants';
 
 export default {
-  run: async store => {
+  run: async (store) => {
     const { Facility, Department, LocationGroup, Location } = store.models;
     const facDepLoc = [];
     for (let i = 0; i < NUM_FACILITIES; i++) {

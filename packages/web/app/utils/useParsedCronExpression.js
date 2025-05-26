@@ -25,7 +25,7 @@ class CustomTranslatedLocale extends EnglishLocale {
   }
 }
 
-export const useParsedCronExpression = expression => {
+export const useParsedCronExpression = (expression) => {
   const { getTranslation } = useTranslation();
 
   useEffect(() => {

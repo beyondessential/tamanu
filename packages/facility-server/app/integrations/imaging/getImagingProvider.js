@@ -1,6 +1,7 @@
 import { SETTING_KEYS } from '@tamanu/constants';
 import { MerlinProvider } from './MerlinProvider';
 import { TestProvider } from './TestProvider';
+import { StaticUrlProvider } from './StaticUrlProvider';
 
 export async function getImagingProvider(models, settings) {
   const config = await settings?.get(SETTING_KEYS.INTEGRATIONS_IMAGING);
@@ -13,7 +14,8 @@ export async function getImagingProvider(models, settings) {
     case 'merlin':
       return new MerlinProvider(models, config);
 
+    case 'staticUrl':
     default:
-      throw new Error(`unsupported provider: ${config.provider}`);
+      return new StaticUrlProvider(models, config);
   }
 }

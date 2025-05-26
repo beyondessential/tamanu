@@ -134,7 +134,7 @@ export class MediciReport extends FhirResource {
 
   async updateMaterialisation() {
     const materialisedValues = await getMaterialisedValues(this.sequelize, this.upstreamId);
-    this.set({ ...materialisedValues });
+    this.set({ ...materialisedValues, resolved: true });
   }
 
   static async queryToFilterUpstream(upstreamTable: string) {

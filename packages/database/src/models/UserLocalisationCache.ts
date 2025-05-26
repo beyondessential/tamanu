@@ -1,4 +1,4 @@
-import { DataTypes, type NonNullFindOptions } from 'sequelize';
+import { DataTypes, Sequelize, type NonNullFindOptions } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -8,10 +8,15 @@ export class UserLocalisationCache extends Model {
   declare localisation: string;
   declare userId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: DataTypes.UUID,
+          allowNull: false,
+          primaryKey: true,
+          defaultValue: Sequelize.fn('gen_random_uuid'),
+        },
         localisation: {
           type: DataTypes.STRING,
           allowNull: false,

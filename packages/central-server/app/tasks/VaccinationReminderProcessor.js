@@ -71,7 +71,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
     )
     insert into patient_communications (id, created_at, updated_at, channel,  patient_id, destination, hash, status, type, subject, content)
     select
-      uuid_generate_v4() id,
+      gen_random_uuid() id,
       NOW() created_at,
       NOW() updated_at,
       r.channel,

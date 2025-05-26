@@ -47,7 +47,7 @@ export class PatientCommunication extends Model {
         attachment: DataTypes.STRING,
         hash: DataTypes.INTEGER,
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL },
+      { ...options, syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE },
     );
   }
 

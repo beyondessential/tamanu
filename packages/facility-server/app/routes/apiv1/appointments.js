@@ -2,15 +2,16 @@ import { format } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, Sequelize, literal } from 'sequelize';
+import { omit } from 'lodash';
 
 import {
   APPOINTMENT_STATUSES,
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
+  MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -80,24 +81,35 @@ appointments.post(
     const {
       models,
       db,
-      body: { facilityId, ...body },
+      body: { facilityId, schedule: scheduleData, ...appointmentData },
       settings,
     } = req;
     const { Appointment } = models;
+    const result = await db.transaction(async () => {
+      const appointment = scheduleData
+        ? (
+            await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData,
+              scheduleData,
+            })
+          ).firstAppointment
+        : await Appointment.create(appointmentData);
 
-    await db.transaction(async () => {
-      const result = await Appointment.create(body);
-      if (body.email) {
+      const { email } = appointmentData;
+      if (email) {
         await sendAppointmentReminder({
-          appointmentId: result.id,
-          email: body.email,
+          appointmentId: appointment.id,
+          email,
           facilityId,
           models,
           settings,
         });
       }
-      res.status(201).send(result);
+
+      return appointment;
     });
+    res.status(201).send(result);
   }),
 );
 
@@ -121,7 +133,60 @@ appointments.post(
   }),
 );
 
-appointments.put('/:id', simplePut('Appointment'));
+appointments.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+    const { models, body, params, settings } = req;
+    const { schedule: scheduleData, facilityId, modifyMode, ...appointmentData } = body;
+
+    const { id } = params;
+    const { Appointment } = models;
+    const appointment = await Appointment.findByPk(id);
+    if (!appointment) {
+      throw new NotFoundError();
+    }
+
+    const result = await req.db.transaction(async () => {
+      if (modifyMode === MODIFY_REPEATING_APPOINTMENT_MODE.THIS_AND_FUTURE_APPOINTMENTS) {
+        const existingSchedule = await appointment.getSchedule();
+        if (!existingSchedule) {
+          throw new Error('Cannot update future appointments for a non-recurring appointment');
+        }
+        if (
+          existingSchedule.isDifferentFromSchedule(scheduleData) ||
+          appointmentData.startTime !== appointment.startTime ||
+          appointmentData.endTime !== appointment.endTime
+        ) {
+          // If the appointment schedule has been modified, we need to regenerate the schedule from the updated appointment.
+          // To do this we cancel this and all future appointments and mark existing schedule as ended
+          await existingSchedule.endAtAppointment(appointment);
+          if (appointmentData.status !== APPOINTMENT_STATUSES.CANCELLED) {
+            // Then if not cancelling the repeating appointments we generate a new schedule starting with the updated appointment
+            const { schedule } = await Appointment.createWithSchedule({
+              settings: settings[facilityId],
+              appointmentData: omit(appointmentData, 'id'),
+              scheduleData: omit(scheduleData, 'id'),
+            });
+            return { schedule };
+          }
+        } else {
+          // No scheduleData or appointment time change, so this is a simple change that doesn't require deleting and regenerating future appointments
+          await existingSchedule.modifyFromAppointment(
+            appointment,
+            // When modifying all future appointments we strip startTime, and endTime
+            // in order to preserve the incremental time difference between appointments
+            omit(appointmentData, 'id', 'startTime', 'endTime'),
+          );
+        }
+      } else {
+        await appointment.update(appointmentData);
+      }
+      return { ok: 'ok' };
+    });
+    res.status(200).send(result);
+  }),
+);
 
 const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
 
@@ -210,14 +275,23 @@ appointments.get(
 
     const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(after, before);
 
-    const cancelledStatusQuery = includeCancelled
+    const cancelledStatusWhereClause = includeCancelled
       ? null
       : { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } };
 
     const facilityIdField = isStringOrArray(queries.locationGroupId)
       ? '$locationGroup.facility_id$'
       : '$location.facility_id$';
-    const facilityIdQuery = facilityId ? { [facilityIdField]: facilityId } : null;
+    const facilityIdWhereClause = facilityId ? { [facilityIdField]: facilityId } : null;
+
+    const isBeforeScheduleUntilDateWhereClause = {
+      [Op.or]: [
+        { scheduleId: null },
+        literal(`
+        ("schedule"."until_date" IS NULL OR "schedule"."until_date"::timestamp + interval '1 day' - interval '1 second' >= start_time::timestamp)
+      `),
+      ],
+    };
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
@@ -247,9 +321,10 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         [Op.and]: [
-          facilityIdQuery,
+          facilityIdWhereClause,
           timeQueryWhereClause,
-          cancelledStatusQuery,
+          cancelledStatusWhereClause,
+          isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
           ...filters,
         ],
@@ -264,8 +339,6 @@ appointments.get(
     });
   }),
 );
-
-appointments.put('/:id', simplePut('Appointment'));
 
 appointments.post(
   '/locationBooking',

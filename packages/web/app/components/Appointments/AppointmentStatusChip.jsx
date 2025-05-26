@@ -13,31 +13,39 @@ const Toggle = styled(ToggleButton)`
     min-inline-size: 4.625rem;
     padding-block: 0.35rem;
     padding-inline: 0.6875rem;
-    transition: background-color 150ms ease, border-color 150ms ease;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
 
     .MuiTouchRipple-child,
-    &:hover:not(.${toggleButtonClasses.selected},
-        :disabled, .${toggleButtonGroupClasses.disabled}) {
+    &:hover:not(
+        .${toggleButtonClasses.selected}, :disabled,
+        .${toggleButtonGroupClasses.disabled}
+      ) {
       background-color: ${Colors.veryLightBlue};
+    }
+
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: initial;
     }
 
     &.${toggleButtonClasses.selected} {
       border-color: transparent;
 
-      ${({ $color }) =>
-        css`
-          color: ${$color};
-          background-color: oklch(from ${$color} l c h / 10%);
-          @supports not (color: oklch(from black l c h)) {
-            background-color: ${$color}1a; // Works only with six-digit hex colour
-          }
-        `}
+      ${({ $color }) => css`
+        color: ${$color};
+        background-color: oklch(from ${$color} l c h / 10%);
+        @supports not (color: oklch(from black l c h)) {
+          background-color: ${$color}1a; // Works only with six-digit hex colour
+        }
+      `}
     }
   }
 `;
 
 const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
-  <Toggle $color={color} $selected={selected} {...props}>
+  <Toggle $color={color} $selected={selected} {...props} data-testid="toggle-mzt4">
     {children}
   </Toggle>
 );
@@ -55,6 +63,7 @@ export const AppointmentStatusChip = ({
     role="radio"
     selected={selected}
     {...props}
+    data-testid="chip-poiu"
   >
     {appointmentStatus ?? <>&mdash;</>}
   </Chip>

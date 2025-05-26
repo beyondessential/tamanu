@@ -19,6 +19,7 @@ import {
   TextInput,
   TimeInput,
   TimeWithUnitInput,
+  SwitchInput,
 } from '../../app/components';
 import { IdInput } from '../../app/components/Field/IdField';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -316,4 +317,8 @@ addStories('CalendarInput', props => (
   <LocalizationProvider dateAdapter={AdapterDateFns}>
     <StoryControlWrapper Component={MonthPicker} label="Date" {...props} />
   </LocalizationProvider>
+));
+
+addStories('SwitchInput', props => (
+  <StoryControlWrapper Component={SwitchInput} label="Enable" {...props} />
 ));

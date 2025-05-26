@@ -1,4 +1,5 @@
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -147,7 +148,7 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: "no model for componentConfig {\"source\":\"Frobnizzle\"}",
+          message: 'no model for componentConfig {"source":"Frobnizzle"}',
         },
       });
     });
@@ -198,7 +199,7 @@ describe('SurveyResponse', () => {
   describe('permissions', () => {
     disableHardcodedPermissionsForSuite();
 
-    it("should not throw forbidden error when role has sufficient permission for a particular survey", async () => {
+    it('should not throw forbidden error when role has sufficient permission for a particular survey', async () => {
       // arrange
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));
@@ -211,8 +212,8 @@ describe('SurveyResponse', () => {
 
       const permissions = [
         ['read', 'SurveyResponse'],
-        ['read', 'Survey', response.surveyId]
-      ]
+        ['read', 'Survey', response.surveyId],
+      ];
 
       app = await baseApp.asNewRole(permissions);
 
@@ -223,7 +224,7 @@ describe('SurveyResponse', () => {
       expect(result).toHaveSucceeded();
     });
 
-    it("should throw forbidden error when role does not sufficient permission for a particular survey", async () => {
+    it('should throw forbidden error when role does not sufficient permission for a particular survey', async () => {
       // arrange
       const { Facility } = models;
       const facility = await Facility.create(fake(Facility));
@@ -234,9 +235,7 @@ describe('SurveyResponse', () => {
         facility.id,
       );
 
-      const permissions = [
-        ['read', 'SurveyResponse'],
-      ]
+      const permissions = [['read', 'SurveyResponse']];
 
       app = await baseApp.asNewRole(permissions);
 

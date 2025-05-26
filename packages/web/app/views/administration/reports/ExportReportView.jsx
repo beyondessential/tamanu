@@ -4,24 +4,21 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import {
+  ButtonRow,
   Field,
   Form,
   FormGrid,
-  OutlinedButton,
+  FormSubmitButton,
   RadioField,
   TranslatedText,
 } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { FORM_TYPES } from '../../../constants';
 import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { useTranslation } from '../../../contexts/Translation';
 
-const StyledButton = styled(OutlinedButton)`
-  margin-top: 30px;
-  background-color: ${Colors.white};
-`;
 const InnerContainer = styled.div`
   padding: 20px;
   max-width: 500px;
@@ -32,18 +29,32 @@ const schema = yup.object().shape({
     .string()
     .required()
     .translatedLabel(
-      <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />,
+      <TranslatedText
+        stringId="admin.report.export.report.label"
+        fallback="Report"
+        data-testid="translatedtext-28di"
+      />,
     ),
   versionId: yup
     .string()
     .required()
-    .translatedLabel(<TranslatedText stringId="admin.report.version.label" fallback="Version" />),
+    .translatedLabel(
+      <TranslatedText
+        stringId="admin.report.version.label"
+        fallback="Version"
+        data-testid="translatedtext-7jg8"
+      />,
+    ),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
     .required()
     .translatedLabel(
-      <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />,
+      <TranslatedText
+        stringId="admin.report.export.format.label"
+        fallback="Format"
+        data-testid="translatedtext-sumd"
+      />,
     ),
 });
 
@@ -80,6 +91,7 @@ export const ExportReportView = () => {
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
+          data-testid="translatedtext-w9jy"
         />,
       );
     }
@@ -94,14 +106,18 @@ export const ExportReportView = () => {
       }}
       formType={FORM_TYPES.CREATE_FORM}
       showInlineErrorsOnly
-      render={({ values, isSubmitting }) => (
-        <InnerContainer>
-          <FormGrid columns={1}>
+      render={({ values }) => (
+        <InnerContainer data-testid="innercontainer-dvll">
+          <FormGrid columns={1} data-testid="formgrid-7qjs">
             <Field
               component={ReportSelectField}
               required
               label={
-                <TranslatedText stringId="admin.report.export.report.label" fallback="Report" />
+                <TranslatedText
+                  stringId="admin.report.export.report.label"
+                  fallback="Report"
+                  data-testid="translatedtext-d29c"
+                />
               }
               name="reportId"
               placeholder={getTranslation(
@@ -109,13 +125,18 @@ export const ExportReportView = () => {
                 'Select a report definition',
               )}
               setSelectedReportName={setSelectedReportName}
+              data-testid="field-pehg"
             />
             {values.reportId && (
               <Field
                 component={VersionSelectField}
                 required
                 label={
-                  <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />
+                  <TranslatedText
+                    stringId="admin.report.export.version.label"
+                    fallback="Version"
+                    data-testid="translatedtext-svn2"
+                  />
                 }
                 name="versionId"
                 placeholder={getTranslation(
@@ -123,27 +144,43 @@ export const ExportReportView = () => {
                   'Select a report version',
                 )}
                 setSelectedVersionNumber={setSelectedVersionNumber}
+                data-testid="field-38mg"
               />
             )}
             {values.versionId && (
               <Field
                 component={RadioField}
                 label={
-                  <TranslatedText stringId="admin.report.export.format.label" fallback="Format" />
+                  <TranslatedText
+                    stringId="admin.report.export.format.label"
+                    fallback="Format"
+                    data-testid="translatedtext-ejl3"
+                  />
                 }
                 name="format"
                 options={Object.entries(REPORT_VERSION_EXPORT_FORMATS).map(([label, value]) => ({
                   label,
                   value,
                 }))}
+                data-testid="field-llhr"
               />
             )}
           </FormGrid>
-          <StyledButton type="submit" isSubmitting={isSubmitting}>
-            <TranslatedText stringId="general.action.export" fallback="Export" />
-          </StyledButton>
+          <ButtonRow alignment="left" data-testid="buttonrow-carm">
+            <FormSubmitButton
+              text={
+                <TranslatedText
+                  stringId="general.action.export"
+                  fallback="Export"
+                  data-testid="translatedtext-9ubx"
+                />
+              }
+              data-testid="formsubmitbutton-j847"
+            />
+          </ButtonRow>
         </InnerContainer>
       )}
+      data-testid="form-mimw"
     />
   );
 };

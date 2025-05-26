@@ -1,15 +1,15 @@
 import React from 'react';
-import { Field, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { TranslatedText } from '../../Translation';
-import { DateTimeField } from '../..';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
+import { DateTimeField, Field } from '../../Field';
 
-export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
-  const { values } = useFormikContext();
+export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
+  const { values, setFieldValue } = useFormikContext();
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
@@ -27,24 +27,35 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit }) => {
     !isEdit &&
     isFetched &&
     values.patientId &&
-    existingAppointments?.data.some(booking => booking.patientId === values.patientId);
+    existingAppointments?.data.some((booking) => booking.patientId === values.patientId);
 
   return (
     <Field
       name="startTime"
-      label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
+      label={
+        <TranslatedText
+          stringId="general.dateAndTime.label"
+          fallback="Date & time"
+          data-testid="translatedtext-cg8p"
+        />
+      }
       component={DateTimeField}
       saveDateAsString
       required
-      save
+      onChange={(e) => {
+        onChange(e);
+        if (!e.target.value) setFieldValue('endTime', undefined);
+      }}
       helperText={
         showSameDayWarning && (
           <TranslatedText
             stringId="outpatientAppointment.date.warning"
-            fallback="Patient already has an appointment scheduled for this this day"
+            fallback="Patient already has an appointment scheduled for this day"
+            data-testid="translatedtext-x8dd"
           />
         )
       }
+      data-testid="field-vjma"
     />
   );
 };

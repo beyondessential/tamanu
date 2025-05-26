@@ -4,11 +4,13 @@ import { compare } from 'bcrypt';
 import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
+import { version } from '../../package.json';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { CentralServerConnection } from '../sync';
@@ -88,10 +90,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
 async function localLogin(models, email, password) {
   // some other error in communicating with central server, revert to local login
   const user = await models.User.getForAuthByEmail(email);
+  log.info('User found: ', Boolean(user));
 
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
+    log.warn('Bad password match');
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
@@ -112,7 +116,7 @@ async function localLogin(models, email, password) {
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
     return localLogin(models, email, password);
   }
 
@@ -143,12 +147,8 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const {
-      central,
-      user,
-      localisation,
-      allowedFacilities,
-    } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+    const { central, user, localisation, allowedFacilities } =
+      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -202,12 +202,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user } = req;
+  const { user, facilityId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user);
+  const token = await buildToken(user, facilityId);
   res.send({ token });
 }
 
@@ -249,18 +249,43 @@ async function getUser(models, userId) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const { models } = req;
+  const { models, settings } = req;
   try {
     const token = getTokenFromHeaders(req);
+    const sessionId = createSessionIdentifier(token);
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
     req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
+
+    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+
+    // Auditing middleware
+    // eslint-disable-next-line require-atomic-updates
+    req.audit = {
+      access: async ({ recordId, params, model }) => {
+        if (!auditSettings?.accesses.enabled) return;
+        return req.models.AccessLog.create({
+          userId,
+          recordId,
+          recordType: model.name,
+          sessionId,
+          isMobile: false,
+          frontEndContext: params,
+          backEndContext: { endpoint: req.originalUrl },
+          loggedAt: new Date(),
+          facilityId: req.facilityId,
+          deviceId: req.deviceId || 'unknown-device',
+          version,
+        });
+      },
+    };
 
     const spanAttributes = {};
     if (req.user) {

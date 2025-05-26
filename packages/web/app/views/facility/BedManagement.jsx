@@ -45,17 +45,17 @@ const DashboardItemContainer = styled.div`
   margin-left: 1%;
   background-color: ${Colors.white};
   border-radius: 5px;
-  border-left: 4px solid ${props => props.color || Colors.primaryDark};
+  border-left: 4px solid ${(props) => props.color || Colors.primaryDark};
   &:first-child {
     margin-left: 0;
   }
-  flex: ${props => props.flex || 'auto'};
+  flex: ${(props) => props.flex || 'auto'};
 `;
 
 const DashboardItemTitle = styled(Typography)`
   font-size: 24px;
   font-weight: 500;
-  color: ${props => props.color || Colors.primaryDark};
+  color: ${(props) => props.color || Colors.primaryDark};
 `;
 
 const DashboardItemDescription = styled(Typography)`
@@ -83,7 +83,7 @@ const DetailedDashboardItemTextContainer = styled.div`
 const DetailedDashboardItemTitle = styled(Typography)`
   font-size: 15px;
   font-weight: 500;
-  color: ${props => props.color || Colors.brightBlue};
+  color: ${(props) => props.color || Colors.brightBlue};
   line-height: 26px;
 `;
 
@@ -92,25 +92,45 @@ const DetailedDashboardItemText = styled(DashboardItemDescription)`
 `;
 
 const DetailedLoadingIndicator = () => (
-  <LoadingIndicator backgroundColor="transparent" height="24px" width="20px" size="20px" />
+  <LoadingIndicator
+    backgroundColor="transparent"
+    height="24px"
+    width="20px"
+    size="20px"
+    data-testid="loadingindicator-27wa"
+  />
 );
 
 const DashboardItem = ({ color, title, loading, description }) => {
   return (
-    <DashboardItemContainer color={color}>
+    <DashboardItemContainer color={color} data-testid="dashboarditemcontainer-ppiy">
       {loading ? (
-        <LoadingIndicator backgroundColor="transparent" height="3em" width="2em" size="2em" />
+        <LoadingIndicator
+          backgroundColor="transparent"
+          height="3em"
+          width="2em"
+          size="2em"
+          data-testid="loadingindicator-5oeb"
+        />
       ) : (
-        <DashboardItemTitle style={{ color }}>{title}</DashboardItemTitle>
+        <DashboardItemTitle style={{ color }} data-testid="dashboarditemtitle-f0nc">
+          {title}
+        </DashboardItemTitle>
       )}
-      <DashboardItemDescription>{description}</DashboardItemDescription>
+      <DashboardItemDescription data-testid="dashboarditemdescription-1nsm">
+        {description}
+      </DashboardItemDescription>
     </DashboardItemContainer>
   );
 };
 
 const DetailedDashboardItemNumber = ({ loading, value }) => {
-  if (loading) return <DetailedLoadingIndicator />;
-  return <DetailedDashboardItemTitle>{value || 0}</DetailedDashboardItemTitle>;
+  if (loading) return <DetailedLoadingIndicator data-testid="detailedloadingindicator-e4xb" />;
+  return (
+    <DetailedDashboardItemTitle data-testid="detaileddashboarditemtitle-mhot">
+      {value || 0}
+    </DetailedDashboardItemTitle>
+  );
 };
 
 const DetailedDashboardItem = ({ api, facilityId }) => {
@@ -126,39 +146,48 @@ const DetailedDashboardItem = ({ api, facilityId }) => {
   );
 
   return (
-    <DetailedDashboardItemContainer color={Colors.brightBlue}>
-      <DetailedDashboardItemTextContainer>
+    <DetailedDashboardItemContainer
+      color={Colors.brightBlue}
+      data-testid="detaileddashboarditemcontainer-vscx"
+    >
+      <DetailedDashboardItemTextContainer data-testid="detaileddashboarditemtextcontainer-22iu">
         <div>
           <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
             value={availableLocationCount}
+            data-testid="detaileddashboarditemnumber-3enh"
           />
           <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
             value={reservedLocationCount}
+            data-testid="detaileddashboarditemnumber-3chs"
           />
           <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
             value={occupiedLocationCount}
+            data-testid="detaileddashboarditemnumber-exho"
           />
         </div>
-        <DetailedDashboardItemSection>
-          <DetailedDashboardItemText>
+        <DetailedDashboardItemSection data-testid="detaileddashboarditemsection-krv2">
+          <DetailedDashboardItemText data-testid="detaileddashboarditemtext-2rj3">
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsAvailable.label"
               fallback="No. of locations available"
+              data-testid="translatedtext-8cft"
             />
           </DetailedDashboardItemText>
-          <DetailedDashboardItemText>
+          <DetailedDashboardItemText data-testid="detaileddashboarditemtext-ru9s">
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsReserved.label"
               fallback="No. of locations reserved"
+              data-testid="translatedtext-5fjl"
             />
           </DetailedDashboardItemText>
-          <DetailedDashboardItemText>
+          <DetailedDashboardItemText data-testid="detaileddashboarditemtext-4akl">
             <TranslatedText
               stringId="bedManagement.dashboard.detailedItem.locationsOccupied.label"
               fallback="No. of locations occupied"
+              data-testid="translatedtext-fame"
             />
           </DetailedDashboardItemText>
         </DetailedDashboardItemSection>
@@ -189,17 +218,15 @@ export const BedManagement = () => {
     }),
   );
 
-  const {
-    data: { count: currentInpatientsCount } = {},
-    isLoading: currentInpatientsCountLoading,
-  } = useQuery(['currentInpatientsCount'], () =>
-    api.get('patient', {
-      countOnly: true,
-      currentPatient: true,
-      inpatient: true,
-      facilityId,
-    }),
-  );
+  const { data: { count: currentInpatientsCount } = {}, isLoading: currentInpatientsCountLoading } =
+    useQuery(['currentInpatientsCount'], () =>
+      api.get('patient', {
+        countOnly: true,
+        currentPatient: true,
+        inpatient: true,
+        facilityId,
+      }),
+    );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
     ['currentOccupancy', facilityId],
@@ -220,11 +247,11 @@ export const BedManagement = () => {
   );
 
   // hides hover for rows that arent clickable (do not have a patient to click to)
-  const rowStyle = row =>
+  const rowStyle = (row) =>
     (row.locationMaxOccupancy !== 1 || !row.patientId) &&
     '&:hover { background-color: transparent; cursor: default; }';
 
-  const handleViewPatient = async row => {
+  const handleViewPatient = async (row) => {
     if (row.locationMaxOccupancy === 1) {
       const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {
@@ -235,20 +262,28 @@ export const BedManagement = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer data-testid="pagecontainer-zfu3">
       <TopBar
-        title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
+        title={
+          <TranslatedText
+            stringId="bedManagement.title"
+            fallback="Bed management"
+            data-testid="translatedtext-6ncm"
+          />
+        }
         subTitle={
           <TranslatedReferenceData
             fallback={facility?.name}
             value={facility?.id}
             category="facility"
+            data-testid="translatedreferencedata-nk31"
           />
         }
+        data-testid="topbar-019l"
       />
-      <ContentPane>
-        <DashboardContainer>
-          <DashboardItemListContainer>
+      <ContentPane data-testid="contentpane-nltt">
+        <DashboardContainer data-testid="dashboardcontainer-uvqg">
+          <DashboardItemListContainer data-testid="dashboarditemlistcontainer-mbks">
             <DashboardItem
               title={totalCurrentPatientsCount || 0}
               loading={totalCurrentPatientsCountLoading}
@@ -256,8 +291,10 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentPatients.label"
                   fallback="Total current\npatients"
+                  data-testid="translatedtext-cgft"
                 />
               }
+              data-testid="dashboarditem-kqp6"
             />
             <DashboardItem
               color={Colors.green}
@@ -267,8 +304,10 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentInpatients.label"
                   fallback="Current inpatient\nadmissions"
+                  data-testid="translatedtext-nw3v"
                 />
               }
+              data-testid="dashboarditem-mcfd"
             />
             <DashboardItem
               color={Colors.purple}
@@ -278,8 +317,10 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.averageStayDuration.label"
                   fallback="Average length of\nstay (last 30 days)"
+                  data-testid="translatedtext-glc0"
                 />
               }
+              data-testid="dashboarditem-imw5"
             />
             <DashboardItem
               color={Colors.pink}
@@ -289,8 +330,10 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.currentOccupancy.label"
                   fallback="Current\noccupancy"
+                  data-testid="translatedtext-a3y3"
                 />
               }
+              data-testid="dashboarditem-cwa5"
             />
             <DashboardItem
               color={Colors.metallicYellow}
@@ -300,27 +343,39 @@ export const BedManagement = () => {
                 <TranslatedText
                   stringId="bedManagement.dashboard.item.readmission.label"
                   fallback="Readmission in\nlast 30 days"
+                  data-testid="translatedtext-s2tv"
                 />
               }
+              data-testid="dashboarditem-9xky"
             />
           </DashboardItemListContainer>
-          <DetailedDashboardItem api={api} facilityId={facilityId} />
+          <DetailedDashboardItem
+            api={api}
+            facilityId={facilityId}
+            data-testid="detaileddashboarditem-bkgj"
+          />
         </DashboardContainer>
       </ContentPane>
-      <ContentPane>
+      <ContentPane data-testid="contentpane-9jv6">
         <BedManagementSearchBar
           searchParameters={searchParameters}
           onSearch={setSearchParameters}
+          data-testid="bedmanagementsearchbar-z14p"
         />
         <SearchTable
           columns={columns}
           noDataMessage={
-            <TranslatedText stringId="bedManagement.table.noData" fallback="No locations found" />
+            <TranslatedText
+              stringId="bedManagement.table.noData"
+              fallback="No locations found"
+              data-testid="translatedtext-a4s7"
+            />
           }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}
           fetchOptions={{ ...searchParameters, facilityId }}
           endpoint="patient/locations/bedManagement"
+          data-testid="searchtable-ir2h"
         />
       </ContentPane>
     </PageContainer>

@@ -15,6 +15,7 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { getReferenceDataStringId } from '../../components';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -24,10 +25,7 @@ const DisplayContainer = styled.div`
   align-items: flex-start;
   border: 1px solid ${Colors.softOutline};
   font-size: 11px;
-  padding-left: 20px;
-  padding-top: 13px;
-  padding-right: 14px;
-  padding-bottom: 20px;
+  padding: 13px 14px 20px 20px;
   background-color: ${Colors.white};
 `;
 
@@ -35,7 +33,6 @@ const StyledFormGrid = styled(FormGrid)`
   width: 100%;
   display: grid;
   grid-template-columns: 80% 18%;
-  width: 100%;
   justify-content: space-between;
   align-items: flex-end;
 `;
@@ -63,27 +60,39 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     () =>
       api
         .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`)
-        .then(response => {
+        .then((response) => {
           return response.data
-            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-            .map(x => ({ value: x.id, label: x.name }));
+            .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
+            .map((x) => ({ value: x.id, label: x.name }));
         }),
   );
 
+  const { programRegistry } = patientProgramRegistration;
+
   return (
-    <DisplayContainer>
-      <Heading5>
-        Select a {patientProgramRegistration.programRegistry.name} form below to complete
+    <DisplayContainer data-testid="displaycontainer-bjmv">
+      <Heading5 data-testid="heading5-c7x6">
+        <TranslatedText
+          stringId="programRegistry.selectSurveyForm.heading"
+          fallback="Select a :programRegistry form below to complete"
+          replacements={{
+            programRegistry: getTranslation(
+              getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+              programRegistry?.name,
+            ),
+          }}
+          data-testid="translatedtext-jgv4"
+        />
       </Heading5>
       <Form
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
-        onSubmit={async values => {
+        onSubmit={async (values) => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,
             values.surveyId,
-            patientProgramRegistration.programRegistry.name,
+            programRegistry.name,
           );
         }}
         formType={FORM_TYPES.CREATE_FORM}
@@ -91,26 +100,52 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           return (
-            <StyledFormGrid>
-              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
+            <StyledFormGrid data-testid="styledformgrid-edgp">
+              <ConditionalTooltip
+                visible={isRemoved}
+                title={
+                  <TranslatedText
+                    stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
+                    fallback="Patient must be active"
+                    data-testid="translatedtext-8uzd"
+                  />
+                }
+                data-testid="conditionaltooltip-aavk"
+              >
                 <Field
                   name="surveyId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.selectForm.label"
+                      stringId="programRegistry.selectSurveyForm.surveyId.label"
                       fallback="Select form"
+                      data-testid="translatedtext-ipam"
                     />
                   }
                   component={BaseSelectField}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
+                  data-testid="field-qn2d"
                 />
               </ConditionalTooltip>
-
               <ConditionalTooltip
-                title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+                title={
+                  isRemoved ? (
+                    <TranslatedText
+                      stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
+                      fallback="Patient must be active"
+                      data-testid="translatedtext-exd9"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="programRegistry.selectSurveyForm.proceed.tooltip"
+                      fallback="Select form to proceed"
+                      data-testid="translatedtext-ikjw"
+                    />
+                  )
+                }
                 visible={isRemoved || !values.surveyId}
+                data-testid="conditionaltooltip-ywcm"
               >
                 <div>
                   <StyledButton
@@ -118,10 +153,12 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     onClick={submitForm}
                     disabled={isRemoved || !values.surveyId}
                     isSubmitting={false}
+                    data-testid="styledbutton-c26p"
                   >
                     <TranslatedText
-                      stringId="patientProgramRegistry.action.beginForm"
+                      stringId="programRegistry.selectSurveyForm.action.beginForm"
                       fallback="Begin form"
+                      data-testid="translatedtext-ivgk"
                     />
                   </StyledButton>
                 </div>
@@ -134,6 +171,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
             getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
           ),
         })}
+        data-testid="form-t441"
       />
     </DisplayContainer>
   );

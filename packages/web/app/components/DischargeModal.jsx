@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -8,7 +8,6 @@ import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadPatient } from '../store/patient';
-import { TranslatedText } from './Translation/TranslatedText';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
 import { useSettings } from '../contexts/Settings';
@@ -20,14 +19,17 @@ const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
-  const { getSetting } = useSettings()
+  const patient = useSelector((state) => state.patient);
+  const { getSetting } = useSettings();
   const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
   const { facility } = encounter.location;
 
-  const dischargeDispositionFilterer = dischargeDisposition => {
+  const [title, setTitle] = useState('');
+  const handleTitleChange = useCallback((title) => setTitle(title), []);
+
+  const dischargeDispositionFilterer = (dischargeDisposition) => {
     switch (getPatientStatus(encounter.encounterType)) {
       case PATIENT_STATUS.EMERGENCY:
         // This is an emergency encounter
@@ -69,17 +71,21 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   });
 
   const handleDischarge = useCallback(
-    async data => {
-      // add facility details to discharge details
-      data.discharge = {
-        ...data.discharge,
-        facilityName: facility.name,
-        facilityAddress: facility.streetAddress,
-        facilityTown: facility.cityTown,
-      };
+    async (data) => {
+      if (!data.dischargeDraft) {
+        // add facility details to discharge details
+        data.discharge = {
+          ...data.discharge,
+          facilityName: facility.name,
+          facilityAddress: facility.streetAddress,
+          facilityTown: facility.cityTown,
+        };
+      }
       await writeAndViewEncounter(encounter.id, data);
       await dispatch(reloadPatient(patient.id));
-      navigateToPatient(patient.id);
+      if (!data.dischargeDraft) {
+        navigateToPatient(patient.id);
+      }
       onClose();
     },
     [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, navigateToPatient],
@@ -87,16 +93,20 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   return (
     <FormModal
-      title={<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />}
+      title={title}
       open={open}
       onClose={onClose}
+      cornerExitButton={false}
+      data-testid="formmodal-ti1m"
     >
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
+        onTitleChange={handleTitleChange}
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         dispositionSuggester={dispositionSuggester}
+        data-testid="dischargeform-xolc"
       />
     </FormModal>
   );

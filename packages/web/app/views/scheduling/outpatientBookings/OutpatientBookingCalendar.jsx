@@ -1,10 +1,15 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import { omit } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { BodyText, FormModal, SmallBodyText, TranslatedText } from '../../../components';
+import {
+  BodyText,
+  FormModal,
+  SmallBodyText,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
@@ -13,6 +18,9 @@ import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmen
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../contexts/Auth';
+import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 
 export const ColumnWrapper = styled(Box)`
   --column-width: 14rem;
@@ -111,26 +119,28 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 export const HeadCell = ({ title, count }) => (
   <>
-    <HeadCellWrapper>
-      <HeadCellTextWrapper>
-        <ThemedTooltip title={title}>
-          <HeadCellText>{title}</HeadCellText>
+    <HeadCellWrapper data-testid="headcellwrapper-zp1o">
+      <HeadCellTextWrapper data-testid="headcelltextwrapper-pgoj">
+        <ThemedTooltip title={title} data-testid="themedtooltip-rz38">
+          <HeadCellText data-testid="headcelltext-m9ej">{title}</HeadCellText>
         </ThemedTooltip>
       </HeadCellTextWrapper>
     </HeadCellWrapper>
-    <AppointmentCountLabel>
+    <AppointmentCountLabel data-testid="appointmentcountlabel-pnn0">
       {Number.isInteger(count) && (
         <>
-          <AppointmentCount>{count}</AppointmentCount>&nbsp;
+          <AppointmentCount data-testid="appointmentcount-d4z0">{count}</AppointmentCount>&nbsp;
           {count === 1 ? (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation"
               fallback="appt"
+              data-testid="translatedtext-8hjq"
             />
           ) : (
             <TranslatedText
               stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
               fallback="appts"
+              data-testid="translatedtext-rpon"
             />
           )}
         </>
@@ -139,9 +149,16 @@ export const HeadCell = ({ title, count }) => (
   </>
 );
 
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer, onCancel }) => {
+export const OutpatientBookingCalendar = ({
+  selectedDate,
+  onCreateFromExisting,
+  onModify,
+  onCancel,
+}) => {
+  const { ability } = useAuth();
+  const { groupBy } = useOutpatientAppointmentsContext();
   const {
-    data: { headData = [], cellData, titleKey },
+    data: { headData = [], cellData },
     isLoading,
     error,
   } = useOutpatientAppointmentsCalendarData({
@@ -158,6 +175,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           <TranslatedText
             stringId="appointments.action.emailReminder.success"
             fallback="Email successfully sent"
+            data-testid="translatedtext-jxz5"
           />,
         ),
       onError: () =>
@@ -165,21 +183,23 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           <TranslatedText
             stringId="appointments.action.emailReminder.error"
             fallback="Error sending email"
+            data-testid="translatedtext-ov72"
           />,
         ),
     },
   );
 
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton data-testid="loadingskeleton-2rfj" />;
   }
 
   if (error) {
     return (
-      <ErrorText>
+      <ErrorText data-testid="errortext-9qcv">
         <TranslatedText
           stringId="appointments.outpatientCalendar.error"
           fallback="Failed to load appointments. Please try again."
+          data-testid="translatedtext-f5nc"
         />
       </ErrorText>
     );
@@ -187,14 +207,18 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
 
   if (headData.length === 0) {
     return (
-      <StatusText>
+      <StatusText data-testid="statustext-0wes">
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
           fallback="No appointments to display. Please try adjusting the search filters."
+          data-testid="translatedtext-irve"
         />
       </StatusText>
     );
   }
+
+  const canCreateAppointment = ability.can('create', 'Appointment');
+
   return (
     <Box
       className={APPOINTMENT_CALENDAR_CLASS}
@@ -202,40 +226,59 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
       width="100%"
       overflow="auto"
       flex={1}
+      data-testid="box-8llp"
     >
-      {headData?.map(cell => {
+      {headData?.map((cell, cellIndex) => {
         const appointments = cellData[cell.id];
+        const title =
+          groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP ? (
+            <TranslatedReferenceData
+              category="locationGroup"
+              value={cell.id}
+              fallback={cell.name}
+              data-testid={`translatedreferencedata-5vst-${cell.code}`}
+            />
+          ) : (
+            cell.displayName
+          );
         return (
-          <ColumnWrapper className="column-wrapper" key={cell.id}>
-            <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
-            <AppointmentColumnWrapper>
-              {appointments.map(a => (
+          <ColumnWrapper className="column-wrapper" key={cell.id} data-testid="columnwrapper-u5rp">
+            <HeadCell title={title} count={appointments?.length || 0} data-testid="headcell-9w0q" />
+            <AppointmentColumnWrapper data-testid="appointmentcolumnwrapper-yxim">
+              {appointments.map((a, appointmentIndex) => (
                 <AppointmentTile
                   key={a.id}
                   appointment={a}
-                  onEdit={() => onOpenDrawer(a)}
+                  onEdit={() => onModify(a)}
                   onCancel={() => onCancel(a)}
-                  actions={[
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.newAppointment"
-                          fallback="New appointment"
-                        />
-                      ),
-                      action: () => onOpenDrawer(omit(a, ['id', 'startTime', 'endTime'])),
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="appointments.action.emailAppointment"
-                          fallback="Email appointment"
-                        />
-                      ),
-                      action: () =>
-                        setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
-                    },
-                  ]}
+                  actions={
+                    canCreateAppointment
+                      ? [
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.newAppointment"
+                                fallback="New appointment"
+                                data-testid={`translatedtext-fn6p-${cellIndex}-${appointmentIndex}`}
+                              />
+                            ),
+                            action: () => onCreateFromExisting(a),
+                          },
+                          {
+                            label: (
+                              <TranslatedText
+                                stringId="appointments.action.emailAppointment"
+                                fallback="Email appointment"
+                                data-testid={`translatedtext-1xgj-${cellIndex}-${appointmentIndex}`}
+                              />
+                            ),
+                            action: () =>
+                              setEmailModalState({ appointmentId: a.id, email: a.patient?.email }),
+                          },
+                        ]
+                      : []
+                  }
+                  testIdPrefix={`${cellIndex}-${appointmentIndex}`}
                 />
               ))}
             </AppointmentColumnWrapper>
@@ -243,9 +286,16 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
         );
       })}
       <FormModal
-        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        title={
+          <TranslatedText
+            stringId="patient.email.title"
+            fallback="Enter email address"
+            data-testid="translatedtext-topi"
+          />
+        }
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
+        data-testid="formmodal-vx6o"
       >
         <EmailAddressConfirmationForm
           onSubmit={async ({ email }) => {
@@ -254,6 +304,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer,
           }}
           onCancel={() => setEmailModalState(null)}
           emailOverride={emailModalState?.email}
+          data-testid="emailaddressconfirmationform-yhdd"
         />
       </FormModal>
     </Box>

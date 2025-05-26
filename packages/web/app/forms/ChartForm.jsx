@@ -22,7 +22,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
   const { components = [] } = chartSurvey || {};
   const visibleComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const validationSchema = useMemo(
     () =>
@@ -36,13 +36,17 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const canCreateChart = ability.can('create', 'Charting');
 
   if (isLoading) {
-    return <ModalLoader />;
+    return <ModalLoader data-testid="modalloader-wncd" />;
   }
 
   if (!canCreateChart) {
     return (
-      <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
+      <Modal title="Permission required" open onClose={onClose} data-testid="modal-inaz">
+        <ForbiddenErrorModalContents
+          onConfirm={onClose}
+          confirmText="Close"
+          data-testid="forbiddenerrormodalcontents-nafx"
+        />
       </Modal>
     );
   }
@@ -53,11 +57,12 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
         title="Error: Cannot load chart form"
         errorMessage="Please contact an administrator to ensure the Chart form is configured correctly."
         error={error}
+        data-testid="errormessage-k6hd"
       />
     );
   }
 
-  const handleSubmit = async data => onSubmit({ survey: chartSurvey, ...data });
+  const handleSubmit = async (data) => onSubmit({ survey: chartSurvey, ...data });
 
   return (
     <Form

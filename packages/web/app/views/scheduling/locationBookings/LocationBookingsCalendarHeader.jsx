@@ -54,12 +54,13 @@ const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
     $isToday &&
     css`
       --base-font-weight: 500;
-      background-color: color-mix(in oklab, white 100%, ${Colors.primary} 10%);
+      background-color: ${Colors.primary};
+      color: ${Colors.white};
     `}
 `;
 
 const Weekday = styled.p`
-  color: ${Colors.midText};
+  color: ${({ $isToday = false }) => ($isToday ? Colors.white : Colors.midText)};
   font-variant-caps: all-small-caps;
   font-weight: calc(var(--base-font-weight) + 100);
   letter-spacing: 0.1em;
@@ -67,14 +68,18 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
+  const isToday = isSameDay(date, startOfToday());
   return (
     <HeaderCell
       $dim={dim}
-      $isToday={isSameDay(date, startOfToday())}
+      $isToday={isToday}
       dateTime={formatISO(date, { representation: 'date' })}
       {...props}
+      data-testid="headercell-dpnh"
     >
-      <Weekday>{formatWeekdayShort(date)}</Weekday>
+      <Weekday $isToday={isToday} data-testid="weekday-i79b">
+        {formatWeekdayShort(date)}
+      </Weekday>
       {formatShort(date)}
     </HeaderCell>
   );
@@ -115,10 +120,17 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
   };
 
   return (
-    <CarouselGrid.HeaderRow>
-      <StyledFirstHeaderCell>
-        <StyledMonthPicker key={monthPickerRefreshKey} value={monthOf} onChange={setMonthOf} />
-        <GoToThisWeekButton onClick={goToThisWeek}>This week</GoToThisWeekButton>
+    <CarouselGrid.HeaderRow data-testid="headerrow-afra">
+      <StyledFirstHeaderCell data-testid="styledfirstheadercell-6j8e">
+        <StyledMonthPicker
+          key={monthPickerRefreshKey}
+          value={monthOf}
+          onChange={setMonthOf}
+          data-testid="styledmonthpicker-4uml"
+        />
+        <GoToThisWeekButton onClick={goToThisWeek} data-testid="gotothisweekbutton-034z">
+          This week
+        </GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map((d) => {
         const id = isStartOfThisWeek(d)
@@ -126,7 +138,15 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
           : isFirstDisplayedDate(d)
             ? FIRST_DISPLAYED_DAY_ID
             : null;
-        return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
+        return (
+          <DayHeaderCell
+            date={d}
+            dim={!isSameMonth(d, monthOf)}
+            id={id}
+            key={d.valueOf()}
+            data-testid={`dayheadercell-abp0-${d.valueOf()}`}
+          />
+        );
       })}
     </CarouselGrid.HeaderRow>
   );

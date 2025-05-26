@@ -6,56 +6,56 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
-import { isEmpty } from 'lodash';
+import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
+import { LanguageOption } from '~/models/TranslatedString';
+
+export type Casing = 'lower' | 'upper' | 'sentence';
 
 type Replacements = { [key: string]: any };
 
 export type GetTranslationFunction = (
   stringId: string,
   fallback?: string,
-  replacements?: Replacements,
-  uppercase?: boolean,
-  lowercase?: boolean,
+  translationOptions?: TranslationOptions,
 ) => string;
 
 export interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
-  uppercase?: boolean;
-  lowercase?: boolean;
+  casing?: Casing;
 }
 
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: [];
-  setLanguageOptions: (languageOptions: []) => void;
+  languageOptions: LanguageOption[];
+  setLanguageOptions: (languageOptions: LanguageOption[]) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;
 }
 
-interface ReplacementConfig {
+interface TranslationOptions {
   replacements?: Replacements;
-  uppercase?: boolean;
-  lowercase?: boolean;
+  casing?: Casing;
 }
 
 // Duplicated from TranslatedText.js on desktop
 export const replaceStringVariables = (
   templateString: string,
-  replacementConfig: ReplacementConfig,
+  translationOptions: TranslationOptions,
   translations?: object,
 ) => {
-  const { replacements, uppercase, lowercase } = replacementConfig || {};
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
+  const { replacements, casing } = translationOptions || {};
+  if (!replacements) return applyCasing(templateString, casing);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -68,25 +68,34 @@ export const replaceStringVariables = (
       const replacementElement = replacement as ReactElement<TranslatedTextProps>;
       const translation =
         translations?.[replacementElement.props.stringId] || replacementElement.props.fallback;
-      return applyCasing(
-        translation,
-        replacementElement.props.uppercase,
-        replacementElement.props.lowercase,
-      );
+      return applyCasing(translation, replacementElement.props.casing);
     })
     .join('');
 
-  return applyCasing(result, uppercase, lowercase);
+  return applyCasing(result, casing);
 };
 
 // duplicated from translationFactory.js
-const applyCasing = (text: string, uppercase: boolean, lowercase: boolean) => {
-  if (lowercase) return text.toLowerCase();
-  if (uppercase) return text.toUpperCase();
-  return text;
+const applyCasing = (text: string, casing: Casing) => {
+  if (!casing) return text;
+  if (casing === 'lower') return text.toLocaleLowerCase();
+  if (casing === 'upper') return text.toLocaleUpperCase();
+  if (casing === 'sentence') return upperFirst(text);
+  throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
-const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
+const TranslationContext = createContext<TranslationContextData>({
+  debugMode: false,
+  language: 'en',
+  languageOptions: null,
+  setLanguageOptions: () => {},
+  getTranslation: () => {
+    return '';
+  },
+  setLanguage: () => {},
+  host: null,
+  setHost: () => {},
+} as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const DEFAULT_LANGUAGE = 'en';
@@ -97,41 +106,37 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [language, setLanguage] = useState(null);
   const [host, setHost] = useState(null);
 
-  const getLanguageOptions = async () => {
+  const getLanguageOptions = useCallback(async () => {
     const languageOptionArray = await models.TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
-  };
+  }, [models.TranslatedString]);
 
-  const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
-    await writeLanguage(languageCode);
-    if (!languageOptions) getLanguageOptions();
-    const translations = await models.TranslatedString.getForLanguage(languageCode);
-    if (isEmpty(translations) && host) {
-      // If we dont have translations synced down, fetch from the public server endpoint directly
-      const response = await fetch(`${host}/api/public/translation/${languageCode}`);
-      const data = await response.json();
-      setTranslations(data);
-    } else {
-      setTranslations(translations);
-    }
-  };
+  const setLanguageState = useCallback(
+    async (languageCode: string = DEFAULT_LANGUAGE) => {
+      await writeLanguage(languageCode);
+      if (!languageOptions) getLanguageOptions();
+      const translations = await models.TranslatedString.getForLanguage(languageCode);
+      if (isEmpty(translations) && host) {
+        // If we dont have translations synced down, fetch from the public server endpoint directly
+        const response = await fetch(`${host}/api/public/translation/${languageCode}`);
+        const data = await response.json();
+        setTranslations(data);
+      } else {
+        setTranslations(translations);
+      }
+    },
+    [getLanguageOptions, host, languageOptions, models.TranslatedString],
+  );
 
   const getTranslation = (
     stringId: string,
     fallback?: string,
-    replacements?: Replacements,
-    uppercase?: boolean,
-    lowercase?: boolean,
+    translationOptions?: TranslationOptions,
   ) => {
-    const replacementConfig = {
-      replacements,
-      uppercase,
-      lowercase,
-    };
-    if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
+    if (!translations) return replaceStringVariables(fallback, translationOptions, translations);
     const translation = translations[stringId] ?? fallback;
 
-    return replaceStringVariables(translation, replacementConfig, translations);
+    return replaceStringVariables(translation, translationOptions, translations);
   };
 
   const writeLanguage = async (languageCode: string) => {
@@ -149,12 +154,14 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     setLanguageState(language);
-  }, [language, host]);
+  }, [language, setLanguageState, host]);
 
   useEffect(() => {
     restoreLanguage();
     if (!__DEV__) return;
-    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
+    DevSettings.addMenuItem('Toggle translation highlighting', () =>
+      setIsDebugMode((oldDebugValue) => !oldDebugValue),
+    );
   }, []);
 
   return (

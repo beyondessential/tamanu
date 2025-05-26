@@ -1,4 +1,5 @@
 import {
+  AfterInsert,
   BeforeInsert,
   Column,
   Entity,
@@ -7,8 +8,7 @@ import {
   ManyToOne,
   OneToMany,
   RelationId,
-} from 'typeorm/browser';
-import { AfterInsert } from 'typeorm';
+} from 'typeorm';
 import { addHours, startOfDay, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 
@@ -54,11 +54,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter?: string;
 
   @Index()
-  @ManyToOne(
-    () => Patient,
-    patient => patient.encounters,
-    { eager: true },
-  )
+  @ManyToOne(() => Patient, (patient) => patient.encounters, { eager: true })
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -101,61 +97,33 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ location }) => location)
   locationId: string;
 
-  @OneToMany(
-    () => LabRequest,
-    labRequest => labRequest.encounter,
-  )
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter)
   labRequests: LabRequest[];
 
-  @OneToMany(
-    () => EncounterHistory,
-    encounterHistory => encounterHistory.encounter,
-  )
+  @OneToMany(() => EncounterHistory, (encounterHistory) => encounterHistory.encounter)
   encounterHistory: LabRequest[];
 
-  @OneToMany(
-    () => Diagnosis,
-    diagnosis => diagnosis.encounter,
-    {
-      eager: true,
-    },
-  )
+  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
+    eager: true,
+  })
   diagnoses: Diagnosis[];
 
-  @OneToMany(
-    () => Medication,
-    ({ encounter }) => encounter,
-  )
+  @OneToMany(() => Medication, ({ encounter }) => encounter)
   medications: Medication[];
 
-  @OneToMany(
-    () => Referral,
-    referral => referral.initiatingEncounter,
-  )
+  @OneToMany(() => Referral, (referral) => referral.initiatingEncounter)
   initiatedReferrals: Referral[];
 
-  @OneToMany(
-    () => Referral,
-    referral => referral.completingEncounter,
-  )
+  @OneToMany(() => Referral, (referral) => referral.completingEncounter)
   completedReferrals: Referral[];
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    administeredVaccine => administeredVaccine.encounter,
-  )
+  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.encounter)
   administeredVaccines: AdministeredVaccine[];
 
-  @OneToMany(
-    () => SurveyResponse,
-    surveyResponse => surveyResponse.encounter,
-  )
+  @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
   surveyResponses: SurveyResponse[];
 
-  @OneToMany(
-    () => Vitals,
-    ({ encounter }) => encounter,
-  )
+  @OneToMany(() => Vitals, ({ encounter }) => encounter)
   vitals: Vitals[];
 
   @BeforeInsert()
@@ -257,9 +225,9 @@ export class Encounter extends BaseModel implements IEncounter {
     });
 
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
-    return encounters.map(encounter => ({
+    return encounters.map((encounter) => ({
       ...encounter,
-      notes: notes.filter(note => note.recordId === encounter.id),
+      notes: notes.filter((note) => note.recordId === encounter.id),
     }));
   }
 
@@ -273,7 +241,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .addSelect('count(distinct encounter.patientId)', 'totalEncounters')
       .addSelect('count(sr.id)', 'totalSurveys')
       .leftJoin(
-        subQuery =>
+        (subQuery) =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')

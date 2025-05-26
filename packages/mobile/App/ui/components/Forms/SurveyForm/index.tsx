@@ -82,7 +82,7 @@ export const SurveyForm = ({
         { encounterType: encounter?.encounterType },
         getTranslation,
       ),
-    [encounter?.encounterType, checkVisibilityCriteria, components, formValues, getTranslation],
+    [encounter?.encounterType, components, formValues, getTranslation],
   );
 
   const submitVisibleValues = useCallback(
@@ -123,6 +123,7 @@ export const SurveyForm = ({
       validate={validate}
     >
       {({ values, setFieldValue, isSubmitting }: FormikHandlers): ReactElement => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -137,7 +138,7 @@ export const SurveyForm = ({
             ...values,
             ...calculatedValues,
           });
-        }, [values]);
+        }, [values, setFieldValue]);
         return (
           <FormFields
             components={components}
