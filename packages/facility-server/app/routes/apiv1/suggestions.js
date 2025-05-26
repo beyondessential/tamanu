@@ -34,17 +34,18 @@ const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 const getTranslationPrefix = (endpoint) =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
-const getTranslationAttributes = (endpoint, modelName) => ({
+const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
   include: [
     [
-      Sequelize.literal(`(
-        SELECT "text" 
-        FROM "translated_strings" 
-        WHERE "language" = $language
-        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-        LIMIT 1
-    )`),
-      'translation',
+      Sequelize.literal(`COALESCE(
+        (SELECT "text"
+          FROM "translated_strings"
+          WHERE "language" = $language
+          AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
+          LIMIT 1),
+        "${modelName}"."${searchColumn}"
+      )`),
+      searchColumn,
     ],
   ],
 });
@@ -92,11 +93,11 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         include,
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
           ...(order ? [order] : []),
           positionQuery,
-          [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
+          [getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC'],
         ],
         bind: {
           positionMatch: searchQuery,
@@ -131,7 +132,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         bind: {
           language,
         },
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(endpoint, modelName, 'name'),
       });
 
       if (!record) throw new NotFoundError();
@@ -160,7 +161,7 @@ function createAllRecordsRoute(
       const results = await model.findAll({
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         bind: {
           language,
           searchQuery: '%',
@@ -198,8 +199,8 @@ function createSuggesterCreateRoute(
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   return Sequelize.literal(`COALESCE(
-      (SELECT "text" 
-        FROM "translated_strings" 
+      (SELECT "text"
+        FROM "translated_strings"
         WHERE "language" = $language
         AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
         LIMIT 1),
@@ -207,13 +208,25 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
     ) ILIKE $searchQuery`);
 };
 
+// Order against the translation if it exists, otherwise order against the searchColumn
+const getTranslationOrderLiteral = (endpoint, modelName, searchColumn) => {
+  return Sequelize.literal(`COALESCE(
+      (SELECT "text"
+        FROM "translated_strings"
+        WHERE "language" = $language
+        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
+        LIMIT 1),
+      "${modelName}"."${searchColumn}"
+    )`);
+};
+
 const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...VISIBILITY_CRITERIA,
 });
 
-const DEFAULT_MAPPER = ({ dataValues: { translation } = {}, name, code, id }) => ({
-  name: translation || name,
+const DEFAULT_MAPPER = ({ name, code, id }) => ({
+  name,
   code,
   id,
 });
@@ -389,8 +402,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
-  mapper: ({ dataValues: { translation } = {}, name, code, id, labTestCategoryId }) => ({
-    name: translation || name,
+  mapper: ({ name, code, id, labTestCategoryId }) => ({
+    name,
     code,
     id,
     labTestCategoryId,
@@ -419,8 +432,8 @@ const createNameSuggester = (
   options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
-    mapper: ({ dataValues: { translation } = {}, name, id }) => ({
-      name: translation || name,
+    mapper: ({ name, id }) => ({
+      name,
       id,
     }),
     ...options,
@@ -453,19 +466,12 @@ createSuggester(
   {
     mapper: async (location) => {
       const availability = await location.getAvailability();
-      const {
-        dataValues: { translation } = {},
-        name,
-        code,
-        id,
-        maxOccupancy,
-        facilityId,
-      } = location;
+      const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
       const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
       return {
-        name: translation || name,
+        name,
         code,
         maxOccupancy,
         id,
@@ -516,7 +522,6 @@ createSuggester(
   {
     mapper: (product) => {
       product.addVirtualFields();
-      product.dataValues.name = product.dataValues.translation || product.name;
       return product;
     },
     includeBuilder: (req) => {
