@@ -26,8 +26,6 @@ import {
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
 import {
-  insertChangelogRecords,
-  extractChangelogFromSnapshotRecords,
   attachChangelogToSnapshotRecords,
   pauseAudit,
 } from '@tamanu/database/utils/audit';
@@ -690,10 +688,7 @@ export class CentralSyncManager {
       sessionId,
     });
 
-    const { snapshotRecords, changelogRecords } =
-      extractChangelogFromSnapshotRecords(incomingSnapshotRecords);
-    await insertSnapshotRecords(sequelize, sessionId, snapshotRecords);
-    await insertChangelogRecords(this.store.models, changelogRecords);
+    await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {

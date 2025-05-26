@@ -103,7 +103,7 @@ The `deleted_at` metadata from record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_sync_tick %}
-The `updated_at_sync_tick` of the record the changelog was recorded against
+The `updated_at_sync_tick` from the record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_data %}
