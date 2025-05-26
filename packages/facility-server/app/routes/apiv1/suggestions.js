@@ -29,9 +29,12 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+// The string_id for the translated_strings table is a concatenation of this prefix
+// and the id of the record so we need to construct it for the translation attribute
+const getTranslationPrefix = (endpoint) =>
+  `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
 const getTranslationAttributes = (endpoint, modelName) => {
-  const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
   return {
     include: [
       [
@@ -39,7 +42,7 @@ const getTranslationAttributes = (endpoint, modelName) => {
           SELECT "text" 
           FROM "translated_strings" 
           WHERE "language" = $language
-          AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
+          AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
           LIMIT 1
       )`),
         'translation',
@@ -194,12 +197,11 @@ function createSuggesterCreateRoute(
 
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
-  const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
   return Sequelize.literal(`COALESCE(
       (SELECT "text" 
         FROM "translated_strings" 
         WHERE "language" = $language
-        AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
+        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
         LIMIT 1),
       "${modelName}"."${searchColumn}"
     ) ILIKE $searchQuery`);
