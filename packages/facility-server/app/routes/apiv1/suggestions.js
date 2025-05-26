@@ -43,8 +43,15 @@ const getTranslationSubquery = (endpoint, modelName) => `(
   LIMIT 1
 )`;
 
-const getTranslationAttributes = (endpoint, modelName) => ({
-  include: [[Sequelize.literal(getTranslationSubquery(endpoint, modelName)), 'translation']],
+const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
+  include: [
+    [
+      Sequelize.literal(
+        `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`,
+      ),
+      searchColumn,
+    ],
+  ],
 });
 
 export const suggestions = express.Router();
@@ -65,9 +72,8 @@ function createSuggesterRoute(
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      // TODO: this needs to match on translation
       const positionQuery = literal(
-        `POSITION(LOWER($positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
+        `POSITION(LOWER($positionMatch) in LOWER(COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}"))) > 1`,
       );
 
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
@@ -91,7 +97,7 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         include,
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
           ...(order ? [order] : []),
           positionQuery,
@@ -158,8 +164,8 @@ function createAllRecordsRoute(
 
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(searchColumn), 'ASC']],
-        attributes: getTranslationAttributes(endpoint, modelName),
+        order: [[getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC']],
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         bind: {
           language,
           searchQuery: '%',
@@ -213,8 +219,8 @@ const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) =
   ...VISIBILITY_CRITERIA,
 });
 
-const DEFAULT_MAPPER = ({ dataValues: { translation } = {}, name, code, id }) => ({
-  name: translation || name,
+const DEFAULT_MAPPER = ({ name, code, id }) => ({
+  name,
   code,
   id,
 });
@@ -372,6 +378,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           model: ReferenceData,
           as: 'parent',
           required: true,
+          attributes: ['id'],
           through: {
             attributes: [],
             where: {
@@ -390,8 +397,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
-  mapper: ({ dataValues: { translation } = {}, name, code, id, labTestCategoryId }) => ({
-    name: translation || name,
+  mapper: ({ name, code, id, labTestCategoryId }) => ({
+    name,
     code,
     id,
     labTestCategoryId,
@@ -420,8 +427,8 @@ const createNameSuggester = (
   options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
-    mapper: ({ dataValues: { translation } = {}, name, id }) => ({
-      name: translation || name,
+    mapper: ({ name, id }) => ({
+      name,
       id,
     }),
     ...options,
@@ -454,19 +461,12 @@ createSuggester(
   {
     mapper: async (location) => {
       const availability = await location.getAvailability();
-      const {
-        dataValues: { translation } = {},
-        name,
-        code,
-        id,
-        maxOccupancy,
-        facilityId,
-      } = location;
+      const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
       const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
       return {
-        name: translation || name,
+        name: name,
         code,
         maxOccupancy,
         id,
@@ -517,7 +517,6 @@ createSuggester(
   {
     mapper: (product) => {
       product.addVirtualFields();
-      product.dataValues.name = product.dataValues.translation || product.name;
       return product;
     },
     includeBuilder: (req) => {

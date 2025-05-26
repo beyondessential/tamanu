@@ -718,6 +718,10 @@ describe('Suggestions', () => {
     it.todo('translated ordering');
   });
 
+  describe('Location hierarchy', () => {
+    it.todo('should get suggestions for a location with a parentId');
+  });
+
   it('should respect visibility status', async () => {
     const visible = await models.ReferenceData.create({
       type: 'allergy',
