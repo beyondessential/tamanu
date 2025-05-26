@@ -44,17 +44,17 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
   const where = useSurveyAutocompleteWhere(props.config);
   const { source } = props.config;
 
-  const suggester = new Suggester(
-    models[source],
-    {
+  const suggester = new Suggester({
+    model: models[source],
+    options: {
       where,
       column: getNameColumnForModel(source),
     },
-    val => ({
+    formatter: (val) => ({
       label: getDisplayNameForModel(source, val),
       value: val.id,
     }),
-  );
+  });
 
   return (
     <AutocompleteModalField

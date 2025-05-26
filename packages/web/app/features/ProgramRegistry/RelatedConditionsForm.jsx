@@ -166,7 +166,21 @@ export const RelatedConditionsForm = ({
   const handleConfirmedSubmit = async data => {
     const updatedConditions = Object.values(data.conditions)
       .flatMap(group => group)
-      .filter(({ conditionId }) => conditionId);
+      .filter(({ conditionId }) => conditionId)
+      .filter(condition => {
+        // Find the matching condition in the initial values
+        const initialCondition = conditions.find(
+          initialCondition => initialCondition.id === condition.id,
+        );
+
+        // Consider a condition updated if:
+        // 1. It's a new condition (not in initial values)
+        // 2. The category has changed
+        return (
+          !initialCondition || initialCondition.conditionCategory !== condition.conditionCategory
+        );
+      });
+
     await onSubmit({ ...data, conditions: updatedConditions });
     setWarningOpen(false);
     onClose();

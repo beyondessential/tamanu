@@ -1,11 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { Op } from 'sequelize';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { validatePatientProgramRegistrationRequest } from './utils';
-import { Op, Sequelize } from 'sequelize';
 
 export const patientProgramRegistration = express.Router();
 
@@ -18,10 +18,9 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData =
-      await models.PatientProgramRegistration.getRegistrationsForPatient(
-        params.patientId,
-      );
+    const registrationData = await models.PatientProgramRegistration.getRegistrationsForPatient(
+      params.patientId,
+    );
 
     const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
@@ -132,9 +131,22 @@ patientProgramRegistration.put(
       reasonForChange: condition.reasonForChange,
     }));
 
+    const updatedRegistrationData = {
+      ...registrationData,
+      deactivatedDate: null,
+      deactivatedClinicianId: null,
+    };
+
+    // If the registration status is being changed to INACTIVE, set the deactivated fields
+    if (registrationData.registrationStatus === REGISTRATION_STATUSES.INACTIVE) {
+      updatedRegistrationData.deactivatedDate =
+        registrationData.deactivatedDate || getCurrentDateTimeString();
+      updatedRegistrationData.deactivatedClinicianId = registrationData.clinicianId;
+    }
+
     const [registration] = await db.transaction(async () => {
       return Promise.all([
-        existingRegistration.update(registrationData),
+        existingRegistration.update(updatedRegistrationData),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
           updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),
@@ -185,25 +197,6 @@ patientProgramRegistration.delete(
   }),
 );
 
-const getChangingFieldRecords = (allRecords, field) =>
-  allRecords.filter(({ [field]: currentValue }, i) => {
-    // We always want the first record
-    if (i === 0) {
-      return true;
-    }
-    const prevValue = allRecords[i - 1][field];
-    return currentValue !== prevValue;
-  });
-
-const getRegistrationRecords = (allRecords) =>
-  getChangingFieldRecords(allRecords, 'registrationStatus').filter(
-    ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.ACTIVE,
-  );
-const getDeactivationRecords = (allRecords) =>
-  getChangingFieldRecords(allRecords, 'registrationStatus').filter(
-    ({ registrationStatus }) => registrationStatus === REGISTRATION_STATUSES.INACTIVE,
-  );
-
 patientProgramRegistration.get(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
@@ -232,40 +225,6 @@ patientProgramRegistration.get(
       throw new NotFoundError();
     }
 
-    const history = await PatientProgramRegistration.findAll({
-      where: {
-        patientId,
-        programRegistryId,
-      },
-      include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['date', 'ASC']],
-      raw: true,
-      nest: true,
-    });
-
-    const registrationRecords = getRegistrationRecords(history)
-      .map(({ date, clinician }) => ({ date, clinician }))
-      .reverse();
-
-    const recentRegistrationRecord = registrationRecords.find(
-      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
-    );
-
-    const deactivationRecords = getDeactivationRecords(history)
-      .map(({ date, clinician }) => ({ date, clinician }))
-      .reverse();
-
-    const recentDeactivationRecord = deactivationRecords.find(
-      ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
-    );
-    const deactivationData =
-      registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
-        ? {
-            dateRemoved: recentDeactivationRecord.date,
-            removedBy: recentDeactivationRecord.clinician,
-          }
-        : {};
-
     await req.audit.access({
       recordId: registration.id,
       params,
@@ -275,12 +234,10 @@ patientProgramRegistration.get(
 
     res.send({
       ...registration,
-      // Using optional chaining for these until we create the new field to track
-      // registration date in https://linear.app/bes/issue/SAV-570/add-new-column-to-patient-program-registration
-      // when that work gets done, we can decide whether we want to enforce these or keep the optional chaining
-      registrationDate: recentRegistrationRecord?.date,
-      registrationClinician: recentRegistrationRecord?.clinician,
-      ...deactivationData,
+      registrationDate: registration.date,
+      registrationClinician: registration.clinician,
+      dateRemoved: registration.deactivatedDate,
+      removedBy: registration.deactivatedClinician,
     });
   }),
 );
@@ -290,19 +247,29 @@ patientProgramRegistration.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;
-    const { ChangeLog, User, ProgramRegistryClinicalStatus } = models;
+    const { ChangeLog, User, PatientProgramRegistration, ProgramRegistryClinicalStatus } = models;
 
     req.checkPermission('read', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'PatientProgramRegistration');
 
+    const registration = await PatientProgramRegistration.findOne({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+    });
+
+    if (!registration) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+    }
+
     const changes = await ChangeLog.findAll({
       where: {
         tableName: 'patient_program_registrations',
-        recordId: {
-          [Op.in]: Sequelize.literal(
-            `(SELECT id::text FROM patient_program_registrations WHERE patient_id = :patientId AND program_registry_id = :programRegistryId)`,
-          ),
-        },
+        recordId: registration.id,
       },
       include: [
         {
@@ -312,10 +279,6 @@ patientProgramRegistration.get(
         },
       ],
       order: [['loggedAt', 'DESC']],
-      replacements: {
-        patientId,
-        programRegistryId,
-      },
     });
 
     // Get all unique clinical status IDs from the changes
@@ -339,18 +302,22 @@ patientProgramRegistration.get(
       return acc;
     }, {});
 
-    const history = changes.map((change) => {
-      const data = change.recordData;
-      return {
-        id: change.id,
-        date: change.loggedAt,
-        registrationStatus: data.registration_status,
-        clinicalStatusId: data.clinical_status_id,
-        clinicalStatus: data.clinical_status_id ? clinicalStatusMap[data.clinical_status_id] : null,
-        clinician: change.updatedByUser,
-        registrationDate: data.date,
-      };
-    });
+    const history = changes
+      .map((change) => {
+        const data = change.recordData;
+        return {
+          id: change.id,
+          date: change.loggedAt,
+          registrationStatus: data.registration_status,
+          clinicalStatusId: data.clinical_status_id,
+          clinicalStatus: data.clinical_status_id
+            ? clinicalStatusMap[data.clinical_status_id]
+            : null,
+          clinician: change.updatedByUser,
+          registrationDate: data.date,
+        };
+      })
+      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE);
 
     res.send({
       count: history.length,

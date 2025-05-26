@@ -30,7 +30,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // Check if updated_at_sync_tick exists in logs.changes
   const [changesUpdatedAtSyncTickQuery]: any = await query.sequelize.query(`
     SELECT EXISTS (SELECT TRUE
-    FROM information_schema.columns 
+    FROM information_schema.columns
     WHERE table_schema = 'logs' AND table_name = 'changes' AND column_name = 'updated_at_sync_tick');
   `);
   const changesHasUpdatedAtSyncTick = changesUpdatedAtSyncTickQuery?.[0]?.exists;
@@ -39,7 +39,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // Check if updated_at_sync_tick exists in patient_program_registrations
   const [pprUpdatedAtSyncTickQuery]: any = await query.sequelize.query(`
     SELECT EXISTS (SELECT TRUE
-    FROM information_schema.columns 
+    FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'patient_program_registrations' AND column_name = 'updated_at_sync_tick');
   `);
   const pprHasUpdatedAtSyncTick = pprUpdatedAtSyncTickQuery?.[0]?.exists;
@@ -78,13 +78,21 @@ export async function up(query: QueryInterface): Promise<void> {
       CASE WHEN ppr.deleted_at IS NOT NULL THEN now() ELSE NULL END,
       ${changesHasUpdatedAtSyncTick ? updatedAtSyncTickSelect : ''}
       COALESCE(ppr.clinician_id::text, '${SYSTEM_USER_UUID}'),
-      ppr.id,
-      registration_summary.is_insert,
+      latest_registrations.latest_registration_id,
+      NOT registration_summary.is_insert,
       ppr.created_at,
       ppr.updated_at,
       ppr.deleted_at,
       ${pprHasUpdatedAtSyncTick ? 'ppr.updated_at_sync_tick,' : syncTickInitialValue}
-      to_jsonb(ppr.*)
+      to_jsonb((
+      SELECT row_to_json(ppr_with_min_date.*)
+      FROM (
+           SELECT
+               *,
+               MIN(date) OVER (PARTITION BY patient_id, program_registry_id) AS date
+           FROM patient_program_registrations
+       ) ppr_with_min_date WHERE ppr_with_min_date.id = ppr.id
+        ))
     FROM patient_program_registrations ppr
     JOIN (
       SELECT
@@ -98,7 +106,29 @@ export async function up(query: QueryInterface): Promise<void> {
         END AS is_insert
       FROM patient_program_registrations
       ORDER BY patient_id, program_registry_id, date ASC
-    ) registration_summary ON ppr.id = registration_summary.id;
+    ) registration_summary ON ppr.id = registration_summary.id
+    JOIN (
+      SELECT DISTINCT ON (patient_id, program_registry_id)
+        patient_id,
+        program_registry_id,
+        id as latest_registration_id
+      FROM patient_program_registrations
+      WHERE is_most_recent = TRUE
+      ORDER BY patient_id, program_registry_id, date DESC
+    ) latest_registrations ON ppr.patient_id = latest_registrations.patient_id AND ppr.program_registry_id = latest_registrations.program_registry_id
+  `);
+
+  await query.sequelize.query(`
+    UPDATE patient_program_registrations ppr
+    SET date = subquery.min_date
+    FROM (
+      SELECT patient_id, program_registry_id, MIN(date) as min_date
+      FROM patient_program_registrations
+      GROUP BY patient_id, program_registry_id
+    ) subquery
+    WHERE ppr.patient_id = subquery.patient_id
+    AND ppr.program_registry_id = subquery.program_registry_id
+    AND ppr.is_most_recent = true;
   `);
 
   // Reset time zone for containment

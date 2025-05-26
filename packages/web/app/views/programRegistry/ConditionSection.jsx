@@ -78,12 +78,12 @@ const getGroupedConditions = conditions => {
   return { openConditions, closedConditions };
 };
 
-const ConditionComponent = ({ condition, onClick }) => {
+const ConditionComponent = ({ condition, onClick, isInactive = false }) => {
   const { translatedName, translatedCategory } = condition;
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
-      <Condition onClick={() => onClick(condition.id)}>
+      <Condition onClick={() => onClick(condition.id)} disabled={isInactive}>
         <ClippedConditionName ref={ref}>
           {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
         </ClippedConditionName>
@@ -92,7 +92,7 @@ const ConditionComponent = ({ condition, onClick }) => {
   );
 };
 
-export const ConditionSection = ({ registrationId }) => {
+export const ConditionSection = ({ registrationId, isInactive }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedConditionId, setSelectedConditionId] = useState(null);
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
@@ -143,6 +143,7 @@ export const ConditionSection = ({ registrationId }) => {
             condition={condition}
             onClick={onConditionClick}
             data-testid={`condition-component-open-${index}`}
+            isInactive={isInactive}
           />
         ))}
         {needsDivider && <Divider variant="middle" />}
@@ -152,6 +153,7 @@ export const ConditionSection = ({ registrationId }) => {
             condition={condition}
             onClick={onConditionClick}
             data-testid={`conditional-component-closed-${index}`}
+            isInactive={isInactive}
           />
         ))}
       </ScrollBody>

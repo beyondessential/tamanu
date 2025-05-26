@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
@@ -64,14 +65,14 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
-  const { data, isLoading, isError } = usePatientProgramRegistrationQuery(
+  const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,
   );
 
   const patientRoutes = usePatientRoutes();
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <LoadingIndicator />;
   }
 
@@ -107,7 +108,10 @@ export const PatientProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
           <Grid>
             <ProgramRegistryStatusHistory />
-            <ConditionSection registrationId={data?.id} />
+            <ConditionSection
+              registrationId={data?.id}
+              isInactive={data?.registrationStatus === REGISTRATION_STATUSES.INACTIVE}
+            />
           </Grid>
         </MainSection>
         <Row>
