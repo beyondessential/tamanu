@@ -6,21 +6,23 @@ export async function up(query: QueryInterface): Promise<void> {
     allowNull: true,
   });
 
+  // Move parameters from debugInfo to new parameters column
   await query.sequelize.query(`
     UPDATE sync_sessions
-    SET
-      parameters = (
-        SELECT jsonb_object_agg(key, value)
-        FROM jsonb_each(debug_info::jsonb)
-        WHERE key IN ('minSourceTick', 'maxSourceTick', 'isMobile')
-      ),
-      debug_info = (
-        SELECT json_object_agg(key, value)
-        FROM json_each(debug_info)
-        WHERE key NOT IN ('minSourceTick', 'maxSourceTick', 'isMobile')
-      )
+    SET parameters = jsonb_build_object(
+          'minSourceTick', debug_info->'minSourceTick',
+          'maxSourceTick', debug_info->'maxSourceTick',
+          'isMobile', COALESCE(debug_info->'isMobile', false)
+        )
     WHERE debug_info IS NOT NULL
     AND (debug_info::jsonb ? 'minSourceTick' OR debug_info::jsonb ? 'maxSourceTick' OR debug_info::jsonb ? 'isMobile');
+  `);
+
+  // Remove migrated fields from debugInfo
+  await query.sequelize.query(`
+    UPDATE sync_sessions
+    SET debug_info = debug_info::jsonb - 'minSourceTick' - 'maxSourceTick' - 'isMobile'
+    WHERE parameters IS NOT NULL;
   `);
 }
 
