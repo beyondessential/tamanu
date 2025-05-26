@@ -195,14 +195,14 @@ function createSuggesterCreateRoute(
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
-  return Sequelize.literal(`COALESCE(
+  return Sequelize.literal(`LOWER(COALESCE(
       (SELECT "text" 
         FROM "translated_strings" 
         WHERE "language" = $language
         AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
         LIMIT 1),
       "${modelName}"."${searchColumn}"
-    ) ILIKE $searchQuery`);
+    )) LIKE LOWER($searchQuery)`);
 };
 
 const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
