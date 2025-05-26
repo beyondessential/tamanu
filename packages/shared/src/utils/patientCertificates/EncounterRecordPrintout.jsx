@@ -472,7 +472,7 @@ const EncounterRecordPrintoutComponent = ({
         key: 'medication',
         title: getTranslation('medication.medication.label', 'Medication'),
         accessor: ({ medication }) => medication?.name,
-        style: { width: '41%' },
+        style: { width: '21%' },
       },
       {
         key: 'dose',
@@ -485,13 +485,13 @@ const EncounterRecordPrintoutComponent = ({
             </Text>
           );
         },
-        style: { width: '13%' },
+        style: { width: '9%' },
       },
       {
         key: 'frequency',
         title: getTranslation('pdf.table.column.frequency', 'Frequency'),
         accessor: ({ frequency }) => getTranslatedFrequency(frequency, getTranslation),
-        style: { width: '14%' },
+        style: { width: '19%' },
       },
       {
         key: 'route',
@@ -500,16 +500,16 @@ const EncounterRecordPrintoutComponent = ({
         style: { width: '10%' },
       },
       {
-        key: 'quantity',
-        title: getTranslation('pdf.table.column.quantity', 'Quantity'),
-        accessor: ({ quantity }) => quantity,
-        style: { width: '12%' },
+        key: 'prescriber',
+        title: getTranslation('medication.prescriber.label', 'Prescriber'),
+        accessor: ({ prescriber }) => prescriber?.displayName,
+        style: { width: '18%' },
       },
       {
-        key: 'repeats',
-        title: getTranslation('pdf.table.column.repeat', 'Repeat'),
-        accessor: ({ repeats }) => repeats || 0,
-        style: { width: '10%' },
+        key: 'prescriptionDate',
+        title: getTranslation('medication.date.label', 'Prescription date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '23%' },
       },
     ],
   };
