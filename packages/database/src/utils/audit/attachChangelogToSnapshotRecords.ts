@@ -23,7 +23,6 @@ export const attachChangelogToSnapshotRecords = async (
     WHERE updated_at_sync_tick >= :minSourceTick
     ${maxSourceTick ? 'AND updated_at_sync_tick <= :maxSourceTick' : ''}
     AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
-    AND deleted_at IS NULL;
     `,
     {
       model: models.ChangeLog,
