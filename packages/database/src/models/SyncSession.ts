@@ -52,7 +52,7 @@ export class SyncSession extends Model {
     await this.sequelize.query(
       `
       UPDATE "sync_sessions"
-      SET "debug_info" = (COALESCE("debug_info"::jsonb, '{}'::jsonb) || $data::jsonb)::json
+      SET "parameters" = (COALESCE("parameters"::jsonb, '{}'::jsonb) || $data::jsonb)::json
       WHERE "id" = $id
       `,
       { bind: { id, data: JSON.stringify(params) } },
@@ -73,13 +73,6 @@ export class SyncSession extends Model {
     const session = await this.findOne({ where: { id }, skipLocked: true });
     await session?.update({
       debugInfo: { ...session.debugInfo, ...info },
-    });
-  }
-
-  static async addParameters(id: string, params: object) {
-    const session = await this.findOne({ where: { id } });
-    await session?.update({
-      parameters: { ...session.parameters, ...params },
     });
   }
 
