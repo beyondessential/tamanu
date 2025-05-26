@@ -34,7 +34,7 @@ export class SyncSession extends Model {
         pullUntil: { type: DataTypes.BIGINT },
         errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
-        parameters: { type: DataTypes.JSON, allowNull: false, defaultValue: {} },
+        parameters: { type: DataTypes.JSONB, allowNull: false, defaultValue: {} },
       },
       {
         ...options,
