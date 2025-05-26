@@ -34,19 +34,17 @@ const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 const getTranslationPrefix = (endpoint) =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
+// Helper function to generate the translation subquery
+const getTranslationSubquery = (endpoint, modelName) => `(
+  SELECT "text" 
+  FROM "translated_strings" 
+  WHERE "language" = $language
+  AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
+  LIMIT 1
+)`;
+
 const getTranslationAttributes = (endpoint, modelName) => ({
-  include: [
-    [
-      Sequelize.literal(`(
-        SELECT "text" 
-        FROM "translated_strings" 
-        WHERE "language" = $language
-        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-        LIMIT 1
-    )`),
-      'translation',
-    ],
-  ],
+  include: [[Sequelize.literal(getTranslationSubquery(endpoint, modelName)), 'translation']],
 });
 
 export const suggestions = express.Router();
@@ -198,11 +196,7 @@ function createSuggesterCreateRoute(
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   return Sequelize.literal(`COALESCE(
-      (SELECT "text" 
-        FROM "translated_strings" 
-        WHERE "language" = $language
-        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-        LIMIT 1),
+      ${getTranslationSubquery(endpoint, modelName)},
       "${modelName}"."${searchColumn}"
     ) ILIKE $searchQuery`);
 };
