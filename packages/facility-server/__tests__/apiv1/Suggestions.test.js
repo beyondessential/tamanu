@@ -714,6 +714,8 @@ describe('Suggestions', () => {
       expect(result3.body.length).toEqual(1);
       expect(result3.body[0].name).toEqual('banana');
     });
+
+    it.todo('translated ordering');
   });
 
   it('should respect visibility status', async () => {
