@@ -34,22 +34,20 @@ const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 const getTranslationPrefix = (endpoint) =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
-const getTranslationAttributes = (endpoint, modelName) => {
-  return {
-    include: [
-      [
-        Sequelize.literal(`(
-          SELECT "text" 
-          FROM "translated_strings" 
-          WHERE "language" = $language
-          AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-          LIMIT 1
-      )`),
-        'translation',
-      ],
+const getTranslationAttributes = (endpoint, modelName) => ({
+  include: [
+    [
+      Sequelize.literal(`(
+        SELECT "text" 
+        FROM "translated_strings" 
+        WHERE "language" = $language
+        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
+        LIMIT 1
+    )`),
+      'translation',
     ],
-  };
-};
+  ],
+});
 
 export const suggestions = express.Router();
 
@@ -155,7 +153,7 @@ function createAllRecordsRoute(
       const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
-      const where = whereBuilder({ query, req, endpoint, modelName, searchColumn });
+      const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
       const results = await model.findAll({
         where,
@@ -429,8 +427,8 @@ createSuggester(
   'location',
   'Location',
   // Allow filtering by parent location group
-  ({ search, query }) => {
-    const baseWhere = filterByFacilityWhereBuilder({ search, modelName: 'Location', query });
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = filterByFacilityWhereBuilder({ endpoint, modelName, query });
 
     const { ...filters } = query;
     delete filters.q;
@@ -468,19 +466,19 @@ createSuggester(
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
-createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ search, query }) =>
+createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) =>
   filterByFacilityWhereBuilder({
-    search,
-    modelName: 'LocationGroup',
+    endpoint,
+    modelName,
     query: { ...query, filterByFacility: true },
   }),
 );
 
 // Location groups filtered by isBookable. Used in location bookings view
-createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ search, query }) => ({
+createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => ({
   ...filterByFacilityWhereBuilder({
-    search,
-    modelName: 'LocationGroup',
+    endpoint,
+    modelName,
     query: { ...query, filterByFacility: true },
   }),
   isBookable: true,
@@ -497,10 +495,9 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
 createSuggester(
   'invoiceProducts',
   'InvoiceProduct',
-  ({ search }) => ({
-    name: { [Op.iLike]: search },
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
-    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: (product) => {
