@@ -87,11 +87,6 @@ describe('FacilitySyncManager integration', () => {
   beforeEach(async () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '50');
     await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '0');
-    FacilitySyncManager.overrideConfig({
-      sync: {
-        enabled: true,
-      }
-    });
     syncManager = new FacilitySyncManager({
       models,
       sequelize,
