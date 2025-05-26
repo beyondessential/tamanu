@@ -34,20 +34,24 @@ const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 const getTranslationPrefix = (endpoint) =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
+// Create a translation include that joins with translated_strings table
+const getTranslationInclude = (endpoint, modelName, models) => ({
+  model: models.TranslatedString,
+  as: 'translation',
+  required: false,
+  where: {
+    stringId: Sequelize.literal(`'${getTranslationPrefix(endpoint)}' || "${modelName}"."id"`),
+    language: Sequelize.literal('$language'),
+  },
+  attributes: [],
+});
+
+// Get the coalesced translation field reference for use in select, where, and order
+const getTranslationField = (endpoint, modelName, searchColumn = 'name') =>
+  Sequelize.literal(`COALESCE("translation"."text", "${modelName}"."${searchColumn}")`);
+
 const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
-  include: [
-    [
-      Sequelize.literal(`COALESCE(
-        (SELECT "text"
-          FROM "translated_strings"
-          WHERE "language" = $language
-          AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-          LIMIT 1),
-        "${modelName}"."${searchColumn}"
-      )`),
-      searchColumn,
-    ],
-  ],
+  include: [[getTranslationField(endpoint, modelName, searchColumn), searchColumn]],
 });
 
 export const suggestions = express.Router();
@@ -90,9 +94,11 @@ function createSuggesterRoute(
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
 
+      const translationInclude = getTranslationInclude(endpoint, modelName, models);
+
       const results = await model.findAll({
         where,
-        include,
+        include: include ? [translationInclude, ...include] : [translationInclude],
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
           ...(order ? [order] : []),
@@ -127,8 +133,11 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
       } = req;
       req.checkPermission('list', modelName);
 
+      const translationInclude = getTranslationInclude(endpoint, modelName, models);
+
       const record = await models[modelName].findOne({
         where: { id: params.id },
+        include: [translationInclude],
         bind: {
           language,
         },
@@ -157,10 +166,12 @@ function createAllRecordsRoute(
 
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
+      const translationInclude = getTranslationInclude(endpoint, modelName, models);
 
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(searchColumn), 'ASC']],
+        include: [translationInclude],
+        order: [[getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC']],
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         bind: {
           language,
@@ -198,26 +209,14 @@ function createSuggesterCreateRoute(
 
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
-  return Sequelize.literal(`COALESCE(
-      (SELECT "text"
-        FROM "translated_strings"
-        WHERE "language" = $language
-        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-        LIMIT 1),
-      "${modelName}"."${searchColumn}"
-    ) ILIKE $searchQuery`);
+  return Sequelize.where(getTranslationField(endpoint, modelName, searchColumn), {
+    [Op.iLike]: Sequelize.literal('$searchQuery'),
+  });
 };
 
 // Order against the translation if it exists, otherwise order against the searchColumn
 const getTranslationOrderLiteral = (endpoint, modelName, searchColumn) => {
-  return Sequelize.literal(`COALESCE(
-      (SELECT "text"
-        FROM "translated_strings"
-        WHERE "language" = $language
-        AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-        LIMIT 1),
-      "${modelName}"."${searchColumn}"
-    )`);
+  return getTranslationField(endpoint, modelName, searchColumn);
 };
 
 const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
