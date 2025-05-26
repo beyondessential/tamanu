@@ -420,7 +420,7 @@ export const getGraphRangeByAge = (visualisationConfig, patientData) => {
 
 export const checkMandatory = (type, mandatory, values) => {
   try {
-    if ([PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME].includes(type)) {
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
       return true;
     }
     if (!mandatory) {
