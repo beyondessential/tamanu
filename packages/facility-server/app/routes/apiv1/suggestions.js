@@ -355,7 +355,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ modelName, endpoint }) => ({
+    ({ endpoint, modelName }) => ({
       ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
       type: typeName,
     }),
