@@ -5,7 +5,7 @@ import { isTablet } from 'react-native-device-info';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { labels } from '../navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { labels } from '../navigation/screens/home/PatientDetails/labels';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface FieldRowDisplayProps {
@@ -43,7 +43,7 @@ export const FieldRowDisplay = ({
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
-      {rows.map(row => (
+      {rows.map((row) => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
           {row.map(([name, info]) => (
             <InformationBox key={name} flex={1} title={getLabel(name)} info={info} />
