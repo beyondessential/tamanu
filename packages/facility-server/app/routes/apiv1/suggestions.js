@@ -195,14 +195,14 @@ function createSuggesterCreateRoute(
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   const translationPrefix = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
-  return Sequelize.literal(`COALESCE(
+  return Sequelize.literal(`LOWER(COALESCE(
       (SELECT "text" 
         FROM "translated_strings" 
         WHERE "language" = $language
         AND "string_id" = '${translationPrefix}' || "${modelName}"."id"
         LIMIT 1),
       "${modelName}"."${searchColumn}"
-    ) ILIKE $searchQuery`);
+    )) LIKE LOWER($searchQuery)`);
 };
 
 const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
@@ -279,8 +279,8 @@ const referenceDataBodyBuilder = ({ type, name }) => {
 createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  ({ modelName, query: { types } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ modelName }),
+  ({ endpoint, modelName, query: { types } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     type: { [Op.in]: types },
   }),
   {
@@ -353,8 +353,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ modelName }) => ({
-      ...DEFAULT_WHERE_BUILDER({ modelName }),
+    ({ modelName, endpoint }) => ({
+      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
       type: typeName,
     }),
     {
@@ -390,8 +390,8 @@ createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 });
 
-const filterByFacilityWhereBuilder = ({ query, modelName }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   // Parameters are passed as strings, so we need to check for 'true'
   const shouldFilterByFacility =
     query.filterByFacility === 'true' || query.filterByFacility === true;
@@ -572,8 +572,8 @@ createSuggester(
   },
 );
 
-createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ modelName }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   return {
     ...baseWhere,
     type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
@@ -589,8 +589,8 @@ createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ modelName }) 
   };
 });
 
-createSuggester('sensitiveLabTestCategory', 'ReferenceData', ({ modelName }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+createSuggester('sensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   return {
     ...baseWhere,
     type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
@@ -610,8 +610,8 @@ createSuggester('sensitiveLabTestCategory', 'ReferenceData', ({ modelName }) => 
 createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
-  ({ modelName, query, req }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+  ({ endpoint, modelName, query, req }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
@@ -670,8 +670,8 @@ createSuggester(
 createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
-  ({ modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
 
     if (!query.patientId) {
       return baseWhere;
@@ -712,8 +712,8 @@ createSuggester(
 createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
-  ({ modelName, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ modelName }),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -721,8 +721,8 @@ createNameSuggester(
 createSuggester(
   'programRegistry',
   'ProgramRegistry',
-  ({ modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -756,8 +756,8 @@ createSuggester(
 createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
-  ({ modelName, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ modelName }),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -765,8 +765,8 @@ createNameSuggester(
 createNameSuggester(
   'programRegistryCondition',
   'ProgramRegistryCondition',
-  ({ modelName, query: { programRegistryId } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ modelName }),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -774,8 +774,8 @@ createNameSuggester(
 createNameSuggester(
   'programRegistry',
   'ProgramRegistry',
-  ({ modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -809,8 +809,8 @@ createNameSuggester(
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
-createNameSuggester('template', 'Template', ({ modelName, query }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ modelName });
+createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   const { type } = query;
 
   if (!type) {
