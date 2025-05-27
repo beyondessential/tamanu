@@ -16,6 +16,7 @@ export const ThemedTooltip = styled((props) => (
     background-color: ${Colors.primaryDark};
     font-size: 0.6875rem;
     padding: 0.5rem;
+    font-weight: 400;
     text-align: center;
 
     ${({ $maxWidth }) =>
