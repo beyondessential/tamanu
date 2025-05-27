@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import {
+  dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
   toDateTimeString,
@@ -16,10 +17,14 @@ import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/err
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
+  DRUG_ROUTES,
+  DRUG_UNITS,
+  MEDICATION_DURATION_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op } from 'sequelize';
@@ -27,39 +32,203 @@ import { Op } from 'sequelize';
 export const medication = express.Router();
 
 medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
+const medicationInputSchema = z
+  .object({
+    encounterId: z.string().optional().nullable(),
+    patientId: z.string().optional().nullable(),
+    date: dateCustomValidation,
+    notes: z.string().optional().nullable(),
+    indication: z.string().optional().nullable(),
+    route: z.enum(Object.values(DRUG_ROUTES)),
+    medicationId: z.string(),
+    prescriberId: z.string(),
+    quantity: z.coerce.number().int().optional().nullable(),
+    isOngoing: z.boolean().optional().nullable(),
+    isPrn: z.boolean().optional().nullable(),
+    isVariableDose: z.boolean().optional().nullable(),
+    doseAmount: z.coerce.number().positive().optional().nullable(),
+    units: z.enum(Object.values(DRUG_UNITS)),
+    frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
+    startDate: datetimeCustomValidation,
+    durationValue: z.coerce.number().positive().optional().nullable(),
+    durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
+    isPhoneOrder: z.boolean().optional(),
+    idealTimes: z.array(z.string()).optional().nullable(),
+  })
+  .strip()
+  .superRefine((val, ctx) => {
+    if (!val.isVariableDose && !val.doseAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Dose amount is required or isVariableDose must be true',
+      });
+    }
+    if (val.durationValue && !val.durationUnit) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration unit is required when duration value is provided',
+      });
+    }
+    if (val.durationUnit && !val.durationValue) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration value is required when duration unit is provided',
+      });
+    }
+    if (
+      val.frequency !== ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+      val.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
+      !val.idealTimes?.length
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Ideal times are required when frequency is not IMMEDIATELY or AS_DIRECTED',
+      });
+    }
+    if (
+      (val.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || val.isOngoing) &&
+      val.durationValue
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Duration value and unit are not allowed when frequency is IMMEDIATELY or isOngoing',
+      });
+    }
+  });
 
 medication.post(
-  '/$',
+  '/patientOngoingPrescription/:patientId',
   asyncHandler(async (req, res) => {
-    const { models } = req;
-    const { encounterId, ...data } = req.body;
-    const { Prescription, EncounterPrescription } = models;
-    req.checkPermission('create', 'Prescription');
+    const { models, db } = req;
+    const patientId = req.params.patientId;
+    const { Prescription, Patient, PatientOngoingPrescription } = models;
+    req.checkPermission('create', 'Medication');
 
-    const existingPrescription = await Prescription.findByPk(req.body.id, {
-      paranoid: false,
+    const data = await medicationInputSchema.parseAsync(req.body);
+
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) {
+      throw new InvalidOperationError(`Patient with id ${patientId} not found`);
+    }
+
+    const result = await db.transaction(async (transaction) => {
+      const prescription = await Prescription.create(data, { transaction });
+      await PatientOngoingPrescription.create(
+        { patientId, prescriptionId: prescription.id },
+        { transaction },
+      );
+      return prescription;
     });
-    if (existingPrescription) {
+
+    res.send(result.forResponse());
+  }),
+);
+
+const createEncounterPrescription = async ({ encounter, data, models }) => {
+  const {
+    Prescription,
+    EncounterPrescription,
+    MedicationAdministrationRecord,
+    PatientOngoingPrescription,
+  } = models;
+  const existingOngoingPrescriptions = await Prescription.findAll({
+    where: {
+      medicationId: data.medicationId,
+      discontinued: { [Op.not]: true },
+    },
+    include: [
+      {
+        model: PatientOngoingPrescription,
+        as: 'patientOngoingPrescription',
+        where: {
+          patientId: encounter.patientId,
+        },
+      },
+    ],
+  });
+
+  // Discontinue any existing ongoing medications with the same medication
+  for (const existingOngoingPrescription of existingOngoingPrescriptions) {
+    existingOngoingPrescription.discontinued = true;
+    existingOngoingPrescription.discontinuingClinicianId = SYSTEM_USER_UUID;
+    existingOngoingPrescription.discontinuedReason =
+      'Discontinued due to new prescription of same medication';
+    existingOngoingPrescription.discontinuedDate = getCurrentDateTimeString();
+    await existingOngoingPrescription.save();
+  }
+
+  const prescription = await Prescription.create({ ...data, id: undefined });
+  await EncounterPrescription.create({
+    encounterId: encounter.id,
+    prescriptionId: prescription.id,
+  });
+  await MedicationAdministrationRecord.generateMedicationAdministrationRecords(prescription);
+  return prescription;
+};
+
+medication.post(
+  '/encounterPrescription/:encounterId',
+  asyncHandler(async (req, res) => {
+    const { models, db } = req;
+    const encounterId = req.params.encounterId;
+    const { Encounter } = models;
+    req.checkPermission('create', 'Medication');
+    const data = await medicationInputSchema.parseAsync(req.body);
+
+    const encounter = await Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
+    }
+    if (new Date(data.startDate) < new Date(encounter.startDate)) {
       throw new InvalidOperationError(
-        `Cannot create prescription with id (${req.body.id}), it already exists`,
+        `Cannot create prescription with start date (${data.startDate}) before encounter start date (${encounter.startDate})`,
       );
     }
 
-    if (data.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || data.isOngoing) {
-      data.durationValue = null;
-      data.durationUnit = null;
+    const result = await db.transaction(async () => {
+      const prescription = await createEncounterPrescription({ encounter, data, models });
+      return prescription;
+    });
+
+    res.send(result.forResponse());
+  }),
+);
+
+medication.post(
+  '/medication-set',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Medication');
+    const { models } = req;
+    const { medicationSet, encounterId } = req.body;
+    const { Encounter } = models;
+
+    const encounter = await Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
+    }
+    for (const medication of medicationSet) {
+      if (new Date(medication.startDate) < new Date(encounter.startDate)) {
+        throw new InvalidOperationError(
+          `Cannot create prescription with start date (${medication.startDate}) before encounter start date (${encounter.startDate})`,
+        );
+      }
     }
 
-    if (data.durationValue && data.durationUnit) {
-      data.endDate = add(new Date(data.startDate), {
-        [data.durationUnit]: data.durationValue,
-      });
-    }
+    const result = [];
+    await req.db.transaction(async () => {
+      for (const medication of medicationSet) {
+        const data = await medicationInputSchema.parseAsync(medication);
+        const prescription = await createEncounterPrescription({
+          encounter,
+          data,
+          models,
+        });
+        result.push(prescription);
+      }
+    });
 
-    const prescription = await Prescription.create(data);
-    await EncounterPrescription.create({ encounterId, prescriptionId: prescription.id });
-
-    res.send(prescription.forResponse());
+    res.send(result.map((prescription) => prescription.forResponse()));
   }),
 );
 
@@ -82,6 +251,7 @@ medication.put(
     const { pharmacyNotes, displayPharmacyNotesInMar } =
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
+    req.checkPermission('write', 'Medication');
     req.checkPermission('create', 'MedicationPharmacyNote');
 
     const prescription = await Prescription.findByPk(params.id);
@@ -115,7 +285,7 @@ medication.post(
 
     const data = await discontinueInputSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
@@ -170,7 +340,7 @@ medication.post(
       pauseStartDate: pauseStartDateInput,
     } = await pauseMedicationSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -252,7 +422,7 @@ medication.post(
     // Validate request body against the schema
     const { encounterId } = await resumeMedicationSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -310,7 +480,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId } = await getPauseQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -375,7 +545,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId, marDate } = await getPausesQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -439,7 +609,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId } = await pauseHistoryQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -490,7 +660,7 @@ const givenMarUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
@@ -569,7 +739,7 @@ medication.post(
     const { models } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose } = models;
 
-    req.checkPermission('create', 'MedicationAdministrationRecord');
+    req.checkPermission('create', 'MedicationAdministration');
     const { dose, dueAt, prescriptionId, changingStatusReason } =
       await givenMarCreateSchema.parseAsync(req.body);
 
@@ -612,7 +782,7 @@ const notGivenInfoInputUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/not-given-info',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, User } = models;
 
@@ -663,7 +833,7 @@ const notGivenInputUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/not-given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
@@ -727,7 +897,7 @@ const notGivenInputCreateSchema = z
 medication.post(
   '/medication-administration-record/not-given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'MedicationAdministrationRecord');
+    req.checkPermission('create', 'MedicationAdministration');
     const { models } = req;
     const { MedicationAdministrationRecord } = models;
 
@@ -778,7 +948,7 @@ const updateMarInputSchema = z
 medication.put(
   '/medication-administration-record/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const marId = params.id;
     const {
@@ -844,7 +1014,7 @@ medication.put(
     const currentDate = getCurrentDateTimeString();
     await Note.create({
       content:
-        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes}`.trim(),
+        `Medication error recorded for ${existingMar.prescription.medication.name} dose recorded at ${existingMar.recordedAt}. ${errorNotes || ''}`.trim(),
       authorId: req.user.id,
       recordId: existingMar.prescription.encounterPrescription.encounterId,
       date: currentDate,
@@ -859,7 +1029,7 @@ medication.put(
 medication.get(
   '/:id/medication-administration-record/doses',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'MedicationAdministrationRecordDose');
+    req.checkPermission('read', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecordDose } = models;
 
@@ -895,7 +1065,7 @@ const updateDoseSchema = z.object({
 medication.put(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecordDose');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { doseId } = params;
     const { MedicationAdministrationRecordDose, User, MedicationAdministrationRecord } = models;
@@ -957,7 +1127,7 @@ const deleteDoseInputSchema = z
 medication.delete(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params, query } = req;
     const doseId = params.doseId;
     const { MedicationAdministrationRecordDose } = models;
@@ -978,6 +1148,103 @@ medication.delete(
     await existingDose.save();
 
     res.send(existingDose.forResponse());
+  }),
+);
+
+const importOngoingMedicationsSchema = z
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+    prescriptionIds: z.array(z.string().uuid({ message: 'Valid prescription ID is required' })),
+    prescriberId: z.string().uuid({ message: 'Valid prescriber ID is required' }),
+  })
+  .strip();
+medication.post(
+  '/importOngoing',
+  asyncHandler(async (req, res) => {
+    const { models, db } = req;
+    const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription } = models;
+
+    const { prescriptionIds, prescriberId, encounterId } =
+      await importOngoingMedicationsSchema.parseAsync(req.body);
+
+    req.checkPermission('create', 'Medication');
+
+    const encounter = await Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
+    }
+    if (encounter.endDate) {
+      throw new InvalidOperationError(`Encounter with id ${encounterId} is discharged`);
+    }
+
+    const ongoingPrescriptions = await Prescription.findAll({
+      where: {
+        discontinued: { [Op.not]: true },
+      },
+      include: [
+        {
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: {
+            patientId: encounter.patientId,
+          },
+        },
+      ],
+    });
+
+    const importPrescriptions = [];
+    for (const prescriptionId of prescriptionIds) {
+      const prescription = ongoingPrescriptions.find((p) => p.id === prescriptionId);
+      if (!prescription) {
+        throw new InvalidOperationError(
+          `Prescription with id ${prescriptionId} not found or has been discontinued`,
+        );
+      }
+      importPrescriptions.push(prescription);
+    }
+
+    const result = await db.transaction(async (transaction) => {
+      const newPrescriptions = [];
+
+      for (const prescription of importPrescriptions) {
+        const newPrescription = await Prescription.create(
+          {
+            ...prescription.toJSON(),
+            id: undefined,
+            createdAt: undefined,
+            updatedAt: undefined,
+            prescriberId,
+            date: getCurrentDateTimeString(),
+            startDate: getCurrentDateTimeString(),
+          },
+          { transaction },
+        );
+
+        await EncounterPrescription.create(
+          {
+            encounterId: encounter.id,
+            prescriptionId: newPrescription.id,
+          },
+          { transaction },
+        );
+
+        // Discontinue the original ongoing prescription
+        prescription.discontinued = true;
+        prescription.discontinuingClinicianId = SYSTEM_USER_UUID;
+        prescription.discontinuedReason = 'Imported from ongoing medications';
+        prescription.discontinuedDate = getCurrentDateTimeString();
+        await prescription.save({ transaction });
+
+        newPrescriptions.push(newPrescription);
+      }
+
+      return newPrescriptions;
+    });
+
+    res.send({
+      count: result.length,
+      data: result.map((prescription) => prescription.forResponse()),
+    });
   }),
 );
 

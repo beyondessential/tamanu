@@ -15,6 +15,7 @@ export const createMedication = async ({
     PatientOngoingPrescription,
     EncounterPausePrescription,
     EncounterPausePrescriptionHistory,
+    MedicationTemplate,
   },
   encounterId,
   patientId,
@@ -49,6 +50,12 @@ export const createMedication = async ({
   await EncounterPausePrescriptionHistory.create(
     fake(EncounterPausePrescriptionHistory, {
       encounterPrescriptionId: encounterPrescription.id,
+    }),
+  );
+
+  await MedicationTemplate.create(
+    fake(MedicationTemplate, {
+      referenceDataId,
     }),
   );
 };

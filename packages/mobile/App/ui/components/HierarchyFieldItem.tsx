@@ -17,23 +17,22 @@ export const HierarchyFieldItem = ({
   const { models } = useBackend();
   const { setFieldValue, dirty } = useFormikContext();
 
-  const suggesterInstance = new Suggester(
-    models.ReferenceData,
-    {
+  const suggesterInstance = new Suggester({
+    model: models.ReferenceData,
+    options: {
       where: {
         type: referenceType,
       },
       relations: ['parents'],
     },
-    undefined,
-    (item: IReferenceData) => {
+    filter: (item: IReferenceData) => {
       if (isFirstLevel || !parentId) {
         return true;
       }
       const parent = item.parents[0];
       return parent?.referenceDataParentId === parentId && parent?.type === relationType;
     },
-  );
+  });
 
   // Clear the value of the field when the parent field changes
   useEffect(() => {

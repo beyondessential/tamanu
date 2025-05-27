@@ -9,10 +9,17 @@ import { EncounterMedicationTable } from '../../../components/Medication/Medicat
 import { Button, ButtonWithPermissionCheck, TextButton } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { Colors } from '../../../constants';
+import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
+import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
+import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
+import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
+import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
+import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -20,7 +27,7 @@ const TableButtonRow = styled.div`
   justify-content: space-between;
 `;
 
-const ButtonGroup = styled.div`
+const ButtonGroup = styled(Box)`
   display: flex;
   gap: 10px;
 `;
@@ -53,19 +60,70 @@ const TableContainer = styled.div`
 `;
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
-  const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
+  const { ability } = useAuth();
+
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
+  const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
+  const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
   const { navigateToMar } = usePatientNavigation();
+  const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
+  const [prescriptionType, setPrescriptionType] = useState(null);
+
+  const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
+    'medicationSet',
+  );
+
+  const handleContinue = prescriptionType => {
+    setPrescriptionType(prescriptionType);
+    setPrescriptionTypeModalOpen(false);
+  };
+
+  const handleNewPrescription = () => {
+    if (!medicationSets?.length) {
+      setPrescriptionType(PRESCRIPTION_TYPES.SINGLE_MEDICATION);
+      return;
+    }
+    setPrescriptionTypeModalOpen(true);
+  };
+
+  const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
+  const { data: patientOngoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
+    encounter.patientId,
+  );
+
+  const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
+    p => !p.discontinued,
+  );
+  const encounterPrescriptions = encounterPrescriptionsData?.data;
+  const canPrintPrescription = ability.can('read', 'Medication');
+  const canCreatePrescription = ability.can('create', 'Medication');
+  const canImportOngoingPrescriptions =
+    !!importableOngoingPrescriptions?.length && !encounter.endDate;
+  const canAccessMar = ability.can('read', 'MedicationAdministration');
 
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
+        <PrescriptionTypeModal
+          open={prescriptionTypeModalOpen}
+          onClose={() => setPrescriptionTypeModalOpen(false)}
+          onContinue={handleContinue}
+        />
+        {prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET && (
+          <MedicationSetModal
+            open={true}
+            onClose={() => setPrescriptionType(null)}
+            openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
+            onReloadTable={() => setRefreshEncounterMedications(prev => prev + 1)}
+          />
+        )}
         <MedicationModal
-          open={createMedicationModalOpen}
+          open={prescriptionType === PRESCRIPTION_TYPES.SINGLE_MEDICATION}
           encounterId={encounter.id}
-          onClose={() => setCreateMedicationModalOpen(false)}
+          onClose={() => setPrescriptionType(null)}
           onSaved={async () => {
-            setCreateMedicationModalOpen(false);
+            setPrescriptionType(null);
+            setRefreshEncounterMedications(prev => prev + 1);
           }}
           data-testid="medicationmodal-s2hv"
         />
@@ -75,77 +133,106 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           onClose={() => setPrintMedicationModalOpen(false)}
           data-testid="printmultiplemedicationselectionmodal-1zpq"
         />
+        {medicationImportModalOpen && (
+          <MedicationImportModal
+            encounter={encounter}
+            open={medicationImportModalOpen}
+            onClose={() => setMedicationImportModalOpen(false)}
+            onSaved={() => {
+              setRefreshEncounterMedications(prev => prev + 1);
+            }}
+            data-testid="medicationimportmodal-1zpq"
+          />
+        )}
         <TableButtonRow data-testid="tablebuttonrow-dl51">
-          <ButtonGroup>
-            <StyledTextButton disabled={readonly}>
-              <ThemedTooltip
-                title={
-                  <Box width="147px" fontWeight={400}>
-                    <TranslatedText
-                      stringId="medication.action.addOngoingMedications.tooltip"
-                      fallback="Add existing ongoing medication to encounter"
-                    />
-                  </Box>
-                }
-              >
-                <div>
-                  <AddMedicationIcon />
-                </div>
-              </ThemedTooltip>
-            </StyledTextButton>
-            <div />
-            <StyledTextButton
-              onClick={() => setPrintMedicationModalOpen(true)}
-              disabled={readonly}
-              color="primary"
-              data-testid="styledtextbutton-hbja"
-            >
-              <ThemedTooltip
-                title={
-                  <Box width="60px" fontWeight={400}>
-                    <TranslatedText
-                      stringId="medication.action.printPrescription"
-                      fallback="Print prescription"
-                    />
-                  </Box>
-                }
-              >
-                <div>
-                  <PrintIcon />
-                </div>
-              </ThemedTooltip>
-            </StyledTextButton>
+          <ButtonGroup gap={'16px'}>
+            {!!encounterPrescriptions?.length && (
+              <>
+                {canImportOngoingPrescriptions && canCreatePrescription && (
+                  <StyledTextButton
+                    disabled={readonly}
+                    onClick={() => setMedicationImportModalOpen(true)}
+                  >
+                    <ThemedTooltip
+                      title={
+                        <Box width="147px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="medication.action.addOngoingMedications.tooltip"
+                            fallback="Add existing ongoing medication to encounter"
+                          />
+                        </Box>
+                      }
+                    >
+                      <Box display={'flex'}>
+                        <AddMedicationIcon />
+                      </Box>
+                    </ThemedTooltip>
+                  </StyledTextButton>
+                )}
+                {canPrintPrescription && (
+                  <StyledTextButton
+                    onClick={() => setPrintMedicationModalOpen(true)}
+                    disabled={readonly}
+                    color="primary"
+                    data-testid="styledtextbutton-hbja"
+                  >
+                    <ThemedTooltip
+                      title={
+                        <Box width="60px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
+                        </Box>
+                      }
+                    >
+                      <Box display={'flex'}>
+                        <PrintIcon />
+                      </Box>
+                    </ThemedTooltip>
+                  </StyledTextButton>
+                )}
+              </>
+            )}
           </ButtonGroup>
           <ButtonGroup>
-            <StyledButton
-              disabled={readonly}
-              variant="outlined"
-              color="primary"
-              onClick={navigateToMar}
-            >
-              <TranslatedText
-                stringId="medication.action.medicationAdminRecord"
-                fallback="Medication admin record"
-              />
-            </StyledButton>
-            <StyledButtonWithPermissionCheck
-              onClick={() => setCreateMedicationModalOpen(true)}
-              disabled={readonly}
-              verb="create"
-              noun="Prescription"
-              data-testid="styledbuttonwithpermissioncheck-cagj"
-            >
-              <TranslatedText
-                stringId="medication.action.newPrescription"
-                fallback="New prescription"
-                data-testid="translatedtext-pikt"
-              />
-            </StyledButtonWithPermissionCheck>
+            {canAccessMar && (
+              <StyledButton
+                disabled={readonly}
+                variant="outlined"
+                color="primary"
+                onClick={navigateToMar}
+              >
+                <TranslatedText
+                  stringId="medication.action.medicationAdminRecord"
+                  fallback="Medication admin record"
+                />
+              </StyledButton>
+            )}
+            {canCreatePrescription && (
+              <StyledButtonWithPermissionCheck
+                onClick={handleNewPrescription}
+                disabled={readonly || medicationSetsLoading}
+                verb="create"
+                noun="Prescription"
+                data-testid="styledbuttonwithpermissioncheck-cagj"
+                isLoading={medicationSetsLoading}
+              >
+                <TranslatedText
+                  stringId="medication.action.newPrescription"
+                  fallback="New prescription"
+                  data-testid="translatedtext-pikt"
+                />
+              </StyledButtonWithPermissionCheck>
+            )}
           </ButtonGroup>
         </TableButtonRow>
         <EncounterMedicationTable
-          encounterId={encounter.id}
+          key={refreshEncounterMedications}
+          encounter={encounter}
           data-testid="encountermedicationtable-gs0p"
+          canImportOngoingPrescriptions={canImportOngoingPrescriptions}
+          onImportOngoingPrescriptions={() => setMedicationImportModalOpen(true)}
         />
       </TableContainer>
     </TabPane>

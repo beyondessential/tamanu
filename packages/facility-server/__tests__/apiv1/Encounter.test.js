@@ -735,14 +735,15 @@ describe('Encounter', () => {
       });
 
       it('should record a medication', async () => {
-        const result = await app.post('/api/medication').send({
-          encounterId: medicationEncounter.id,
+        const result = await app.post(`/api/medication/encounterPrescription/${medicationEncounter.id}`).send({
           medicationId: testMedication.id,
           prescriberId: app.user.id,
           doseAmount: 1,
           units: '%',
-          frequency: 'daily',
+          frequency: 'Immediately',
           route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
         });
         expect(result).toHaveSucceeded();
         expect(result.body.date).toBeTruthy();

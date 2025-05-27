@@ -27,6 +27,7 @@ import { LabTestCategorySensitiveField } from './LabTestCategorySensitiveField';
 import { AppointmentTypeField } from './AppointmentTypeField';
 import { BookingTypeField } from './BookingTypeField';
 import { VaccineField } from './VaccineField';
+import { LocationField } from './LocationField';
 import { FacilityField } from './FacilityField';
 import { PatientField } from './PatientField';
 
@@ -116,6 +117,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestCategorySensitiveField,
   LabTestLaboratoryField,
   LabTestTypeField,
+  LocationField,
   ParameterAutocompleteField,
   ParameterMultiselectField,
   ParameterSelectField,

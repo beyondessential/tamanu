@@ -72,3 +72,11 @@ export const useDeleteDoseMutation = (doseId, useMutationOptions = {}) => {
     },
   );
 };
+
+export const useCreateMedicationSetMutation = (useMutationOptions = {}) => {
+  const api = useApi();
+
+  return useMutation(payload => api.post('medication/medication-set', payload), {
+    ...useMutationOptions,
+  });
+};

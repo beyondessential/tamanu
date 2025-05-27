@@ -11,19 +11,31 @@ const StyledFormModal = styled(FormModal)`
   }
 `;
 
-export const MedicationModal = ({ open, onClose, onSaved, encounterId }) => {
+export const MedicationModal = ({ open, onClose, onSaved, encounterId, isOngoingPrescription }) => {
   return (
     <StyledFormModal
       title={
-        <TranslatedText
-          stringId="medication.modal.newPrescription.title"
-          fallback="New prescription"
-        />
+        isOngoingPrescription ? (
+          <TranslatedText
+            stringId="medication.modal.newOngoingPrescription.title"
+            fallback="Add ongoing medication"
+          />
+        ) : (
+          <TranslatedText
+            stringId="medication.modal.newPrescription.title"
+            fallback="New prescription"
+          />
+        )
       }
       open={open}
       onClose={onClose}
     >
-      <MedicationForm encounterId={encounterId} onCancel={onClose} onSaved={onSaved} />
+      <MedicationForm
+        encounterId={encounterId}
+        onCancel={onClose}
+        onSaved={onSaved}
+        isOngoingPrescription={isOngoingPrescription}
+      />
     </StyledFormModal>
   );
 };

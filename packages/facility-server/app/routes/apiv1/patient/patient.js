@@ -8,6 +8,7 @@ import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
@@ -21,7 +22,6 @@ import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
 import { patientProgramRegistration } from './patientProgramRegistration';
-import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
@@ -188,71 +188,6 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
-  }),
-);
-
-patientRoute.get(
-  '/:id/lastDischargedEncounter/medications',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Encounter, Prescription },
-      params,
-      query,
-    } = req;
-
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
-    req.checkPermission('list', 'Prescription');
-
-    const lastDischargedEncounter = await Encounter.findOne({
-      where: {
-        patientId: params.id,
-        endDate: { [Op.not]: null },
-      },
-      order: [['endDate', 'DESC']],
-    });
-
-    // Return empty values if there isn't a discharged encounter
-    if (!lastDischargedEncounter) {
-      res.send({
-        count: 0,
-        data: [],
-      });
-      return;
-    }
-
-    // Find and return all associated encounter medications
-    const lastPrescriptions = await Prescription.findAndCountAll({
-      include: [
-        ...Prescription.getListReferenceAssociations(),
-        {
-          association: 'encounters',
-          where: { id: lastDischargedEncounter.id },
-          through: { where: { isDischarge: true } },
-          include: [
-            {
-              association: 'location',
-              include: ['facility'],
-            },
-          ],
-        },
-      ],
-      order: orderBy ? getOrderClause(order, orderBy) : undefined,
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
-    });
-
-    const { count } = lastPrescriptions;
-    const data = lastPrescriptions.rows.map((x) => ({
-      ...x.forResponse(),
-      encounters: x.encounters.map((e) => e.forResponse()),
-    }));
-    res.send({
-      count,
-      data,
-    });
   }),
 );
 
@@ -539,35 +474,33 @@ patientRoute.post(
 patientRoute.get(
   '/:id/ongoingPrescriptions',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('list', 'Prescription');
+    req.checkPermission('list', 'Medication');
 
     const { models, params, query } = req;
+    const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
-    const { order = 'ASC', orderBy = 'prescription.medication.name' } = query;
+    const { order = 'ASC', orderBy = 'medication.name' } = query;
 
-    const ongoingPrescriptions = await PatientOngoingPrescription.findAll({
-      where: { patientId: params.id },
+    const ongoingPrescriptions = await Prescription.findAll({
       include: [
+        ...Prescription.getListReferenceAssociations(),
         {
-          model: Prescription,
-          as: 'prescription',
-          include: Prescription.getListReferenceAssociations(),
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: { patientId },
         },
       ],
       order: [
         [
-          literal(
-            'CASE WHEN "prescription"."discontinued" IS NULL OR "prescription"."discontinued" = false THEN 1 ELSE 0 END',
-          ),
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
           'DESC',
         ],
-        orderBy === 'prescription.route'
+        orderBy === 'route'
           ? [
               literal(
-                `CASE "prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                `CASE "route" ${Object.entries(DRUG_ROUTE_LABELS)
                   .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
-                  .join(' ')} ELSE "prescription"."route" END`,
+                  .join(' ')} ELSE "route" END`,
               ),
               order.toUpperCase(),
             ]
@@ -576,6 +509,66 @@ patientRoute.get(
     });
 
     res.json({ data: ongoingPrescriptions, count: ongoingPrescriptions.length });
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastInpatientDischargeMedications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, Discharge, Prescription, EncounterPrescription },
+      params,
+      query,
+    } = req;
+    const patientId = params.id;
+
+    req.checkPermission('list', 'Medication');
+
+    const { order = 'ASC', orderBy = 'medication.name' } = query;
+
+    const lastInpatientEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        endDate: {
+          [Op.not]: null,
+        },
+      },
+      include: [
+        {
+          model: Discharge,
+          as: 'discharge',
+          attributes: ['facilityName'],
+        },
+      ],
+      order: [['endDate', 'DESC']],
+    });
+
+    if (!lastInpatientEncounter) {
+      res.json({ data: [], count: 0 });
+      return;
+    }
+
+    const dischargeMedications = await Prescription.findAll({
+      include: [
+        ...Prescription.getListReferenceAssociations(),
+        {
+          model: EncounterPrescription,
+          as: 'encounterPrescription',
+          where: {
+            isDischarge: true,
+            encounterId: lastInpatientEncounter.id,
+          },
+        },
+      ],
+      order: [[...orderBy.split('.'), order.toUpperCase()]],
+    });
+
+    res.json({
+      data: dischargeMedications,
+      count: dischargeMedications.length,
+      lastInpatientEncounter,
+    });
   }),
 );
 

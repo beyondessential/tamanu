@@ -1,0 +1,84 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: medication_templates
+        description: '{{ doc("table__medication_templates") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in medication_templates."
+            data_tests:
+              - unique
+              - not_null
+          - name: reference_data_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__reference_data_id') }}"
+            data_tests:
+              - not_null
+          - name: medication_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__medication_id') }}"
+            data_tests:
+              - not_null
+          - name: is_variable_dose
+            data_type: boolean
+            description: "{{ doc('medication_templates__is_variable_dose') }}"
+            data_tests:
+              - not_null
+          - name: is_prn
+            data_type: boolean
+            description: "{{ doc('medication_templates__is_prn') }}"
+            data_tests:
+              - not_null
+          - name: dose_amount
+            data_type: numeric
+            description: "{{ doc('medication_templates__dose_amount') }}"
+          - name: units
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__units') }}"
+            data_tests:
+              - not_null
+          - name: frequency
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__frequency') }}"
+            data_tests:
+              - not_null
+          - name: route
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__route') }}"
+            data_tests:
+              - not_null
+          - name: duration_value
+            data_type: numeric
+            description: "{{ doc('medication_templates__duration_value') }}"
+          - name: duration_unit
+            data_type: character varying(255)
+            description: "{{ doc('medication_templates__duration_unit') }}"
+          - name: notes
+            data_type: text
+            description: "{{ doc('medication_templates__notes') }}"
+          - name: discharge_quantity
+            data_type: integer
+            description: "{{ doc('medication_templates__discharge_quantity') }}"
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in medication_templates."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in medication_templates."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in medication_templates."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in medication_templates."
+            data_tests:
+              - not_null

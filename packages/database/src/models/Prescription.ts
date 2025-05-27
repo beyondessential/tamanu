@@ -17,8 +17,8 @@ export class Prescription extends Model {
   declare date: string;
   declare startDate: string;
   declare endDate?: string;
-  declare durationValue?: number;
-  declare durationUnit?: string;
+  declare durationValue?: number | null;
+  declare durationUnit?: string | null;
   declare indication?: string;
   declare isPhoneOrder?: boolean;
   declare notes?: string;
@@ -81,9 +81,13 @@ export class Prescription extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterCreate: async (prescription: Prescription) => {
-            await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-              prescription,
-            );
+            if (prescription.durationValue && prescription.durationUnit) {
+              const { add } = await import('date-fns');
+              prescription.endDate = add(new Date(prescription.startDate), {
+                [prescription.durationUnit]: prescription.durationValue,
+              }).toISOString();
+            }
+            await prescription.save();
           },
           afterUpdate: async (prescription: Prescription, options) => {
             if (prescription.changed('pharmacyNotes')) {
@@ -94,8 +98,7 @@ export class Prescription extends Model {
               );
             }
             if (prescription.changed('discontinued') && prescription.discontinued) {
-              await models.MedicationAdministrationRecord.onPrescriptionDiscontinued(
-                prescription,
+              await models.MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords(
                 options.transaction,
               );
             }

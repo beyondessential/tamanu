@@ -1,8 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import {
+  Box,
+  Divider,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  IconButton,
+} from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
+import CloseIcon from '@material-ui/icons/Close';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
@@ -24,7 +32,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
-
+import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -50,19 +58,20 @@ import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
 import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip } from '../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -117,6 +126,7 @@ const validationSchema = yup.object().shape({
 });
 
 const CheckboxGroup = styled.div`
+  position: relative;
   .MuiTypography-body1 {
     font-size: 14px;
   }
@@ -126,6 +136,9 @@ const CheckboxGroup = styled.div`
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
+  > div {
+    max-width: fit-content;
+  }
 `;
 
 const ButtonRow = styled.div`
@@ -203,6 +216,14 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   max-width: 200px;
   .MuiTooltip-tooltip {
     font-weight: 400;
+  }
+`;
+
+const StyledOngoingTooltip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+    width: 180px;
+    padding: 8px 16px;
   }
 `;
 
@@ -473,9 +494,38 @@ const MedicationAdministrationForm = () => {
   );
 };
 
-export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
+const MedicationBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 12px 20px;
+  background-color: ${Colors.white};
+  grid-column: 1 / -1;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  svg {
+    font-size: 2rem;
+  }
+`;
+
+export const MedicationForm = ({
+  encounterId,
+  onCancel,
+  onSaved,
+  onConfirmEdit,
+  onCancelEdit,
+  editingMedication,
+  isOngoingPrescription,
+  onCustomClose,
+}) => {
   const api = useApi();
-  const { currentUser } = useAuth();
+  const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -486,7 +536,8 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
 
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth).years;
-  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
+  const canPrintPrescription = ability.can('read', 'Medication');
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState();
@@ -499,11 +550,7 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
   });
 
-  const { data: allergies, isLoading: isLoadingAllergies } = useQuery(
-    [`allergies`, patient?.id],
-    () => api.get(`patient/${patient?.id}/allergies`),
-    { enabled: !!patient?.id },
-  );
+  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
   const allergiesList = allergies?.data
     ?.map(allergyDetail =>
       getTranslation(
@@ -530,13 +577,22 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     }
 
     const idealTimes = data.timeSlots.map(slot => slot.value);
-    const medicationSubmission = await api.post('medication', {
+    const payload = {
       ...data,
       doseAmount: data.doseAmount || undefined,
       durationValue: data.durationValue || undefined,
+      durationUnit: data.durationUnit || undefined,
       idealTimes,
-      encounterId,
-    });
+    };
+    let medicationSubmission;
+    try {
+      medicationSubmission = await (isOngoingPrescription
+        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
+        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+    } catch (error) {
+      toast.error(error.message);
+      return Promise.reject(error);
+    }
     // The return from the post doesn't include the joined tables like medication and prescriber
     const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 
@@ -545,6 +601,12 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     if (loadEncounter && encounterId) {
       loadEncounter(encounterId, false);
     }
+    if (encounterId) {
+      queryClient.invalidateQueries(['encounterMedication', encounterId]);
+    }
+    if (patient) {
+      queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
+    }
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm }) => {
@@ -552,61 +614,124 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
     await submitForm(data);
   };
 
+  const getInitialValues = () => {
+    if (editingMedication) {
+      return {
+        ...editingMedication,
+        startDate: getCurrentDateTimeString(),
+        date: getCurrentDateString(),
+        prescriberId: currentUser.id,
+        timeSlots: [],
+        route: Object.keys(DRUG_ROUTE_LABELS).find(
+          key => DRUG_ROUTE_LABELS[key] === editingMedication.route,
+        ),
+        isOngoing: isOngoingPrescription,
+      };
+    }
+    return {
+      date: getCurrentDateString(),
+      prescriberId: currentUser.id,
+      timeSlots: [],
+      isVariableDose: false,
+      startDate: getCurrentDateTimeString(),
+      isOngoing: isOngoingPrescription,
+    };
+  };
+
   return (
     <>
+      {onCustomClose && (
+        <StyledIconButton onClick={onCustomClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      )}
       <Form
         suppressErrorDialog
-        onSubmit={onSubmit}
-        onSuccess={async () => {
-          await queryClient.invalidateQueries(['encounterMedication', encounterId]);
+        onSubmit={onConfirmEdit || onSubmit}
+        onSuccess={() => {
+          if (onConfirmEdit) return;
+          if (encounterId) {
+            queryClient.invalidateQueries(['encounterMedication', encounterId]);
+          }
           if (!awaitingPrint) {
             onSaved();
           }
         }}
-        initialValues={{
-          date: getCurrentDateString(),
-          prescriberId: currentUser.id,
-          timeSlots: [],
-          isVariableDose: false,
-          startDate: getCurrentDateTimeString(),
-        }}
+        initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
           <StyledFormGrid>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-              <span style={{ fontWeight: 500 }}>
-                {!isLoadingAllergies &&
-                  (allergiesList || (
-                    <TranslatedText
-                      stringId="medication.allergies.noRecord"
-                      fallback="None recorded"
-                    />
-                  ))}
-              </span>
-            </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Field
-                name="medicationId"
-                label={
+            {!onConfirmEdit ? (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                  <span style={{ fontWeight: 500 }}>
+                    {!isLoadingAllergies &&
+                      (allergiesList || (
+                        <TranslatedText
+                          stringId="medication.allergies.noRecord"
+                          fallback="None recorded"
+                        />
+                      ))}
+                  </span>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Field
+                    name="medicationId"
+                    label={
+                      <TranslatedText
+                        stringId="medication.medication.label"
+                        fallback="Medication"
+                      />
+                    }
+                    component={AutocompleteField}
+                    suggester={drugSuggester}
+                    required
+                    onChange={e => {
+                      const referenceDrug = e.target.referenceDrug;
+                      setValues({
+                        ...values,
+                        route: referenceDrug?.route?.toLowerCase() || '',
+                        units: referenceDrug?.units || '',
+                        notes: referenceDrug?.notes || '',
+                      });
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <MedicationBox>
+                <BodyText color={Colors.midText}>
                   <TranslatedText stringId="medication.medication.label" fallback="Medication" />
-                }
-                component={AutocompleteField}
-                suggester={drugSuggester}
-                required
-                onChange={e => {
-                  const referenceDrug = e.target.referenceDrug;
-                  setValues({
-                    ...values,
-                    route: referenceDrug?.route?.toLowerCase() || '',
-                    units: referenceDrug?.units || '',
-                    notes: referenceDrug?.notes || '',
-                  });
-                }}
-              />
-            </div>
+                </BodyText>
+                <BodyText color={Colors.darkestText} fontWeight={500}>
+                  {editingMedication.medication.name}
+                </BodyText>
+              </MedicationBox>
+            )}
             <CheckboxGroup>
+              {isOngoingPrescription && (
+                <StyledOngoingTooltip
+                  title={
+                    <TranslatedText
+                      stringId="medication.isOngoing.tooltip"
+                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                    />
+                  }
+                >
+                  <Box
+                    component={'span'}
+                    width={32}
+                    height={16}
+                    position={'absolute'}
+                    zIndex={1}
+                    top={2.5}
+                    left={-9}
+                  />
+                </StyledOngoingTooltip>
+              )}
+
               <Field
                 name="isOngoing"
                 label={
@@ -616,6 +741,13 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                   />
                 }
                 component={CheckField}
+                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                {...(isOngoingPrescription && { value: true })}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, durationValue: '', durationUnit: '' });
+                  }
+                }}
               />
               <Field
                 name="isPrn"
@@ -718,7 +850,9 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                   component={NumberField}
                   min={0}
                   onInput={preventInvalidNumber}
-                  disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                  disabled={
+                    values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                  }
                 />
               </StyledConditionalTooltip>
               <Field
@@ -729,7 +863,9 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                   value,
                   label,
                 }))}
-                disabled={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                disabled={
+                  values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                }
               />
             </FormGrid>
             <div />
@@ -787,21 +923,25 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
                 </FieldContent>
               </div>
             )}
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Divider />
-            </div>
-            <Field
-              name="quantity"
-              label={
-                <TranslatedText
-                  stringId="medication.dischargeQuantity.label"
-                  fallback="Discharge quantity"
+            {!isOngoingPrescription && (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Divider />
+                </div>
+                <Field
+                  name="quantity"
+                  label={
+                    <TranslatedText
+                      stringId="medication.dischargeQuantity.label"
+                      fallback="Discharge quantity"
+                    />
+                  }
+                  min={0}
+                  component={NumberField}
+                  onInput={preventInvalidNumber}
                 />
-              }
-              min={0}
-              component={NumberField}
-              onInput={preventInvalidNumber}
-            />
+              </>
+            )}
             {showPatientWeight && (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -828,26 +968,44 @@ export const MedicationForm = ({ encounterId, onCancel, onSaved }) => {
               <Divider />
             </div>
             <ButtonRow>
-              <FormSubmitButton
-                color="primary"
-                onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
-                variant="outlined"
-                startIcon={<PrintIcon />}
-              >
-                <TranslatedText
-                  stringId="medication.action.finaliseAndPrint"
-                  fallback="Finalise & Print"
-                />
-              </FormSubmitButton>
-              <Box display="flex" sx={{ gap: '16px' }}>
-                <FormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              {isOngoingPrescription || onConfirmEdit || !canPrintPrescription ? (
+                <div />
+              ) : (
+                <FormSubmitButton
+                  color="primary"
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
+                  variant="outlined"
+                  startIcon={<PrintIcon />}
+                >
+                  <TranslatedText
+                    stringId="medication.action.finaliseAndPrint"
+                    fallback="Finalise & Print"
+                  />
+                </FormSubmitButton>
+              )}
+              <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
+                <FormCancelButton onClick={onCancelEdit || onCancel}>
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.cancelChanges"
+                      fallback="Cancel changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  )}
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
                 >
-                  <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  {onConfirmEdit ? (
+                    <TranslatedText
+                      stringId="general.action.confirmChanges"
+                      fallback="Confirm changes"
+                    />
+                  ) : (
+                    <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
+                  )}
                 </FormSubmitButton>
               </Box>
             </ButtonRow>
