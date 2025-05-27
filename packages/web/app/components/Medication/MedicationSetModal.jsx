@@ -9,7 +9,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSetList';
 import { MedicationForm } from '../../forms/MedicationForm';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
@@ -171,33 +171,41 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   });
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
-
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
   const onSelect = medicationSet => {
-    setSelectedMedicationSet(medicationSet);
+    const newMedicationSetChildren = medicationSet.children.map(child => ({
+      ...child,
+      medicationTemplate: {
+        ...child.medicationTemplate,
+        idealTimes:
+          ADMINISTRATION_FREQUENCY_DETAILS[child.medicationTemplate.frequency].startTimes || [],
+        startDate: getCurrentDateTimeString(),
+        date: getCurrentDateString(),
+        prescriberId: currentUser.id,
+        ...(child.medicationTemplate.doseAmount && {
+          doseAmount: Number(child.medicationTemplate.doseAmount),
+        }),
+        ...(child.medicationTemplate.durationValue && {
+          durationValue: Number(child.medicationTemplate.durationValue),
+        }),
+      },
+    }));
+    setSelectedMedicationSet({
+      ...medicationSet,
+      children: newMedicationSetChildren,
+    });
   };
   const [printModalOpen, setPrintModalOpen] = useState(false);
-  const [submittedMedications, setSubmittedMedications] = useState([]);
 
   const onSubmit = async (isPrinting = false) => {
-    const medications = selectedMedicationSet.children.map(({ medicationTemplate }) => ({
-      ...medicationTemplate,
-      prescriberId: medicationTemplate.prescriberId || currentUser.id,
-      date: medicationTemplate.date || getCurrentDateString(),
-      startDate: medicationTemplate.startDate || getCurrentDateTimeString(),
-      doseAmount: Number(medicationTemplate.doseAmount),
-      durationValue: Number(medicationTemplate.durationValue),
-      route: Object.keys(DRUG_ROUTE_LABELS).find(
-        key => DRUG_ROUTE_LABELS[key] === medicationTemplate.route,
-      ),
-    }));
     const payload = {
       encounterId: encounter.id,
-      medicationSet: medications,
+      medicationSet: selectedMedicationSet.children.map(({ medicationTemplate }) => ({
+        ...medicationTemplate,
+      })),
     };
     try {
       await createMedicationSet(payload);
-      setSubmittedMedications(medications);
       if (!isPrinting) {
         onClose();
       }
@@ -280,7 +288,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     );
     selectedMedicationSet.children[medicationIndex].medicationTemplate = {
       ...data,
-      route: DRUG_ROUTE_LABELS[data.route],
     };
     setSelectedMedicationSet(selectedMedicationSet);
   };
@@ -422,7 +429,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         <MultiplePrescriptionPrintoutModal
           encounter={encounter}
           prescriberId={currentUser.id}
-          prescriptions={submittedMedications}
+          prescriptions={selectedMedicationSet.children}
           open={true}
           onClose={() => {
             setPrintModalOpen(false);

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { BodyText, Heading4, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
@@ -131,7 +132,7 @@ export const MedicationSetMedicationsList = ({
             <BodyText fontWeight="500">{medication.name}</BodyText>
             <BodyText>
               {getDose(medicationTemplate, getTranslation, getEnumTranslation)},{' '}
-              {getTranslatedFrequency(frequency, getTranslation)}, {route}
+              {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
             </BodyText>
             {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
             {editable && (

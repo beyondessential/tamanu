@@ -524,6 +524,7 @@ export const MedicationForm = ({
   isOngoingPrescription,
   onCustomClose,
 }) => {
+  const isEditing = !!onConfirmEdit;
   const api = useApi();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
@@ -614,19 +615,6 @@ export const MedicationForm = ({
   };
 
   const getInitialValues = () => {
-    if (editingMedication) {
-      return {
-        ...editingMedication,
-        startDate: getCurrentDateTimeString(),
-        date: getCurrentDateString(),
-        prescriberId: currentUser.id,
-        timeSlots: [],
-        route: Object.keys(DRUG_ROUTE_LABELS).find(
-          key => DRUG_ROUTE_LABELS[key] === editingMedication.route,
-        ),
-        isOngoing: isOngoingPrescription,
-      };
-    }
     return {
       date: getCurrentDateString(),
       prescriberId: currentUser.id,
@@ -634,6 +622,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
+      ...editingMedication,
     };
   };
 
@@ -648,7 +637,7 @@ export const MedicationForm = ({
         suppressErrorDialog
         onSubmit={onConfirmEdit || onSubmit}
         onSuccess={() => {
-          if (onConfirmEdit) return;
+          if (isEditing) return;
           if (encounterId) {
             queryClient.invalidateQueries(['encounterMedication', encounterId]);
           }
@@ -661,7 +650,7 @@ export const MedicationForm = ({
         validationSchema={validationSchema}
         render={({ submitForm, setValues, values }) => (
           <StyledFormGrid>
-            {!onConfirmEdit ? (
+            {!isEditing ? (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
@@ -967,7 +956,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             <ButtonRow>
-              {isOngoingPrescription || onConfirmEdit ? (
+              {isOngoingPrescription || isEditing ? (
                 <div />
               ) : (
                 <FormSubmitButton
@@ -984,7 +973,7 @@ export const MedicationForm = ({
               )}
               <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
                 <FormCancelButton onClick={onCancelEdit || onCancel}>
-                  {onConfirmEdit ? (
+                  {isEditing ? (
                     <TranslatedText
                       stringId="general.action.cancelChanges"
                       fallback="Cancel changes"
@@ -997,7 +986,7 @@ export const MedicationForm = ({
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
                 >
-                  {onConfirmEdit ? (
+                  {isEditing ? (
                     <TranslatedText
                       stringId="general.action.confirmChanges"
                       fallback="Confirm changes"
