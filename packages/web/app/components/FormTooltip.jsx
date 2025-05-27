@@ -25,7 +25,7 @@ export const FormTooltip = styled((props) => (
     color: ${Colors.white};
     text-align: center;
     font-weight: 400;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.625rem;
     font-size: 0.6875rem;
     max-inline-size: 8rem;
     line-height: 1.7;
