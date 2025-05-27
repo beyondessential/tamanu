@@ -27,6 +27,7 @@ import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery'
 import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -49,12 +50,17 @@ const ProgramRegistryTitle = () => {
 };
 
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToPatient, navigateToProgramRegistry } =
-    usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const {
+    navigateToEncounter,
+    navigateToPatient,
+    navigateToProgramRegistry,
+  } = usePatientNavigation();
+  const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
+  const { ability } = useAuth();
+  const canAccessMar = ability.can('read', 'MedicationAdministration');
 
   return [
     {
@@ -89,13 +95,20 @@ export const usePatientRoutes = () => {
                 />
               ),
             },
-            {
-              path: `${PATIENT_PATHS.MAR}/view`,
-              component: MarView,
-              title: (
-                <TranslatedText stringId="encounter.mar.title" fallback="Medication Admin Record" />
-              ),
-            },
+            ...(canAccessMar
+              ? [
+                  {
+                    path: `${PATIENT_PATHS.MAR}/view`,
+                    component: MarView,
+                    title: (
+                      <TranslatedText
+                        stringId="encounter.mar.title"
+                        fallback="Medication Admin Record"
+                      />
+                    ),
+                  },
+                ]
+              : []),
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
@@ -136,7 +149,7 @@ const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextP
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
     <Route exact path={path} component={component} />
-    {routes?.map((subRoute) => (
+    {routes?.map(subRoute => (
       <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
     ))}
   </>
@@ -171,7 +184,7 @@ export const PatientRoutes = React.memo(() => {
            that they have access to the programRegistryId url param */}
           {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
           <Switch>
-            {patientRoutes.map((route) => (
+            {patientRoutes.map(route => (
               <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
             ))}
           </Switch>

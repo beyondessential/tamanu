@@ -194,14 +194,14 @@ export const MarDetails = ({
   isDoseAmountNotMatch,
   isRecordedDuringPaused,
 }) => {
-  const { currentUser } = useAuth();
+  const { ability, currentUser } = useAuth();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
-  const [showWarningModal, setShowWarningModal] = useState('');
 
+  const [showWarningModal, setShowWarningModal] = useState('');
   const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
   const [showEditDoseModal, setShowEditDoseModal] = useState(null);
   const [showRemoveDoseModal, setShowRemoveDoseModal] = useState(null);
@@ -213,6 +213,8 @@ export const MarDetails = ({
       queryClient.invalidateQueries(['marDoses', marInfo?.id]);
     },
   });
+
+  const canEditMar = ability.can('write', 'MedicationAdministration');
 
   const handleOpenChangeStatusModal = () => {
     setShowChangeStatusModal(true);
@@ -332,6 +334,7 @@ export const MarDetails = ({
                           }
                           name="isError"
                           component={CheckField}
+                          disabled={!canEditMar}
                         />
                       </div>
                       {values.isError && (
@@ -395,9 +398,11 @@ export const MarDetails = ({
                       enumValues={ADMINISTRATION_STATUS_LABELS}
                     />
                   </DarkestText>
-                  <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
-                    <StyledEditIcon />
-                  </StyledEditButton>
+                  {canEditMar && (
+                    <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
+                      <StyledEditIcon />
+                    </StyledEditButton>
+                  )}
                 </DetailsContainer>
                 {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
                   <Fragment>
@@ -425,9 +430,11 @@ export const MarDetails = ({
                         </MidText>
                         <DarkestText mt={'3px'}>{marInfo.recordedByUser.displayName}</DarkestText>
                       </Box>
-                      <StyledEditButton disableRipple onClick={() => handleOpenEditDoseModal({})}>
-                        <StyledEditIcon />
-                      </StyledEditButton>
+                      {canEditMar && (
+                        <StyledEditButton disableRipple onClick={() => handleOpenEditDoseModal({})}>
+                          <StyledEditIcon />
+                        </StyledEditButton>
+                      )}
                     </DetailsContainer>
                   </Fragment>
                 )}
@@ -457,7 +464,7 @@ export const MarDetails = ({
                               </Box>
                             )}
                           </DoseIndex>
-                          {dose.doseIndex !== 0 && !dose.isRemoved && (
+                          {dose.doseIndex !== 0 && !dose.isRemoved && canEditMar && (
                             <RemoveDoseText onClick={() => handleRemoveExistingDose(dose)}>
                               <Remove fontSize="small" />
                               <TranslatedText
@@ -511,12 +518,14 @@ export const MarDetails = ({
                             </MidText>
                             <DarkestText mt={'3px'}>{dose.recordedByUser.displayName}</DarkestText>
                           </Box>
-                          <StyledEditButton
-                            disableRipple
-                            onClick={() => handleOpenEditDoseModal(dose)}
-                          >
-                            <StyledEditIcon />
-                          </StyledEditButton>
+                          {canEditMar && (
+                            <StyledEditButton
+                              disableRipple
+                              onClick={() => handleOpenEditDoseModal(dose)}
+                            >
+                              <StyledEditIcon />
+                            </StyledEditButton>
+                          )}
                         </DetailsContainer>
                       )}
                     </Fragment>
@@ -615,7 +624,7 @@ export const MarDetails = ({
                           </FormGrid>
                         </div>
                       ))}
-                      {marInfo.status === ADMINISTRATION_STATUS.GIVEN && (
+                      {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMar && (
                         <AddAdditionalDoseButton
                           onClick={() =>
                             formArrayMethods.push({

@@ -91,6 +91,8 @@ export const MedicationDetails = ({
   const { ability } = useAuth();
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const canDiscontinueMedication = allowDiscontinue && ability?.can('write', 'Medication');
+  const canPauseMedication = ability?.can('write', 'Medication');
   const canCreateMedicationPharmacyNote = ability?.can('create', 'MedicationPharmacyNote');
   const canUpdateMedicationPharmacyNote = ability?.can('write', 'MedicationPharmacyNote');
 
@@ -133,7 +135,10 @@ export const MedicationDetails = ({
             label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
             value: medication.durationValue
               ? `${medication.durationValue} ${singularize(
-                  getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, medication.durationUnit),
+                  getEnumTranslation(
+                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                    medication.durationUnit,
+                  ),
                   medication.durationValue,
                 ).toLowerCase()}`
               : '-',
@@ -473,7 +478,7 @@ export const MedicationDetails = ({
               ) : (
                 <>
                   <Box display={'flex'} style={{ gap: '10px' }}>
-                    {allowDiscontinue && (
+                    {canDiscontinueMedication && (
                       <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
                         <TranslatedText
                           stringId="medication.details.discontinue"
@@ -481,7 +486,8 @@ export const MedicationDetails = ({
                         />
                       </OutlinedButton>
                     )}
-                    {!isOngoingPrescription &&
+                    {canPauseMedication &&
+                      !isOngoingPrescription &&
                       (isPausing ? (
                         <OutlinedButton onClick={() => setOpenResumeModal(true)}>
                           <TranslatedText stringId="medication.details.resume" fallback="Resume" />
@@ -495,7 +501,7 @@ export const MedicationDetails = ({
                         </OutlinedButton>
                       ))}
                   </Box>
-                  {isPausing || isOngoingPrescription ? (
+                  {isPausing || isOngoingPrescription || !canCreateMedicationPharmacyNote ? (
                     <Button onClick={onClose}>
                       <TranslatedText stringId="general.action.close" fallback="Close" />
                     </Button>

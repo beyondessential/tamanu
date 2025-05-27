@@ -103,7 +103,7 @@ medication.post(
     const { models, db } = req;
     const patientId = req.params.patientId;
     const { Prescription, Patient, PatientOngoingPrescription } = models;
-    req.checkPermission('create', 'Prescription');
+    req.checkPermission('create', 'Medication');
 
     const data = await medicationInputSchema.parseAsync(req.body);
 
@@ -173,7 +173,7 @@ medication.post(
     const { models, db } = req;
     const encounterId = req.params.encounterId;
     const { Encounter } = models;
-    req.checkPermission('create', 'Prescription');
+    req.checkPermission('create', 'Medication');
     const data = await medicationInputSchema.parseAsync(req.body);
 
     const encounter = await Encounter.findByPk(encounterId);
@@ -198,7 +198,7 @@ medication.post(
 medication.post(
   '/medication-set',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Prescription');
+    req.checkPermission('create', 'Medication');
     const { models } = req;
     const { medicationSet, encounterId } = req.body;
     const { Encounter } = models;
@@ -251,6 +251,7 @@ medication.put(
     const { pharmacyNotes, displayPharmacyNotesInMar } =
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
+    req.checkPermission('write', 'Medication');
     req.checkPermission('create', 'MedicationPharmacyNote');
 
     const prescription = await Prescription.findByPk(params.id);
@@ -284,7 +285,7 @@ medication.post(
 
     const data = await discontinueInputSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
@@ -339,7 +340,7 @@ medication.post(
       pauseStartDate: pauseStartDateInput,
     } = await pauseMedicationSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -421,7 +422,7 @@ medication.post(
     // Validate request body against the schema
     const { encounterId } = await resumeMedicationSchema.parseAsync(req.body);
 
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('write', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -479,7 +480,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId } = await getPauseQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -544,7 +545,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId, marDate } = await getPausesQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -608,7 +609,7 @@ medication.get(
     // Validate query params against the schema
     const { encounterId } = await pauseHistoryQuerySchema.parseAsync(req.query);
 
-    req.checkPermission('read', 'Prescription');
+    req.checkPermission('read', 'Medication');
 
     // Find the prescription
     const prescription = await Prescription.findByPk(params.id);
@@ -659,7 +660,7 @@ const givenMarUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
@@ -738,7 +739,7 @@ medication.post(
     const { models } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose } = models;
 
-    req.checkPermission('create', 'MedicationAdministrationRecord');
+    req.checkPermission('create', 'MedicationAdministration');
     const { dose, dueAt, prescriptionId, changingStatusReason } =
       await givenMarCreateSchema.parseAsync(req.body);
 
@@ -781,7 +782,7 @@ const notGivenInfoInputUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/not-given-info',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, User } = models;
 
@@ -832,7 +833,7 @@ const notGivenInputUpdateSchema = z
 medication.put(
   '/medication-administration-record/:id/not-given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecord, MedicationAdministrationRecordDose, User } = models;
 
@@ -896,7 +897,7 @@ const notGivenInputCreateSchema = z
 medication.post(
   '/medication-administration-record/not-given',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'MedicationAdministrationRecord');
+    req.checkPermission('create', 'MedicationAdministration');
     const { models } = req;
     const { MedicationAdministrationRecord } = models;
 
@@ -947,7 +948,7 @@ const updateMarInputSchema = z
 medication.put(
   '/medication-administration-record/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const marId = params.id;
     const {
@@ -1028,7 +1029,7 @@ medication.put(
 medication.get(
   '/:id/medication-administration-record/doses',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'MedicationAdministrationRecordDose');
+    req.checkPermission('read', 'MedicationAdministration');
     const { models, params } = req;
     const { MedicationAdministrationRecordDose } = models;
 
@@ -1064,7 +1065,7 @@ const updateDoseSchema = z.object({
 medication.put(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecordDose');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params } = req;
     const { doseId } = params;
     const { MedicationAdministrationRecordDose, User, MedicationAdministrationRecord } = models;
@@ -1126,7 +1127,7 @@ const deleteDoseInputSchema = z
 medication.delete(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'MedicationAdministrationRecord');
+    req.checkPermission('write', 'MedicationAdministration');
     const { models, params, query } = req;
     const doseId = params.doseId;
     const { MedicationAdministrationRecordDose } = models;
@@ -1166,8 +1167,7 @@ medication.post(
     const { prescriptionIds, prescriberId, encounterId } =
       await importOngoingMedicationsSchema.parseAsync(req.body);
 
-    req.checkPermission('create', 'Prescription');
-    req.checkPermission('write', 'Prescription');
+    req.checkPermission('create', 'Medication');
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
