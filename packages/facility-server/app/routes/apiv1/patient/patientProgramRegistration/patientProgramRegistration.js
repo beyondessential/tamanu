@@ -313,7 +313,13 @@ patientProgramRegistration.get(
           registrationDate: data.date,
         };
       })
-      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE);
+      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE)
+      // Add this filter to remove entries with unchanged clinical status
+      .filter((change, index, array) => {
+        if (index === array.length - 1) return true; // Always keep the original record
+        const nextChange = array[index + 1];
+        return change.clinicalStatusId !== nextChange.clinicalStatusId;
+      });
 
     res.send({
       count: history.length,
