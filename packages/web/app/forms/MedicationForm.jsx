@@ -580,6 +580,7 @@ export const MedicationForm = ({
       ...data,
       doseAmount: data.doseAmount || undefined,
       durationValue: data.durationValue || undefined,
+      durationUnit: data.durationUnit || undefined,
       idealTimes,
     };
     let medicationSubmission;
