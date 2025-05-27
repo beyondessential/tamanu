@@ -8,6 +8,7 @@ import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';
+import { useAuth } from '../../../contexts/Auth';
 
 const Wrapper = styled.div`
   display: flex;
@@ -43,6 +44,8 @@ const ButtonWrapper = styled.div`
 export const MarHeader = ({ selectedDate, onDateChange }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const { encounter } = useEncounter();
+  const { ability } = useAuth();
+  const canCreatePrescription = ability.can('create', 'Medication');
 
   const goToPreviousDay = () => {
     onDateChange(prevDate => subDays(prevDate, 1));
@@ -103,16 +106,18 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
         )}
       </DateSelectWrapper>
       <ButtonWrapper>
-        <ButtonWithPermissionCheck
-          onClick={() => setCreateMedicationModalOpen(true)}
-          verb="create"
-          noun="Prescription"
-        >
-          <TranslatedText
-            stringId="medication.action.newPrescription"
-            fallback="New prescription"
-          />
-        </ButtonWithPermissionCheck>
+        {canCreatePrescription && (
+          <ButtonWithPermissionCheck
+            onClick={() => setCreateMedicationModalOpen(true)}
+            verb="create"
+            noun="Prescription"
+          >
+            <TranslatedText
+              stringId="medication.action.newPrescription"
+              fallback="New prescription"
+            />
+          </ButtonWithPermissionCheck>
+        )}
       </ButtonWrapper>
     </Wrapper>
   );

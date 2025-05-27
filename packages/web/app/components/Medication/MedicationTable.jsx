@@ -20,6 +20,7 @@ import { singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../Button';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
@@ -258,12 +259,15 @@ export const EncounterMedicationTable = ({
 }) => {
   const location = useLocation();
   const api = useApi();
+  const { ability } = useAuth();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [medications, setMedications] = useState([]);
 
   const queryClient = useQueryClient();
+
+  const canCreatePrescription = ability.can('create', 'Medication');
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -315,7 +319,7 @@ export const EncounterMedicationTable = ({
         $noData={medications.length === 0}
         noDataMessage={
           <NoDataContainer>
-            {canImportOngoingPrescriptions ? (
+            {canImportOngoingPrescriptions && canCreatePrescription ? (
               <Box color={Colors.darkestText}>
                 <TranslatedText
                   stringId="medication.table.noMedications"
@@ -335,10 +339,15 @@ export const EncounterMedicationTable = ({
                   />
                 </StyledButton>
               </Box>
-            ) : (
+            ) : canCreatePrescription ? (
               <TranslatedText
                 stringId="medication.table.noMedicationsAndOngoing"
                 fallback="No medications to display and no existing ongoing medications to add to encounter."
+              />
+            ) : (
+              <TranslatedText
+                stringId="medication.table.noPermissionsToCreate"
+                fallback="No medications to display."
               />
             )}
           </NoDataContainer>

@@ -19,6 +19,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePat
 import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -59,6 +60,8 @@ const TableContainer = styled.div`
 `;
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
+  const { ability } = useAuth();
+
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
   const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
@@ -92,8 +95,11 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     p => !p.discontinued,
   );
   const encounterPrescriptions = encounterPrescriptionsData?.data;
+  const canPrintPrescription = ability.can('read', 'Medication');
+  const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =
     !!importableOngoingPrescriptions?.length && !encounter.endDate;
+  const canAccessMar = ability.can('read', 'MedicationAdministration');
 
   return (
     <TabPane data-testid="tabpane-u787">
@@ -142,7 +148,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           <ButtonGroup gap={'16px'}>
             {!!encounterPrescriptions?.length && (
               <>
-                {canImportOngoingPrescriptions && (
+                {canImportOngoingPrescriptions && canCreatePrescription && (
                   <StyledTextButton
                     disabled={readonly}
                     onClick={() => setMedicationImportModalOpen(true)}
@@ -163,56 +169,62 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                     </ThemedTooltip>
                   </StyledTextButton>
                 )}
-                <StyledTextButton
-                  onClick={() => setPrintMedicationModalOpen(true)}
-                  disabled={readonly}
-                  color="primary"
-                  data-testid="styledtextbutton-hbja"
-                >
-                  <ThemedTooltip
-                    title={
-                      <Box width="60px" fontWeight={400}>
-                        <TranslatedText
-                          stringId="medication.action.printPrescription"
-                          fallback="Print prescription"
-                        />
-                      </Box>
-                    }
+                {canPrintPrescription && (
+                  <StyledTextButton
+                    onClick={() => setPrintMedicationModalOpen(true)}
+                    disabled={readonly}
+                    color="primary"
+                    data-testid="styledtextbutton-hbja"
                   >
-                    <Box display={'flex'}>
-                      <PrintIcon />
-                    </Box>
-                  </ThemedTooltip>
-                </StyledTextButton>
+                    <ThemedTooltip
+                      title={
+                        <Box width="60px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
+                        </Box>
+                      }
+                    >
+                      <Box display={'flex'}>
+                        <PrintIcon />
+                      </Box>
+                    </ThemedTooltip>
+                  </StyledTextButton>
+                )}
               </>
             )}
           </ButtonGroup>
           <ButtonGroup>
-            <StyledButton
-              disabled={readonly}
-              variant="outlined"
-              color="primary"
-              onClick={navigateToMar}
-            >
-              <TranslatedText
-                stringId="medication.action.medicationAdminRecord"
-                fallback="Medication admin record"
-              />
-            </StyledButton>
-            <StyledButtonWithPermissionCheck
-              onClick={handleNewPrescription}
-              disabled={readonly || medicationSetsLoading}
-              verb="create"
-              noun="Prescription"
-              data-testid="styledbuttonwithpermissioncheck-cagj"
-              isLoading={medicationSetsLoading}
-            >
-              <TranslatedText
-                stringId="medication.action.newPrescription"
-                fallback="New prescription"
-                data-testid="translatedtext-pikt"
-              />
-            </StyledButtonWithPermissionCheck>
+            {canAccessMar && (
+              <StyledButton
+                disabled={readonly}
+                variant="outlined"
+                color="primary"
+                onClick={navigateToMar}
+              >
+                <TranslatedText
+                  stringId="medication.action.medicationAdminRecord"
+                  fallback="Medication admin record"
+                />
+              </StyledButton>
+            )}
+            {canCreatePrescription && (
+              <StyledButtonWithPermissionCheck
+                onClick={handleNewPrescription}
+                disabled={readonly || medicationSetsLoading}
+                verb="create"
+                noun="Prescription"
+                data-testid="styledbuttonwithpermissioncheck-cagj"
+                isLoading={medicationSetsLoading}
+              >
+                <TranslatedText
+                  stringId="medication.action.newPrescription"
+                  fallback="New prescription"
+                  data-testid="translatedtext-pikt"
+                />
+              </StyledButtonWithPermissionCheck>
+            )}
           </ButtonGroup>
         </TableButtonRow>
         <EncounterMedicationTable
