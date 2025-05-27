@@ -414,23 +414,10 @@ export const MedicationTemplate = yup
     'forbid-dose-amount-when-dose-is-variable',
     null,
     function ({ isVariableDose, doseAmount }) {
-      if (isVariableDose && doseAmount) {
+      if (!isVariableDose && !doseAmount) {
         return this.createError({
           path: 'doseAmount',
-          message: 'Dose amount is not allowed when dose is variable.',
-        });
-      }
-      return true;
-    },
-  )
-  .test(
-    'forbid-duration-when-frequency-is-immediately',
-    null,
-    function ({ frequency, durationValue, durationUnit }) {
-      if (frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY && (durationValue || durationUnit)) {
-        return this.createError({
-          path: 'durationValue',
-          message: 'Duration is not allowed when frequency is Immediately.',
+          message: 'Dose amount is required',
         });
       }
       return true;
