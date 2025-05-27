@@ -35,7 +35,7 @@ export const buildSyncRoutes = ctx => {
       const staleSessions = await SyncSession.findAll({
         where: {
           completedAt: { [Op.is]: null },
-          debugInfo: {
+          parameters: {
             deviceId,
           },
         },
@@ -53,8 +53,8 @@ export const buildSyncRoutes = ctx => {
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
           durationMs,
-          facilityIds: session.debugInfo.facilityIds,
-          deviceId: session.debugInfo.deviceId,
+          facilityIds: session.parameters.facilityIds,
+          deviceId: session.parameters.deviceId,
         });
       }
 

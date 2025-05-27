@@ -25,10 +25,7 @@ import {
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
-import {
-  attachChangelogToSnapshotRecords,
-  pauseAudit,
-} from '@tamanu/database/utils/audit';
+import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
@@ -90,13 +87,14 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession(debugInfo = {}) {
+  async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-
+    
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
+    const parameters = { deviceId, facilityIds, isMobile };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
     const syncSession = await this.store.models.SyncSession.create({
@@ -104,6 +102,7 @@ export class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
       debugInfo,
+      parameters,
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
@@ -119,6 +118,7 @@ export class CentralSyncManager {
 
     log.info('CentralSyncManager.startSession', {
       sessionId: syncSession.id,
+      ...parameters,
       ...debugInfo,
     });
 
@@ -186,8 +186,8 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityIds: session.debugInfo.facilityIds,
-      deviceId: session.debugInfo.deviceId,
+      facilityIds: session.parameters.facilityIds,
+      deviceId: session.parameters.deviceId,
     });
   }
 
@@ -364,7 +364,11 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
-      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(this.store, since, tick)
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(
+        this.store,
+        since,
+        tick,
+      );
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
@@ -372,9 +376,9 @@ export class CentralSyncManager {
       );
 
       await models.SyncSession.setParameters(sessionId, {
-        tablesForFullResync,
         minSourceTick,
         maxSourceTick,
+        tablesForFullResync,
         useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
@@ -429,7 +433,7 @@ export class CentralSyncManager {
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !session.debugInfo.isMobile && since > -1,
+        syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -589,7 +593,7 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.debugInfo;
+    const { minSourceTick, maxSourceTick } = session.parameters;
     if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
@@ -701,7 +705,7 @@ export class CentralSyncManager {
       sessionId,
       deviceId,
       tablesToInclude,
-      session.debugInfo.isMobile,
+      session.parameters.isMobile,
     ).finally(unmarkSessionAsProcessing);
   }
 
