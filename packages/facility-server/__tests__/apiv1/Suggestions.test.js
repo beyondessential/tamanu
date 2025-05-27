@@ -15,9 +15,10 @@ import {
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/fake-data/fake';
+import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
+import { sortBy } from 'lodash';
 
 describe('Suggestions', () => {
   let userApp = null;
@@ -606,8 +607,9 @@ describe('Suggestions', () => {
 
   describe('Translations', () => {
     beforeEach(async () => {
-      await models.ReferenceData.truncate({ cascade: true, force: true });
-      await models.TranslatedString.truncate({ cascade: true, force: true });
+      const { TranslatedString, ReferenceData } = models;
+      await ReferenceData.truncate({ cascade: true, force: true });
+      await TranslatedString.truncate({ cascade: true, force: true });
     });
 
     it('should return translated labels for current language if present in the db', async () => {
@@ -715,11 +717,108 @@ describe('Suggestions', () => {
       expect(result3.body[0].name).toEqual('banana');
     });
 
-    it.todo('translated ordering');
+    it('should order by translated name if it exists', async () => {
+      const { TranslatedString, ReferenceData } = models;
+
+      // Create 10 reference data records with random names
+      const testData = Array.from({ length: 10 }, (_, i) => ({
+        id: `test-drug-${i}`,
+        type: 'drug',
+        name: `Drug ${chance.word()}`,
+        code: `test-drug-${i}`,
+      }));
+      await ReferenceData.bulkCreate(testData);
+
+      const alphabeticalTestDataNames = sortBy(testData, 'name').map(({ name }) => name);
+
+      // Check they order alphabetically
+      const result = await userApp.get('/api/suggestions/drug?q=drug');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ name }) => name)).toEqual(alphabeticalTestDataNames);
+
+      // Create 10 random translations
+      const translations = Array.from({ length: 10 }, (_, i) => ({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.drug.test-drug-${i}`,
+        text: `Drug ${chance.word()}`,
+        language: 'en',
+      }));
+      await TranslatedString.bulkCreate(translations);
+
+      const alphabeticalTranslationText = sortBy(translations, 'text').map(({ text }) => text);
+
+      // Check they order by translated name
+      const result2 = await userApp.get('/api/suggestions/drug?q=drug&language=en');
+      expect(result2).toHaveSucceeded();
+      expect(result2.body.map(({ name }) => name)).toEqual(alphabeticalTranslationText);
+    });
   });
 
-  describe('Location hierarchy', () => {
-    it.todo('should get suggestions for a location with a parentId');
+  describe('Address hierarchy', () => {
+    it('should filter address_hierarchy fields by parent id if supplied in query', async () => {
+      const { ReferenceData, ReferenceDataRelation } = models;
+      const fakeReferenceData = async (type) =>
+        await ReferenceData.create(fake(ReferenceData, { type }));
+
+      const fakeReferenceDataRelation = async ({ parentId, childId }) =>
+        await ReferenceDataRelation.create(
+          fake(ReferenceDataRelation, {
+            type: 'address_hierarchy',
+            referenceDataId: childId,
+            referenceDataParentId: parentId,
+          }),
+        );
+
+      // create a linked address hierarchy division, subdivision, settlement and village
+      const divisionInHierarchy = await fakeReferenceData('division');
+      const subdivisionInHierarchy = await fakeReferenceData('subdivision');
+      const settlementInHierarchy = await fakeReferenceData('settlement');
+      const villageInHierarchy = await fakeReferenceData('village');
+
+      // Create the links between the hierarchy
+      await fakeReferenceDataRelation({
+        parentId: divisionInHierarchy.id,
+        childId: subdivisionInHierarchy.id,
+      });
+      await fakeReferenceDataRelation({
+        parentId: subdivisionInHierarchy.id,
+        childId: settlementInHierarchy.id,
+      });
+      await fakeReferenceDataRelation({
+        parentId: settlementInHierarchy.id,
+        childId: villageInHierarchy.id,
+      });
+
+      // Create data outside of the hierarchy
+      await fakeReferenceData('subdivision');
+      await fakeReferenceData('settlement');
+      await fakeReferenceData('village');
+
+      const divisionResults = await userApp.get('/api/suggestions/division');
+      expect(divisionResults).toHaveSucceeded();
+      expect(divisionResults.body.length).toEqual(1);
+      expect(divisionResults.body[0].id).toEqual(divisionInHierarchy.id);
+
+      const subdivisionResults = await userApp.get(
+        `/api/suggestions/subdivision?parentId=${divisionInHierarchy.id}`,
+      );
+      expect(subdivisionResults).toHaveSucceeded();
+      expect(subdivisionResults.body.length).toEqual(1);
+      expect(subdivisionResults.body[0].id).toEqual(subdivisionInHierarchy.id);
+
+      const settlementResults = await userApp.get(
+        `/api/suggestions/settlement?parentId=${subdivisionInHierarchy.id}`,
+      );
+      expect(settlementResults).toHaveSucceeded();
+      expect(settlementResults.body.length).toEqual(1);
+      expect(settlementResults.body[0].id).toEqual(settlementInHierarchy.id);
+
+      const villageResults = await userApp.get(
+        `/api/suggestions/village?parentId=${settlementInHierarchy.id}`,
+      );
+      expect(villageResults).toHaveSucceeded();
+      expect(villageResults.body.length).toEqual(1);
+      expect(villageResults.body[0].id).toEqual(villageInHierarchy.id);
+    });
   });
 
   it('should respect visibility status', async () => {
