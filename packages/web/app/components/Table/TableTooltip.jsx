@@ -24,7 +24,7 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
     font-size: 0.6875rem;
     line-height: 15px;
     white-space: pre-line;
-    padding: 0.5rem 0.625rem;
+    padding: 0.375rem 0.5rem;
     cursor: pointer;
     max-width: 500px;
     display: -webkit-box;
