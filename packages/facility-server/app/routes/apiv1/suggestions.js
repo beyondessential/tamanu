@@ -43,15 +43,15 @@ const getTranslationSubquery = (endpoint, modelName) => `(
   LIMIT 1
 )`;
 
+// Get the translation label for the record, otherwise the get the untranslated searchColumn
+const translationCoalesce = (endpoint, modelName, searchColumn) =>
+  `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`;
+const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
+  Sequelize.literal(translationCoalesce(endpoint, modelName, searchColumn));
+
+// Overwrite the default search column with translation if it exists
 const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
-  include: [
-    [
-      Sequelize.literal(
-        `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`,
-      ),
-      searchColumn,
-    ],
-  ],
+  include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), searchColumn]],
 });
 
 export const suggestions = express.Router();
@@ -73,7 +73,7 @@ function createSuggesterRoute(
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
-        `POSITION(LOWER($positionMatch) in LOWER(COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}"))) > 1`,
+        `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
 
       // We supply the searchQuery to both the whereBuilder and the bind so that we can
@@ -106,7 +106,7 @@ function createSuggesterRoute(
             ? []
             : [
                 positionQuery,
-                [getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC'],
+                [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
               ]),
         ],
         bind: {
@@ -170,7 +170,7 @@ function createAllRecordsRoute(
 
       const results = await model.findAll({
         where,
-        order: [[getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC']],
+        order: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC']],
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         bind: {
           language,
@@ -209,14 +209,7 @@ function createSuggesterCreateRoute(
 // Search against the translation if it exists, otherwise search against the searchColumn
 const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   return Sequelize.literal(
-    `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}") ILIKE $searchQuery`,
-  );
-};
-
-// Order against the translation if it exists, otherwise order against the searchColumn
-const getTranslationOrderLiteral = (endpoint, modelName, searchColumn) => {
-  return Sequelize.literal(
-    `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`,
+    `${translationCoalesce(endpoint, modelName, searchColumn)} ILIKE $searchQuery`,
   );
 };
 
