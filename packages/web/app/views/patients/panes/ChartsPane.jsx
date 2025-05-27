@@ -359,7 +359,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             ) : null}
 
             <ConditionalTooltip
-              $maxWidth="100px"
+              $maxWidth="7.5rem"
               visible={!recordButtonEnabled}
               title={
                 <TranslatedText
