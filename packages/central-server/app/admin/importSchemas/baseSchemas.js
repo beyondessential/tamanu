@@ -13,6 +13,11 @@ import {
   TASK_FREQUENCY_ACCEPTED_UNITS,
   TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE,
   REFERENCE_TYPES,
+  DRUG_ROUTE_VALUES,
+  DRUG_ROUTE_LABELS,
+  MEDICATION_DURATION_UNITS,
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_UNITS,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -63,10 +68,7 @@ export const Patient = Base.shape({
   culturalName: yup.string(),
 
   displayId: yup.string().required(),
-  sex: yup
-    .string()
-    .oneOf(['male', 'female', 'other'])
-    .required(),
+  sex: yup.string().oneOf(['male', 'female', 'other']).required(),
 
   dateOfBirth: yup.date().required(),
   dateOfDeath: yup.date(),
@@ -146,10 +148,7 @@ const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 export const LabTestType = Base.shape({
   name: yup.string().required(),
   labTestCategoryId: yup.string().required(),
-  resultType: yup
-    .string()
-    .required()
-    .oneOf(Object.values(LAB_TEST_RESULT_TYPES)),
+  resultType: yup.string().required().oneOf(Object.values(LAB_TEST_RESULT_TYPES)),
   options: yup.string(),
   unit: yup.string(),
   maleRange: yup.string().matches(rangeRegex),
@@ -175,17 +174,14 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
-    graphRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
+    graphRange: yup.lazy((value) => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
     interval: yup.number().required(),
   }),
 });
 
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
-  type: yup
-    .string()
-    .required()
-    .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+  type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
   defaultOptions: jsonString(),
   visualisationConfig: visualisationConfigString(visualisationConfigSchema),
 });
@@ -193,7 +189,7 @@ export const ProgramDataElement = Base.shape({
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.lazy(value => {
+    mandatory: yup.lazy((value) => {
       return typeof value === 'boolean'
         ? yup.boolean()
         : yup.object().shape({
@@ -232,7 +228,7 @@ export const ScheduledVaccine = Base.shape({
     },
     then: yup
       .number()
-      .test('is-null', 'Weeks from birth due should not be set for non-first doses', value => {
+      .test('is-null', 'Weeks from birth due should not be set for non-first doses', (value) => {
         return value === undefined;
       }),
     otherwise: yup.number(),
@@ -247,7 +243,7 @@ export const ScheduledVaccine = Base.shape({
       .test(
         'is-null',
         'Weeks from last vaccination due should not be set for first doses',
-        value => value === undefined,
+        (value) => value === undefined,
       ),
     otherwise: yup.number(),
   }),
@@ -261,40 +257,21 @@ const ICD11_REGEX = /^([0-9A-HJ-NP-V]{1,4}(\.[0-9A-HJ-NP-V]{1,4})?|X[0-9A-HJ-NP-
 const SNOMED_OR_ATC = /^([0-9]+|[A-Z][0-9A-Z]*)$/;
 const EITHER_EU_CODE_OR_SOMETHING_ELSE = /^((?!EU\/).+|EU\/[0-9]\/[0-9]{2}\/[0-9]+)$/;
 export const CertifiableVaccine = Base.shape({
-  icd11DrugCode: yup
-    .string()
-    .matches(ICD11_REGEX, 'must be ICD-11 code')
-    .required(),
-  icd11DiseaseCode: yup
-    .string()
-    .matches(ICD11_REGEX, 'must be ICD-11 code')
-    .required(),
-  vaccineCode: yup
-    .string()
-    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
-    .required(),
-  targetCode: yup
-    .string()
-    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
-    .optional(),
+  icd11DrugCode: yup.string().matches(ICD11_REGEX, 'must be ICD-11 code').required(),
+  icd11DiseaseCode: yup.string().matches(ICD11_REGEX, 'must be ICD-11 code').required(),
+  vaccineCode: yup.string().matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code').required(),
+  targetCode: yup.string().matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code').optional(),
   euProductCode: yup
     .string()
     .matches(EITHER_EU_CODE_OR_SOMETHING_ELSE, 'must either be a name or an EU product code')
     .optional(),
-  maximumDosage: yup
-    .number()
-    .positive()
-    .integer()
-    .required(),
+  maximumDosage: yup.number().positive().integer().required(),
   vaccineId: yup.string().required(),
   manufacturerId: yup.string().optional(),
 });
 
 export const Survey = Base.shape({
-  surveyType: yup
-    .string()
-    .required()
-    .oneOf(Object.values(SURVEY_TYPES)),
+  surveyType: yup.string().required().oneOf(Object.values(SURVEY_TYPES)),
   isSensitive: yup.boolean().required(),
   visibilityStatus: yup
     .string()
@@ -311,10 +288,7 @@ export const ProgramRegistry = Base.shape({
 export const ProgramRegistryClinicalStatus = Base.shape({
   code: fieldTypes.code.required(),
   name: yup.string().required(),
-  color: yup
-    .string()
-    .required()
-    .oneOf(Object.keys(STATUS_COLOR)),
+  color: yup.string().required().oneOf(Object.keys(STATUS_COLOR)),
   visibilityStatus,
 });
 
@@ -327,10 +301,7 @@ export const ProgramRegistryCondition = Base.shape({
 export const AdministeredVaccine = Base.shape({
   batch: yup.string(),
   consent: yup.boolean().required(),
-  status: yup
-    .string()
-    .oneOf(Object.values(VACCINE_STATUS))
-    .required(),
+  status: yup.string().oneOf(Object.values(VACCINE_STATUS)).required(),
   reason: yup.string(),
   injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_VALUES)),
   date: yup.date().required(),
@@ -389,14 +360,11 @@ export const TaskTemplate = yup.object().shape({
   id: yup.string().required(),
   referenceDataId: yup.string().required(),
   highPriority: yup.boolean().optional(),
-  frequencyValue: yup
-    .number()
-    .moreThan(0)
-    .optional(),
+  frequencyValue: yup.number().moreThan(0).optional(),
   frequencyUnit: yup
     .string()
     .optional()
-    .transform(value => TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] || value)
+    .transform((value) => TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] || value)
     .oneOf([...Object.values(TASK_FREQUENCY_ACCEPTED_UNITS), null]),
 });
 
@@ -404,3 +372,69 @@ export const TaskTemplateDesignation = yup.object().shape({
   taskTemplateId: yup.string().required(),
   designationId: yup.string().required(),
 });
+
+export const MedicationTemplate = yup
+  .object()
+  .shape({
+    id: yup.string().required(),
+    referenceDataId: yup.string().required(),
+    isPrn: yup.boolean().default(false),
+    isVariableDose: yup.boolean().default(false),
+
+    doseAmount: yup
+      .number()
+      .nullable()
+      .positive()
+      .when('isVariableDose', {
+        is: false,
+        then: (schema) => schema.required('Dose amount is required when isVariableDose is false.'),
+        otherwise: (schema) => schema.nullable(),
+      }),
+
+    units: yup.string().required().oneOf(Object.values(DRUG_UNITS)),
+    frequency: yup.string().required().oneOf(Object.values(ADMINISTRATION_FREQUENCIES)),
+    route: yup
+      .string()
+      .required()
+      .oneOf(Object.values(DRUG_ROUTE_VALUES))
+      .transform(
+        (value) =>
+          Object.keys(DRUG_ROUTE_LABELS).find((key) => DRUG_ROUTE_LABELS[key] === value) || value,
+      ),
+
+    durationValue: yup.number().nullable().positive(),
+    durationUnit: yup
+      .string()
+      .oneOf([...Object.values(MEDICATION_DURATION_UNITS), null])
+      .nullable(),
+    notes: yup.string().optional().nullable(),
+    dischargeQuantity: yup.number().optional().nullable().positive(),
+  })
+  .test(
+    'forbid-dose-amount-when-dose-is-variable',
+    null,
+    function ({ isVariableDose, doseAmount }) {
+      if (!isVariableDose && !doseAmount) {
+        return this.createError({
+          path: 'doseAmount',
+          message: 'Dose amount is required',
+        });
+      }
+      return true;
+    },
+  )
+  .test('duration-paired', null, function ({ durationValue, durationUnit }) {
+    if (durationValue && !durationUnit) {
+      return this.createError({
+        path: 'durationUnit',
+        message: 'Duration unit is required when duration value is provided.',
+      });
+    }
+    if (!durationValue && durationUnit) {
+      return this.createError({
+        path: 'durationValue',
+        message: 'Duration value is required when duration unit is provided.',
+      });
+    }
+    return true;
+  });
