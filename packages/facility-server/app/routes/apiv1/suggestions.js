@@ -99,9 +99,15 @@ function createSuggesterRoute(
         include,
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
+          // TODO: This is a hack to avoid ambiguous column references when we have includes
+          // need to either fix this or enforce custom orderBuilder
           ...(order ? [order] : []),
-          positionQuery,
-          [getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC'],
+          ...(include
+            ? []
+            : [
+                positionQuery,
+                [getTranslationOrderLiteral(endpoint, modelName, searchColumn), 'ASC'],
+              ]),
         ],
         bind: {
           positionMatch: searchQuery,
@@ -120,7 +126,7 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -136,7 +142,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
         bind: {
           language,
         },
-        attributes: getTranslationAttributes(endpoint, modelName),
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
       });
 
       if (!record) throw new NotFoundError();
