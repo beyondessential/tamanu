@@ -474,8 +474,7 @@ patientRoute.post(
 patientRoute.get(
   '/:id/ongoingPrescriptions',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('list', 'Prescription');
+    req.checkPermission('list', 'Medication');
 
     const { models, params, query } = req;
     const patientId = params.id;
@@ -523,8 +522,7 @@ patientRoute.get(
     } = req;
     const patientId = params.id;
 
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('list', 'Prescription');
+    req.checkPermission('list', 'Medication');
 
     const { order = 'ASC', orderBy = 'medication.name' } = query;
 

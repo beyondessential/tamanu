@@ -525,7 +525,7 @@ export const MedicationForm = ({
   onCustomClose,
 }) => {
   const api = useApi();
-  const { currentUser } = useAuth();
+  const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -537,6 +537,7 @@ export const MedicationForm = ({
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth).years;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
+  const canPrintPrescription = ability.can('read', 'Medication');
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState();
@@ -967,7 +968,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             <ButtonRow>
-              {isOngoingPrescription || onConfirmEdit ? (
+              {isOngoingPrescription || onConfirmEdit || !canPrintPrescription ? (
                 <div />
               ) : (
                 <FormSubmitButton

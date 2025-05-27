@@ -139,7 +139,12 @@ const TABS = [
     ),
     key: ENCOUNTER_TAB_NAMES.MEDICATION,
     render: props => (
-      <EncounterMedicationPane {...props} data-testid="encountermedicationpane-vij3" />
+      <EncounterPaneWithPermissionCheck
+        permissionNoun="Medication"
+        data-testid="encounterpanewithpermissioncheck-g9ps"
+      >
+        <EncounterMedicationPane {...props} data-testid="encountermedicationpane-vij3" />
+      </EncounterPaneWithPermissionCheck>
     ),
   },
   {

@@ -273,22 +273,6 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
     </Box>
   );
 };
-const QuantityAccessor = ({ id }) => (
-  <Field
-    name={`medications.${id}.quantity`}
-    component={NumberFieldWithoutLabel}
-    data-testid="field-ksmf"
-  />
-);
-const RepeatsAccessor = ({ id }) => (
-  <Field
-    name={`medications.${id}.repeats`}
-    isClearable={false}
-    component={TranslatedSelectField}
-    enumValues={REPEATS_LABELS}
-    data-testid="field-ium3"
-  />
-);
 const OngoingAccessor = ({ isOngoing }) => (
   <DarkestText>
     {isOngoing ? (
@@ -307,7 +291,12 @@ const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
   </DarkestText>
 );
 
-const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, handleDiscontinueMedication) => [
+const MEDICATION_COLUMNS = (
+  getTranslation,
+  getEnumTranslation,
+  handleDiscontinueMedication,
+  canUpdateMedication,
+) => [
   {
     key: 'medication',
     title: (
@@ -335,7 +324,14 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, handleDiscontinu
         data-testid="translatedtext-8e5k"
       />
     ),
-    accessor: QuantityAccessor,
+    accessor: ({ id }) => (
+      <Field
+        name={`medications.${id}.quantity`}
+        component={NumberFieldWithoutLabel}
+        data-testid="field-ksmf"
+        disabled={!canUpdateMedication}
+      />
+    ),
     width: '120px',
   },
   {
@@ -347,7 +343,16 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, handleDiscontinu
         data-testid="translatedtext-opjr"
       />
     ),
-    accessor: RepeatsAccessor,
+    accessor: ({ id }) => (
+      <Field
+        name={`medications.${id}.repeats`}
+        isClearable={false}
+        component={TranslatedSelectField}
+        enumValues={REPEATS_LABELS}
+        data-testid="field-ium3"
+        disabled={!canUpdateMedication}
+      />
+    ),
     width: '120px',
   },
   {
@@ -356,17 +361,21 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, handleDiscontinu
     accessor: OngoingAccessor,
     width: '60px',
   },
-  {
-    key: 'Discontinued',
-    title: '',
-    accessor: medication => (
-      <DiscontinuedAccessor
-        medication={medication}
-        handleDiscontinueMedication={handleDiscontinueMedication}
-      />
-    ),
-    width: '75px',
-  },
+  ...(canUpdateMedication
+    ? [
+        {
+          key: 'Discontinued',
+          title: '',
+          accessor: medication => (
+            <DiscontinuedAccessor
+              medication={medication}
+              handleDiscontinueMedication={handleDiscontinueMedication}
+            />
+          ),
+          width: '75px',
+        },
+      ]
+    : []),
 ];
 
 const EncounterOverview = ({
@@ -647,6 +656,8 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
+  const { ability } = useAuth();
+  const canUpdateMedication = ability.can('write', 'Medication');
 
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
@@ -859,6 +870,7 @@ export const DischargeForm = ({
                     getTranslation,
                     getEnumTranslation,
                     handleDiscontinueMedication,
+                    canUpdateMedication,
                   )}
                   data={activeMedications}
                   data-testid="tableformfields-i8q7"

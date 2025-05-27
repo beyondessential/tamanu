@@ -158,7 +158,7 @@ const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
 
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
-  const { currentUser } = useAuth();
+  const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
@@ -178,6 +178,8 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   };
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [submittedMedications, setSubmittedMedications] = useState([]);
+
+  const canPrintPrescription = ability.can('read', 'Medication');
 
   const onSubmit = async (isPrinting = false) => {
     const medications = selectedMedicationSet.children.map(({ medicationTemplate }) => ({
@@ -458,7 +460,11 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
               </Box>
             }
             finaliseDisabled={isCreatingMedicationSet}
-            onFinalise={MODAL_SCREENS.REVIEW_MEDICATION_SET === screen ? onFinalise : undefined}
+            onFinalise={
+              MODAL_SCREENS.REVIEW_MEDICATION_SET === screen && canPrintPrescription
+                ? onFinalise
+                : undefined
+            }
           />
         </>
       )}
