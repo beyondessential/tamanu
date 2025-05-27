@@ -9,6 +9,7 @@ import {
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
+import { pluralize } from 'inflection';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -465,66 +466,33 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
 
   const rows = [];
 
-  // Validate Drug
-  if (!drugReferenceDataId) {
-    pushError(`Medication is required for template "${referenceDataId}".`);
-    return [];
-  }
   const drug = await models.ReferenceData.findOne({
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
   });
   if (!drug) {
     pushError(
-      `Drug with ID "${drugReferenceDataId}" not found or not of type DRUG for template "${referenceDataId}".`,
+      `Drug with ID "${drugReferenceDataId}" does not exist.`,
     );
-    return [];
   }
-
-  // Validate Units
-  if (!units) {
-    pushError(`Units are required for template "${referenceDataId}".`);
-    return [];
-  }
-
-  // Validate Frequency
-  if (!frequency) {
-    pushError(`Frequency is required for template "${referenceDataId}".`);
-    return [];
-  }
-
-  // Validate Route
-  if (!route) {
-    pushError(`Route is required for template "${referenceDataId}".`);
-    return [];
-  }
-
-  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
-    pushError(`Dose amount must be a number or "variable" for template "${referenceDataId}".`);
-    return [];
-  }
-
-  const isPrn = ['true', 'yes', 't', 'y'].includes(
-    (prnMedication || 'false').toString().toLowerCase(),
-  );
 
   const existingTemplate = await models.MedicationTemplate.findOne({
     where: { referenceDataId },
   });
 
-  const [durationValue, durationUnit] = duration?.trim().split(' ') || [];
+  const [durationValue, durationUnit] = duration?.toString()?.split(' ') || [];
 
   const newTemplate = {
     id: existingTemplate?.id || uuidv4(),
     referenceDataId,
     medicationId: drugReferenceDataId,
-    isPrn,
+    isPrn: prnMedication,
     isVariableDose: doseAmount.toString().toLowerCase() === 'variable',
     doseAmount: parseFloat(doseAmount) || null,
     units,
     frequency,
     route,
     durationValue: durationValue || null,
-    durationUnit: durationUnit || null,
+    durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
   };
