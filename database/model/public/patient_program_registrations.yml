@@ -10,7 +10,7 @@ sources:
           - clinical
         columns:
           - name: id
-            data_type: text
+            data_type: uuid
             description: "{{ doc('generic__id') }} in patient_program_registrations."
             data_tests:
               - unique
