@@ -24,9 +24,8 @@ import {
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   UnsupportedPhotoField,
-  DateTimeInputWithDefaultNowField
 } from '../components/Field';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -68,7 +67,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: (props) => (
     <LimitedTextField {...props} limit={15} />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeInputWithDefaultNowField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => <DateTimeField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
 };
@@ -173,6 +172,8 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE: 
+      return getCurrentDateTimeString();
     default:
       return undefined;
   }
