@@ -184,6 +184,8 @@ export const MarTable = ({ selectedDate }) => {
     encounter?.id,
     {
       marDate: toDateString(selectedDate),
+      orderBy: 'date',
+      order: 'desc',
     },
   );
   const medications = (medicationsData?.data || []).sort((a, b) => {

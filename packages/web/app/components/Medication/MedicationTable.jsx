@@ -309,6 +309,7 @@ export const EncounterMedicationTable = ({
       <StyledDataFetchingTable
         columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation, !!selectedMedication)}
         endpoint={`encounter/${encounter.id}/medications`}
+        initialSort={{ orderBy: 'date', order: 'desc' }}
         rowStyle={rowStyle}
         elevated={false}
         allowExport={false}
