@@ -7,7 +7,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
-  recordVaccineModal: RecordVaccineModal;
+  recordVaccineModal?: RecordVaccineModal;
 
   constructor(page: Page) {
     super(page);

@@ -4,6 +4,7 @@ import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
   patientVaccinePane?: PatientVaccinePane;
