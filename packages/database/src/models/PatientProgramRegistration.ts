@@ -18,33 +18,10 @@ export class PatientProgramRegistration extends Model {
   declare deactivatedClinicianId?: string;
   declare deactivatedDate?: string;
 
-  static initModel(options: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
-        id: {
-          // patient_program_registration records use a generated primary key that enforces
-          // one per patient and program registry, even across a distributed sync system
-          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("program_registry_id", ';', ':')) STORED`,
-          set() {
-            // any sets of the convenience generated "id" field can be ignored
-          },
-        },
-        patientId: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-          references: {
-            model: 'patients',
-            key: 'id',
-          },
-        },
-        programRegistryId: {
-          type: DataTypes.STRING,
-          primaryKey: true,
-          references: {
-            model: 'program_registries',
-            key: 'id',
-          },
-        },
+        id: primaryKey,
         date: dateTimeType('date', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,

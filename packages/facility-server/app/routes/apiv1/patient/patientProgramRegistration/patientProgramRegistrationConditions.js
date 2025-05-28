@@ -37,9 +37,7 @@ patientProgramRegistrationConditions.get(
     const { PatientProgramRegistrationCondition, PatientProgramRegistration, ChangeLog, User } =
       models;
 
-    const programRegistration = await PatientProgramRegistration.findOne({
-      where: { id: programRegistrationId },
-    });
+    const programRegistration = await PatientProgramRegistration.findByPk(programRegistrationId);
     if (!programRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
     }

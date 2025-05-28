@@ -87,7 +87,9 @@ sources:
               doc('patient_program_registration_conditions__reason_for_change')
               }}"
           - name: patient_program_registration_id
-            data_type: text
+            data_type: uuid
             description: "{{
               doc('patient_program_registration_conditions__patient_program_reg\
               istration_id') }}"
+            data_tests:
+              - not_null

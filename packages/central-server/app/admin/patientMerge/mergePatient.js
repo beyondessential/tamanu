@@ -216,7 +216,7 @@ export async function mergePatientDeathData(models, keepPatientId, unwantedPatie
   return results;
 }
 
-export async function mergePatientProgramRegistrations(models, unwantedPatientId) {
+export async function mergePatientProgramRegistrations(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedRegistrations = await models.PatientProgramRegistration.findAll({
     where: { patientId: unwantedPatientId },
   });
@@ -228,7 +228,13 @@ export async function mergePatientProgramRegistrations(models, unwantedPatientId
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    await unwantedRegistration.destroy({ force: true });
+    // Move to keep patient
+    await unwantedRegistration.update({
+      patientId: keepPatientId,
+    });
+
+    // Soft delete the registration
+    await unwantedRegistration.destroy();
     results.push(unwantedRegistration);
   }
 
@@ -399,6 +405,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
       models,
+      keepPatientId,
       unwantedPatientId,
     );
     if (patientProgramRegistrationUpdates.length > 0) {
