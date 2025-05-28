@@ -12,7 +12,7 @@ import {
   DateField,
   Field,
   Form,
-  NoteBlock,
+  NoteModalActionBlocker,
   NumberField,
   TextField,
   TranslatedText,
@@ -156,7 +156,7 @@ export const PatientPaymentForm = ({
       render={({ submitForm, setFieldValue }) => (
         <FormRow data-testid="formrow-su8c">
           <FieldContainer width="19%" data-testid="fieldcontainer-1p4t">
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name="date"
                 required
@@ -165,10 +165,10 @@ export const PatientPaymentForm = ({
                 size="small"
                 data-testid="field-cx1w"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </FieldContainer>
           <FieldContainer width="19%" data-testid="fieldcontainer-mgnx">
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name="methodId"
                 required
@@ -178,11 +178,11 @@ export const PatientPaymentForm = ({
                 onChange={e => onDataChange({ paymentMethod: e.target })}
                 data-testid="field-c2nv"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </FieldContainer>
           {renderChequeNumberField()}
           <FieldContainer width="13%" data-testid="fieldcontainer-8d8a">
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name="amount"
                 required
@@ -194,13 +194,13 @@ export const PatientPaymentForm = ({
                 onChange={e => setAmount(e.target.value)}
                 data-testid="field-773f"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </FieldContainer>
           <FieldContainer
             sx={{ width: '18%', position: 'relative', marginRight: '23px' }}
             data-testid="fieldcontainer-4dkq"
           >
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name="receiptNumber"
                 required
@@ -209,7 +209,7 @@ export const PatientPaymentForm = ({
                 onChange={e => setFieldValue('receiptNumber', e.target.value)}
                 data-testid="field-9boo"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -220,18 +220,18 @@ export const PatientPaymentForm = ({
               }
               data-testid="themedtooltip-i9dx"
             >
-              <NoteBlock>
+              <NoteModalActionBlocker>
                 <IconButton
                   onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
                   data-testid="iconbutton-9yvq"
                 >
                   <CachedIcon data-testid="cachedicon-vghh" />
                 </IconButton>
-              </NoteBlock>
+              </NoteModalActionBlocker>
             </ThemedTooltip>
           </FieldContainer>
           <Box sx={{ marginLeft: 'auto' }} data-testid="box-t4yy">
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Button
                 size="small"
                 onClick={submitForm}
@@ -244,7 +244,7 @@ export const PatientPaymentForm = ({
                   data-testid="translatedtext-dpmj"
                 />
               </Button>
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </Box>
           {openConfirmPaidModal && (
             <ConfirmPaidModal

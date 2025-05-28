@@ -11,7 +11,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
-import { NoteBlock } from '../../NoteBlock';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
 `;
@@ -179,7 +179,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       sortable: false,
       numeric: true, // Right aligns the cell content
       accessor: row => (
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <SingleAddButton
             variant="outlined"
             onClick={() => handleAddPotentialInvoiceItems([row])}
@@ -191,7 +191,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
               data-testid="translatedtext-yvbk"
             />
           </SingleAddButton>
-        </NoteBlock>
+        </NoteModalActionBlocker>
       ),
     },
   ];
@@ -205,7 +205,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           data-testid="translatedtext-hxbk"
         />
         {!isEmptyPotentialInvoiceItems && (
-          <NoteBlock>
+          <NoteModalActionBlocker>
             <BulkAddButton
               onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}
               data-testid="bulkaddbutton-ziik"
@@ -216,7 +216,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
                 data-testid="translatedtext-ziuk"
               />
             </BulkAddButton>
-          </NoteBlock>
+          </NoteModalActionBlocker>
         )}
       </PaneHeader>
       <StyledDataFetchingTable

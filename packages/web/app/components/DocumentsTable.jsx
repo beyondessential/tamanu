@@ -12,7 +12,7 @@ import { TranslatedText, TranslatedReferenceData } from './Translation';
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
 import { useAuth } from '../contexts/Auth';
-import { NoteBlock } from './NoteBlock';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const ActionWrapper = styled.div`
   width: 0; // This is needed to move content to the right side of the table
@@ -77,7 +77,7 @@ export const DocumentsTable = React.memo(
           return ability?.can('delete', 'DocumentMetadata');
         },
         wrapper: menuItem => {
-          return <NoteBlock>{menuItem}</NoteBlock>;
+          return <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>;
         },
       },
     ].filter(({ permissionCheck }) => {

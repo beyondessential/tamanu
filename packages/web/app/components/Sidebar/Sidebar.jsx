@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
-import { NoteBlock } from '../NoteBlock';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -286,7 +286,7 @@ export const Sidebar = React.memo(({ items }) => {
 
           if (!item.children) {
             return (
-              <NoteBlock key={item.path} isNavigationBlock>
+              <NoteModalActionBlocker key={item.path} isNavigationBlock>
                 <TopLevelSidebarItem
                   key={item.path}
                   {...commonProps}
@@ -295,7 +295,7 @@ export const Sidebar = React.memo(({ items }) => {
                   onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
                   data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`}
                 />
-              </NoteBlock>
+              </NoteModalActionBlocker>
             );
           }
 
@@ -315,7 +315,7 @@ export const Sidebar = React.memo(({ items }) => {
               data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
             >
               {item.children.map(child => (
-                <NoteBlock key={child.path} isNavigationBlock>
+                <NoteModalActionBlocker key={child.path} isNavigationBlock>
                   <SecondarySidebarItem
                     key={child.path}
                     path={child.path}
@@ -326,7 +326,7 @@ export const Sidebar = React.memo(({ items }) => {
                     onClick={() => onPathChanged(child.path)}
                     data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
                   />
-                </NoteBlock>
+                </NoteModalActionBlocker>
               ))}
             </PrimarySidebarItem>
           );

@@ -11,7 +11,7 @@ import {
   ContentPane,
   OutlinedButton,
   TableButtonRow,
-  NoteBlock,
+  NoteModalActionBlocker,
 } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -57,7 +57,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       )}
       <PaneWrapper data-testid="panewrapper-vhzo">
         <TableButtonRow variant="small" data-testid="tablebuttonrow-khuv">
-          <NoteBlock>
+          <NoteModalActionBlocker>
             <OutlinedButton
               onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
               data-testid="outlinedbutton-me4h"
@@ -68,8 +68,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
                 data-testid="translatedtext-ws2i"
               />
             </OutlinedButton>
-          </NoteBlock>
-          <NoteBlock>
+          </NoteModalActionBlocker>
+          <NoteModalActionBlocker>
             <ButtonWithPermissionCheck
               verb="create"
               noun="DocumentMetadata"
@@ -82,7 +82,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
                 data-testid="translatedtext-yhxu"
               />
             </ButtonWithPermissionCheck>
-          </NoteBlock>
+          </NoteModalActionBlocker>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}

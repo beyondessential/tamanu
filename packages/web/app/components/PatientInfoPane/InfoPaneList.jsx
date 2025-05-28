@@ -10,7 +10,7 @@ import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
-import { NoteBlock } from '../NoteBlock';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
@@ -147,7 +147,7 @@ export const InfoPaneList = ({
       >
         <TitleText data-testid="titletext-rvdl">{title}</TitleText>
         {!readonly && (
-          <NoteBlock>
+          <NoteModalActionBlocker>
             <AddButton
               onClick={handleAddButtonClick}
               endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
@@ -156,7 +156,7 @@ export const InfoPaneList = ({
             >
               Add
             </AddButton>
-          </NoteBlock>
+          </NoteModalActionBlocker>
         )}
       </TitleContainer>
       <DataList data-testid="datalist-073t">

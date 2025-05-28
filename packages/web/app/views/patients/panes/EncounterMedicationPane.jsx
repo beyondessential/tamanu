@@ -3,7 +3,11 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
-import { ButtonWithPermissionCheck, TableButtonRow, NoteBlock } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  NoteModalActionBlocker,
+} from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -47,7 +51,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             data-testid="translatedtext-1vxa"
           />
         </ButtonWithPermissionCheck>
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setCreateMedicationModalOpen(true)}
             disabled={readonly}
@@ -61,7 +65,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               data-testid="translatedtext-pikt"
             />
           </ButtonWithPermissionCheck>
-        </NoteBlock>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <EncounterMedicationTable
         encounterId={encounter.id}

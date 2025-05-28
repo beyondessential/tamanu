@@ -22,7 +22,7 @@ import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
-import { NoteBlock } from '../../NoteBlock';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -303,7 +303,7 @@ export const EditInvoiceModal = ({
               data-testid="box-bf9z"
             >
               {finalisable && (
-                <NoteBlock>
+                <NoteModalActionBlocker>
                   <Button onClick={handleFinaliseInvoice} data-testid="button-yicz">
                     <TranslatedText
                       stringId="invoice.modal.finaliseButton.label"
@@ -311,7 +311,7 @@ export const EditInvoiceModal = ({
                       data-testid="translatedtext-upzu"
                     />
                   </Button>
-                </NoteBlock>
+                </NoteModalActionBlocker>
               )}
               {(cancelable || deletable) && (
                 <ThreeDotMenu

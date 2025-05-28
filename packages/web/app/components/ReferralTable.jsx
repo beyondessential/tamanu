@@ -18,7 +18,7 @@ import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
-import { NoteBlock } from './NoteBlock';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -148,7 +148,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       ),
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
-      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -160,7 +160,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       ),
       action: onCompleteReferral,
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
-      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -172,7 +172,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       ),
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
       condition: data => data.status === REFERRAL_STATUSES.PENDING,
-      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -186,7 +186,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       permissionCheck: () => {
         return ability?.can('delete', 'Referral');
       },
-      wrapper: actionButton => <NoteBlock>{actionButton}</NoteBlock>,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     // Worth keeping around to address in proper linear card
     {

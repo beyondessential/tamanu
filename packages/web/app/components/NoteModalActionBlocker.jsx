@@ -4,7 +4,7 @@ import { useNoteModal } from '../contexts/NoteModal';
 import { ConditionalTooltip } from './Tooltip';
 import { TranslatedText } from './Translation/TranslatedText';
 
-export const NoteBlock = ({ children, isNavigationBlock = false }) => {
+export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) => {
   const { isNoteModalOpen } = useNoteModal();
 
   if (!isNoteModalOpen) {

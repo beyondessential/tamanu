@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
-import { ButtonWithPermissionCheck, TableButtonRow, NoteBlock } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  NoteModalActionBlocker,
+} from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -25,7 +29,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
         data-testid="printmultiplelabrequestsselectionmodal-hccp"
       />
       <TableButtonRow variant="small" data-testid="tablebuttonrow-yf2d">
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setPrintRequestsModalOpen(true)}
             disabled={readonly}
@@ -42,8 +46,8 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
               data-testid="translatedtext-923g"
             />
           </ButtonWithPermissionCheck>
-        </NoteBlock>
-        <NoteBlock>
+        </NoteModalActionBlocker>
+        <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}
             disabled={readonly}
@@ -58,7 +62,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
               data-testid="translatedtext-5yxa"
             />
           </ButtonWithPermissionCheck>
-        </NoteBlock>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <EncounterLabRequestsTable
         encounterId={encounter.id}

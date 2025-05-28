@@ -10,7 +10,7 @@ import {
   AutocompleteField,
   FormGrid,
   TranslatedRadioField,
-  NoteBlock,
+  NoteModalActionBlocker,
 } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -53,7 +53,7 @@ export const GenericPrimaryDetailsLayout = ({
         )}
       </PatientDetailsHeading>
       <FormGrid data-testid="formgrid-y53s">
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <LocalisedField
             name="firstName"
             label={
@@ -178,7 +178,7 @@ export const GenericPrimaryDetailsLayout = ({
             registeredBirthPlace={registeredBirthPlace}
             data-testid="requiredsecondarydetails-xpxc"
           />
-        </NoteBlock>
+        </NoteModalActionBlocker>
       </FormGrid>
     </>
   );

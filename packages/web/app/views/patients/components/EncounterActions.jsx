@@ -9,7 +9,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, NoteBlock } from '../../../components';
+import { Button, NoteModalActionBlocker } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -297,9 +297,9 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   ].filter(action => !action.condition || action.condition());
 
   return (
-    <NoteBlock>
+    <NoteModalActionBlocker>
       <StyledDropdownButton actions={actions} data-testid="styleddropdownbutton-zjxy" />
-    </NoteBlock>
+    </NoteModalActionBlocker>
   );
 };
 

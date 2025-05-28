@@ -16,7 +16,7 @@ import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
-import { NoteBlock } from '../../NoteBlock';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -301,7 +301,7 @@ export const InvoiceItemRow = ({
       <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
         <StyledItemCell width="14%">
           {isItemEditable ? (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name={`invoiceItems.${index}.orderDate`}
                 required
@@ -309,7 +309,7 @@ export const InvoiceItemRow = ({
                 saveDateAsString
                 data-testid="field-e3dv"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
@@ -318,7 +318,7 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="28%">
           {isItemEditable ? (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name={`invoiceItems.${index}.productId`}
                 required
@@ -327,7 +327,7 @@ export const InvoiceItemRow = ({
                 onChange={handleChangeProduct}
                 data-testid="field-f5fm"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
               {item.productName}
@@ -356,7 +356,7 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name={`invoiceItems.${index}.quantity`}
                 component={NumberField}
@@ -371,14 +371,14 @@ export const InvoiceItemRow = ({
                 required
                 data-testid="field-6aku"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>{item?.quantity}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell width="19%" data-testid="styleditemcell-tfvb">
           {isItemEditable ? (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Field
                 name={`invoiceItems.${index}.orderedByUserId`}
                 required
@@ -388,7 +388,7 @@ export const InvoiceItemRow = ({
                 onChange={handleChangeOrderedBy}
                 data-testid="field-xin4"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
@@ -413,7 +413,7 @@ export const InvoiceItemRow = ({
               </>
             ) : (
               item.productId && (
-                <NoteBlock>
+                <NoteModalActionBlocker>
                   <Field
                     name={`invoiceItems.${index}.productPrice`}
                     component={PriceField}
@@ -421,13 +421,13 @@ export const InvoiceItemRow = ({
                     style={{ width: '100%' }}
                     data-testid="field-05x9"
                   />
-                </NoteBlock>
+                </NoteModalActionBlocker>
               )
             )}
             {showActionMenu && editable && (
-              <NoteBlock>
+              <NoteModalActionBlocker>
                 <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
-              </NoteBlock>
+              </NoteModalActionBlocker>
             )}
           </PriceCell>
         </StyledItemCell>

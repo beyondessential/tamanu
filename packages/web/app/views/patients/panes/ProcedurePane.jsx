@@ -5,7 +5,7 @@ import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { NoteBlock } from '../../../components/NoteBlock';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
@@ -24,7 +24,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         data-testid="proceduremodal-xq2p"
       />
       <TableButtonRow variant="small" data-testid="tablebuttonrow-o76z">
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setEditedProcedure({})}
             disabled={readonly}
@@ -38,7 +38,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
               data-testid="translatedtext-gqco"
             />
           </ButtonWithPermissionCheck>
-        </NoteBlock>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <ProcedureTable
         encounterId={encounter.id}

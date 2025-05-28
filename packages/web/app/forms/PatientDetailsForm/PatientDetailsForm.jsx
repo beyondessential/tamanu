@@ -7,7 +7,7 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants'
 
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import { ButtonRow, Form, FormSubmitButton, NoteBlock } from '../../components';
+import { ButtonRow, Form, FormSubmitButton, NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
@@ -137,14 +137,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             data-testid="patientfields-csd1"
           />
           <ButtonRow data-testid="buttonrow-92zi">
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <FormSubmitButton
                 variant="contained"
                 color="primary"
                 text="Save"
                 data-testid="formsubmitbutton-dzgy"
               />
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </ButtonRow>
         </>
       )}

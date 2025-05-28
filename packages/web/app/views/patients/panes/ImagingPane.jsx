@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Button, ButtonWithPermissionCheck, TableButtonRow, NoteBlock } from '../../../components';
+import {
+  Button,
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  NoteModalActionBlocker,
+} from '../../../components';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
@@ -39,7 +44,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
             data-testid="translatedtext-iujx"
           />
         </Button>
-        <NoteBlock>
+        <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}
             disabled={readonly}
@@ -53,7 +58,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
               data-testid="translatedtext-hml5"
             />
           </ButtonWithPermissionCheck>
-        </NoteBlock>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} data-testid="imagingrequeststable-csir" />
     </TabPane>

@@ -15,7 +15,7 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
-import { NoteBlock } from '../../../components';
+import { NoteModalActionBlocker } from '../../../components';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -84,7 +84,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </InvoiceHeading>
               {(cancelable || deletable) && (
                 <ActionsPane data-testid="actionspane-l9ey">
-                  <NoteBlock>
+                  <NoteModalActionBlocker>
                     <ThreeDotMenu
                       items={[
                         {
@@ -112,8 +112,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                       ]}
                       data-testid="threedotmenu-5t9u"
                     />
-                  </NoteBlock>
-                  <NoteBlock>
+                  </NoteModalActionBlocker>
+                  <NoteModalActionBlocker>
                     <Button
                       onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
                       data-testid="button-2zyp"
@@ -124,7 +124,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                         data-testid="translatedtext-6nrc"
                       />
                     </Button>
-                  </NoteBlock>
+                  </NoteModalActionBlocker>
                 </ActionsPane>
               )}
             </InvoiceTopBar>
@@ -135,7 +135,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
       ) : (
         <EmptyPane data-testid="emptypane-cjxo">
           {ability.can('create', 'Invoice') && (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <Button
                 onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
                 data-testid="button-j06y"
@@ -146,7 +146,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   data-testid="translatedtext-um8m"
                 />
               </Button>
-            </NoteBlock>
+            </NoteModalActionBlocker>
           )}
         </EmptyPane>
       )}

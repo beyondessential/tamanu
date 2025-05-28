@@ -6,7 +6,7 @@ import {
   ContentPane,
   TableButtonRow,
   TranslatedText,
-  NoteBlock,
+  NoteModalActionBlocker,
 } from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
@@ -141,7 +141,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               />
             </Button>
           )}
-          <NoteBlock>
+          <NoteModalActionBlocker>
             <ButtonWithPermissionCheck
               verb="create"
               noun="PatientVaccine"
@@ -155,7 +155,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
                 data-testid="translatedtext-4e9m"
               />
             </ButtonWithPermissionCheck>
-          </NoteBlock>
+          </NoteModalActionBlocker>
         </TableButtonRow>
         <TableWrapper data-testid="tablewrapper-rbs7">
           <ImmunisationScheduleTable

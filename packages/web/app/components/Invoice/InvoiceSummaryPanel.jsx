@@ -19,7 +19,7 @@ import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
 import { useSuggester } from '../../api';
-import { NoteBlock } from '../NoteBlock';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -118,7 +118,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
               >
                 <Box display="flex" style={{ gap: '8px', flex: 1 }}>
                   <Box style={{ flex: 1 }}>
-                    <NoteBlock>
+                    <NoteModalActionBlocker>
                       <Field
                         name={`insurers.${index}.insurerId`}
                         required
@@ -127,9 +127,9 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                         style={{ width: '100%' }}
                         data-testid={`field-6jf7-${index}`}
                       />
-                    </NoteBlock>
+                    </NoteModalActionBlocker>
                   </Box>
-                  <NoteBlock>
+                  <NoteModalActionBlocker>
                     <Field
                       name={`insurers.${index}.percentage`}
                       component={NumberField}
@@ -140,7 +140,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                       style={{ width: '70px' }}
                       data-testid={`field-v5p9-${index}`}
                     />
-                  </NoteBlock>
+                  </NoteModalActionBlocker>
                   <Box marginTop="11px" data-testid={`box-mtns-${index}`}>
                     %
                   </Box>
@@ -157,15 +157,15 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
-                  <NoteBlock>
+                  <NoteModalActionBlocker>
                     <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                       <CloseIcon />
                     </RemoveInsurerButton>
-                  </NoteBlock>
+                  </NoteModalActionBlocker>
                 </Box>
               </Box>
             ))}
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <AddInsurerButton
                 variant="text"
                 disableRipple
@@ -192,7 +192,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                   />
                 )}
               </AddInsurerButton>
-            </NoteBlock>
+            </NoteModalActionBlocker>
           </CardItem>
         );
       }}
@@ -325,14 +325,14 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           data-testid="translatedtext-5iru"
         />
         {editable && !invoice.discount && (
-          <NoteBlock>
+          <NoteModalActionBlocker>
             <Button onClick={handleEditDiscount}>
               <TranslatedText
                 stringId="invoice.summary.action.addDiscount"
                 fallback="Add discount"
               />
             </Button>
-          </NoteBlock>
+          </NoteModalActionBlocker>
         )}
         {!!invoice.discount && (
           <DiscountedPrice data-testid="discountedprice-nuxm">
@@ -389,11 +389,11 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             </ThemedTooltip>
           </DescriptionText>
           {editable && (
-            <NoteBlock>
+            <NoteModalActionBlocker>
               <IconButton onClick={handleEditDiscount}>
                 <PencilIcon />
               </IconButton>
-            </NoteBlock>
+            </NoteModalActionBlocker>
           )}
         </CardItem>
       )}
