@@ -1,7 +1,7 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
+import { insertSnapshotRecords, SYNC_SESSION_DIRECTION, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
@@ -41,9 +41,9 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => ({
+    const recordsToSave = records.map((r) => ({
       ...r,
-      data: { ...r.data, updatedAtSyncTick: -1 }, // mark as never updated, so we don't push it back to the central server until the next local update
+      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 

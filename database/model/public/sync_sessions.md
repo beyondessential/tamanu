@@ -22,6 +22,10 @@ Timestamp when sync session snapshot was completed
 Debug information for the sync session
 {% enddocs %}
 
+{% docs sync_sessions__parameters %}
+Parameters for the sync session
+{% enddocs %}
+
 {% docs sync_sessions__completed_at %}
 Timestamp when sync session was completed
 {% enddocs %}
