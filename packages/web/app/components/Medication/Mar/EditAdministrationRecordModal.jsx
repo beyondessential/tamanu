@@ -20,6 +20,7 @@ import { isWithinTimeSlot } from '../../../utils/medications';
 import { MarInfoPane } from './MarInfoPane';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { toast } from 'react-toastify';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -120,32 +121,36 @@ export const EditAdministrationRecordModal = ({
   });
 
   const handleSubmit = async values => {
-    if (marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-      const { reasonNotGivenId, recordedByUserId, changingNotGivenInfoReason } = values;
-      await updateNotGivenInfoMar({
-        reasonNotGivenId,
-        recordedByUserId,
-        changingNotGivenInfoReason,
-      });
-    } else {
-      const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } = values;
-      if (
-        !showWarningModal &&
-        Number(medication?.doseAmount) !== Number(doseAmount) &&
-        !medication?.isVariableDose
-      ) {
-        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
-        return;
+    try {
+      if (marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
+        const { reasonNotGivenId, recordedByUserId, changingNotGivenInfoReason } = values;
+        await updateNotGivenInfoMar({
+          reasonNotGivenId,
+          recordedByUserId,
+          changingNotGivenInfoReason,
+        });
+      } else {
+        const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } = values;
+        if (
+          !showWarningModal &&
+          Number(medication?.doseAmount) !== Number(doseAmount) &&
+          !medication?.isVariableDose
+        ) {
+          setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+          return;
+        }
+        await updateMarDose({
+          doseAmount: Number(doseAmount),
+          givenTime: toDateTimeString(givenTime),
+          givenByUserId,
+          recordedByUserId,
+          reasonForChange,
+        });
       }
-      await updateMarDose({
-        doseAmount: Number(doseAmount),
-        givenTime: toDateTimeString(givenTime),
-        givenByUserId,
-        recordedByUserId,
-        reasonForChange,
-      });
+      onClose();
+    } catch (error) {
+      toast.error(error.message);
     }
-    onClose();
   };
 
   const getValidationSchema = () => {
@@ -240,7 +245,12 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={recordedBySuggester}
                     required
                   />
@@ -316,14 +326,21 @@ export const EditAdministrationRecordModal = ({
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
+                    label={
+                      <TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />
+                    }
                     suggester={givenBySuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={recordedBySuggester}
                     required
                   />
