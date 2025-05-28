@@ -6,12 +6,19 @@ import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 const snapshotChangesForModel = async (model, since, transaction) => {
-  const recordsChanged = await model.findAll({
-    where: { updatedAtSyncTick: { [Op.gt]: since } },
-    raw: true,
-    paranoid: false,
-    transaction,
-  });
+  let recordsChanged = [];
+  try {
+   recordsChanged = await model.findAll({
+      where: { updatedAtSyncTick: { [Op.gt]: since } },
+      raw: true,
+      paranoid: false,
+      transaction,
+    });
+  } catch (error) {
+    log.error(`Error snapshotChangesForModel: ${error}`);
+    throw error;
+  }
+
 
   log.debug(
     `snapshotChangesForModel: Found ${recordsChanged.length} for model ${model.tableName} since ${since}`,

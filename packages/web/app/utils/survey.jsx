@@ -24,6 +24,7 @@ import {
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   UnsupportedPhotoField,
+  DateTimeInputWithDefaultNowField
 } from '../components/Field';
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
@@ -67,9 +68,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: (props) => (
     <LimitedTextField {...props} limit={15} />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
-    <DateTimeField {...props} saveDateAsString />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeInputWithDefaultNowField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
 };
