@@ -2,6 +2,7 @@ import { test, expect } from '../../fixtures/baseFixture';
 import { recentlyViewedPatientPage } from '../../pages/patients/recentlyViewedPatientPage';
 import { createPatientViaApi } from '../../utils/generateNewPatient';
 import { convertDateFormat } from '../../utils/testHelper';
+import { PatientDetailsPage } from '../../pages/patients/PatientDetailsPage';
 
 test.describe('Recently viewed patients top bar', () => {
   let patientData: any;
@@ -30,6 +31,7 @@ test.describe('Recently viewed patients top bar', () => {
     // Create and view first patient
     await allPatientsPage.searchTable({ NHN: patientData.nhn, advancedSearch: false });
     await allPatientsPage.clickOnFirstRow();
+    await allPatientsPage.goto();
     
     // Create and view second patient
     await createPatientViaApi(allPatientsPage);
@@ -55,7 +57,8 @@ test.describe('Recently viewed patients top bar', () => {
     
     // Verify navigation to patient details
     await expect(page).toHaveURL(/.*\/patients\/all\/.*/);
-    await expect(page.getByTestId('healthidtext-fqvn')).toHaveText(patientData.nhn);
+    const patientDetailsPage = new PatientDetailsPage(page);
+    await expect(patientDetailsPage.healthIdText).toHaveText(patientData.nhn);
   });
 
   test('Recently viewed list updates when viewing same patient multiple times', async ({ allPatientsPage, page }) => {

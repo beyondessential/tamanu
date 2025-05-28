@@ -5,12 +5,14 @@ import { PatientVaccinePane } from './panes/PatientVaccinePane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
+  readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
 
   constructor(page: Page) {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
