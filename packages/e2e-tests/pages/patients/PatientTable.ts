@@ -157,8 +157,7 @@ export class PatientTable {
   }
 
   async validateFirstRowContainsNHN(expectedText: string) {
-    const firstRowNHN = this.page.locator('[data-testid="styledtablecell-2gyy-0-displayId"]');              
-    await expect(firstRowNHN).toHaveText(expectedText);
+    await expect(this.nhnResultCell).toHaveText(expectedText)
   }
 
   async validateOneSearchResult() {
