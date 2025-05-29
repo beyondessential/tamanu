@@ -29,7 +29,7 @@ export class PatientProgramRegistrationCondition
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
 
-  @Column({ nullable: false, default: 'Unknown' })
+  @Column({ nullable: false, default: 'unknown' })
   conditionCategory: string;
 
   @Column({ nullable: true })
@@ -41,11 +41,7 @@ export class PatientProgramRegistrationCondition
   @RelationId(({ patientProgramRegistration }) => patientProgramRegistration)
   patientProgramRegistrationId: ID;
 
-  @ManyToOne(
-    () => ProgramRegistryCondition,
-    ({ patientProgramRegistrationConditions }) => patientProgramRegistrationConditions,
-    { nullable: true },
-  )
+  @ManyToOne(() => ProgramRegistryCondition, ({ conditions }) => conditions, { nullable: true })
   programRegistryCondition?: IProgramRegistryCondition;
 
   @RelationId(({ programRegistryCondition }) => programRegistryCondition)

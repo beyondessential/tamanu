@@ -29,7 +29,7 @@ export class PatientProgramRegistrationCondition extends Model {
         }),
         conditionCategory: {
           type: DataTypes.STRING,
-          defaultValue: 'Unknown',
+          defaultValue: 'unknown',
           allowNull: false,
         },
         reasonForChange: {
