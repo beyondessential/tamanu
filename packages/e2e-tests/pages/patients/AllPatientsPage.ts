@@ -20,12 +20,6 @@ export class AllPatientsPage extends BasePage {
   readonly searchResultsPagination: Locator;
   readonly searchResultsPaginationOneOfOne: Locator;
   readonly newPatientVillageSearchBox: Locator;
-  readonly downloadBtn: Locator;
-  readonly pageRecordCountDropDown: Locator;
-  readonly patientPageRecordCount25: Locator;
-  readonly patientPageRecordCount50: Locator;
-  readonly patientPage2: Locator;
-  readonly pageRecordCount: Locator;
   _patientData?: {
     id: string;
     firstName: string;
@@ -56,12 +50,6 @@ export class AllPatientsPage extends BasePage {
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
-    this.downloadBtn = page.getByTestId('download-data-button');
-    this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
-    this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
-    this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
-    this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');
-    this.pageRecordCount = page.getByTestId('pagerecordcount-m8ne');
   }
 
   setPatientData(data: {
@@ -81,10 +69,6 @@ export class AllPatientsPage extends BasePage {
     if (!this._patientData) throw new Error('Patient data has not been set');
     return this._patientData;
   }
-
-
-
-
 
   async navigateToPatientDetailsPage(nhn: string) {
     await this.goto();
@@ -139,5 +123,4 @@ export class AllPatientsPage extends BasePage {
       }
     }
   }
-
 }

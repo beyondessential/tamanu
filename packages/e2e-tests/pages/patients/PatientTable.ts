@@ -29,6 +29,12 @@ export class PatientTable {
   readonly sexDropDownCrossIcon: Locator;
   readonly DOBFromTxt: Locator;
   readonly DOBToTxt: Locator;
+  readonly downloadBtn: Locator;
+  readonly pageRecordCountDropDown: Locator;
+  readonly patientPageRecordCount25: Locator;
+  readonly patientPageRecordCount50: Locator;
+  readonly patientPage2: Locator;
+  readonly pageRecordCount: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -57,6 +63,12 @@ export class PatientTable {
     this.sexDropDownCrossIcon = page.getByTestId('stylediconbutton-6vh3');
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
+    this.downloadBtn = page.getByTestId('download-data-button');
+    this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
+    this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
+    this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
+    this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2', { exact: true });
+    this.pageRecordCount = page.getByTestId('pagerecordcount-m8ne');
   }
 
   async waitForTableToLoad() {
@@ -186,11 +198,9 @@ export class PatientTable {
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      const dateA = a.split('/').reverse().join('-');
-      const dateB = b.split('/').reverse().join('-');
-      return isAscending 
-        ? new Date(dateA).getTime() - new Date(dateB).getTime()
-        : new Date(dateB).getTime() - new Date(dateA).getTime();
+      const dateA = new Date(a.split('/').reverse().join('-')).getTime();
+      const dateB = new Date(b.split('/').reverse().join('-')).getTime();
+      return isAscending ? dateA - dateB : dateB - dateA;
     });
     expect(dateValues).toEqual(sortedValues);
   }
