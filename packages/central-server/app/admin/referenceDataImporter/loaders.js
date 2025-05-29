@@ -475,7 +475,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     );
   }
 
-  const existingTemplate = await models.MedicationTemplate.findOne({
+  const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
     where: { referenceDataId },
   });
 
@@ -498,7 +498,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
   };
 
   rows.push({
-    model: 'MedicationTemplate',
+    model: 'ReferenceMedicationTemplate',
     values: newTemplate,
   });
 

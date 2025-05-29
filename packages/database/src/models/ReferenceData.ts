@@ -110,7 +110,7 @@ export class ReferenceData extends Model {
       foreignKey: 'referenceDataId',
     });
 
-    this.hasOne(models.MedicationTemplate, {
+    this.hasOne(models.ReferenceMedicationTemplate, {
       as: 'medicationTemplate',
       foreignKey: 'referenceDataId',
     });

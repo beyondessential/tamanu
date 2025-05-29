@@ -373,7 +373,7 @@ export const TaskTemplateDesignation = yup.object().shape({
   designationId: yup.string().required(),
 });
 
-export const MedicationTemplate = yup
+export const ReferenceMedicationTemplate = yup
   .object()
   .shape({
     id: yup.string().required(),
@@ -411,13 +411,13 @@ export const MedicationTemplate = yup
     dischargeQuantity: yup.number().optional().nullable().positive(),
   })
   .test(
-    'forbid-dose-amount-when-dose-is-variable',
+    'forbid-duration-when-frequency-is-immediately',
     null,
-    function ({ isVariableDose, doseAmount }) {
-      if (!isVariableDose && !doseAmount) {
+    function ({ frequency, durationValue, durationUnit }) {
+      if (frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY && (durationValue || durationUnit)) {
         return this.createError({
-          path: 'doseAmount',
-          message: 'Dose amount is required',
+          path: 'durationValue',
+          message: 'Duration is not allowed when frequency is Immediately.',
         });
       }
       return true;

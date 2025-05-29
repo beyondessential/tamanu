@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { type InitOptions, type Models } from '../types/model';
 
-export class MedicationTemplate extends Model {
+export class ReferenceMedicationTemplate extends Model {
   declare id: string;
   declare referenceDataId: string;
   declare isPrn: boolean;
