@@ -37,7 +37,7 @@ export const ProgramRegistrySidebarItem = ({
           <SecondarySidebarItem
             key={id}
             path={secondaryPath}
-            isCurrent={currentPath.includes(secondaryPath)}
+            isCurrent={currentPath === secondaryPath}
             color=""
             label={
               <TranslatedReferenceData
