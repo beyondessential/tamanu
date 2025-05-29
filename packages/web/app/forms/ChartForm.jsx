@@ -11,16 +11,39 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
+import { getFormInitialValues } from '../utils';
+import { usePatientAdditionalDataQuery } from '../api/queries';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
-  const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
+  const { currentUser } = useAuth();
+  const { data: chartSurvey, isLoading: isChartSurveyLoading, isError: isChartSurveyError, error: chartSurveyError } = useChartSurveyQuery(chartSurveyId);
+  const {
+    isLoading: isPatientAdditionalDataLoading,
+    data: patientAdditionalData,
+    isError: isPatientAdditionalDataError,
+    error: patientAdditionalDataError,
+  } = usePatientAdditionalDataQuery(patient?.id);
+
+  const isLoading = isChartSurveyLoading || isPatientAdditionalDataLoading;
+  const isError = isChartSurveyError || isPatientAdditionalDataError;
+  const error = chartSurveyError || patientAdditionalDataError;
+
   const { components = [] } = chartSurvey || {};
   const visibleComponents = components.filter(
     (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
-
+  );  
+  
   const { ability } = useAuth();
   const canCreateChart = ability.can('create', 'Charting');
+
+
+  
+  const initialValues = getFormInitialValues(
+    visibleComponents,
+    patient,
+    patientAdditionalData,
+    currentUser,
+  );
 
   if (isLoading) {
     return <ModalLoader data-testid="modalloader-wncd" />;
@@ -57,6 +80,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
+      initialValues={initialValues}
       render={({ submitForm, values, setFieldValue }) => (
         <>
           <SurveyScreen

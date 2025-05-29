@@ -14,8 +14,9 @@ export const ThemedTooltip = styled((props) => (
 ))`
   .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
+    font-weight: 400;
     font-size: 0.6875rem;
-    padding: 0.5rem;
+    padding: 0.375rem 0.5rem;
     text-align: center;
 
     ${({ $maxWidth }) =>

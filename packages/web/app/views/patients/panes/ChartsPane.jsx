@@ -313,6 +313,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         {isComplexChart ? (
           <ComplexChartModal
             {...baseChartModalProps}
+            patient={patient}
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
@@ -359,6 +360,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             ) : null}
 
             <ConditionalTooltip
+              $maxWidth="7.5rem"
               visible={!recordButtonEnabled}
               title={
                 <TranslatedText
