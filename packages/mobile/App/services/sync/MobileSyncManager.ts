@@ -298,7 +298,7 @@ export class MobileSyncManager {
       STAGE_MAX_PROGRESS[this.syncStage - 1],
       'Pausing at 33% while server prepares for pull, please wait...',
     );
-    const tablesForFullResyncRecords = await this.models.LocalSystemFact.findAll({
+    const tablesForFullResyncRecords = await this.models.LocalSystemFact.find({
       where: { key: 'tablesForFullResync' },
     });
 
@@ -331,9 +331,7 @@ export class MobileSyncManager {
       }
 
       if (tablesForFullResync.length > 0) {
-        await this.models.LocalSystemFact.destroy({
-          where: { key: 'tablesForFullResync' },
-        });
+        await this.models.LocalSystemFact.delete({ key: 'tablesForFullResync' });
       }
 
       // update the last successful sync in the same save transaction,
