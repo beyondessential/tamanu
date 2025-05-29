@@ -2,12 +2,34 @@ import { QueryInterface } from 'sequelize';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
 
+async function checkIsFreshDeployment(query: QueryInterface) {
+  const [hasUpdatedAtSyncTick] = await query.sequelize.query(`
+    SELECT EXISTS (SELECT TRUE
+    FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'patient_program_registrations' AND column_name = 'updated_at_sync_tick');
+  `);
+
+  // If the patient_program_registrations table does not have the updated_at_sync_tick column it means this is
+  // the first time deploying the server. If that's the case, we can skip the migration.
+  // @ts-ignore
+  return !hasUpdatedAtSyncTick?.[0]?.exists;
+}
+
 export async function up(query: QueryInterface): Promise<void> {
   const isFacility = Boolean(selectFacilityIds(config));
 
   if (isFacility) {
     return;
   }
+
+  const isFreshDeployment = await checkIsFreshDeployment(query);
+
+  // If the patient_program_registrations table does not have the updated_at_sync_tick column it means this is
+  // the first time deploying the server. If that's the case, we can skip the migration.
+  if (isFreshDeployment) {
+    return;
+  }
+
   // Update updated_at_sync_tick for patient_program_registrations
   await query.sequelize.query(`
     UPDATE patient_program_registrations
