@@ -32,12 +32,12 @@ export const ProgramRegistrySidebarItem = ({
       data-testid="primarysidebaritem-kx7z"
     >
       {programRegistries.data.map(({ id, name }, index) => {
-        const secondaryPath = `${path}/${id}?name=${name}`;
+        const secondaryPath = `${path}/${id}`;
         return !retracted ? (
           <SecondarySidebarItem
             key={id}
             path={secondaryPath}
-            isCurrent={secondaryPath.includes(currentPath)}
+            isCurrent={currentPath.includes(secondaryPath)}
             color=""
             label={
               <TranslatedReferenceData
@@ -48,7 +48,7 @@ export const ProgramRegistrySidebarItem = ({
               />
             }
             disabled={false}
-            onClick={() => onPathChanged(secondaryPath)}
+            onClick={() => onPathChanged(`${secondaryPath}?name=${name}`)}
             data-testid={`secondarysidebaritem-3uo3-${index}`}
           />
         ) : null;
