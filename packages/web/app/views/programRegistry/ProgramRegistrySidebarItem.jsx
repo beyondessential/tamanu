@@ -37,7 +37,7 @@ export const ProgramRegistrySidebarItem = ({
           <SecondarySidebarItem
             key={id}
             path={secondaryPath}
-            isCurrent={currentPath === secondaryPath}
+            isCurrent={currentPath.includes(secondaryPath)}
             color=""
             label={
               <TranslatedReferenceData
@@ -48,7 +48,7 @@ export const ProgramRegistrySidebarItem = ({
               />
             }
             disabled={false}
-            onClick={() => onPathChanged(`${secondaryPath}?name=${name}`)}
+            onClick={() => onPathChanged()}
             data-testid={`secondarysidebaritem-3uo3-${index}`}
           />
         ) : null;
