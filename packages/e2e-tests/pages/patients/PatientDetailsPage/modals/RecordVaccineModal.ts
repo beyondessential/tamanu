@@ -15,6 +15,9 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryCampaignRadio: Locator;
   readonly categoryOtherRadio: Locator;
   readonly scheduleRadioGroup: Locator;
+  readonly areaField: Locator;
+  readonly locationField: Locator;
+  readonly departmentField: Locator;
 
   constructor(page: Page) {
     super(page);
