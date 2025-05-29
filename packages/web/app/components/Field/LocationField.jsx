@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
 
-const useLocationSuggestion = (locationId) => {
+const useLocationSuggestion = locationId => {
   const api = useApi();
   // Get the last selected location id to determine its location group
   const id = Array.isArray(locationId) ? locationId[locationId.length - 1] : locationId;
@@ -88,13 +88,13 @@ export const LocationInput = React.memo(
       }
     }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
-    const handleChangeCategory = (event) => {
+    const handleChangeCategory = event => {
       setGroupId(event.target.value);
       setLocationId('');
       onChange({ target: { value: '', name } });
     };
 
-    const handleChange = async (event) => {
+    const handleChange = async event => {
       setLocationId(event.target.value);
       onChange({ target: { value: event.target.value, name } });
     };
@@ -126,7 +126,6 @@ export const LocationInput = React.memo(
           size={size}
           helperText={helperText}
           error={error}
-          data-testid="autocompleteinput-0tiu"
         />
         <LocationAutocompleteInput
           label={label}
@@ -182,7 +181,7 @@ export const LocationField = React.memo(({ field, ...props }) => {
   );
 });
 
-export const LocalisedLocationField = React.memo((props) => {
+export const LocalisedLocationField = React.memo(props => {
   return (
     <LocationField
       label={
