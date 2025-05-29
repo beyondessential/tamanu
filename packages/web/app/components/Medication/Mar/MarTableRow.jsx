@@ -37,7 +37,7 @@ const MarRowContainer = styled.div`
   ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
 `;
 
-export const MarTableRow = ({ medication, selectedDate }) => {
+export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopperAnchorElChange }) => {
   const {
     medication: medicationRef,
     frequency,
@@ -103,6 +103,8 @@ export const MarTableRow = ({ medication, selectedDate }) => {
             previousMarInfo={array[index - 1]}
             nextMarInfo={array[index + 1]}
             pauseRecords={pauseRecords}
+            anchorEl={popperAnchorEl}
+            onAnchorElChange={onPopperAnchorElChange}
           />
         );
       })}
