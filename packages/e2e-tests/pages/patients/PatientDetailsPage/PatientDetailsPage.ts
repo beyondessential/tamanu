@@ -1,7 +1,10 @@
 import { Locator, Page, expect } from '@playwright/test';
+import { Patient } from '@tamanu/database';
+import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
   patientVaccinePane?: PatientVaccinePane;
@@ -196,6 +199,11 @@ export class PatientDetailsPage extends BasePatientPage {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
     return this.patientVaccinePane;
+  }
+
+  async goToPatient(patient: Patient) {
+    console.log('going to');
+    await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {

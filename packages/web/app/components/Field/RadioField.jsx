@@ -36,15 +36,15 @@ const StyledRadioGroup = styled(RadioGroup)`
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  flex: ${(props) => props.$fullWidth && 1};
+  flex: ${props => props.$fullWidth && 1};
   margin: 0 10px 0 0;
   border-radius: 3px;
   padding: 12px 20px;
   border: 1px solid
-    ${(props) => (props.selected ? props.theme.border.selected : props.theme.border.default)};
-  ${(props) => (props.$color ? `border-color: ${props.$color}` : '')};
+    ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
+  ${props => (props.$color ? `border-color: ${props.$color}` : '')};
   justify-content: center;
-  background: ${(props) =>
+  background: ${props =>
     props.selected ? props.theme.background.selected : props.theme.background.default};
 
   &:last-child {
@@ -54,7 +54,7 @@ const ControlLabel = styled(FormControlLabel)`
   .MuiButtonBase-root {
     padding: 0;
     margin-left: -5px;
-    color: ${(props) => (props.selected ? props.theme.color.selected : props.theme.color.default)};
+    color: ${props => (props.selected ? props.theme.color.selected : props.theme.color.default)};
 
     svg {
       font-size: 18px;
@@ -73,7 +73,7 @@ const ControlLabel = styled(FormControlLabel)`
     font-size: 14px;
     line-height: 16px;
     padding: 0 0 0 5px;
-    color: ${(props) => (props.selected ? props.theme.text.selected : props.theme.text.default)};
+    color: ${props => (props.selected ? props.theme.text.selected : props.theme.text.default)};
   }
 `;
 
@@ -112,6 +112,7 @@ export const RadioInput = ({
   style,
   error,
   autofillSingleAvailableOption = false,
+  ['data-testid']: dataTestId,
   ...props
 }) => {
   const { onChange } = props;
@@ -121,7 +122,7 @@ export const RadioInput = ({
       return;
     }
 
-    const validOptions = options.filter((o) => !o.disabled);
+    const validOptions = options.filter(o => !o.disabled);
     if (validOptions.length === 1) {
       onChange({ target: { value: validOptions[0].value, name } });
     }
@@ -144,9 +145,9 @@ export const RadioInput = ({
           value={value || ''}
           error={error}
           {...props}
-          data-testid="styledradiogroup-13do"
+          data-testid={`${dataTestId}-styledradiogroup`}
         >
-          {options.map((option) => (
+          {options.map(option => (
             <Fragment key={option.value}>
               {option.leftOptionalElement ?? null}
               <ControlLabel
@@ -224,7 +225,6 @@ export const RadioField = ({ field, error, ...props }) => (
     onChange={field.onChange}
     error={error || undefined}
     {...props}
-    data-testid="radioinput-bn4o"
   />
 );
 

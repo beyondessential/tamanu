@@ -7,12 +7,12 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
-  recordVaccineModal: RecordVaccineModal;
+  recordVaccineModal?: RecordVaccineModal;
 
   constructor(page: Page) {
     super(page);
 
-    this.recordVaccineButton = this.page.getByTestId('buttonwithpermissioncheck-zmgl');
+    this.recordVaccineButton = this.page.getByTestId('component-enxe');
     this.recordedVaccinesTable = this.page
       .getByRole('table')
       .filter({ hasText: 'VaccineScheduleDateGiven' });
