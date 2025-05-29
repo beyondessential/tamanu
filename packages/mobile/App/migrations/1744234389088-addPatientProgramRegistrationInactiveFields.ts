@@ -3,7 +3,7 @@ import { getTable } from './utils/queryRunner';
 
 const TABLE_NAME = 'patient_program_registrations';
 
-export class addPatientProgramRegistrationInactiveFields1744234389088
+export class addPatientProgramRegistrationInactiveFields1747346950000
   implements MigrationInterface
 {
   async up(queryRunner: QueryRunner): Promise<void> {
