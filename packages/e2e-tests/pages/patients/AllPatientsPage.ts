@@ -248,6 +248,11 @@ export class AllPatientsPage extends BasePage {
     
     await this.searchBtn.click();
   }
+  async navigateToPatientDetailsPage(nhn: string) {
+    await this.goto();
+    await expect(this.patientListingsHeader).toBeVisible();
+    await this.searchForAndSelectPatientByNHN(nhn);
+  }
   async clearSearch() {
     await this.clearSearchBtn.click();
   }

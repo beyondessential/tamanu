@@ -1,8 +1,8 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { recentlyViewedPatientPage } from '../../pages/patients/recentlyViewedPatientPage';
+import { RecentlyViewedPatientPage } from '../../pages/patients/recentlyViewedPatientPage';
 import { createPatientViaApi } from '../../utils/generateNewPatient';
 import { convertDateFormat } from '../../utils/testHelper';
-import { PatientDetailsPage } from '../../pages/patients/PatientDetailsPage';
+import { PatientDetailsPage } from '../../pages/patients/PatientDetailsPage/PatientDetailsPage';
 
 test.describe('Recently viewed patients top bar', () => {
   let patientData: any;
@@ -17,7 +17,7 @@ test.describe('Recently viewed patients top bar', () => {
     await allPatientsPage.searchTable({ NHN: patientData.nhn, advancedSearch: false });
     await allPatientsPage.clickOnFirstRow();
     await allPatientsPage.goto();
-    const recentlyViewed = new recentlyViewedPatientPage(page);
+    const recentlyViewed = new RecentlyViewedPatientPage(page);
     await expect(recentlyViewed.firstRecentlyViewedName).toHaveText(patientData.firstName + ' ' + patientData.lastName);
     await expect(recentlyViewed.firstRecentlyViewedNHN).toHaveText(patientData.nhn);
     await expect(recentlyViewed.firstRecentlyViewedGender).toHaveText(new RegExp(`^${patientData.gender}$`, 'i'));
@@ -41,7 +41,7 @@ test.describe('Recently viewed patients top bar', () => {
     
     // Verify second patient is at the top
     await allPatientsPage.goto();
-    const recentlyViewed = new recentlyViewedPatientPage(page);
+    const recentlyViewed = new RecentlyViewedPatientPage(page);
     await expect(recentlyViewed.firstRecentlyViewedName).toHaveText(secondPatientData.firstName + ' ' + secondPatientData.lastName);
     await expect(recentlyViewed.firstRecentlyViewedNHN).toHaveText(secondPatientData.nhn);
   });
@@ -51,7 +51,7 @@ test.describe('Recently viewed patients top bar', () => {
     await allPatientsPage.clickOnFirstRow();
     await allPatientsPage.goto();
     
-    const recentlyViewed = new recentlyViewedPatientPage(page);
+    const recentlyViewed = new RecentlyViewedPatientPage(page);
     await expect(recentlyViewed.firstRecentlyViewedNHN).toHaveText(patientData.nhn);
     await recentlyViewed.firstRecentlyViewedName.click();
     
@@ -73,7 +73,7 @@ test.describe('Recently viewed patients top bar', () => {
     await allPatientsPage.goto();
     
     // Verify patient is still at the top
-    const recentlyViewed = new recentlyViewedPatientPage(page);
+    const recentlyViewed = new RecentlyViewedPatientPage(page);
     await expect(recentlyViewed.firstRecentlyViewedName).toHaveText(patientData.firstName + ' ' + patientData.lastName);
     await expect(recentlyViewed.firstRecentlyViewedNHN).toHaveText(patientData.nhn);
   });

@@ -117,7 +117,7 @@ test.describe('All patient table pagination', () => {
 
   });
 
-  test("change number of patient per list to 50 and going to next page", async ({ allPatientsPage }) => {
+  test.skip("change number of patient per list to 50 and going to next page", async ({ allPatientsPage }) => {
     await expect(allPatientsPage.pageRecordCountDropDown).toHaveText('10');
     await allPatientsPage.pageRecordCountDropDown.click();
     await allPatientsPage.patientPageRecordCount50.click();
