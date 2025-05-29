@@ -265,7 +265,21 @@ const COLUMNS = [
         data-testid="translatedtext-euwb"
       />
     ),
-    accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
+    accessor: ({ encounter }) => {
+      const { patient } = encounter;
+      return (
+        <div>
+          <BodyText data-testid="bodytext-patient-main">
+            {patient.firstName} {patient.lastName}
+          </BodyText>
+          {patient.culturalName && (
+            <SmallBodyText color={Colors.midText} data-testid="smallbodytext-patient-cultural">
+              {patient.culturalName}
+            </SmallBodyText>
+          )}
+        </div>
+      );
+    },
   },
   {
     key: 'name',
