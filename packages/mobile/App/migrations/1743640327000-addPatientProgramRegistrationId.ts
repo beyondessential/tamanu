@@ -1,48 +1,23 @@
 import { MigrationInterface, QueryRunner, TableForeignKey, TableColumn } from 'typeorm';
 
-const updateTablesForFullResync = async (
+const setPatientProgramRegistrationsAndConditionsForFullResync = async (
   queryRunner: QueryRunner,
-  newTables: string[],
 ): Promise<void> => {
-  // First, check if the record exists
-  const existingRecord = await queryRunner.query(
-    `SELECT id, value FROM local_system_facts WHERE key = 'tablesForFullResync'`,
-  );
+  await queryRunner.query('DELETE FROM patient_program_registration_conditions');
+  await queryRunner.query('DELETE FROM patient_program_registrations');
 
-  if (existingRecord && existingRecord.length > 0) {
-    // Record exists, update it by appending the new tables
-    const currentValue = existingRecord[0].value;
-    const currentTables = currentValue.split(',');
-
-    // Combine current tables with new tables, removing duplicates
-    const allTables = [...new Set([...currentTables, ...newTables])];
-    const newValue = allTables.join(',');
-
-    await queryRunner.query(
-      `UPDATE local_system_facts
-       SET value = ?
-       WHERE id = ?`,
-      [newValue, existingRecord[0].id],
-    );
-  } else {
-    // Record doesn't exist, create a new one
-
-    // uuid generation based on
-    // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
-    await queryRunner.query(
-      `
+  // uuid generation based on
+  // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
+  await queryRunner.query(`
       INSERT INTO local_system_facts (id, key, value)
       VALUES (lower(
         hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' ||
-        substr(hex(randomblob(2)), 2) || '-' ||
+        substr(hex( randomblob(2)), 2) || '-' ||
         substr('AB89', 1 + (abs(random()) % 4) , 1)  ||
         substr(hex(randomblob(2)), 2) || '-' ||
         hex(randomblob(6))
-      ), 'tablesForFullResync', ?)
-    `,
-      [newTables.join(',')],
-    );
-  }
+      ), 'tablesForFullResync', 'patient_program_registration_conditions,patient_program_registrations')
+    `);
 };
 
 export class addPatientProgramRegistrationId1743640327000 implements MigrationInterface {
@@ -70,15 +45,8 @@ export class addPatientProgramRegistrationId1743640327000 implements MigrationIn
     await queryRunner.dropColumn('patient_program_registration_conditions', 'patientId');
     await queryRunner.dropColumn('patient_program_registration_conditions', 'programRegistryId');
 
-    await queryRunner.query('DELETE FROM patient_program_registration_conditions');
-    await queryRunner.query('DELETE FROM patient_program_registrations');
-
     // Fully resync the patient_program_registration_conditions table so as not to repeat the complex logic from central server migration
-    await updateTablesForFullResync(queryRunner, [
-      'patient_program_registrations',
-      'patient_program_registration_conditions',
-      'patient_additional_data',
-    ]);
+    await setPatientProgramRegistrationsAndConditionsForFullResync(queryRunner);
 
     // Add patientProgramRegistrationId column
     await queryRunner.addColumn(
