@@ -29,7 +29,7 @@ export class PatientProgramRegistrationCondition
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
 
-  @Column({ nullable: false, default: 'Unknown' })
+  @Column({ nullable: false, default: 'unknown' })
   conditionCategory: string;
 
   @Column({ nullable: true })
