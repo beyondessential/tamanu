@@ -295,16 +295,17 @@ export class AutocompleteInput extends Component {
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
+    const { ['data-testid']: dataTestId } = this.props;
     return (
-      <Item selected={isHighlighted} component="div" data-testid="item-ttpg">
-        <Typography variant="body2" data-testid="typography-qxy3">
+      <Item selected={isHighlighted} component="div" data-testid={`${dataTestId}-option`}>
+        <Typography variant="body2" data-testid={`${dataTestId}-option-typography`}>
           {isCustomizedOption ? (
             <>
               &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
-                data-testid="translatedtext-cdcb"
+                data-testid={`${dataTestId}-option-translatedtext`}
               />
               )
             </>
@@ -313,7 +314,11 @@ export class AutocompleteInput extends Component {
           )}
         </Typography>
         {tag && (
-          <OptionTag $background={tag.background} $color={tag.color} data-testid="optiontag-quv2">
+          <OptionTag
+            $background={tag.background}
+            $color={tag.color}
+            data-testid={`${dataTestId}-optiontag`}
+          >
             {tag.label}
           </OptionTag>
         )}
@@ -379,7 +384,7 @@ export class AutocompleteInput extends Component {
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
-            'data-testid': `${dataTestId}-input`,
+            'data-testid': `${dataTestId}`,
             endAdornment: (
               <>
                 {tag && (

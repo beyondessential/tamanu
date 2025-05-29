@@ -231,12 +231,12 @@ export const SelectInput = ({
             }}
             {...props}
           />
-          {helperText && (
-            <FormHelperText data-testid={`${dataTestId}-formhelptertext`}>
-              {helperText}
-            </FormHelperText>
-          )}
         </div>
+        {helperText && (
+          <FormHelperText data-testid={`${dataTestId}-formhelptertext`}>
+            {helperText}
+          </FormHelperText>
+        )}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );

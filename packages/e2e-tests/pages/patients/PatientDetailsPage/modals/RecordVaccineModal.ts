@@ -1,6 +1,7 @@
-import { Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
+import { selectRandomFieldOption } from '@utils/fieldHelpers';
 
 export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
@@ -15,6 +16,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryCampaignRadio: Locator;
   readonly categoryOtherRadio: Locator;
   readonly scheduleRadioGroup: Locator;
+
   readonly areaField: Locator;
   readonly locationField: Locator;
   readonly departmentField: Locator;
@@ -37,9 +39,10 @@ export class RecordVaccineModal extends BasePatientModal {
     this.categoryCatchupRadio = this.page.getByTestId('controllabel-kkx2-Catchup');
     this.categoryCampaignRadio = this.page.getByTestId('controllabel-kkx2-Campaign');
     this.categoryOtherRadio = this.page.getByTestId('controllabel-kkx2-Other');
-    this.scheduleRadioGroup = this.page
-      .getByTestId('fullwidthcol-3xje')
-      .getByTestId('styledradiogroup-13do');
+    this.scheduleRadioGroup = this.page.getByTestId('field-rggk-styledradiogroup');
+    this.areaField = this.page.getByTestId('field-zrlv-group-input');
+    this.locationField = this.page.getByTestId('field-zrlv-location-input');
+    this.departmentField = this.page.getByTestId('field-5sfc-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -68,9 +71,13 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async selectVaccine() {
-    await this.vaccineSelectField.click();
-    const vaccines = await this.page.getByTestId('field-npct-option').all();
-    await vaccines[Math.floor(Math.random() * vaccines.length)].click();
+    await selectRandomFieldOption(this.page, this.vaccineSelectField);
+  }
+
+  async selectLocationGroup() {
+    await selectRandomFieldOption(this.page, this.areaField, { isAutocomplete: true });
+    await selectRandomFieldOption(this.page, this.locationField, { isAutocomplete: true });
+    await selectRandomFieldOption(this.page, this.departmentField, { isAutocomplete: true });
   }
 
   async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
@@ -78,7 +85,9 @@ export class RecordVaccineModal extends BasePatientModal {
     await this.selectCategory(category);
     await this.selectVaccine();
     await this.selectScheduleOption();
+    await this.selectLocationGroup();
     await this.consentCheckbox.check();
+    await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
   }
 
@@ -88,6 +97,7 @@ export class RecordVaccineModal extends BasePatientModal {
     await this.page.keyboard.down('Tab'); // One way of selecting an option from our select fields
     await this.selectScheduleOption();
     await this.consentCheckbox.check();
+    await expect(this.confirmButton).toBeEnabled();
     await this.confirmButton.click();
   }
 
