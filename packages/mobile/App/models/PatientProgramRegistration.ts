@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId, Column, BeforeInsert } from 'typeorm';
+import { Entity, ManyToOne, RelationId, Column, BeforeInsert, OneToMany } from 'typeorm';
 
 import {
   DateTimeString,
@@ -10,6 +10,7 @@ import {
   IProgramRegistryClinicalStatus,
   IReferenceData,
   IUser,
+  IPatientProgramRegistrationCondition,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
@@ -21,6 +22,7 @@ import { Facility } from './Facility';
 import { User } from './User';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { DateTimeStringColumn } from './DateColumns';
+import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
@@ -43,9 +45,6 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
 
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
-
-  @Column({ type: 'boolean', nullable: false, default: 0 })
-  isMostRecent: boolean;
 
   @DateTimeStringColumn()
   date: DateTimeString;
@@ -86,9 +85,19 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @RelationId(({ clinician }) => clinician)
   clinicianId: ID;
 
-  // dateRemoved: DateTimeString;
-  // removedBy?: IUser;
-  // removedById?: ID;
+  @ManyToOne(() => User, undefined, { nullable: true })
+  deactivatedClinician?: IUser;
+  @RelationId(({ deactivatedClinician }) => deactivatedClinician)
+  deactivatedClinicianId?: ID;
+
+  @Column({ type: 'varchar', nullable: true })
+  deactivatedDate?: DateTimeString;
+
+  @OneToMany<PatientProgramRegistrationCondition>(
+    () => PatientProgramRegistrationCondition,
+    ({ patientProgramRegistration }) => patientProgramRegistration,
+  )
+  conditions: IPatientProgramRegistrationCondition[];
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
@@ -104,8 +113,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       .createQueryBuilder('registration')
       .leftJoinAndSelect('registration.programRegistry', 'program_registry')
       .leftJoinAndSelect('program_registry.program', 'program')
-      .where(`registration.isMostRecent = 1`)
-      .andWhere('program.id = :programId', { programId })
+      .where('program.id = :programId', { programId })
       .andWhere('registration.patientId = :patientId', { patientId })
       .getOne();
   }
@@ -114,8 +122,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     const registrationRepository = this.getRepository();
     const mostRecentRegistrations = await registrationRepository
       .createQueryBuilder('registration')
-      .where(`registration.isMostRecent = 1`)
-      .andWhere('registration.registrationStatus != :status', {
+      .where('registration.registrationStatus != :status', {
         status: RegistrationStatus.RecordedInError,
       })
       .andWhere('registration.patientId = :patientId', { patientId })
@@ -144,7 +151,7 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
     return fullPpr;
   }
 
-  static async appendRegistration(
+  static async upsertRegistration(
     patientId: string,
     programRegistryId: string,
     data: any,
@@ -155,8 +162,12 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       patientId,
     );
     if (existingRegistration) {
-      await PatientProgramRegistration.updateValues(existingRegistration.id, {
-        isMostRecent: false,
+      return PatientProgramRegistration.updateValues(existingRegistration.id, {
+        ...getValuesFromRelations(existingRegistration),
+        ...getValuesFromRelations(data),
+        ...data,
+        programRegistry: programRegistryId,
+        patient: patientId,
       });
     }
 
@@ -166,7 +177,6 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
       ...data,
       programRegistry: programRegistryId,
       patient: patientId,
-      isMostRecent: true,
     });
   }
 }

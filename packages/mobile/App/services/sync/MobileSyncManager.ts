@@ -106,7 +106,7 @@ export class MobileSyncManager {
    */
   async waitForCurrentSyncToEnd(): Promise<void> {
     if (this.isSyncing) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         const done = (): void => {
           resolve();
           this.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
@@ -298,9 +298,14 @@ export class MobileSyncManager {
       STAGE_MAX_PROGRESS[this.syncStage - 1],
       'Pausing at 33% while server prepares for pull, please wait...',
     );
-    const tablesForFullResync = await this.models.LocalSystemFact.findOne({
+    const tablesForFullResyncRecords = await this.models.LocalSystemFact.find({
       where: { key: 'tablesForFullResync' },
     });
+
+    // Extract values from each record and combine them into a single array
+    const tablesForFullResync = tablesForFullResyncRecords
+      .flatMap((record) => record.value.split(','))
+      .filter(Boolean); // Filter out any empty strings
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
@@ -308,8 +313,8 @@ export class MobileSyncManager {
       this.centralServer,
       sessionId,
       pullSince,
-      Object.values(incomingModels).map(m => m.getTableName()),
-      tablesForFullResync?.value.split(','),
+      Object.values(incomingModels).map((m) => m.getTableName()),
+      tablesForFullResync,
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -325,8 +330,8 @@ export class MobileSyncManager {
         await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress);
       }
 
-      if (tablesForFullResync) {
-        await tablesForFullResync.remove();
+      if (tablesForFullResync.length > 0) {
+        await this.models.LocalSystemFact.delete({ key: 'tablesForFullResync' });
       }
 
       // update the last successful sync in the same save transaction,

@@ -1,4 +1,5 @@
-import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
+import { pauseAudit } from '@tamanu/database/utils/audit';
+
 import { createTestContext } from '../utilities';
 
 describe('pauseAudit', () => {
@@ -21,7 +22,7 @@ describe('pauseAudit', () => {
     await models.Setting.set('audit.changes.enabled', true);
     const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
     const program2 = await sequelize.transaction(async () => {
-      await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+      await pauseAudit(sequelize)
       return models.Program.create({ code: 'test-2', name: 'Test Program 2' });
     });
     const changes = await sequelize.query(
