@@ -6,7 +6,6 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
   readonly categoryRadioGroup: Locator;
   readonly vaccineSelectField: Locator;
-  readonly scheduleRadioGroup: Locator;
   readonly consentCheckbox: Locator;
   readonly confirmButton: Locator;
   readonly givenTab: Locator;
@@ -15,6 +14,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryCatchupRadio: Locator;
   readonly categoryCampaignRadio: Locator;
   readonly categoryOtherRadio: Locator;
+  readonly scheduleRadioGroup: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,15 +22,21 @@ export class RecordVaccineModal extends BasePatientModal {
     this.modal = this.page.getByTestId('modal-record-vaccine');
     this.categoryRadioGroup = this.page.getByTestId('field-rd4e');
     this.vaccineSelectField = this.page.getByTestId('field-npct-select');
-    this.scheduleRadioGroup = this.page.getByTestId('field-rggk');
-    this.consentCheckbox = this.page.getByTestId('field-wvyn');
-    this.confirmButton = this.page.getByRole('button', { name: 'Confirm' });
+    this.consentCheckbox = this.page
+      .getByTestId('fullwidthcol-q2z3')
+      .getByTestId('checkinput-x2e3-controlcheck');
+    this.confirmButton = this.page
+      .getByTestId('twotwogrid-2swz')
+      .getByTestId('formsubmitbutton-ygc6');
     this.givenTab = this.page.getByTestId('styledtab-gibh-GIVEN');
     this.notGivenTab = this.page.getByTestId('styledtab-gibh-NOT_GIVEN');
     this.categoryRoutineRadio = this.page.getByTestId('controllabel-kkx2-Routine');
     this.categoryCatchupRadio = this.page.getByTestId('controllabel-kkx2-Catchup');
     this.categoryCampaignRadio = this.page.getByTestId('controllabel-kkx2-Campaign');
     this.categoryOtherRadio = this.page.getByTestId('controllabel-kkx2-Other');
+    this.scheduleRadioGroup = this.page
+      .getByTestId('fullwidthcol-3xje')
+      .getByTestId('styledradiogroup-13do');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -64,6 +70,15 @@ export class RecordVaccineModal extends BasePatientModal {
     await vaccines[Math.floor(Math.random() * vaccines.length)].click();
   }
 
+  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+    await this.selectIsVaccineGiven(given);
+    await this.selectCategory(category);
+    await this.selectVaccine();
+    await this.selectScheduleOption();
+    await this.consentCheckbox.check();
+    await this.confirmButton.click();
+  }
+
   async recordRandomVaccine() {
     await this.categoryRadioGroup.getByRole('radio').first().check();
     await this.vaccineSelectField.click();
@@ -78,9 +93,7 @@ export class RecordVaccineModal extends BasePatientModal {
       ? this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false })
       : this.scheduleRadioGroup.getByRole('radio', { disabled: false }).first();
 
-    if (await scheduleOption.isEnabled()) {
-      await scheduleOption.check();
-    }
+    await scheduleOption.click();
   }
 
   async waitForModalToClose() {
