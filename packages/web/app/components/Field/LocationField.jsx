@@ -38,6 +38,7 @@ export const LocationInput = React.memo(
     locationGroupSuggesterType = 'facilityLocationGroup',
     autofill = true,
     isMulti = false,
+    'data-testid': dataTestId,
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -126,6 +127,7 @@ export const LocationInput = React.memo(
           size={size}
           helperText={helperText}
           error={error}
+          data-testid={`${dataTestId}-group`}
         />
         <LocationAutocompleteInput
           label={label}
@@ -141,6 +143,7 @@ export const LocationInput = React.memo(
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
           size={size}
+          data-testid={`${dataTestId}-location`}
         />
       </>
     );
@@ -156,6 +159,7 @@ LocationInput.propTypes = {
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
+  'data-testid': PropTypes.string,
 };
 
 LocationInput.defaultProps = {
@@ -167,6 +171,7 @@ LocationInput.defaultProps = {
   name: undefined,
   helperText: '',
   className: '',
+  'data-testid': undefined,
 };
 
 export const LocationField = React.memo(({ field, ...props }) => {
@@ -176,7 +181,6 @@ export const LocationField = React.memo(({ field, ...props }) => {
       value={field.value || ''}
       onChange={field.onChange}
       {...props}
-      data-testid="locationinput-cvpu"
     />
   );
 });
@@ -199,7 +203,6 @@ export const LocalisedLocationField = React.memo(props => {
         />
       }
       {...props}
-      data-testid="locationfield-wf9f"
     />
   );
 });
