@@ -17,7 +17,6 @@ export class ChangeLog extends Model {
   declare recordCreatedAt: Date;
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
-  declare recordSyncTick: number;
   declare recordData: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -72,7 +71,7 @@ export class ChangeLog extends Model {
         tableName: 'changes',
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'logs',
-        timestamps: false
+        timestamps: false,
       },
     );
   }
