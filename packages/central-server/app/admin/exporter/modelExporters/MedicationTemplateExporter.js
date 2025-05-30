@@ -2,7 +2,7 @@ import { ReferenceDataExporter } from './ReferenceDataExporter';
 
 export class MedicationTemplateExporter extends ReferenceDataExporter {
   async getData() {
-    const objects = await this.models.MedicationTemplate.findAll({
+    const objects = await this.models.ReferenceMedicationTemplate.findAll({
       include: ['referenceData'],
     });
 

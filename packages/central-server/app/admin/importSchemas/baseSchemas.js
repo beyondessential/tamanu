@@ -373,14 +373,13 @@ export const TaskTemplateDesignation = yup.object().shape({
   designationId: yup.string().required(),
 });
 
-export const MedicationTemplate = yup
+export const ReferenceMedicationTemplate = yup
   .object()
   .shape({
     id: yup.string().required(),
     referenceDataId: yup.string().required(),
     isPrn: yup.boolean().default(false),
     isVariableDose: yup.boolean().default(false),
-
     doseAmount: yup
       .number()
       .nullable()
@@ -390,7 +389,6 @@ export const MedicationTemplate = yup
         then: (schema) => schema.required('Dose amount is required when isVariableDose is false.'),
         otherwise: (schema) => schema.nullable(),
       }),
-
     units: yup.string().required().oneOf(Object.values(DRUG_UNITS)),
     frequency: yup.string().required().oneOf(Object.values(ADMINISTRATION_FREQUENCIES)),
     route: yup
@@ -410,19 +408,6 @@ export const MedicationTemplate = yup
     notes: yup.string().optional().nullable(),
     dischargeQuantity: yup.number().optional().nullable().positive(),
   })
-  .test(
-    'forbid-dose-amount-when-dose-is-variable',
-    null,
-    function ({ isVariableDose, doseAmount }) {
-      if (!isVariableDose && !doseAmount) {
-        return this.createError({
-          path: 'doseAmount',
-          message: 'Dose amount is required',
-        });
-      }
-      return true;
-    },
-  )
   .test('duration-paired', null, function ({ durationValue, durationUnit }) {
     if (durationValue && !durationUnit) {
       return this.createError({
@@ -437,4 +422,17 @@ export const MedicationTemplate = yup
       });
     }
     return true;
-  });
+  })
+  .test(
+    'forbid-duration-when-frequency-is-immediately',
+    null,
+    function ({ frequency, durationValue, durationUnit }) {
+      if (frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY && (durationValue || durationUnit)) {
+        return this.createError({
+          path: 'durationValue',
+          message: 'Duration is not allowed when frequency is Immediately.',
+        });
+      }
+      return true;
+    },
+  );

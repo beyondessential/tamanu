@@ -377,7 +377,7 @@ createSuggester(
       referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
     includeBuilder: (req) => {
       const {
-        models: { ReferenceData, MedicationTemplate },
+        models: { ReferenceData, ReferenceMedicationTemplate },
       } = req;
 
       return [
@@ -392,7 +392,7 @@ createSuggester(
             },
           },
           include: {
-            model: MedicationTemplate,
+            model: ReferenceMedicationTemplate,
             as: 'medicationTemplate',
             include: {
               model: ReferenceData,
