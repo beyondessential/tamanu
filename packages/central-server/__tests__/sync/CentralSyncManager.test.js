@@ -627,7 +627,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it.only('doesnt include changes after lookup table sync tick in outgoing changes', async () => {
+    it('doesnt include changes after lookup table sync tick in outgoing changes', async () => {
       const OLD_SYNC_TICK = 10;
       const NEW_SYNC_TICK = 20;
       const FINAL_SYNC_TICK = 30;
