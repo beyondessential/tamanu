@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('medication_templates', {
+  await query.createTable('reference_medication_templates', {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
@@ -83,5 +83,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropTable('medication_templates');
+  await query.dropTable('reference_medication_templates');
 }
