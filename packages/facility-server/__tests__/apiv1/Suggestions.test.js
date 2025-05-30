@@ -819,6 +819,65 @@ describe('Suggestions', () => {
       expect(villageResults.body.length).toEqual(1);
       expect(villageResults.body[0].id).toEqual(villageInHierarchy.id);
     });
+
+    it('should test early limit application in address hierarchy filtering', async () => {
+      // Create 30 divisions with names that ensure alphabetical ordering
+      // Use zero-padded numbers to ensure proper alphabetical order
+      const divisions = [];
+      for (let i = 1; i <= 30; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        const division = await models.ReferenceData.create({
+          id: `test-division-${paddedNumber}`,
+          code: `DIV_${paddedNumber}`,
+          type: 'division',
+          name: `Division ${paddedNumber}`,
+          visibilityStatus: 'current',
+        });
+        divisions.push(division);
+      }
+
+      // Create one parent to filter by
+      const parentCountry = await models.ReferenceData.create({
+        id: 'test-parent-country',
+        code: 'PARENT_COUNTRY',
+        type: 'country',
+        name: 'Parent Country',
+        visibilityStatus: 'current',
+      });
+
+      // Only create relations for the last 5 divisions (26-30)
+      // With zero-padding, these will be alphabetically last
+      for (let i = 26; i <= 30; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        await models.ReferenceDataRelation.create({
+          referenceDataId: `test-division-${paddedNumber}`,
+          referenceDataParentId: parentCountry.id,
+          type: 'address_hierarchy',
+        });
+      }
+
+      const result = await userApp.get(
+        `/api/suggestions/division?q=division&parentId=${parentCountry.id}&language=en`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toBeInstanceOf(Array);
+      // If the limit is applied correctly (after the join), we should get 5 results
+      // If limit is applied too early (before the join), we might get 0 results
+      expect(body.length).toBe(5);
+
+      // Verify we got the correct divisions (26-30)
+      const returnedIds = body.map((item) => item.id).sort();
+      const expectedIds = [
+        'test-division-26',
+        'test-division-27',
+        'test-division-28',
+        'test-division-29',
+        'test-division-30',
+      ];
+      expect(returnedIds).toEqual(expectedIds);
+    });
   });
 
   it('should respect visibility status', async () => {
@@ -856,5 +915,106 @@ describe('Suggestions', () => {
     const result = await userApp.get('/api/suggestions/diagnosis/all');
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveLength(30);
+  });
+
+  it('should handle complex includes in invoiceProducts suggester', async () => {
+    const referenceData = await models.ReferenceData.create({
+      id: 'test-ref-data-id',
+      code: 'TEST_PRODUCT',
+      type: 'additionalInvoiceProduct',
+      name: 'Test Reference Product',
+      visibilityStatus: 'current',
+    });
+
+    const invoiceProduct = await models.InvoiceProduct.create({
+      id: referenceData.id,
+      name: 'Test Invoice Product',
+      price: 100,
+      discountable: true,
+      visibilityStatus: 'current',
+    });
+
+    const result = await userApp.get('/api/suggestions/invoiceProducts?q=test&language=en');
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body[0]).toHaveProperty('id', invoiceProduct.id);
+  });
+
+  it('should handle complex includes in multiReferenceData suggester', async () => {
+    const parentTaskTemplate = await models.ReferenceData.create({
+      id: 'test-task-template-parent',
+      code: 'TASK_PARENT',
+      type: 'taskTemplate',
+      name: 'Parent Task Template',
+      visibilityStatus: 'current',
+    });
+
+    const childTaskTemplate = await models.ReferenceData.create({
+      id: 'test-task-template-child',
+      code: 'TASK_CHILD',
+      type: 'taskTemplate',
+      name: 'Child Task Template',
+      visibilityStatus: 'current',
+    });
+
+    await models.TaskTemplate.create({
+      referenceDataId: parentTaskTemplate.id,
+    });
+
+    await models.TaskTemplate.create({
+      referenceDataId: childTaskTemplate.id,
+    });
+
+    await models.ReferenceDataRelation.create({
+      referenceDataId: childTaskTemplate.id,
+      referenceDataParentId: parentTaskTemplate.id,
+      type: 'task',
+    });
+
+    const result = await userApp.get(
+      '/api/suggestions/multiReferenceData?q=task&types[]=taskTemplate&relationType=task&language=en',
+    );
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+  });
+
+  it('should handle self-referencing includes in address hierarchy suggesters', async () => {
+    const parentDivision = await models.ReferenceData.create({
+      id: 'test-parent-division',
+      code: 'PARENT_DIV',
+      type: 'division',
+      name: 'Parent Division',
+      visibilityStatus: 'current',
+    });
+
+    const childSubdivision = await models.ReferenceData.create({
+      id: 'test-child-subdivision',
+      code: 'CHILD_SUB',
+      type: 'subdivision',
+      name: 'Child Subdivision',
+      visibilityStatus: 'current',
+    });
+
+    await models.ReferenceDataRelation.create({
+      referenceDataId: childSubdivision.id,
+      referenceDataParentId: parentDivision.id,
+      type: 'address_hierarchy',
+    });
+
+    const result = await userApp.get(
+      `/api/suggestions/subdivision?q=child&parentId=${parentDivision.id}&language=en`,
+    );
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body[0]).toHaveProperty('id', childSubdivision.id);
   });
 });
