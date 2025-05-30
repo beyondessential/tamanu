@@ -42,24 +42,6 @@ sources:
             data_type: character(19)
             description: "{{ doc('generic__deletion_date') }} in
               patient_program_registration_conditions."
-          - name: patient_id
-            data_type: character varying(255)
-            description: "{{ doc('patient_program_registration_conditions__patient_id') }}"
-            data_tests:
-              - not_null
-              - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
-          - name: program_registry_id
-            data_type: character varying(255)
-            description: "{{
-              doc('patient_program_registration_conditions__program_registry_id\
-              ') }}"
-            data_tests:
-              - not_null
-              - relationships:
-                  to: source('tamanu', 'program_registries')
-                  field: id
           - name: program_registry_condition_id
             data_type: character varying(255)
             description: "{{
@@ -90,5 +72,24 @@ sources:
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in
               patient_program_registration_conditions."
+            data_tests:
+              - not_null
+          - name: condition_category
+            data_type: character varying(255)
+            description: "{{
+              doc('patient_program_registration_conditions__condition_category')
+              }}"
+            data_tests:
+              - not_null
+          - name: reason_for_change
+            data_type: character varying(255)
+            description: "{{
+              doc('patient_program_registration_conditions__reason_for_change')
+              }}"
+          - name: patient_program_registration_id
+            data_type: uuid
+            description: "{{
+              doc('patient_program_registration_conditions__patient_program_reg\
+              istration_id') }}"
             data_tests:
               - not_null
