@@ -470,9 +470,11 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
   });
   if (!drug) {
-    pushError(
-      `Drug with ID "${drugReferenceDataId}" does not exist.`,
-    );
+    pushError(`Drug with ID "${drugReferenceDataId}" does not exist.`);
+  }
+
+  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount "${doseAmount}" must be a number or the string "variable".`);
   }
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
