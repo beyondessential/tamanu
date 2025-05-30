@@ -1,5 +1,6 @@
 import { TranslatedString } from './TranslatedString';
 import { ReferenceData } from './ReferenceData';
+import { ReferenceDrug } from './ReferenceDrug';
 import { ReferenceDataRelation } from './ReferenceDataRelation';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
@@ -28,7 +29,7 @@ import { Diagnosis } from './Diagnosis';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { Referral } from './Referral';
-import { Medication } from './Medication';
+import { Prescription } from './Prescription';
 import { Attachment } from './Attachment';
 import { Facility } from './Facility';
 import { Department } from './Department';
@@ -45,9 +46,12 @@ import { Setting } from './Setting';
 import { Note } from './Note';
 import { VitalLog } from './VitalLog';
 import { UserFacility } from './UserFacility';
+import { EncounterPrescription } from './EncounterPrescription';
+import { PatientOngoingPrescription } from './PatientOngoingPrescription';
 
 export const MODELS_MAP = {
   ReferenceData,
+  ReferenceDrug,
   TranslatedString,
   Patient,
   PatientAdditionalData,
@@ -77,7 +81,9 @@ export const MODELS_MAP = {
   Diagnosis,
   ScheduledVaccine,
   AdministeredVaccine,
-  Medication,
+  EncounterPrescription,
+  Prescription,
+  PatientOngoingPrescription,
   Referral,
   Attachment,
   Facility,

@@ -11,56 +11,45 @@ import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useEncounter } from '../../../contexts/Encounter';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
-  const [encounter, setEncounter] = useState({});
   const [patient, setPatient] = useState({});
   const [additionalData, setAdditionalData] = useState({});
   const [village, setVillage] = useState({});
   const [prescriber, setPrescriber] = useState({});
-  const [encounterLoading, setEncounterLoading] = useState(false);
   const [patientLoading, setPatientLoading] = useState(false);
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facilityId } = useAuth();
-
-  useEffect(() => {
-    setEncounterLoading(true);
-    (async () => {
-      if (medication.encounterId) {
-        const res = await api.get(`encounter/${medication.encounterId}`);
-        setEncounter(res);
-      }
-      setEncounterLoading(false);
-    })();
-  }, [api, medication.encounterId]);
+  const { encounter, isLoadingEncounter } = useEncounter();
 
   useEffect(() => {
     setPatientLoading(true);
     (async () => {
-      if (encounter.patientId) {
+      if (encounter?.patientId) {
         const res = await api.get(`patient/${encounter.patientId}`);
         setPatient(res);
       }
       setPatientLoading(false);
     })();
-  }, [api, encounter.patientId]);
+  }, [api, encounter?.patientId]);
 
   useEffect(() => {
     setAdditionalDataLoading(true);
     (async () => {
-      if (encounter.patientId) {
+      if (encounter?.patientId) {
         const res = await api.get(`patient/${encounter.patientId}/additionalData`);
         setAdditionalData(res);
       }
       setAdditionalDataLoading(false);
     })();
-  }, [api, encounter.patientId]);
+  }, [api, encounter?.patientId]);
 
   useEffect(() => {
     setVillageLoading(true);
@@ -89,7 +78,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   );
 
   const isLoading =
-    encounterLoading ||
+    isLoadingEncounter ||
     patientLoading ||
     additionalDataLoading ||
     villageLoading ||

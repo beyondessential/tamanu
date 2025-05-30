@@ -5,6 +5,7 @@ import { each, isArray, toString } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
+import { singularize as singularizeFn } from 'inflection';
 
 export const prepareToastMessage = (msg) => {
   const messages = isArray(msg) ? msg : [msg];
@@ -102,4 +103,22 @@ export const preventInvalidNumber = (event) => {
   if (!event.target.validity.valid) {
     event.target.value = '';
   }
+};
+
+export const validateDecimalPlaces = (e, expectedDecimalPlaces = 2) => {
+  const value = e.target.value;
+  if (/^[−-]/.test(value)) {
+    e.target.value = '';
+    return;
+  }
+  if (value.includes('.')) {
+    const decimalPlaces = value.split('.')[1].length;
+    if (decimalPlaces > expectedDecimalPlaces) {
+      e.target.value = parseFloat(value).toFixed(expectedDecimalPlaces);
+    }
+  }
+};
+
+export const singularize = (word, count) => {
+  return Number(count) === 1 ? singularizeFn(word) : word;
 };

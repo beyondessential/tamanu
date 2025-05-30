@@ -260,6 +260,12 @@
       "batchSize": 50,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "generateMedicationAdministrationRecords": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
+      "batchSize": 50,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "generateRepeatingAppointments": {
       // every day at 1 AM
       "schedule": "0 1 * * *",
@@ -269,7 +275,11 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
-    }
+    },
+    "medicationDiscontinuer": {
+      // every hour
+      "schedule": "0 * * * *",
+    },
   },
   "integrations": {
     "fijiVrs": {
@@ -501,5 +511,8 @@
   "language": "en",
   "tasking": {
     "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
-  }
+  },
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  },
 }

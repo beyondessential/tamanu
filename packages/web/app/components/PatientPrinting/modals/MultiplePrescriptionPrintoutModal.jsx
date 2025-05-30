@@ -71,7 +71,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       title={
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
-          fallback="Print prescriptions"
+          fallback="Print prescription"
           data-testid="translatedtext-v5oy"
         />
       }

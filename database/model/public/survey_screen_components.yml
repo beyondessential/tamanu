@@ -63,11 +63,9 @@ sources:
             description: "{{ doc('survey_screen_components__data_element_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              survey_screen_components."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in survey_screen_components."
             data_tests:
               - not_null
           - name: visibility_status
             data_type: character varying(255)
-            description: "{{ doc('generic__visibility_status') }} in
-              survey_screen_components."
+            description: "{{ doc('generic__visibility_status') }} in survey_screen_components."
