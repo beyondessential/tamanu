@@ -2,9 +2,9 @@ import { MigrationInterface, QueryRunner, TableForeignKey, TableColumn } from 't
 
 export class addPatientProgramRegistrationId1743640327000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    // truncate tables
-    await queryRunner.query('TRUNCATE TABLE patient_program_registration_conditions');
-    await queryRunner.query('TRUNCATE TABLE patient_program_registrations');
+    // Fully resync the patient_program_registration_conditions table so as not to repeat the complex logic from central server migration
+    await queryRunner.query('DELETE FROM patient_program_registration_conditions');
+    await queryRunner.query('DELETE FROM patient_program_registrations');
 
     // Remove old columns
     const tableObject = await queryRunner.getTable('patient_program_registration_conditions');
