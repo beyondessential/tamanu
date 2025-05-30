@@ -49,10 +49,6 @@ export class ChangeLog extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        recordUpdate: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
         recordCreatedAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -65,10 +61,6 @@ export class ChangeLog extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        recordSyncTick: {
-          type: DataTypes.BIGINT,
-          allowNull: false,
-        },
         recordData: {
           type: DataTypes.JSONB,
           allowNull: false,
@@ -78,8 +70,9 @@ export class ChangeLog extends Model {
       {
         ...options,
         tableName: 'changes',
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'logs',
+        timestamps: false
       },
     );
   }

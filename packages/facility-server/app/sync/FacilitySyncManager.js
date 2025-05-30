@@ -1,6 +1,5 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { AUDIT_PAUSE_KEY } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -15,6 +14,7 @@ import {
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
+import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
@@ -201,7 +201,17 @@ export class FacilitySyncManager {
       if (this.__testSpyEnabled) {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
-      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
+      const outgoingChangesWithChangelogs = await attachChangelogToSnapshotRecords(
+        {
+          models: this.models,
+          sequelize: this.sequelize,
+        },
+        outgoingChanges,
+        {
+          minSourceTick: pushSince,
+        },
+      );
+      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
       await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
@@ -234,7 +244,7 @@ export class FacilitySyncManager {
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
-        await this.sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        await pauseAudit(this.sequelize);
         log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await saveIncomingChanges(this.sequelize, getModelsForPull(this.models), sessionId);
       }

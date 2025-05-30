@@ -34,7 +34,6 @@ describe('Merging Patient Program Registrations', () => {
         patientId: keep.id,
         passport: 'keep-passport',
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-        isMostRecent: true,
         clinicianId: clinician.id,
         date: '2023-09-04 08:00:00',
       }),
@@ -47,7 +46,6 @@ describe('Merging Patient Program Registrations', () => {
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-        isMostRecent: false,
         clinicianId: clinician.id,
         date: '2023-10-04 08:00:00',
       }),
@@ -58,7 +56,6 @@ describe('Merging Patient Program Registrations', () => {
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        isMostRecent: true,
         clinicianId: clinician.id,
         date: '2023-11-04 08:00:00',
       }),
@@ -94,9 +91,6 @@ describe('Merging Patient Program Registrations', () => {
     );
     expect(afterMergeKeepRegistration.deletedAt).toBeNull();
     expect(afterMergeUnwantedRegistration1.deletedAt).not.toBeNull();
-    expect(afterMergeUnwantedRegistration1.isMostRecent).toBe(false);
-
     expect(afterMergeUnwantedRegistration2.deletedAt).not.toBeNull();
-    expect(afterMergeUnwantedRegistration2.isMostRecent).toBe(false);
   });
 });
