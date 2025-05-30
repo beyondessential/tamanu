@@ -800,8 +800,8 @@ describe('CentralSyncManager', () => {
             recordId: patientProgramRegistration.id,
             recordData: expect.objectContaining({
               date: '2025-04-23 00:00:00',
+              updated_at_sync_tick: AFTER_BOUNDARY_SYNC_TICK,
             }),
-            recordSyncTick: AFTER_BOUNDARY_SYNC_TICK.toString(),
           }),
         ]),
       );
