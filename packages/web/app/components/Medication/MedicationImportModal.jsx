@@ -38,9 +38,18 @@ const PrescriberWrapper = styled.div`
 `;
 
 const StyledTable = styled(Table)`
+  padding: 0 10px;
   .MuiTableCell-root {
     &.MuiTableCell-head {
-      height: 50px;
+      height: 44px;
+      color: ${Colors.midText};
+      font-weight: 400;
+      .MuiButtonBase-root {
+        color: ${Colors.midText};
+      }
+    }
+    &.MuiTableCell-body {
+      height: 44px;
     }
     height: 65px;
     padding: 0 15px;
@@ -120,10 +129,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
-  const medications = useMemo(
-    () => data?.data.filter(p => !p.discontinued) || [],
-    [data],
-  );
+  const medications = useMemo(() => data?.data.filter(p => !p.discontinued) || [], [data]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medications, {
     columnKey: 'selected',
@@ -198,7 +204,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
         <StyledTable
           headerColor={Colors.white}
           columns={[selectableColumn, ...COLUMNS(getTranslation, getEnumTranslation)]}
-          data={medications || []}
+          data={medications}
           elevated={false}
           isLoading={isLoading}
           errorMessage={error?.message}
