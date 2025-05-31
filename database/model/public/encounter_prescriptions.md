@@ -10,6 +10,6 @@ The [encounter](#!/source/source.tamanu.tamanu.encounters)
 The [prescription](#!/source/source.tamanu.tamanu.prescriptions)
 {% enddocs %}
 
-{% docs encounter_prescriptions__is_discharge %}
+{% docs encounter_prescriptions__is_selected_for_discharge %}
 Whether the prescription is for when the patient is discharged.
 {% enddocs %}

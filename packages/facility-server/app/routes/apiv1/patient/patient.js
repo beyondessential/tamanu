@@ -472,7 +472,7 @@ patientRoute.post(
 );
 
 patientRoute.get(
-  '/:id/ongoingPrescriptions',
+  '/:id/ongoing-prescriptions',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Medication');
 
@@ -513,7 +513,7 @@ patientRoute.get(
 );
 
 patientRoute.get(
-  '/:id/lastInpatientDischargeMedications',
+  '/:id/last-inpatient-discharge-medications',
   asyncHandler(async (req, res) => {
     const {
       models: { Encounter, Discharge, Prescription, EncounterPrescription },
@@ -556,7 +556,7 @@ patientRoute.get(
           model: EncounterPrescription,
           as: 'encounterPrescription',
           where: {
-            isDischarge: true,
+            isSelectedForDischarge: true,
             encounterId: lastInpatientEncounter.id,
           },
         },

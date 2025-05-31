@@ -136,7 +136,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
 
   const handleImportMedications = async () => {
     try {
-      await api.post('/medication/importOngoing', {
+      await api.post('/medication/import-ongoing', {
         encounterId: encounter.id,
         prescriptionIds: selectedRows.map(row => row.id),
         prescriberId,
