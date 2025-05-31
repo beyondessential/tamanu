@@ -891,6 +891,7 @@ export const DischargeForm = ({
                     getTranslation,
                     getEnumTranslation,
                     handleDiscontinueMedication,
+                    canUpdateMedication,
                   )}
                   data={onGoingMedications}
                   data-testid="tableformfields-i8q7"
