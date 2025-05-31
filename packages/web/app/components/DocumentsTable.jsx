@@ -9,10 +9,10 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
-
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
 import { useAuth } from '../contexts/Auth';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const ActionWrapper = styled.div`
   width: 0; // This is needed to move content to the right side of the table
@@ -24,7 +24,7 @@ const ActionWrapper = styled.div`
 const StyledIconButton = styled(IconButton)`
   border: 1px solid;
   border-color: transparent;
-  color: ${(props) => props.theme.palette.primary.main};
+  color: ${props => props.theme.palette.primary.main};
   border-radius: 3px;
   padding-left: 10px;
   padding-right: 10px;
@@ -75,6 +75,9 @@ export const DocumentsTable = React.memo(
         action: () => setModalOpen(true),
         permissionCheck: () => {
           return ability?.can('delete', 'DocumentMetadata');
+        },
+        wrapper: menuItem => {
+          return <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>;
         },
       },
     ].filter(({ permissionCheck }) => {
@@ -198,7 +201,7 @@ export const DocumentsTable = React.memo(
           refreshCount={refreshCount}
           allowExport={false}
           elevated={false}
-          onRowClick={(row) => openDocumentPreview(row)}
+          onRowClick={row => openDocumentPreview(row)}
           rowIdKey="id"
           data-testid="datafetchingtable-s6m9"
         />

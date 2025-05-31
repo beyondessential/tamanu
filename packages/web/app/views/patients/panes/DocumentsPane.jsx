@@ -11,6 +11,7 @@ import {
   ContentPane,
   OutlinedButton,
   TableButtonRow,
+  NoteModalActionBlocker,
 } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -38,7 +39,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const openDocumentPreview = useCallback(
-    (document) => {
+    document => {
       setSelectedDocument(document);
       setModalStatus(MODAL_STATES.DOCUMENT_PREVIEW_OPEN);
     },
@@ -56,28 +57,32 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       )}
       <PaneWrapper data-testid="panewrapper-vhzo">
         <TableButtonRow variant="small" data-testid="tablebuttonrow-khuv">
-          <OutlinedButton
-            onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
-            data-testid="outlinedbutton-me4h"
-          >
-            <TranslatedText
-              stringId="document.action.openPatientLetter"
-              fallback="Patient letter"
-              data-testid="translatedtext-ws2i"
-            />
-          </OutlinedButton>
-          <ButtonWithPermissionCheck
-            verb="create"
-            noun="DocumentMetadata"
-            onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-            data-testid="buttonwithpermissioncheck-slv7"
-          >
-            <TranslatedText
-              stringId="document.action.addDocument"
-              fallback="Add document"
-              data-testid="translatedtext-yhxu"
-            />
-          </ButtonWithPermissionCheck>
+          <NoteModalActionBlocker>
+            <OutlinedButton
+              onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}
+              data-testid="outlinedbutton-me4h"
+            >
+              <TranslatedText
+                stringId="document.action.openPatientLetter"
+                fallback="Patient letter"
+                data-testid="translatedtext-ws2i"
+              />
+            </OutlinedButton>
+          </NoteModalActionBlocker>
+          <NoteModalActionBlocker>
+            <ButtonWithPermissionCheck
+              verb="create"
+              noun="DocumentMetadata"
+              onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+              data-testid="buttonwithpermissioncheck-slv7"
+            >
+              <TranslatedText
+                stringId="document.action.addDocument"
+                fallback="Add document"
+                data-testid="translatedtext-yhxu"
+              />
+            </ButtonWithPermissionCheck>
+          </NoteModalActionBlocker>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}

@@ -19,20 +19,21 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: ${Colors.primaryDark};
-  min-width: ${(props) => (props.$retracted ? '60px' : '260px')};
-  max-width: ${(props) => (props.$retracted ? '86px' : '280px')};
+  min-width: ${props => (props.$retracted ? '60px' : '260px')};
+  max-width: ${props => (props.$retracted ? '86px' : '280px')};
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
-  transition: ${(props) => props.theme.transitions.create(['min-width', 'max-width'])};
+  transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
     color: ${Colors.white};
@@ -43,9 +44,9 @@ const HeaderContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: ${(props) => (props.$retracted ? 'center' : 'space-between')};
+  justify-content: ${props => (props.$retracted ? 'center' : 'space-between')};
   height: 72px;
-  padding: 16px 0 14px ${(props) => (props.$retracted ? '0' : '13px')};
+  padding: 16px 0 14px ${props => (props.$retracted ? '0' : '13px')};
 `;
 
 const RetractExtendButton = styled(IconButton)`
@@ -72,7 +73,7 @@ const RetractedLogo = styled(LogoLightNoText)``;
 const Footer = styled.div`
   margin-top: auto;
   padding-bottom: 3px;
-  padding-right: ${(props) => (props.$retracted ? '0' : '10px')};
+  padding-right: ${props => (props.$retracted ? '0' : '10px')};
 `;
 
 const UserInfo = styled.div`
@@ -80,8 +81,8 @@ const UserInfo = styled.div`
   color: white;
   min-height: 65px;
   align-items: center;
-  justify-content: ${(props) => (props.$retracted ? 'center' : 'default')};
-  transition: ${(props) => props.theme.transitions.create('justify-content')};
+  justify-content: ${props => (props.$retracted ? 'center' : 'default')};
+  transition: ${props => props.theme.transitions.create('justify-content')};
   margin-top: 5px;
   margin-bottom: 5px;
 `;
@@ -91,8 +92,8 @@ const StyledUserInfoContent = styled(Box)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background-color: ${(props) => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
-  transition: ${(props) => props.theme.transitions.create('background-color')};
+  background-color: ${props => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
+  transition: ${props => props.theme.transitions.create('background-color')};
   margin-left: 5px;
 `;
 
@@ -109,8 +110,8 @@ const ConnectedTo = styled(Typography)`
 `;
 
 const StyledHiddenSyncAvatar = styled(HiddenSyncAvatar)`
-  margin-right: ${(props) => (props.$retracted ? '0' : '12px')};
-  cursor: ${(props) => (props.$retracted ? 'pointer' : 'default')};
+  margin-right: ${props => (props.$retracted ? '0' : '12px')};
+  cursor: ${props => (props.$retracted ? 'pointer' : 'default')};
 `;
 
 const Version = styled.div`
@@ -139,14 +140,14 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
-const getInitials = (string) =>
+const getInitials = string =>
   string
     .match(/\b(\w)/g)
     .slice(0, 2)
     .join('');
 
 const permissionCheck = (...items) => {
-  const ability = { ...items.map((item) => item.ability) };
+  const ability = { ...items.map(item => item.ability) };
   if (!ability.subject || !ability.action) {
     return true;
   }
@@ -172,7 +173,7 @@ export const Sidebar = React.memo(({ items }) => {
   const dispatch = useDispatch();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = (newPath) => dispatch(push(newPath));
+  const onPathChanged = newPath => dispatch(push(newPath));
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {
@@ -285,14 +286,16 @@ export const Sidebar = React.memo(({ items }) => {
 
           if (!item.children) {
             return (
-              <TopLevelSidebarItem
-                key={item.path}
-                {...commonProps}
-                isCurrent={currentPath.includes(item.path)}
-                disabled={!permissionCheck(item)}
-                onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-                data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`}
-              />
+              <NoteModalActionBlocker key={item.path} isNavigationBlock>
+                <TopLevelSidebarItem
+                  key={item.path}
+                  {...commonProps}
+                  isCurrent={currentPath.includes(item.path)}
+                  disabled={!permissionCheck(item)}
+                  onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+                  data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`}
+                />
+              </NoteModalActionBlocker>
             );
           }
 
@@ -311,17 +314,19 @@ export const Sidebar = React.memo(({ items }) => {
               {...commonProps}
               data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
             >
-              {item.children.map((child) => (
-                <SecondarySidebarItem
-                  key={child.path}
-                  path={child.path}
-                  isCurrent={currentPath.includes(child.path)}
-                  color={child.color}
-                  label={child.label}
-                  disabled={!permissionCheck(child, item)}
-                  onClick={() => onPathChanged(child.path)}
-                  data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
-                />
+              {item.children.map(child => (
+                <NoteModalActionBlocker key={child.path} isNavigationBlock>
+                  <SecondarySidebarItem
+                    key={child.path}
+                    path={child.path}
+                    isCurrent={currentPath.includes(child.path)}
+                    color={child.color}
+                    label={child.label}
+                    disabled={!permissionCheck(child, item)}
+                    onClick={() => onPathChanged(child.path)}
+                    data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                  />
+                </NoteModalActionBlocker>
               ))}
             </PrimarySidebarItem>
           );

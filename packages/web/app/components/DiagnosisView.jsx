@@ -8,6 +8,7 @@ import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -59,7 +60,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
   const { ability } = useAuth();
   const canListDiagnoses = ability?.can('list', 'EncounterDiagnosis');
 
-  const validDiagnoses = diagnoses.filter((d) => !['error', 'disproven'].includes(d.certainty));
+  const validDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   const DiagnosesDisplay = canListDiagnoses ? (
     <>
@@ -97,19 +98,21 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
       />
       <DiagnosisGrid data-testid="diagnosisgrid-y0tp">
         {DiagnosesDisplay}
-        <AddDiagnosisButton
-          onClick={() => editDiagnosis({})}
-          variant="outlined"
-          color="primary"
-          disabled={readOnly}
-          data-testid="adddiagnosisbutton-2ij9"
-        >
-          <TranslatedText
-            stringId="diagnosis.action.add"
-            fallback="Add diagnosis"
-            data-testid="translatedtext-2m57"
-          />
-        </AddDiagnosisButton>
+        <NoteModalActionBlocker>
+          <AddDiagnosisButton
+            onClick={() => editDiagnosis({})}
+            variant="outlined"
+            color="primary"
+            disabled={readOnly}
+            data-testid="adddiagnosisbutton-2ij9"
+          >
+            <TranslatedText
+              stringId="diagnosis.action.add"
+              fallback="Add diagnosis"
+              data-testid="translatedtext-2m57"
+            />
+          </AddDiagnosisButton>
+        </NoteModalActionBlocker>
       </DiagnosisGrid>
     </>
   );

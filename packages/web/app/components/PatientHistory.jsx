@@ -21,6 +21,7 @@ import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
 import { ThemedTooltip } from './Tooltip.jsx';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -131,9 +132,9 @@ const StatusIndicator = styled.div`
   width: 5px;
   height: 44px;
   border-radius: 10px;
-  background-color: ${(p) =>
+  background-color: ${p =>
     p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
-  ${(p) => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
+  ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -249,6 +250,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
       },
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => {
     return permissionCheck ? permissionCheck() : true;
@@ -298,7 +300,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           data-testid="translatedtext-joqe"
         />
       ),
-      accessor: (props) => (
+      accessor: props => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
         <TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
           <LocationGroupCell
@@ -357,7 +359,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       />
       <StyledTable
         columns={columns}
-        onRowClick={(row) => onItemClick(row.id)}
+        onRowClick={row => onItemClick(row.id)}
         noDataMessage={
           <Box mx="auto" p="40px" data-testid="box-t8fy">
             <TranslatedText
@@ -379,7 +381,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
             />
           </Heading4>
         }
-        ExportButton={(props) => (
+        ExportButton={props => (
           <ThemedTooltip
             title={
               <TranslatedText

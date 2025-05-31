@@ -25,6 +25,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
+import { NoteModal } from '../components/NoteModal/NoteModal';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -47,9 +48,12 @@ const ProgramRegistryTitle = () => {
 };
 
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToPatient, navigateToProgramRegistry } =
-    usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const {
+    navigateToEncounter,
+    navigateToPatient,
+    navigateToProgramRegistry,
+  } = usePatientNavigation();
+  const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
@@ -127,7 +131,7 @@ const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextP
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
     <Route exact path={path} component={component} />
-    {routes?.map((subRoute) => (
+    {routes?.map(subRoute => (
       <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
     ))}
   </>
@@ -144,27 +148,38 @@ const PatientPaneInner = styled.div`
   min-width: ${PATIENT_PANE_WIDTH};
 `;
 
-export const PatientRoutes = React.memo(() => {
+const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane />
-      {/* Using contain:size along with overflow: auto here allows sticky navigation section
-      to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <PatientPane>
-        <PatientPaneInner>
-          {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
-           that they have access to the programRegistryId url param */}
-          {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
-          <Switch>
-            {patientRoutes.map((route) => (
-              <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-            ))}
-          </Switch>
-        </PatientPaneInner>
-      </PatientPane>
-    </TwoColumnDisplay>
+    <>
+      <TwoColumnDisplay>
+        <PatientInfoPane />
+        {/* Using contain:size along with overflow: auto here allows sticky navigation section
+    to have correct scrollable behavior in relation to the patient info pane and switch components */}
+        <PatientPane>
+          <PatientPaneInner>
+            {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
+         that they have access to the programRegistryId url param */}
+            {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
+            <Switch>
+              {patientRoutes.map(route => (
+                <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
+              ))}
+            </Switch>
+          </PatientPaneInner>
+        </PatientPane>
+      </TwoColumnDisplay>
+    </>
+  );
+};
+
+export const PatientRoutes = React.memo(() => {
+  return (
+    <>
+      <NoteModal />
+      <PatientRoutesContent />
+    </>
   );
 }, isPathUnchanged);

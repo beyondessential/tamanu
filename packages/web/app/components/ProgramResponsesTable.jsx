@@ -10,6 +10,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
@@ -26,7 +27,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
-  const onSelectResponse = useCallback((surveyResponse) => {
+  const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
     setSelectedResponse(surveyResponse);
   }, []);
@@ -54,6 +55,9 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
       action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
+      },
+      wrapper: menuItem => {
+        return <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>;
       },
     },
   ].filter(({ permissionCheck }) => {

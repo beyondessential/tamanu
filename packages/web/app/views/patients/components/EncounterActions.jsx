@@ -9,7 +9,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, NoteModalActionBlocker } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -58,7 +58,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const { navigateToSummary } = usePatientNavigation();
   const { getSetting } = useSettings();
 
-  const onChangeEncounterType = (type) => {
+  const onChangeEncounterType = type => {
     setNewEncounterType(type);
     setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE);
   };
@@ -294,9 +294,13 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       ),
       onClick: onViewEncounterProgressRecord,
     },
-  ].filter((action) => !action.condition || action.condition());
+  ].filter(action => !action.condition || action.condition());
 
-  return <StyledDropdownButton actions={actions} data-testid="styleddropdownbutton-zjxy" />;
+  return (
+    <NoteModalActionBlocker>
+      <StyledDropdownButton actions={actions} data-testid="styleddropdownbutton-zjxy" />
+    </NoteModalActionBlocker>
+  );
 };
 
 export const EncounterActions = React.memo(({ encounter }) => {
