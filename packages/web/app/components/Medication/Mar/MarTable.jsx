@@ -179,6 +179,7 @@ export const MarTable = ({ selectedDate }) => {
   const prnHeaderRef = useRef(null);
   const scrollableContentRef = useRef(null);
   const [overlayHeight, setOverlayHeight] = useState('100%');
+  const [popperAnchorEl, setPopperAnchorEl] = useState(null);
 
   const { data: medicationsData, isLoading: isLoadingMedications } = useEncounterMedicationQuery(
     encounter?.id,
@@ -343,6 +344,8 @@ export const MarTable = ({ selectedDate }) => {
                       key={medication?.id}
                       medication={medication}
                       selectedDate={selectedDate}
+                      popperAnchorEl={popperAnchorEl}
+                      onPopperAnchorElChange={setPopperAnchorEl}
                     />
                   ))
                 ) : (
@@ -381,6 +384,8 @@ export const MarTable = ({ selectedDate }) => {
                       key={medication?.id}
                       medication={medication}
                       selectedDate={selectedDate}
+                      popperAnchorEl={popperAnchorEl}
+                      onPopperAnchorElChange={setPopperAnchorEl}
                     />
                   ))
                 ) : (
