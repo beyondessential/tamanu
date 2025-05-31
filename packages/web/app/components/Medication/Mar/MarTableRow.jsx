@@ -68,9 +68,7 @@ export const MarTableRow = ({ medication, selectedDate }) => {
   });
 
   const handleRefreshMar = () => {
-    if (encounter?.id) {
-      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-    }
+    queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
   };
 
   return (
