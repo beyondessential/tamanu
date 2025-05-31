@@ -10,7 +10,7 @@ export class EncounterPrescription extends Model {
   declare id: string;
   declare encounterId?: string;
   declare prescriptionId?: string;
-  declare isDischarge: boolean;
+  declare isSelectedForDischarge: boolean;
 
   declare encounter: Encounter;
 
@@ -18,7 +18,7 @@ export class EncounterPrescription extends Model {
     super.init(
       {
         id: primaryKey,
-        isDischarge: {
+        isSelectedForDischarge: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false

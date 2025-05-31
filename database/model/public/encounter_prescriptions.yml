@@ -24,9 +24,9 @@ sources:
             description: "{{ doc('encounter_prescriptions__prescription_id') }}"
             data_tests:
               - not_null
-          - name: is_discharge
+          - name: is_selected_for_discharge
             data_type: boolean
-            description: "{{ doc('encounter_prescriptions__is_discharge') }}"
+            description: "{{ doc('encounter_prescriptions__is_selected_for_discharge') }}"
             data_tests:
               - not_null
           - name: created_at

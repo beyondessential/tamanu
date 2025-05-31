@@ -1178,7 +1178,7 @@ const importOngoingMedicationsSchema = z
   })
   .strip();
 medication.post(
-  '/importOngoing',
+  '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
     const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription } = models;
@@ -1308,7 +1308,8 @@ medication.get(
         recorded_by_user.id recorded_by_user_id,
 
         c.created_at,
-        c.record_update,
+        c.record_created_at record_created_at,
+        c.record_updated_at record_updated_at,
         c.record_deleted_at record_deleted_at,
         updated_by_user.display_name as changed_by_user
       from logs.changes c
@@ -1365,8 +1366,14 @@ medication.get(
 
       changedByUser: result.changed_by_user,
       createdAt: result.created_at,
+      recordCreatedAt: result.record_created_at,
+      recordUpdatedAt: result.record_updated_at,
       recordDeletedAt: result.record_deleted_at,
-      changeType: result.record_update ? 'UPDATED' : 'CREATED',
+      changeType:
+        new Date(result.record_created_at).getTime() ===
+        new Date(result.record_updated_at).getTime()
+          ? 'CREATED'
+          : 'UPDATED',
     }));
 
     res.send(transformedResults);

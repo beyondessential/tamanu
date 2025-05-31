@@ -71,7 +71,7 @@ describe('Patient', () => {
     });
 
     // Expect result data to be empty since there are no discharged encounters or medications
-    const result = await app.get(`/api/patient/${patient.id}/lastInpatientDischargeMedications`);
+    const result = await app.get(`/api/patient/${patient.id}/last-inpatient-discharge-medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 0,
@@ -103,7 +103,7 @@ describe('Patient', () => {
     await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
       prescriptionId: dischargedMedication.id,
-      isDischarge: true,
+      isSelectedForDischarge: true,
     });
     const medication = await models.Prescription.create({
       ...(await createDummyPrescription(models)),
@@ -111,7 +111,7 @@ describe('Patient', () => {
     await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
       prescriptionId: medication.id,
-      isDischarge: false,
+      isSelectedForDischarge: false,
     });
 
     // Edit the first two encounters to simulate a discharge
@@ -124,7 +124,7 @@ describe('Patient', () => {
 
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
-    const result = await app.get(`/api/patient/${patient.id}/lastInpatientDischargeMedications`);
+    const result = await app.get(`/api/patient/${patient.id}/last-inpatient-discharge-medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 1,
