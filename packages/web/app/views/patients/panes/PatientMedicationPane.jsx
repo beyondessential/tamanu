@@ -116,6 +116,7 @@ const CellText = styled.div`
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   border: none;
   box-shadow: none;
+  max-height: 270px;
   .MuiTableHead-root {
     ${props => props.$noData && 'display: none;'}
     .MuiTableRow-root .MuiTableCell-head {
@@ -127,6 +128,8 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       padding-bottom: 8px;
       font-weight: 400;
       color: ${Colors.midText};
+      position: sticky;
+      top: 0;
       & .MuiTableSortLabel-root {
         color: ${Colors.midText};
       }
@@ -174,6 +177,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     accessor: data => (
       <CellText discontinued={data?.discontinued}>
         {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && getTranslation('patient.medication.table.prn', 'PRN')}
       </CellText>
     ),
     sortable: false,
@@ -252,7 +256,12 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
-    accessor: data => getDose(data, getTranslation, getEnumTranslation),
+    accessor: data => (
+      <>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && getTranslation('patient.medication.table.prn', 'PRN')}
+      </>
+    ),
     sortable: false,
   },
   {
