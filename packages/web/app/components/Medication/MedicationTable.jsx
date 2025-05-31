@@ -25,6 +25,7 @@ import { useAuth } from '../../contexts/Auth';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
   border: none;
+  border-radius: 0;
   border-top: 1px solid ${Colors.outline};
   margin-top: 8px;
   .MuiTableHead-root {
@@ -321,7 +322,13 @@ export const EncounterMedicationTable = ({
         noDataMessage={
           <NoDataContainer>
             {canImportOngoingPrescriptions && canCreatePrescription ? (
-              <Box color={Colors.darkestText}>
+              <Box
+                color={Colors.darkestText}
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <TranslatedText
                   stringId="medication.table.noMedications"
                   fallback="This patient has existing ongoing medications. Would you like to add these to this encounter?"
