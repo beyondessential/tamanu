@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import {
@@ -13,6 +13,8 @@ import { useTranslation } from '../../../contexts/Translation';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarStatus } from './MarStatus';
+import { MedicationDetails } from '../MedicationDetails';
+import { useQueryClient } from '@tanstack/react-query';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -35,6 +37,10 @@ const MarRowContainer = styled.div`
   border-left: 1px solid ${Colors.outline};
   ${props => props.discontinued && `text-decoration: line-through;`}
   ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
+  &:hover {
+    background-color: ${Colors.veryLightBlue};
+    cursor: pointer;
+  }
 `;
 
 export const MarTableRow = ({ medication, selectedDate }) => {
@@ -49,18 +55,31 @@ export const MarTableRow = ({ medication, selectedDate }) => {
     displayPharmacyNotesInMar,
     encounterPrescription,
   } = medication;
+  const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const pauseData = encounterPrescription?.pausePrescriptions?.[0];
   const isPausing = !!pauseData && !discontinued;
 
+  const [openMedicationDetails, setOpenMedicationDetails] = useState(false);
+
   const { data: pauseRecords } = usePausesPrescriptionQuery(medication.id, encounter?.id, {
     marDate: selectedDate,
   });
 
+  const handleRefreshMar = () => {
+    if (encounter?.id) {
+      queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+    }
+  };
+
   return (
     <>
-      <MarRowContainer discontinued={discontinued} isPausing={isPausing}>
+      <MarRowContainer
+        discontinued={discontinued}
+        isPausing={isPausing}
+        onClick={() => setOpenMedicationDetails(true)}
+      >
         <Box fontWeight={500}>
           <TranslatedReferenceData
             fallback={medicationRef.name}
@@ -106,6 +125,13 @@ export const MarTableRow = ({ medication, selectedDate }) => {
           />
         );
       })}
+      {openMedicationDetails && (
+        <MedicationDetails
+          initialMedication={medication}
+          onClose={() => setOpenMedicationDetails(false)}
+          onReloadTable={handleRefreshMar}
+        />
+      )}
     </>
   );
 };
