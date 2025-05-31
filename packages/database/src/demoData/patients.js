@@ -165,7 +165,6 @@ export async function createDummyPrescription(models, overrides = {}) {
     route: chance.word(),
     quantity: chance.integer({ min: 0, max: 3 }),
     repeats: 0,
-    isDischarge: false,
     prescriberId: await randomUser(models),
     medicationId: await randomReferenceId(models, 'drug'),
     doseAmount: 1,

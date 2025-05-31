@@ -371,7 +371,7 @@ export const PatientMedicationPane = ({ patient }) => {
           )}
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/ongoingPrescriptions`}
+          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           noDataMessage={
             <NoDataContainer>
@@ -424,7 +424,7 @@ export const PatientMedicationPane = ({ patient }) => {
           )}
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/lastInpatientDischargeMedications`}
+          endpoint={`/patient/${patient.id}/last-inpatient-discharge-medications`}
           columns={DISCHARGE_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           noDataMessage={
             <NoDataContainer>
