@@ -84,8 +84,6 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        // Update medications that were marked for discharge and ensure
-        // only isDischarge, quantity and repeats fields are edited
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
           const { quantity, repeats } = medicationValues;
@@ -110,7 +108,7 @@ encounter.put(
 
           await medication.update({ quantity, repeats });
           await models.EncounterPrescription.update(
-            { isDischarge: true },
+            { isSelectedForDischarge: true },
             { where: { encounterId: id, prescriptionId: medication.id } },
           );
           // If the medication is ongoing, we need to add it to the patient's ongoing medications
@@ -236,7 +234,7 @@ encounterRelations.get(
             },
             required: false,
           },
-          attributes: ['id', 'encounterId', 'isDischarge'],
+          attributes: ['id', 'encounterId', 'isSelectedForDischarge'],
           where: {
             encounterId: params.id,
           },
