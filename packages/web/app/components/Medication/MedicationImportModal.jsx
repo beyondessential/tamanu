@@ -74,7 +74,10 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     sortable: false,
     accessor: data => (
-      <Box whiteSpace={'pre'}>{getDose(data, getTranslation, getEnumTranslation)}</Box>
+      <Box whiteSpace={'pre'}>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+      </Box>
     ),
   },
   {
