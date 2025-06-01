@@ -87,6 +87,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     value: string | null,
     language: string = 'en',
   ): Promise<OptionType> => {
+    const { column = 'name' } = this.options;
     if (!value) return undefined;
     try {
       const dataType = getReferenceDataTypeFromSuggester(this);
@@ -94,7 +95,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .getRepository()
         .createQueryBuilder('entity')
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label')
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
         .where('entity.id = :id', { id: value });
 
       const result = await query.getRawOne();
