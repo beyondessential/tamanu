@@ -120,7 +120,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Assign a label property using the translation if it exists otherwise use the original entity name
       query = query
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label');
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
 
       query = query.where(
         new Brackets((qb) => {
@@ -134,7 +134,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       });
 
-      query = query.orderBy(`entity.${column}`, 'ASC').limit(25);
+      query = query.orderBy('entity_display_label', 'ASC').limit(25);
 
       const data = await query.getRawAndEntities();
 
