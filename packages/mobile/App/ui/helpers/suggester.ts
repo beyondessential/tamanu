@@ -83,7 +83,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     return this.model.findVisible(options);
   }
 
-  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
+  fetchCurrentOption = async (
+    value: string | null,
+    language: string = 'en',
+  ): Promise<OptionType> => {
     if (!value) return undefined;
     try {
       const dataType = getReferenceDataTypeFromSuggester(this);
@@ -94,10 +97,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label')
         .where('entity.id = :id', { id: value });
 
-      const result = await query.getRawAndEntities();
-      if (result.raw.length === 0) return undefined;
+      const result = await query.getRawOne();
+      if (!result) return undefined;
 
-      return this.formatter(result.raw[0]);
+      return this.formatter(result);
     } catch (e) {
       return undefined;
     }
@@ -136,9 +139,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       query = query.orderBy('entity_display_label', 'ASC').limit(25);
 
-      const data = await query.getRawAndEntities();
+      const data = await query.getRawMany();
 
-      const filteredData = this.filter ? data.raw.filter(this.filter) : data.raw;
+      const filteredData = this.filter ? data.filter(this.filter) : data;
       const formattedData = filteredData.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {
