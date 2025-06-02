@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
@@ -20,6 +20,24 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
+const defaultByType = (type, [programDataElement, surveyScreenComponent]) => {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    const { visibilityCriteria: originalVisibilityCriteria } = programDataElement;
+    const visibilityCriteria = {
+      ...JSON.parse(originalVisibilityCriteria),
+      mandatory: true,
+    };
+   
+    return [
+      programDataElement,
+    {
+      ...surveyScreenComponent,
+      visibilityCriteria: JSON.stringify(visibilityCriteria),
+    }];
+  }
+  return [programDataElement, surveyScreenComponent];
+};
+
 function makeScreen(questions, componentData) {
   return questions.flatMap((component, i) => {
     const {
@@ -40,8 +58,8 @@ function makeScreen(questions, componentData) {
 
     const deletedAt =
       VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
-
-    return [
+      
+    return defaultByType(type, [
       {
         model: 'ProgramDataElement',
         sheetRow: row,
@@ -74,9 +92,10 @@ function makeScreen(questions, componentData) {
           ...otherComponentData,
           visibilityStatus,
           deletedAt,
+          },
         },
-      },
-    ];
+      ],
+    );
   });
 }
 

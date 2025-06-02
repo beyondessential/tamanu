@@ -354,15 +354,6 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
           valueSchema = yup.date();
           break;
-        case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME:
-        case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE:
-          valueSchema = yup.string();
-          mandatory = true;
-          break;
-        case PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE:
-          valueSchema = yup.string();
-          mandatory = false;
-          break;
         default:
           valueSchema = yup.mixed();
           break;
