@@ -9,9 +9,9 @@ import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../Translation';
+import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { Button } from '../../Button';
-import { ADMINISTRATION_STATUS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
@@ -333,7 +333,7 @@ const GivenScreen = ({
               <StyledNumberFieldWrapper $units={units} ref={doseInputRef}>
                 <Field name="doseAmount" component={NumberField} min={0.25} />
                 <InputSuffix>
-                  {units}
+                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={units} />
                   <RequiredMark>*</RequiredMark>
                 </InputSuffix>
               </StyledNumberFieldWrapper>
