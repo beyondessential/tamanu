@@ -59,7 +59,6 @@ function makeScreen(questions, componentData) {
 
     const deletedAt =
       VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
-      
     return [
       {
         model: 'ProgramDataElement',
