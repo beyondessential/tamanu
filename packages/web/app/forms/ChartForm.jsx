@@ -13,31 +13,27 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
 import { getFormInitialValues } from '../utils';
 import { usePatientAdditionalDataQuery } from '../api/queries';
+import { combineQueries } from '../api';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
   const { currentUser } = useAuth();
-  const { data: chartSurvey, isLoading: isChartSurveyLoading, isError: isChartSurveyError, error: chartSurveyError } = useChartSurveyQuery(chartSurveyId);
+  const chartSurveyQuery = useChartSurveyQuery(chartSurveyId);
+  const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const {
-    isLoading: isPatientAdditionalDataLoading,
-    data: patientAdditionalData,
-    isError: isPatientAdditionalDataError,
-    error: patientAdditionalDataError,
-  } = usePatientAdditionalDataQuery(patient?.id);
+    data: [chartSurveyData, patientAdditionalData],
+    isLoading,
+    isError,
+    error,
+  } = combineQueries([chartSurveyQuery, patientAdditionalDataQuery]);
 
-  const isLoading = isChartSurveyLoading || isPatientAdditionalDataLoading;
-  const isError = isChartSurveyError || isPatientAdditionalDataError;
-  const error = chartSurveyError || patientAdditionalDataError;
-
-  const { components = [] } = chartSurvey || {};
+  const { components = [] } = chartSurveyData || {};
   const visibleComponents = components.filter(
-    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );  
-  
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  );
+
   const { ability } = useAuth();
   const canCreateChart = ability.can('create', 'Charting');
 
-
-  
   const initialValues = getFormInitialValues(
     visibleComponents,
     patient,
@@ -72,7 +68,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
     );
   }
 
-  const handleSubmit = async (data) => onSubmit({ survey: chartSurvey, ...data });
+  const handleSubmit = async data => onSubmit({ survey: chartSurveyData, ...data });
 
   return (
     <Form
