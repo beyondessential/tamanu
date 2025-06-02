@@ -28,7 +28,7 @@ function makeMandatory(validationCriteria) {
     });
 }
 
-function applyComponentOverrides(type, surveyComponent) {
+function applyComponentTypeOverrides(type, surveyComponent) {
   if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
     const { validationCriteria } = surveyComponent;
     return {
@@ -75,7 +75,7 @@ function makeScreen(questions, componentData) {
       {
         model: 'SurveyScreenComponent',
         sheetRow: row,
-        values: applyComponentOverrides(type,{
+        values: applyComponentTypeOverrides(type, {
           id: `${surveyId}-${elementData.code}`,
           dataElementId: dataElId,
           surveyId,
