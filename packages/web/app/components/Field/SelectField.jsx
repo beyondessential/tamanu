@@ -46,6 +46,11 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
+const ExpandIcon = styled(ExpandMoreIcon)`
+  position: absolute;
+  right: 12px;
+`;
+
 const Option = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
@@ -129,7 +134,7 @@ export const SelectInput = ({
         paddingTop: '11px',
         paddingBottom: '9.81px',
         paddingLeft: '5px',
-        paddingRight: '13px',
+        paddingRight: '42px',
         fontSize,
       };
     },
@@ -222,12 +227,9 @@ export const SelectInput = ({
                 data-testid={`${dataTestId}-clearindicator`}
               />
             ),
-            DropdownIndicator: () => (
-              <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon-h115`} />
-            ),
+            DropdownIndicator: () => <ExpandIcon />,
           }}
           {...props}
-          data-testid={`${dataTestId}-select`}
         />
         {helperText && (
           <FormHelperText data-testid={`${dataTestId}-formhelptertext`}>

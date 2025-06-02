@@ -413,6 +413,18 @@ const MODEL_SPECIFIC_OVERRIDES = {
         : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
+  ChangeLog: () => ({
+    recordId: fakeUUID(),
+    id: fakeUUID(),
+    tableOid: chance.integer({ min: 10000, max: 99999 }),
+    tableSchema: chance.pickone(['public', 'fhir', 'logs']),
+    tableName: chance.pickone(['patients', 'encounters', 'lab_requests']),
+    loggedAt: fakeDateTimeString(),
+    recordCreatedAt: fakeDateTimeString(),
+    recordUpdatedAt: fakeDateTimeString(),
+    updatedByUserId: fakeUUID(),
+    recordUpdate: true,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {

@@ -59,8 +59,13 @@ import { updateReferenceDataRelationIndex1714605577000 } from './1731998974975-u
 import { removeLabTestStatus1734072605000 } from './1734072605000-removeLabTestStatus';
 import { standardiseCaseAndPluralityOfAllTables1734080053767 } from './1734080053767-standardiseCaseAndPluralityOfAllTables';
 import { addIsSensitiveColumnToLabTestTypes1738620786000 } from './1738620786000-addIsSensitiveColumnToLabTestTypes';
-import { addReferenceDrugsTable1739314067055 } from './1739314067055-addReferenceDrugsTable.ts';
+import { addReferenceDrugsTable1739314067055 } from './1739314067055-addReferenceDrugsTable';
 import { changeMedicationsDBSchema1739698276000 } from './1739698276000-changeMedicationsDBSchema';
+import { addPatientProgramRegistrationConditionCategoryColumn1739395962000 } from './1739395962000-addPatientProgramRegistrationConditionCategoryColumn';
+import { addPatientProgramRegistrationReasonForChange1740342611000 } from './1740342611000-addPatientProgramRegistrationReasonForChange';
+import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-addPatientProgramRegistrationId';
+import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from './1744754327000-removeIsMostRecentFromPatientProgramRegistrations';
+import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -125,4 +130,9 @@ export const migrationList = [
   addIsSensitiveColumnToLabTestTypes1738620786000,
   addReferenceDrugsTable1739314067055,
   changeMedicationsDBSchema1739698276000,
+  addPatientProgramRegistrationConditionCategoryColumn1739395962000,
+  addPatientProgramRegistrationReasonForChange1740342611000,
+  addPatientProgramRegistrationId1743640327000,
+  removeIsMostRecentFromPatientProgramRegistrations1744754327000,
+  addPatientProgramRegistrationInactiveFields1744234389088,
 ];
