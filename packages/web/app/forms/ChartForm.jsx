@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useTransition } from 'react';
 import PropTypes from 'prop-types';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -11,12 +11,13 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
-import { getFormInitialValues } from '../utils';
+import { getFormInitialValues, getValidationSchema } from '../utils';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
   const { currentUser } = useAuth();
+  const { getTranslation } = useTransition();
   const chartSurveyQuery = useChartSurveyQuery(chartSurveyId);
   const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const {
@@ -34,11 +35,17 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const { ability } = useAuth();
   const canCreateChart = ability.can('create', 'Charting');
 
-  const initialValues = getFormInitialValues(
+  const initialValues = useMemo(
+    () => getFormInitialValues(
     visibleComponents,
     patient,
     patientAdditionalData,
     currentUser,
+  ), [visibleComponents, patient, patientAdditionalData, currentUser]);
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(chartSurveyData, getTranslation),
+    [chartSurveyData, getTranslation],
   );
 
   if (isLoading) {
@@ -76,6 +83,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
+      validationSchema={validationSchema}
       initialValues={initialValues}
       render={({ submitForm, values, setFieldValue }) => (
         <>
