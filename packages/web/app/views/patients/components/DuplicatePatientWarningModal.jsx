@@ -33,7 +33,7 @@ export const DuplicatePatientWarningModal = ({
     resolveFn(confirmed);
   };
 
-  const plural = potentialDuplicates.length > 1 ? 's' : '';
+  const isPlural = potentialDuplicates.length > 1;
 
   return (
     <Modal
@@ -50,26 +50,49 @@ export const DuplicatePatientWarningModal = ({
       data-testid="modal-dgog"
     >
       <Heading3>
-        <TranslatedText
-          stringId="patient.modal.duplicateWarning.heading"
-          fallback={`Possible duplicate patient record${plural}`}
-          data-testid="translatedtext-heading"
-        />
+        {isPlural ? (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.heading.plural"
+            fallback="Possible duplicate patient records"
+            data-testid="translatedtext-heading"
+          />
+        ) : (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.heading"
+            fallback="Possible duplicate patient record"
+            data-testid="translatedtext-heading"
+          />
+        )}
       </Heading3>
       <LargeBodyText color="textTertiary">
-        <TranslatedText
-          stringId="patient.modal.duplicateWarning.description"
-          fallback={`The below patient record${plural} already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record.`}
-          data-testid="translatedtext-description"
-        />
+        {isPlural ? (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.description.plural"
+            fallback="The below patient records already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
+            data-testid="translatedtext-description"
+          />
+        ) : (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.description"
+            fallback="The below patient record already exists. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
+            data-testid="translatedtext-description"
+          />
+        )}
       </LargeBodyText>
       <Heading4>
-        <TranslatedText
-          stringId="patient.modal.duplicateWarning.existingRecordsHeading"
-          fallback={`Existing patient record${plural} in Tamanu`}
-          replacements={{ plural }}
-          data-testid="translatedtext-existing-heading"
-        />
+        {isPlural ? (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.existingRecordsHeading.plural"
+            fallback="Existing patient records in Tamanu"
+            data-testid="translatedtext-existing-heading"
+          />
+        ) : (
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.existingRecordsHeading"
+            fallback="Existing patient record in Tamanu"
+            data-testid="translatedtext-existing-heading"
+          />
+        )}
       </Heading4>
       <Table
         columns={COLUMNS}
