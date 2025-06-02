@@ -68,10 +68,10 @@ function makeScreen(questions, componentData) {
           ...elementData,
         },
       },
-      applyComponentTypeDefaults(type, {
+      {
         model: 'SurveyScreenComponent',
         sheetRow: row,
-        values: {
+        values: applyComponentTypeDefaults(type,{
           id: `${surveyId}-${elementData.code}`,
           dataElementId: dataElId,
           surveyId,
@@ -89,8 +89,8 @@ function makeScreen(questions, componentData) {
           ...otherComponentData,
           visibilityStatus,
           deletedAt,
-        },
-      }),
+        }),
+      },
     ];
   });
 }

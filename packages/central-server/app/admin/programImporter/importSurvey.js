@@ -69,6 +69,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
     .filter(Boolean);
 
   const records = readSurveyInfo(workbook, surveyInfo);
+  console.log('records', records);
   const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
 
   return importRows(
