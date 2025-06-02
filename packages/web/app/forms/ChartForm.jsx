@@ -1,4 +1,4 @@
-import React, { useMemo, useTransition } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -14,10 +14,11 @@ import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
 import { getFormInitialValues, getValidationSchema } from '../utils';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
+import { useTranslation } from '../contexts/Translation';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
   const { currentUser } = useAuth();
-  const { getTranslation } = useTransition();
+  const { getTranslation } = useTranslation();
   const chartSurveyQuery = useChartSurveyQuery(chartSurveyId);
   const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const {
