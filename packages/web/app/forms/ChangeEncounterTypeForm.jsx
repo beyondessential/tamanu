@@ -1,11 +1,14 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedEnum } from '../components/Translation/TranslatedEnum';
 
-import { ENCOUNTER_OPTIONS_BY_VALUE, FORM_TYPES } from '../constants';
+import { FORM_TYPES } from '../constants';
 
 export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
   return (
@@ -17,15 +20,34 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
       }}
       formType={FORM_TYPES.EDIT_FORM}
       render={({ submitForm, values }) => {
-        const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label;
-        const newType = ENCOUNTER_OPTIONS_BY_VALUE[values.encounterType].label;
+        // TODO: another look at this translation
         return (
           <FormGrid columns={1} data-testid="formgrid-wphu">
             <div>
-              <span>Changing encounter from </span>
-              <b>{currentType}</b>
-              <span> to </span>
-              <b>{newType}</b>
+              <TranslatedText
+                stringId="encounter.form.changeType.prefix"
+                fallback="Changing encounter from "
+                data-testid="translatedtext-change-prefix"
+              />
+              <b>
+                <TranslatedEnum
+                  value={encounter.encounterType}
+                  enumValues={ENCOUNTER_TYPE_LABELS}
+                  data-testid="translatedenum-current-type"
+                />
+              </b>
+              <TranslatedText
+                stringId="encounter.form.changeType.middle"
+                fallback=" to "
+                data-testid="translatedtext-change-middle"
+              />
+              <b>
+                <TranslatedEnum
+                  value={values.encounterType}
+                  enumValues={ENCOUNTER_TYPE_LABELS}
+                  data-testid="translatedenum-new-type"
+                />
+              </b>
             </div>
             <FormSubmitCancelRow
               onConfirm={submitForm}
