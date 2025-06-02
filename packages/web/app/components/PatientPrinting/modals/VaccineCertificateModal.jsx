@@ -15,6 +15,7 @@ import {
   useAdministeredVaccinesQuery,
   useReferenceDataQuery,
 } from '../../../api/queries';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
@@ -34,8 +35,10 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
   const { logo, watermark, footerImg, printedBy } = certificateData;
-  const { data: additionalData, isFetching: isAdditionalDataFetching } =
-    usePatientAdditionalDataQuery(patient.id);
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   const { title, subTitle } = getSetting('templates.letterhead');
   const { healthFacility } = getSetting('templates.vaccineCertificate');
@@ -50,14 +53,14 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     },
   );
   const vaccinations =
-    vaccineData?.data.filter((vaccine) => !vaccine.scheduledVaccine.hideFromCertificate) || [];
+    vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
   const createVaccineCertificateNotification = useCallback(
-    (data) =>
+    data =>
       api.post('certificateNotification', {
         type: VACCINATION_CERTIFICATE,
         requireSigning: false,
@@ -82,7 +85,13 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   return (
     <Modal
-      title="Immunisation Certificate"
+      title={
+        <TranslatedText
+          stringId="vaccine.certificate.immunisation.title"
+          fallback="Immunisation Certificate"
+          data-testid="translatedtext-immunisation-certificate-title"
+        />
+      }
       open={open}
       onClose={onClose}
       width="md"
