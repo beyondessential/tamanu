@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ConfirmCancelRow,
   DateDisplay,
@@ -11,9 +9,9 @@ import {
   TranslatedText,
 } from '../../components';
 import { Colors } from '../../constants';
-import { useApi } from '../../api';
 import { TranslatedReferenceData } from '../../components/Translation';
-import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
+import { useUpdateProgramRegistryMutation } from '../../api/mutations';
+import { useAuth } from '../../contexts/Auth';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -31,7 +29,7 @@ const InfoDiv = styled.div`
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid ${Colors.softOutline};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 22px 30px;
 `;
@@ -65,26 +63,17 @@ const Value = styled.div`
 `;
 
 export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
+  const { patientId, id } = patientProgramRegistration;
+  const { currentUser } = useAuth();
+  const { mutateAsync } = useUpdateProgramRegistryMutation(patientId, id);
 
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
-    const { ...rest } = patientProgramRegistration;
-    delete rest.id;
-    delete rest.date;
-
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      {
-        ...rest,
-        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: getCurrentDateTimeString(),
-      },
-    );
-
-    queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
+    await mutateAsync({
+      clinicianId: currentUser?.id,
+      registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+    });
     onClose();
   };
 

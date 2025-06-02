@@ -1,23 +1,22 @@
 import { ID } from './ID';
 import { DateTimeString } from './DateString';
-import { IPatient, IUser } from '.';
-import { IProgramRegistry } from './IProgramRegistry';
+import { IUser } from '.';
 import { IProgramRegistryCondition } from './IProgramRegistryCondition';
+import { IPatientProgramRegistration } from './IPatientProgramRegistration';
 
 export interface IPatientProgramRegistrationCondition {
   id: ID;
   date: DateTimeString;
   deletionDate?: DateTimeString;
+  conditionCategory: string;
+  reasonForChange?: string;
 
-  programRegistryId: ID;
-  programRegistry: IProgramRegistry;
+  patientProgramRegistrationId: ID;
+  patientProgramRegistration: IPatientProgramRegistration;
 
-  patientId: ID;
-  patient: IPatient;
-  
   programRegistryConditionId?: ID;
   programRegistryCondition?: IProgramRegistryCondition;
-  
+
   clinicianId?: ID;
   clinician?: IUser;
 

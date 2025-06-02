@@ -19,7 +19,10 @@ import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
-import { patientProgramRegistration } from './patientProgramRegistration';
+import {
+  patientProgramRegistration,
+  patientProgramRegistrationConditions,
+} from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
@@ -552,6 +555,7 @@ patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
+patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 
 export { patientRoute as patient };
