@@ -18,8 +18,6 @@ export const FormTooltip = styled((props) => (
     <StyledInfoIcon data-testid="styledinfoicon-sg86" />
   </MuiTooltip>
 ))`
-  z-index: 1500;
-  pointer-events: auto;
   & .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
     color: ${Colors.white};
