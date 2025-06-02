@@ -12,6 +12,7 @@ import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedEnum, TranslatedText } from './Translation';
 import { useNoteModal } from '../contexts/NoteModal';
 import { NoteChangelogModal } from './NoteChangelogModal';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -203,10 +204,12 @@ const NoteContent = ({
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
-            <StyledEditIcon
-              onClick={() => handleEditNote(note)}
-              data-testid="styledediticon-nmdz"
-            />
+            <NoteModalActionBlocker>
+              <StyledEditIcon
+                onClick={() => handleEditNote(note)}
+                data-testid="styledediticon-nmdz"
+              />
+            </NoteModalActionBlocker>
           )}
       </NoteBodyContainer>
       <NoteExpandControlContainer data-testid="noteexpandcontrolcontainer-nc8t">

@@ -16,6 +16,7 @@ import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
@@ -27,7 +28,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'registrationStatus',
         title: '',
-        accessor: (data) => (
+        accessor: data => (
           <RegistrationStatusIndicator
             patientProgramRegistration={data}
             hideText
@@ -104,7 +105,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             data-testid="translatedtext-b7jb"
           />
         ),
-        accessor: (row) => {
+        accessor: row => {
           if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
           if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
           return '';
@@ -122,7 +123,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         sortable: false,
         accessor: ({ conditions }) => {
           return conditions
-            ?.map((condition) => {
+            ?.map(condition => {
               const { id, name } = condition;
               return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
             })
@@ -180,7 +181,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'actions',
         title: '',
-        accessor: (row) => {
+        accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
@@ -194,6 +195,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: (
@@ -204,6 +206,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 />
               ),
               action: () => setOpenModal({ action: 'Remove', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: (
@@ -214,6 +217,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 />
               ),
               action: () => setOpenModal({ action: 'Delete', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
           ];
 
@@ -275,7 +279,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 
   const dispatch = useDispatch();
-  const selectRegistration = async (registration) => {
+  const selectRegistration = async registration => {
     const { patient, programRegistry } = registration;
     if (patient.id) {
       await dispatch(reloadPatient(patient.id));

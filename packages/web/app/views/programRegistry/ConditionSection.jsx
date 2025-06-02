@@ -12,6 +12,7 @@ import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { useTranslation } from '../../contexts/Translation';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   position: absolute;
@@ -96,7 +97,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
 
   if (!programRegistryConditions || !programRegistryConditions.length) return <></>;
 
-  const translatedData = conditions?.data?.map((condition) => {
+  const translatedData = conditions?.data?.map(condition => {
     const { programRegistryCondition = {} } = condition;
     const { id, name } = programRegistryCondition;
     const translatedName = getTranslation(
@@ -107,7 +108,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
     return { ...condition, translatedName };
   });
 
-  const sortedData = sortBy(translatedData, (c) => c.translatedName);
+  const sortedData = sortBy(translatedData, c => c.translatedName);
 
   return (
     <Container data-testid="container-e92t">
@@ -130,17 +131,19 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
           visible={isRemoved}
           data-testid="conditionaltooltip-a43q"
         >
-          <AddConditionButton
-            onClick={() => setOpenAddCondition(true)}
-            disabled={isRemoved}
-            data-testid="addconditionbutton-dpis"
-          >
-            <TranslatedText
-              stringId="programRegistry.conditions.addCondition.button"
-              fallback="+ Add condition"
-              data-testid="translatedtext-79jd"
-            />
-          </AddConditionButton>
+          <NoteModalActionBlocker>
+            <AddConditionButton
+              onClick={() => setOpenAddCondition(true)}
+              disabled={isRemoved}
+              data-testid="addconditionbutton-dpis"
+            >
+              <TranslatedText
+                stringId="programRegistry.conditions.addCondition.button"
+                fallback="+ Add condition"
+                data-testid="translatedtext-79jd"
+              />
+            </AddConditionButton>
+          </NoteModalActionBlocker>
         </ConditionalTooltip>
       </HeadingContainer>
       {sortedData.map((condition, index) => (
@@ -159,14 +162,16 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
             visible={isRemoved}
             data-testid={`conditionaltooltip-lakj-${index}`}
           >
-            <IconButton
-              style={{ padding: 0 }}
-              onClick={() => setConditionToRemove(condition)}
-              disabled={isRemoved}
-              data-testid={`iconbutton-ft2o-${index}`}
-            >
-              <CloseIcon style={{ fontSize: '14px' }} data-testid={`closeicon-qm8f-${index}`} />
-            </IconButton>
+            <NoteModalActionBlocker>
+              <IconButton
+                style={{ padding: 0 }}
+                onClick={() => setConditionToRemove(condition)}
+                disabled={isRemoved}
+                data-testid={`iconbutton-ft2o-${index}`}
+              >
+                <CloseIcon style={{ fontSize: '14px' }} data-testid={`closeicon-qm8f-${index}`} />
+              </IconButton>
+            </NoteModalActionBlocker>
           </ConditionalTooltip>
         </ConditionContainer>
       ))}
@@ -174,7 +179,7 @@ export const ConditionSection = ({ patientProgramRegistration, programRegistryCo
         <AddConditionFormModal
           onClose={() => setOpenAddCondition(false)}
           patientProgramRegistration={patientProgramRegistration}
-          patientProgramRegistrationConditions={conditions?.data?.map((x) => ({
+          patientProgramRegistrationConditions={conditions?.data?.map(x => ({
             value: x.programRegistryConditionId,
           }))}
           programRegistryConditions={programRegistryConditions}

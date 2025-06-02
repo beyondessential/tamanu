@@ -16,6 +16,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { getReferenceDataStringId } from '../../components';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -60,10 +61,10 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     () =>
       api
         .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`)
-        .then((response) => {
+        .then(response => {
           return response.data
-            .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
-            .map((x) => ({ value: x.id, label: x.name }));
+            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+            .map(x => ({ value: x.id, label: x.name }));
         }),
   );
 
@@ -87,7 +88,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
       <Form
         showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
-        onSubmit={async (values) => {
+        onSubmit={async values => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
             patientProgramRegistration.programRegistryId,
@@ -148,19 +149,21 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 data-testid="conditionaltooltip-ywcm"
               >
                 <div>
-                  <StyledButton
-                    variant="contained"
-                    onClick={submitForm}
-                    disabled={isRemoved || !values.surveyId}
-                    isSubmitting={false}
-                    data-testid="styledbutton-c26p"
-                  >
-                    <TranslatedText
-                      stringId="programRegistry.selectSurveyForm.action.beginForm"
-                      fallback="Begin form"
-                      data-testid="translatedtext-ivgk"
-                    />
-                  </StyledButton>
+                  <NoteModalActionBlocker>
+                    <StyledButton
+                      variant="contained"
+                      onClick={submitForm}
+                      disabled={isRemoved || !values.surveyId}
+                      isSubmitting={false}
+                      data-testid="styledbutton-c26p"
+                    >
+                      <TranslatedText
+                        stringId="programRegistry.selectSurveyForm.action.beginForm"
+                        fallback="Begin form"
+                        data-testid="translatedtext-ivgk"
+                      />
+                    </StyledButton>
+                  </NoteModalActionBlocker>
                 </div>
               </ConditionalTooltip>
             </StyledFormGrid>

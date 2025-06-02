@@ -15,6 +15,7 @@ import { OutlinedButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -74,12 +75,15 @@ const TextColumns = styled.div`
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
-  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] =
-    useState(false);
-  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] =
-    useState(false);
-  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] =
-    useState(false);
+  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] = useState(
+    false,
+  );
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
@@ -96,6 +100,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         />
       ),
       action: () => setOpenRemoveProgramRegistryFormModal(true),
+      wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -106,6 +111,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         />
       ),
       action: () => setOpenDeleteProgramRegistryFormModal(true),
+      wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
     },
   ];
 
@@ -263,17 +269,19 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           visible={isRemoved}
           data-testid="conditionaltooltip-80xi"
         >
-          <OutlinedButton
-            onClick={() => setOpenChangeStatusFormModal(true)}
-            disabled={isRemoved}
-            data-testid="outlinedbutton-ixex"
-          >
-            <TranslatedText
-              stringId="general.action.changeStatus"
-              fallback="Change status"
-              data-testid="translatedtext-hexl"
-            />
-          </OutlinedButton>
+          <NoteModalActionBlocker>
+            <OutlinedButton
+              onClick={() => setOpenChangeStatusFormModal(true)}
+              disabled={isRemoved}
+              data-testid="outlinedbutton-ixex"
+            >
+              <TranslatedText
+                stringId="general.action.changeStatus"
+                fallback="Change status"
+                data-testid="translatedtext-hexl"
+              />
+            </OutlinedButton>
+          </NoteModalActionBlocker>
         </ConditionalTooltip>
         <ChangeStatusFormModal
           patientProgramRegistration={patientProgramRegistration}

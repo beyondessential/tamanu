@@ -82,7 +82,13 @@ export const CreateEditNoteForm = ({
         <FormSubmitCancelRow
           style={{ marginTop: '0' }}
           onConfirm={onSubmit}
-          confirmText={<TranslatedText stringId="note.action.addNote" fallback="Add note" />}
+          confirmText={
+            noteFormMode === NOTE_FORM_MODES.EDIT_NOTE ? (
+              <TranslatedText stringId="note.action.saveChanges" fallback="Save changes" />
+            ) : (
+              <TranslatedText stringId="note.action.addNote" fallback="Add note" />
+            )
+          }
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
           onCancel={onCancel}
         />

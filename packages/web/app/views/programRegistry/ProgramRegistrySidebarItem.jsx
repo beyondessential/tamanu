@@ -6,6 +6,7 @@ import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem'
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
 import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
@@ -19,7 +20,7 @@ export const ProgramRegistrySidebarItem = ({
   path,
 }) => {
   const dispatch = useDispatch();
-  const onPathChanged = (newPath) => dispatch(push(newPath));
+  const onPathChanged = newPath => dispatch(push(newPath));
   const currentPath = useSelector(getCurrentRoute);
 
   const { data: programRegistries, isLoading, isError } = useListOfProgramRegistryQuery();
@@ -34,23 +35,25 @@ export const ProgramRegistrySidebarItem = ({
       {programRegistries.data.map(({ id, name }, index) => {
         const secondaryPath = `${path}/${id}?name=${name}`;
         return !retracted ? (
-          <SecondarySidebarItem
-            key={id}
-            path={secondaryPath}
-            isCurrent={currentPath.includes(secondaryPath)}
-            color=""
-            label={
-              <TranslatedReferenceData
-                value={id}
-                fallback={name}
-                category="programRegistry"
-                data-testid={`translatedreferencedata-2dpm-${index}`}
-              />
-            }
-            disabled={false}
-            onClick={() => onPathChanged(secondaryPath)}
-            data-testid={`secondarysidebaritem-3uo3-${index}`}
-          />
+          <NoteModalActionBlocker>
+            <SecondarySidebarItem
+              key={id}
+              path={secondaryPath}
+              isCurrent={currentPath.includes(secondaryPath)}
+              color=""
+              label={
+                <TranslatedReferenceData
+                  value={id}
+                  fallback={name}
+                  category="programRegistry"
+                  data-testid={`translatedreferencedata-2dpm-${index}`}
+                />
+              }
+              disabled={false}
+              onClick={() => onPathChanged(secondaryPath)}
+              data-testid={`secondarysidebaritem-3uo3-${index}`}
+            />
+          </NoteModalActionBlocker>
         ) : null;
       })}
     </PrimarySidebarItem>
