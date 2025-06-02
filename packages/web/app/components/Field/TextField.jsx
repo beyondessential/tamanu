@@ -136,7 +136,7 @@ export const LimitedTextField = ({ limit = 255, helperText, inputProps, ...props
       inputProps={{ maxLength: limit, ...inputProps }}
       helperText={
         helperText ||
-        getTranslation('field.limitedTextField.helperText', 'Max. :limit characters', {
+        getTranslation('field.limitedTextField.helperText', 'Max :limit characters', {
           replacements: { limit },
         })
       }
