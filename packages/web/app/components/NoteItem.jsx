@@ -13,6 +13,7 @@ import { TextInput } from './Field/TextField';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const EditTextWrapper = styled.div`
   width: 100%;
@@ -72,7 +73,7 @@ const StyledNoteItemLogMetadata = styled.div`
 const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
-const StyledTooltip = styled((props) => (
+const StyledTooltip = styled(props => (
   <ClickAwayListener onClickAway={props.onClickAway} data-testid="clickawaylistener-ttee">
     <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-o9f3">
       {props.children}
@@ -107,7 +108,16 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
       <StyledNoteItemLogMetadata data-testid={`noteitemlogmetadata-fvac-${index}`}>
         {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
         {noteItem.onBehalfOf?.displayName ? (
-          <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
+          <span>
+            <TranslatedText
+              stringId="note.onBehalfOf"
+              fallback="on behalf of :displayName"
+              replacements={{
+                displayName: noteItem.onBehalfOf.displayName,
+              }}
+              data-testid="translatedtext-on-behalf-prefix"
+            />
+          </span>
         ) : null}
         <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-5hu9${index}`} />
       </StyledNoteItemLogMetadata>
@@ -134,11 +144,30 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
       <br />
       <>
         <span>{noteItem.author?.displayName || ''} </span>
-        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        {noteItem.onBehalfOf ? (
+          <span>
+            <TranslatedText
+              stringId="note.onBehalfOf"
+              fallback="on behalf of :displayName"
+              replacements={{
+                displayName: noteItem.onBehalfOf.displayName,
+              }}
+              data-testid="translatedtext-on-behalf-prefix2"
+            />
+          </span>
+        ) : null}
         <DateDisplay date={noteItem.date} showTime data-testid="datedisplay-zaes" />
         {noteItem?.noteItems?.length > 0 && (
           <>
-            <span> (edited) </span>
+            <span>
+              (
+              <TranslatedText
+                stringId="note.status.edited"
+                fallback="edited"
+                data-testid="translatedtext-edited"
+              />
+              )
+            </span>
             <StyledTooltip
               open={isTooltipOpen}
               onClickAway={() => setTooltipOpen(false)}
@@ -151,7 +180,11 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
                 onClick={() => setTooltipOpen(true)}
                 data-testid="styledviewchangelogwrapper-bl80"
               >
-                View change log
+                <TranslatedText
+                  stringId="note.action.viewChangeLog"
+                  fallback="View change log"
+                  data-testid="translatedtext-view-changelog"
+                />
               </StyledViewChangeLogWrapper>
             </StyledTooltip>
           </>
@@ -182,11 +215,15 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
               fullWidth
               value={content}
               multiline
-              onChange={(event) => setContent(event.target.value)}
+              onChange={event => setContent(event.target.value)}
               data-testid="textinput-l960"
             />
             <StyledSaveText onClick={handleDone} data-testid="styledsavetext-y7f6">
-              Save
+              <TranslatedText
+                stringId="general.action.save"
+                fallback="Save"
+                data-testid="translatedtext-save"
+              />
             </StyledSaveText>
             <StyledCancelText
               onClick={() => {
@@ -196,7 +233,11 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
               }}
               data-testid="styledcanceltext-s95j"
             >
-              Cancel
+              <TranslatedText
+                stringId="general.action.cancel"
+                fallback="Cancel"
+                data-testid="translatedtext-cancel"
+              />
             </StyledCancelText>
           </EditTextWrapper>
         ) : (
