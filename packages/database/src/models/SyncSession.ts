@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { type InitOptions } from '../types/model';
-import { log } from '@tamanu/shared/services/logging';
 
 export class SyncSession extends Model {
   declare id: string;
@@ -17,6 +17,7 @@ export class SyncSession extends Model {
   declare pullUntil?: number;
   declare errors?: string;
   declare debugInfo?: Record<string, object>;
+  declare parameters?: Record<string, object>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -33,6 +34,7 @@ export class SyncSession extends Model {
         pullUntil: { type: DataTypes.BIGINT },
         errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
+        parameters: { type: DataTypes.JSONB, allowNull: false, defaultValue: {} },
       },
       {
         ...options,
@@ -50,7 +52,7 @@ export class SyncSession extends Model {
     await this.sequelize.query(
       `
       UPDATE "sync_sessions"
-      SET "debug_info" = (COALESCE("debug_info"::jsonb, '{}'::jsonb) || $data::jsonb)::json
+      SET "parameters" = (COALESCE("parameters", '{}'::jsonb) || $data::jsonb)
       WHERE "id" = $id
       `,
       { bind: { id, data: JSON.stringify(params) } },

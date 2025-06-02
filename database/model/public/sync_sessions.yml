@@ -44,6 +44,11 @@ sources:
           - name: debug_info
             data_type: json
             description: "{{ doc('sync_sessions__debug_info') }}"
+          - name: parameters
+            data_type: jsonb
+            description: "{{ doc('sync_sessions__parameters') }}"
+            data_tests:
+              - not_null
           - name: completed_at
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__completed_at') }}"

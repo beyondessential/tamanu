@@ -163,6 +163,7 @@ export class CentralServerConnection {
         lastSyncedTick,
         facilityIds: [facilityId],
         deviceId: this.deviceId,
+        isMobile: true,
       },
     );
 
@@ -198,7 +199,6 @@ export class CentralServerConnection {
       facilityIds: [facilityId],
       tablesToInclude: tableNames,
       tablesForFullResync,
-      isMobile: true,
       deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
