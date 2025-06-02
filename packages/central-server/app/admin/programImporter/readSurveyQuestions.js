@@ -20,23 +20,20 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-const defaultByType = (type, [programDataElement, surveyScreenComponent]) => {
+function applyComponentTypeDefaults(type, surveyComponent) {
   if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
-    const { visibilityCriteria: originalVisibilityCriteria } = programDataElement;
-    const visibilityCriteria = {
-      ...JSON.parse(originalVisibilityCriteria),
+    const { validationCriteria: originalValidationCriteria } = surveyComponent;
+    const validationCriteria = JSON.stringify({
+      ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
       mandatory: true,
+    });
+    return {
+      ...surveyComponent,
+      validationCriteria,
     };
-   
-    return [
-      programDataElement,
-    {
-      ...surveyScreenComponent,
-      visibilityCriteria: JSON.stringify(visibilityCriteria),
-    }];
   }
-  return [programDataElement, surveyScreenComponent];
-};
+  return surveyComponent;
+}
 
 function makeScreen(questions, componentData) {
   return questions.flatMap((component, i) => {
@@ -59,7 +56,7 @@ function makeScreen(questions, componentData) {
     const deletedAt =
       VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
       
-    return defaultByType(type, [
+    return [
       {
         model: 'ProgramDataElement',
         sheetRow: row,
@@ -71,7 +68,7 @@ function makeScreen(questions, componentData) {
           ...elementData,
         },
       },
-      {
+      applyComponentTypeDefaults(type, {
         model: 'SurveyScreenComponent',
         sheetRow: row,
         values: {
@@ -92,10 +89,9 @@ function makeScreen(questions, componentData) {
           ...otherComponentData,
           visibilityStatus,
           deletedAt,
-          },
         },
-      ],
-    );
+      }),
+    ];
   });
 }
 
