@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Route, Switch, useParams, useRouteMatch, useHistory } from 'react-router-dom';
+import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -128,7 +128,6 @@ export const usePatientRoutes = () => {
     navigateToProgramRegistry,
   } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
-  const history = useHistory();
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
