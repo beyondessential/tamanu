@@ -20,21 +20,21 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function makeMandatory(surveyComponent) {
-    const { validationCriteria: originalValidationCriteria } = surveyComponent;
-    const validationCriteria = JSON.stringify({
+function makeMandatory(validationCriteria) {
+    const { validationCriteria: originalValidationCriteria } = validationCriteria;
+    return JSON.stringify({
       ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
       mandatory: true,
     });
-    return {
-      ...surveyComponent,
-      validationCriteria,
-    };
 }
 
-function applyComponentTypeDefaults(type, surveyComponent) {
+function applyComponentOverrides(type, surveyComponent) {
   if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
-    return makeMandatory(surveyComponent);
+    const { validationCriteria } = surveyComponent;
+    return {
+      ...surveyComponent,
+      validationCriteria: makeMandatory(validationCriteria),
+    }
   }
   return surveyComponent;
 }
@@ -75,7 +75,7 @@ function makeScreen(questions, componentData) {
       {
         model: 'SurveyScreenComponent',
         sheetRow: row,
-        values: applyComponentTypeDefaults(type,{
+        values: applyComponentOverrides(type,{
           id: `${surveyId}-${elementData.code}`,
           dataElementId: dataElId,
           surveyId,
