@@ -20,8 +20,7 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function applyComponentTypeDefaults(type, surveyComponent) {
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+function makeMandatory(surveyComponent) {
     const { validationCriteria: originalValidationCriteria } = surveyComponent;
     const validationCriteria = JSON.stringify({
       ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
@@ -31,6 +30,11 @@ function applyComponentTypeDefaults(type, surveyComponent) {
       ...surveyComponent,
       validationCriteria,
     };
+}
+
+function applyComponentTypeDefaults(type, surveyComponent) {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    return makeMandatory(surveyComponent);
   }
   return surveyComponent;
 }
