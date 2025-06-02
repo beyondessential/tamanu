@@ -203,6 +203,8 @@ export const MarStatus = ({
   nextMarInfo,
   medication,
   pauseRecords,
+  anchorEl,
+  onAnchorElChange,
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
@@ -215,7 +217,6 @@ export const MarStatus = ({
 
   const [isSelected, setIsSelected] = useState(false);
 
-  const [anchorEl, setAnchorEl] = useState(null);
   const [showWarningModal, setShowWarningModal] = useState('');
   const [selectedElement, setSelectedElement] = useState(null);
   const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
@@ -282,6 +283,7 @@ export const MarStatus = ({
       isError);
 
   const onSelected = event => {
+    if (anchorEl) return;
     if (isDiscontinued || isDisabled || isEnd || !canViewMar) return;
 
     if (status) {
@@ -312,11 +314,11 @@ export const MarStatus = ({
   const handleStatusPopperOpen = eventOrElement => {
     setIsSelected(true);
     const element = eventOrElement.currentTarget || eventOrElement;
-    setAnchorEl(element);
+    onAnchorElChange(element);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    onAnchorElChange(null);
     setIsSelected(false);
   };
 
@@ -536,7 +538,7 @@ export const MarStatus = ({
         </StatusContainer>
       </ConditionalTooltip>
       <StatusPopper
-        open={Boolean(anchorEl)}
+        open={!!anchorEl && !!containerRef.current && anchorEl === containerRef.current}
         anchorEl={anchorEl}
         onClose={handleClose}
         timeSlot={timeSlot}
