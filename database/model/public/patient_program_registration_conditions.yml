@@ -64,20 +64,14 @@ sources:
               - not_null
           - name: condition_category
             data_type: character varying(255)
-            description: "{{
-              doc('patient_program_registration_conditions__condition_category')
-              }}"
+            description: "{{ doc('patient_program_registration_conditions__condition_category') }}"
             data_tests:
               - not_null
           - name: reason_for_change
             data_type: character varying(255)
-            description: "{{
-              doc('patient_program_registration_conditions__reason_for_change')
-              }}"
+            description: "{{ doc('patient_program_registration_conditions__reason_for_change') }}"
           - name: patient_program_registration_id
             data_type: uuid
-            description: "{{
-              doc('patient_program_registration_conditions__patient_program_reg\
-              istration_id') }}"
+            description: "{{ doc('patient_program_registration_conditions__patient_program_registration_id') }}"
             data_tests:
               - not_null
