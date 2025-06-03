@@ -191,7 +191,6 @@ export const getChartsTableColumns = (
 
           const parseMultiselectValue = value => {
             if (!value) return;
-
             try {
               return JSON.parse(value).join(', ');
             } catch (e) {
