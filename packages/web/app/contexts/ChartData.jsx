@@ -18,7 +18,7 @@ export const ChartDataProvider = ({ children }) => {
   const userPreferencesQuery = useUserPreferencesQuery();
   const chartWithResponseQuery = useEncounterChartWithResponseQuery(encounter?.id);
   const {
-    data: [userPreferences, chartWithResponse],
+    data: [userPreferences, { data: chartWithResponse }],
     isLoading,
   } = combineQueries([userPreferencesQuery, chartWithResponseQuery]);
 
