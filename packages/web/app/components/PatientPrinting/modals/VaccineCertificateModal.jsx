@@ -87,7 +87,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     <Modal
       title={
         <TranslatedText
-          stringId="vaccine.certificate.immunisation.title"
+          stringId="vaccine.modal.certificate.title"
           fallback="Immunisation Certificate"
           data-testid="translatedtext-immunisation-certificate-title"
         />
