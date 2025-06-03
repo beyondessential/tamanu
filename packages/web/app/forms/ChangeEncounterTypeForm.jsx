@@ -20,27 +20,26 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
       }}
       formType={FORM_TYPES.EDIT_FORM}
       render={({ submitForm, values }) => {
-        // TODO: another look at this translation
         return (
           <FormGrid columns={1} data-testid="formgrid-wphu">
             <div>
               <TranslatedText
                 stringId="encounter.form.changeType.prefix"
-                fallback="Changing encounter from "
+                fallback="Changing encounter from"
                 data-testid="translatedtext-change-prefix"
-              />
+              />{' '}
               <b>
                 <TranslatedEnum
                   value={encounter.encounterType}
                   enumValues={ENCOUNTER_TYPE_LABELS}
                   data-testid="translatedenum-current-type"
                 />
-              </b>
+              </b>{' '}
               <TranslatedText
-                stringId="encounter.form.changeType.middle"
-                fallback=" to "
-                data-testid="translatedtext-change-middle"
-              />
+                stringId="encounter.form.changeType.to"
+                fallback="to"
+                data-testid="translatedtext-change-to"
+              />{' '}
               <b>
                 <TranslatedEnum
                   value={values.encounterType}

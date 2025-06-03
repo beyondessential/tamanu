@@ -44,9 +44,9 @@ export const ErrorView = React.memo(({ error }) => {
       </p>
       <p>
         <TranslatedText
-          stringId="error.boundary.message.label"
+          stringId="error.boundary.message"
           fallback="The message of the error is:"
-          data-testid="translatedtext-error-message-label"
+          data-testid="translatedtext-error-message"
         />
       </p>
       <DebugInfo onClick={logError} data-testid="debuginfo-4a5k">
@@ -54,9 +54,9 @@ export const ErrorView = React.memo(({ error }) => {
       </DebugInfo>
       <p>
         <TranslatedText
-          stringId="error.boundary.stack.label"
+          stringId="error.boundary.stack"
           fallback="The stack of the error is:"
-          data-testid="translatedtext-error-stack-label"
+          data-testid="translatedtext-error-stack"
         />
       </p>
       <DebugInfo onClick={logError} data-testid="debuginfo-dnuz">
@@ -64,9 +64,9 @@ export const ErrorView = React.memo(({ error }) => {
       </DebugInfo>
       <p>
         <TranslatedText
-          stringId="error.boundary.state.label"
+          stringId="error.boundary.state"
           fallback="The contents of the application state are:"
-          data-testid="translatedtext-error-state-label"
+          data-testid="translatedtext-error-state"
         />
       </p>
       <DebugInfo onClick={logState} data-testid="debuginfo-w6d2">
