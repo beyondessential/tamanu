@@ -263,13 +263,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     } catch (e) {
       toast.error(`Failed to remove chart with error: ${e.message}`);
     }
-  }, [
-    api,
-    encounter.id,
-    currentComplexChartInstance?.chartInstanceId,
-    reloadChartInstances,
-    loadEncounter,
-  ]);
+  }, [api, encounter.id, currentComplexChartInstance?.chartInstanceId, reloadChartInstances, loadEncounter]);
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
   const complexChartFormMode = getComplexChartFormMode(chartSurveyToSubmit);
