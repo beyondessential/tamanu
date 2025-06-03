@@ -77,7 +77,7 @@ export const MultiSelectModalField = ({
       const updatedLabel = extractLabel(selectedValues);
       setLabel(updatedLabel);
     },
-    [suggester],
+    [suggester, language],
   );
 
   useEffect(() => {
