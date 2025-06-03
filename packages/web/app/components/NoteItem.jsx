@@ -160,13 +160,11 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
         {noteItem?.noteItems?.length > 0 && (
           <>
             <span>
-              (
               <TranslatedText
                 stringId="note.status.edited"
-                fallback="edited"
+                fallback="(edited)"
                 data-testid="translatedtext-edited"
               />
-              )
             </span>
             <StyledTooltip
               open={isTooltipOpen}

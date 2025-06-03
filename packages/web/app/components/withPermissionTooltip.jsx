@@ -13,7 +13,7 @@ export const withPermissionTooltip = Component => {
       <Tooltip
         title={
           <TranslatedText
-            stringId="permission.action.denied"
+            stringId="permission.tooltip.denied"
             fallback="You do not have permission to complete this action."
             data-testid="translatedtext-no-permission"
           />

@@ -36,7 +36,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
     <Modal
       title={
         <TranslatedText
-          stringId="auth.session.timeout.title"
+          stringId="auth.modal.timeout.title"
           fallback="Login timeout"
           data-testid="translatedtext-timeout-title"
         />
@@ -48,20 +48,20 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
       <WarningModalContainer data-testid="warningmodalcontainer-qvo3">
         <Typography data-testid="typography-lqau">
           <TranslatedText
-            stringId="auth.session.timeout.warning"
+            stringId="auth.modal.timeout.warning"
             fallback="Your login is about to expire due to inactivity."
             data-testid="translatedtext-timeout-warning"
           />
         </Typography>
         <Typography data-testid="typography-d127">
           <TranslatedText
-            stringId="auth.session.timeout.countdown.prefix"
+            stringId="auth.modal.timeout.countdown.prefix"
             fallback="You will be logged out in"
             data-testid="translatedtext-timeout-prefix"
           />{' '}
           <b>{open ? Math.ceil(remainingDuration() / 1000) : '-'}</b>{' '}
           <TranslatedText
-            stringId="auth.session.timeout.countdown.seconds"
+            stringId="auth.modal.timeout.countdown.seconds"
             fallback="seconds."
             data-testid="translatedtext-timeout-suffix"
           />
@@ -70,7 +70,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
       <ModalActionRow
         confirmText={
           <TranslatedText
-            stringId="auth.session.timeout.stayLoggedIn"
+            stringId="auth.modal.timeout.stayLoggedIn"
             fallback="Stay logged in"
             data-testid="translatedtext-stay-logged-in"
           />
