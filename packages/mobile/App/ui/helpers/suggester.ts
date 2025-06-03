@@ -1,4 +1,7 @@
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
+
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+
 import { BaseModel } from '~/models/BaseModel';
 
 export interface OptionType {
@@ -85,7 +88,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   fetchCurrentOption = async (
     value: string | null,
-    language: string = 'en',
+    language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType> => {
     const { column = 'name' } = this.options;
     if (!value) return undefined;
@@ -107,7 +110,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     }
   };
 
-  fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
+  fetchSuggestions = async (
+    search: string,
+    language: string = ENGLISH_LANGUAGE_CODE,
+  ): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
