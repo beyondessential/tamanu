@@ -9,6 +9,7 @@ import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useChartData } from '../contexts/ChartData';
+import { TranslatedText } from './Translation';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   width: 105px;
