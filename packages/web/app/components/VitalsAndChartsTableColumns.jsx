@@ -181,7 +181,8 @@ export const getChartsTableColumns = (
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-            const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+          const isMultiSelect =
+            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
           const handleCellClick = () => {
             onCellClick(cells[date]);
           };
