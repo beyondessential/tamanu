@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import { FormSubmitButton } from './Button';
 import { Field, Form, TextField } from './Field';
+import { TranslatedText } from './Translation/TranslatedText';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -56,14 +57,18 @@ const renderSearchBar = ({ placeholder, submitForm }) => (
       data-testid="formsubmitbutton-zef2"
     >
       <PaddedSearchIcon data-testid="paddedsearchicon-5bb7" />
-      Search
+      <TranslatedText
+        stringId="general.action.search"
+        fallback="Search"
+        data-testid="translatedtext-search"
+      />
     </FormSubmitButton>
   </SearchInputContainer>
 );
 
 export const LocationSearchBar = memo(({ onSearch }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback((newParams) => onSearch(newParams), [onSearch]);
+  const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
 
   return (
     <Container data-testid="container-jjro">

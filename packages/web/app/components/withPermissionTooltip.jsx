@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
+import { TranslatedText } from './Translation/TranslatedText';
 
-export const withPermissionTooltip = (Component) => {
+export const withPermissionTooltip = Component => {
   const WrappedComponent = ({ hasPermission, ...props }) => {
     if (hasPermission) {
       return <Component {...props} hasPermission={hasPermission} />;
@@ -10,7 +11,13 @@ export const withPermissionTooltip = (Component) => {
 
     return (
       <Tooltip
-        title="You do not have permission to complete this action."
+        title={
+          <TranslatedText
+            stringId="permission.tooltip.denied"
+            fallback="You do not have permission to complete this action."
+            data-testid="translatedtext-no-permission"
+          />
+        }
         data-testid="tooltip-zl30"
       >
         {/*

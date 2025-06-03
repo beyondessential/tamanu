@@ -11,6 +11,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAdministeredVaccinesQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
 
@@ -33,10 +34,10 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
       includeNotGiven: false,
     },
   );
-  const vaccinations = vaccineData?.data.filter((vaccine) => vaccine.certifiable) || [];
+  const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
 
   const createCovidVaccineCertificateNotification = useCallback(
-    (data) =>
+    data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
         requireSigning: true,
@@ -54,7 +55,13 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
 
   return (
     <Modal
-      title="COVID-19 Vaccine Certificate"
+      title={
+        <TranslatedText
+          stringId="vaccine.certificate.covid19.title"
+          fallback="COVID-19 Vaccine Certificate"
+          data-testid="translatedtext-covid-certificate-title"
+        />
+      }
       open={open}
       onClose={onClose}
       width="md"

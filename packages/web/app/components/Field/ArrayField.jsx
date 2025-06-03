@@ -5,6 +5,7 @@ import { IconButton } from '@material-ui/core';
 import { Add, Remove } from '@material-ui/icons';
 import { generate } from 'shortid';
 import { Button } from '../Button';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const AddButton = styled(Button)`
   justify-self: start;
@@ -83,7 +84,11 @@ export const ArrayField = ({
               }}
               data-testid="addbutton-4ojv"
             >
-              Add additional
+              <TranslatedText
+                stringId="general.action.addAdditional"
+                fallback="Add additional"
+                data-testid="translatedtext-add-additional"
+              />
             </AddButton>
           )}
         </>

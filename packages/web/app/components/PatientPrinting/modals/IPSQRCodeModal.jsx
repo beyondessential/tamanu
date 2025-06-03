@@ -4,6 +4,7 @@ import { FormModal } from '../../FormModal';
 import { IPSQRCodeForm } from '../../../forms/IPSQRCodeForm';
 import { useApi } from '../../../api';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const IPSQRCodeModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
@@ -12,7 +13,7 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
 
   const createIPSRequest = useCallback(
-    async (data) => {
+    async data => {
       try {
         setConfirmDisabled(true);
         await api.post(`patient/${patient.id}/ipsRequest`, {
@@ -29,7 +30,13 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
 
   return (
     <FormModal
-      title="International Patient Summary"
+      title={
+        <TranslatedText
+          stringId="patient.modal.ips.title"
+          fallback="International Patient Summary"
+          data-testid="translatedtext-ips-title"
+        />
+      }
       open={open}
       onClose={() => setOpen(false)}
       data-testid="formmodal-iuvu"

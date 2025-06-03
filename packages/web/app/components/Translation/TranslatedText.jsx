@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useTranslation } from '../../contexts/Translation';
 import { DebugTooltip } from './DebugTooltip';
 
-// Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red
+// Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red (except suggester results)
 const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
 const safeGetIsDebugMode = () => {
   try {

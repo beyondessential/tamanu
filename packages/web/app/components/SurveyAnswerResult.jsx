@@ -7,6 +7,7 @@ import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getReferenceDataCategory = configString => {
   try {
@@ -53,7 +54,11 @@ export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, com
             color="primary"
             data-testid="button-rzll"
           >
-            Show Form
+            <TranslatedText
+              stringId="survey.action.showForm"
+              fallback="Show Form"
+              data-testid="translatedtext-show-form"
+            />
           </Button>
           <SurveyResponseDetailsModal
             surveyResponseId={surveyLink}
@@ -63,7 +68,7 @@ export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, com
         </>
       );
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map((element) => (
+      return JSON.parse(answer).map(element => (
         <>
           {element}
           <br />

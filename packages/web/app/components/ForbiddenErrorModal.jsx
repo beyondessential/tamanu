@@ -6,8 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
-
-export const FORBIDDEN_ERROR_MESSAGE = `You don't have permission to perform this action. Please contact your system administrator if you believe you should have permission.`;
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledTypography = styled.p`
   margin: 60px 20px;
@@ -16,7 +15,11 @@ const StyledTypography = styled.p`
 export const ForbiddenErrorModalContents = ({ onConfirm, confirmText }) => (
   <>
     <StyledTypography gutterBottom data-testid="styledtypography-ajow">
-      {FORBIDDEN_ERROR_MESSAGE}
+      <TranslatedText
+        stringId="error.forbidden.message"
+        fallback="You don't have permission to perform this action. Please contact your system administrator if you believe you should have permission."
+        data-testid="translatedtext-forbidden-message"
+      />
     </StyledTypography>
     <ModalActionRow
       onConfirm={onConfirm}
@@ -43,10 +46,27 @@ export const ForbiddenErrorModal = () => {
   }
 
   return (
-    <Modal title="Forbidden" open onClose={handleClose} data-testid="modal-w8lm">
+    <Modal
+      title={
+        <TranslatedText
+          stringId="error.forbidden.title"
+          fallback="Forbidden"
+          data-testid="translatedtext-forbidden-title"
+        />
+      }
+      open
+      onClose={handleClose}
+      data-testid="modal-w8lm"
+    >
       <ForbiddenErrorModalContents
         onConfirm={handleConfirm}
-        confirmText="Navigate back"
+        confirmText={
+          <TranslatedText
+            stringId="general.action.navigateBack"
+            fallback="Navigate back"
+            data-testid="translatedtext-navigate-back"
+          />
+        }
         data-testid="forbiddenerrormodalcontents-f43a"
       />
     </Modal>
