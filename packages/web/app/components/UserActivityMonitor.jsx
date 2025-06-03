@@ -56,13 +56,13 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
         <Typography data-testid="typography-d127">
           <TranslatedText
             stringId="auth.session.timeout.countdown.prefix"
-            fallback="You will be logged out in "
+            fallback="You will be logged out in"
             data-testid="translatedtext-timeout-prefix"
-          />
-          <b>{open ? Math.ceil(remainingDuration() / 1000) : '-'}</b>
+          />{' '}
+          <b>{open ? Math.ceil(remainingDuration() / 1000) : '-'}</b>{' '}
           <TranslatedText
-            stringId="auth.session.timeout.countdown.suffix"
-            fallback=" seconds."
+            stringId="auth.session.timeout.countdown.seconds"
+            fallback="seconds."
             data-testid="translatedtext-timeout-suffix"
           />
         </Typography>
