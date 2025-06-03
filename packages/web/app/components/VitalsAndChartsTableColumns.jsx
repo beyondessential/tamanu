@@ -181,6 +181,7 @@ export const getChartsTableColumns = (
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+          const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
           const handleCellClick = () => {
             onCellClick(cells[date]);
           };
@@ -189,7 +190,7 @@ export const getChartsTableColumns = (
           const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
           return (
             <RangeValidatedCell
-              value={value}
+              value={value && (isMultiSelect ? JSON.parse(value).join(', ') : value)}
               config={config}
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}
