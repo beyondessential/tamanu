@@ -27,7 +27,7 @@ const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<Dep
     const dependencies = await entityManager.query(
       `PRAGMA foreign_key_list(${model.getRepository().metadata.tableName})`,
     );
-    dependencyMap[modelName] = dependencies.map(d => tableNameToModelName[d.table]);
+    dependencyMap[modelName] = dependencies.map((d) => tableNameToModelName[d.table]);
   }
 
   return dependencyMap;
@@ -47,7 +47,7 @@ const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<Dep
 const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: string]: string } => {
   const tableNameToModelName = {};
 
-  Object.values(models).forEach(model => {
+  Object.values(models).forEach((model) => {
     const tableName = model.getRepository().metadata.tableName;
     const modelName = model.name;
     tableNameToModelName[tableName] = modelName;
@@ -70,10 +70,10 @@ export const sortInDependencyOrder = async (
   const stillToSort = { ...models };
 
   while (Object.keys(stillToSort).length > 0) {
-    Object.values(stillToSort).forEach(model => {
+    Object.values(stillToSort).forEach((model) => {
       const modelName = model.name;
       const dependsOn = dependencyMap[modelName] || [];
-      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[d]);
+      const dependenciesStillToSort = dependsOn.filter((d) => !!stillToSort[d]);
 
       if (dependenciesStillToSort.length === 0) {
         sorted.push(model);

@@ -4,7 +4,7 @@ import { Box, Tabs } from '@material-ui/core';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import { Colors } from '../constants';
-import grabCursor from '../assets/images/grab_cursor.svg';
+import grabCursor from '../assets/images/grab_cursor.svg?url';
 
 const TabBar = styled.div`
   display: flex;
@@ -20,7 +20,7 @@ const TabContainer = styled(Tabs)`
     background-color: ${Colors.primary};
   }
   * {
-    cursor: url('${grabCursor}'), auto !important;
+    cursor: url("${grabCursor}"), auto !important;
   }
 `;
 
