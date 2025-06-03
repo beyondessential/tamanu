@@ -9,6 +9,7 @@ export const NON_SYNCING_TABLES = [
   'public.SequelizeMeta',
   'public.signers',
   'public.sync_device_ticks',
+  'public.sync_lookup_ticks',
   'public.sync_lookup',
   'public.sync_queued_devices',
   'public.sync_sessions',
@@ -17,25 +18,28 @@ export const NON_SYNCING_TABLES = [
 ];
 
 export const NON_LOGGED_TABLES = [
+  'logs.changes',
+  'logs.debug_logs',
   // internal authentication tables
-  'one_time_logins',
-  'refresh_tokens',
+  'public.one_time_logins',
+  'public.refresh_tokens',
 
   // internal sync tables
-  'sync_sessions',
-  'sync_queued_devices',
-  'sync_lookup',
-  'sync_device_ticks',
+  'public.sync_sessions',
+  'public.sync_queued_devices',
+  'public.sync_lookup',
+  'public.sync_device_ticks',
+  'public.sync_lookup_ticks',
 
   // caches
-  'user_localisation_caches',
-  'user_recently_viewed_patients',
-  'fhir_materialise_jobs',
-  'patient_vrs_data',
+  'public.user_localisation_caches',
+  'public.user_recently_viewed_patients',
+  'public.fhir_materialise_jobs',
+  'public.patient_vrs_data',
 
   // internal and also signers.privateKey needs to be hard-deletable
-  'signers',
+  'public.signers',
 
   // internal configuration
-  'local_system_facts',
+  'public.local_system_facts',
 ];

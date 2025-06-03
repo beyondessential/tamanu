@@ -179,6 +179,7 @@ export const MultiAutocompleteInput = ({
   suggester,
   placeholder,
   helperText,
+  maxSelected = 10,
   ...props
 }) => {
   const { getTranslation } = useTranslation();
@@ -233,6 +234,9 @@ export const MultiAutocompleteInput = ({
           options={options}
           classNamePrefix="react-select"
           isMulti
+          isOptionDisabled={() => {
+            return selected.length >= maxSelected;
+          }}
           $borderColor={props.error ? Colors.alert : null}
           closeMenuOnSelect={false}
           hideSelectedOptions={false}

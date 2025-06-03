@@ -36,7 +36,7 @@ export const MultiSelectModalField = ({
   placeholder = 'Select',
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.MultiSelectModal,
+  modalRoute = Routes.Forms.MultiSelectModal,
   error,
   required,
   marginTop = 0,
