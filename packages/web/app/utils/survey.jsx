@@ -25,7 +25,7 @@ import {
   SurveyResponseSelectField,
   UnsupportedPhotoField,
 } from '../components/Field';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
