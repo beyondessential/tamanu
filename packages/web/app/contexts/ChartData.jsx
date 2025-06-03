@@ -18,7 +18,7 @@ export const ChartDataProvider = ({ children }) => {
   const userPreferencesQuery = useUserPreferencesQuery();
   const chartWithResponseQuery = useEncounterChartWithResponseQuery(encounter?.id);
   const {
-    data: [userPreferences, { data: chartWithResponse }],
+    data: [userPreferences,  chartWithResponse ],
     isLoading,
   } = combineQueries([userPreferencesQuery, chartWithResponseQuery]);
 
@@ -27,7 +27,7 @@ export const ChartDataProvider = ({ children }) => {
       // Only set initial type if encounter has chart responses
       if (chartWithResponse) {
         // Prioritize user preference, chart with response is only a fallback
-        const initialChart = userPreferences?.selectedChartTypeId ?? chartWithResponse.id;
+        const initialChart = userPreferences?.selectedChartTypeId ?? chartWithResponse.data.id;
         setSelectedChartTypeId(initialChart);
       }
       setIsInitiated(true);
