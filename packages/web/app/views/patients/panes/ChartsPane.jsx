@@ -404,6 +404,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
+          currentInstanceId={currentComplexChartInstance?.chartInstanceId}
           noDataMessage={getNoDataMessage(
             isComplexChart,
             complexChartInstances,
