@@ -22,7 +22,7 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
 
-const getExportOverrideTitle = date => {
+const getExportOverrideTitle = (date) => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
@@ -115,7 +115,7 @@ const TitleCell = React.memo(({ value }) => {
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
   }
 
   return (
@@ -173,11 +173,11 @@ export const getChartsTableColumns = (
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
+      .map((date) => ({
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: cells => {
+        accessor: (cells) => {
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
