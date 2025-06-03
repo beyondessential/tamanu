@@ -4963,7 +4963,7 @@ export const DIAGNOSES = splitIds(`
   Sternoclavicular joint dislocation	S43.2
   Steroids abuse	F55
   Stevens johnson syndrome	L51.1
-  Stich abscess	T81.4
+  Stitch abscess	T81.4
   Stiff joint	M25.6
   Stillbirth	na
   Stone in kidney	N20.0
