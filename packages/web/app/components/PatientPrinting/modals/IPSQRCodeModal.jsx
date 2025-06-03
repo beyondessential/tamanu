@@ -32,7 +32,7 @@ export const IPSQRCodeModal = React.memo(({ patient }) => {
     <FormModal
       title={
         <TranslatedText
-          stringId="patient.ips.title"
+          stringId="patient.modal.ps.title"
           fallback="International Patient Summary"
           data-testid="translatedtext-ips-title"
         />
