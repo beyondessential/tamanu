@@ -22,7 +22,7 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
 
-const getExportOverrideTitle = (date) => {
+const getExportOverrideTitle = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
@@ -115,7 +115,7 @@ const TitleCell = React.memo(({ value }) => {
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
@@ -128,19 +128,19 @@ const TitleCell = React.memo(({ value }) => {
     >
       {value}
       {isSuccess && allGraphedChartKeys.length > 1 && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys(chartKeys);
-              setIsInMultiChartsView(true);
-              setModalTitle('Vitals');
-              setVitalChartModalOpen(true);
-            }}
-            data-testid="iconbutton-u6iz"
-          >
-            <VitalVectorIcon data-testid="vitalvectoricon-qhwu"/>
-          </IconButton>
-        )}
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(chartKeys);
+            setIsInMultiChartsView(true);
+            setModalTitle('Vitals');
+            setVitalChartModalOpen(true);
+          }}
+          data-testid="iconbutton-u6iz"
+        >
+          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
+        </IconButton>
+      )}
       {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
     </Box>
   );
@@ -173,14 +173,15 @@ export const getChartsTableColumns = (
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map((date) => ({
+      .map(date => ({
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: (cells) => {
+        accessor: cells => {
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+            const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
           const handleCellClick = () => {
             onCellClick(cells[date]);
           };
@@ -188,22 +189,19 @@ export const getChartsTableColumns = (
           const isValid = isCurrent ? true : Boolean(value);
           const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
 
-          const parseValue = (value) => {
+          const parseMultiselectValue = value => {
             if (!value) return;
-            if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT) {
-              // Parse json array to string
-              try {
-                return JSON.parse(value).join(', ');
-              } catch (e) {
-                return value;
-              }
+
+            try {
+              return JSON.parse(value).join(', ');
+            } catch (e) {
+              return value;
             }
-            return value;
           };
 
           return (
             <RangeValidatedCell
-              value={parseValue(value)}
+              value={isMultiSelect ? parseMultiselectValue(value) : value}
               config={config}
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}
