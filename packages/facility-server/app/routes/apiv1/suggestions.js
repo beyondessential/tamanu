@@ -103,6 +103,7 @@ function createSuggesterRoute(
             WHERE language = :language
             AND string_id = '${translationPrefix}' || "${modelName}"."id"
             AND text ILIKE :searchQuery
+            AND visibility_status = '${VISIBILITY_STATUSES.CURRENT}'
           )`)
           : whereBuilder(`%${searchQuery}%`, query, req);
 
@@ -384,6 +385,7 @@ createSuggester(
         {
           model: ReferenceData,
           as: 'children',
+          where: VISIBILITY_CRITERIA,
           through: {
             attributes: [],
             where: {

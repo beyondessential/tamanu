@@ -7,14 +7,26 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
     });
 
     return objects.map((object) => {
-      const { durationValue, durationUnit, referenceDataId, ...otherDataValues } = object.dataValues;
+      const {
+        medicationId,
+        durationValue,
+        isPrn,
+        isVariableDose,
+        doseAmount,
+        durationUnit,
+        referenceDataId,
+        ...otherDataValues
+      } = object.dataValues;
       return {
         ...otherDataValues,
         id: referenceDataId,
-        duration: `${durationValue} ${durationUnit}`,
         code: object.referenceData?.code,
         name: object.referenceData?.name,
         visibilityStatus: object.referenceData?.visibilityStatus,
+        medication: medicationId,
+        prnMedication: isPrn,
+        doseAmount: isVariableDose ? 'variable' : doseAmount,
+        duration: `${durationValue} ${durationUnit}`,
       };
     });
   }

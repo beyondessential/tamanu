@@ -473,8 +473,8 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     pushError(`Drug with ID "${drugReferenceDataId}" does not exist.`);
   }
 
-  if (isNaN(doseAmount) && doseAmount.toString().toLowerCase() !== 'variable') {
-    pushError(`Dose amount "${doseAmount}" must be a number or the string "variable".`);
+  if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount must be a number or the string "variable".`);
   }
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
@@ -488,7 +488,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     referenceDataId,
     medicationId: drugReferenceDataId,
     isPrn: prnMedication,
-    isVariableDose: doseAmount.toString().toLowerCase() === 'variable',
+    isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
     doseAmount: parseFloat(doseAmount) || null,
     units,
     frequency,
