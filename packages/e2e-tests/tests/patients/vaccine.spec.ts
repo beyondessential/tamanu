@@ -1,78 +1,72 @@
 import { test, expect } from '@fixtures/baseFixture';
+import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
 test.describe('Vaccines', () => {
-  test('Add a routine vaccine', async ({ newPatient, patientDetailsPage }) => {
+  test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.navigateToVaccineTab();
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Routine');
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(1);
   });
 
-  test('Add a catchup vaccine', async ({ newPatient, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.navigateToVaccineTab();
+  async function addVaccineAndAssert(
+    patientDetailsPage: PatientDetailsPage,
+    given: boolean,
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+    count: number = 1,
+  ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Catchup');
+
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category);
+
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(1);
+
+    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+  }
+
+  test('Add a routine vaccine', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
   });
 
-  test('Add a campaign vaccine', async ({ newPatient, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.navigateToVaccineTab();
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
-      true,
-      'Campaign',
-    );
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(1);
+  test('Add a catchup vaccine', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Catchup');
   });
 
-  test('Add an other vaccine', async ({ newPatient, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.navigateToVaccineTab();
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Other');
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(1);
+  test('Add a campaign vaccine', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign');
   });
 
-  test('Add multiple vaccines of different types', async ({ newPatient, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatient);
-    await patientDetailsPage.navigateToVaccineTab();
+  test('Add an other vaccine', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Other');
+  });
 
-    // Record Routine vaccine
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Routine');
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+  test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
+    await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 2);
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3);
+    await addVaccineAndAssert(patientDetailsPage, true, 'Other', 4);
+  });
 
-    // Record Catchup vaccine
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Catchup');
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+  test('Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, false, 'Routine');
+  });
 
-    // Record Campaign vaccine
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
-      true,
-      'Campaign',
-    );
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+  test('Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup');
+  });
 
-    // Record Other vaccine
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(true, 'Other');
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+  test('Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, false, 'Campaign');
+  });
 
-    // Verify total count
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(4);
+  test('Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, false, 'Other');
+  });
+
+  test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
+    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1);
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
+    await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
   });
 });

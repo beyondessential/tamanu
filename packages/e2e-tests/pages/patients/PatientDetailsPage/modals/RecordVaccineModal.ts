@@ -19,7 +19,6 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryCampaignRadio: Locator;
   readonly categoryOtherRadio: Locator;
   readonly scheduleRadioGroup: Locator;
-
   readonly areaField: Locator;
   readonly locationField: Locator;
   readonly departmentField: Locator;
@@ -31,12 +30,8 @@ export class RecordVaccineModal extends BasePatientModal {
     this.modal = this.page.getByTestId('modal-record-vaccine');
     this.categoryRadioGroup = this.page.getByTestId('field-rd4e');
     this.vaccineSelectField = this.page.getByTestId('field-npct-select');
-    this.consentCheckbox = this.page
-      .getByTestId('fullwidthcol-q2z3')
-      .getByTestId('checkinput-x2e3-controlcheck');
-    this.confirmButton = this.page
-      .getByTestId('twotwogrid-2swz')
-      .getByTestId('formsubmitbutton-ygc6');
+    this.consentCheckbox = this.page.getByTestId('consentfield-rvwt-controlcheck');
+    this.confirmButton = this.page.getByTestId('formsubmitcancelrow-vv8q-confirmButton');
     this.givenTab = this.page.getByTestId('styledtab-gibh-GIVEN');
     this.notGivenTab = this.page.getByTestId('styledtab-gibh-NOT_GIVEN');
     this.categoryRoutineRadio = this.page.getByTestId('controllabel-kkx2-Routine');
@@ -105,7 +100,11 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     await this.selectLocationGroup();
-    await this.consentCheckbox.check();
+
+    if (given) {
+      await this.consentCheckbox.check();
+    }
+
     await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
   }

@@ -262,7 +262,7 @@ export const RecordedByField = () => {
   );
 };
 
-export const ConsentField = ({ label }) => (
+export const ConsentField = ({ label, ...props }) => (
   <FullWidthCol data-testid="fullwidthcol-q2z3">
     <OuterLabelFieldWrapper
       label={
@@ -276,7 +276,7 @@ export const ConsentField = ({ label }) => (
       required
       data-testid="outerlabelfieldwrapper-azty"
     />
-    <Field name="consent" label={label} component={CheckField} required data-testid="field-wvyn" />
+    <Field name="consent" label={label} component={CheckField} required {...props} />
   </FullWidthCol>
 );
 
