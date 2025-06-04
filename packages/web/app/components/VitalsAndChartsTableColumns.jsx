@@ -22,14 +22,24 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
 
+const IconButton = styled(IconButtonComponent)`
+  padding: 9px 5px;
+`;
+
 const getExportOverrideTitle = (date) => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
 };
-const IconButton = styled(IconButtonComponent)`
-  padding: 9px 5px;
-`;
+
+const parseMultiselectValue = value => {
+  if (!value) return;
+  try {
+    return JSON.parse(value).join(', ');
+  } catch (e) {
+    return value;
+  }
+};
 
 const VitalsLimitedLinesCell = ({ value }) => (
   <LimitedLinesCell
@@ -189,15 +199,6 @@ export const getChartsTableColumns = (
           const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
           const isValid = isCurrent ? true : Boolean(value);
           const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-
-          const parseMultiselectValue = value => {
-            if (!value) return;
-            try {
-              return JSON.parse(value).join(', ');
-            } catch (e) {
-              return value;
-            }
-          };
 
           return (
             <RangeValidatedCell
