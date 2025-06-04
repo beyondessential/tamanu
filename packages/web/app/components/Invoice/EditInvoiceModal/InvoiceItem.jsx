@@ -126,7 +126,7 @@ export const InvoiceItemRow = ({
     !item?.productId?.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT) ||
     !editable;
 
-  const invoiceProductsSuggester = useSuggester('invoiceProducts', {
+  const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id, ...others }) => ({
       ...others,
       productName: name,
