@@ -250,7 +250,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         setSelectedMedicationSet(null);
         break;
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
-        onClose();
+        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
     }
   };
