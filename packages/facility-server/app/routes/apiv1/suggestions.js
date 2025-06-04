@@ -361,7 +361,7 @@ createSuggester(
 createSuggester(
   REFERENCE_TYPES.MEDICATION_SET,
   'ReferenceData',
-  (search) => ({
+  ({ search }) => ({
     name: { [Op.iLike]: search },
     type: REFERENCE_TYPES.MEDICATION_SET,
     ...VISIBILITY_CRITERIA,
