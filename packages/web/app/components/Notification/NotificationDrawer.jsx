@@ -19,6 +19,7 @@ import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
 import { reloadImagingRequest, reloadPatient } from '../../store';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
@@ -182,7 +183,7 @@ const Card = ({ notification }) => {
 
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       history.push(
-        `/patients/all/${patient.id}/encounter/${encounterId}?tab=medication&openMedicationId=${id}`,
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
       );
     } else {
       history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
