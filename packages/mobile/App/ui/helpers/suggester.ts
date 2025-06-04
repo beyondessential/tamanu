@@ -36,7 +36,7 @@ export const getReferenceDataTypeFromSuggester = (suggester: Suggester<any>): st
 };
 
 const defaultFormatter = (record): OptionType => ({
-  label: record.entityDisplayLabel,
+  label: record.entity_display_label,
   value: record.entity_id,
 });
 
@@ -98,7 +98,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .getRepository()
         .createQueryBuilder('entity')
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entityDisplayLabel')
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
         .where('entity.id = :id', { id: value });
 
       const result = await query.getRawOne();
@@ -130,12 +130,12 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Assign a label property using the translation if it exists otherwise use the original entity name
       query = query
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entityDisplayLabel');
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
 
       query = query.where(
         new Brackets((qb) => {
           if (search) {
-            qb.where('entityDisplayLabel LIKE :search', { search: `%${search}%` });
+            qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
           }
         }),
       );
@@ -144,7 +144,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       });
 
-      query = query.orderBy('entityDisplayLabel', 'ASC').limit(25);
+      query = query.orderBy('entity_display_label', 'ASC').limit(25);
 
       const data = await query.getRawMany();
 
