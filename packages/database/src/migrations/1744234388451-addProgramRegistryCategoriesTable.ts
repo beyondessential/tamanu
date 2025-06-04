@@ -39,6 +39,10 @@ export async function up(query: QueryInterface): Promise<void> {
     program_registry_id: {
       type: Sequelize.STRING,
       allowNull: false,
+      references: {
+        model: 'program_registries',
+        key: 'id',
+      },
     },
   });
 
