@@ -4,8 +4,11 @@ import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
 import { ADDITIONAL_DATA_SECTIONS } from './fields';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
+  const { getSetting } = useSettings();
+
   const onEditGeneralInfo = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
       patientName: joinNames(patient),
@@ -35,13 +38,22 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
     [navigation, patient],
   );
 
+  const isUsingAddressHierarchy = getSetting<boolean>('features.patientDetailsLocationHierarchy');
+
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
+      {/* Any required additional data fields are added here */}
       <AdditionalInfo
         patient={patient}
         onEdit={editPatientAdditionalData}
-        dataSections={ADDITIONAL_DATA_SECTIONS}
+        dataSections={
+          isUsingAddressHierarchy
+            ? ADDITIONAL_DATA_SECTIONS.filter(({ sectionKey }) => sectionKey !== 'otherInformation')
+            : ADDITIONAL_DATA_SECTIONS.filter(
+                ({ sectionKey }) => sectionKey !== 'otherWithHierarchy',
+              )
+        }
       />
     </>
   );
