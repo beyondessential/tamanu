@@ -2,7 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { subject } from '@casl/ability';
-import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REGISTRATION_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
@@ -184,17 +188,18 @@ programRegistry.get(
               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
             FROM patient_program_registrations
             WHERE program_registry_id = :programRegistryId
-            AND is_most_recent IS TRUE
           ) n
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, array_agg(prc."name") condition_list, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_records_list
+          SELECT patient_program_registration_id,  array_agg(prc."name") condition_list, jsonb_agg(jsonb_build_object('id', prc.id, 'name', prc."name")) condition_record_list
           FROM patient_program_registration_conditions pprc
-            JOIN program_registry_conditions prc
-              ON pprc.program_registry_condition_id = prc.id
-          WHERE pprc.program_registry_id = :programRegistryId AND pprc.deleted_at IS NULL
-          GROUP BY patient_id
+          JOIN program_registry_conditions prc ON pprc.program_registry_condition_id = prc.id
+          JOIN patient_program_registrations ppr ON ppr.id = pprc.patient_program_registration_id
+          WHERE ppr.program_registry_id = :programRegistryId
+          AND pprc.deleted_at IS NULL
+          AND pprc.condition_category NOT IN (:excludedCategories)
+          GROUP BY patient_program_registration_id
         )
     `;
     const from = `
@@ -210,7 +215,7 @@ programRegistry.get(
         LEFT JOIN facilities registering_facility
           ON mrr.registering_facility_id = registering_facility.id
         LEFT JOIN conditions
-          ON conditions.patient_id = mrr.patient_id
+          ON conditions.patient_program_registration_id = mrr.id
         LEFT JOIN program_registry_clinical_statuses status
           ON mrr.clinical_status_id = status.id
         LEFT JOIN program_registries program_registry
@@ -226,10 +231,17 @@ programRegistry.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
+    const excludedCategories = [
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
+    ];
+
     const countResult = await req.db.query(`${withClause} SELECT COUNT(1) AS count ${from}`, {
       replacements: {
         ...filterReplacements,
         programRegistryId,
+        excludedCategories,
       },
       type: QueryTypes.SELECT,
     });
@@ -265,6 +277,7 @@ programRegistry.get(
         patient.id AS "patient.id",
         --
         -- Details for the table
+        mrr.id as "id",
         patient.id AS "patient_id",
         patient.display_id AS "patient.display_id",
         patient.first_name AS "patient.first_name",
@@ -279,7 +292,7 @@ programRegistry.get(
         currently_at_facility.name as "facility.name",
         registering_facility.name as "registering_facility.name",
         registering_facility.id as "registering_facility_id",
-        conditions.condition_records_list as "conditions",
+        conditions.condition_record_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
         status.id as "clinical_status.id",
@@ -301,6 +314,7 @@ programRegistry.get(
       {
         replacements: {
           ...filterReplacements,
+          excludedCategories,
           programRegistryId,
           limit: rowsPerPage,
           offset: page * rowsPerPage,

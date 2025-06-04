@@ -13,7 +13,8 @@ import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
-export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
+export const EditPatientScreen = ({ route }): ReactElement => {
+  const { isEdit = true } = route.params;
   const navigation = useNavigation();
   const { getSetting } = useSettings();
   const isUsingHierarchyLogic = getSetting<boolean>('features.patientDetailsLocationHierarchy');

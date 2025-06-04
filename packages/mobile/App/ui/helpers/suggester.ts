@@ -1,4 +1,7 @@
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
+
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+
 import { BaseModel } from '~/models/BaseModel';
 
 export interface OptionType {
@@ -91,8 +94,9 @@ export class Suggester<ModelType> {
 
   fetchCurrentOption = async (
     value: string | null,
-    language: string = 'en',
+    language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType> => {
+    const { column = 'name' } = this.options;
     if (!value) return undefined;
     try {
       const dataType = getReferenceDataTypeFromSuggester(this);
@@ -100,19 +104,22 @@ export class Suggester<ModelType> {
         .getRepository()
         .createQueryBuilder('entity')
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label')
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
         .where('entity.id = :id', { id: value });
 
-      const result = await query.getRawAndEntities();
-      if (result.raw.length === 0) return undefined;
+      const result = await query.getRawOne();
+      if (!result) return undefined;
 
-      return this.formatter(result.raw[0]);
+      return this.formatter(result);
     } catch (e) {
       return undefined;
     }
   };
 
-  fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
+  fetchSuggestions = async (
+    search: string,
+    language: string = ENGLISH_LANGUAGE_CODE,
+  ): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const { parentId, relationType, isFirstLevel } = this.hierarchyOptions || {};
@@ -130,7 +137,7 @@ export class Suggester<ModelType> {
       // Assign a label property using the translation if it exists otherwise use the original entity name
       query = query
         .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect('COALESCE(translation.text, entity.name)', 'entity_display_label');
+        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
 
       query = query.where(
         new Brackets((qb) => {
@@ -153,12 +160,12 @@ export class Suggester<ModelType> {
             relationType,
           });
       }
+      
+      query = query.orderBy('entity_display_label', 'ASC').limit(25);
 
-      query = query.orderBy(`entity.${column}`, 'ASC').limit(25);
+      const data = await query.getRawMany();
 
-      const data = await query.getRawAndEntities();
-
-      const filteredData = this.filter ? data.raw.filter(this.filter) : data.raw;
+      const filteredData = this.filter ? data.filter(this.filter) : data;
       const formattedData = filteredData.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {

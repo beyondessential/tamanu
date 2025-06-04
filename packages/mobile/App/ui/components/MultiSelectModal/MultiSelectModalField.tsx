@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface MultiSelectModalFieldProps {
   value?: string[];
@@ -25,7 +26,7 @@ interface MultiSelectModalFieldProps {
 }
 
 const extractLabel = (items: OptionType[]) => {
-  return items.map(x => x.label).join(', ');
+  return items.map((x) => x.label).join(', ');
 };
 
 export const MultiSelectModalField = ({
@@ -35,7 +36,7 @@ export const MultiSelectModalField = ({
   placeholder = 'Select',
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.MultiSelectModal,
+  modalRoute = Routes.Forms.MultiSelectModal,
   error,
   required,
   marginTop = 0,
@@ -44,6 +45,7 @@ export const MultiSelectModalField = ({
 }: MultiSelectModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
+  const { language } = useTranslation();
 
   const handleSaveCallback = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
@@ -61,26 +63,29 @@ export const MultiSelectModalField = ({
 
   // This function is not in use, however, it's meant to be used when
   // initial values are set. Pay extra care to the value format it expects.
-  const loadInitialLabel = useCallback(async (values: string[]) => {
-    if (values.length === 0) {
-      return;
-    }
-    const selectedValues: OptionType[] = [];
-    for (const x of values) {
-      const data = await suggester.fetchCurrentOption(x);
-      selectedValues.push(data);
-    }
+  const loadInitialLabel = useCallback(
+    async (values: string[]) => {
+      if (values.length === 0) {
+        return;
+      }
+      const selectedValues: OptionType[] = [];
+      for (const x of values) {
+        const data = await suggester.fetchCurrentOption(x, language);
+        selectedValues.push(data);
+      }
 
-    const updatedLabel = extractLabel(selectedValues);
-    setLabel(updatedLabel);
-  }, [suggester]);
+      const updatedLabel = extractLabel(selectedValues);
+      setLabel(updatedLabel);
+    },
+    [suggester, language],
+  );
 
   useEffect(() => {
     if (!value) return;
     loadInitialLabel(value);
-  // Disabling the linter because we only want to run this on mount
-  // if the component has an initial value and ignore value updates.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Disabling the linter because we only want to run this on mount
+    // if the component has an initial value and ignore value updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

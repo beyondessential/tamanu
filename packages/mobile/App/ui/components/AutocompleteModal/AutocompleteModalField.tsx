@@ -40,7 +40,7 @@ export const AutocompleteModalField = ({
   placeholder,
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.Modal,
+  modalRoute = Routes.Forms.AutocompleteModal,
   error,
   required,
   marginTop = 0,

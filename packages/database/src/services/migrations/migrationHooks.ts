@@ -5,6 +5,7 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
+import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
 const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
   sequelize
@@ -49,7 +50,7 @@ const tablesWithoutTrigger = (
         t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+        ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
       WHERE
         NOT EXISTS (
           SELECT *
@@ -59,24 +60,23 @@ const tablesWithoutTrigger = (
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
-        AND (t.table_schema || '.' || t.table_name) NOT IN ($excludes);
     `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
-      rows
+       rows
         .map((row) => ({
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
     );
 
 const tablesWithTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
-  excludes: string[] = [],
+  excludes: string[] = NON_SYNCING_TABLES,
 ) =>
   sequelize
     .query(
@@ -86,7 +86,7 @@ const tablesWithTrigger = (
         t.table_name as table
       FROM information_schema.tables t
       LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+        ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
       WHERE
         EXISTS (
           SELECT *
@@ -96,9 +96,8 @@ const tablesWithTrigger = (
         AND privileges.privilege_type = 'TRIGGER'
         AND t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
-        AND (t.table_schema || '.' || t.table_name) NOT IN ($excludes);
     `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
       rows
@@ -106,7 +105,7 @@ const tablesWithTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
     );
 
 export async function runPreMigration(log: Logger, sequelize: Sequelize) {
@@ -131,11 +130,11 @@ export async function runPreMigration(log: Logger, sequelize: Sequelize) {
 }
 
 export async function runPostMigration(log: Logger, sequelize: Sequelize) {
-  // add column: holds last update tick, default to -999 (not marked for sync) on facility,
-  // and 0 (will be caught in any initial sync) on central server
+  // add column: holds last update tick, default to 0 (will be caught in any initial sync) on central server
+  // and SYNC_TICK_FLAGS.UPDATED_ELSEWHERE (not marked for sync) on facility
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
-  const initialValue = isFacilityServer ? -999 : 0; // -999 on facility, 0 on central server
+  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0
   for (const { schema, table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${schema}.${table}`);
     await sequelize.query(`
