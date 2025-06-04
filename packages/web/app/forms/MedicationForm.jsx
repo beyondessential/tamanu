@@ -81,6 +81,7 @@ const validationSchema = yup.object().shape({
   doseAmount: yup
     .number()
     .positive()
+    .translatedLabel(<TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />)
     .when('isVariableDose', {
       is: true,
       then: schema => schema.optional(),

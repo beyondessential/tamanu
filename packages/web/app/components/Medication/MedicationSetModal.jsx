@@ -192,12 +192,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         startDate: getCurrentDateTimeString(),
         date: getCurrentDateString(),
         prescriberId: currentUser.id,
-        ...(medicationTemplate.doseAmount && {
-          doseAmount: Number(medicationTemplate.doseAmount),
-        }),
-        ...(medicationTemplate.durationValue && {
-          durationValue: Number(medicationTemplate.durationValue),
-        }),
       }))
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
@@ -212,7 +206,12 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onSubmit = async (isPrinting = false) => {
     const payload = {
       encounterId: encounter.id,
-      medicationSet: selectedMedicationSet.children
+      medicationSet: selectedMedicationSet.children.map(child => ({
+        ...child,
+        doseAmount: Number(child.doseAmount) || null,
+        durationValue: Number(child.durationValue) || null,
+        durationUnit: child.durationUnit || null,
+      }))
     };
     try {
       await createMedicationSet(payload);
