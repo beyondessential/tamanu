@@ -361,15 +361,12 @@ createSuggester(
 createSuggester(
   REFERENCE_TYPES.MEDICATION_SET,
   'ReferenceData',
-  ({ search }) => ({
-    name: { [Op.iLike]: search },
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     type: REFERENCE_TYPES.MEDICATION_SET,
-    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: (item) => item,
-    creatingBodyBuilder: (req) =>
-      referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
     includeBuilder: (req) => {
       const {
         models: { ReferenceData, ReferenceMedicationTemplate },
