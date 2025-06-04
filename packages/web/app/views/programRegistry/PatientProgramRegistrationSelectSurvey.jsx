@@ -19,20 +19,13 @@ import { getReferenceDataStringId } from '../../components';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  justify-content: start;
-  align-items: flex-start;
-  border: 1px solid ${Colors.softOutline};
-  font-size: 11px;
-  padding: 13px 14px 20px 20px;
+  border: 1px solid ${Colors.outline};
+  padding: 0 15px 20px 20px;
+  border-radius: 5px;
   background-color: ${Colors.white};
 `;
 
 const StyledFormGrid = styled(FormGrid)`
-  width: 100%;
-  display: grid;
   grid-template-columns: 80% 18%;
   justify-content: space-between;
   align-items: flex-end;
@@ -71,23 +64,9 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
   const { programRegistry } = patientProgramRegistration;
 
   return (
-    <DisplayContainer data-testid="displaycontainer-bjmv">
-      <Heading5 data-testid="heading5-c7x6">
-        <TranslatedText
-          stringId="programRegistry.selectSurveyForm.heading"
-          fallback="Select a :programRegistry form below to complete"
-          replacements={{
-            programRegistry: getTranslation(
-              getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
-              programRegistry?.name,
-            ),
-          }}
-          data-testid="translatedtext-jgv4"
-        />
-      </Heading5>
+    <DisplayContainer>
       <Form
         showInlineErrorsOnly
-        style={{ width: '100%', marginTop: '5px' }}
         onSubmit={async values => {
           setProgramRegistryId(patientProgramRegistration.programRegistryId);
           navigateToProgramRegistrySurvey(
@@ -101,32 +80,28 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           return (
-            <StyledFormGrid data-testid="styledformgrid-edgp">
-              <ConditionalTooltip
-                visible={isRemoved}
-                title={
-                  <TranslatedText
-                    stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
-                    fallback="Patient must be active"
-                    data-testid="translatedtext-8uzd"
-                  />
-                }
-                data-testid="conditionaltooltip-aavk"
-              >
+            <StyledFormGrid>
+              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
                 <Field
                   name="surveyId"
                   label={
-                    <TranslatedText
-                      stringId="programRegistry.selectSurveyForm.surveyId.label"
-                      fallback="Select form"
-                      data-testid="translatedtext-ipam"
-                    />
+                    <Heading5 mt={1} mb={1}>
+                      <TranslatedText
+                        stringId="programRegistry.selectSurveyForm.heading"
+                        fallback="Select a :programRegistry form below to complete"
+                        replacements={{
+                          programRegistry: getTranslation(
+                            getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                            programRegistry?.name,
+                          ),
+                        }}
+                      />
+                    </Heading5>
                   }
                   component={BaseSelectField}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
-                  data-testid="field-qn2d"
                 />
               </ConditionalTooltip>
               <ConditionalTooltip
@@ -135,18 +110,15 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.patientInactive.tooltip"
                       fallback="Patient must be active"
-                      data-testid="translatedtext-exd9"
                     />
                   ) : (
                     <TranslatedText
                       stringId="programRegistry.selectSurveyForm.proceed.tooltip"
                       fallback="Select form to proceed"
-                      data-testid="translatedtext-ikjw"
                     />
                   )
                 }
                 visible={isRemoved || !values.surveyId}
-                data-testid="conditionaltooltip-ywcm"
               >
                 <div>
                   <NoteModalActionBlocker>
@@ -155,12 +127,10 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                       onClick={submitForm}
                       disabled={isRemoved || !values.surveyId}
                       isSubmitting={false}
-                      data-testid="styledbutton-c26p"
                     >
                       <TranslatedText
                         stringId="programRegistry.selectSurveyForm.action.beginForm"
                         fallback="Begin form"
-                        data-testid="translatedtext-ivgk"
                       />
                     </StyledButton>
                   </NoteModalActionBlocker>
@@ -174,7 +144,6 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
             getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
           ),
         })}
-        data-testid="form-t441"
       />
     </DisplayContainer>
   );

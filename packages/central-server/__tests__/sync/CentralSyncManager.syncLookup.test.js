@@ -439,7 +439,7 @@ describe('Sync Lookup data', () => {
         programRegistryId: programRegistry.id,
       }),
     );
-    await PatientProgramRegistration.create(
+    const registration = await PatientProgramRegistration.create(
       fake(PatientProgramRegistration, {
         clinicianId: examiner.id,
         patientId: patient.id,
@@ -448,8 +448,7 @@ describe('Sync Lookup data', () => {
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
-        patientId: patient.id,
-        programRegistryId: programRegistry.id,
+        patientProgramRegistrationId: registration.id,
       }),
     );
     await PatientAllergy.create(
@@ -622,6 +621,7 @@ describe('Sync Lookup data', () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, -1);
     await models.SyncDeviceTick.truncate({ force: true });
+    await models.SyncLookupTick.truncate({ force: true });
 
     jest.resetModules();
     jest.clearAllMocks();

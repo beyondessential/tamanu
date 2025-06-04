@@ -33,13 +33,14 @@ export const ProgramRegistrySidebarItem = ({
       data-testid="primarysidebaritem-kx7z"
     >
       {programRegistries.data.map(({ id, name }, index) => {
-        const secondaryPath = `${path}/${id}?name=${name}`;
+        const baseSecondaryPath = `${path}/${id}`;
+        const secondaryPath = `${baseSecondaryPath}?name=${name}`;
         return !retracted ? (
           <NoteModalActionBlocker>
             <SecondarySidebarItem
               key={id}
               path={secondaryPath}
-              isCurrent={currentPath.includes(secondaryPath)}
+              isCurrent={currentPath.includes(baseSecondaryPath)}
               color=""
               label={
                 <TranslatedReferenceData
