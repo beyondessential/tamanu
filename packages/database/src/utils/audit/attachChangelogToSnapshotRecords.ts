@@ -20,10 +20,9 @@ export const attachChangelogToSnapshotRecords = async (
   const changelogRecords = await sequelize.query(
     `
    SELECT * FROM logs.changes
-    WHERE record_sync_tick >= :minSourceTick
-    ${maxSourceTick ? 'AND record_sync_tick <= :maxSourceTick' : ''}
+    WHERE updated_at_sync_tick >= :minSourceTick
+    ${maxSourceTick ? 'AND updated_at_sync_tick <= :maxSourceTick' : ''}
     AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
-    AND deleted_at IS NULL;
     `,
     {
       model: models.ChangeLog,

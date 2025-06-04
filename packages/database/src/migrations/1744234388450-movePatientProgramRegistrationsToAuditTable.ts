@@ -84,7 +84,15 @@ export async function up(query: QueryInterface): Promise<void> {
       ppr.updated_at,
       ppr.deleted_at,
       ${pprHasUpdatedAtSyncTick ? 'ppr.updated_at_sync_tick,' : syncTickInitialValue}
-      to_jsonb(ppr.*)
+      to_jsonb((
+      SELECT row_to_json(ppr_with_min_date.*)
+      FROM (
+           SELECT
+               *,
+               MIN(date) OVER (PARTITION BY patient_id, program_registry_id) AS date
+           FROM patient_program_registrations
+       ) ppr_with_min_date WHERE ppr_with_min_date.id = ppr.id
+        ))
     FROM patient_program_registrations ppr
     JOIN (
       SELECT

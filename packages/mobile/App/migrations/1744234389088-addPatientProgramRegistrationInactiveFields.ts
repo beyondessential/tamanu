@@ -52,7 +52,7 @@ export class addPatientProgramRegistrationInactiveFields1744234389088
     }
 
     // Drop columns
-    await queryRunner.dropColumn(TABLE_NAME, 'deactivatedClinician_id');
+    await queryRunner.dropColumn(TABLE_NAME, 'deactivatedClinicianId');
     await queryRunner.dropColumn(TABLE_NAME, 'deactivatedDate');
   }
 }

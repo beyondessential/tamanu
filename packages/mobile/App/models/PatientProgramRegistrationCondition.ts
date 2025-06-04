@@ -45,11 +45,7 @@ export class PatientProgramRegistrationCondition
   @RelationId(({ patientProgramRegistration }) => patientProgramRegistration)
   patientProgramRegistrationId: ID;
 
-  @ManyToOne(
-    () => ProgramRegistryCondition,
-    ({ patientProgramRegistrationConditions }) => patientProgramRegistrationConditions,
-    { nullable: true },
-  )
+  @ManyToOne(() => ProgramRegistryCondition, ({ conditions }) => conditions, { nullable: true })
   programRegistryCondition?: IProgramRegistryCondition;
 
   @RelationId(({ programRegistryCondition }) => programRegistryCondition)

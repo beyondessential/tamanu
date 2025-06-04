@@ -135,10 +135,8 @@ export const Routes = {
       ReminderContacts: '',
       AddReminderContact: '',
       ReminderContactQR: '',
-      Generic: {
-        EditPatient: '',
-        EditPatientAdditionalData: '',
-      },
+      EditPatient: '',
+      EditPatientAdditionalData: '',
     },
     PatientActions: '',
     ExportDataScreen: '',

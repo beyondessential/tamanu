@@ -8,7 +8,6 @@ import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistri
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
-import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 @Entity('program_registries')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
@@ -37,12 +36,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
     ({ programRegistry }) => programRegistry,
   )
   patientProgramRegistrations: PatientProgramRegistration[];
-
-  @OneToMany<PatientProgramRegistrationCondition>(
-    () => PatientProgramRegistrationCondition,
-    ({ programRegistry }) => programRegistry,
-  )
-  PatientProgramRegistrationConditions: PatientProgramRegistrationCondition[];
 
   @OneToOne(() => Program)
   @JoinColumn()

@@ -66,11 +66,10 @@ export const TriageForm = ({
   onSubmitEncounter,
   noRedirectOnSubmit,
   patient,
-  editedObject,
   initialValues,
 }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facilityId, currentUser } = useAuth();
   const dispatch = useDispatch();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
@@ -147,7 +146,7 @@ export const TriageForm = ({
           label={<InfoPopupLabel data-testid="infopopuplabel-5isv" />}
           component={RadioField}
           fullWidth
-          options={triageCategories?.map((x) => ({ value: x.level.toString(), ...x })) || []}
+          options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
           style={{ gridColumn: '1/-1' }}
           data-testid="field-4vw2"
         />
@@ -213,7 +212,7 @@ export const TriageForm = ({
     );
   };
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     // Convert the vitals to a surveyResponse submission format
     let updatedVitals = null;
     if (values.vitals) {
@@ -256,10 +255,10 @@ export const TriageForm = ({
       render={renderForm}
       initialValues={{
         triageTime: getCurrentDateTimeString(),
-        ...editedObject,
+        practitionerId: currentUser.id,
         ...initialValues,
       }}
-      formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      formType={FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         arrivalTime: yup
           .date()

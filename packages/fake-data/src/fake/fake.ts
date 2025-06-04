@@ -427,7 +427,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
     loggedAt: fakeDateTimeString(),
     recordCreatedAt: fakeDateTimeString(),
     recordUpdatedAt: fakeDateTimeString(),
-    recordSyncTick: chance.integer({ min: 1, max: 10000 }),
     updatedByUserId: fakeUUID(),
     recordUpdate: true,
   }),

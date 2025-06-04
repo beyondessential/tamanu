@@ -220,16 +220,15 @@ export const PatientProgramRegistrationConditionsField = ({
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
 
-  const conditionSuggester = new Suggester(
-    models.ProgramRegistryCondition,
-    {
+  const conditionSuggester = new Suggester({
+    model: models.ProgramRegistryCondition,
+    options: {
       where: {
         programRegistry: programRegistryId,
       },
     },
-    undefined,
-    ({ id }) => !conditions.map((value) => value?.condition?.value).includes(id), // hide previously selected conditions
-  );
+    filter: ({ id }) => !conditions.map((value) => value?.condition?.value).includes(id), // hide previously selected conditions
+  });
 
   const categorySuggester = new Suggester(
     models.ProgramRegistryCategory,
