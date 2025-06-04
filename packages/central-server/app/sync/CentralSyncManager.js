@@ -91,7 +91,7 @@ export class CentralSyncManager {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    
+
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
     const parameters = { deviceId, facilityIds, isMobile };
@@ -647,6 +647,11 @@ export class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
 
+        // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
+        // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
+        // (specifically won't be removed by removeEchoedChanges())
+        await this.tickTockGlobalClock();
+
         return tock;
       });
 
@@ -654,9 +659,6 @@ export class CentralSyncManager {
         deviceId,
         persistedAtSyncTick,
       });
-      // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
-      // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
-      await this.tickTockGlobalClock();
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
       // mark for repull any records that were modified by an incoming sync hook
