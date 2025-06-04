@@ -84,11 +84,13 @@ const ConditionComponent = ({ condition, onClick, isInactive = false }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
-      <Condition onClick={() => onClick(condition.id)} disabled={isInactive}>
-        <ClippedConditionName ref={ref}>
-          {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
-        </ClippedConditionName>
-      </Condition>
+      <NoteModalActionBlocker>
+        <Condition onClick={() => onClick(condition.id)} disabled={isInactive}>
+          <ClippedConditionName ref={ref}>
+            {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
+          </ClippedConditionName>
+        </Condition>
+      </NoteModalActionBlocker>
     </ConditionalTooltip>
   );
 };
