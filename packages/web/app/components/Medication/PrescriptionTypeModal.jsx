@@ -38,8 +38,8 @@ const RadioLabel = ({ title, description }) => (
   </>
 );
 
-export const PrescriptionTypeModal = ({ open, onClose, onContinue, prescriptionType }) => {
-  const [selectedPrescriptionType, setSelectedPrescriptionType] = useState(prescriptionType);
+export const PrescriptionTypeModal = ({ open, onClose, onContinue }) => {
+  const [selectedPrescriptionType, setSelectedPrescriptionType] = useState(PRESCRIPTION_TYPES.SINGLE_MEDICATION);
 
   return (
     <Modal

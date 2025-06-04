@@ -7,10 +7,8 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  IconButton,
 } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
-import CloseIcon from '@material-ui/icons/Close';
 import {
   DRUG_UNIT_VALUES,
   DRUG_UNIT_LABELS,
@@ -72,6 +70,7 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
+import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -82,6 +81,7 @@ const validationSchema = yup.object().shape({
   doseAmount: yup
     .number()
     .positive()
+    .translatedLabel(<TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />)
     .when('isVariableDose', {
       is: true,
       then: schema => schema.optional(),
@@ -270,10 +270,14 @@ const MedicationAdministrationForm = () => {
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
+  const { defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: values.frequency,
+  });
+
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate) return '';
     if (!values.frequency) return '';
-    if (!selectedTimeSlots.length) return '';
+    if (!selectedTimeSlots?.length) return '';
 
     const startDate = new Date(values.startDate);
 
@@ -298,10 +302,9 @@ const MedicationAdministrationForm = () => {
   const handleResetToDefault = () => {
     if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
 
-    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     setValues({
       ...values,
-      timeSlots: defaultIdealTimes?.map(findAdministrationTimeSlotFromIdealTime),
+      timeSlots: defaultTimeSlots,
     });
   };
 
@@ -377,7 +380,7 @@ const MedicationAdministrationForm = () => {
             const startTime = getDateFromTimeString(slot.startTime);
             const endTime = getDateFromTimeString(slot.endTime);
 
-            const selectedTimeSlot = selectedTimeSlots.find(s => s.index === index);
+            const selectedTimeSlot = selectedTimeSlots?.find(s => s.index === index);
             const checked = !!selectedTimeSlot;
             const isDisabled =
               (!checked &&
@@ -505,15 +508,6 @@ const MedicationBox = styled.div`
   grid-column: 1 / -1;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  svg {
-    font-size: 2rem;
-  }
-`;
-
 export const MedicationForm = ({
   encounterId,
   onCancel,
@@ -522,7 +516,7 @@ export const MedicationForm = ({
   onCancelEdit,
   editingMedication,
   isOngoingPrescription,
-  onCustomClose,
+  onDirtyChange,
 }) => {
   const isEditing = !!onConfirmEdit;
   const api = useApi();
@@ -545,6 +539,10 @@ export const MedicationForm = ({
   const [awaitingPrint, setAwaitingPrint] = useState(false);
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
+
+  const { defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: editingMedication?.frequency,
+  });
 
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
@@ -610,8 +608,11 @@ export const MedicationForm = ({
     }
   };
 
-  const onFinalise = async ({ data, isPrinting, submitForm }) => {
+  const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
     setAwaitingPrint(isPrinting);
+    if (onDirtyChange) {
+      onDirtyChange(dirty);
+    }
     await submitForm(data);
   };
 
@@ -619,21 +620,16 @@ export const MedicationForm = ({
     return {
       date: getCurrentDateString(),
       prescriberId: currentUser.id,
-      timeSlots: [],
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
       ...editingMedication,
+      timeSlots: defaultTimeSlots,
     };
   };
 
   return (
     <>
-      {onCustomClose && (
-        <StyledIconButton onClick={onCustomClose}>
-          <CloseIcon />
-        </StyledIconButton>
-      )}
       <Form
         suppressErrorDialog
         onSubmit={onConfirmEdit || onSubmit}
@@ -649,7 +645,7 @@ export const MedicationForm = ({
         initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        render={({ submitForm, setValues, values }) => (
+        render={({ submitForm, setValues, values, dirty }) => (
           <StyledFormGrid>
             {!isEditing ? (
               <>
@@ -962,7 +958,7 @@ export const MedicationForm = ({
               ) : (
                 <FormSubmitButton
                   color="primary"
-                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
                   variant="outlined"
                   startIcon={<PrintIcon />}
                 >
@@ -985,7 +981,8 @@ export const MedicationForm = ({
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
-                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
+                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
+                  disabled={isEditing && !dirty}
                 >
                   {isEditing ? (
                     <TranslatedText
