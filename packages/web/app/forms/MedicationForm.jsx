@@ -516,6 +516,7 @@ export const MedicationForm = ({
   onCancelEdit,
   editingMedication,
   isOngoingPrescription,
+  onDirtyChange,
 }) => {
   const isEditing = !!onConfirmEdit;
   const api = useApi();
@@ -607,8 +608,11 @@ export const MedicationForm = ({
     }
   };
 
-  const onFinalise = async ({ data, isPrinting, submitForm }) => {
+  const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
     setAwaitingPrint(isPrinting);
+    if (onDirtyChange) {
+      onDirtyChange(dirty);
+    }
     await submitForm(data);
   };
 
@@ -954,7 +958,7 @@ export const MedicationForm = ({
               ) : (
                 <FormSubmitButton
                   color="primary"
-                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm })}
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
                   variant="outlined"
                   startIcon={<PrintIcon />}
                 >
@@ -977,7 +981,7 @@ export const MedicationForm = ({
                 </FormCancelButton>
                 <FormSubmitButton
                   color="primary"
-                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm })}
+                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
                   disabled={isEditing && !dirty}
                 >
                   {isEditing ? (

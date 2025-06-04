@@ -174,6 +174,8 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
   );
+  const [isDirty, setIsDirty] = useState(false);
+
   const {
     mutateAsync: createMedicationSet,
     isLoading: isCreatingMedicationSet,
@@ -192,6 +194,12 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         startDate: getCurrentDateTimeString(),
         date: getCurrentDateString(),
         prescriberId: currentUser.id,
+        ...(medicationTemplate.doseAmount && {
+          doseAmount: Number(medicationTemplate.doseAmount),
+        }),
+        ...(medicationTemplate.durationValue && {
+          durationValue: Number(medicationTemplate.durationValue),
+        }),
       }))
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
@@ -211,7 +219,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         doseAmount: Number(child.doseAmount) || null,
         durationValue: Number(child.durationValue) || null,
         durationUnit: child.durationUnit || null,
-      }))
+      })),
     };
     try {
       await createMedicationSet(payload);
@@ -258,7 +266,11 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onBack = () => {
     switch (screen) {
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
-        setScreen(MODAL_SCREENS.DISCARD_CHANGES);
+        if (isDirty) {
+          setScreen(MODAL_SCREENS.DISCARD_CHANGES);
+        } else {
+          setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
+        }
         break;
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
         openPrescriptionTypeModal();
@@ -343,6 +355,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             editingMedication={editingMedication}
             onCancelEdit={onCancel}
             onCustomClose={onCustomClose}
+            onDirtyChange={dirty => setIsDirty(dirty)}
           />
         );
       case MODAL_SCREENS.REMOVE_MEDICATION:
