@@ -401,6 +401,25 @@ createSuggester(
   },
 );
 
+createSuggester(
+  REFERENCE_TYPES.DRUG,
+  'ReferenceData',
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+    type: REFERENCE_TYPES.DRUG,
+  }),
+  {
+    orderBuilder: () => {
+      return [translationCoalesceLiteral(REFERENCE_TYPES.DRUG, 'ReferenceData', 'name'), 'ASC'];
+    },
+    includeBuilder: () => {
+      return 'referenceDrug';
+    },
+    mapper: (item) => item,
+  },
+  false,
+);
+
 REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
@@ -416,21 +435,21 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
-        return [
-          parentId && {
-            model: ReferenceData,
-            as: 'parent',
-            required: true,
-            through: {
-              attributes: ['id'],
-              where: {
-                referenceDataParentId: parentId,
-                type: relationType,
-              },
+        if (!parentId) return undefined;
+
+        return {
+          model: ReferenceData,
+          as: 'parent',
+          required: true,
+          attributes: ['id'],
+          through: {
+            attributes: [],
+            where: {
+              referenceDataParentId: parentId,
+              type: relationType,
             },
           },
-          'referenceDrug',
-        ].filter(Boolean);
+        };
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
