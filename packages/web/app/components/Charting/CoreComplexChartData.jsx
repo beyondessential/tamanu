@@ -44,7 +44,7 @@ export const CoreComplexChartData = ({
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
   const { encounter } = useEncounter();
-  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId,);
+  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId);
   const actions = [
     {
       label: (
