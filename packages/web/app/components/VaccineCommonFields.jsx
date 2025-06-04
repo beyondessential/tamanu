@@ -343,6 +343,7 @@ export const VaccineNameField = () => (
     }
     component={TextField}
     required
+    data-testid="field-vaccineName"
   />
 );
 

@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 import {
@@ -23,6 +23,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly areaField: Locator;
   readonly locationField: Locator;
   readonly departmentField: Locator;
+  readonly vaccineNameField: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -46,6 +47,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.areaField = this.page.getByTestId('field-zrlv-group-input');
     this.locationField = this.page.getByTestId('field-zrlv-location-input');
     this.departmentField = this.page.getByTestId('field-5sfc-input');
+    this.vaccineNameField = this.page.getByTestId('field-vaccineName-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -83,33 +85,29 @@ export class RecordVaccineModal extends BasePatientModal {
     await selectRandomAutocompleteFieldOption(this.page, this.departmentField);
   }
 
-  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
-    await this.selectIsVaccineGiven(given);
-    await this.selectCategory(category);
-    await this.selectVaccine();
-    await this.selectScheduleOption();
-    await this.selectLocationGroup();
-    await this.consentCheckbox.check();
-    await this.page.waitForTimeout(2000);
-    await this.confirmButton.click();
-  }
-
-  async recordRandomVaccine() {
-    await this.categoryRadioGroup.getByRole('radio').first().check();
-    await this.vaccineSelectField.click();
-    await this.page.keyboard.down('Tab'); // One way of selecting an option from our select fields
-    await this.selectScheduleOption();
-    await this.consentCheckbox.check();
-    await expect(this.confirmButton).toBeEnabled();
-    await this.confirmButton.click();
-  }
-
   async selectScheduleOption(option?: string) {
     const scheduleOption = option
       ? this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false })
       : this.scheduleRadioGroup.getByRole('radio', { disabled: false }).first();
 
     await scheduleOption.click();
+  }
+
+  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+    await this.selectIsVaccineGiven(given);
+    await this.selectCategory(category);
+
+    if (category !== 'Other') {
+      await this.selectVaccine();
+      await this.selectScheduleOption();
+    } else {
+      await this.vaccineNameField.fill('Test Vaccine');
+    }
+
+    await this.selectLocationGroup();
+    await this.consentCheckbox.check();
+    await this.page.waitForTimeout(2000);
+    await this.confirmButton.click();
   }
 
   async waitForModalToClose() {
