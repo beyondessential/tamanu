@@ -17,6 +17,14 @@ export async function up(query: QueryInterface): Promise<void> {
     WHERE patient_program_registration_conditions.patient_program_registration_id = ppr.id;
   `);
 
+  // Update logs.changes table to use the new generated id
+  await query.sequelize.query(`
+    UPDATE logs.changes
+    SET record_id = ppr.new_id
+    FROM patient_program_registrations ppr
+    WHERE logs.changes.record_id = ppr.id;
+  `);
+
   // Remove id column in both tables
   await query.sequelize.query(`
     ALTER TABLE patient_program_registrations DROP COLUMN id;
@@ -62,6 +70,14 @@ export async function down(query: QueryInterface): Promise<void> {
     SET patient_program_registration_old_id = ppr.old_id::uuid
     FROM patient_program_registrations ppr
     WHERE patient_program_registration_conditions.patient_program_registration_id = ppr.id;
+  `);
+
+  // Update logs.changes table to use the old id column
+  await query.sequelize.query(`
+    UPDATE logs.changes
+    SET record_id = ppr.old_id::uuid
+    FROM patient_program_registrations ppr
+    WHERE logs.changes.record_id = ppr.id;
   `);
 
   // Remove id column in both tables
