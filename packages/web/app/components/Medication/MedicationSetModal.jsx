@@ -251,6 +251,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         selectedMedicationSet.children.splice(index, 1);
         setSelectedMedicationSet(selectedMedicationSet);
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+        setIsDirty(true);
         break;
       }
       case MODAL_SCREENS.DISCARD_CHANGES:
