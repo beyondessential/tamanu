@@ -1174,7 +1174,7 @@ const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
     prescriptionIds: z.array(z.string().uuid({ message: 'Valid prescription ID is required' })),
-    prescriberId: z.string().uuid({ message: 'Valid prescriber ID is required' }),
+    prescriberId: z.string(),
   })
   .strip();
 medication.post(
