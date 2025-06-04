@@ -96,8 +96,9 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registrations."
             data_tests:
               - not_null
-          - name: is_most_recent
-            data_type: boolean
-            description: "{{ doc('patient_program_registrations__is_most_recent') }}"
-            data_tests:
-              - not_null
+          - name: deactivated_clinician_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_program_registrations__deactivated_clinician_id') }}"
+          - name: deactivated_date
+            data_type: character varying(255)
+            description: "{{ doc('patient_program_registrations__deactivated_date') }}"

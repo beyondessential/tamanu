@@ -110,6 +110,11 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
+export * from './ReferenceDrug';
+export * from './MedicationAdministrationRecord';
+export * from './MedicationAdministrationRecordDose';
+export * from './ReferenceMedicationTemplate';
+
 export * from './Notification';
 
 export * from './Signer';
@@ -135,9 +140,7 @@ export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
+export * from './SyncLookupTick';
 
-export * from './ReferenceDrug';
-export * from './MedicationAdministrationRecord';
-export * from './MedicationAdministrationRecordDose';
-export * from './ReferenceMedicationTemplate';
 export * from './AccessLog';
+export * from './ChangeLog';

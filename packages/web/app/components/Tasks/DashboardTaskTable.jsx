@@ -18,6 +18,7 @@ import { useTablePaginator } from '../Table/useTablePaginator';
 import { useTableSorting } from '../Table/useTableSorting';
 import { reloadPatient } from '../../store';
 import { useEncounter } from '../../contexts/Encounter';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const Container = styled.div`
   height: calc(100% - 110px);
@@ -159,7 +160,7 @@ const DateWrapper = styled.div`
   white-space: pre;
 `;
 
-const getStatus = (row) => {
+const getStatus = row => {
   const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
@@ -344,7 +345,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const onRowClick = async ({ encounter }) => {
     await loadEncounter(encounter?.id);
     if (encounter?.patientId) await dispatch(reloadPatient(encounter.patientId));
-    history.push(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=tasks`);
+    history.push(
+      `/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=${ENCOUNTER_TAB_NAMES.TASKS}`,
+    );
   };
 
   return (

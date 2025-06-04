@@ -117,7 +117,7 @@
       "schedule": "* * * * *",
     },
     "timeSync": {
-      "enabled": true,
+      "enabled": false,
       // every hour
       "schedule": "0 * * * *",
     },
