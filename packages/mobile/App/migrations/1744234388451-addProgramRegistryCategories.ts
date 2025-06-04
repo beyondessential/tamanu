@@ -65,7 +65,7 @@ const ProgramRegistryCategory = new Table({
     new TableColumn({
       name: 'programRegistryId',
       type: 'varchar',
-      isNullable: false,
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -77,6 +77,7 @@ const ProgramRegistryCategory = new Table({
   ],
   indices: [baseIndex],
 });
+
 export class addProgramRegistryCategories1744234388451 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ProgramRegistryCategory, true);
@@ -93,7 +94,7 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
       new TableColumn({
         name: 'programRegistryCategoryId',
         type: 'varchar',
-        isNullable: false,
+        isNullable: true,
       }),
     );
 
@@ -116,7 +117,7 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
 
     // Drop the foreign key constraint
     const foreignKey = table.foreignKeys.find(
-      fk => fk.columnNames.indexOf('programRegistryCategoryId') !== -1,
+      (fk) => fk.columnNames.indexOf('programRegistryCategoryId') !== -1,
     );
     await queryRunner.dropForeignKey(table, foreignKey);
 

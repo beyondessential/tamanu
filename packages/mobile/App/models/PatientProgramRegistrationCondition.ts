@@ -34,10 +34,10 @@ export class PatientProgramRegistrationCondition
   @Column({ nullable: true })
   reasonForChange: string;
 
-  @ManyToOne(() => ProgramRegistryCategory)
-  programRegistryCategory: IProgramRegistryCategory;
+  @ManyToOne(() => ProgramRegistryCategory, undefined, { nullable: true })
+  programRegistryCategory?: IProgramRegistryCategory;
   @RelationId(({ programRegistryCategory }) => programRegistryCategory)
-  programRegistryCategoryId: ID;
+  programRegistryCategoryId?: ID;
 
   // Relations
   @ManyToOne(() => PatientProgramRegistration)
