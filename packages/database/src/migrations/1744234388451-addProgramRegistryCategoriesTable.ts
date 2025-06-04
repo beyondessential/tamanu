@@ -4,26 +4,25 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('program_registry_categories', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
       allowNull: true,
     },
-
     code: {
       type: Sequelize.TEXT,
       allowNull: false,
@@ -37,24 +36,65 @@ export async function up(query: QueryInterface): Promise<void> {
       type: Sequelize.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
-
     program_registry_id: {
       type: Sequelize.STRING,
       allowNull: false,
     },
   });
 
+  // Insert 'unknown' category for each existing program registry
+  await query.sequelize.query(`
+    INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+    SELECT
+      uuid_generate_v4(),
+      'unknown',
+      'unknown',
+      '${VISIBILITY_STATUSES.CURRENT}',
+      pr.id,
+      NOW(),
+      NOW()
+    FROM program_registries pr
+  `);
+
   // Update patient_program_registration_conditions table to replace condition_category with program_registry_category_id
   await query.removeColumn('patient_program_registration_conditions', 'condition_category');
 
+  // Add the column as nullable first
   await query.addColumn('patient_program_registration_conditions', 'program_registry_category_id', {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: DataTypes.UUID,
+    allowNull: true,
     references: {
       model: 'program_registry_categories',
       key: 'id',
     },
   });
+
+  // Set the values for existing records
+  await query.sequelize.query(`
+    UPDATE patient_program_registration_conditions
+    SET program_registry_category_id = (
+      SELECT prc.id
+      FROM program_registry_categories prc
+      JOIN patient_program_registrations ppr ON prc.program_registry_id = ppr.program_registry_id
+      WHERE ppr.id = patient_program_registration_conditions.patient_program_registration_id
+      AND prc.code = 'unknown'
+      LIMIT 1
+    )
+  `);
+
+  // Now make the column non-nullable
+  await query.changeColumn(
+    'patient_program_registration_conditions',
+    'program_registry_category_id',
+    {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'program_registry_categories',
+        key: 'id',
+      },
+    },
+  );
 
   await query.addConstraint('patient_program_registration_conditions', {
     fields: ['program_registry_category_id'],
@@ -76,7 +116,10 @@ export async function down(query: QueryInterface): Promise<void> {
     'patient_program_registration_conditions_program_registry_category_id_fkey',
   );
 
-  await query.removeColumn('patient_program_registration_conditions', 'program_registry_category_id');
+  await query.removeColumn(
+    'patient_program_registration_conditions',
+    'program_registry_category_id',
+  );
 
   await query.addColumn('patient_program_registration_conditions', 'condition_category', {
     type: DataTypes.STRING,
@@ -84,6 +127,6 @@ export async function down(query: QueryInterface): Promise<void> {
     defaultValue: 'unknown',
   });
 
-  // Drop the program_registry_categories table
+  // Drop the program_registry_categories table (this will also remove the seeded records)
   await query.dropTable('program_registry_categories');
 }
