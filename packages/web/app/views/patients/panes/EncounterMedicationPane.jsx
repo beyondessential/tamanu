@@ -104,14 +104,14 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
-        <PrescriptionTypeModal
-          open={prescriptionTypeModalOpen}
+        {prescriptionTypeModalOpen && <PrescriptionTypeModal
+          open
           onClose={() => setPrescriptionTypeModalOpen(false)}
           onContinue={handleContinue}
-        />
+        />}
         {prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET && (
           <MedicationSetModal
-            open={true}
+            open
             onClose={() => setPrescriptionType(null)}
             openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
             onReloadTable={() => setRefreshEncounterMedications(prev => prev + 1)}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider, IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
 import { Print } from '@material-ui/icons';
 import { BodyText, ConfirmCancelBackRow, Heading5, Modal, TranslatedText } from '..';
@@ -29,6 +30,7 @@ const StyledModal = styled(Modal)`
 const SetContainer = styled.div`
   display: flex;
   gap: 10px;
+  align-items: flex-end;
 `;
 
 const MODAL_SCREENS = {
@@ -100,14 +102,14 @@ const SelectScreen = ({
           {allergies?.data?.map(allergy => allergy.allergy.name).join(', ')}
         </BodyText>
       </Box>
-      <BodyText color={Colors.darkText}>
-        <TranslatedText
-          stringId="medication.modal.medicationSet.description"
-          fallback="Please select whether you would like to create a single medication prescription or multiple prescriptions using a medication set."
-        />
-      </BodyText>
       <SetContainer>
         <Box flex={1}>
+          <BodyText color={Colors.darkText}>
+            <TranslatedText
+              stringId="medication.modal.medicationSet.description"
+              fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
+            />
+          </BodyText>
           <Heading5 color={Colors.darkText} mt="25px" mb={0}>
             <TranslatedText
               stringId="medication.modal.medicationSet.label"
@@ -156,6 +158,15 @@ const ReviewScreen = ({ selectedMedicationSet, onEdit, onRemove }) => {
   );
 };
 
+const StyledIconButton = styled(IconButton)`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  svg {
+    font-size: 2rem;
+  }
+`;
+
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
@@ -172,24 +183,23 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
+
   const onSelect = medicationSet => {
-    const newMedicationSetChildren = medicationSet.children.map(child => ({
-      ...child,
-      medicationTemplate: {
-        ...child.medicationTemplate,
-        idealTimes:
-          ADMINISTRATION_FREQUENCY_DETAILS[child.medicationTemplate.frequency].startTimes || [],
+    const newMedicationSetChildren = medicationSet.children
+      .map(({ medicationTemplate }) => ({
+        ...medicationTemplate,
+        idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
         startDate: getCurrentDateTimeString(),
         date: getCurrentDateString(),
         prescriberId: currentUser.id,
-        ...(child.medicationTemplate.doseAmount && {
-          doseAmount: Number(child.medicationTemplate.doseAmount),
+        ...(medicationTemplate.doseAmount && {
+          doseAmount: Number(medicationTemplate.doseAmount),
         }),
-        ...(child.medicationTemplate.durationValue && {
-          durationValue: Number(child.medicationTemplate.durationValue),
+        ...(medicationTemplate.durationValue && {
+          durationValue: Number(medicationTemplate.durationValue),
         }),
-      },
-    }));
+      }))
+      .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({
       ...medicationSet,
       children: newMedicationSetChildren,
@@ -202,9 +212,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onSubmit = async (isPrinting = false) => {
     const payload = {
       encounterId: encounter.id,
-      medicationSet: selectedMedicationSet.children.map(({ medicationTemplate }) => ({
-        ...medicationTemplate,
-      })),
+      medicationSet: selectedMedicationSet.children
     };
     try {
       await createMedicationSet(payload);
@@ -231,7 +239,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         break;
       case MODAL_SCREENS.REMOVE_MEDICATION: {
         const index = selectedMedicationSet.children.findIndex(
-          child => child.medicationTemplate.id === editingMedication.id,
+          child => child.id === editingMedication.id,
         );
         selectedMedicationSet.children.splice(index, 1);
         setSelectedMedicationSet(selectedMedicationSet);
@@ -286,9 +294,9 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
     const medicationIndex = selectedMedicationSet.children.findIndex(
-      child => child.medicationTemplate.id === editingMedication.id,
+      child => child.id === editingMedication.id,
     );
-    selectedMedicationSet.children[medicationIndex].medicationTemplate = {
+    selectedMedicationSet.children[medicationIndex] = {
       ...data,
     };
     setSelectedMedicationSet(selectedMedicationSet);
@@ -300,7 +308,13 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   };
 
   const onCustomClose = () => {
-    setScreen(MODAL_SCREENS.CANCEL_MEDICATION_SET);
+    switch (screen) {
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+        break;
+      default:
+        setScreen(MODAL_SCREENS.CANCEL_MEDICATION_SET);
+    }
   };
 
   const renderScreen = () => {
@@ -364,6 +378,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             fallback="Cancel medication set"
           />
         );
+      case MODAL_SCREENS.REVIEW_MEDICATION_SET:
+        return (
+          <TranslatedText stringId="medication.modal.action.finaliseAll" fallback="Finalise all" />
+        );
       default:
         return <TranslatedText stringId="general.action.continue" fallback="Continue" />;
     }
@@ -408,6 +426,13 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             fallback="Review medication set"
           />
         );
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        return (
+          <TranslatedText
+            stringId="medication.modal.cancelMedicationSet.title"
+            fallback="Cancel new medication set"
+          />
+        );
       default:
         return (
           <TranslatedText
@@ -418,15 +443,41 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     }
   };
 
+  const showCustomClose = [
+    MODAL_SCREENS.REVIEW_MEDICATION_SET,
+    MODAL_SCREENS.EDIT_MEDICATION,
+    MODAL_SCREENS.CANCEL_MEDICATION_SET,
+  ].includes(screen);
+
+  const getModalWidth = () => {
+    switch (screen) {
+      case MODAL_SCREENS.SELECT_MEDICATION_SET:
+        if (selectedMedicationSet) {
+          return '986px';
+        }
+        break;
+      case MODAL_SCREENS.REVIEW_MEDICATION_SET:
+        return '640px';
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        return '708px';
+      default:
+        return '600px';
+    }
+  };
+
   return (
     <StyledModal
       open={open}
       onClose={onClose}
       title={getModalTitle()}
-      $maxWidth={
-        selectedMedicationSet && screen === MODAL_SCREENS.SELECT_MEDICATION_SET ? '986px' : '600px'
-      }
+      cornerExitButton={!showCustomClose}
+      $maxWidth={getModalWidth()}
     >
+      {showCustomClose && (
+        <StyledIconButton onClick={onCustomClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      )}
       {printModalOpen && (
         <MultiplePrescriptionPrintoutModal
           encounter={encounter}

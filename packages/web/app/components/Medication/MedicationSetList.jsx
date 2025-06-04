@@ -79,6 +79,17 @@ const RemoveText = styled(BodyText)`
   bottom: 16px;
 `;
 
+const CheckedLabel = styled(BodyText)`
+  color: ${Colors.midText};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 export const MedicationSetList = ({
   medicationSets,
   isLoading,
@@ -125,22 +136,50 @@ export const MedicationSetMedicationsList = ({
       <Heading4 textAlign="center" mt="6px" mb="12px">
         {medicationSet.name}
       </Heading4>
-      {medicationSet.children.map(({ medicationTemplate }) => {
-        const { medication, route, frequency, notes } = medicationTemplate;
+      {medicationSet.children.map(medication => {
+        const {
+          medication: medicationRef,
+          route,
+          frequency,
+          notes,
+          durationUnit,
+          durationValue,
+          isPrn,
+          isOngoing,
+        } = medication;
         return (
-          <MedicationListItem key={medication.id}>
-            <BodyText fontWeight="500">{medication.name}</BodyText>
+          <MedicationListItem key={medicationRef.id}>
+            <BodyText fontWeight="500">{medicationRef.name}</BodyText>
+            {isOngoing && (
+              <CheckedLabel>
+                <CheckIcon color="primary" />
+                <TranslatedText
+                  stringId="medication.model.ongoingMedication.label"
+                  fallback="Ongoing medication"
+                />
+              </CheckedLabel>
+            )}
+            {isPrn && (
+              <CheckedLabel>
+                <CheckIcon color="primary" />
+                <TranslatedText
+                  stringId="medication.model.prnMedication.label"
+                  fallback="PRN medication"
+                />
+              </CheckedLabel>
+            )}
             <BodyText>
-              {getDose(medicationTemplate, getTranslation, getEnumTranslation)},{' '}
+              {getDose(medication, getTranslation, getEnumTranslation)},{' '}
               {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
+              {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
             </BodyText>
             {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
             {editable && (
               <>
-                <StyledIconButton onClick={() => onEdit(medicationTemplate)}>
+                <StyledIconButton onClick={() => onEdit(medication)}>
                   <EditIcon />
                 </StyledIconButton>
-                <RemoveText onClick={() => onRemove(medicationTemplate)}>
+                <RemoveText onClick={() => onRemove(medication)}>
                   <TranslatedText stringId="general.action.remove" fallback="Remove" />
                 </RemoveText>
               </>
