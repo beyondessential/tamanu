@@ -662,14 +662,11 @@ describe('Programs import', () => {
         ];
 
         const registryId = 'test-registry-id';
-        const registryCode = 'test-registry-code';
 
-        // Call the function
         const result = await autoFillConditionCategoryImport(
           context,
           spreadsheetCategories,
           registryId,
-          registryCode,
         );
 
         // Verify the result
@@ -702,14 +699,11 @@ describe('Programs import', () => {
         const spreadsheetCategories = [];
 
         const registryId = 'test-registry-id';
-        const registryCode = 'test-registry-code';
 
-        // Call the function
         const result = await autoFillConditionCategoryImport(
           context,
           spreadsheetCategories,
           registryId,
-          registryCode,
         );
 
         // Verify the result - should have one entry for each hardcoded category
@@ -757,14 +751,11 @@ describe('Programs import', () => {
         const spreadsheetCategories = [];
 
         const registryId = 'test-registry-id';
-        const registryCode = 'test-registry-code';
 
-        // Call the function
         const result = await autoFillConditionCategoryImport(
           context,
           spreadsheetCategories,
           registryId,
-          registryCode,
         );
 
         // Verify the result - should have entries for all hardcoded categories except UNKNOWN
@@ -792,14 +783,11 @@ describe('Programs import', () => {
         ];
 
         const registryId = 'test-registry-id';
-        const registryCode = 'test-registry-code';
 
-        // Call the function
         const result = await autoFillConditionCategoryImport(
           context,
           spreadsheetCategories,
           registryId,
-          registryCode,
         );
 
         // Verify the result - should have entries for all hardcoded categories plus the custom one

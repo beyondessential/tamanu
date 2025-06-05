@@ -16,12 +16,12 @@ function createCategoryRowFromSpreadsheet(spreadsheetCategory, registryId) {
   };
 }
 
-function createCategoryRowFromHardcoded(code, registryId, registryCode) {
+function createCategoryRowFromHardcoded(code, registryId) {
   return {
     model: 'ProgramRegistryConditionCategory',
     sheetRow: -1, // Indicates this is a hardcoded category
     values: {
-      id: `program-registry-condition-category-${registryCode}-${code}`,
+      id: `program-registry-condition-category-${code}`,
       programRegistryId: registryId,
       code: code,
       name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code],
@@ -34,7 +34,6 @@ export async function autoFillConditionCategoryImport(
   context,
   programRegistryConditionCategories,
   registryId,
-  registryCode,
 ) {
   // Create a map of spreadsheet categories by code for easy lookup
   const spreadsheetCategoriesMap = new Map(
@@ -64,7 +63,7 @@ export async function autoFillConditionCategoryImport(
 
       if (!existingCategory) {
         // Use hardcoded definition
-        categoryRows.push(createCategoryRowFromHardcoded(code, registryId, registryCode));
+        categoryRows.push(createCategoryRowFromHardcoded(code, registryId));
       }
     }
   }

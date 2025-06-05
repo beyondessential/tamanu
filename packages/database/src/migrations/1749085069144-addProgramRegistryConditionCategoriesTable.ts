@@ -30,7 +30,6 @@ export async function up(query: QueryInterface): Promise<void> {
     code: {
       type: Sequelize.TEXT,
       allowNull: false,
-      unique: true,
     },
     name: {
       type: DataTypes.TEXT,
@@ -61,7 +60,7 @@ export async function up(query: QueryInterface): Promise<void> {
     INSERT INTO program_registry_condition_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
     SELECT
       CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
-      CONCAT(pr.code, '-', category.code),
+      category.code,
       category.name,
       '${VISIBILITY_STATUSES.CURRENT}',
       pr.id,
@@ -116,18 +115,6 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
   );
-
-  await query.addConstraint('patient_program_registration_conditions', {
-    fields: ['program_registry_condition_category_id'],
-    type: 'foreign key',
-    name: 'patient_program_registration_conditions_program_registry_condition_category_id_fkey',
-    references: {
-      table: 'program_registry_condition_categories',
-      field: 'id',
-    },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
-  });
 }
 
 export async function down(query: QueryInterface): Promise<void> {

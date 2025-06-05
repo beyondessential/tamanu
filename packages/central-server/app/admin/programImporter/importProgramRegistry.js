@@ -161,11 +161,11 @@ export async function importProgramRegistry(context, workbook, programId) {
 
   log.debug('Importing Patient Registry Condition Categories');
   const programRegistryConditionCategories = readProgramRegistryConditionCategoriesData(workbook);
-  const categoryRows = autoFillConditionCategoryImport(
+
+  const categoryRows = await autoFillConditionCategoryImport(
     context,
     programRegistryConditionCategories,
     registryId,
-    registryRecord.registryCode,
   );
 
   stats = await importRows(context, {
