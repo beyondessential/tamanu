@@ -86,7 +86,7 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
     const ID_PREFIX = 'program-registry-category-';
 
     // Insert hard coded categories for each existing program registry
-    await query.sequelize.query(`
+    await queryRunner.query(`
       INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
       SELECT
         CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
@@ -94,8 +94,8 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
         category.name,
         '${VISIBILITY_STATUSES.CURRENT}',
         pr.id,
-        NOW(),
-        NOW()
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
       FROM program_registries pr
              CROSS JOIN (
         VALUES

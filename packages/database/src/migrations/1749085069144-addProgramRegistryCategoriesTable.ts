@@ -57,8 +57,8 @@ export async function up(query: QueryInterface): Promise<void> {
       category.name,
       '${VISIBILITY_STATUSES.CURRENT}',
       pr.id,
-      Sequelize.fn('current_timestamp', 6),
-      Sequelize.fn('current_timestamp', 6)
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
     FROM program_registries pr
            CROSS JOIN (
       VALUES
@@ -74,7 +74,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // Add the column as nullable first
   await query.addColumn('patient_program_registration_conditions', 'program_registry_category_id', {
-    type: DataTypes.UUID,
+    type: DataTypes.TEXT,
     allowNull: true,
     references: {
       model: 'program_registry_categories',
@@ -100,7 +100,7 @@ export async function up(query: QueryInterface): Promise<void> {
     'patient_program_registration_conditions',
     'program_registry_category_id',
     {
-      type: DataTypes.UUID,
+      type: DataTypes.TEXT,
       allowNull: false,
       references: {
         model: 'program_registry_categories',
