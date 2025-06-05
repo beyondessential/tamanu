@@ -69,23 +69,27 @@ export async function up(query: QueryInterface): Promise<void> {
     ) AS category(code, name)
   `);
 
-  // Update patient_program_registration_conditions table to replace condition_category with program_registry_category_id
+  // Update patient_program_registration_conditions table to replace condition_category with program_registry_condition_category_id
   await query.removeColumn('patient_program_registration_conditions', 'condition_category');
 
   // Add the column as nullable first
-  await query.addColumn('patient_program_registration_conditions', 'program_registry_category_id', {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    references: {
-      model: 'program_registry_condition_categories',
-      key: 'id',
+  await query.addColumn(
+    'patient_program_registration_conditions',
+    'program_registry_condition_category_id',
+    {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      references: {
+        model: 'program_registry_condition_categories',
+        key: 'id',
+      },
     },
-  });
+  );
 
   // Set the values for existing records
   await query.sequelize.query(`
     UPDATE patient_program_registration_conditions
-    SET program_registry_category_id = (
+    SET program_registry_condition_category_id = (
       SELECT prc.id
       FROM program_registry_condition_categories prc
       JOIN patient_program_registrations ppr ON prc.program_registry_id = ppr.program_registry_id
@@ -98,7 +102,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // Now make the column non-nullable
   await query.changeColumn(
     'patient_program_registration_conditions',
-    'program_registry_category_id',
+    'program_registry_condition_category_id',
     {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -110,9 +114,9 @@ export async function up(query: QueryInterface): Promise<void> {
   );
 
   await query.addConstraint('patient_program_registration_conditions', {
-    fields: ['program_registry_category_id'],
+    fields: ['program_registry_condition_category_id'],
     type: 'foreign key',
-    name: 'patient_program_registration_conditions_program_registry_category_id_fkey',
+    name: 'patient_program_registration_conditions_program_registry_condition_category_id_fkey',
     references: {
       table: 'program_registry_condition_categories',
       field: 'id',
@@ -126,12 +130,12 @@ export async function down(query: QueryInterface): Promise<void> {
   // Revert changes to patient_program_registration_conditions table
   await query.removeConstraint(
     'patient_program_registration_conditions',
-    'patient_program_registration_conditions_program_registry_category_id_fkey',
+    'patient_program_registration_conditions_program_registry_condition_category_id_fkey',
   );
 
   await query.removeColumn(
     'patient_program_registration_conditions',
-    'program_registry_category_id',
+    'program_registry_condition_category_id',
   );
 
   await query.addColumn('patient_program_registration_conditions', 'condition_category', {
