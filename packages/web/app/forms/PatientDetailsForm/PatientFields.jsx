@@ -24,6 +24,7 @@ const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 70px;
 `;
 
+// TODO: options not translatable in current implementation
 export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
