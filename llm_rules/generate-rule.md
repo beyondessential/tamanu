@@ -1,6 +1,16 @@
 # Context
 
-None for this rule, manually generated without a background chat
+This rule is for creating documentation that captures successful workflows and patterns discovered during LLM-assisted development sessions. When you've had a productive conversation with an AI assistant that resulted in solving a complex problem, implementing a feature, or establishing a good workflow, you should create a rule to preserve that knowledge for future reference.
+
+This is especially valuable for:
+
+- Repeatable development patterns that work well in your codebase
+- Complex multi-step processes that involve multiple tools or files
+- Solutions to common problems that might recur
+- Workflows that have specific gotchas or requirements
+- Any process where you've learned what NOT to do through trial and error
+
+The goal is to turn successful one-off conversations into reusable documentation that can guide future development work.
 
 # Process
 
