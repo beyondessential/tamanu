@@ -2174,7 +2174,7 @@ describe('CentralSyncManager', () => {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'patient_program_registrations',
-          recordId: crypto.randomUUID(),
+          recordId: patientProgramRegistrationData.id,
           data: patientProgramRegistrationData,
         },
       ];
@@ -2244,7 +2244,7 @@ describe('CentralSyncManager', () => {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'patient_program_registrations',
-          recordId: crypto.randomUUID(),
+          recordId: patientProgramRegistrationData.id,
           data: patientProgramRegistrationData,
         },
       ];
