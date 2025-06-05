@@ -4,6 +4,20 @@ This rule covers the process of converting hardcoded English text strings in Rea
 
 # Process
 
+## Self-Update After Usage
+
+**IMPORTANT**: When this rule is used in a conversation, the AI should:
+
+1. **Complete the translation task** following the steps below
+2. **Observe what happened** during the session (new patterns, challenges, solutions)
+3. **Extract learnings** from the usage:
+   - New successful patterns to add to Process section
+   - New gotchas or anti-patterns for Avoid section
+   - Better approaches that improve existing steps
+   - Edge cases or context not previously covered
+4. **Update this rule file** by editing the appropriate sections with the new learnings
+5. **Document the update** by noting what was learned and added
+
 ## Basic String Translation
 
 1. **Import TranslatedText**: Add `import { TranslatedText } from './Translation/TranslatedText';` (adjust path as needed)
