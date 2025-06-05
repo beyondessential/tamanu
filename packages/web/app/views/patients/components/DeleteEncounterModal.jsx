@@ -2,6 +2,7 @@ import React from 'react';
 import { useApi } from '../../../api';
 import { DeleteEncounterForm } from '../../../forms/DeleteEncounterForm';
 import { Modal } from '../../../components/Modal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient }) => {
   const api = useApi();
@@ -14,7 +15,13 @@ export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient
   return (
     <Modal
       width="md"
-      title="Delete encounter record"
+      title={
+        <TranslatedText
+          stringId="encounter.modal.delete.title"
+          fallback="Delete encounter record"
+          data-testid="translatedtext-encounter-modal-delete-title"
+        />
+      }
       onClose={onClose}
       open={open}
       data-testid="modal-lsi1"

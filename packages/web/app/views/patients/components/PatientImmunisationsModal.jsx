@@ -1,10 +1,18 @@
 import React from 'react';
 import { Modal, ModalActionRow } from '../../../components';
 import { ImmunisationsTable } from '../../../features';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, ...props }) => (
   <Modal
-    title={`${patient.firstName} ${patient.lastName} | Immunisation history`}
+    title={
+      <TranslatedText
+        stringId="patient.modal.immunisations.title"
+        fallback=":patientName | Immunisation history"
+        replacements={{ patientName: `${patient.firstName} ${patient.lastName}` }}
+        data-testid="translatedtext-patient-modal-immunisations-title"
+      />
+    }
     open={open}
     onClose={onClose}
     {...props}
@@ -16,6 +24,16 @@ export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, .
       disablePagination
       data-testid="immunisationstable-rs2l"
     />
-    <ModalActionRow confirmText="Close" onConfirm={onClose} data-testid="modalactionrow-ejho" />
+    <ModalActionRow
+      confirmText={
+        <TranslatedText
+          stringId="general.action.close"
+          fallback="Close"
+          data-testid="translatedtext-close-action"
+        />
+      }
+      onConfirm={onClose}
+      data-testid="modalactionrow-ejho"
+    />
   </Modal>
 ));

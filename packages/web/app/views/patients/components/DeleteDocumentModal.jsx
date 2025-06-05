@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const SubText = styled.div`
   text-align: left;
@@ -18,14 +19,28 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
 
   return (
     <ConfirmModal
-      title="Delete document"
+      title={
+        <TranslatedText
+          stringId="document.delete.title"
+          fallback="Delete document"
+          data-testid="translatedtext-delete-document-title"
+        />
+      }
       subText={
         <SubText data-testid="subtext-vqro">
-          This action is irreversible.
+          <TranslatedText
+            stringId="general.warning.irreversible"
+            fallback="This action is irreversible."
+            data-testid="translatedtext-warning-irreversible"
+          />
           <br />
           <br />
-          Are you sure you would like to delete the &apos;
-          <strong>{documentToDelete?.name}</strong>&apos; document?
+          <TranslatedText
+            stringId="document.delete.confirmation"
+            fallback="Are you sure you would like to delete the :documentName document?"
+            replacements={{ documentName: documentToDelete?.name }}
+            data-testid="translatedtext-delete-document-confirmation"
+          />
         </SubText>
       }
       open={open}

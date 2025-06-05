@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '../../api/singletons';
 import { useApi } from '../../api';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 import {
   ContentPane,
   DataFetchingTable,
@@ -19,7 +20,7 @@ const CovidVaccinationStatusComponent = ({ row }) => {
     const getVaccinations = async () => {
       const { data: patientVaccinations } = await api.get(`patient/${row.id}/administeredVaccines`);
       const covidVaccinations = patientVaccinations.filter(
-        (v) => v.scheduledVaccine?.label === 'COVAX',
+        v => v.scheduledVaccine?.label === 'COVAX',
       );
 
       if (covidVaccinations.length === 1) {
@@ -32,20 +33,34 @@ const CovidVaccinationStatusComponent = ({ row }) => {
     getVaccinations();
   }, [api, row.id]);
 
-  return covidVaccinationStatus;
+  return (
+    <TranslatedText
+      stringId={`vaccine.covid.status.${covidVaccinationStatus.toLowerCase().replace(' ', '')}`}
+      fallback={covidVaccinationStatus}
+      data-testid={`translatedtext-covid-status-${covidVaccinationStatus
+        .toLowerCase()
+        .replace(' ', '')}`}
+    />
+  );
 };
 
 export const covidVaccinationStatus = {
   key: 'vaccinationStatus',
-  title: 'Vaccination status',
+  title: (
+    <TranslatedText
+      stringId="vaccine.covid.status.title"
+      fallback="Vaccination status"
+      data-testid="translatedtext-covid-status-title"
+    />
+  ),
   minWidth: 100,
-  accessor: (row) => (
+  accessor: row => (
     <CovidVaccinationStatusComponent row={row} data-testid="covidvaccinationstatuscomponent-wr44" />
   ),
-  asyncExportAccessor: async (row) => {
+  asyncExportAccessor: async row => {
     const patientVaccinations = await API.get(`patient/${row.id}/administeredVaccines`);
     const covidVaccinations = patientVaccinations.data.filter(
-      (v) => v.scheduledVaccine?.label === 'COVAX',
+      v => v.scheduledVaccine?.label === 'COVAX',
     );
     if (covidVaccinations.length === 1) return '1 Dose';
     if (covidVaccinations.length >= 2) return 'Complete';
@@ -61,8 +76,20 @@ const PatientCovidCampaignTable = React.memo(({ onPatientSelect, ...props }) => 
     <DataFetchingTable
       endpoint="patient"
       columns={COLUMNS}
-      noDataMessage="No patients found"
-      exportName="Covid Campaign"
+      noDataMessage={
+        <TranslatedText
+          stringId="patientList.table.noData"
+          fallback="No patients found"
+          data-testid="translatedtext-patient-list-empty"
+        />
+      }
+      exportName={
+        <TranslatedText
+          stringId="vaccine.covid.campaign.export"
+          fallback="Covid Campaign"
+          data-testid="translatedtext-covid-campaign-export"
+        />
+      }
       onRowClick={onPatientSelect}
       {...props}
       data-testid="datafetchingtable-4c9l"
@@ -74,7 +101,7 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
   const [searchParameters, setSearchParameters] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [patient, setPatient] = useState({});
-  const onRowClick = (row) => {
+  const onRowClick = row => {
     setPatient(row);
     setModalOpen(true);
   };
@@ -89,7 +116,16 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
         onClose={() => setModalOpen(false)}
         data-testid="patientimmunisationsmodal-pk75"
       />
-      <TopBar title="COVID campaign" data-testid="topbar-hjrc" />
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="vaccine.covid.campaign.title"
+            fallback="COVID campaign"
+            data-testid="translatedtext-covid-campaign-title"
+          />
+        }
+        data-testid="topbar-hjrc"
+      />
       <ImmunisationSearchBar
         onSearch={setSearchParameters}
         data-testid="immunisationsearchbar-k0b2"

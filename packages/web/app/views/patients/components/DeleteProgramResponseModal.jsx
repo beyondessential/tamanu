@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const SubText = styled.div`
   text-align: left;
@@ -18,14 +19,33 @@ export const DeleteProgramResponseModal = ({ open, onClose, surveyResponseToDele
 
   return (
     <ConfirmModal
-      title="Delete program form"
+      title={
+        <TranslatedText
+          stringId="program.modal.delete.title"
+          fallback="Delete program form"
+          data-testid="translatedtext-program-modal-delete-title"
+        />
+      }
       subText={
         <SubText data-testid="subtext-u6n1">
-          This action is irreversible.
+          <TranslatedText
+            stringId="general.warning.irreversible"
+            fallback="This action is irreversible."
+            data-testid="translatedtext-warning-irreversible"
+          />
           <br />
           <br />
-          Are you sure you would like to delete the &apos;
-          <strong>{surveyResponseToDelete?.surveyName}</strong>&apos; program form?
+          <TranslatedText
+            stringId="program.modal.delete.confirmation.prefix"
+            fallback="Are you sure you would like to delete the"
+            data-testid="translatedtext-program-modal-delete-confirmation-prefix"
+          />{' '}
+          <strong>{surveyResponseToDelete?.surveyName}</strong>{' '}
+          <TranslatedText
+            stringId="program.modal.delete.confirmation.suffix"
+            fallback="program form?"
+            data-testid="translatedtext-program-modal-delete-confirmation-suffix"
+          />
         </SubText>
       }
       open={open}
