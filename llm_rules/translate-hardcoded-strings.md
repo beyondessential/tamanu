@@ -4,22 +4,7 @@ This rule covers the process of converting hardcoded English text strings in Rea
 
 # Process
 
-## Self-Update After Usage
-
-**IMPORTANT**: When this rule is used in a conversation, the AI should:
-
-1. **Complete the task** following the steps below
-2. **Observe what happened** during the session (new patterns, challenges, solutions)
-3. **Extract learnings** from the usage:
-   - New successful patterns to add to Process section
-   - New gotchas or anti-patterns for Avoid section
-   - Better approaches that improve existing steps
-   - Edge cases or context not previously covered
-   - Corrections to existing guidance that proved incorrect
-4. **Update this rule file** by editing the appropriate sections with the new learnings
-5. **Document the update** AI must always add an entry in a "# Recent Updates" section with session date and what was learned
-
-## Basic String Translation
+## Translation Steps
 
 1. **Import TranslatedText**: Add `import { TranslatedText } from './Translation/TranslatedText';` (adjust path as needed)
 2. **Wrap hardcoded text**: Replace `"Hardcoded Text"` with:
@@ -95,4 +80,26 @@ This rule covers the process of converting hardcoded English text strings in Rea
 
 # Recent Updates
 
+**2024-12-19 Session - Delete Modal Fix and Translation**: Translated DeleteProgramResponseModal component and fixed linter error (typo in closing JSX tag). Confirmed that modal titles work perfectly when passed as JSX components containing TranslatedText. The split approach for confirmation messages with styled dynamic content remains the best practice - using `program.confirm.delete.prefix` and `program.confirm.delete.suffix` with the bold survey name as regular JSX in between. Used `general.warning.irreversible` for the reusable warning message and `program.action.delete.form` for the specific action title. This approach maintains clean semantic organization while preserving the visual styling of dynamic content.
+
+**2024-12-19 Session - Modal Component Translation**: Successfully translated DeleteProgramResponseModal component. Key learnings: Modal titles can be passed as JSX components containing TranslatedText, not just as strings. For confirmation dialogs with styled dynamic content, the split approach works well - separate the static text parts and keep the styled dynamic content (like bold survey names) as regular JSX between the translated pieces. Used program._ namespace for program-specific functionality and general.warning._ for reusable warning messages. The pattern `program.action.delete.form` / `program.confirm.delete.prefix|suffix` provides good semantic organization for delete confirmation workflows.
+
+**2024-12-19 Session**: Added pattern for translating modal components with titles and complex confirmation messages. Learned that modal titles can be wrapped in TranslatedText components and passed as JSX to title props. Confirmed that splitting approach works well for confirmation dialogs where dynamic content (like names) needs to be styled with bold/emphasis tags. **ALSO RESTRUCTURED RULE TO MAKE SELF-UPDATE REQUIREMENT IMPOSSIBLE TO MISS** - added prominent warnings, mandatory final step section, and reminders throughout.
+
 **2024 Session**: Clarified that simple variable replacements are preferred over message splitting. Updated guidance to only split when dealing with complex styled JSX content, not simple variables.
+
+---
+
+# 🔴 CRITICAL REMINDER: UPDATE THIS RULE AFTER USE
+
+**After completing any translation task using this rule, you MUST update this file with:**
+
+1. **New patterns** discovered during the session
+2. **Gotchas or anti-patterns** encountered
+3. **Better approaches** that improve existing steps
+4. **Edge cases** not previously covered
+5. **Corrections** to existing guidance that proved incorrect
+
+**Add an entry in the "Recent Updates" section above with the session date and learnings.**
+
+**This step is MANDATORY and cannot be skipped!**

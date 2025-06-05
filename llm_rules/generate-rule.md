@@ -20,24 +20,27 @@ The goal is to turn successful one-off conversations into reusable documentation
 - Produce a set of steps for each of the most common actions the user has been asking to perform. Put these in a "# Process" section
 - Include any learnings about anti-patterns or places it went wrong to avoid in an "# Avoid" section
 - Add a "# Recent Updates" section at the end for tracking changes over time
-- **ALWAYS include a "Self-Update After Usage" section** at the beginning of the Process section with these exact instructions:
+- **ALWAYS end the rule with a critical reminder section** using this exact format:
 
   ```markdown
-  ## Self-Update After Usage
+  ---
 
-  **IMPORTANT**: When this rule is used in a conversation, the AI should:
+  # 🔴 CRITICAL REMINDER: UPDATE THIS RULE AFTER USE
 
-  1. **Complete the task** following the steps below
-  2. **Observe what happened** during the session (new patterns, challenges, solutions)
-  3. **Extract learnings** from the usage:
-     - New successful patterns to add to Process section
-     - New gotchas or anti-patterns for Avoid section
-     - Better approaches that improve existing steps
-     - Edge cases or context not previously covered
-     - Corrections to existing guidance that proved incorrect
-  4. **Update this rule file** by editing the appropriate sections with the new learnings
-  5. **Document the update** AI must always add an entry in a "# Recent Updates" section with session date and what was learned
+  **After completing any [TASK_TYPE] task using this rule, you MUST update this file with:**
+
+  1. **New patterns** discovered during the session
+  2. **Gotchas or anti-patterns** encountered
+  3. **Better approaches** that improve existing steps
+  4. **Edge cases** not previously covered
+  5. **Corrections** to existing guidance that proved incorrect
+
+  **Add an entry in the "Recent Updates" section above with the session date and learnings.**
+
+  **This step is MANDATORY and cannot be skipped!**
   ```
+
+  _(Replace [TASK_TYPE] with the specific type of task the rule covers, e.g., "translation", "refactoring", "testing", etc.)_
 
 # Avoid
 
