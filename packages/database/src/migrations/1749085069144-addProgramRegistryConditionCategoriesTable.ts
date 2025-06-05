@@ -2,7 +2,7 @@ import Sequelize, { DataTypes, QueryInterface } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('program_registry_categories', {
+  await query.createTable('program_registry_condition_categories', {
     id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -46,11 +46,11 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  const ID_PREFIX = 'program-registry-category-';
+  const ID_PREFIX = 'program-registry-condition-category-';
 
   // Insert hard coded categories for each existing program registry
   await query.sequelize.query(`
-    INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+    INSERT INTO program_registry_condition_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
     SELECT
       CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
       category.code,
@@ -77,7 +77,7 @@ export async function up(query: QueryInterface): Promise<void> {
     type: DataTypes.TEXT,
     allowNull: true,
     references: {
-      model: 'program_registry_categories',
+      model: 'program_registry_condition_categories',
       key: 'id',
     },
   });
@@ -87,7 +87,7 @@ export async function up(query: QueryInterface): Promise<void> {
     UPDATE patient_program_registration_conditions
     SET program_registry_category_id = (
       SELECT prc.id
-      FROM program_registry_categories prc
+      FROM program_registry_condition_categories prc
       JOIN patient_program_registrations ppr ON prc.program_registry_id = ppr.program_registry_id
       WHERE ppr.id = patient_program_registration_conditions.patient_program_registration_id
       AND prc.code = 'unknown'
@@ -103,7 +103,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
-        model: 'program_registry_categories',
+        model: 'program_registry_condition_categories',
         key: 'id',
       },
     },
@@ -114,7 +114,7 @@ export async function up(query: QueryInterface): Promise<void> {
     type: 'foreign key',
     name: 'patient_program_registration_conditions_program_registry_category_id_fkey',
     references: {
-      table: 'program_registry_categories',
+      table: 'program_registry_condition_categories',
       field: 'id',
     },
     onDelete: 'restrict',
@@ -140,6 +140,6 @@ export async function down(query: QueryInterface): Promise<void> {
     defaultValue: 'unknown',
   });
 
-  // Drop the program_registry_categories table (this will also remove the seeded records)
-  await query.dropTable('program_registry_categories');
+  // Drop the program_registry_condition_categories table (this will also remove the seeded records)
+  await query.dropTable('program_registry_condition_categories');
 }

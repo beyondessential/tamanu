@@ -2,7 +2,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IProgramRegistry } from './IProgramRegistry';
 
-export interface IProgramRegistryCategory {
+export interface IProgramRegistryConditionCategory {
   id: ID;
   code: string;
   name: string;

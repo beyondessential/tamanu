@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-const TABLE_NAME = 'program_registry_category';
+const TABLE_NAME = 'program_registry_condition_category';
 
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
@@ -44,7 +44,7 @@ const BaseColumns = [
   }),
 ];
 
-const ProgramRegistryCategory = new Table({
+const ProgramRegistryConditionCategory = new Table({
   name: TABLE_NAME,
   columns: [
     ...BaseColumns,
@@ -79,15 +79,15 @@ const ProgramRegistryCategory = new Table({
   indices: [baseIndex],
 });
 
-export class addProgramRegistryCategories1749085185000 implements MigrationInterface {
+export class addProgramRegistryConditionCategories1749085185000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(ProgramRegistryCategory, true);
+    await queryRunner.createTable(ProgramRegistryConditionCategory, true);
 
-    const ID_PREFIX = 'program-registry-category-';
+    const ID_PREFIX = 'program-registry-condition-category-';
 
     // Insert hard coded categories for each existing program registry
     await queryRunner.query(`
-      INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+      INSERT INTO program_registry_condition_category (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
       SELECT
         CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
         category.code,
@@ -112,11 +112,11 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
     // Remove the conditionCategory column
     await queryRunner.dropColumn(table, 'conditionCategory');
 
-    // Add the programRegistryCategoryId column
+    // Add the programRegistryConditionCategoryId column
     await queryRunner.addColumn(
       table,
       new TableColumn({
-        name: 'programRegistryCategoryId',
+        name: 'programRegistryConditionCategoryId',
         type: 'varchar',
         isNullable: true,
       }),
@@ -125,9 +125,9 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
     // Set the values for existing records
     await queryRunner.query(`
       UPDATE patient_program_registration_condition
-      SET programRegistryCategoryId = (
+      SET programRegistryConditionCategoryId = (
         SELECT prc.id
-        FROM program_registry_category prc
+        FROM program_registry_condition_category prc
         JOIN patient_program_registration ppr ON prc.programRegistryId = ppr.programRegistryId
         WHERE ppr.id = patient_program_registration_condition.patientProgramRegistrationId
         AND prc.code = 'unknown'
@@ -138,9 +138,9 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
     // Now make the column non-nullable
     await queryRunner.changeColumn(
       table,
-      'programRegistryCategoryId',
+      'programRegistryConditionCategoryId',
       new TableColumn({
-        name: 'programRegistryCategoryId',
+        name: 'programRegistryConditionCategoryId',
         type: 'varchar',
         isNullable: false,
       }),
@@ -150,7 +150,7 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
     await queryRunner.createForeignKey(
       table,
       new TableForeignKey({
-        columnNames: ['programRegistryCategoryId'],
+        columnNames: ['programRegistryConditionCategoryId'],
         referencedTableName: TABLE_NAME,
         referencedColumnNames: ['id'],
         onDelete: 'RESTRICT',
@@ -165,12 +165,12 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
 
     // Drop the foreign key constraint
     const foreignKey = table.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('programRegistryCategoryId') !== -1,
+      (fk) => fk.columnNames.indexOf('programRegistryConditionCategoryId') !== -1,
     );
     await queryRunner.dropForeignKey(table, foreignKey);
 
-    // Drop the programRegistryCategoryId column
-    await queryRunner.dropColumn(table, 'programRegistryCategoryId');
+    // Drop the programRegistryConditionCategoryId column
+    await queryRunner.dropColumn(table, 'programRegistryConditionCategoryId');
 
     // Add back the conditionCategory column
     await queryRunner.addColumn(
@@ -183,7 +183,7 @@ export class addProgramRegistryCategories1749085185000 implements MigrationInter
       }),
     );
 
-    // Drop the program_registry_category table
+    // Drop the program_registry_condition_category table
     await queryRunner.dropTable(TABLE_NAME, true);
   }
 }

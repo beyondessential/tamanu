@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class ProgramRegistryCategory extends Model {
+export class ProgramRegistryConditionCategory extends Model {
   declare id: string;
   declare code: string;
   declare name: string;

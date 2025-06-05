@@ -55,7 +55,7 @@ export * from './Program';
 export * from './ProgramRegistry';
 export * from './ProgramRegistryClinicalStatus';
 export * from './ProgramRegistryCondition';
-export * from './ProgramRegistryCategory';
+export * from './ProgramRegistryConditionCategory';
 export * from './PatientProgramRegistration';
 export * from './PatientProgramRegistrationCondition';
 export * from './Survey';

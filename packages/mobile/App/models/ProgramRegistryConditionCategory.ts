@@ -6,8 +6,11 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { ProgramRegistry } from './ProgramRegistry';
 
-@Entity('program_registry_categories')
-export class ProgramRegistryCategory extends BaseModel implements IProgramRegistryCategory {
+@Entity('program_registry_condition_category')
+export class ProgramRegistryConditionCategory
+  extends BaseModel
+  implements IProgramRegistryCategory
+{
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @Column({ nullable: false, unique: true })

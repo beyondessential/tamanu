@@ -133,7 +133,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   const programRegistryConditions = readProgramRegistryConditionData(workbook);
 
   log.debug('Importing Patient Registry Conditions');
-  return importRows(context, {
+  stats = importRows(context, {
     sheetName: 'Registry Conditions',
     rows: programRegistryConditions.map((row) => ({
       model: 'ProgramRegistryCondition',
@@ -142,6 +142,23 @@ export async function importProgramRegistry(context, workbook, programId) {
       sheetRow: row.__rowNum__ - 1,
       values: {
         id: `prCondition-${row.code}`,
+        programRegistryId: registryId,
+        ...row,
+      },
+    })),
+    stats,
+  });
+
+  log.debug('Importing Patient Registry Condition Categories');
+  return importRows(context, {
+    sheetName: 'Registry Condition Categories',
+    rows: programRegistryConditions.map((row) => ({
+      model: 'ProgramRegistryConditionCategories',
+      // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
+      // -1 as it'll have 2 added to it later but it's only 1 off
+      sheetRow: row.__rowNum__ - 1,
+      values: {
+        id: `program-registry-condition-category-${row.code}`,
         programRegistryId: registryId,
         ...row,
       },

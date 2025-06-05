@@ -2,7 +2,7 @@ import { ID } from './ID';
 import { DateTimeString } from './DateString';
 import { IUser } from '.';
 import { IProgramRegistryCondition } from './IProgramRegistryCondition';
-import { IProgramRegistryCategory } from './IProgramRegistryCategory';
+import { IProgramRegistryConditionCategory } from './IProgramRegistryConditionCategory';
 import { IPatientProgramRegistration } from './IPatientProgramRegistration';
 
 export interface IPatientProgramRegistrationCondition {
@@ -12,7 +12,7 @@ export interface IPatientProgramRegistrationCondition {
   reasonForChange?: string;
 
   programRegistryCategoryId: ID;
-  programRegistryCategory: IProgramRegistryCategory;
+  programRegistryConditionCategory: IProgramRegistryConditionCategory;
 
   patientProgramRegistrationId: ID;
   patientProgramRegistration: IPatientProgramRegistration;

@@ -13,7 +13,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
-import { ProgramRegistryCategory } from './ProgramRegistryCategory';
+import { ProgramRegistryConditionCategory } from './ProgramRegistryConditionCategory';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
@@ -34,7 +34,7 @@ export class PatientProgramRegistrationCondition
   @Column({ nullable: true })
   reasonForChange: string;
 
-  @ManyToOne(() => ProgramRegistryCategory, undefined, { nullable: true })
+  @ManyToOne(() => ProgramRegistryConditionCategory, undefined, { nullable: true })
   programRegistryCategory?: IProgramRegistryCategory;
   @RelationId(({ programRegistryCategory }) => programRegistryCategory)
   programRegistryCategoryId?: ID;

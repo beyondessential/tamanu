@@ -54,7 +54,7 @@ export class PatientProgramRegistrationCondition extends Model {
       as: 'programRegistryCondition',
     });
 
-    this.belongsTo(models.ProgramRegistryCategory, {
+    this.belongsTo(models.ProgramRegistryConditionCategory, {
       foreignKey: { name: 'programRegistryCategoryId', allowNull: false },
       as: 'programRegistryCategory',
     });
