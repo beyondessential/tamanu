@@ -37,8 +37,8 @@ const getTranslationPrefix = (endpoint) =>
 
 // Helper function to generate the translation subquery
 const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text" 
-  FROM "translated_strings" 
+  SELECT "text"
+  FROM "translated_strings"
   WHERE "language" = $language
   AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
   LIMIT 1
@@ -398,25 +398,6 @@ createSuggester(
   },
 );
 
-createSuggester(
-  REFERENCE_TYPES.DRUG,
-  'ReferenceData',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: REFERENCE_TYPES.DRUG,
-  }),
-  {
-    orderBuilder: () => {
-      return [translationCoalesceLiteral(REFERENCE_TYPES.DRUG, 'ReferenceData', 'name'), 'ASC'];
-    },
-    includeBuilder: () => {
-      return 'referenceDrug';
-    },
-    mapper: (item) => item,
-  },
-  false,
-);
-
 REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
@@ -432,21 +413,21 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
-        if (!parentId) return undefined;
-
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          attributes: ['id'],
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
+        return [
+          parentId && {
+            model: ReferenceData,
+            as: 'parent',
+            required: true,
+            through: {
+              attributes: ['id'],
+              where: {
+                referenceDataParentId: parentId,
+                type: relationType,
+              },
             },
           },
-        };
+          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+        ].filter(Boolean);
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
