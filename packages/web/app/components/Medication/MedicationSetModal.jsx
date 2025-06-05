@@ -236,6 +236,12 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     setScreen(MODAL_SCREENS.EDIT_MEDICATION);
   };
 
+  const onBackToSelectMedicationSet = () => {
+    setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
+    setIsDirty(false);
+    setSelectedMedicationSet(null);
+  };
+
   const onNext = async () => {
     switch (screen) {
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
@@ -255,8 +261,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         break;
       }
       case MODAL_SCREENS.DISCARD_CHANGES:
-        setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
-        setSelectedMedicationSet(null);
+        onBackToSelectMedicationSet();
         break;
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
@@ -270,7 +275,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         if (isDirty) {
           setScreen(MODAL_SCREENS.DISCARD_CHANGES);
         } else {
-          setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
+          onBackToSelectMedicationSet();
         }
         break;
       case MODAL_SCREENS.SELECT_MEDICATION_SET:
@@ -291,6 +296,9 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
         setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
         setSelectedMedicationSet(null);
+        break;
+      case MODAL_SCREENS.REVIEW_MEDICATION_SET:
+        setScreen(MODAL_SCREENS.CANCEL_MEDICATION_SET);
         break;
       default:
         onClose();
@@ -322,6 +330,9 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onCustomClose = () => {
     switch (screen) {
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
+        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+        break;
+      case MODAL_SCREENS.EDIT_MEDICATION:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
       default:
