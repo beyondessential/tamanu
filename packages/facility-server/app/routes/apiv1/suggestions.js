@@ -61,7 +61,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder, subQuery = true },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -97,6 +97,7 @@ function createSuggesterRoute(
 
       const results = await model.findAll({
         where,
+        subQuery,
         include,
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
@@ -393,11 +394,13 @@ createSuggester(
             include: {
               model: ReferenceData,
               as: 'medication',
+              where: VISIBILITY_CRITERIA,
             },
           },
         },
       ];
     },
+    subQuery: false,
   },
 );
 

@@ -188,6 +188,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
 
   const onSelect = medicationSet => {
     const newMedicationSetChildren = medicationSet.children
+      .filter(child => child.medicationTemplate)
       .map(({ medicationTemplate }) => ({
         ...medicationTemplate,
         idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
