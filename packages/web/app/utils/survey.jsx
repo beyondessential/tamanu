@@ -25,7 +25,7 @@ import {
   SurveyResponseSelectField,
   UnsupportedPhotoField,
 } from '../components/Field';
-import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -173,7 +173,8 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
-    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE:
+      return getCurrentDateTimeString();
     default:
       return undefined;
   }
