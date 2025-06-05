@@ -1,6 +1,18 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
+  // First, check for duplicates
+  const duplicates = await query.sequelize.query(`
+    SELECT program_registry_id, patient_id, COUNT(*) as count
+    FROM patient_program_registrations
+    GROUP BY program_registry_id, patient_id
+    HAVING COUNT(*) > 1;
+  `, { type: QueryTypes.SELECT });
+  
+  if (duplicates.length > 0) {
+    throw new Error(`Found patient program registrations that would violate unique constraint: ${JSON.stringify(duplicates)}`);
+  }
+
   // Add new id column to patient_program_registrations
   await query.addColumn('patient_program_registrations', 'new_id', {
     type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("program_registry_id", ';', ':')) STORED`,
