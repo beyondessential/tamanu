@@ -264,7 +264,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         onBackToSelectMedicationSet();
         break;
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
-        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+        onClose();
         break;
     }
   };
@@ -329,9 +329,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
 
   const onCustomClose = () => {
     switch (screen) {
-      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
-        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
-        break;
       case MODAL_SCREENS.EDIT_MEDICATION:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
@@ -470,7 +467,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const showCustomClose = [
     MODAL_SCREENS.REVIEW_MEDICATION_SET,
     MODAL_SCREENS.EDIT_MEDICATION,
-    MODAL_SCREENS.CANCEL_MEDICATION_SET,
   ].includes(screen);
 
   const getModalWidth = () => {
