@@ -7,6 +7,6 @@ export const upgradeCommand = new Command('upgrade')
   .description('Upgrade Tamanu installation')
   .action(async () => {
     const { sequelize, models } = await initDatabase({ testMode: false });
-    await upgrade({ sequelize, models, toVersion: VERSION });
+    await upgrade({ sequelize, models, toVersion: VERSION, serverType: 'central' });
     process.exit(0);
   });
