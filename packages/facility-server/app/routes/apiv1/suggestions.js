@@ -61,7 +61,7 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder, subQuery = true },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder, subQuery },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -97,7 +97,7 @@ function createSuggesterRoute(
 
       const results = await model.findAll({
         where,
-        subQuery,
+        ...(subQuery != null && { subQuery }),
         include,
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
