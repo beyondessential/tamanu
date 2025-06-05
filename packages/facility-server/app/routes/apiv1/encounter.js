@@ -374,8 +374,8 @@ encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurve
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req) {
   const { db, params, query } = req;
-  const { id: encounterId, surveyId = null } = params;
-  const { order = 'DESC' } = query;
+  const { id: encounterId, surveyId = null} = params;
+  const { order = 'DESC', instanceId = null } = query;
 
   const isVitals = surveyId === null;
   const dateDataElement = isVitals
@@ -395,12 +395,14 @@ async function getAnswersWithHistory(req) {
       AND response.encounter_id = :encounterId
       AND response.deleted_at IS NULL
       AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
+      AND CASE WHEN :instanceId IS NOT NULL THEN response.metadata->>'chartInstanceResponseId' = :instanceId ELSE true END
     `,
     {
       replacements: {
         encounterId,
         dateDataElement,
         surveyId,
+        instanceId,
       },
       type: QueryTypes.SELECT,
     },
@@ -425,6 +427,7 @@ async function getAnswersWithHistory(req) {
         AND response.encounter_id = :encounterId
         AND response.deleted_at IS NULL
         AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
+        AND CASE WHEN :instanceId IS NOT NULL THEN response.metadata->>'chartInstanceResponseId' = :instanceId ELSE true END
         ORDER BY body ${order} LIMIT :limit OFFSET :offset
       ),
       history AS (
@@ -469,6 +472,7 @@ async function getAnswersWithHistory(req) {
         offset: page * rowsPerPage,
         dateDataElement,
         surveyId,
+        instanceId,
       },
       type: QueryTypes.SELECT,
     },
