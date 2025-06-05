@@ -90,7 +90,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
       INSERT INTO program_registry_condition_category (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
       SELECT
         CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
-        category.code,
+        CONCAT(pr.code, '-', category.code),
         category.name,
         '${VISIBILITY_STATUSES.CURRENT}',
         pr.id,
