@@ -26,7 +26,7 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
+  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -36,8 +36,8 @@ const getTranslationPrefix = (endpoint) =>
 
 // Helper function to generate the translation subquery
 const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text" 
-  FROM "translated_strings" 
+  SELECT "text"
+  FROM "translated_strings"
   WHERE "language" = $language
   AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
   LIMIT 1
@@ -507,7 +507,7 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
 }));
 
 createSuggester(
-  'invoiceProducts',
+  'invoiceProduct',
   'InvoiceProduct',
   ({ endpoint, modelName }) => ({
     ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
