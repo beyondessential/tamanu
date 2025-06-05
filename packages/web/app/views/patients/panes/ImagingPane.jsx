@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Button, ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import {
+  Button,
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  NoteModalActionBlocker,
+} from '../../../components';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
@@ -39,19 +44,21 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
             data-testid="translatedtext-iujx"
           />
         </Button>
-        <ButtonWithPermissionCheck
-          onClick={() => setNewRequestModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="ImagingRequest"
-          data-testid="buttonwithpermissioncheck-14hy"
-        >
-          <TranslatedText
-            stringId="imaging.action.create"
-            fallback="New imaging request"
-            data-testid="translatedtext-hml5"
-          />
-        </ButtonWithPermissionCheck>
+        <NoteModalActionBlocker>
+          <ButtonWithPermissionCheck
+            onClick={() => setNewRequestModalOpen(true)}
+            disabled={readonly}
+            verb="create"
+            noun="ImagingRequest"
+            data-testid="buttonwithpermissioncheck-14hy"
+          >
+            <TranslatedText
+              stringId="imaging.action.create"
+              fallback="New imaging request"
+              data-testid="translatedtext-hml5"
+            />
+          </ButtonWithPermissionCheck>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} data-testid="imagingrequeststable-csir" />
     </TabPane>

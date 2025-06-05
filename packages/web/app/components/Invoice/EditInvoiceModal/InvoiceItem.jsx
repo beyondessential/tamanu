@@ -16,11 +16,12 @@ import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const PriceText = styled.span`
   margin-right: 16px;
   padding-left: 15px;
-  text-decoration: ${(props) => (props.$isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const StyledItemRow = styled(Box)`
@@ -76,7 +77,7 @@ const PriceCell = styled(ViewOnlyCell)`
 
 export const InvoiceItemHeader = () => {
   return (
-    <StyledItemHeader  data-testid="styleditemheader-8x5j">
+    <StyledItemHeader data-testid="styleditemheader-8x5j">
       <ItemHeadCell width="14%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </ItemHeadCell>
@@ -274,7 +275,7 @@ export const InvoiceItemRow = ({
     },
   ];
 
-  const handleChangeOrderedBy = (e) => {
+  const handleChangeOrderedBy = e => {
     formArrayMethods.replace(index, {
       ...item,
       orderedByUser: {
@@ -283,7 +284,7 @@ export const InvoiceItemRow = ({
     });
   };
 
-  const handleChangeProduct = (e) => {
+  const handleChangeProduct = e => {
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
@@ -300,13 +301,15 @@ export const InvoiceItemRow = ({
       <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
         <StyledItemCell width="14%">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.orderDate`}
-              required
-              component={DateField}
-              saveDateAsString
-              data-testid="field-e3dv"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name={`invoiceItems.${index}.orderDate`}
+                required
+                component={DateField}
+                saveDateAsString
+                data-testid="field-e3dv"
+              />
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
               {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
@@ -315,14 +318,16 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="28%">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.productId`}
-              required
-              component={AutocompleteField}
-              suggester={invoiceProductsSuggester}
-              onChange={handleChangeProduct}
-              data-testid="field-f5fm"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name={`invoiceItems.${index}.productId`}
+                required
+                component={AutocompleteField}
+                suggester={invoiceProductsSuggester}
+                onChange={handleChangeProduct}
+                data-testid="field-f5fm"
+              />
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
               {item.productName}
@@ -351,33 +356,39 @@ export const InvoiceItemRow = ({
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.quantity`}
-              component={NumberField}
-              min={1}
-              max={99}
-              onInput={(event) => {
-                if (!event.target.validity.valid) {
-                  event.target.value = '';
-                }
-              }}
-              required
-              data-testid="field-6aku"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name={`invoiceItems.${index}.quantity`}
+                component={NumberField}
+                min={1}
+                max={99}
+                onInput={event => {
+                  if (!event.target.validity.valid) {
+                    event.target.value = '';
+                  }
+                }}
+                size="small"
+                required
+                data-testid="field-6aku"
+              />
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>{item?.quantity}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell width="19%" data-testid="styleditemcell-tfvb">
           {isItemEditable ? (
-            <Field
-              name={`invoiceItems.${index}.orderedByUserId`}
-              required
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-              onChange={handleChangeOrderedBy}
-              data-testid="field-xin4"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name={`invoiceItems.${index}.orderedByUserId`}
+                required
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+                size="small"
+                onChange={handleChangeOrderedBy}
+                data-testid="field-xin4"
+              />
+            </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
@@ -402,17 +413,21 @@ export const InvoiceItemRow = ({
               </>
             ) : (
               item.productId && (
-                <Field
-                  name={`invoiceItems.${index}.productPrice`}
-                  component={PriceField}
-                  required
-                  style={{ width: '100%' }}
-                  data-testid="field-05x9"
-                />
+                <NoteModalActionBlocker>
+                  <Field
+                    name={`invoiceItems.${index}.productPrice`}
+                    component={PriceField}
+                    required
+                    style={{ width: '100%' }}
+                    data-testid="field-05x9"
+                  />
+                </NoteModalActionBlocker>
               )
             )}
             {showActionMenu && editable && (
-              <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+              <NoteModalActionBlocker>
+                <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+              </NoteModalActionBlocker>
             )}
           </PriceCell>
         </StyledItemCell>
@@ -422,7 +437,7 @@ export const InvoiceItemRow = ({
           open
           action={actionModal}
           onClose={onCloseActionModal}
-          onAction={(data) => handleAction(data)}
+          onAction={data => handleAction(data)}
           item={item}
           data-testid="invoiceitemactionmodal-lar4"
         />
