@@ -482,9 +482,9 @@ patientRoute.get(
     const { models, params, query } = req;
     const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name' } = query;
+    const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
 
-    const ongoingPrescriptions = await Prescription.findAll({
+    const baseQuery = {
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
@@ -493,6 +493,10 @@ patientRoute.get(
           where: { patientId },
         },
       ],
+    };
+
+    const ongoingPrescriptions = await Prescription.findAll({
+      ...baseQuery,
       order: [
         [
           literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
@@ -509,9 +513,19 @@ patientRoute.get(
             ]
           : [...orderBy.split('.'), order.toUpperCase()],
       ],
+      ...(page && rowsPerPage
+        ? {
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+          }
+        : {}),
     });
 
-    res.json({ data: ongoingPrescriptions, count: ongoingPrescriptions.length });
+    const count = await Prescription.count({
+      ...baseQuery,
+    });
+
+    res.json({ data: ongoingPrescriptions, count });
   }),
 );
 
