@@ -413,7 +413,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
-        return [
+        const result = [
           parentId && {
             model: ReferenceData,
             as: 'parent',
@@ -428,6 +428,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           },
           typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
         ].filter(Boolean);
+
+        return result.length > 0 ? result : null;
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
