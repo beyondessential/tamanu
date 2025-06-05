@@ -52,7 +52,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.SUMMARY,
     icon: 'fa fa-user',
-    render: (props) => <SummaryPane {...props} data-testid="summarypane-ejii" />,
+    render: props => <SummaryPane {...props} data-testid="summarypane-ejii" />,
   },
   {
     label: (
@@ -64,7 +64,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
-    render: (props) => <PatientDetailsPane {...props} data-testid="patientdetailspane-3c2h" />,
+    render: props => <PatientDetailsPane {...props} data-testid="patientdetailspane-3c2h" />,
   },
   {
     label: (
@@ -76,7 +76,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
-    render: (props) => <PatientResultsPane {...props} data-testid="patientresultspane-v8tp" />,
+    render: props => <PatientResultsPane {...props} data-testid="patientresultspane-v8tp" />,
   },
   {
     label: (
@@ -88,7 +88,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
-    render: (props) => <ReferralPane {...props} data-testid="referralpane-gsjk" />,
+    render: props => <ReferralPane {...props} data-testid="referralpane-gsjk" />,
   },
   {
     label: (
@@ -100,7 +100,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
-    render: (props) => (
+    render: props => (
       <PatientProgramsPane
         endpoint={`patient/${props.patient.id}/programResponses`}
         {...props}
@@ -118,7 +118,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
-    render: (props) => <DocumentsPane {...props} data-testid="documentspane-22r0" />,
+    render: props => <DocumentsPane {...props} data-testid="documentspane-22r0" />,
   },
   {
     label: (
@@ -130,7 +130,7 @@ const TABS = [
     ),
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
-    render: (props) => <VaccinesPane {...props} data-testid="vaccinespane-pv8u" />,
+    render: props => <VaccinesPane {...props} data-testid="vaccinespane-pv8u" />,
   },
   {
     label: (
@@ -142,9 +142,8 @@ const TABS = [
     ),
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
-    render: (props) => (
-      <PatientMedicationPane {...props} data-testid="patientmedicationpane-9h95" />
-    ),
+    render: props => <PatientMedicationPane {...props} data-testid="patientmedicationpane-9h95" />,
+    condition: ability => ability.can('list', 'Medication'),
   },
   {
     label: (
@@ -156,8 +155,8 @@ const TABS = [
     ),
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
-    render: (props) => <InvoicesPane {...props} data-testid="invoicespane-ihh3" />,
-    condition: (ability) => ability.can('list', 'Invoice'),
+    render: props => <InvoicesPane {...props} data-testid="invoicespane-ihh3" />,
+    condition: ability => ability.can('list', 'Invoice'),
   },
 ];
 
@@ -172,7 +171,7 @@ const usePatientTabs = () => {
   const { getSetting } = useSettings();
   const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
-    (tab) =>
+    tab =>
       patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
@@ -181,7 +180,7 @@ export const PatientView = () => {
   const queryClient = useQueryClient();
   const { navigateToPatient } = usePatientNavigation();
   const query = useUrlSearchParams();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const queryTab = query.get('tab');
   const [currentTab, setCurrentTab] = useState(queryTab || PATIENT_TABS.SUMMARY);
   const disabled = !!patient.dateOfDeath;

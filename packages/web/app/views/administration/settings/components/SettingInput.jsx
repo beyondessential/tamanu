@@ -78,20 +78,24 @@ export const SettingInput = ({
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const normalize = (val) => (val === null || val === '' ? '' : val);
-  const isUnchangedFromDefault = useMemo(
-    () => isEqual(normalize(value), normalize(defaultValue)),
-    [value, defaultValue],
-  );
+  const normalize = val => (val === null || val === '' ? '' : val);
+  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
+    value,
+    defaultValue,
+  ]);
 
   useEffect(() => {
     try {
-      typeSchema.validateSync(value);
+      if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
+        typeSchema.validateSync(JSON.parse(value));
+      } else {
+        typeSchema.validateSync(value);
+      }
       setError(null);
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema]);
+  }, [value, typeSchema, type]);
 
   const DefaultButton = () => {
     if (disabled) return null;
@@ -126,10 +130,10 @@ export const SettingInput = ({
     );
   };
 
-  const handleChangeSwitch = (e) => handleChangeSetting(path, e.target.checked);
-  const handleChangeText = (e) => handleChangeSetting(path, e.target.value);
-  const handleChangeNumber = (e) => handleChangeSetting(path, Number(e.target.value));
-  const handleChangeJSON = (e) => handleChangeSetting(path, e);
+  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
+  const handleChangeText = e => handleChangeSetting(path, e.target.value);
+  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
+  const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
 

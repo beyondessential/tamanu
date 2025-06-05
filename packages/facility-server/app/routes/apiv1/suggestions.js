@@ -14,6 +14,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -357,6 +358,49 @@ createSuggester(
   true,
 );
 
+createSuggester(
+  REFERENCE_TYPES.MEDICATION_SET,
+  'ReferenceData',
+  ({ search }) => ({
+    name: { [Op.iLike]: search },
+    type: REFERENCE_TYPES.MEDICATION_SET,
+    ...VISIBILITY_CRITERIA,
+  }),
+  {
+    mapper: (item) => item,
+    creatingBodyBuilder: (req) =>
+      referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
+    includeBuilder: (req) => {
+      const {
+        models: { ReferenceData, ReferenceMedicationTemplate },
+      } = req;
+
+      return [
+        {
+          model: ReferenceData,
+          as: 'children',
+          where: VISIBILITY_CRITERIA,
+          through: {
+            attributes: [],
+            where: {
+              type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+              deleted_at: null,
+            },
+          },
+          include: {
+            model: ReferenceMedicationTemplate,
+            as: 'medicationTemplate',
+            include: {
+              model: ReferenceData,
+              as: 'medication',
+            },
+          },
+        },
+      ];
+    },
+  },
+);
+
 REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
@@ -371,25 +415,27 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-        if (!parentId) return undefined;
 
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          attributes: ['id'],
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
+        return [
+          parentId && {
+            model: ReferenceData,
+            as: 'parent',
+            required: true,
+            through: {
+              attributes: ['id'],
+              where: {
+                referenceDataParentId: parentId,
+                type: relationType,
+              },
             },
           },
-        };
+          'referenceDrug',
+        ].filter(Boolean);
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
+      mapper: (item) => item,
     },
     true,
   );

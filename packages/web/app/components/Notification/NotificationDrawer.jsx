@@ -6,8 +6,9 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Box } from '@mui/material';
 
-import { labsIcon, radiologyIcon } from '../../constants/images';
+import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
@@ -18,10 +19,12 @@ import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
 import { reloadImagingRequest, reloadPatient } from '../../store';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
   [NOTIFICATION_TYPES.IMAGING_REQUEST]: radiologyIcon,
+  [NOTIFICATION_TYPES.PHARMACY_NOTE]: medicationIcon,
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
@@ -52,6 +55,12 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
+  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+    return getTranslation(
+      'notification.content.pharmacyNote',
+      'Pharmacy note for :patientName (:displayId)',
+      { replacements: { displayId: patient.displayId, patientName } },
+    );
   }
 };
 
@@ -172,7 +181,13 @@ const Card = ({ notification }) => {
     await loadEncounter(encounterId);
     if (patient?.id) await dispatch(reloadPatient(patient.id));
 
-    history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+      history.push(
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
+      );
+    } else {
+      history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    }
   };
   return (
     <CardContainer onClick={onNotificationClick} data-testid="cardcontainer-qqc2">
@@ -180,15 +195,17 @@ const Card = ({ notification }) => {
         <CardIndicator data-testid="cardindicator-bkvg" />
       )}
       <img src={NOTIFICATION_ICONS[type]} />
-      <div>
+      <Box flex={1}>
         <BodyText
           dangerouslySetInnerHTML={{
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
           data-testid="bodytext-xa84"
         />
-        <CardDatetime data-testid="carddatetime-vyqg">{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
-      </div>
+        <CardDatetime data-testid="carddatetime-vyqg">
+          {`${formatTime(createdTime).replace(' ', '')} ${formatShortest(createdTime)}`}
+        </CardDatetime>
+      </Box>
     </CardContainer>
   );
 };

@@ -99,8 +99,7 @@ sources:
             description: "{{ doc('generic__date_legacy') }} in administered_vaccines."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              administered_vaccines."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in administered_vaccines."
             data_tests:
               - not_null
           - name: not_given_reason_id

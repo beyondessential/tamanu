@@ -74,7 +74,6 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              certifiable_vaccines."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in certifiable_vaccines."
             data_tests:
               - not_null

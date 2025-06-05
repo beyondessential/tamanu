@@ -84,14 +84,39 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        // Update medications that were marked for discharge and ensure
-        // only isDischarge, quantity and repeats fields are edited
         const medications = req.body.medications || {};
         for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { isDischarge, quantity, repeats } = medicationValues;
-          if (isDischarge) {
-            const medication = await models.EncounterMedication.findByPk(medicationId);
-            await medication.update({ isDischarge, quantity, repeats });
+          const { quantity, repeats } = medicationValues;
+          const medication = await models.Prescription.findByPk(medicationId, {
+            include: [
+              {
+                model: models.EncounterPrescription,
+                as: 'encounterPrescription',
+                attributes: ['encounterId'],
+                required: false,
+              },
+              {
+                model: models.PatientOngoingPrescription,
+                as: 'patientOngoingPrescription',
+                attributes: ['patientId'],
+                required: false,
+              },
+            ],
+          });
+
+          if (!medication || medication.discontinued) continue;
+
+          await medication.update({ quantity, repeats });
+          await models.EncounterPrescription.update(
+            { isSelectedForDischarge: true },
+            { where: { encounterId: id, prescriptionId: medication.id } },
+          );
+          // If the medication is ongoing, we need to add it to the patient's ongoing medications
+          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+            await models.PatientOngoingPrescription.create({
+              patientId: encounterObject.patientId,
+              prescriptionId: medication.id,
+            });
           }
         }
       }
@@ -172,7 +197,113 @@ encounterRelations.get(
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
-encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
+encounterRelations.get(
+  '/:id/medications',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
+
+    req.checkPermission('list', 'Medication');
+
+    const associations = Prescription.getListReferenceAssociations() || [];
+
+    const baseQueryOptions = {
+      order: [
+        [
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
+          'DESC',
+        ],
+        ...(orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : []),
+        ['date', 'ASC'],
+      ],
+
+      include: [
+        ...associations,
+        {
+          model: models.EncounterPrescription,
+          as: 'encounterPrescription',
+          include: {
+            model: models.EncounterPausePrescription,
+            as: 'pausePrescriptions',
+            attributes: ['pauseDuration', 'pauseTimeUnit', 'pauseEndDate'],
+            where: {
+              pauseEndDate: {
+                [Op.gt]: getCurrentDateTimeString(),
+              },
+            },
+            required: false,
+          },
+          attributes: ['id', 'encounterId', 'isSelectedForDischarge'],
+          where: {
+            encounterId: params.id,
+          },
+        },
+      ],
+    };
+
+    // Add medicationAdministrationRecords with condition for same day
+    if (marDate) {
+      const startOfMarDate = `${marDate} 00:00:00`;
+      const endOfMarDate = `${marDate} 23:59:59`;
+      baseQueryOptions.include.push({
+        model: models.MedicationAdministrationRecord,
+        as: 'medicationAdministrationRecords',
+        where: {
+          dueAt: {
+            [Op.gte]: startOfMarDate,
+            [Op.lte]: endOfMarDate,
+          },
+        },
+        include: [
+          {
+            association: 'reasonNotGiven',
+            attributes: ['id', 'name', 'type'],
+          },
+          {
+            association: 'recordedByUser',
+            attributes: ['id', 'displayName'],
+          },
+        ],
+        required: false,
+      });
+
+      baseQueryOptions.where = {
+        ...baseQueryOptions.where,
+        startDate: {
+          [Op.lte]: endOfMarDate,
+        },
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { discontinuedDate: { [Op.is]: null } },
+              { discontinuedDate: { [Op.gt]: startOfMarDate } },
+            ],
+          },
+          {
+            [Op.or]: [{ endDate: null }, { endDate: { [Op.gt]: startOfMarDate } }],
+          },
+        ],
+      };
+    }
+
+    const count = await Prescription.count({
+      ...baseQueryOptions,
+      distinct: true,
+    });
+
+    const objects = await Prescription.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = objects.map((x) => x.forResponse());
+
+    res.send({ count, data });
+  }),
+);
+
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',

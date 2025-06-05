@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckInput } from '../Field';
 
 export const useSelectableColumn = (
@@ -10,6 +10,7 @@ export const useSelectableColumn = (
     getIsTitleDisabled = () => false,
     showIndeterminate = false,
     getRowsFilterer = () => () => true,
+    selectAllOnInit = false,
   } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
@@ -20,6 +21,13 @@ export const useSelectableColumn = (
     }
     return rows.filter((row) => selectedKeys.has(row[selectionKey]));
   }, [rows, selectedKeys, selectionKey]);
+
+  useEffect(() => {
+    if (selectAllOnInit && rows?.length > 0) {
+      const allKeys = new Set(rows.map(row => row[selectionKey]));
+      setSelectedKeys(allKeys);
+    }
+  }, [rows, selectAllOnInit, selectionKey]);
 
   const cellOnChange = useCallback(
     (event, rowIndex) => {

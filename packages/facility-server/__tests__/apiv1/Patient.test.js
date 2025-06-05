@@ -4,14 +4,14 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
+  createDummyPrescription,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -71,7 +71,7 @@ describe('Patient', () => {
     });
 
     // Expect result data to be empty since there are no discharged encounters or medications
-    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/last-inpatient-discharge-medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 0,
@@ -84,10 +84,12 @@ describe('Patient', () => {
     const encounterOne = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION
     });
     const encounterTwo = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
+      encounterType: ENCOUNTER_TYPES.ADMISSION
     });
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
@@ -95,13 +97,21 @@ describe('Patient', () => {
     });
 
     // Create two medications for encounterTwo (the one we should get)
-    const dischargedMedication = await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models, { isDischarge: true })),
-      encounterId: encounterTwo.id,
+    const dischargedMedication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
     });
-    await models.EncounterMedication.create({
-      ...(await createDummyEncounterMedication(models)),
+    await models.EncounterPrescription.create({
       encounterId: encounterTwo.id,
+      prescriptionId: dischargedMedication.id,
+      isSelectedForDischarge: true,
+    });
+    const medication = await models.Prescription.create({
+      ...(await createDummyPrescription(models)),
+    });
+    await models.EncounterPrescription.create({
+      encounterId: encounterTwo.id,
+      prescriptionId: medication.id,
+      isSelectedForDischarge: false,
     });
 
     // Edit the first two encounters to simulate a discharge
@@ -114,18 +124,17 @@ describe('Patient', () => {
 
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
-    const result = await app.get(`/api/patient/${patient.id}/lastDischargedEncounter/medications`);
+    const result = await app.get(`/api/patient/${patient.id}/last-inpatient-discharge-medications`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
       count: 1,
       data: expect.any(Array),
+      lastInpatientEncounter: expect.any(Object),
     });
+
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
-      encounter: {
-        location: expect.any(Object),
-      },
     });
   });
 

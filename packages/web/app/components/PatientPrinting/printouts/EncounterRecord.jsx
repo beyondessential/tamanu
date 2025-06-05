@@ -14,7 +14,7 @@ import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabel
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
-import { TranslatedText, TranslatedReferenceData } from '../../Translation';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../Translation';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -305,7 +305,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
+      accessor: ({ route }) => <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} /> || '',
       style: { width: '10%' },
     },
     {
