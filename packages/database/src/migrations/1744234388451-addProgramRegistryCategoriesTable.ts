@@ -4,19 +4,19 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('program_registry_categories', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.TEXT,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
+      defaultValue: Sequelize.fn('current_timestamp', 6),
       allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
+      defaultValue: Sequelize.fn('current_timestamp', 6),
       allowNull: false,
     },
     deleted_at: {

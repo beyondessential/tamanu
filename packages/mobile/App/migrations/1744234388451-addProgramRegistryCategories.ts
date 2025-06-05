@@ -83,7 +83,7 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
     await queryRunner.createTable(ProgramRegistryCategory, true);
 
     // Get the patient_program_registration_conditions table
-    const table = await queryRunner.getTable('patient_program_registration_conditions');
+    const table = await queryRunner.getTable('patient_program_registration_condition');
 
     // Remove the conditionCategory column
     await queryRunner.dropColumn(table, 'conditionCategory');
@@ -112,8 +112,8 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    // Get the patient_program_registration_conditions table
-    const table = await queryRunner.getTable('patient_program_registration_conditions');
+    // Get the patient_program_registration_condition table
+    const table = await queryRunner.getTable('patient_program_registration_condition');
 
     // Drop the foreign key constraint
     const foreignKey = table.foreignKeys.find(

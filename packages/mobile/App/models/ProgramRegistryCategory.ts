@@ -1,10 +1,6 @@
 import { Entity, ManyToOne, RelationId, Column } from 'typeorm';
 
-import {
-  ID,
-  IProgramRegistry,
-  IProgramRegistryCategory,
-} from '~/types';
+import { ID, IProgramRegistry, IProgramRegistryCategory } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -14,7 +10,7 @@ import { ProgramRegistry } from './ProgramRegistry';
 export class ProgramRegistryCategory extends BaseModel implements IProgramRegistryCategory {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   code: string;
 
   @Column({ nullable: false })
