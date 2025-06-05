@@ -49,7 +49,6 @@ describe('Merging Patient Program Registration Conditions', () => {
     const keepCondition = await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: keepRegistration.id,
-        programRegistryId: programRegistry.id,
       }),
     );
 
@@ -57,13 +56,11 @@ describe('Merging Patient Program Registration Conditions', () => {
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
-        programRegistryId: programRegistry.id,
       }),
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
-        programRegistryId: programRegistry.id,
       }),
     );
 
