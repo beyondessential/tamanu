@@ -66,8 +66,7 @@ export const CoreComplexChartData = ({
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-
-  console.log('data', data);
+    
   return (
     <>
       <DeleteChartModal
