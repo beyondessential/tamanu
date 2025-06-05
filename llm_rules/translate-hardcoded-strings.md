@@ -37,15 +37,23 @@ This rule covers the process of converting hardcoded English text strings in Rea
    - `vaccine.*` for vaccine/immunization content
    - `patient.*` for patient-specific content
 
-## Complex Messages with Dynamic Content
+## Messages with Dynamic Content
 
-1. **Avoid complex replacement tokens**: Don't nest styled JSX in replacement objects
-2. **Use split approach**: Break messages into separate TranslatedText components:
+1. **For simple variables**: Use replacement tokens:
+   ```jsx
+   <TranslatedText
+     stringId="message.with.variable"
+     fallback="You have :count items remaining"
+     replacements={{ count: itemCount }}
+   />
+   ```
+2. **For complex styled content**: Use split approach:
    ```jsx
    <TranslatedText stringId="message.prefix" fallback="Text before " />
    <span style={{fontWeight: 'bold'}}>{dynamicContent}</span>
    <TranslatedText stringId="message.suffix" fallback=" text after" />
    ```
+3. **Prefer replacements over splitting** when the dynamic content is just simple variables or strings
 
 ## TranslatedEnum for Enums
 
@@ -68,7 +76,8 @@ This rule covers the process of converting hardcoded English text strings in Rea
 
 # Avoid
 
-- **Complex replacement objects**: Don't put styled JSX elements as replacement values - they won't work with the translation factory
+- **Complex styled JSX in replacements**: Don't put styled JSX elements as replacement values - they won't work with the translation factory
+- **Unnecessary message splitting**: Don't split messages when simple variable replacements would work fine
 - **Non-descriptive string IDs**: Avoid IDs like `text1` or `button.click` - be specific about purpose
 - **Overly specific IDs**: Don't create `patientListView.saveButton.text` when `general.action.save` would be reusable
 - **Missing fallback text**: Always provide the original English text as fallback
@@ -80,4 +89,9 @@ This rule covers the process of converting hardcoded English text strings in Rea
 - The translation system uses a replacement factory that expects React components to have `stringId` and `fallback` props
 - TranslatedEnum components are registered in the enum registry and have automatic string ID generation
 - Common actions like "Save", "Cancel", "Add" should use `general.action.*` IDs for maximum reusability
-- When in doubt about splitting vs replacements, prefer the split approach for reliability
+- Simple variable replacements (like `:count`, `:name`, `:timeoutHours`) are preferred over splitting messages
+- Only split messages when you need to insert complex styled JSX that can't be handled by replacements
+
+# Recent Updates
+
+**2024 Session**: Clarified that simple variable replacements are preferred over message splitting. Updated guidance to only split when dealing with complex styled JSX content, not simple variables.
