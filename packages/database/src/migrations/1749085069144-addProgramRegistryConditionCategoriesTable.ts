@@ -1,5 +1,9 @@
 import Sequelize, { DataTypes, QueryInterface } from 'sequelize';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  VISIBILITY_STATUSES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('program_registry_condition_categories', {
@@ -48,6 +52,10 @@ export async function up(query: QueryInterface): Promise<void> {
 
   const ID_PREFIX = 'program-registry-condition-category-';
 
+  const valuesClause = Object.values(PROGRAM_REGISTRY_CONDITION_CATEGORIES)
+    .map((code) => `('${code}', '${PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code]}')`)
+    .join(', ');
+
   // Insert hard coded categories for each existing program registry
   await query.sequelize.query(`
     INSERT INTO program_registry_condition_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
@@ -60,12 +68,8 @@ export async function up(query: QueryInterface): Promise<void> {
       CURRENT_TIMESTAMP,
       CURRENT_TIMESTAMP
     FROM program_registries pr
-           CROSS JOIN (
-      VALUES
-        ('disproven', 'Disproven'),
-        ('resolved', 'Resolved'),
-        ('recordedInError', 'RecordedInError'),
-        ('unknown', 'Unknown')
+    CROSS JOIN (
+        VALUES ${valuesClause}
     ) AS category(code, name)
   `);
 
@@ -94,7 +98,7 @@ export async function up(query: QueryInterface): Promise<void> {
       FROM program_registry_condition_categories prc
       JOIN patient_program_registrations ppr ON prc.program_registry_id = ppr.program_registry_id
       WHERE ppr.id = patient_program_registration_conditions.patient_program_registration_id
-      AND prc.code = 'unknown'
+      AND prc.code = '${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}'
       LIMIT 1
     )
   `);
@@ -141,7 +145,7 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_program_registration_conditions', 'condition_category', {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'unknown',
+    defaultValue: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
   });
 
   // Drop the program_registry_condition_categories table (this will also remove the seeded records)

@@ -6,8 +6,8 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { DataImportError } from '../errors';
 import { importRows } from '../importer/importRows';
-
 import { readTwoModelTypeSheet } from './readMetadata';
+import { autoFillConditionCategoryImport } from './autoFillConditionCategoryImport';
 
 function readProgramRegistryData(workbook) {
   log.debug('Reading Registry data');
@@ -161,20 +161,16 @@ export async function importProgramRegistry(context, workbook, programId) {
 
   log.debug('Importing Patient Registry Condition Categories');
   const programRegistryConditionCategories = readProgramRegistryConditionCategoriesData(workbook);
+  const categoryRows = autoFillConditionCategoryImport(
+    context,
+    programRegistryConditionCategories,
+    registryId,
+    registryRecord.registryCode,
+  );
 
   stats = await importRows(context, {
     sheetName: 'Registry Condition Categories',
-    rows: programRegistryConditionCategories.map((row) => ({
-      model: 'ProgramRegistryConditionCategory',
-      // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
-      // -1 as it'll have 2 added to it later but it's only 1 off
-      sheetRow: row.__rowNum__ - 1,
-      values: {
-        id: `program-registry-condition-category-${row.code}`,
-        programRegistryId: registryId,
-        ...row,
-      },
-    })),
+    rows: categoryRows,
     stats,
   });
 
