@@ -46,6 +46,29 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
+  const ID_PREFIX = 'program-registry-category-';
+
+  // Insert hard coded categories for each existing program registry
+  await query.sequelize.query(`
+    INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+    SELECT
+      CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
+      category.code,
+      category.name,
+      '${VISIBILITY_STATUSES.CURRENT}',
+      pr.id,
+      Sequelize.fn('current_timestamp', 6),
+      Sequelize.fn('current_timestamp', 6)
+    FROM program_registries pr
+           CROSS JOIN (
+      VALUES
+        ('disproven', 'Disproven'),
+        ('resolved', 'Resolved'),
+        ('recordedInError', 'RecordedInError'),
+        ('unknown', 'Unknown')
+    ) AS category(code, name)
+  `);
+
   // Update patient_program_registration_conditions table to replace condition_category with program_registry_category_id
   await query.removeColumn('patient_program_registration_conditions', 'condition_category');
 
@@ -58,6 +81,33 @@ export async function up(query: QueryInterface): Promise<void> {
       key: 'id',
     },
   });
+
+  // Set the values for existing records
+  await query.sequelize.query(`
+    UPDATE patient_program_registration_conditions
+    SET program_registry_category_id = (
+      SELECT prc.id
+      FROM program_registry_categories prc
+      JOIN patient_program_registrations ppr ON prc.program_registry_id = ppr.program_registry_id
+      WHERE ppr.id = patient_program_registration_conditions.patient_program_registration_id
+      AND prc.code = 'unknown'
+      LIMIT 1
+    )
+  `);
+
+  // Now make the column non-nullable
+  await query.changeColumn(
+    'patient_program_registration_conditions',
+    'program_registry_category_id',
+    {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'program_registry_categories',
+        key: 'id',
+      },
+    },
+  );
 
   await query.addConstraint('patient_program_registration_conditions', {
     fields: ['program_registry_category_id'],

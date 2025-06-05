@@ -29,7 +29,7 @@ export class PatientProgramRegistrationCondition extends Model {
         }),
         programRegistryCategoryId: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
         },
         reasonForChange: {
           type: DataTypes.STRING,

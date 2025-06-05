@@ -6,6 +6,7 @@ import {
   TableColumn,
   TableForeignKey,
 } from 'typeorm';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const TABLE_NAME = 'program_registry_category';
 
@@ -82,6 +83,29 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ProgramRegistryCategory, true);
 
+    const ID_PREFIX = 'program-registry-category-';
+
+    // Insert hard coded categories for each existing program registry
+    await query.sequelize.query(`
+      INSERT INTO program_registry_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+      SELECT
+        CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
+        category.code,
+        category.name,
+        '${VISIBILITY_STATUSES.CURRENT}',
+        pr.id,
+        NOW(),
+        NOW()
+      FROM program_registries pr
+             CROSS JOIN (
+        VALUES
+          ('disproven', 'Disproven'),
+          ('resolved', 'Resolved'),
+          ('recordedInError', 'RecordedInError'),
+          ('unknown', 'Unknown')
+      ) AS category(code, name)
+    `);
+
     // Get the patient_program_registration_conditions table
     const table = await queryRunner.getTable('patient_program_registration_condition');
 
@@ -95,6 +119,30 @@ export class addProgramRegistryCategories1744234388451 implements MigrationInter
         name: 'programRegistryCategoryId',
         type: 'varchar',
         isNullable: true,
+      }),
+    );
+
+    // Set the values for existing records
+    await queryRunner.query(`
+      UPDATE patient_program_registration_condition
+      SET programRegistryCategoryId = (
+        SELECT prc.id
+        FROM program_registry_category prc
+        JOIN patient_program_registration ppr ON prc.programRegistryId = ppr.programRegistryId
+        WHERE ppr.id = patient_program_registration_condition.patientProgramRegistrationId
+        AND prc.code = 'unknown'
+        LIMIT 1
+      )
+    `);
+
+    // Now make the column non-nullable
+    await queryRunner.changeColumn(
+      table,
+      'programRegistryCategoryId',
+      new TableColumn({
+        name: 'programRegistryCategoryId',
+        type: 'varchar',
+        isNullable: false,
       }),
     );
 
