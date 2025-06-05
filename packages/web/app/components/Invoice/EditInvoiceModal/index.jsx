@@ -22,6 +22,7 @@ import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -87,13 +88,13 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async (data) => {
-    const invoiceItems = data.invoiceItems.filter((item) => !!item.productId);
+  const handleSubmit = async data => {
+    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
     updateInvoice(
       {
         ...invoice,
         items: invoiceItems,
-        insurers: data.insurers.map((insurer) => ({
+        insurers: data.insurers.map(insurer => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -104,7 +105,7 @@ export const EditInvoiceModal = ({
     );
   };
 
-  const handleShowErrorDialog = (errors) => {
+  const handleShowErrorDialog = errors => {
     return Object.keys(errors).length === 1 && errors['totalInsurerPercentage'];
   };
 
@@ -161,7 +162,7 @@ export const EditInvoiceModal = ({
               />,
             ),
           productPrice: yup.number().when(['productId'], {
-            is: (productId) => !!productId,
+            is: productId => !!productId,
             then: yup
               .number()
               .required(
@@ -213,7 +214,7 @@ export const EditInvoiceModal = ({
           fallback="Total insurer percentage must be less than or equal to 100%"
           data-testid="translatedtext-ddnm"
         />,
-        function (_, context) {
+        function(_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -302,13 +303,15 @@ export const EditInvoiceModal = ({
               data-testid="box-bf9z"
             >
               {finalisable && (
-                <Button onClick={handleFinaliseInvoice} data-testid="button-yicz">
-                  <TranslatedText
-                    stringId="invoice.modal.finaliseButton.label"
-                    fallback="Finalise invoice"
-                    data-testid="translatedtext-upzu"
-                  />
-                </Button>
+                <NoteModalActionBlocker>
+                  <Button onClick={handleFinaliseInvoice} data-testid="button-yicz">
+                    <TranslatedText
+                      stringId="invoice.modal.finaliseButton.label"
+                      fallback="Finalise invoice"
+                      data-testid="translatedtext-upzu"
+                    />
+                  </Button>
+                </NoteModalActionBlocker>
               )}
               {(cancelable || deletable) && (
                 <ThreeDotMenu
@@ -356,7 +359,7 @@ export const EditInvoiceModal = ({
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map((insurer) => ({
+              ? invoice.insurers.map(insurer => ({
                   ...insurer,
                   percentage: insurer.percentage * 100,
                 }))
@@ -365,7 +368,7 @@ export const EditInvoiceModal = ({
           validationSchema={schema}
           render={({ submitForm, values }) => (
             <FieldArray name="invoiceItems" data-testid="fieldarray-3xyn">
-              {(formArrayMethods) => {
+              {formArrayMethods => {
                 return (
                   <FormContainer data-testid="formcontainer-fssp">
                     <InvoiceItemHeader data-testid="invoiceitemheader-dhmx" />

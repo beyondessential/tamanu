@@ -16,6 +16,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { getReferenceDataStringId } from '../../components';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -120,17 +121,19 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 visible={isRemoved || !values.surveyId}
               >
                 <div>
-                  <StyledButton
-                    variant="contained"
-                    onClick={submitForm}
-                    disabled={isRemoved || !values.surveyId}
-                    isSubmitting={false}
-                  >
-                    <TranslatedText
-                      stringId="programRegistry.selectSurveyForm.action.beginForm"
-                      fallback="Begin form"
-                    />
-                  </StyledButton>
+                  <NoteModalActionBlocker>
+                    <StyledButton
+                      variant="contained"
+                      onClick={submitForm}
+                      disabled={isRemoved || !values.surveyId}
+                      isSubmitting={false}
+                    >
+                      <TranslatedText
+                        stringId="programRegistry.selectSurveyForm.action.beginForm"
+                        fallback="Begin form"
+                      />
+                    </StyledButton>
+                  </NoteModalActionBlocker>
                 </div>
               </ConditionalTooltip>
             </StyledFormGrid>
