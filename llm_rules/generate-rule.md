@@ -20,7 +20,6 @@ The goal is to turn successful one-off conversations into reusable documentation
 - Produce a set of steps for each of the most common actions the user has been asking to perform. Put these in a "# Process" section
 - Include any learnings about anti-patterns or places it went wrong to avoid in an "# Avoid" section
 - Add a "# Recent Updates" section at the end for tracking changes over time
-- When creating rules that will be self-updating, ensure they include specific triggers for when updates should happen (e.g., "when user corrects the AI's approach", "when a new pattern emerges", "when existing guidance proves insufficient")
 - **ALWAYS include a "Self-Update After Usage" section** at the beginning of the Process section with these exact instructions:
 
   ```markdown
@@ -37,7 +36,7 @@ The goal is to turn successful one-off conversations into reusable documentation
      - Edge cases or context not previously covered
      - Corrections to existing guidance that proved incorrect
   4. **Update this rule file** by editing the appropriate sections with the new learnings
-  5. **Document the update** in a "# Recent Updates" section with session date and what was learned
+  5. **Document the update** AI must always add an entry in a "# Recent Updates" section with session date and what was learned
   ```
 
 # Avoid
