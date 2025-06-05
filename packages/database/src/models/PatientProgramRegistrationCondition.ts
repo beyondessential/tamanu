@@ -11,7 +11,7 @@ export class PatientProgramRegistrationCondition extends Model {
   declare deletionDate?: string;
   declare patientProgramRegistrationId: string;
   declare programRegistryConditionId?: string;
-  declare programRegistryCategoryId: string;
+  declare programRegistryConditionCategoryId: string;
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
   declare reasonForChange?: string;
@@ -27,7 +27,7 @@ export class PatientProgramRegistrationCondition extends Model {
         deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),
-        programRegistryCategoryId: {
+        programRegistryConditionCategoryId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -55,7 +55,7 @@ export class PatientProgramRegistrationCondition extends Model {
     });
 
     this.belongsTo(models.ProgramRegistryConditionCategory, {
-      foreignKey: { name: 'programRegistryCategoryId', allowNull: false },
+      foreignKey: { name: 'programRegistryConditionCategoryId', allowNull: false },
       as: 'programRegistryCategory',
     });
 
