@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface MultiSelectModalFieldProps {
   value?: string[];
@@ -44,6 +45,7 @@ export const MultiSelectModalField = ({
 }: MultiSelectModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
+  const { language } = useTranslation();
 
   const handleSaveCallback = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
@@ -68,14 +70,14 @@ export const MultiSelectModalField = ({
       }
       const selectedValues: OptionType[] = [];
       for (const x of values) {
-        const data = await suggester.fetchCurrentOption(x);
+        const data = await suggester.fetchCurrentOption(x, language);
         selectedValues.push(data);
       }
 
       const updatedLabel = extractLabel(selectedValues);
       setLabel(updatedLabel);
     },
-    [suggester],
+    [suggester, language],
   );
 
   useEffect(() => {
