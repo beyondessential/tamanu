@@ -1,5 +1,27 @@
+import { basename, extname } from 'node:path';
 import type { Models, Sequelize } from '@tamanu/database';
 import type { Logger } from 'winston';
+
+export type At = ':start:' | ':end:';
+export const START: At = ':start:';
+export const END: At = ':end:';
+export const MIGRATION_PREFIX = 'migration/';
+export const STEP_PREFIX = 'upgrade/';
+
+export type StepStr = `upgrade/${string}` | `upgrade/${string}/${number}`;
+export type MigrationStr = `migration/${string}`;
+export type Need = StepStr | MigrationStr;
+export type Needs = Need[];
+
+export const needsStep = (step: string) => `upgrade/${basename(step, extname(step))}` as StepStr;
+export const needsMigration = (mig: string) =>
+  `migration/${basename(mig, extname(mig))}` as MigrationStr;
+export const onlySteps = (needs: Needs): StepStr[] =>
+  needs.filter((need: Need) => need.startsWith(STEP_PREFIX)) as StepStr[];
+export const onlyMigrations = (needs: Needs): MigrationStr[] =>
+  needs.filter((need: Need) => need.startsWith(MIGRATION_PREFIX)) as MigrationStr[];
+export const stepFile = (str: StepStr) => str.split('/')[1]! + '.js';
+export const migrationFile = (str: MigrationStr) => str.split('/')[1]! + '.js';
 
 export interface StepArgs {
   sequelize: Sequelize;
@@ -10,20 +32,12 @@ export interface StepArgs {
   serverType: 'central' | 'facility';
 }
 
-export type StepRequirement =
-  | { beforeAll: true }
-  | { afterAll: true }
-  | { beforeStep: string }
-  | { afterStep: string }
-  | { beforeMigration: string }
-  | { afterMigration: string };
-
-export type StepMeta = {
-  description?: string;
+export interface Step {
+  at: At;
+  before?: Needs;
+  after?: Needs;
   check?: (args: StepArgs) => Promise<boolean>;
   run: (args: StepArgs) => Promise<void>;
-};
-
-export type Step = StepRequirement & StepMeta;
+}
 
 export type Steps = Step[];
