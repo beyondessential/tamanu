@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -16,13 +16,15 @@ export const ReferralPane = React.memo(({ patient }) => {
   return (
     <ContentPane data-testid="contentpane-ztqm">
       <TableButtonRow variant="small" data-testid="tablebuttonrow-4sww">
-        <Button onClick={handleNewReferral} data-testid="button-u28m">
-          <TranslatedText
-            stringId="patient.referral.action.create"
-            fallback="New referral"
-            data-testid="translatedtext-93j1"
-          />
-        </Button>
+        <NoteModalActionBlocker>
+          <Button onClick={handleNewReferral} data-testid="button-u28m">
+            <TranslatedText
+              stringId="patient.referral.action.create"
+              fallback="New referral"
+              data-testid="translatedtext-93j1"
+            />
+          </Button>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <ReferralTable patientId={patient.id} data-testid="referraltable-6sz8" />
     </ContentPane>
