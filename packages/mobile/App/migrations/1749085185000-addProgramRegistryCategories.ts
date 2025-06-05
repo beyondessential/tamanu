@@ -79,7 +79,7 @@ const ProgramRegistryCategory = new Table({
   indices: [baseIndex],
 });
 
-export class addProgramRegistryCategories1744234388451 implements MigrationInterface {
+export class addProgramRegistryCategories1749085185000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ProgramRegistryCategory, true);
 
