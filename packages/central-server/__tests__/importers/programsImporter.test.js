@@ -560,14 +560,16 @@ describe('Programs import', () => {
     });
 
     it('should not prevent changing currentlyAtType if there is no existing data', async () => {
-      const { PatientProgramRegistration } = ctx.store.models;
+      const { Patient, PatientProgramRegistration } = ctx.store.models;
       await doImport({
         file: 'registry-valid-village',
         xml: true,
         dryRun: false,
       });
+      const patient = await Patient.create(fake(Patient));
       const registration = await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
         programRegistryId: 'programRegistry-ValidRegistry',
+        patientId: patient.id,
       });
       registration.villageId = null;
       registration.facilityId = null;
