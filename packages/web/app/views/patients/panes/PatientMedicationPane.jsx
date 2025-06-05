@@ -177,7 +177,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     accessor: data => (
       <CellText discontinued={data?.discontinued}>
         {getDose(data, getTranslation, getEnumTranslation)}
-        {data.isPrn && getTranslation('patient.medication.table.prn', 'PRN')}
+        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </CellText>
     ),
     sortable: false,
@@ -259,7 +259,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     accessor: data => (
       <>
         {getDose(data, getTranslation, getEnumTranslation)}
-        {data.isPrn && getTranslation('patient.medication.table.prn', 'PRN')}
+        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </>
     ),
     sortable: false,
@@ -381,7 +381,6 @@ export const PatientMedicationPane = ({ patient }) => {
               />
             </NoDataContainer>
           }
-          disablePagination
           allowExport={false}
           onDataFetched={onOngoingPrescriptionsFetched}
           $noData={ongoingPrescriptions.length === 0}

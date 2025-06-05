@@ -190,7 +190,7 @@ const DischargeSummaryPrintoutComponent = ({
   const { diagnoses, procedures, medications } = encounter;
 
   const visibleMedications = medications
-    .filter((m) => !m.discontinued)
+    .filter((m) => m.encounterPrescription?.isSelectedForDischarge)
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
