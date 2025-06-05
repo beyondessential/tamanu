@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DynamicColumnTable, Table } from './Table';
-
 import { Box } from '@material-ui/core';
+import styled from 'styled-components';
 
 import { Colors } from '../constants';
+import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
+
+const StyledDynamicColumnTable = styled(DynamicColumnTable)`
+  overflow-y: scroll;
+  max-height: 62vh; /* Matches generic Table height */
+`;
 
 export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   <Table
@@ -79,7 +84,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, curren
         }}
         data-testid="editvitalcellmodal-2jqx"
       />
-      <DynamicColumnTable
+      <StyledDynamicColumnTable
         columns={columns}
         data={data}
         elevated={false}
@@ -88,6 +93,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, curren
         allowExport
         showFooterLegend={showFooterLegend}
         data-testid="dynamiccolumntable-ddeu"
+        isBodyScrollable
       />
     </>
   );
