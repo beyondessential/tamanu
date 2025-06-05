@@ -1,8 +1,9 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { SURVEY_TYPES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
+import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
@@ -641,6 +642,181 @@ describe('Programs import', () => {
           ProgramRegistry: { created: 1, updated: 0, errored: 0 },
           ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
           ProgramRegistryCondition: { created: 0, updated: 0, errored: 2 },
+        });
+      });
+    });
+
+    describe('condition categories', () => {
+      it('should create category rows from spreadsheet when they match hardcoded categories', async () => {
+        // Create a mock context with models
+        const context = { models: ctx.store.models };
+
+        // Create test data that matches hardcoded categories
+        const spreadsheetCategories = [
+          {
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            name: 'Custom Unknown',
+            visibilityStatus: 'current',
+            __rowNum__: 2,
+          },
+        ];
+
+        const registryId = 'test-registry-id';
+        const registryCode = 'test-registry-code';
+
+        // Call the function
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+          registryCode,
+        );
+
+        // Verify the result
+        expect(result).toHaveLength(4);
+        expect(result[0]).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: 1, // __rowNum__ - 1
+          values: {
+            id: `program-registry-condition-category-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            programRegistryId: registryId,
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            name: 'Custom Unknown',
+            visibilityStatus: 'current',
+          },
+        });
+      });
+
+      it('should create category rows from hardcoded values when not in spreadsheet', async () => {
+        // Create a mock context with models
+        const context = {
+          models: {
+            ...ctx.store.models,
+            ProgramRegistryConditionCategory: {
+              findOne: jest.fn().mockResolvedValue(null),
+            },
+          },
+        };
+
+        // Empty spreadsheet categories
+        const spreadsheetCategories = [];
+
+        const registryId = 'test-registry-id';
+        const registryCode = 'test-registry-code';
+
+        // Call the function
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+          registryCode,
+        );
+
+        // Verify the result - should have one entry for each hardcoded category
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length);
+
+        // Check one of the entries
+        const unknownCategory = result.find(
+          (row) => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        );
+        expect(unknownCategory).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: -1, // Indicates hardcoded
+          values: {
+            id: `program-registry-condition-category-${registryCode}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            programRegistryId: registryId,
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            visibilityStatus: 'current',
+          },
+        });
+      });
+
+      it('should not create category rows for existing database entries', async () => {
+        // Create a mock context with models that returns existing entries
+        const existingCategory = {
+          id: 'existing-category',
+          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+          programRegistryId: 'test-registry-id',
+        };
+
+        const context = {
+          models: {
+            ...ctx.store.models,
+            ProgramRegistryConditionCategory: {
+              findOne: jest.fn().mockImplementation(async ({ where }) => {
+                if (where.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN) {
+                  return existingCategory;
+                }
+                return null;
+              }),
+            },
+          },
+        };
+
+        // Empty spreadsheet categories
+        const spreadsheetCategories = [];
+
+        const registryId = 'test-registry-id';
+        const registryCode = 'test-registry-code';
+
+        // Call the function
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+          registryCode,
+        );
+
+        // Verify the result - should have entries for all hardcoded categories except UNKNOWN
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length - 1);
+
+        // Make sure the UNKNOWN category is not in the result
+        const unknownCategory = result.find(
+          (row) => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        );
+        expect(unknownCategory).toBeUndefined();
+      });
+
+      it('should include additional categories from spreadsheet', async () => {
+        // Create a mock context with models
+        const context = { models: ctx.store.models };
+
+        // Create test data with an additional category not in hardcoded list
+        const spreadsheetCategories = [
+          {
+            code: 'custom-category',
+            name: 'Custom Category',
+            visibilityStatus: 'current',
+            __rowNum__: 2,
+          },
+        ];
+
+        const registryId = 'test-registry-id';
+        const registryCode = 'test-registry-code';
+
+        // Call the function
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+          registryCode,
+        );
+
+        // Verify the result - should have entries for all hardcoded categories plus the custom one
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length + 1);
+
+        // Check the custom category
+        const customCategory = result.find((row) => row.values.code === 'custom-category');
+        expect(customCategory).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: 1, // __rowNum__ - 1
+          values: {
+            id: 'program-registry-condition-category-custom-category',
+            programRegistryId: registryId,
+            code: 'custom-category',
+            name: 'Custom Category',
+            visibilityStatus: 'current',
+          },
         });
       });
     });
