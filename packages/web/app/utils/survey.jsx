@@ -200,10 +200,18 @@ export const getPatientDataDbLocation = (columnName) => {
 
 export const getTooltip = (type, config, getTranslation) => {
   if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
-    return getTranslation('complexChartInstance.tooltip', 'Will be displayed as chart name');
+    return getTranslation('complexChartInstanceName.tooltip', 'Will be displayed as chart name');
   }
 
   return config.tooltip;
+};
+
+export const getHelperText = (type, detail, getTranslation) => {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    return getTranslation('complexChartInstanceName.helperText', 'Max 15 characters');
+  }
+
+  return detail;
 };
 
 function transformPatientData(patient, additionalData, patientProgramRegistration, config) {
@@ -332,7 +340,7 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       const isGeolocateType = type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE;
       const mandatory = isGeolocateType
         ? false
-        : checkMandatory(mandatoryConfig, valuesToCheckMandatory);
+        : checkMandatory(type, mandatoryConfig, valuesToCheckMandatory);
 
       let valueSchema;
       switch (type) {
@@ -410,8 +418,11 @@ export const getGraphRangeByAge = (visualisationConfig, patientData) => {
   return getNormalRangeByAge(mockedValidationCriteria, patientData);
 };
 
-export const checkMandatory = (mandatory, values) => {
+export const checkMandatory = (type, mandatory, values) => {
   try {
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+      return true;
+    }
     if (!mandatory) {
       return false;
     }
