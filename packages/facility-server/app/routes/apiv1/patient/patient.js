@@ -42,10 +42,12 @@ patientRoute.post(
       {
         replacements: { patient: JSON.stringify(patient) },
         type: QueryTypes.SELECT,
+        model: models.Patient,
+        mapToModel: true,
       },
     );
 
-    res.send({ data: potentialDuplicates.map(renameObjectKeys) });
+    res.send({ data: potentialDuplicates });
   }),
 );
 
