@@ -22,11 +22,12 @@ export const DuplicatePatientWarningModal = ({
   setShowWarningModal,
   resolveFn,
   onCancelNewPatient,
-  potentialDuplicates,
-  proposedPatient,
+  warningModalData,
 }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
+
+  const { proposedPatient, potentialDuplicates } = warningModalData;
 
   const handleClose = confirmed => {
     setShowWarningModal(false);

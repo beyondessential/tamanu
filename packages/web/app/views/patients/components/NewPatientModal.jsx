@@ -14,8 +14,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const api = useApi();
   const { facilityId } = useAuth();
 
-  const [proposedPatient, setProposedPatient] = useState({});
-  const [potentialDuplicates, setPotentialDuplicates] = useState([]);
+  // Warning modal state
+  const [warningModalData, setWarningModalData] = useState({
+    proposedPatient: {},
+    potentialDuplicates: [],
+  });
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
@@ -33,8 +36,10 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         // If duplicates are found, populate the warning modal state and wait for the user to
         // confirm its unique. If the user confirms, proceed with creating the new patient
         if (potentialDuplicates.length > 0) {
-          setPotentialDuplicates(potentialDuplicates);
-          setProposedPatient(data);
+          setWarningModalData({
+            proposedPatient: data,
+            potentialDuplicates,
+          });
           const confirmed = await confirmUniquePatientWithUser();
           if (!confirmed) return;
         }
@@ -78,8 +83,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
         data-testid="warningmodal-h7av"
-        proposedPatient={proposedPatient}
-        potentialDuplicates={potentialDuplicates}
+        warningModalData={warningModalData}
         onCancelNewPatient={onCancel}
       />
     </>
