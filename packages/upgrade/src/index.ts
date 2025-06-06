@@ -50,7 +50,7 @@ export async function upgrade({
   const { order, steps } = await listSteps();
   log.debug('Loaded upgrade steps', { count: steps.size });
 
-  const stepArgs: StepArgs = {
+  const stepArgs: Omit<StepArgs, 'log'> = {
     sequelize,
     models,
     fromVersion,
@@ -60,7 +60,7 @@ export async function upgrade({
 
   for (const id of order) {
     const logger = log.child({ step: id });
-    const args = { ...stepArgs, log: logger };
+    const args: StepArgs = { ...stepArgs, log: logger };
 
     if (id.endsWith(START) || id.endsWith(END)) continue;
 
