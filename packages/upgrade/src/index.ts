@@ -74,7 +74,7 @@ export async function upgrade({
           sequelize,
           pending: pendingMigrations,
           migrations,
-          upOpts: { to: target },
+          upOpts: { to: target.file },
         });
       }
       continue;
