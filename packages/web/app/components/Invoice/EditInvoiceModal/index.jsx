@@ -351,7 +351,7 @@ export const EditInvoiceModal = ({
           </>
         )}
         <Form
-          suppressErrorDialogCondition={handleShowErrorDialog}
+          suppressErrorDialogCondition={!handleShowErrorDialog}
           onSubmit={handleSubmit}
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
