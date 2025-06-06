@@ -30,6 +30,8 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
       try {
         const { data: potentialDuplicates } = await api.post('patient/checkDuplicates', data);
 
+        // If duplicates are found, populate the warning modal state and wait for the user to
+        // confirm its unique. If the user confirms, proceed with creating the new patient
         if (potentialDuplicates.length > 0) {
           setPotentialDuplicates(potentialDuplicates);
           setProposedPatient(data);
