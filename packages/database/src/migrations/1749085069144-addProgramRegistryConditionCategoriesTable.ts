@@ -81,17 +81,15 @@ export async function up(query: QueryInterface): Promise<void> {
   // Update patient_program_registration_conditions table to replace condition_category with program_registry_condition_category_id
   await query.removeColumn('patient_program_registration_conditions', 'condition_category');
 
-  // Add the column as nullable first
+  // Add the column as nullable first, do not add a foreign key constraint yet
+  // because otherwise we will create duplicate constraints when performing
+  // the changeColumn call
   await query.addColumn(
     'patient_program_registration_conditions',
     'program_registry_condition_category_id',
     {
       type: DataTypes.TEXT,
       allowNull: true,
-      references: {
-        model: 'program_registry_condition_categories',
-        key: 'id',
-      },
     },
   );
 
