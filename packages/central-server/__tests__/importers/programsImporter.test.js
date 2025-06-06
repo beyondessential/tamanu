@@ -717,7 +717,7 @@ describe('Programs import', () => {
           model: 'ProgramRegistryConditionCategory',
           sheetRow: -1, // Indicates hardcoded
           values: {
-            id: `program-registry-condition-category-${registryCode}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            id: `program-registry-condition-category-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
             programRegistryId: registryId,
             code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
             visibilityStatus: 'current',
