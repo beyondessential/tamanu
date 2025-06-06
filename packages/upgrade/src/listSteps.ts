@@ -1,6 +1,5 @@
 import { promises as fs } from 'node:fs';
 import { basename, extname, join } from 'node:path';
-import pLimit from 'p-limit';
 import toposort from 'toposort';
 import type { Step, Steps, StepStr } from './step.ts';
 import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
@@ -18,27 +17,24 @@ export interface ResolvedStep {
 type Edge = [string, string];
 
 export async function listSteps() {
-  const limit = pLimit(10);
   const steps: ResolvedStep[] = (
     await Promise.all(
       (await fs.readdir(STEPS_DIR))
         .filter((file: string) => /^\d+-[^.:]+[.][jt]s$/.test(file))
-        .map((file: string) =>
-          limit(async () => {
-            const stepfile = basename(file, extname(file));
-            const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
-            return STEPS.map((step, i) => ({
-              id: `upgrade/${stepfile}/${i}` as StepStr,
-              file: `upgrade/${stepfile}` as StepStr,
-              step: {
-                before: [],
-                after: [],
-                check: () => Promise.resolve(true),
-                ...step,
-              },
-            }));
-          }),
-        ),
+        .map(async (file: string) => {
+          const stepfile = basename(file, extname(file));
+          const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
+          return STEPS.map((step, i) => ({
+            id: `upgrade/${stepfile}/${i}` as StepStr,
+            file: `upgrade/${stepfile}` as StepStr,
+            step: {
+              before: [],
+              after: [],
+              check: () => Promise.resolve(true),
+              ...step,
+            },
+          }));
+        }),
     )
   ).flat();
 

@@ -42,7 +42,6 @@
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "config": "^3.3.9",
-    "p-limit": "^6.2.0",
     "toposort": "^2.0.2",
     "sequelize": "^6.21.3"
   }
