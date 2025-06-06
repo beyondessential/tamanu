@@ -2,14 +2,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
 import type { Models, Sequelize } from '@tamanu/database';
 import { listSteps } from './listSteps';
-import {
-  END,
-  MIGRATION_PREFIX,
-  migrationFile,
-  onlyMigrations,
-  START,
-  type MigrationStr,
-} from './step.js';
+import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
+import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
 export * from './step.js';
 
@@ -26,10 +20,11 @@ export async function upgrade({
   toVersion: string;
   serverType: 'central' | 'facility';
 }) {
-  const fromVersion = await models.LocalSystemFact.get('version').catch((err) => {
-    log.error('Failed to get current version, likely because there is not one recorded yet', err);
-    return '0.0.0';
-  });
+  const fromVersion =
+    (await models.LocalSystemFact.get('version').catch((err) => {
+      log.error('Failed to get current version, likely because there is not one recorded yet', err);
+      return null;
+    })) ?? '0.0.0';
   log.info('Upgrading Tamanu installation', { from: fromVersion, to: toVersion });
 
   const migrations = createMigrationInterface(log, sequelize);
@@ -55,7 +50,7 @@ export async function upgrade({
   const { order, steps } = await listSteps();
   log.debug('Loaded upgrade steps', { count: steps.size });
 
-  const stepArgs = {
+  const stepArgs: StepArgs = {
     sequelize,
     models,
     fromVersion,
