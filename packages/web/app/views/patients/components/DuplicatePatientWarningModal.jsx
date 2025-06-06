@@ -40,7 +40,7 @@ export const DuplicatePatientWarningModal = ({
       width="md"
       title={
         <TranslatedText
-          stringId="patient.modal.duplicateWarning.title"
+          stringId="patient.modal.create.title"
           fallback="Add new patient"
           data-testid="translatedtext-title"
         />
