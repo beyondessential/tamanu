@@ -5,8 +5,8 @@ import type { Step, Steps, StepStr } from './step.ts';
 import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
 
 const STEPS_DIR = join(__dirname, 'steps');
-const MIGRATIONS_START = MIGRATION_PREFIX + START;
-const MIGRATIONS_END = MIGRATION_PREFIX + END;
+export const MIGRATIONS_START = MIGRATION_PREFIX + START;
+export const MIGRATIONS_END = MIGRATION_PREFIX + END;
 
 export interface ResolvedStep {
   id: StepStr;

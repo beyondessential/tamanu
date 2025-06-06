@@ -1,7 +1,7 @@
 import { log } from '@tamanu/shared/services/logging';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
 import type { Models, Sequelize } from '@tamanu/database';
-import { listSteps } from './listSteps';
+import { listSteps, MIGRATIONS_END } from './listSteps.js';
 import { END, MIGRATION_PREFIX, migrationFile, onlyMigrations, START } from './step.js';
 import type { MigrationStr, StepArgs } from './step.ts';
 export type * from './step.ts';
@@ -61,6 +61,18 @@ export async function upgrade({
   for (const id of order) {
     const logger = log.child({ step: id });
     const args: StepArgs = { ...stepArgs, log: logger };
+
+    if (id === MIGRATIONS_END) {
+      logger.debug('Run through all remaining migrations');
+      await migrateUpTo({
+        log: logger,
+        sequelize,
+        pending: pendingMigrations,
+        migrations,
+        upOpts: {},
+      });
+      continue;
+    }
 
     if (id.endsWith(START) || id.endsWith(END)) continue;
 
