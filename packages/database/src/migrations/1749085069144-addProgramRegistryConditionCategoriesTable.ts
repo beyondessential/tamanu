@@ -49,6 +49,12 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
+  await query.addIndex('program_registry_condition_categories', {
+    name: 'program_registry_condition_categories_program_registry_id_code',
+    unique: true,
+    fields: ['program_registry_id', 'code'],
+  });
+
   const ID_PREFIX = 'program-registry-condition-category-';
 
   const valuesClause = Object.values(PROGRAM_REGISTRY_CONDITION_CATEGORIES)
