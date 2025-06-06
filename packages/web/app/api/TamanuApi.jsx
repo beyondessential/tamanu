@@ -228,7 +228,6 @@ export class TamanuApi extends ApiClient {
                 replacements={{ status: err.status }}
               />
             ),
-            <TranslatedText key="general.api.notification.message" fallback="Message: :message" />,
           ]);
         }
       }
