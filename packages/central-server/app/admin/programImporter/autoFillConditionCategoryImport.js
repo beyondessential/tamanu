@@ -9,9 +9,9 @@ function createCategoryRowFromSpreadsheet(spreadsheetCategory, registryId) {
     model: 'ProgramRegistryConditionCategory',
     sheetRow: spreadsheetCategory.__rowNum__ - 1,
     values: {
+      ...spreadsheetCategory,
       id: `program-registry-condition-category-${spreadsheetCategory.code}`,
       programRegistryId: registryId,
-      ...spreadsheetCategory,
     },
   };
 }
