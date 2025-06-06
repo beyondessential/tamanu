@@ -22,9 +22,6 @@
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "postinstall": "cd ../.. && npm run prepare",
-  "engines": {
-    "node": "^20.9.0"
-  },
   "dependencies": {
     "@casl/ability": "^4.1.0",
     "@react-native-async-storage/async-storage": "^1.13.2",
@@ -58,8 +55,8 @@
     "patch-package": "^8.0.0",
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
-    "react": "18.2.0",
-    "react-native": "0.71.10",
+    "react": "^18.2.0",
+    "react-native": "^0.71.10",
     "react-native-autocomplete-input": "^5.0.2",
     "react-native-bcrypt": "^2.4.0",
     "react-native-bg-thread": "^1.2.0",
