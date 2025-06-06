@@ -44,7 +44,7 @@ export async function autoFillConditionCategoryImport(
   const categoryRows = [];
 
   // Add hardcoded categories (spreadsheet overrides if code matches)
-  for (const [_, code] of Object.entries(PROGRAM_REGISTRY_CONDITION_CATEGORIES)) {
+  for (const [, code] of Object.entries(PROGRAM_REGISTRY_CONDITION_CATEGORIES)) {
     const spreadsheetCategory = spreadsheetCategoriesMap.get(code);
 
     if (spreadsheetCategory) {
