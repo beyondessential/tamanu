@@ -208,24 +208,9 @@ export class TamanuApi extends ApiClient {
         const language = localStorage.getItem(LANGUAGE);
         if (language === ENGLISH_LANGUAGE_CODE) {
           notifyError([
-            <b key="general.api.notification.requestFailed">
-              <TranslatedText
-                stringId="general.api.notification.requestFailed"
-                fallback="Network request failed"
-              />
-            </b>,
-            <TranslatedText
-              key="general.api.notification.path"
-              stringId="general.api.notification.path"
-              fallback="Path: :path"
-              replacements={{ path: err.path ?? endpoint }}
-            />,
-            <TranslatedText
-              key="general.api.notification.message"
-              stringId="general.api.notification.message"
-              fallback="Message: :message"
-              replacements={{ message }}
-            />,
+            <b key={message}>Network request failed</b>,
+            `Path: ${err.path ?? endpoint}`,
+            `Message: ${message}`,
           ]);
         } else {
           notifyError([
