@@ -126,7 +126,7 @@ export class TamanuApi extends ApiClient {
       deviceId: getDeviceId(),
     });
 
-    this.interceptors.request.use((config) => {
+    this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
       return config;
@@ -205,26 +205,39 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        notifyError([
-          <b key="general.api.notification.requestFailed">
+        // TODO: this is a hack to get the language from the browser
+        const language = localStorage.getItem(LANGUAGE);
+        if (language === 'en') {
+          notifyError([
+            <b key="general.api.notification.requestFailed">
+              <TranslatedText
+                stringId="general.api.notification.requestFailed"
+                fallback="Network request failed"
+              />
+            </b>,
             <TranslatedText
-              stringId="general.api.notification.requestFailed"
-              fallback="Network request failed"
-            />
-          </b>,
-          <TranslatedText
-            key="general.api.notification.path"
-            stringId="general.api.notification.path"
-            fallback={`Path: ${err.path ?? endpoint}`}
-            replacements={{ path: err.path ?? endpoint }}
-          />,
-          <TranslatedText
-            key="general.api.notification.message"
-            stringId="general.api.notification.message"
-            fallback={`Message: ${message}`}
-            replacements={{ message }}
-          />,
-        ]);
+              key="general.api.notification.path"
+              stringId="general.api.notification.path"
+              fallback="Path: :path"
+              replacements={{ path: err.path ?? endpoint }}
+            />,
+            <TranslatedText
+              key="general.api.notification.message"
+              stringId="general.api.notification.message"
+              fallback="Message: :message"
+              replacements={{ message }}
+            />,
+          ]);
+        } else {
+          notifyError([
+            <b key="general.api.notification.requestFailed.generic">
+              <TranslatedText
+                stringId="general.api.notification.requestFailed.generic"
+                fallback="Network request failed. Please contact your administrator."
+              />
+            </b>,
+          ]);
+        }
       }
 
       throw new Error(message);

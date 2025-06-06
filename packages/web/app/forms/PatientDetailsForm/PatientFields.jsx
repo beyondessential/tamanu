@@ -1,5 +1,13 @@
 import React, { Fragment } from 'react';
-import { Field, FormGrid, NumberField, SelectField, TextField } from '../../components';
+import {
+  Field,
+  FormGrid,
+  NumberField,
+  SelectField,
+  TextField,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
@@ -16,17 +24,26 @@ const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 70px;
 `;
 
+// TODO: options not translatable in current implementation
 export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
+
+  const label = (
+    <TranslatedReferenceData
+      category="patientFieldDefinition"
+      value={definitionId}
+      fallback={name}
+    />
+  );
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map((o) => ({ label: o, value: o }));
+    const fieldOptions = options.map(o => ({ label: o, value: o }));
     return (
       <Field
         name={fieldName}
         component={SelectField}
-        label={name}
+        label={label}
         options={fieldOptions}
         data-testid="field-32ps"
       />
@@ -37,7 +54,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
       <Field
         name={fieldName}
         component={TextField}
-        label={name}
+        label={label}
         enablePasting
         data-testid="field-gcal"
       />
@@ -46,18 +63,33 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
     return <Field name={fieldName} component={NumberField} label={name} data-testid="field-4rs2" />;
   }
-  return <p>Unknown field type: {fieldType}</p>;
+  return (
+    <p>
+      <TranslatedText
+        stringId="patientFields.error.unknownFieldType"
+        fallback="Unknown field type: :fieldType"
+        replacements={{ fieldType }}
+        data-testid="translatedtext-unknown-field-type"
+      />
+    </p>
+  );
 };
 
 export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
-  const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'category'));
+  const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'categoryId'));
   return (
     <div>
-      {groupedFieldDefs.map(([category, defs]) => (
-        <Fragment key={category} data-testid="fragment-e981">
-          <StyledHeading data-testid="styledheading-5shc">{category}</StyledHeading>
+      {groupedFieldDefs.map(([categoryId, defs]) => (
+        <Fragment key={categoryId} data-testid="fragment-e981">
+          <StyledHeading data-testid="styledheading-5shc">
+            <TranslatedReferenceData
+              category="patientFieldDefinitionCategory"
+              value={categoryId}
+              fallback={defs[0].category}
+            />
+          </StyledHeading>
           <StyledFormGrid data-testid="styledformgrid-kotn">
-            {defs.map((f) => (
+            {defs.map(f => (
               <PatientField
                 key={f.definitionId}
                 definition={f}
