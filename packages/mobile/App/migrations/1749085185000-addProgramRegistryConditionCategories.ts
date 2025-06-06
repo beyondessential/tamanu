@@ -6,10 +6,12 @@ import {
   TableColumn,
   TableForeignKey,
 } from 'typeorm';
-// Todod: Update to mobile constants
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '~/constants/programRegistries';
 
-const TABLE_NAME = 'program_registry_condition_category';
+const TABLE_NAME = 'program_registry_condition_categories';
 
 const baseIndex = new TableIndex({
   columnNames: ['updatedAtSyncTick'],
@@ -86,29 +88,39 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
 
     const ID_PREFIX = 'program-registry-condition-category-';
 
+    const selectStatements = Object.entries(PROGRAM_REGISTRY_CONDITION_CATEGORIES).map(
+      ([_, code]) => {
+        const name = PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code];
+        if (!name) {
+          throw new Error(`Missing label for category code: ${code}`);
+        }
+        return `SELECT '${code}' as code, '${name}' as name`;
+      },
+    );
+
+    const unionQuery = selectStatements.join(' UNION ALL ');
+
     // Insert hard coded categories for each existing program registry
     await queryRunner.query(`
-      INSERT INTO program_registry_condition_category (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
+      INSERT INTO program_registry_condition_categories (
+        id, code, name, visibilityStatus, programRegistryId, createdAt, updatedAt
+      )
       SELECT
-        CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
+        '${ID_PREFIX}' || pr.code || '-' || category.code,
         category.code,
         category.name,
-        '${VISIBILITY_STATUSES.CURRENT}',
+        'current',
         pr.id,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
       FROM program_registries pr
-             CROSS JOIN (
-        VALUES
-          ('disproven', 'Disproven'),
-          ('resolved', 'Resolved'),
-          ('recordedInError', 'RecordedInError'),
-          ('unknown', 'Unknown')
-      ) AS category(code, name)
+      CROSS JOIN (
+        ${unionQuery}
+      ) AS category
     `);
 
     // Get the patient_program_registration_conditions table
-    const table = await queryRunner.getTable('patient_program_registration_condition');
+    const table = await queryRunner.getTable('patient_program_registration_conditions');
 
     // Remove the conditionCategory column
     await queryRunner.dropColumn(table, 'conditionCategory');
@@ -125,12 +137,12 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
 
     // Set the values for existing records
     await queryRunner.query(`
-      UPDATE patient_program_registration_condition
+      UPDATE patient_program_registration_conditions
       SET programRegistryConditionCategoryId = (
         SELECT prc.id
-        FROM program_registry_condition_category prc
-        JOIN patient_program_registration ppr ON prc.programRegistryId = ppr.programRegistryId
-        WHERE ppr.id = patient_program_registration_condition.patientProgramRegistrationId
+        FROM program_registry_condition_categories prc
+        JOIN patient_program_registrations ppr ON prc.programRegistryId = ppr.programRegistryId
+        WHERE ppr.id = patient_program_registration_conditions.patientProgramRegistrationId
         AND prc.code = 'unknown'
         LIMIT 1
       )
@@ -146,23 +158,11 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
         isNullable: false,
       }),
     );
-
-    // Add foreign key constraint
-    await queryRunner.createForeignKey(
-      table,
-      new TableForeignKey({
-        columnNames: ['programRegistryConditionCategoryId'],
-        referencedTableName: TABLE_NAME,
-        referencedColumnNames: ['id'],
-        onDelete: 'RESTRICT',
-        onUpdate: 'CASCADE',
-      }),
-    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    // Get the patient_program_registration_condition table
-    const table = await queryRunner.getTable('patient_program_registration_condition');
+    // Get the patient_program_registration_conditions table
+    const table = await queryRunner.getTable('patient_program_registration_conditions');
 
     // Drop the foreign key constraint
     const foreignKey = table.foreignKeys.find(
@@ -178,13 +178,13 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
       table,
       new TableColumn({
         name: 'conditionCategory',
-        type: 'string',
+        type: 'text',
         isNullable: false,
         default: "'unknown'",
       }),
     );
 
-    // Drop the program_registry_condition_category table
+    // Drop the program_registry_condition_categories table
     await queryRunner.dropTable(TABLE_NAME, true);
   }
 }

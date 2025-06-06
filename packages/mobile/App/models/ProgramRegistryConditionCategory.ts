@@ -6,7 +6,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { ProgramRegistry } from './ProgramRegistry';
 
-@Entity('program_registry_condition_category')
+@Entity('program_registry_condition_categories')
 export class ProgramRegistryConditionCategory
   extends BaseModel
   implements IProgramRegistryCategory

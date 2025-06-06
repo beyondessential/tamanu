@@ -6,7 +6,7 @@ import {
   ID,
   IUser,
   IProgramRegistryCondition,
-  IProgramRegistryCategory,
+  IProgramRegistryConditionCategory,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
@@ -34,9 +34,9 @@ export class PatientProgramRegistrationCondition
   @Column({ nullable: true })
   reasonForChange: string;
 
-  @ManyToOne(() => ProgramRegistryConditionCategory, undefined, { nullable: true })
-  programRegistryCategory?: IProgramRegistryCategory;
-  @RelationId(({ programRegistryCategory }) => programRegistryCategory)
+  @ManyToOne(() => ProgramRegistryConditionCategory)
+  programRegistryConditionCategory: IProgramRegistryConditionCategory;
+  @RelationId(({ programRegistryConditionCategory }) => programRegistryConditionCategory)
   programRegistryConditionCategoryId?: ID;
 
   // Relations
@@ -69,7 +69,6 @@ export class PatientProgramRegistrationCondition
         patientProgramRegistrationId,
       })
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
-      .leftJoinAndSelect('condition.programRegistryCategory', 'programRegistryCategory')
       .getMany();
   }
 }
