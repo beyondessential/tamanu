@@ -26,6 +26,6 @@ Optional field for recording the reason for changing the condition.
 TODO
 {% enddocs %}
 
-{% docs patient_program_registration_conditions__program_registry_category_id %}
+{% docs patient_program_registration_conditions__program_registry_condition_category_id %}
 TODO
 {% enddocs %}
