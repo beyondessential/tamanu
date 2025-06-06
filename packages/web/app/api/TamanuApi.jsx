@@ -215,9 +215,9 @@ export class TamanuApi extends ApiClient {
           ]);
         } else {
           notifyError([
-            <b key="general.api.notification.requestFailed.generic">
+            <b key="general.api.notification.requestFailed">
               <TranslatedText
-                stringId="general.api.notification.requestFailed.generic"
+                stringId="general.api.notification.requestFailed"
                 fallback="Network request failed. Please contact your administrator."
               />
             </b>,
