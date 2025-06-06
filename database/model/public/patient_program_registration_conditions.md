@@ -23,9 +23,11 @@ Optional field for recording the reason for changing the condition.
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__patient_program_registration_id %}
-TODO
+Reference to the [Patient Program Registry](#!/source/source.tamanu.tamanu.patient_program_registrations)
+of the condition.
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__program_registry_condition_category_id %}
-TODO
+Reference to the [Program Registry Condition Category](#!/source/source.tamanu.tamanu.program_registry_condition_categories)
+of the condition.
 {% enddocs %}
