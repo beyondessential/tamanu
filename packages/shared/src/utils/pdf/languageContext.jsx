@@ -31,6 +31,18 @@ Font.register({
   src: path.join(baseDir, 'Moul-Regular.ttf'),
 });
 
+// Arabic font - temporarily disabled due to font format issues
+// Font.register({
+//   family: FONT.NOTO_SANS_ARABIC,
+//   src: path.join(baseDir, 'NotoSansArabic.ttf'),
+// });
+
+// Arabic font - temporarily commented out due to font format issues
+// Font.register({
+//   family: FONT.NOTO_SANS_ARABIC,
+//   src: 'https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf',
+// });
+
 // title font
 Font.register({
   family: 'Roboto',
@@ -53,7 +65,7 @@ export const useLanguageContext = () => {
   return ctx;
 };
 
-export const withLanguageContext = Component => props => {
+export const withLanguageContext = (Component) => (props) => {
   const context = useLanguageContext();
   const { language, translations, ...other } = props;
 
@@ -81,6 +93,18 @@ export const withLanguageContext = Component => props => {
             }
           }
         }
+
+        if (
+          currentLanguage === 'sy' &&
+          currentFontFamily &&
+          currentFontFamily !== FONT.NOTO_SANS_ARABIC
+        ) {
+          newStyles.fontFamily = FONT.NOTO_SANS_ARABIC;
+          if (boldFont.includes(currentFontFamily) || forceToBodyFontWithGreaterFontWeight) {
+            newStyles.fontWeight = 500;
+          }
+        }
+
         return newStyles;
       },
       getTranslation(stringId, fallback, translationOptions) {

@@ -24,3 +24,11 @@ html {
   src: url(fonts/Moul-Regular.ttf) format('truetype');
   unicode-range: U+1780-17FF; /* Khmer characters */
 }
+
+@font-face {
+  font-family: 'NotoSansArabic';
+  font-style: normal;
+  font-display: swap;
+  src: url(fonts/NotoSansArabic-Regular.ttf) format('truetype');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC; /* Arabic characters */
+}
