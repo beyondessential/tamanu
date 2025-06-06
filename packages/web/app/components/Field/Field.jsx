@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   connect as formikConnect,
   Field as FormikField,
@@ -18,6 +18,8 @@ export const Field = formikConnect(
     formik: {
       errors,
       status: { submitStatus },
+      validateField,
+      values,
     },
     name,
     component = TextField,
@@ -31,6 +33,14 @@ export const Field = formikConnect(
 
     const { setFieldTouched } = useFormikContext();
     const [field] = useField(name);
+    const fieldValue = getIn(values, name);
+
+    // Validate field when its value changes (only after submit attempt and if there is an error)
+    useEffect(() => {
+      if (error) {
+        validateField(name);
+      }
+    }, [fieldValue, error, validateField, name]);
 
     const baseOnChange = (...args) => {
       setFieldTouched(name, true);
