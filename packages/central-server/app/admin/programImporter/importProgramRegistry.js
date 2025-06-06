@@ -42,7 +42,7 @@ function readProgramRegistryConditionCategoriesData(workbook) {
   log.debug('Reading Condition Categories');
   const worksheet = workbook.Sheets['Registry Condition Categories'];
   if (!worksheet) {
-    log.debug('No Registry Condition Categories sheet - skipping');
+    log.debug('No Registry Condition Categories sheet - will only import hardcoded categories');
     return [];
   }
   return utils.sheet_to_json(worksheet);
