@@ -17,7 +17,6 @@ export class ProgramRegistryConditionCategory extends Model {
         code: {
           type: DataTypes.TEXT,
           allowNull: false,
-          unique: true,
         },
         name: {
           type: DataTypes.TEXT,

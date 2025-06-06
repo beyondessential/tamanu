@@ -13,7 +13,7 @@ export class ProgramRegistryConditionCategory
 {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: false })
   code: string;
 
   @Column({ nullable: false })
