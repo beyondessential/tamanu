@@ -26,7 +26,10 @@ export async function upgrade({
   toVersion: string;
   serverType: 'central' | 'facility';
 }) {
-  const fromVersion = (await models.LocalSystemFact.get('version')) ?? '0.0.0';
+  const fromVersion = await models.LocalSystemFact.get('version').catch((err) => {
+    log.error('Failed to get current version, likely because there is not one recorded yet', err);
+    return '0.0.0';
+  });
   log.info('Upgrading Tamanu installation', { from: fromVersion, to: toVersion });
 
   const migrations = createMigrationInterface(log, sequelize);
