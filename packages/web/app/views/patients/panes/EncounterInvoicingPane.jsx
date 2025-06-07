@@ -15,6 +15,7 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -57,7 +58,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const { data: invoice } = useEncounterInvoiceQuery(encounter.id);
 
-  const handleOpenInvoiceModal = (type) => setOpenInvoiceModal(type);
+  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
@@ -83,43 +84,47 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </InvoiceHeading>
               {(cancelable || deletable) && (
                 <ActionsPane data-testid="actionspane-l9ey">
-                  <ThreeDotMenu
-                    items={[
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.cancelInvoice"
-                            fallback="Cancel invoice"
-                            data-testid="translatedtext-n7tk"
-                          />
-                        ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
-                        hidden: !cancelable,
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.deleteInvoice"
-                            fallback="Delete invoice"
-                            data-testid="translatedtext-d2ou"
-                          />
-                        ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
-                        hidden: !deletable,
-                      },
-                    ]}
-                    data-testid="threedotmenu-5t9u"
-                  />
-                  <Button
-                    onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
-                    data-testid="button-2zyp"
-                  >
-                    <TranslatedText
-                      stringId="invoice.action.edit"
-                      fallback="Edit invoice"
-                      data-testid="translatedtext-6nrc"
+                  <NoteModalActionBlocker>
+                    <ThreeDotMenu
+                      items={[
+                        {
+                          label: (
+                            <TranslatedText
+                              stringId="invoice.modal.editInvoice.cancelInvoice"
+                              fallback="Cancel invoice"
+                              data-testid="translatedtext-n7tk"
+                            />
+                          ),
+                          onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
+                          hidden: !cancelable,
+                        },
+                        {
+                          label: (
+                            <TranslatedText
+                              stringId="invoice.modal.editInvoice.deleteInvoice"
+                              fallback="Delete invoice"
+                              data-testid="translatedtext-d2ou"
+                            />
+                          ),
+                          onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
+                          hidden: !deletable,
+                        },
+                      ]}
+                      data-testid="threedotmenu-5t9u"
                     />
-                  </Button>
+                  </NoteModalActionBlocker>
+                  <NoteModalActionBlocker>
+                    <Button
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
+                      data-testid="button-2zyp"
+                    >
+                      <TranslatedText
+                        stringId="invoice.action.edit"
+                        fallback="Edit invoice"
+                        data-testid="translatedtext-6nrc"
+                      />
+                    </Button>
+                  </NoteModalActionBlocker>
                 </ActionsPane>
               )}
             </InvoiceTopBar>
@@ -130,16 +135,18 @@ export const EncounterInvoicingPane = ({ encounter }) => {
       ) : (
         <EmptyPane data-testid="emptypane-cjxo">
           {ability.can('create', 'Invoice') && (
-            <Button
-              onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
-              data-testid="button-j06y"
-            >
-              <TranslatedText
-                stringId="invoice.action.create"
-                fallback="Create invoice"
-                data-testid="translatedtext-um8m"
-              />
-            </Button>
+            <NoteModalActionBlocker>
+              <Button
+                onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
+                data-testid="button-j06y"
+              >
+                <TranslatedText
+                  stringId="invoice.action.create"
+                  fallback="Create invoice"
+                  data-testid="translatedtext-um8m"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           )}
         </EmptyPane>
       )}

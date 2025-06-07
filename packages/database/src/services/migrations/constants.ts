@@ -31,6 +31,9 @@ export const NON_LOGGED_TABLES = [
   'public.sync_device_ticks',
   'public.sync_lookup_ticks',
 
+  // internal migration tables
+  'public.SequelizeMeta',
+
   // caches
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',

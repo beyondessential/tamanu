@@ -11,7 +11,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
-
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
 `;
@@ -179,17 +179,19 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       sortable: false,
       numeric: true, // Right aligns the cell content
       accessor: row => (
-        <SingleAddButton
-          variant="outlined"
-          onClick={() => handleAddPotentialInvoiceItems([row])}
-          data-testid="singleaddbutton-sh7m"
-        >
-          <TranslatedText
-            stringId="general.action.add"
-            fallback="Add"
-            data-testid="translatedtext-yvbk"
-          />
-        </SingleAddButton>
+        <NoteModalActionBlocker>
+          <SingleAddButton
+            variant="outlined"
+            onClick={() => handleAddPotentialInvoiceItems([row])}
+            data-testid="singleaddbutton-sh7m"
+          >
+            <TranslatedText
+              stringId="general.action.add"
+              fallback="Add"
+              data-testid="translatedtext-yvbk"
+            />
+          </SingleAddButton>
+        </NoteModalActionBlocker>
       ),
     },
   ];
@@ -203,16 +205,18 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           data-testid="translatedtext-hxbk"
         />
         {!isEmptyPotentialInvoiceItems && (
-          <BulkAddButton
-            onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}
-            data-testid="bulkaddbutton-ziik"
-          >
-            <TranslatedText
-              stringId="general.action.addAll"
-              fallback="Add all"
-              data-testid="translatedtext-ziuk"
-            />
-          </BulkAddButton>
+          <NoteModalActionBlocker>
+            <BulkAddButton
+              onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}
+              data-testid="bulkaddbutton-ziik"
+            >
+              <TranslatedText
+                stringId="general.action.addAll"
+                fallback="Add all"
+                data-testid="translatedtext-ziuk"
+              />
+            </BulkAddButton>
+          </NoteModalActionBlocker>
         )}
       </PaneHeader>
       <StyledDataFetchingTable

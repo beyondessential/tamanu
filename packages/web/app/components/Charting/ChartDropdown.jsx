@@ -6,6 +6,7 @@ import { SelectField } from '../Field';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 300px;
+  z-index: 3;
 `;
 
 export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {

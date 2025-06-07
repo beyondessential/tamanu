@@ -33,22 +33,24 @@ export const RoutingFacilityApp = React.memo(() => {
   const { isSettingsLoaded } = useSettings();
 
   return (
-    <App sidebar={<Sidebar items={sidebarMenuItems} />}>
-      <UserActivityMonitor />
-      <Switch>
-        {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
-        <Route path="/dashboard" component={DashboardView} />
-        <Route path="/patients" component={PatientsRoutes} />
-        <Route path="/appointments" component={AppointmentRoutes} />
-        <Route path="/imaging-requests" component={ImagingRoutes} />
-        <Route path="/lab-requests" component={LabsRoutes} />
-        <Route path="/medication-requests" component={MedicationRoutes} />
-        <Route path="/invoices" component={BillingRoutes} />
-        <Route path="/program-registry" component={ProgramRegistryRoutes} />
-        <Route path="/immunisations" component={ImmunisationRoutes} />
-        <Route path="/facility-admin" component={FacilityAdminRoutes} />
-      </Switch>
-    </App>
+    <>
+      <App sidebar={<Sidebar items={sidebarMenuItems} />}>
+        <UserActivityMonitor />
+        <Switch>
+          {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
+          <Route path="/dashboard" component={DashboardView} />
+          <Route path="/patients" component={PatientsRoutes} />
+          <Route path="/appointments" component={AppointmentRoutes} />
+          <Route path="/imaging-requests" component={ImagingRoutes} />
+          <Route path="/lab-requests" component={LabsRoutes} />
+          <Route path="/medication-requests" component={MedicationRoutes} />
+          <Route path="/invoices" component={BillingRoutes} />
+          <Route path="/program-registry" component={ProgramRegistryRoutes} />
+          <Route path="/immunisations" component={ImmunisationRoutes} />
+          <Route path="/facility-admin" component={FacilityAdminRoutes} />
+        </Switch>
+      </App>
+    </>
   );
 });
 
