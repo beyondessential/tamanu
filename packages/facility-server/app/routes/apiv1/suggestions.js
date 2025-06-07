@@ -37,8 +37,8 @@ const getTranslationPrefix = (endpoint) =>
 
 // Helper function to generate the translation subquery
 const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text" 
-  FROM "translated_strings" 
+  SELECT "text"
+  FROM "translated_strings"
   WHERE "language" = $language
   AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
   LIMIT 1
@@ -361,15 +361,12 @@ createSuggester(
 createSuggester(
   REFERENCE_TYPES.MEDICATION_SET,
   'ReferenceData',
-  ({ search }) => ({
-    name: { [Op.iLike]: search },
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     type: REFERENCE_TYPES.MEDICATION_SET,
-    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: (item) => item,
-    creatingBodyBuilder: (req) =>
-      referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
     includeBuilder: (req) => {
       const {
         models: { ReferenceData, ReferenceMedicationTemplate },
@@ -416,7 +413,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
-        return [
+        const result = [
           parentId && {
             model: ReferenceData,
             as: 'parent',
@@ -429,8 +426,10 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
               },
             },
           },
-          'referenceDrug',
+          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
         ].filter(Boolean);
+
+        return result.length > 0 ? result : null;
       },
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
