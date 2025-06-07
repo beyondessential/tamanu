@@ -6,12 +6,14 @@ import {
   ID,
   IUser,
   IProgramRegistryCondition,
+  IProgramRegistryConditionCategory,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { ProgramRegistryConditionCategory } from './ProgramRegistryConditionCategory';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
@@ -29,11 +31,13 @@ export class PatientProgramRegistrationCondition
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
 
-  @Column({ nullable: false, default: 'unknown' })
-  conditionCategory: string;
-
   @Column({ nullable: true })
   reasonForChange: string;
+
+  @ManyToOne(() => ProgramRegistryConditionCategory)
+  programRegistryConditionCategory: IProgramRegistryConditionCategory;
+  @RelationId(({ programRegistryConditionCategory }) => programRegistryConditionCategory)
+  programRegistryConditionCategoryId?: ID;
 
   // Relations
   @ManyToOne(() => PatientProgramRegistration)
