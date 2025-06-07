@@ -144,7 +144,7 @@ async function connectToDatabase(dbOptions) {
           return await super.run(sql, options);
         } catch (error) {
           log.error(error);
-          throw new Error('Error in query, see logs for more details');
+          throw error;
         }
       }
     }
