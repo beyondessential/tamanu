@@ -159,11 +159,6 @@ describe('Sync Lookup data', () => {
       data: Buffer.from('test'),
     });
     const referenceData = await ReferenceData.create(fake(ReferenceData));
-
-    const referenceDataBaseObject = fake(ReferenceData, { id: 'reference-data-base-object' });
-    await ReferenceData.create(referenceDataBaseObject);
-    await ReferenceData.create(referenceDataBaseObject);
-
     await ReferenceDataRelation.create(fake(ReferenceDataRelation));
     const category = await PatientFieldDefinitionCategory.create(
       fake(PatientFieldDefinitionCategory),
