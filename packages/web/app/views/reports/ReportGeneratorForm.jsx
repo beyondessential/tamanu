@@ -110,7 +110,14 @@ const useFileName = () => {
   };
 };
 
-const getAboutReportString = (reportName) => `About ${reportName}`;
+const getAboutReportString = (reportName) => (
+  <TranslatedText
+    stringId="report.generate.about.label"
+    fallback="About :reportName"
+    replacements={{ reportName }}
+    data-testid="translatedtext-hf3l"
+  />
+);
 
 const isJsonString = (str) => {
   try {
