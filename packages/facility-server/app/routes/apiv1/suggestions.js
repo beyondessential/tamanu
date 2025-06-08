@@ -366,46 +366,6 @@ createSuggester(
   true,
 );
 
-createSuggester(
-  REFERENCE_TYPES.MEDICATION_SET,
-  'ReferenceData',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: REFERENCE_TYPES.MEDICATION_SET,
-  }),
-  {
-    mapper: (item) => item,
-    includeBuilder: (req) => {
-      const {
-        models: { ReferenceData, ReferenceMedicationTemplate },
-      } = req;
-
-      return [
-        {
-          model: ReferenceData,
-          as: 'children',
-          where: VISIBILITY_CRITERIA,
-          through: {
-            attributes: [],
-            where: {
-              type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-              deleted_at: null,
-            },
-          },
-          include: {
-            model: ReferenceMedicationTemplate,
-            as: 'medicationTemplate',
-            include: {
-              model: ReferenceData,
-              as: 'medication',
-            },
-          },
-        },
-      ];
-    },
-  },
-);
-
 REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
@@ -417,7 +377,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
     {
       includeBuilder: (req) => {
         const {
-          models: { ReferenceData },
+          models: { ReferenceData, ReferenceMedicationTemplate },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -435,6 +395,26 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
             },
           },
           typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.MEDICATION_SET && {
+            model: ReferenceData,
+            as: 'children',
+            where: VISIBILITY_CRITERIA,
+            through: {
+              attributes: [],
+              where: {
+                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                deleted_at: null,
+              },
+            },
+            include: {
+              model: ReferenceMedicationTemplate,
+              as: 'medicationTemplate',
+              include: {
+                model: ReferenceData,
+                as: 'medication',
+              },
+            },
+          },
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -443,7 +423,8 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: (item) => item,
-      shouldSkipDefaultOrder: (req) => req.query.parentId,
+      shouldSkipDefaultOrder: (req) =>
+        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
