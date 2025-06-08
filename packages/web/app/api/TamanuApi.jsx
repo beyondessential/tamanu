@@ -224,6 +224,7 @@ export class TamanuApi extends ApiClient {
             err.status && (
               <TranslatedText
                 key="general.api.notification.requestFailed.status"
+                stringId="general.api.notification.requestFailed.status"
                 fallback="Status code: :status"
                 replacements={{ status: err.status }}
               />
