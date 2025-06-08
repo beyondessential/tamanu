@@ -21,6 +21,7 @@ export async function listSteps() {
     await Promise.all(
       (await fs.readdir(STEPS_DIR))
         .filter((file: string) => /^\d+-[^.:]+[.][jt]s$/.test(file))
+        .sort()
         .map(async (file: string) => {
           const stepfile = basename(file, extname(file));
           const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
