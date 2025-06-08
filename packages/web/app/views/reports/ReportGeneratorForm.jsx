@@ -110,7 +110,7 @@ const useFileName = () => {
   };
 };
 
-const getAboutReport = (reportName) => (
+const getAboutReportText = (reportName) => (
   <TranslatedText
     stringId="report.generate.about.label"
     fallback="About :reportName"
@@ -378,11 +378,11 @@ export const ReportGeneratorForm = () => {
                   onClick={() => setIsReportModalOpen(true)}
                   data-testid="aboutreportbutton-xxge"
                 >
-                  {getAboutReport(reportsById[selectedReportId].name)}
+                  {getAboutReportText(reportsById[selectedReportId].name)}
                 </AboutReportButton>
               </FormGrid>
               <ReportAboutModal
-                title={getAboutReport(reportsById[selectedReportId].name)}
+                title={getAboutReportText(reportsById[selectedReportId].name)}
                 open={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
                 content={reportsById[selectedReportId].notes}
