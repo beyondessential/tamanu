@@ -125,7 +125,7 @@ export async function down(query: QueryInterface): Promise<void> {
   // Revert changes to patient_program_registration_conditions table
   await query.removeConstraint(
     'patient_program_registration_conditions',
-    'patient_program_registration_conditions_program_registry_condition_category_id_fkey',
+    'patient_program_registration__program_registry_condition_c_fkey',
   );
 
   await query.removeColumn(
