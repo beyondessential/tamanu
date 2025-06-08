@@ -28,6 +28,7 @@ describe('Programs import', () => {
       PatientProgramRegistration,
       ProgramRegistryClinicalStatus,
       ProgramRegistryCondition,
+      ProgramRegistryConditionCategory,
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
@@ -35,6 +36,7 @@ describe('Programs import', () => {
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
     await ProgramRegistryCondition.destroy({ where: {}, force: true });
+    await ProgramRegistryConditionCategory.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
