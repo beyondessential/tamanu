@@ -84,7 +84,13 @@ export const LabRequestsTable = React.memo(
         autoRefresh
         endpoint="labRequest"
         columns={columns}
-        noDataMessage="No lab requests found"
+        noDataMessage={
+          <TranslatedText
+            stringId="lab.list.noData"
+            fallback="No lab requests found"
+            data-testid="translatedtext-labList-noData"
+          />
+        }
         onRowClick={selectLab}
         fetchOptions={{
           ...searchFilters,

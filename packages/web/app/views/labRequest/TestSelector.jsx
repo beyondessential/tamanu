@@ -315,7 +315,14 @@ export const TestSelectorInput = ({
                   />
                 ))
               ) : (
-                <BodyText data-testid="bodytext-7zxj">No {selectableName}s found.</BodyText>
+                <BodyText data-testid="bodytext-7zxj">
+                  <TranslatedText
+                    stringId="lab.testSelect.noData"
+                    fallback="No :selectableName found."
+                    replacements={{ selectableName }}
+                    data-testid="translatedtext-testSelect-noData"
+                  />
+                </BodyText>
               ))}
           </SelectorTable>
         </SelectorContainer>
