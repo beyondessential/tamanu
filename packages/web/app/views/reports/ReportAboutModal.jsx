@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal, OutlinedButton } from '../../components';
+import { Modal, OutlinedButton, TranslatedText } from '../../components';
 import { Colors } from '../../constants';
 
 const TextContainer = styled.div`
@@ -19,7 +19,11 @@ const StyledButtonRow = styled.div`
 const CloseButtonRow = ({ onClose }) => (
   <StyledButtonRow data-testid="styledbuttonrow-xyl4">
     <OutlinedButton variant="contained" onClick={onClose} data-testid="outlinedbutton-2myt">
-      Close
+      <TranslatedText
+        stringId="general.action.close"
+        fallback="Close"
+        data-testid="translatedtext-2myt"
+      />
     </OutlinedButton>
   </StyledButtonRow>
 );
