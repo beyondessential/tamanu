@@ -61,7 +61,14 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
+  {
+    mapper,
+    searchColumn,
+    extraReplacementsBuilder,
+    includeBuilder,
+    orderBuilder,
+    shouldSkipDefaultOrder,
+  },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -94,6 +101,11 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
+      const skipDefaultOrder = shouldSkipDefaultOrder?.(req);
+      const defaultOrder = [
+        positionQuery,
+        [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
+      ];
 
       const results = await model.findAll({
         where,
@@ -103,12 +115,7 @@ function createSuggesterRoute(
           // TODO: This is a hack to avoid ambiguous column references when we have includes
           // need to either fix this or enforce custom orderBuilder
           ...(order ? [order] : []),
-          ...(include
-            ? []
-            : [
-                positionQuery,
-                [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
-              ]),
+          ...(skipDefaultOrder ? [] : defaultOrder),
         ],
         bind: {
           positionMatch: searchQuery,
@@ -354,6 +361,7 @@ createSuggester(
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
+    shouldSkipDefaultOrder: () => true,
   },
   true,
 );
@@ -435,6 +443,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: (item) => item,
+      shouldSkipDefaultOrder: (req) => req.query.parentId,
     },
     true,
   );
