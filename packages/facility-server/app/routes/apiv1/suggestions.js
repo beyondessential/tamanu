@@ -27,7 +27,7 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
+  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -37,8 +37,8 @@ const getTranslationPrefix = (endpoint) =>
 
 // Helper function to generate the translation subquery
 const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text" 
-  FROM "translated_strings" 
+  SELECT "text"
+  FROM "translated_strings"
   WHERE "language" = $language
   AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
   LIMIT 1
@@ -61,7 +61,15 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder, subQuery },
+  {
+    mapper,
+    searchColumn,
+    extraReplacementsBuilder,
+    includeBuilder,
+    orderBuilder,
+    shouldSkipDefaultOrder,
+    subQuery
+  },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -94,6 +102,11 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
+      const skipDefaultOrder = shouldSkipDefaultOrder?.(req);
+      const defaultOrder = [
+        positionQuery,
+        [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
+      ];
 
       const results = await model.findAll({
         where,
@@ -104,12 +117,7 @@ function createSuggesterRoute(
           // TODO: This is a hack to avoid ambiguous column references when we have includes
           // need to either fix this or enforce custom orderBuilder
           ...(order ? [order] : []),
-          ...(include
-            ? []
-            : [
-                positionQuery,
-                [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
-              ]),
+          ...(skipDefaultOrder ? [] : defaultOrder),
         ],
         bind: {
           positionMatch: searchQuery,
@@ -355,53 +363,9 @@ createSuggester(
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
+    shouldSkipDefaultOrder: () => true,
   },
   true,
-);
-
-createSuggester(
-  REFERENCE_TYPES.MEDICATION_SET,
-  'ReferenceData',
-  ({ search }) => ({
-    name: { [Op.iLike]: search },
-    type: REFERENCE_TYPES.MEDICATION_SET,
-    ...VISIBILITY_CRITERIA,
-  }),
-  {
-    mapper: (item) => item,
-    creatingBodyBuilder: (req) =>
-      referenceDataBodyBuilder({ type: REFERENCE_TYPES.MEDICATION_SET, name: req.body.name }),
-    includeBuilder: (req) => {
-      const {
-        models: { ReferenceData, ReferenceMedicationTemplate },
-      } = req;
-
-      return [
-        {
-          model: ReferenceData,
-          as: 'children',
-          where: VISIBILITY_CRITERIA,
-          through: {
-            attributes: [],
-            where: {
-              type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-              deleted_at: null,
-            },
-          },
-          include: {
-            model: ReferenceMedicationTemplate,
-            as: 'medicationTemplate',
-            include: {
-              model: ReferenceData,
-              as: 'medication',
-              where: VISIBILITY_CRITERIA,
-            },
-          },
-        },
-      ];
-    },
-    subQuery: false,
-  },
 );
 
 REFERENCE_TYPE_VALUES.forEach((typeName) => {
@@ -415,11 +379,11 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
     {
       includeBuilder: (req) => {
         const {
-          models: { ReferenceData },
+          models: { ReferenceData, ReferenceMedicationTemplate },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
-        return [
+        const result = [
           parentId && {
             model: ReferenceData,
             as: 'parent',
@@ -432,13 +396,39 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
               },
             },
           },
-          'referenceDrug',
+          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.MEDICATION_SET && {
+            model: ReferenceData,
+            as: 'children',
+            where: VISIBILITY_CRITERIA,
+            through: {
+              attributes: [],
+              where: {
+                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                deleted_at: null,
+              },
+            },
+            include: {
+              model: ReferenceMedicationTemplate,
+              as: 'medicationTemplate',
+              include: {
+                model: ReferenceData,
+                as: 'medication',
+                where: VISIBILITY_CRITERIA,
+              },
+            },
+          },
         ].filter(Boolean);
+
+        return result.length > 0 ? result : null;
       },
+      ...(typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {}),
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: (item) => item,
+      shouldSkipDefaultOrder: (req) =>
+        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
@@ -556,7 +546,7 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
 }));
 
 createSuggester(
-  'invoiceProducts',
+  'invoiceProduct',
   'InvoiceProduct',
   ({ endpoint, modelName }) => ({
     ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),

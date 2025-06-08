@@ -1,13 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import {
-  Box,
-  Divider,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-} from '@material-ui/core';
+import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import {
   DRUG_UNIT_VALUES,
@@ -81,7 +75,9 @@ const validationSchema = yup.object().shape({
   doseAmount: yup
     .number()
     .positive()
-    .translatedLabel(<TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />)
+    .translatedLabel(
+      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
+    )
     .when('isVariableDose', {
       is: true,
       then: schema => schema.optional(),
@@ -969,26 +965,24 @@ export const MedicationForm = ({
                 </FormSubmitButton>
               )}
               <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
-                <FormCancelButton onClick={onCancelEdit || onCancel}>
-                  {isEditing ? (
-                    <TranslatedText
-                      stringId="general.action.cancelChanges"
-                      fallback="Cancel changes"
-                    />
-                  ) : (
-                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                  )}
-                </FormCancelButton>
+                {(!isEditing || dirty) && (
+                  <FormCancelButton onClick={onCancelEdit || onCancel}>
+                    {isEditing ? (
+                      <TranslatedText
+                        stringId="general.action.cancelChanges"
+                        fallback="Cancel changes"
+                      />
+                    ) : (
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                    )}
+                  </FormCancelButton>
+                )}
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
-                  disabled={isEditing && !dirty}
                 >
                   {isEditing ? (
-                    <TranslatedText
-                      stringId="general.action.confirmChanges"
-                      fallback="Confirm changes"
-                    />
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                   ) : (
                     <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
                   )}

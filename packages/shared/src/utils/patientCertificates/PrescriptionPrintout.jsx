@@ -13,6 +13,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { getDose, getTranslatedFrequency } from '../medication';
+import { Footer } from './printComponents/Footer';
 
 const columns = (getTranslation, getEnumTranslation) => [
   {
@@ -132,7 +133,7 @@ const PrescriptionPrintoutComponent = ({
 }) => {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={[styles.page, { paddingBottom: '50' }]}>
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
@@ -157,6 +158,7 @@ const PrescriptionPrintoutComponent = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
+        <Footer />
       </Page>
     </Document>
   );
