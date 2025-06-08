@@ -30,6 +30,7 @@ import { RemoveAdditionalDoseModal } from './RemoveAdditionalDoseModal';
 import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { ConditionalTooltip } from '../../Tooltip';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -299,10 +300,7 @@ export const MarDetails = ({
           render={({ values, setFieldValue, errors }) => (
             <>
               <Container>
-                <MarInfoPane
-                  medication={medication}
-                  marInfo={marInfo}
-                />
+                <MarInfoPane medication={medication} marInfo={marInfo} />
                 <DetailsContainer mt={'14px'} display={'flex'} flexDirection={'column'}>
                   {marInfo?.isError ? (
                     <Box display={'flex'} flexDirection={'column'}>
@@ -322,23 +320,33 @@ export const MarDetails = ({
                     </Box>
                   ) : (
                     <FormGrid style={{ width: '100%' }}>
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <Field
-                          label={
-                            <Box display={'flex'} alignItems={'center'}>
-                              <DarkText>
-                                <TranslatedText
-                                  stringId="medication.mar.markAsMedicationError.label"
-                                  fallback="Mark as medication error"
-                                />
-                              </DarkText>
-                              <StyledPriorityHighIcon />
-                            </Box>
+                      <div style={{ gridColumn: '1 / -1', width: 'fit-content' }}>
+                        <ConditionalTooltip
+                          visible={!canEditMar}
+                          title={
+                            <TranslatedText
+                              stringId="general.error.noPermission"
+                              fallback="No permission to perform this action"
+                            />
                           }
-                          name="isError"
-                          component={CheckField}
-                          disabled={!canEditMar}
-                        />
+                        >
+                          <Field
+                            label={
+                              <Box display={'flex'} alignItems={'center'}>
+                                <DarkText>
+                                  <TranslatedText
+                                    stringId="medication.mar.markAsMedicationError.label"
+                                    fallback="Mark as medication error"
+                                  />
+                                </DarkText>
+                                <StyledPriorityHighIcon />
+                              </Box>
+                            }
+                            name="isError"
+                            component={CheckField}
+                            disabled={!canEditMar}
+                          />
+                        </ConditionalTooltip>
                       </div>
                       {values.isError && (
                         <div style={{ gridColumn: '1 / -1', marginTop: '-8px' }}>
