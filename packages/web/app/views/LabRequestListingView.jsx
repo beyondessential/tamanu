@@ -7,6 +7,7 @@ import {
   PageContainer,
   SearchTableTitle,
   TopBar,
+  TranslatedText,
 } from '../components';
 import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
@@ -22,7 +23,13 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
 
   return (
     <StyledContentPane data-testid="styledcontentpane-l071">
-      <SearchTableTitle data-testid="searchtabletitle-f5fy">Lab request search</SearchTableTitle>
+      <SearchTableTitle data-testid="searchtabletitle-f5fy">
+        <TranslatedText
+          stringId="labList.search.title"
+          fallback="Lab request search"
+          data-testid="translatedtext-7777"
+        />
+      </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
       <LabRequestsTable
         loadEncounter={loadEncounter}
@@ -37,7 +44,16 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
 
 export const LabRequestListingView = () => (
   <PageContainer data-testid="pagecontainer-qljt">
-    <TopBar title="Active lab requests" data-testid="topbar-576y" />
+    <TopBar
+      title={
+        <TranslatedText
+          stringId="labList.active.title"
+          fallback="Active lab requests"
+          data-testid="translatedtext-576y"
+        />
+      }
+      data-testid="topbar-576y"
+    />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE}
       data-testid="labrequestlisting-bxu7"
@@ -47,7 +63,16 @@ export const LabRequestListingView = () => (
 
 export const PublishedLabRequestListingView = () => (
   <PageContainer data-testid="pagecontainer-u7ab">
-    <TopBar title="Published lab requests" data-testid="topbar-gc5j" />
+    <TopBar
+      title={
+        <TranslatedText
+          stringId="labList.published.title"
+          fallback="Published lab requests"
+          data-testid="translatedtext-gc5j"
+        />
+      }
+      data-testid="topbar-gc5j"
+    />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
       searchParamKey={LabRequestSearchParamKeys.Published}
