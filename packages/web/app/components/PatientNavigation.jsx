@@ -8,6 +8,7 @@ import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 import { matchPath, useLocation } from 'react-router-dom';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
@@ -54,7 +55,9 @@ export const PatientNavigation = ({ patientRoutes }) => {
 
   return (
     <StickyContainer data-testid="stickycontainer-ju8w">
-      <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />
+      <NoteModalActionBlocker isNavigationBlock>
+        <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />
+      </NoteModalActionBlocker>
       <VerticalDivider data-testid="verticaldivider-yzxo" />
       <PatientBreadcrumbs patientRoutes={patientRoutes} data-testid="patientbreadcrumbs-383h" />
     </StickyContainer>

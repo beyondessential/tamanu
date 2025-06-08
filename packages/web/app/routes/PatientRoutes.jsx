@@ -28,6 +28,7 @@ import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { NoteModal } from '../components/NoteModal/NoteModal';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -167,29 +168,40 @@ const PatientPaneInner = styled.div`
   min-width: ${PATIENT_PANE_WIDTH};
 `;
 
-export const PatientRoutes = React.memo(() => {
+const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane />
-      {/* Using contain:size along with overflow: auto here allows sticky navigation section
-      to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <PatientPane $backgroundColor={backgroundColor}>
-        <PatientPaneInner>
-          {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
-           that they have access to the programRegistryId url param */}
-          {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
-          <Switch>
-            {patientRoutes.map(route => (
-              <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-            ))}
-          </Switch>
-        </PatientPaneInner>
-      </PatientPane>
-    </TwoColumnDisplay>
+    <>
+      <TwoColumnDisplay>
+        <PatientInfoPane />
+        {/* Using contain:size along with overflow: auto here allows sticky navigation section
+    to have correct scrollable behavior in relation to the patient info pane and switch components */}
+        <PatientPane $backgroundColor={backgroundColor}>
+          <PatientPaneInner>
+            {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
+         that they have access to the programRegistryId url param */}
+            {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
+            <Switch>
+              {patientRoutes.map(route => (
+                <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
+              ))}
+            </Switch>
+          </PatientPaneInner>
+        </PatientPane>
+      </TwoColumnDisplay>
+    </>
+  );
+};
+
+export const PatientRoutes = React.memo(() => {
+  return (
+    <>
+      <NoteModal />
+      <PatientRoutesContent />
+    </>
   );
 }, isPathUnchanged);

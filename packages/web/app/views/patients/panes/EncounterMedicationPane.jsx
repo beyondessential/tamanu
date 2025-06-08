@@ -6,7 +6,12 @@ import { Box } from '@mui/material';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
-import { Button, ButtonWithPermissionCheck, TextButton } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  NoteModalActionBlocker,
+  Button,
+  TextButton,
+} from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
@@ -104,11 +109,13 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
-        {prescriptionTypeModalOpen && <PrescriptionTypeModal
-          open
-          onClose={() => setPrescriptionTypeModalOpen(false)}
-          onContinue={handleContinue}
-        />}
+        {prescriptionTypeModalOpen && (
+          <PrescriptionTypeModal
+            open
+            onClose={() => setPrescriptionTypeModalOpen(false)}
+            onContinue={handleContinue}
+          />
+        )}
         {prescriptionType === PRESCRIPTION_TYPES.MEDICATION_SET && (
           <MedicationSetModal
             open
@@ -210,20 +217,22 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
               </StyledButton>
             )}
             {canCreatePrescription && (
-              <StyledButtonWithPermissionCheck
-                onClick={handleNewPrescription}
-                disabled={readonly || medicationSetsLoading}
-                verb="create"
-                noun="Prescription"
-                data-testid="styledbuttonwithpermissioncheck-cagj"
-                isLoading={medicationSetsLoading}
-              >
-                <TranslatedText
-                  stringId="medication.action.newPrescription"
-                  fallback="New prescription"
-                  data-testid="translatedtext-pikt"
-                />
-              </StyledButtonWithPermissionCheck>
+              <NoteModalActionBlocker>
+                <StyledButtonWithPermissionCheck
+                  onClick={handleNewPrescription}
+                  disabled={readonly || medicationSetsLoading}
+                  verb="create"
+                  noun="Prescription"
+                  data-testid="styledbuttonwithpermissioncheck-cagj"
+                  isLoading={medicationSetsLoading}
+                >
+                  <TranslatedText
+                    stringId="medication.action.newPrescription"
+                    fallback="New prescription"
+                    data-testid="translatedtext-pikt"
+                  />
+                </StyledButtonWithPermissionCheck>
+              </NoteModalActionBlocker>
             )}
           </ButtonGroup>
         </TableButtonRow>
