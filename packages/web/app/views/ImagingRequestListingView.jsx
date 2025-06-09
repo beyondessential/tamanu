@@ -27,7 +27,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
     <StyledContentPane data-testid="styledcontentpane-iuvf">
       <SearchTableTitle data-testid="searchtabletitle-pmmp">
         <TranslatedText
-          stringId="imagingRequestList.search.title"
+          stringId="imagingList.search.title"
           fallback="Imaging request search"
           data-testid="translatedtext-imaging-request-search-title"
         />
@@ -52,7 +52,7 @@ export const ImagingRequestListingView = () => (
     <TopBar
       title={
         <TranslatedText
-          stringId="imagingRequestList.active.title"
+          stringId="imagingList.active.title"
           fallback="Active imaging requests"
           data-testid="translatedtext-imaging-request-active-title"
         />
@@ -74,7 +74,7 @@ export const CompletedImagingRequestListingView = () => (
     <TopBar
       title={
         <TranslatedText
-          stringId="imagingRequestList.completed.title"
+          stringId="imagingList.completed.title"
           fallback="Completed imaging requests"
           data-testid="translatedtext-imaging-request-completed-title"
         />
