@@ -83,7 +83,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
         <ProgramsPaneHeader data-testid="programspaneheader-8cj1">
           <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-a55s">
             <TranslatedText
-              stringId="referral.selectReferralText"
+              stringId="referral.selectReferral.label"
               fallback="Select a referral"
               data-testid="translatedtext-referral-select-referral-text"
             />
