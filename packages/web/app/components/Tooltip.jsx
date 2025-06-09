@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { Tooltip } from '@material-ui/core';
 import { Colors } from '../constants';
 
-export const ThemedTooltip = styled((props) => (
+export const ThemedTooltip = styled(props => (
   <Tooltip
     classes={{ popper: props.className }}
     placement="top"
@@ -23,9 +23,23 @@ export const ThemedTooltip = styled((props) => (
       css`
         max-inline-size: ${$maxWidth};
       `}
+
+    ${({ $border }) =>
+      $border &&
+      css`
+        border: ${$border};
+      `}
   }
   .MuiTooltip-arrow {
     color: ${Colors.primaryDark};
+
+    &::before {
+      ${({ $border }) =>
+        $border &&
+        css`
+          border: 1px solid ${Colors.outline};
+        `}
+    }
   }
 `;
 
