@@ -1,10 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
-import {
-  selectRandomSelectFieldOption,
-  selectRandomAutocompleteFieldOption,
-} from '@utils/fieldHelpers';
+import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
 
 export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
@@ -71,13 +68,15 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async selectVaccine() {
-    await selectRandomSelectFieldOption(this.page, this.vaccineSelectField);
+    await selectFieldOption(this.page, this.vaccineSelectField);
   }
 
   async selectLocationGroup() {
-    await selectRandomAutocompleteFieldOption(this.page, this.areaField);
-    await selectRandomAutocompleteFieldOption(this.page, this.locationField);
-    await selectRandomAutocompleteFieldOption(this.page, this.departmentField);
+    await selectAutocompleteFieldOption(this.page, this.areaField, {
+      optionToSelect: 'Emergency Department',
+    });
+    await selectAutocompleteFieldOption(this.page, this.locationField, { optionToSelect: 'Bed 1' });
+    await selectAutocompleteFieldOption(this.page, this.departmentField);
   }
 
   async selectScheduleOption(option?: string) {

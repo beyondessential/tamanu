@@ -8,56 +8,95 @@ async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<st
   return rawTestId.replace(suffixToRemove, '');
 }
 
-export const selectRandomSelectFieldOption = async (page: Page, field: Locator) => {
+export const selectOptionFromPopper = async (
+  baseTestId: string,
+  popper: Locator,
+  {
+    selectFirst = false,
+    optionToSelect = null,
+  }: { selectFirst?: boolean; optionToSelect?: string | null } = {},
+): Promise<string> => {
+  await popper.waitFor({ state: 'attached', timeout: 5000 });
+
+  const optionLocator = popper.getByTestId(`${baseTestId}-option`);
+  await optionLocator.first().waitFor({ state: 'attached', timeout: 5000 });
+
+  const options = await optionLocator.all();
+  if (options.length === 0) {
+    throw new Error(`No options found for ${baseTestId}`);
+  }
+
+  let selectedOption: Locator | undefined;
+
+  if (optionToSelect) {
+    for (const option of options) {
+      if ((await option.innerText()) === optionToSelect) {
+        selectedOption = option;
+        break;
+      }
+    }
+
+    if (!selectedOption) {
+      throw new Error(`Option "${optionToSelect}" not found in popper`);
+    }
+  } else {
+    selectedOption = selectFirst ? options[0] : options[Math.floor(Math.random() * options.length)];
+  }
+
+  const selectedOptionText = await selectedOption.innerText();
+  await selectedOption.click();
+
+  await expect(popper).not.toBeVisible({ timeout: 1000 });
+
+  return selectedOptionText;
+};
+
+export const selectFieldOption = async (
+  page: Page,
+  field: Locator,
+  {
+    selectFirst = false,
+    optionToSelect = null,
+  }: { selectFirst?: boolean; optionToSelect?: string | null } = {},
+) => {
   await expect(field).toBeEnabled();
   await field.click();
 
   const testId = await getBaseTestId(field, '-select');
+  const popper = page.getByTestId(`${testId}-optioncontainer`);
+  const selectedOptionText = await selectOptionFromPopper(testId, popper, {
+    selectFirst,
+    optionToSelect,
+  });
 
-  const optionLocator = page.getByTestId(`${testId}-option`);
-  await optionLocator.first().waitFor({ state: 'visible' });
-
-  const options = await optionLocator.all();
-  if (options.length === 0) {
-    throw new Error(`No options found for ${testId}`);
-  }
-
-  const selectedOption = options[Math.floor(Math.random() * options.length)];
-  const selectedOptionText = await selectedOption.innerText();
-
-  await selectedOption.click();
-
-  const visibleValue = field.locator(`text="${selectedOptionText}"`).first();
-  await expect(visibleValue).toBeVisible({ timeout: 1000 });
+  await expect(field.locator(`text="${selectedOptionText}"`).first()).toBeVisible({
+    timeout: 1000,
+  });
 };
 
-export const selectRandomAutocompleteFieldOption = async (
+export const selectAutocompleteFieldOption = async (
   page: Page,
   field: Locator,
-  { stripTag = true }: { stripTag?: boolean } = {},
+  {
+    selectFirst = false,
+    optionToSelect = null,
+    stripTag = true,
+  }: {
+    selectFirst?: boolean;
+    optionToSelect?: string | null;
+    stripTag?: boolean;
+  } = {},
 ) => {
   await expect(field).toBeEnabled();
   await field.click();
 
   const input = field.locator('input');
   const testId = await getBaseTestId(field, stripTag ? '-input' : '');
-
   const suggestionsContainer = page.getByTestId(`${testId}-suggestionslist`);
-  await suggestionsContainer.waitFor({ state: 'attached', timeout: 5000 });
+  const selectedOptionText = await selectOptionFromPopper(testId, suggestionsContainer, {
+    selectFirst,
+    optionToSelect,
+  });
 
-  const optionLocator = suggestionsContainer.getByTestId(`${testId}-option-typography`);
-  await optionLocator.first().waitFor({ state: 'attached', timeout: 5000 });
-
-  const options = await optionLocator.all();
-  if (options.length === 0) {
-    throw new Error(`No options found for ${testId}`);
-  }
-
-  const randomIndex = Math.floor(Math.random() * options.length);
-  const selectedOption = options[randomIndex];
-  const selectedOptionText = await selectedOption.innerText();
-  await selectedOption.click();
-
-  await expect(suggestionsContainer).not.toBeVisible({ timeout: 1000 });
   await expect(input).toHaveValue(selectedOptionText, { timeout: 1000 });
 };
