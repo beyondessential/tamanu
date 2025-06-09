@@ -23,7 +23,6 @@ import {
   LocationBookingsPage,
   OutpatientAppointmentsPage,
 } from '../pages';
-import { constructFacilityUrl } from '@utils/navigation';
 
 type BaseFixtures = {
   api: APIRequestContext;
@@ -61,8 +60,6 @@ export const test = base.extend<BaseFixtures>({
     use: (arg: Awaited<ReturnType<typeof createPatient>>) => Promise<void>,
   ) => {
     const patient = await createPatient(api, page);
-    console.log('patient', patient);
-    console.log('patient link', constructFacilityUrl(`/#/patients/all/${patient.id}`));
     await use(patient);
   },
 
