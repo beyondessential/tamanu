@@ -26,13 +26,6 @@ export const TranslatedReferenceData = ({ category, value, fallback, placeholder
   );
 };
 
-export const TranslatedReferenceDataOption = ({ category, value, option }) => {
-    <TranslatedText
-      stringId={getReferenceDataOptionStringId(value, category, option)}
-      fallback={option}
-    />
-};
-
 TranslatedReferenceData.propTypes = {
   category: PropTypes.string.isRequired,
   value: PropTypes.string,
