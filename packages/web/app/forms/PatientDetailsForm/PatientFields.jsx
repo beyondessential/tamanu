@@ -2,12 +2,12 @@ import React, { Fragment } from 'react';
 import {
   Field,
   FormGrid,
-  getReferenceDataStringId,
   NumberField,
   SelectField,
   TextField,
   TranslatedReferenceData,
   TranslatedText,
+  getReferenceDataOptionStringId
 } from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
@@ -42,7 +42,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(option => {
-      const stringId = getReferenceDataStringId(definitionId, 'patientFieldDefinition', option);
+      const stringId = getReferenceDataOptionStringId(definitionId, 'patientFieldDefinition', option);
       return {
         label: getTranslation(stringId, option),
         value: option,

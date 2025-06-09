@@ -4,9 +4,12 @@ import { TranslatedText } from './TranslatedText';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { normaliseTextForStringId } from '@tamanu/utils';
 
-export const getReferenceDataStringId = (value, category, option) => {
-  const normalisedOption = option && `.option.${normaliseTextForStringId(option)}`;
-  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}${normalisedOption}`;
+export const getReferenceDataStringId = (value, category) => {
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
+};
+
+export const getReferenceDataOptionStringId = (value, category, option) => {
+  return `${getReferenceDataStringId(value, category, option)}.option.${normaliseTextForStringId(option)}`;
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
