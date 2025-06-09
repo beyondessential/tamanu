@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { showError } from '@tamanu/shared/test-helpers';
 import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
 
@@ -21,6 +20,17 @@ jest.mock('@tamanu/constants', () => {
     },
   };
 });
+
+const attemptFlogRetrieval = async (FhirWriteLog, options) => {
+  let flog;
+  for (let i = 0; i < 10; i++) {
+    flog = await FhirWriteLog.findOne(options);
+    if (flog) {
+      break;
+    }
+  }
+  return flog;
+};
 
 describe(`Materialised FHIR - WriteLog`, () => {
   let ctx;
@@ -60,10 +70,9 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
-      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
-      const flog = await FhirWriteLog.findOne({
+      const flog = await attemptFlogRetrieval(FhirWriteLog, {
         where: { url: { [Op.like]: '%FooBarBaz%' } },
       });
       expect(flog).toBeTruthy();
@@ -93,10 +102,9 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FooBarBaz`).send(body);
-      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
-      const flog = await FhirWriteLog.findOne({
+      const flog = await attemptFlogRetrieval(FhirWriteLog, {
         where: { url: { [Op.like]: '%FooBarBaz%' } },
       });
       expect(flog).toBeTruthy();
@@ -120,10 +128,9 @@ describe(`Materialised FHIR - WriteLog`, () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/fhir+json; fhirVersion=4.0')
         .send(body);
-      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
-      const flog = await FhirWriteLog.findOne({
+      const flog = await attemptFlogRetrieval(FhirWriteLog, {
         where: { url: { [Op.like]: '%HeadMeOff%' } },
       });
       expect(flog).toBeTruthy();
@@ -194,10 +201,9 @@ describe(`Materialised FHIR - WriteLog`, () => {
         ],
       };
       const response = await app.post(`/api/integration/${INTEGRATION_ROUTE}/FuchBaz`).send(body);
-      await sleepAsync(1);
 
       expect(response.status).not.toBe(201);
-      const flog = await FhirWriteLog.findOne({
+      const flog = await attemptFlogRetrieval(FhirWriteLog, {
         where: { url: { [Op.like]: '%FuchBaz%' } },
       });
       expect(flog.verb).toEqual('POST');

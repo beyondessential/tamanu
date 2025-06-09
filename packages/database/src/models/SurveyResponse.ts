@@ -116,7 +116,16 @@ async function writeToPatientFields(
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
-    await models.PatientProgramRegistration.create({
+
+    // Check if a record already exists with the given patientId and programRegistryId
+    const existingRegistration = await models.PatientProgramRegistration.findOne({
+      where: {
+        patientId,
+        programRegistryId: programRegistryDetail.id,
+      },
+    });
+
+    const registrationData = {
       patientId,
       programRegistryId: programRegistryDetail.id,
       date: submittedTime,
@@ -124,7 +133,15 @@ async function writeToPatientFields(
       registeringFacilityId:
         valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
-    });
+    };
+
+    if (existingRegistration) {
+      // Update the existing record
+      await existingRegistration.update(registrationData);
+    } else {
+      // Create a new record
+      await models.PatientProgramRegistration.create(registrationData);
+    }
   }
 }
 

@@ -12,7 +12,8 @@ import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditi
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
+export const EditPatientScreen = ({ route }): ReactElement => {
+  const { isEdit = true } = route.params;
   const navigation = useNavigation();
   const onGoBack = useCallback(() => {
     navigation.goBack();

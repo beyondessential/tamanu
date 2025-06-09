@@ -122,12 +122,12 @@ async function connectToDatabase(dbOptions) {
   });
 
   sequelize.setSessionVar = (key, value) =>
-    sequelize.query(`SELECT set_session_config($key, $value)`, {
+    sequelize.query(`SELECT public.set_session_config($key, $value)`, {
       bind: { key, value },
     });
 
   sequelize.setTransactionVar = (key, value) =>
-    sequelize.query(`SELECT set_session_config($key, $value, true)`, {
+    sequelize.query(`SELECT public.set_session_config($key, $value, true)`, {
       bind: { key, value },
     });
 
@@ -137,10 +137,15 @@ async function connectToDatabase(dbOptions) {
         const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
         if (userid)
           await super.run(
-            'SELECT set_session_config($1, $2)',
+            'SELECT public.set_session_config($1, $2)',
             [AUDIT_USERID_KEY, userid],
           );
-        return super.run(sql, options);
+        try {
+          return await super.run(sql, options);
+        } catch (error) {
+          log.error(error);
+          throw error;
+        }
       }
     }
     sequelize.dialect.Query = QueryWithAuditConfig;

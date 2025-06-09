@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.33.0",
+  "version": "2.34.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -90,7 +90,8 @@
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
     "patch-package": "^8.0.0",
-    "pm2": "^4.5.0"
+    "pm2": "^4.5.0",
+    "re-resizable": "^6.11.2"
   },
   "overrides": {
     "react": "18.2.0",

@@ -2,10 +2,10 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
+import { PatientTable } from './PatientTable';
 
 export class AllPatientsPage extends BasePage {
-  readonly allPatientsTable: Locator;
-  readonly allPatientsTableLoadingCell: Locator;
+  readonly patientTable: PatientTable;
   readonly addNewPatientBtn: Locator;
   readonly NewPatientFirstName: Locator;
   readonly NewPatientLastName: Locator;
@@ -14,28 +14,26 @@ export class AllPatientsPage extends BasePage {
   readonly NewPatientFemaleChk: Locator;
   readonly NewPatientNHN: Locator;
   readonly NewPatientConfirmBtn: Locator;
-  _patientData?: {
-    firstName: string;
-    lastName: string;
-    gender: string;
-    formattedDOB: string;
-    nhn: string;
-  };
   readonly nhnSearchInput: Locator;
   readonly patientSearchButton: Locator;
   readonly patientListingsHeader: Locator;
   readonly searchResultsPagination: Locator;
   readonly searchResultsPaginationOneOfOne: Locator;
-  readonly nhnResultCell: Locator;
-  readonly secondNHNResultCell: Locator;
+  readonly newPatientVillageSearchBox: Locator;
+  _patientData?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    gender: string;
+    formattedDOB: string;
+    nhn: string;
+    village: string,
+    culturalName: string
+  };
 
   constructor(page: Page) {
     super(page, routes.patients.all);
-
-    this.allPatientsTable = page.getByRole('table');
-    this.allPatientsTableLoadingCell = page
-      .getByTestId('statustablecell-rwkq')
-      .filter({ hasText: 'Loading' });
+    this.patientTable = new PatientTable(page);
     this.addNewPatientBtn = page.getByTestId('component-enxe');
     this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
     this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
@@ -51,15 +49,18 @@ export class AllPatientsPage extends BasePage {
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
-    this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
+    this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
   }
+
   setPatientData(data: {
+    id: string;
     firstName: string;
     lastName: string;
     gender: string;
     formattedDOB: string;
     nhn: string;
+    culturalName: string;
+    village: string;
   }) {
     this._patientData = data;
   }
@@ -67,22 +68,6 @@ export class AllPatientsPage extends BasePage {
   getPatientData() {
     if (!this._patientData) throw new Error('Patient data has not been set');
     return this._patientData;
-  }
-
-  async waitForTableToLoad() {
-    await this.allPatientsTableLoadingCell.waitFor({ state: 'hidden' });
-  }
-
-  async clickOnFirstRow() {
-    await this.waitForTableToLoad();
-    await this.allPatientsTable.locator('tbody tr').first().click();
-    await this.page.waitForURL('**/#/patients/all/*');
-  }
-
-  async clickOnSearchResult(nhn: string) {
-    //this has a short timeout to account for flakiness, in searchForAndSelectPatientByNHN it will try again if it timesout
-    await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
-    await this.page.waitForURL('**/#/patients/all/*');
   }
 
   async navigateToPatientDetailsPage(nhn: string) {
@@ -111,7 +96,7 @@ export class AllPatientsPage extends BasePage {
       try {
         await this.nhnSearchInput.fill(nhn);
         await this.patientSearchButton.click();
-        await this.waitForTableToLoad();
+        await this.patientTable.waitForTableToLoad();
 
         //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
         if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
@@ -120,14 +105,14 @@ export class AllPatientsPage extends BasePage {
         }
 
         //the below if statement is required because sometimes the search results load all results instead of the specific result
-        if (await this.secondNHNResultCell.isVisible()) {
+        if (await this.patientTable.secondNHNResultCell.isVisible()) {
           await this.page.reload();
           await this.page.waitForTimeout(3000);
           attempts++;
           continue;
         }
 
-        await this.clickOnSearchResult(nhn);
+        await this.patientTable.clickOnSearchResult(nhn);
         return;
       } catch (error) {
         attempts++;

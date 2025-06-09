@@ -11,12 +11,12 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   const [lastCompleteds] = await store.sequelize.query(`
     SELECT
-        coalesce(debug_info->>'facilityIds', debug_info->>'facilityId') AS facilities,
+        coalesce(parameters->>'facilityIds', debug_info->>'facilityIds', debug_info->>'facilityId') AS facilities,
         max(completed_at) AS timestamp
     FROM sync_sessions
     WHERE true
         AND completed_at IS NOT NULL
-        AND coalesce(debug_info->>'facilityIds', debug_info->>'facilityId') IS NOT NULL
+        AND coalesce(parameters->>'facilityIds', debug_info->>'facilityIds', debug_info->>'facilityId') IS NOT NULL
     GROUP BY facilities
   `);
 
@@ -28,6 +28,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
           [Op.or]: [
             { 'debugInfo.facilityId': facilities }, // support displaying legacy format of syncs limited to one facility id
             { 'debugInfo.facilityIds': facilities },
+            { 'parameters.facilityIds': facilities },
           ],
         },
       });
@@ -35,8 +36,9 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
   );
 
   res.send({
-    data: sessions.map(session => ({
-      facilityIds: session.debugInfo.facilityIds || [session.debugInfo.facilityId],
+    data: sessions.map((session) => ({
+      facilityIds: session.parameters.facilityIds ||
+        session.debugInfo.facilityIds || [session.debugInfo.facilityId],
       completedAt: session.completedAt,
       duration: session.completedAt - session.createdAt,
     })),

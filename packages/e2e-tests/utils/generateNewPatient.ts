@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
 import { constructFacilityUrl } from './navigation';
+import { testData } from '../utils/testData';
 
 function generateNHN() {
   const letters = faker.string.alpha({ length: 4, casing: 'upper' });
@@ -15,11 +16,12 @@ function generatePatientData() {
   const gender = faker.helpers.arrayElement(['male', 'female']);
   const firstName = faker.person.firstName(gender);
   const lastName = faker.person.lastName();
-  const dob = faker.date.birthdate({ min: 18, max: 80, mode: 'age' });
+  const dob = faker.date.birthdate({ min: 0, max: 95, mode: 'age' });
   const formattedDOB = dob.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
   const nhn = generateNHN();
-
-  return { firstName, lastName, gender, formattedDOB, nhn };
+  const culturalName = faker.person.middleName(gender);
+  const village = testData.village;
+  return { firstName, lastName, gender, formattedDOB, nhn, culturalName, village, id: '' };
 }
 
 export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
@@ -27,9 +29,7 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   allPatientsPage.setPatientData(patientData);
 
   const token = await getItemFromLocalStorage(allPatientsPage, 'apiToken');
-
   const userData = await getCurrentUser(token);
-
   const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
 
   const apiPatientUrl = constructFacilityUrl(`/api/patient`);
@@ -50,6 +50,8 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
       patientRegistryType: 'new_patient',
       registeredById: userData.id,
       sex: patientData.gender,
+      villageId:testData.VillageID,
+      culturalName: patientData.culturalName
     }),
   });
 
@@ -57,10 +59,13 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
     throw new Error(`Failed to create patient: ${response.statusText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  patientData.id = result.id; // Store the ID from response
+  allPatientsPage.setPatientData(patientData); // Update patient data with ID
+  return result;
 }
 
-async function getCurrentUser(token: string) {
+export async function getCurrentUser(token: string) {
   const apiUserUrl = constructFacilityUrl(`/api/user/me`);
 
   const userResponse = await fetch(apiUserUrl, {
@@ -78,7 +83,7 @@ async function getCurrentUser(token: string) {
   return userResponse.json();
 }
 
-async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
+export async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
   const response = await allPatientsPage.page.evaluate((key) => {
     return localStorage.getItem(key);
   }, item);
