@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { camelCase } from 'lodash';
+import { normaliseTextForStringId } from '@tamanu/utils';
 
 export const getReferenceDataStringId = (value, category, option) => {
-  const normalisedOption = option && `.option.${camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''))}`;
+  const normalisedOption = option && `.option.${normaliseTextForStringId(option)}`;
   return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}${normalisedOption}`;
 };
 
