@@ -38,6 +38,18 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   conditionCategoryOptions: FieldValue[];
 }
 
+const getConditionCategoryOptions = (conditionCategories: IProgramRegistryConditionCategory[]) => {
+  if (!conditionCategories) return [];
+
+  return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
+    category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  )
+  .map((category: IProgramRegistryConditionCategory) => ({
+    value: category.id,
+    label: category.name,
+  }));
+}
+
 const PatientProgramRegistrationConditionsFieldItem = ({
   value,
   conditionSuggester,
@@ -216,24 +228,16 @@ export const PatientProgramRegistrationConditionsField = ({
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
 
-
-  const [conditionCategories = []] = useBackendEffect(({ models }) => 
+  const [conditionCategories] = useBackendEffect(({ models }) => 
     models.ProgramRegistryConditionCategory.find({
       where: {
-        programRegistry: programRegistryId,
+        programRegistry: { id: programRegistryId },
       },
     }),
   );
 
   // Filter out recorded in error category and map to options
-  const conditionCategoryOptions = conditionCategories
-  .filter((category: IProgramRegistryConditionCategory) =>
-    category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-  )
-  .map((category: IProgramRegistryConditionCategory) => ({
-    value: category.id,
-    label: category.name,
-  }));
+  const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories);
 
   const conditionSuggester = new Suggester({
     model: models.ProgramRegistryCondition,
