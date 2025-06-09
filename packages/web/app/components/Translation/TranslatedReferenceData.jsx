@@ -2,9 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import { camelCase } from 'lodash';
 
-export const getReferenceDataStringId = (value, category) => {
-  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
+export const getReferenceDataStringId = (value, category, option) => {
+  const normalisedOption = option && `.option.${camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''))}`;
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}${normalisedOption}`;
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {

@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import {
   Field,
   FormGrid,
+  getReferenceDataStringId,
   NumberField,
   SelectField,
   TextField,
@@ -41,13 +42,11 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(option => {
-      const optionLabel = getTranslation(
-        `refData.patientFieldDefinition.${definitionId}.option.${camelCase(
-          option.replace(/[^a-zA-Z0-9 ]/g, ''),
-        )}`,
-        option,
-      );
-      return { label: optionLabel, value: option };
+      const stringId = getReferenceDataStringId(definitionId, 'patientFieldDefinition', option);
+      return {
+        label: getTranslation(stringId, option),
+        value: option,
+      };
     });
     return (
       <Field
