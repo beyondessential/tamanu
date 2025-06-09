@@ -68,6 +68,7 @@ function createSuggesterRoute(
     includeBuilder,
     orderBuilder,
     shouldSkipDefaultOrder,
+    queryOptions
   },
 ) {
   suggestions.get(
@@ -124,6 +125,7 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: DEFAULT_LIMIT,
+        ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));
@@ -412,6 +414,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
               include: {
                 model: ReferenceData,
                 as: 'medication',
+                where: VISIBILITY_CRITERIA,
               },
             },
           },
@@ -419,6 +422,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 
         return result.length > 0 ? result : null;
       },
+      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
