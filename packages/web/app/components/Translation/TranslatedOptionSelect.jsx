@@ -2,9 +2,9 @@ import React from 'react';
 
 import { getReferenceDataOptionStringId } from './TranslatedReferenceData';
 import { useTranslation } from '../../contexts/Translation';
-import { Field, SelectField } from '../Form';
+import { SelectField } from '../Field/SelectField';
 
-export const TranslatedOptionSelectField = ({ field, options, referenceDataId, referenceDataCategory, ...props }) => {
+export const TranslatedOptionSelectField = ({ options, referenceDataId, referenceDataCategory, ...props }) => {
   const { getTranslation } = useTranslation();
   const translatedOptions = options.map(option => {
     const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, option);
@@ -14,10 +14,7 @@ export const TranslatedOptionSelectField = ({ field, options, referenceDataId, r
     };
   });
   return (
-    <Field
-      name={field.name}
-      value={field.value}
-      component={SelectField}
+    <SelectField
       options={translatedOptions}
       {...props}
     />

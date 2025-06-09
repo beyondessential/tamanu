@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { normaliseTextForStringId } from '@tamanu/utils';
+import { normaliseTextForStringId } from '@tamanu/utils/normaliseTextForStringId';
 
 export const getReferenceDataStringId = (value, category) => {
   return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;

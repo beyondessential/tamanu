@@ -7,7 +7,7 @@ import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
-import { normaliseTextForStringId } from '@tamanu/utils';
+import { normaliseTextForStringId } from '@tamanu/utils/normaliseTextForStringId';
 
 import { normaliseSheetName } from './importerEndpoint';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
