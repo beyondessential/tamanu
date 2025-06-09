@@ -115,7 +115,7 @@ const getAboutReportText = (reportName) => (
     stringId="report.generate.about.label"
     fallback="About :reportName"
     replacements={{ reportName }}
-    data-testid="translatedtext-hf3l"
+    data-testid="translatedtext-report-about-modal-title"
   />
 );
 
