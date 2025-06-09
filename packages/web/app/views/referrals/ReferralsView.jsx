@@ -85,7 +85,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
             <TranslatedText
               stringId="referral.selectReferralText"
               fallback="Select a referral"
-              data-testid="translatedtext-a55s"
+              data-testid="translatedtext-referral-select-referral-text"
             />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>

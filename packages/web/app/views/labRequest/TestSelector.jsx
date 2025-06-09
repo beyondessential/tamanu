@@ -320,7 +320,7 @@ export const TestSelectorInput = ({
                     stringId="lab.testSelect.noData"
                     fallback="No :selectableName found."
                     replacements={{ selectableName }}
-                    data-testid="translatedtext-testSelect-noData"
+                    data-testid="translatedtext-test-selector-no-data"
                   />
                 </BodyText>
               ))}

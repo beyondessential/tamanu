@@ -332,7 +332,7 @@ export const LabRequestView = () => {
                 $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}
                 data-testid="tiletag-zdg8"
               >
-                <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={displayStatus} />
+                <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={displayStatus} data-testid="translatedenum-lab-request-status" />
               </TileTag>
             }
             actions={[
