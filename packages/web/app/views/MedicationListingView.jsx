@@ -7,7 +7,7 @@ export const MedicationListingView = React.memo(() => (
     <TopBar
       title={
         <TranslatedText
-          stringId="medicationList.title"
+          stringId="medication.list.title"
           fallback="Medication requests"
           data-testid="translatedtext-df12"
         />

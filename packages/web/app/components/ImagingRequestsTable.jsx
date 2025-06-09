@@ -145,9 +145,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage={
         <TranslatedText
-          stringId="imagingList.noData"
+          stringId="imaging.list.noData"
           fallback="No imaging requests found"
-          data-testid="translatedtext-imagingList-noData"
+          data-testid="translatedtext-imaging.list-noData"
         />
       }
       onRowClick={selectImagingRequest}
