@@ -9,9 +9,10 @@ import {
   TranslatedText,
 } from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
-import { groupBy } from 'lodash';
+import { camelCase, groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -26,6 +27,7 @@ const StyledFormGrid = styled(FormGrid)`
 
 // TODO: options not translatable in current implementation
 export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+  const { getTranslation } = useTranslation();
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
 
@@ -38,7 +40,10 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   );
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map(o => ({ label: o, value: o }));
+    const fieldOptions = options.map(option => {
+      const optionLabel = getTranslation(`patientFieldDefinition.option.${camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''))}`, option);
+      return { label: optionLabel, value: option };
+    });
     return (
       <Field
         name={fieldName}
