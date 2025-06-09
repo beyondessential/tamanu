@@ -148,6 +148,16 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
       )
     `);
 
+    // Add foreign key constraint
+    await queryRunner.createForeignKey(
+      table,
+      new TableForeignKey({
+         columnNames: ['programRegistryConditionCategoryId'],
+         referencedTableName: 'program_registry_condition_categories',
+         referencedColumnNames: ['id'],
+       }),
+    );
+
     // Now make the column non-nullable
     await queryRunner.changeColumn(
       table,
