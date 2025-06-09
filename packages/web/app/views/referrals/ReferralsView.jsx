@@ -99,7 +99,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
               <TranslatedText
                 stringId="referral.action.begin"
                 fallback="Begin referral"
-                data-testid="translatedtext-6c7l"
+                data-testid="translatedtext-referral-action-begin"
               />
             }
             data-testid="surveyselector-6c7l"
