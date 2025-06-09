@@ -29,7 +29,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
         <TranslatedText
           stringId="imagingRequestList.search.title"
           fallback="Imaging request search"
-          data-testid="translatedtext-x0v7"
+          data-testid="translatedtext-imaging-request-search-title"
         />
       </SearchTableTitle>
       <ImagingRequestsSearchBar
@@ -54,7 +54,7 @@ export const ImagingRequestListingView = () => (
         <TranslatedText
           stringId="imagingList.active.title"
           fallback="Active imaging requests"
-          data-testid="translatedtext-nf61"
+          data-testid="translatedtext-imaging-request-active-title"
         />
       }
       data-testid="topbar-nf61"
@@ -76,7 +76,7 @@ export const CompletedImagingRequestListingView = () => (
         <TranslatedText
           stringId="imagingList.completed.title"
           fallback="Completed imaging requests"
-          data-testid="translatedtext-wb10"
+          data-testid="translatedtext-imaging-request-completed-title"
         />
       }
       data-testid="topbar-wb10"
