@@ -68,6 +68,7 @@ export class PatientProgramRegistrationCondition
         patientProgramRegistrationId,
       })
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
+      .leftJoinAndSelect('condition.programRegistryConditionCategory', 'programRegistryConditionCategory')
       .getMany();
   }
 }
