@@ -250,15 +250,14 @@ export async function importRows(
       const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
-        // Create Translations for reference data record
         translationData.push([
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
           extractRecordName(values, dataType) ?? '',
           DEFAULT_LANGUAGE_CODE,
         ]);
-        // Create Translations for reference data records options if exist 
+        // Create Translations for reference data records options if they exist 
         // This includes patient_field_definition options
-        if (values.options) {
+        if (values.options && Array.isArray(values.options)) {
           for (const option of values.options) {
             translationData.push([
               `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(option)}`,
