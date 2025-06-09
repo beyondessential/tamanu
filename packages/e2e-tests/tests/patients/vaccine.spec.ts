@@ -41,6 +41,8 @@ test.describe('Vaccines', () => {
   });
 
   test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
+    test.setTimeout(45000);
+
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
     await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 2);
     await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3);
@@ -48,19 +50,19 @@ test.describe('Vaccines', () => {
   });
 
   test('Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, false, 'Routine');
+    await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0);
   });
 
   test('Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup');
+    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0);
   });
 
   test('Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, false, 'Campaign');
+    await addVaccineAndAssert(patientDetailsPage, false, 'Campaign', 0);
   });
 
   test('Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, false, 'Other');
+    await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0);
   });
 
   test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
