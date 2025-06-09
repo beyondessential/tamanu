@@ -10,6 +10,7 @@ import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
 
@@ -147,18 +148,20 @@ export const InfoPaneList = ({
       >
         <TitleText data-testid="titletext-rvdl">{title}</TitleText>
         {!readonly && (
-          <AddButton
-            onClick={handleAddButtonClick}
-            endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
-            data-test-class="add-button-section"
-            data-testid="addbutton-b0ln"
-          >
-            <TranslatedText
-              stringId="general.action.add"
-              fallback="Add"
-              data-testid="translatedtext-add"
-            />
-          </AddButton>
+          <NoteModalActionBlocker>
+            <AddButton
+              onClick={handleAddButtonClick}
+              endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
+              data-test-class="add-button-section"
+              data-testid="addbutton-b0ln"
+            >
+              <TranslatedText
+                stringId="general.action.add"
+                fallback="Add"
+                data-testid="translatedtext-add"
+              />
+            </AddButton>
+          </NoteModalActionBlocker>
         )}
       </TitleContainer>
       <DataList data-testid="datalist-073t">

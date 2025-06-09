@@ -10,6 +10,7 @@ import {
   AutocompleteField,
   FormGrid,
   TranslatedRadioField,
+  NoteModalActionBlocker,
 } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -52,130 +53,132 @@ export const GenericPrimaryDetailsLayout = ({
         )}
       </PatientDetailsHeading>
       <FormGrid data-testid="formgrid-y53s">
-        <LocalisedField
-          name="firstName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.firstName.label"
-              fallback="First name"
-              data-testid="translatedtext-cfge"
-            />
-          }
-          component={TextField}
-          required
-          enablePasting
-          data-testid="localisedfield-cqua"
-        />
-        <LocalisedField
-          name="middleName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.middleName.label"
-              fallback="Middle name"
-              data-testid="translatedtext-cwye"
-            />
-          }
-          component={TextField}
-          required={isRequiredPatientData('middleName')}
-          enablePasting
-          data-testid="localisedfield-l6hc"
-        />
-        <LocalisedField
-          name="lastName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.lastName.label"
-              fallback="Last name"
-              data-testid="translatedtext-xgre"
-            />
-          }
-          component={TextField}
-          required
-          enablePasting
-          data-testid="localisedfield-41un"
-        />
-        <LocalisedField
-          name="culturalName"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.culturalName.label"
-              fallback="Cultural/traditional name"
-              data-testid="translatedtext-reeu"
-            />
-          }
-          component={TextField}
-          required={isRequiredPatientData('culturalName')}
-          enablePasting
-          data-testid="localisedfield-ew4s"
-        />
-        <LocalisedField
-          name="dateOfBirth"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.dateOfBirth.label"
-              fallback="Date of birth"
-              data-testid="translatedtext-o7gm"
-            />
-          }
-          max={getCurrentDateString()}
-          component={DateField}
-          required
-          saveDateAsString
-          data-testid="localisedfield-oafl"
-        />
-
-        {!isUsingLocationHierarchy && (
+        <NoteModalActionBlocker>
           <LocalisedField
-            name="villageId"
+            name="firstName"
             label={
               <TranslatedText
-                stringId="general.localisedField.villageId.label"
-                fallback="Village"
+                stringId="general.localisedField.firstName.label"
+                fallback="First name"
+                data-testid="translatedtext-cfge"
               />
             }
-            component={AutocompleteField}
-            suggester={villageSuggester}
-            required={isRequiredPatientData('villageId')}
-            data-testid="localisedfield-rpma"
+            component={TextField}
+            required
+            enablePasting
+            data-testid="localisedfield-cqua"
           />
-        )}
-        <LocalisedField
-          name="sex"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.sex.label"
-              fallback="Sex"
-              data-testid="translatedtext-sjf3"
+          <LocalisedField
+            name="middleName"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.middleName.label"
+                fallback="Middle name"
+                data-testid="translatedtext-cwye"
+              />
+            }
+            component={TextField}
+            required={isRequiredPatientData('middleName')}
+            enablePasting
+            data-testid="localisedfield-l6hc"
+          />
+          <LocalisedField
+            name="lastName"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.lastName.label"
+                fallback="Last name"
+                data-testid="translatedtext-xgre"
+              />
+            }
+            component={TextField}
+            required
+            enablePasting
+            data-testid="localisedfield-41un"
+          />
+          <LocalisedField
+            name="culturalName"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.culturalName.label"
+                fallback="Cultural/traditional name"
+                data-testid="translatedtext-reeu"
+              />
+            }
+            component={TextField}
+            required={isRequiredPatientData('culturalName')}
+            enablePasting
+            data-testid="localisedfield-ew4s"
+          />
+          <LocalisedField
+            name="dateOfBirth"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.dateOfBirth.label"
+                fallback="Date of birth"
+                data-testid="translatedtext-o7gm"
+              />
+            }
+            max={getCurrentDateString()}
+            component={DateField}
+            required
+            saveDateAsString
+            data-testid="localisedfield-oafl"
+          />
+
+          {!isUsingLocationHierarchy && (
+            <LocalisedField
+              name="villageId"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.villageId.label"
+                  fallback="Village"
+                />
+              }
+              component={AutocompleteField}
+              suggester={villageSuggester}
+              required={isRequiredPatientData('villageId')}
+              data-testid="localisedfield-rpma"
             />
-          }
-          component={TranslatedRadioField}
-          enumValues={SEX_LABELS}
-          transformOptions={(options) =>
-            hideOtherSex ? options.filter((o) => o.value !== SEX_VALUES.OTHER) : options
-          }
-          required
-          data-testid="localisedfield-aial"
-        />
-        <LocalisedField
-          name="email"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.email.label"
-              fallback="Email address"
-              data-testid="translatedtext-vxqk"
-            />
-          }
-          component={TextField}
-          type="email"
-          required={isRequiredPatientData('email')}
-          enablePasting
-          data-testid="localisedfield-j8v5"
-        />
-        <RequiredSecondaryDetails
-          patientRegistryType={patientRegistryType}
-          registeredBirthPlace={registeredBirthPlace}
-          data-testid="requiredsecondarydetails-xpxc"
-        />
+          )}
+          <LocalisedField
+            name="sex"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.sex.label"
+                fallback="Sex"
+                data-testid="translatedtext-sjf3"
+              />
+            }
+            component={TranslatedRadioField}
+            enumValues={SEX_LABELS}
+            transformOptions={options =>
+              hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
+            }
+            required
+            data-testid="localisedfield-aial"
+          />
+          <LocalisedField
+            name="email"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.email.label"
+                fallback="Email address"
+                data-testid="translatedtext-vxqk"
+              />
+            }
+            component={TextField}
+            type="email"
+            required={isRequiredPatientData('email')}
+            enablePasting
+            data-testid="localisedfield-j8v5"
+          />
+          <RequiredSecondaryDetails
+            patientRegistryType={patientRegistryType}
+            registeredBirthPlace={registeredBirthPlace}
+            data-testid="requiredsecondarydetails-xpxc"
+          />
+        </NoteModalActionBlocker>
       </FormGrid>
     </>
   );

@@ -917,7 +917,7 @@ describe('Suggestions', () => {
     expect(result.body).toHaveLength(30);
   });
 
-  it('should handle complex includes in invoiceProducts suggester', async () => {
+  it('should handle complex includes in invoiceProduct suggester', async () => {
     const referenceData = await models.ReferenceData.create({
       id: 'test-ref-data-id',
       code: 'TEST_PRODUCT',
@@ -934,7 +934,7 @@ describe('Suggestions', () => {
       visibilityStatus: 'current',
     });
 
-    const result = await userApp.get('/api/suggestions/invoiceProducts?q=test&language=en');
+    const result = await userApp.get('/api/suggestions/invoiceProduct?q=test&language=en');
     expect(result).toHaveSucceeded();
 
     const { body } = result;
