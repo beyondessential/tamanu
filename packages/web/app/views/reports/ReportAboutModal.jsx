@@ -22,7 +22,7 @@ const CloseButtonRow = ({ onClose }) => (
       <TranslatedText
         stringId="general.action.close"
         fallback="Close"
-        data-testid="translatedtext-2myt"
+        data-testid="translatedtext-report-about-modal-close"
       />
     </OutlinedButton>
   </StyledButtonRow>
