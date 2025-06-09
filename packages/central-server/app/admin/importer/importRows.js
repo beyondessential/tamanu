@@ -255,6 +255,18 @@ export async function importRows(
           extractRecordName(values, dataType) ?? '',
           DEFAULT_LANGUAGE_CODE,
         ]);
+        if (values.options) {
+          translationData.push(
+            ...values.options.map(option => [
+              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.option.${option.replace(
+                /[^a-zA-Z0-9]/g,
+                '',
+              )}`,
+              option.name,
+              DEFAULT_LANGUAGE_CODE,
+            ]),
+          );
+        }
       }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
