@@ -11,7 +11,7 @@ export const getReferenceDataStringId = (value, category) => {
 };
 
 export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category, option)}.option.${camelCase(option)}`;
+  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
