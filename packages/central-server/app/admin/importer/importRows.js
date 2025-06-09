@@ -258,7 +258,7 @@ export async function importRows(
         if (values.options) {
           translationData.push(
             ...values.options.map(option => [
-              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.option.${option.replace(
+              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${option.replace(
                 /[^a-zA-Z0-9]/g,
                 '',
               )}`,
