@@ -51,11 +51,6 @@ const ExpandIcon = styled(ExpandMoreIcon)`
   right: 12px;
 `;
 
-const ExpandIcon = styled(ExpandMoreIcon)`
-  position: absolute;
-  right: 12px;
-`;
-
 const Option = ({ children, ['data-testid']: dataTestId, ...props }) => {
   const tag = props.data?.tag;
   return (
