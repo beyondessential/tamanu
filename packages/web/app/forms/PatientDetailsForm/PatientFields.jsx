@@ -41,7 +41,10 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(option => {
-      const optionLabel = getTranslation(`patientFieldDefinition.option.${camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''))}`, option);
+      const optionLabel = getTranslation(
+        `patientFieldDefinition.option.${camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''))}`,
+        option,
+      );
       return { label: optionLabel, value: option };
     });
     return (
