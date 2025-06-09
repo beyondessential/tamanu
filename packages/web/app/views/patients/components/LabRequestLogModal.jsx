@@ -11,7 +11,7 @@ const COLUMNS = [
     key: 'createdAt',
     title: (
       <TranslatedText
-        stringId="lab.modal.log.column.dateTime"
+        stringId="general.dateAndTime.label"
         fallback="Date & time"
         data-testid="translatedtext-lab-modal-log-column-datetime"
       />

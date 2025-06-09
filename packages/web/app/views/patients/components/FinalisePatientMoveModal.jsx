@@ -69,7 +69,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
     <Modal
       title={
         <TranslatedText
-          stringId="patient.modal.move.finalise.title"
+          stringId="patient.modal.finaliseMove.title"
           fallback="Finalise patient move"
           data-testid="translatedtext-patient-modal-move-finalise-title"
         />
@@ -80,7 +80,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
     >
       <Text data-testid="text-oexz">
         <TranslatedText
-          stringId="patient.modal.move.finalise.confirmation"
+          stringId="patient.modal.finaliseMove.confirmation"
           fallback="Please confirm the location details below to finalise the patient move."
           data-testid="translatedtext-patient-modal-move-finalise-confirmation"
         />
@@ -109,7 +109,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
         >
           <Card data-testid="card-enqf">
             <TranslatedText
-              stringId="patient.modal.move.finalise.currentLocation"
+              stringId="patient.modal.finaliseMove.currentLocation"
               fallback="Current location:"
               data-testid="translatedtext-patient-modal-move-finalise-current-location"
             />{' '}
@@ -117,7 +117,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           </Card>
           <Card className="active" data-testid="card-rmih">
             <TranslatedText
-              stringId="patient.modal.move.finalise.newLocation"
+              stringId="patient.modal.finaliseMove.newLocation"
               fallback="New location:"
               data-testid="translatedtext-patient-modal-move-finalise-new-location"
             />{' '}
