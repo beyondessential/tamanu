@@ -77,7 +77,6 @@ const HorizontalLine = ({ marginTop = 0, marginBottom = 0 }) => (
 const TranslatedCondition = ({ condition }) => (
   <RowValue marginBottom={10}>
     <TranslatedReferenceData
-      key={condition.programRegistryCondition.id}
       fallback={condition.programRegistryCondition.name}
       value={condition.programRegistryCondition.id}
       category="programRegistryCondition"
