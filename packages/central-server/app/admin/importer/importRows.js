@@ -264,7 +264,7 @@ export async function importRows(
               `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(
                 option.replace(/[^a-zA-Z0-9 ]/g, ''),
               )}`,
-              option.name,
+              option,
               DEFAULT_LANGUAGE_CODE,
             ]);
           }
