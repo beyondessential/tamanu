@@ -256,16 +256,16 @@ export async function importRows(
           DEFAULT_LANGUAGE_CODE,
         ]);
         if (values.options) {
-          translationData.push(
-            ...values.options.map(option => [
+          for (const option of values.options) {
+            translationData.push([
               `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${option.replace(
                 /[^a-zA-Z0-9]/g,
                 '',
               )}`,
               option.name,
               DEFAULT_LANGUAGE_CODE,
-            ]),
-          );
+            ]);
+          }
         }
       }
     } catch (err) {
