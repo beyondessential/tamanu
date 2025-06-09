@@ -257,9 +257,10 @@ export async function importRows(
         ]);
         if (values.options) {
           for (const option of values.options) {
-            const suffix = camelCase(option.replace(/[^a-zA-Z0-9 ]/g, ''));
             translationData.push([
-              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${suffix}`,
+              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(
+                option.replace(/[^a-zA-Z0-9 ]/g, ''),
+              )}`,
               option.name,
               DEFAULT_LANGUAGE_CODE,
             ]);
