@@ -75,7 +75,7 @@ const ProgramRegistryConditionCategory = new Table({
   foreignKeys: [
     new TableForeignKey({
       columnNames: ['programRegistryId'],
-      referencedTableName: 'program_registry',
+      referencedTableName: 'program_registries',
       referencedColumnNames: ['id'],
     }),
   ],
