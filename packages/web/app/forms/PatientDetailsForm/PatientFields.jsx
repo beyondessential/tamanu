@@ -10,7 +10,7 @@ import {
   TranslatedText,
 } from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
-import { camelCase, groupBy } from 'lodash';
+import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
