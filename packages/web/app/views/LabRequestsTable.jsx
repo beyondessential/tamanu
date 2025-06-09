@@ -86,7 +86,7 @@ export const LabRequestsTable = React.memo(
         columns={columns}
         noDataMessage={
           <TranslatedText
-            stringId="lab.list.noData"
+            stringId="labList.noData"
             fallback="No lab requests found"
             data-testid="translatedtext-lab-request-list-noData"
           />
