@@ -1,22 +1,30 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { getReferenceDataOptionStringId } from './TranslatedReferenceData';
 import { useTranslation } from '../../contexts/Translation';
 import { SelectField } from '../Field/SelectField';
 
-export const TranslatedOptionSelectField = ({ options, referenceDataId, referenceDataCategory, ...props }) => {
+export const TranslatedOptionSelectField = ({
+  options,
+  referenceDataId,
+  referenceDataCategory,
+  ...props
+}) => {
   const { getTranslation } = useTranslation();
-  const translatedOptions = options.map(option => {
-    const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, option);
-    return {
-      label: getTranslation(stringId, option),
-      value: option,
-    };
-  });
-  return (
-    <SelectField
-      options={translatedOptions}
-      {...props}
-    />
+  const translatedOptions = useMemo(
+    () =>
+      options.map(option => {
+        const stringId = getReferenceDataOptionStringId(
+          referenceDataId,
+          referenceDataCategory,
+          option,
+        );
+        return {
+          label: getTranslation(stringId, option),
+          value: option,
+        };
+      }),
+    [options, referenceDataId, referenceDataCategory, getTranslation],
   );
+  return <SelectField options={translatedOptions} {...props} />;
 };
