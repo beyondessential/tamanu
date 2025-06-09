@@ -51,18 +51,27 @@ export const selectOptionFromPopper = async (
   return selectedOptionText;
 };
 
+/**
+ * Selects a random or specified option from a SelectField.
+ * @param page - The page object.
+ * @param field - The field locator.
+ * @param selectFirst - Whether to select the first option.
+ * @param optionToSelect - The optional option to select.
+ * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -select) to get the base test id.
+ */
 export const selectFieldOption = async (
   page: Page,
   field: Locator,
   {
     selectFirst = false,
     optionToSelect = null,
-  }: { selectFirst?: boolean; optionToSelect?: string | null } = {},
+    stripTag = true,
+  }: { selectFirst?: boolean; optionToSelect?: string | null; stripTag?: boolean } = {},
 ) => {
   await expect(field).toBeEnabled();
   await field.click();
 
-  const testId = await getBaseTestId(field, '-select');
+  const testId = await getBaseTestId(field, stripTag ? '-select' : '');
   const popper = page.getByTestId(`${testId}-optioncontainer`);
   const selectedOptionText = await selectOptionFromPopper(testId, popper, {
     selectFirst,
@@ -74,6 +83,14 @@ export const selectFieldOption = async (
   });
 };
 
+/**
+ * Selects a random or specified option from an AutocompleteField.
+ * @param page - The page object.
+ * @param field - The field locator.
+ * @param selectFirst - Whether to select the first option.
+ * @param optionToSelect - The optional option to select.
+ * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -input) to get the base test id.
+ */
 export const selectAutocompleteFieldOption = async (
   page: Page,
   field: Locator,

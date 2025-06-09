@@ -72,10 +72,8 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async selectLocationGroup() {
-    await selectAutocompleteFieldOption(this.page, this.areaField, {
-      optionToSelect: 'Emergency Department',
-    });
-    await selectAutocompleteFieldOption(this.page, this.locationField, { optionToSelect: 'Bed 1' });
+    await selectAutocompleteFieldOption(this.page, this.areaField);
+    await selectAutocompleteFieldOption(this.page, this.locationField);
     await selectAutocompleteFieldOption(this.page, this.departmentField);
   }
 
