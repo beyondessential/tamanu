@@ -30,7 +30,7 @@ export function collectTranslationData(model, sheetName, values) {
     if (values.options && values.options.length > 0) {
       const optionArray = Array.isArray(values.options)
         ? values.options
-        : values.options.split(',').map((option) => option.trim());
+        : values.options.split(/\s*,\s*/).filter((x) => x);
       for (const option of optionArray) {
         translationData.push([
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(option)}`,

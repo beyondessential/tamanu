@@ -1,9 +1,9 @@
 import React from 'react';
-import { capitalize } from 'lodash';
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { Field, NumberField, BaseSelectField, TextField } from '../../../components/Field';
+import { Field, NumberField, TextField } from '../../../components/Field';
 import { Colors } from '../../../constants';
+import { TranslatedOptionSelectField } from '../../../components/Translation/TranslatedOptionSelect';
 
 const StyledField = styled(Field)`
   .Mui-disabled {
@@ -15,7 +15,7 @@ const StyledField = styled(Field)`
 `;
 
 function getResultComponent(resultType, options) {
-  if (options && options.length) return BaseSelectField;
+  if (options && options.length) return TranslatedOptionSelectField;
   if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
   return NumberField;
 }
@@ -27,10 +27,6 @@ function getResultOptions(options) {
   return trimmed
     .split(/\s*,\s*/)
     .filter((x) => x)
-    .map((value) => ({
-      value,
-      label: capitalize(value),
-    }));
 }
 
 export const AccessorField = ({ id, name, tabIndex, ...props }) => (
@@ -46,7 +42,8 @@ export const LabResultAccessorField = ({ resultType, options, ...props }) => (
   <AccessorField
     component={getResultComponent(resultType, options)}
     options={getResultOptions(options)}
+    referenceDataId={props.id}
+    referenceDataCategory='labTestType'
     {...props}
-    data-testid="accessorfield-mcjl"
   />
 );
