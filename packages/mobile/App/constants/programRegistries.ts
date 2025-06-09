@@ -21,11 +21,13 @@ export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [RegistrationStatus.RecordedInError]: 'Delete',
 };
 
+// Categories are now added as reference data in their own table, however,
+// these constants are mandatory on import and will be used to define UI behavior
 export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   UNKNOWN: 'unknown',
-  RECORDED_IN_ERROR: 'recordedInError',
   DISPROVEN: 'disproven',
   RESOLVED: 'resolved',
+  RECORDED_IN_ERROR: 'recordedInError',
 };
 
 export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {

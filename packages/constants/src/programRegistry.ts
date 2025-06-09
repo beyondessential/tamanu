@@ -36,6 +36,8 @@ export const STATUS_COLOR = {
   teal: '#125E7E',
 };
 
+// Categories are now added as reference data in their own table, however,
+// these constants are mandatory on import and will be used to define UI behavior
 export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   UNKNOWN: 'unknown',
   DISPROVEN: 'disproven',
