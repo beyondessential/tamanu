@@ -4,7 +4,7 @@ import {
   randomReferenceData,
 } from '@tamanu/database/demoData/patients';
 import { randomRecord } from '@tamanu/database/demoData/utilities';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { format, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
@@ -182,7 +182,7 @@ describe('Nauru covid case report tests', () => {
           'Lab request type': LAB_CATEGORY_NAME,
           'Lab test type': labTestType.name,
           'Lab test method': LAB_METHOD_NAME,
-          Status: LAB_REQUEST_STATUS_CONFIG[LAB_REQUEST_STATUSES.RECEPTION_PENDING]?.label,
+          Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
           'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),

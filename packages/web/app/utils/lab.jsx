@@ -1,15 +1,15 @@
 import React from 'react';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
-import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../components/Translation';
 
 export const StatusDisplay = React.memo(({ status }) => {
-  const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];
+  const { background, color } = LAB_REQUEST_STATUS_CONFIG[status];
   return (
     <TableCellTag $background={background} $color={color} noWrap>
-      {label}
+      <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={status}/>
     </TableCellTag>
   );
 });
