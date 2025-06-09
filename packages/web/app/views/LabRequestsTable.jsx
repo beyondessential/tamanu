@@ -88,7 +88,7 @@ export const LabRequestsTable = React.memo(
           <TranslatedText
             stringId="lab.list.noData"
             fallback="No lab requests found"
-            data-testid="translatedtext-labList-noData"
+            data-testid="translatedtext-lab-request-list-noData"
           />
         }
         onRowClick={selectLab}
