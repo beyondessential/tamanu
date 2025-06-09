@@ -8,8 +8,6 @@ async function getBaseTestId(field: Locator, suffixToRemove: string): Promise<st
   return rawTestId.replace(suffixToRemove, '');
 }
 
-// TODO: Refactor these fields helpers to use a common Popper selector
-
 export const selectRandomSelectFieldOption = async (page: Page, field: Locator) => {
   await expect(field).toBeEnabled();
   await field.click();

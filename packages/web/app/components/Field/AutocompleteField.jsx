@@ -295,7 +295,7 @@ export class AutocompleteInput extends Component {
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
-    const { ['data-testid']: dataTestId } = this.props;
+    const { 'data-testid': dataTestId } = this.props;
     return (
       <Item selected={isHighlighted} component="div" data-testid={`${dataTestId}-option`}>
         <Typography variant="body2" data-testid={`${dataTestId}-option-typography`}>
@@ -327,7 +327,7 @@ export class AutocompleteInput extends Component {
   };
 
   renderContainer = option => {
-    const { size = 'medium', multiSection, ['data-testid']: dataTestId } = this.props;
+    const { size = 'medium', multiSection, 'data-testid': dataTestId } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -366,7 +366,7 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
-      ['data-testid']: dataTestId,
+      'data-testid': dataTestId,
       ...other
     } = inputProps;
     const { suggestions } = this.state;
@@ -384,7 +384,7 @@ export class AutocompleteInput extends Component {
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
-            'data-testid': `${dataTestId}`,
+            'data-testid': dataTestId,
             endAdornment: (
               <>
                 {tag && (
@@ -463,7 +463,7 @@ export class AutocompleteInput extends Component {
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
       multiSection,
-      ['data-testid']: dataTestId,
+      'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
 
     return (

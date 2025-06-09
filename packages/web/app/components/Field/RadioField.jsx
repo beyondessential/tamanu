@@ -112,7 +112,7 @@ export const RadioInput = ({
   style,
   error,
   autofillSingleAvailableOption = false,
-  ['data-testid']: dataTestId,
+  'data-testid': dataTestId = 'radioinput',
   ...props
 }) => {
   const { onChange } = props;

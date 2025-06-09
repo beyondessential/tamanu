@@ -57,7 +57,7 @@ export const FormSubmitCancelRow = React.memo(
     confirmDisabled,
     confirmStyle,
     CustomConfirmButton,
-    'data-testid': testId,
+    'data-testid': testId = 'formsubmitcancelrow',
     ...props
   }) => (
     <ButtonRow {...props}>

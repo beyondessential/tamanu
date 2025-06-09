@@ -88,6 +88,7 @@ export class RecordVaccineModal extends BasePatientModal {
     await scheduleOption.click();
   }
 
+  // TODO: Refactor to use VACCINE_CATEGORIES when importing is working
   async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);

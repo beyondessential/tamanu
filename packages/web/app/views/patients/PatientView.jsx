@@ -200,10 +200,10 @@ export const PatientView = () => {
   );
 
   useEffect(() => {
-    if (patientId && (!patient.id || patient.id !== patientId)) {
+    if (patientId && (!patient?.id || patient?.id !== patientId)) {
       dispatch(reloadPatient(patientId));
     }
-  }, [dispatch, patientId, patient.id]);
+  }, [dispatch, patientId, patient?.id]);
 
   useEffect(() => {
     if (queryTab && queryTab !== currentTab) {
