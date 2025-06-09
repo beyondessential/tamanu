@@ -41,11 +41,12 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
     return (
       <Field
         name={fieldName}
+        component={TranslatedOptionSelectField}
         referenceDataId={definitionId}
         referenceDataCategory="patientFieldDefinition"
         label={label}
         options={options}
-        component={TranslatedOptionSelectField}
+        data-testid={`custom-patient-field-${definitionId}`}
       />
     );
   }
@@ -56,7 +57,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         component={TextField}
         label={label}
         enablePasting
-        data-testid="field-gcal"
+        data-testid={`custom-patient-field-${definitionId}`}
       />
     );
   }
