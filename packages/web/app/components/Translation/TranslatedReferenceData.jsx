@@ -1,15 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TranslatedText } from './TranslatedText';
+import { camelCase } from 'lodash';
+
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { normaliseTextForStringId } from '@tamanu/utils/normaliseTextForStringId';
+
+import { TranslatedText } from './TranslatedText';
 
 export const getReferenceDataStringId = (value, category) => {
   return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
 };
 
 export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category, option)}.option.${normaliseTextForStringId(option)}`;
+  return `${getReferenceDataStringId(value, category, option)}.option.${camelCase(option)}`;
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {

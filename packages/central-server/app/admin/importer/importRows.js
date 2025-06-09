@@ -7,7 +7,6 @@ import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
-import { normaliseTextForStringId } from '@tamanu/utils/normaliseTextForStringId';
 
 import { normaliseSheetName } from './importerEndpoint';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
@@ -262,7 +261,7 @@ export async function importRows(
         if (values.options) {
           for (const option of values.options) {
             translationData.push([
-              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${normaliseTextForStringId(option)}`,
+              `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(option)}`,
               option,
               DEFAULT_LANGUAGE_CODE,
             ]);
