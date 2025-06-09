@@ -52,7 +52,7 @@ export const ImagingRequestListingView = () => (
     <TopBar
       title={
         <TranslatedText
-          stringId="imagingList.active.title"
+          stringId="imagingRequestList.active.title"
           fallback="Active imaging requests"
           data-testid="translatedtext-imaging-request-active-title"
         />
@@ -74,7 +74,7 @@ export const CompletedImagingRequestListingView = () => (
     <TopBar
       title={
         <TranslatedText
-          stringId="imagingList.completed.title"
+          stringId="imagingRequestList.completed.title"
           fallback="Completed imaging requests"
           data-testid="translatedtext-imaging-request-completed-title"
         />
