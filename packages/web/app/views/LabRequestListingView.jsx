@@ -27,7 +27,7 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
         <TranslatedText
           stringId="labList.search.title"
           fallback="Lab request search"
-          data-testid="translatedtext-7777"
+          data-testid="translatedtext-lab-request-search-title"
         />
       </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
@@ -49,7 +49,7 @@ export const LabRequestListingView = () => (
         <TranslatedText
           stringId="labList.active.title"
           fallback="Active lab requests"
-          data-testid="translatedtext-576y"
+          data-testid="translatedtext-lab-request-active-title"
         />
       }
       data-testid="topbar-576y"
@@ -68,7 +68,7 @@ export const PublishedLabRequestListingView = () => (
         <TranslatedText
           stringId="labList.published.title"
           fallback="Published lab requests"
-          data-testid="translatedtext-gc5j"
+          data-testid="translatedtext-lab-request-published-title"
         />
       }
       data-testid="topbar-gc5j"
