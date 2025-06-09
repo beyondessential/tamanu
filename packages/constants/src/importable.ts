@@ -73,6 +73,7 @@ export const OTHER_REFERENCE_TYPES = {
   SCHEDULED_VACCINE: 'scheduledVaccine',
   PROGRAM_REGISTRY: 'programRegistry',
   PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION_CATEGORY: 'programRegistryConditionCategory',
   PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
 };
 
