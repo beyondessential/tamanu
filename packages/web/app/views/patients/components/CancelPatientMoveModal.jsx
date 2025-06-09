@@ -19,7 +19,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     <Modal
       title={
         <TranslatedText
-          stringId="patient.move.cancel.title"
+          stringId="patient.modal.cancelMove.title"
           fallback="Cancel move"
           data-testid="translatedtext-cancel-move-title"
         />
@@ -32,7 +32,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
       <Container data-testid="container-vady">
         <LargeBodyText data-testid="largebodytext-jtqa">
           <TranslatedText
-            stringId="patient.move.cancel.confirmation"
+            stringId="patient.modal.cancelMove.confirmation"
             fallback="Are you sure you want to cancel the planned patient move?"
             data-testid="translatedtext-cancel-move-confirmation"
           />
