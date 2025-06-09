@@ -110,7 +110,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           <ButtonWithPermissionCheck
             onClick={() => setCreateMedicationModalOpen(true)}
             verb="create"
-            noun="Prescription"
+            noun="Medication"
           >
             <TranslatedText
               stringId="medication.action.newPrescription"

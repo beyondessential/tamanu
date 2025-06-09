@@ -222,7 +222,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   onClick={handleNewPrescription}
                   disabled={readonly || medicationSetsLoading}
                   verb="create"
-                  noun="Prescription"
+                  noun="Medication"
                   data-testid="styledbuttonwithpermissioncheck-cagj"
                   isLoading={medicationSetsLoading}
                 >
