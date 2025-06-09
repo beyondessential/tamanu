@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import {
   ButtonRow,
   Heading3,
@@ -9,13 +10,25 @@ import {
   Table,
   TranslatedText,
 } from '../../../components';
+
+const LeftAlignedButton = styled(OutlinedButton)`
+  margin-right: auto;
+`;
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { culturalName, dateOfBirth, firstName, lastName, sex, village } from '../columns';
+import {
+  culturalName,
+  dateOfBirth,
+  displayId,
+  firstName,
+  lastName,
+  sex,
+  village,
+} from '../columns';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
 import { reloadPatient } from '../../../store';
 import { useDispatch } from 'react-redux';
 
-const COLUMNS = [firstName, lastName, culturalName, dateOfBirth, sex, village];
+const COLUMNS = [displayId, firstName, lastName, culturalName, dateOfBirth, sex, village];
 
 export const DuplicatePatientWarningModal = ({
   open,
@@ -36,9 +49,11 @@ export const DuplicatePatientWarningModal = ({
 
   const isPlural = potentialDuplicates.length > 1;
 
+  console.log(warningModalData);
+
   return (
     <Modal
-      width="md"
+      width="lg"
       title={
         <TranslatedText
           stringId="patient.modal.create.title"
@@ -113,13 +128,13 @@ export const DuplicatePatientWarningModal = ({
       <Table columns={COLUMNS} data={[proposedPatient]} />
       <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
       <ButtonRow data-testid="buttonrow-5x0v">
-        <OutlinedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
+        <LeftAlignedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
           <TranslatedText
             stringId="general.action.back"
             fallback="Back"
             data-testid="translatedtext-back"
           />
-        </OutlinedButton>
+        </LeftAlignedButton>
         <OutlinedButton
           data-testid="outlinedbutton-p957"
           onClick={() => {
@@ -139,8 +154,8 @@ export const DuplicatePatientWarningModal = ({
           onClick={() => handleClose(true)}
         >
           <TranslatedText
-            stringId="general.action.confirm"
-            fallback="Confirm"
+            stringId="patient.action.addNewPatient"
+            fallback="Add new patient"
             data-testid="translatedtext-confirm"
           />
         </OutlinedButton>
