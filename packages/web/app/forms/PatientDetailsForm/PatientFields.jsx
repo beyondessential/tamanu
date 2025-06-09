@@ -3,17 +3,15 @@ import {
   Field,
   FormGrid,
   NumberField,
-  SelectField,
   TextField,
   TranslatedReferenceData,
   TranslatedText,
-  getReferenceDataOptionStringId
 } from '../../components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { useTranslation } from '../../contexts/Translation';
+import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptionSelect';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -28,7 +26,6 @@ const StyledFormGrid = styled(FormGrid)`
 
 // TODO: options not translatable in current implementation
 export const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
-  const { getTranslation } = useTranslation();
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
 
@@ -41,20 +38,14 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   );
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map(option => {
-      const stringId = getReferenceDataOptionStringId(definitionId, 'patientFieldDefinition', option);
-      return {
-        label: getTranslation(stringId, option),
-        value: option,
-      };
-    });
     return (
       <Field
         name={fieldName}
-        component={SelectField}
+        referenceDataId={definitionId}
+        referenceDataCategory="patientFieldDefinition"
         label={label}
-        options={fieldOptions}
-        data-testid="field-32ps"
+        options={options}
+        component={TranslatedOptionSelectField}
       />
     );
   }
