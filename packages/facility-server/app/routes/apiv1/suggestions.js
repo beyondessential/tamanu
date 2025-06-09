@@ -68,7 +68,7 @@ function createSuggesterRoute(
     includeBuilder,
     orderBuilder,
     shouldSkipDefaultOrder,
-    subQuery
+    queryOptions
   },
 ) {
   suggestions.get(
@@ -110,7 +110,6 @@ function createSuggesterRoute(
 
       const results = await model.findAll({
         where,
-        ...(subQuery != null && { subQuery }),
         include,
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
@@ -126,6 +125,7 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: DEFAULT_LIMIT,
+        ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));
@@ -422,7 +422,7 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
 
         return result.length > 0 ? result : null;
       },
-      ...(typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {}),
+      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
