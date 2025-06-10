@@ -63,7 +63,7 @@ const columns = (sex) => [
       const { options, id: labTestTypeId } = labTestType;
       if (options && options.length > 0) {
         return <TranslatedOption
-          option={result}
+          value={result}
           referenceDataId={labTestTypeId}
           referenceDataCategory="labTestType"
         />

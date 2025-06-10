@@ -31,10 +31,10 @@ export const TranslatedOptionSelectField = ({
 };
 
 export const TranslatedOption = ({
-  option,
+  value,
   referenceDataId,
   referenceDataCategory,
 }) => {
-  const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, option);
-  return <TranslatedText stringId={stringId} fallback={option} />;
+  const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, value);
+  return <TranslatedText stringId={stringId} fallback={value} />;
 };
