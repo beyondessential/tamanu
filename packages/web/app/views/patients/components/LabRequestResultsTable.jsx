@@ -60,10 +60,11 @@ const columns = (sex) => [
     ),
     key: 'result',
     accessor: ({labTestType, result}) => {
-      if (labTestType.options && labTestType.options.length > 0) {
+      const { options, id: labTestTypeId } = labTestType;
+      if (options && options.length > 0) {
         return <TranslatedOption
           option={result}
-          referenceDataId={labTestType.id}
+          referenceDataId={labTestTypeId}
           referenceDataCategory="labTestType"
         />
       }
