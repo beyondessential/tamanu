@@ -171,9 +171,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
   );
+  const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
   const {
