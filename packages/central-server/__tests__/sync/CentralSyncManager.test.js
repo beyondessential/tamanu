@@ -388,6 +388,23 @@ describe('CentralSyncManager', () => {
     });
   });
 
+  describe('initiatePull', () => {
+    it('throws an error if the sync lookup table has not yet built', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await centralSyncManager.initiatePull(sessionId, {});
+      const session = await models.SyncSession.findByPk(sessionId);
+      expect(session.errors).toEqual(['Sync lookup table has not yet built. Cannot initiate pull']);
+    });
+  });
+
   describe('getOutgoingChanges', () => {
     beforeEach(async () => {
       jest.resetModules();
