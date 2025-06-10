@@ -11,7 +11,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptionSelect';
+import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptions';
 
 const StyledHeading = styled.div`
   font-weight: 500;

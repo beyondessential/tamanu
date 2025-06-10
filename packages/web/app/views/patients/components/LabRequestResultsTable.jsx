@@ -4,7 +4,7 @@ import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
-import { TranslatedOption } from '../../../components/Translation/TranslatedOptionSelect';
+import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
