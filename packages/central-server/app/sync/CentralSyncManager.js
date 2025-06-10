@@ -35,6 +35,7 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import { isNumber } from 'lodash';
 
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -91,7 +92,7 @@ export class CentralSyncManager {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    
+
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
     const parameters = { deviceId, facilityIds, isMobile };
@@ -223,6 +224,16 @@ export class CentralSyncManager {
   async initiatePull(sessionId, params) {
     try {
       await this.connectToSession(sessionId);
+
+      // if the sync_lookup table is enabled, reject pull attempts until it has finished its first update run
+      const syncLookupUpToTick =
+        await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+      if (
+        this.constructor.config.sync.lookupTable.enabled &&
+        isNumber(parseInt(syncLookupUpToTick))
+      ) {
+        throw new Error(`Sync lookup table has not yet built. Cannot initiate pull`);
+      }
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
       // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
@@ -540,12 +551,6 @@ export class CentralSyncManager {
 
   async checkPullReady(sessionId) {
     await this.connectToSession(sessionId);
-
-    // if the sync_lookup table is enabled, wait until it has finished its first update run
-    const syncLookupUpToTick = await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
-    if (this.constructor.config.sync.lookupTable.enabled && syncLookupUpToTick === undefined) {
-      return false;
-    }
 
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
