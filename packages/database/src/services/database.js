@@ -140,7 +140,12 @@ async function connectToDatabase(dbOptions) {
             'SELECT public.set_session_config($1, $2)',
             [AUDIT_USERID_KEY, userid],
           );
-        return super.run(sql, options);
+        try {
+          return await super.run(sql, options);
+        } catch (error) {
+          log.error(error);
+          throw error;
+        }
       }
     }
     sequelize.dialect.Query = QueryWithAuditConfig;
