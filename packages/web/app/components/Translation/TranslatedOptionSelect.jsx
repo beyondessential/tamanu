@@ -28,3 +28,13 @@ export const TranslatedOptionSelectField = ({
   );
   return <SelectField options={translatedOptions} {...props} />;
 };
+
+export const TranslatedOption = ({
+  option,
+  referenceDataId,
+  referenceDataCategory,
+}) => {
+  const { getTranslation } = useTranslation();
+  const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, option);
+  return getTranslation(stringId, option);
+};
