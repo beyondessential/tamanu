@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { DateDisplay, TranslatedEnum } from '../../../components';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
