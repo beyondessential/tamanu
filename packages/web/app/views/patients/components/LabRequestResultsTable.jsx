@@ -59,15 +59,15 @@ const columns = (sex) => [
       />
     ),
     key: 'result',
-    accessor: (row) => {
-      if (row.labTestType.options && row.labTestType.options.length > 0) {
+    accessor: ({labTestType, result}) => {
+      if (labTestType.options && labTestType.options.length > 0) {
         return <TranslatedOption
-          option={row.result}
-          referenceDataId={row.labTestType.id}
+          option={result}
+          referenceDataId={labTestType.id}
           referenceDataCategory="labTestType"
         />
       }
-      return row.result ?? '';
+      return result ?? '';
     },
   },
   {
