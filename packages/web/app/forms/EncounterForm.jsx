@@ -13,15 +13,16 @@ import {
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  BaseSelectField,
   SuggesterSelectField,
   TextField,
+  TranslatedSelectField,
 } from '../components';
 import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { isInpatient } from '../utils/isInpatient';
 import { useTranslation } from '../contexts/Translation';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType, initialValues }) => {
@@ -59,8 +60,8 @@ export const EncounterForm = React.memo(
               />
             }
             disabled
-            component={BaseSelectField}
-            options={ENCOUNTER_OPTIONS}
+            component={TranslatedSelectField}
+            enumValues={ENCOUNTER_TYPE_LABELS}
             data-testid="field-t9el"
           />
           <Field
