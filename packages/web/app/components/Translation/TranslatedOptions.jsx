@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { getReferenceDataOptionStringId } from './TranslatedReferenceData';
 import { useTranslation } from '../../contexts/Translation';
 import { SelectField } from '../Field/SelectField';
+import { TranslatedText } from './TranslatedText';
 
 export const TranslatedOptionSelectField = ({
   options,
@@ -34,7 +35,6 @@ export const TranslatedOption = ({
   referenceDataId,
   referenceDataCategory,
 }) => {
-  const { getTranslation } = useTranslation();
   const stringId = getReferenceDataOptionStringId(referenceDataId, referenceDataCategory, option);
-  return getTranslation(stringId, option);
+  return <TranslatedText stringId={stringId} fallback={option} />;
 };
