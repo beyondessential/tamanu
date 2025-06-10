@@ -105,7 +105,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             name={LAB_TEST_PROPERTIES.RESULT}
             onChange={(e) => onChangeResult(e.target.value, row.id)}
             id={row.id}
-            referenceDataId={labTestTypeId}
+            labTestTypeId={labTestTypeId}
             tabIndex={tabIndex(0, i)}
             data-testid="labresultaccessorfield-1r9h"
           />

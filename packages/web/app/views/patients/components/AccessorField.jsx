@@ -40,11 +40,11 @@ export const AccessorField = ({ id, name, tabIndex, ...props }) => (
   />
 );
 
-export const LabResultAccessorField = ({ resultType, options, referenceDataId, ...props }) => (
+export const LabResultAccessorField = ({ resultType, options, labTestTypeId, ...props }) => (
   <AccessorField
     component={getResultComponent(resultType, options)}
     options={getResultOptions(options)}
-    referenceDataId={referenceDataId}
+    referenceDataId={labTestTypeId}
     referenceDataCategory='labTestType'
     {...props}
   />
