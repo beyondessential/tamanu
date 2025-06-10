@@ -28,6 +28,7 @@ export function collectTranslationData(model, sheetName, values) {
     // Create translations for reference data record options if they exist
     // This includes patient_field_definition options
     if (values.options && values.options.length > 0) {
+      // Handle both an array and comma-separated string of options
       const optionArray = Array.isArray(values.options)
         ? values.options
         : values.options.split(/\s*,\s*/).filter((x) => x);
