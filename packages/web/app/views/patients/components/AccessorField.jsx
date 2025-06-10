@@ -1,6 +1,8 @@
 import React from 'react';
-import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
+
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
+
 import { Field, NumberField, TextField } from '../../../components/Field';
 import { Colors } from '../../../constants';
 import { TranslatedOptionSelectField } from '../../../components/Translation/TranslatedOptions';
