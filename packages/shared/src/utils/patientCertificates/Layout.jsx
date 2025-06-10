@@ -6,7 +6,7 @@ const certificateMargins = '0 18px';
 
 export const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoKufiArabic',
     position: 'relative',
     padding: '30 30 0 30',
     color: '#222222',
@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
     flexWrap: 'wrap',
   },
   col: {

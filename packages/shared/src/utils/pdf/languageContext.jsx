@@ -25,6 +25,11 @@ Font.register({
   ],
 });
 
+Font.register({
+  family: 'NotoKufiArabic',
+  src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
+});
+
 // title font
 Font.register({
   family: FONT.MOUL,
