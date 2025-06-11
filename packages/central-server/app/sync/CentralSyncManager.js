@@ -1,6 +1,7 @@
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
+import { isNaN } from 'lodash';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
@@ -35,7 +36,6 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
-import { isNumber } from 'lodash';
 
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -128,6 +128,17 @@ export class CentralSyncManager {
 
   async prepareSession(syncSession) {
     try {
+      // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
+      const syncLookupUpToTick =
+        await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+      console.log('syncLookupUpToTick', syncLookupUpToTick);
+      if (
+        this.constructor.config.sync.lookupTable.enabled &&
+        isNaN(parseInt(syncLookupUpToTick, 10))
+      ) {
+        throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
+      }
+
       await createSnapshotTable(this.store.sequelize, syncSession.id);
       const { tick } = await this.tickTockGlobalClock();
       await syncSession.markAsStartedAt(tick);
@@ -224,16 +235,6 @@ export class CentralSyncManager {
   async initiatePull(sessionId, params) {
     try {
       await this.connectToSession(sessionId);
-
-      // if the sync_lookup table is enabled, reject pull attempts until it has finished its first update run
-      const syncLookupUpToTick =
-        await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
-      if (
-        this.constructor.config.sync.lookupTable.enabled &&
-        isNumber(parseInt(syncLookupUpToTick))
-      ) {
-        throw new Error(`Sync lookup table has not yet built. Cannot initiate pull`);
-      }
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
       // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
