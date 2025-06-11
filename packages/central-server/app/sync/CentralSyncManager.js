@@ -131,7 +131,6 @@ export class CentralSyncManager {
       // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
       const syncLookupUpToTick =
         await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
-      console.log('syncLookupUpToTick', syncLookupUpToTick);
       if (
         this.constructor.config.sync.lookupTable.enabled &&
         isNaN(parseInt(syncLookupUpToTick, 10))
