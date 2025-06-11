@@ -71,7 +71,7 @@ const ViewHistoryButton = styled(TextButton)`
 const getConditionShape = getTranslation =>
   yup.object().shape({
     conditionId: yup.string().nullable(),
-    conditionCategory: yup
+    conditionCategoryId: yup
       .string()
       .nullable()
       .when('conditionId', {
@@ -113,6 +113,7 @@ const getGroupedData = rows => {
         name: programRegistryCondition.name,
         date,
         conditionCategoryId: programRegistryConditionCategory.id,
+        conditionCategoryCode: programRegistryConditionCategory.code,
         history,
       });
     }
@@ -125,15 +126,15 @@ const getGroupedData = rows => {
 
 const getIsNewRecordedInError = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
-    ({ conditionCategory }) =>
-      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    ({ conditionCategoryCode }) =>
+      conditionCategoryCode === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 };
 
 const getNewRecordedInErrorList = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
-    ({ conditionCategory }) =>
-      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    ({ conditionCategoryCode }) =>
+      conditionCategoryCode === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 };
 
@@ -169,8 +170,10 @@ export const RelatedConditionsForm = ({
         // Consider a condition updated if:
         // 1. It's a new condition (not in initial values)
         // 2. The category has changed
+        const initialCategory = initialCondition?.conditionCategoryId;
+        const newCategory = condition.conditionCategoryId;
         return (
-          !initialCondition || initialCondition.conditionCategory !== condition.conditionCategory
+          !initialCondition || initialCategory !== newCategory
         );
       });
 
@@ -227,13 +230,13 @@ export const RelatedConditionsForm = ({
                 />
               </span>
             ),
-            accessor: ({ name, conditionCategory, conditionId }, groupName, index) => {
+            accessor: ({ name, conditionCategoryCode, conditionId }, groupName, index) => {
               if (name) {
                 return (
                   <span
                     style={{
                       textDecoration:
-                        conditionCategory === 'recordedInError' ? 'line-through' : 'none',
+                        conditionCategoryCode === 'recordedInError' ? 'line-through' : 'none',
                     }}
                   >
                     <TranslatedReferenceData
@@ -305,7 +308,7 @@ export const RelatedConditionsForm = ({
                 <span style={{ color: Colors.alert }}> *</span>
               </span>
             ),
-            accessor: ({ date, conditionCategory }, groupName, index) => {
+            accessor: ({ date, conditionCategoryCode }, groupName, index) => {
               const initialValue = initialValues.conditions[groupName][index]?.date;
               if (initialValue) {
                 return (
@@ -313,7 +316,7 @@ export const RelatedConditionsForm = ({
                     date={date}
                     style={{
                       textDecoration:
-                        conditionCategory === 'recordedInError' ? 'line-through' : 'none',
+                        conditionCategoryCode === 'recordedInError' ? 'line-through' : 'none',
                     }}
                   />
                 );
@@ -342,8 +345,8 @@ export const RelatedConditionsForm = ({
             ),
             width: 180,
             accessor: ({ conditionId }, groupName, index) => {
-              const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
-              const fieldName = `conditions[${groupName}][${index}].conditionCategory`;
+              const initialValue = initialValues.conditions[groupName][index]?.conditionCategoryId;
+              const fieldName = `conditions[${groupName}][${index}].conditionCategoryId`;
               const ariaLabelledby = 'condition-category-label';
 
               // other values
@@ -422,8 +425,8 @@ export const RelatedConditionsForm = ({
                   component={StyledTextField}
                   required
                   disabled={
-                    values.conditions[groupName][index].conditionCategory ===
-                    initialValues.conditions[groupName][index].conditionCategory
+                    values.conditions[groupName][index].conditionCategoryId ===
+                    initialValues.conditions[groupName][index].conditionCategoryId
                   }
                 />
               );
