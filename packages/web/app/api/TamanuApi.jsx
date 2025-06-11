@@ -1,6 +1,6 @@
 import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -126,7 +126,7 @@ export class TamanuApi extends ApiClient {
       deviceId: getDeviceId(),
     });
 
-    this.interceptors.request.use((config) => {
+    this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
       return config;
@@ -205,26 +205,32 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        notifyError([
-          <b key="general.api.notification.requestFailed">
-            <TranslatedText
-              stringId="general.api.notification.requestFailed"
-              fallback="Network request failed"
-            />
-          </b>,
-          <TranslatedText
-            key="general.api.notification.path"
-            stringId="general.api.notification.path"
-            fallback={`Path: ${err.path ?? endpoint}`}
-            replacements={{ path: err.path ?? endpoint }}
-          />,
-          <TranslatedText
-            key="general.api.notification.message"
-            stringId="general.api.notification.message"
-            fallback={`Message: ${message}`}
-            replacements={{ message }}
-          />,
-        ]);
+        // If the language is english, display the full error as usual, otherwise display a generic translated error message
+        const language = localStorage.getItem(LANGUAGE);
+        if (language === ENGLISH_LANGUAGE_CODE) {
+          notifyError([
+            <b key={message}>Network request failed</b>,
+            `Path: ${err.path ?? endpoint}`,
+            `Message: ${message}`,
+          ]);
+        } else {
+          notifyError([
+            <b key="general.api.notification.requestFailed">
+              <TranslatedText
+                stringId="general.api.notification.requestFailed"
+                fallback="Network request failed. Please contact your administrator."
+              />
+            </b>,
+            err.status && (
+              <TranslatedText
+                key="general.api.notification.requestFailed.status"
+                stringId="general.api.notification.requestFailed.status"
+                fallback="Status code: :status"
+                replacements={{ status: err.status }}
+              />
+            ),
+          ]);
+        }
       }
 
       throw new Error(message);
