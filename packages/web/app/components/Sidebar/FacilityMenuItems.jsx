@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   labsIcon,
-  medicationIcon,
   patientIcon,
   programsIcon,
   radiologyIcon,
