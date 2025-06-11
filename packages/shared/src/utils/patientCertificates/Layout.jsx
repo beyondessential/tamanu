@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontWeight: 400,
     width: 100,
   },
