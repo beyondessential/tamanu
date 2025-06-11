@@ -14,10 +14,10 @@ export const ThemedTooltip = styled(props => (
 ))`
   .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
+    font-weight: 400;
     font-size: 0.6875rem;
-    padding: 0.5rem;
+    padding: 0.375rem 0.5rem;
     text-align: center;
-
     ${({ $maxWidth }) =>
       $maxWidth &&
       css`
@@ -43,11 +43,11 @@ export const ThemedTooltip = styled(props => (
   }
 `;
 
-export const ConditionalTooltip = ({ visible, children, ...restProps }) => {
+export const ConditionalTooltip = ({ visible, children, maxWidth, ...restProps }) => {
   if (!visible) return children;
   return (
     //  Below div is needed to make ThemedTooltip work
-    <ThemedTooltip {...restProps} data-testid="themedtooltip-50xj">
+    <ThemedTooltip $maxWidth={maxWidth} {...restProps} data-testid="themedtooltip-50xj">
       <div>{children}</div>
     </ThemedTooltip>
   );
