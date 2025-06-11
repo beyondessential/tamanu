@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DateDisplay } from '../../../components';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
+import { DateDisplay, TranslatedEnum } from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -26,6 +25,7 @@ import { isInpatient } from '../../../utils/isInpatient';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -97,8 +97,10 @@ const getDiet = ({ diets }) => {
   );
 };
 
-export const getEncounterType = ({ encounterType }) =>
-  encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
+export const getEncounterType = ({ encounterType }) => <TranslatedEnum
+  enumValues={ENCOUNTER_TYPE_LABELS}
+  value={encounterType}
+/>
 
 const referralSourcePath = 'referralSourceId';
 
