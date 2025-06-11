@@ -223,8 +223,11 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
       <Text {...props} data-testid="text-voq8">
-        This location is reserved by another patient. Please ensure the bed is available before
-        confirming.
+        <TranslatedText
+          stringId="location.availability.reserved.message"
+          fallback="This location is reserved by another patient. Please ensure the bed is available before confirming."
+          data-testid="translatedtext-location-reserved"
+        />
       </Text>
     );
   }
@@ -232,8 +235,11 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
       <Text {...props} data-testid="text-heyi">
-        This location is occupied by another patient. Please ensure the bed is available before
-        confirming.
+        <TranslatedText
+          stringId="location.availability.occupied.message"
+          fallback="This location is occupied by another patient. Please ensure the bed is available before confirming."
+          data-testid="translatedtext-location-occupied"
+        />
       </Text>
     );
   }
