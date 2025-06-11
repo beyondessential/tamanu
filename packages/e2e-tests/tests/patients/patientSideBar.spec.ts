@@ -350,7 +350,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(completedCarePlanModal.carePlanHeader).toContainText('Care plan: Diabetes');
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
-      'This is an example of main care plan detaFils',
+      /This is an example of main care plan details/,
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'On behalf of Initial Admin',
