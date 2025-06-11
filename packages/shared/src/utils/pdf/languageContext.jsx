@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
+import { cloneDeep } from 'lodash';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
-import { registerFonts } from './registerFonts';
 
 registerFonts();
 
@@ -19,6 +19,10 @@ export const withLanguageContext = Component => props => {
 
   const contextValue = useMemo(() => {
     return {
+      makeIntlStyleSheet(style) {
+        if (typeof style !== 'object') return {};
+        return cloneDeep(style);
+      },
       getTranslation(stringId, fallback, translationOptions) {
         const translationFunc = translationFactory(translations);
         const { value } = translationFunc(stringId, fallback, translationOptions);
