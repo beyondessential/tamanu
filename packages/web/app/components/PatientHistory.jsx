@@ -4,10 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS_COLORS } from '../constants';
+import { Colors, PATIENT_STATUS_COLORS } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -16,7 +18,7 @@ import { MenuButton } from './MenuButton';
 import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { useAuth } from '../contexts/Auth';
-import { TranslatedReferenceData } from './Translation/index.js';
+import { TranslatedEnum, TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
@@ -180,7 +182,10 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
+const getType = ({ encounterType }) => <TranslatedEnum
+  enumValues={ENCOUNTER_TYPE_LABELS}
+  value={encounterType}
+/>
 const getReasonForEncounter = ({ reasonForEncounter }) => (
   <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
     {reasonForEncounter}
