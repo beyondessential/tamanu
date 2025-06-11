@@ -584,15 +584,13 @@ export const MedicationForm = ({
       medicationSubmission = await (isOngoingPrescription
         ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
         : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+      // The return from the post doesn't include the joined tables like medication and prescriber
+      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      setSubmittedMedication(newMedication);
     } catch (error) {
       toast.error(error.message);
       return Promise.reject(error);
     }
-    // The return from the post doesn't include the joined tables like medication and prescriber
-    const newMedication = await api.get(`medication/${medicationSubmission.id}`);
-
-    setSubmittedMedication(newMedication);
-
     if (loadEncounter && encounterId) {
       loadEncounter(encounterId, false);
     }

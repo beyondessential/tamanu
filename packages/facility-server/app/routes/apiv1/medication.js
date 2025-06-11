@@ -8,12 +8,8 @@ import {
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
-import {
-  paginatedGetList,
-  permissionCheckingRouter,
-  simpleGet,
-} from '@tamanu/shared/utils/crudHelpers';
-import { InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
+import { paginatedGetList, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
+import { NotFoundError, InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
@@ -31,7 +27,31 @@ import { Op, QueryTypes } from 'sequelize';
 
 export const medication = express.Router();
 
-medication.get('/:id', simpleGet('Prescription', { auditAccess: true }));
+medication.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+
+    req.checkPermission('read', 'Medication');
+    const object = await Prescription.findByPk(params.id, {
+      include: Prescription.getFullReferenceAssociations(),
+    });
+    if (!object) throw new NotFoundError();
+
+    if (object) {
+      await req.audit.access({
+        recordId: object.id,
+        params,
+        model: Prescription,
+        facilityId: query.facilityId,
+      });
+    }
+
+    res.send(object);
+  }),
+);
+
 const medicationInputSchema = z
   .object({
     encounterId: z.string().optional().nullable(),
