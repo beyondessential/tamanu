@@ -6,23 +6,23 @@ const baseDir =
 
 export const registerFonts = () => {
 Font.register({
-  family: 'rubik',
+  family: 'Rubik',
   src: path.join(baseDir, 'Rubik-Regular.ttf'),
 });
 
 // base font
 Font.register({
-  family: 'rubik',
+  family: 'Rubik-Bold',
   src: path.join(baseDir, 'Rubik-Bold.ttf'),
 });
 
 Font.register({
-  family: 'rubik',
+  family: 'Rubik-BoldItalic',
   src: path.join(baseDir, 'Rubik-BoldItalic.ttf'),
 });
 
 Font.register({
-  family: 'rubik',
+  family: 'Rubik-LightItalic',
   src: path.join(baseDir, 'Rubik-LightItalic.ttf'),
 });
 
