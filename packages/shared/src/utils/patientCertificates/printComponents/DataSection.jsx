@@ -6,7 +6,7 @@ import { Text } from '../../pdf/Text';
 
 const styles = StyleSheet.create({
   title: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     marginBottom: 3,
     fontSize: 11,
     fontWeight: 500,

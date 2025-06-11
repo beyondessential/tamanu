@@ -31,7 +31,7 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 11,
     fontWeight: 500,
     marginVertical: 3,

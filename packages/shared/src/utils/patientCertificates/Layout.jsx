@@ -6,7 +6,7 @@ const certificateMargins = '0 18px';
 
 export const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     position: 'relative',
     padding: '30 30 0 30',
     color: '#222222',

@@ -63,12 +63,12 @@ const infoBoxStyles = StyleSheet.create({
     paddingBottom: 30,
   },
   boldText: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 12,
     fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     fontSize: 12,
     fontWeight: 400,
   },
@@ -103,7 +103,7 @@ const signStyles = StyleSheet.create({
     marginVertical: 30,
   },
   text: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 12,
     fontWeight: 500,
     lineHeight: 1,

@@ -4,7 +4,7 @@ import { Text } from '../pdf/Text';
 
 const styles = StyleSheet.create({
   h1: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
@@ -12,38 +12,38 @@ const styles = StyleSheet.create({
     fontWeight: 700,
   },
   h2: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
     fontWeight: 500,
   },
   h3: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     marginBottom: 20,
     fontSize: 14,
     fontWeight: 500,
   },
   p: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     fontSize: 12,
     fontWeight: 400,
     marginBottom: 15,
   },
   certificateAddress: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     textAlign: 'right',
     fontSize: 14,
     marginBottom: 13,
   },
   certificateTitle: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 18,
     textAlign: 'right',
     marginBottom: 14,
   },
   certificateSubtitle: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     fontSize: 18,
     textAlign: 'right',
     marginTop: '-10px',

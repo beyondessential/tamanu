@@ -41,12 +41,12 @@ const infoBoxStyles = StyleSheet.create({
     padding: tablePadding,
   },
   labelText: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 10,
     fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     fontSize: 10,
     fontWeight: 400,
   },
