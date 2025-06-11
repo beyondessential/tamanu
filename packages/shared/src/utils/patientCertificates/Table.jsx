@@ -14,9 +14,8 @@ const tableStyles = StyleSheet.create({
   },
   th: {
     flex: 1,
-    fontFamily: 'Rubik-Bold',
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 700,
     padding: 3,
     borderRight: basicBorder,
     margin: 0,

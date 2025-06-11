@@ -13,15 +13,13 @@ const styles = StyleSheet.create({
 
   labelText: {
     fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Rubik-Bold',
+    fontWeight: 700,
     color: '#888888',
   },
 
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Rubik',
     color: '#888888',
   },
 });

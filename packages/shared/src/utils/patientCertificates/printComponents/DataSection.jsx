@@ -6,10 +6,9 @@ import { Text } from '../../pdf/Text';
 
 const styles = StyleSheet.create({
   title: {
-    fontFamily: 'Rubik-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
   },
 });
 

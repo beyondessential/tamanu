@@ -41,12 +41,10 @@ const infoBoxStyles = StyleSheet.create({
     padding: tablePadding,
   },
   labelText: {
-    fontFamily: 'Rubik-Bold',
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 700,
   },
   infoText: {
-    fontFamily: 'Rubik',
     fontSize: 10,
     fontWeight: 400,
   },
@@ -96,10 +94,9 @@ const notesSectionStyles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontFamily: 'Rubik-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
   },
 });
 

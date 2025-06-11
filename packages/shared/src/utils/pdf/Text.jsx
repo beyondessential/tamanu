@@ -11,7 +11,7 @@ export const Text = ({ style, bold, ...props }) => {
       ...mergedStyle,
       ...(bold && {
         fontFamily:
-          mergedStyle.fontFamily === 'Rubik-LightItalic'
+          mergedStyle.fontStyle === 'italic'
             ? 'Rubik-BoldItalic'
             : 'Rubik-Bold',
       }),

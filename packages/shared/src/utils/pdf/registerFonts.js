@@ -7,28 +7,25 @@ const baseDir =
 export const registerFonts = () => {
 Font.register({
   family: 'Rubik',
-  src: path.join(baseDir, 'Rubik-Regular.ttf'),
-});
-
-// base font
-Font.register({
-  family: 'Rubik-Bold',
-  src: path.join(baseDir, 'Rubik-Bold.ttf'),
-});
-
-Font.register({
-  family: 'Rubik-BoldItalic',
-  src: path.join(baseDir, 'Rubik-BoldItalic.ttf'),
-});
-
-Font.register({
-  family: 'Rubik-LightItalic',
-  src: path.join(baseDir, 'Rubik-LightItalic.ttf'),
-});
-
-// title font
-Font.register({
-  family: 'Roboto',
-    src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
+  fonts: [
+    {
+      src: path.join(baseDir, 'Rubik-Regular.ttf'),
+      fontWeight: 400,
+    },
+    {
+      src: path.join(baseDir, 'Rubik-LightItalic.ttf'),
+      fontStyle: 'italic',
+      fontWeight: 400,
+    },
+    {
+      src: path.join(baseDir, 'Rubik-Bold.ttf'),
+      fontWeight: 700,
+    },
+    {
+      src: path.join(baseDir, 'Rubik-BoldItalic.ttf'),
+      fontStyle: 'italic',
+      fontWeight: 700,
+    },
+  ],
   });
 };

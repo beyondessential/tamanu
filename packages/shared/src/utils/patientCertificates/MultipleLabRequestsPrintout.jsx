@@ -28,7 +28,7 @@ const signingSectionStyles = StyleSheet.create({
     paddingRight: 32,
   },
   disclaimerText: {
-    fontFamily: 'Rubik-LightItalic',
+    fontStyle: 'italic',
     fontSize: 8,
   },
 });
@@ -45,9 +45,8 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Rubik-Bold',
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
     marginVertical: 3,
   },
 });

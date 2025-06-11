@@ -29,14 +29,12 @@ const styles = StyleSheet.create({
 
   labelText: {
     fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Rubik-Bold',
+    fontWeight: 700,
   },
 
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Rubik',
   },
 });
 

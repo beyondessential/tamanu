@@ -63,24 +63,21 @@ const infoBoxStyles = StyleSheet.create({
     paddingBottom: 30,
   },
   boldText: {
-    fontFamily: 'Rubik-Bold',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 700,
   },
   infoText: {
-    fontFamily: 'Rubik',
     fontSize: 12,
     fontWeight: 400,
   },
   italicBoldText: {
-    fontFamily: 'Rubik-BoldItalic',
+    fontStyle: 'italic',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 700,
   },
   italicText: {
-    fontFamily: 'Rubik-LightItalic',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 400,
   },
   underlinedText: {
     borderBottom: borderStyle,
