@@ -134,33 +134,6 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'medication',
-    label: (
-      <TranslatedText
-        stringId="sidebar.medication"
-        fallback="Medication"
-        data-testid="translatedtext-6sgi"
-      />
-    ),
-    path: '/medication-requests',
-    icon: medicationIcon,
-    ability: { subject: 'medication' },
-    children: [
-      {
-        label: (
-          <TranslatedText
-            stringId="sidebar.medication.requests"
-            fallback="Requests"
-            data-testid="translatedtext-mech"
-          />
-        ),
-        path: '/medication-requests/all',
-        key: 'medicationAll',
-        ability: { action: 'read' },
-      },
-    ],
-  },
-  {
     key: 'imaging',
     label: (
       <TranslatedText
