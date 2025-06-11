@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { registerFonts } from './registerFonts';
 
 registerFonts();
 

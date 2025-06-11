@@ -1,5 +1,5 @@
 import path from 'path';
-import { Font } from 'pdfmake/build/pdfmake';
+import { Font } from '@react-pdf/renderer';
 
 const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
