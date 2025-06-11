@@ -1128,10 +1128,6 @@ export const globalSettings = {
                 schedulingLocations: { properties: layoutModuleProperties },
               },
             },
-            medication: {
-              description: '_',
-              properties: { medicationAll: { properties: layoutModuleProperties } },
-            },
             imaging: {
               description: '_',
               properties: {
