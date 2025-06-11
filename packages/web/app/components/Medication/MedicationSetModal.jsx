@@ -171,9 +171,10 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
   );
+  const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
   const {
@@ -295,8 +296,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
       case MODAL_SCREENS.CANCEL_MEDICATION_SET:
-        setScreen(MODAL_SCREENS.SELECT_MEDICATION_SET);
-        setSelectedMedicationSet(null);
+        setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
         setScreen(MODAL_SCREENS.CANCEL_MEDICATION_SET);
@@ -331,6 +331,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onCustomClose = () => {
     switch (screen) {
       case MODAL_SCREENS.EDIT_MEDICATION:
+      case MODAL_SCREENS.CANCEL_MEDICATION_SET:
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
       default:
@@ -468,6 +469,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const showCustomClose = [
     MODAL_SCREENS.REVIEW_MEDICATION_SET,
     MODAL_SCREENS.EDIT_MEDICATION,
+    MODAL_SCREENS.CANCEL_MEDICATION_SET,
   ].includes(screen);
 
   const getModalWidth = () => {
