@@ -11,9 +11,9 @@ export const Text = ({ style, bold, ...props }) => {
       ...mergedStyle,
       ...(bold && {
         fontFamily:
-          mergedStyle.fontFamily === 'Helvetica-Oblique'
-            ? 'Helvetica-BoldOblique'
-            : 'Helvetica-Bold',
+          mergedStyle.fontFamily === 'Rubik-LightItalic'
+            ? 'Rubik-BoldItalic'
+            : 'Rubik-Bold',
       }),
     },
     bold,

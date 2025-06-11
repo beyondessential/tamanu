@@ -73,12 +73,12 @@ const infoBoxStyles = StyleSheet.create({
     fontWeight: 400,
   },
   italicBoldText: {
-    fontFamily: 'Helvetica-BoldOblique',
+    fontFamily: 'Rubik-BoldItalic',
     fontSize: 12,
     fontWeight: 500,
   },
   italicText: {
-    fontFamily: 'Helvetica-Oblique',
+    fontFamily: 'Rubik-LightItalic',
     fontSize: 12,
     fontWeight: 500,
   },
