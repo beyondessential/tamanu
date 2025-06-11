@@ -90,9 +90,7 @@ const getConditionShape = getTranslation =>
 
 const getGroupedData = rows => {
   const groupMapping = {
-    confirmedSection: [
-      PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-    ],
+    // confirmedSection is for every other category
     resolvedSection: [
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
@@ -104,17 +102,17 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, conditionCategory, date, programRegistryCondition, history }) => {
+  rows.forEach(({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
     const group = Object.entries(groupMapping).find(([, conditions]) =>
-      conditions.includes(conditionCategory),
-    )?.[0];
+      conditions.includes(programRegistryConditionCategory.code),
+    )?.[0] || 'confirmedSection';
     if (group) {
       groupedData[group].push({
         id,
         conditionId: programRegistryCondition.id,
         name: programRegistryCondition.name,
         date,
-        conditionCategory,
+        conditionCategoryId: programRegistryConditionCategory.id,
         history,
       });
     }
