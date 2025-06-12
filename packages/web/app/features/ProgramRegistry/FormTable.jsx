@@ -163,7 +163,6 @@ FormTable.propTypes = {
         id: PropTypes.string,
         name: PropTypes.string,
         date: PropTypes.string,
-        conditionCategory: PropTypes.string,
       }),
     ),
     // Case 2: Grouped data (Object where values are arrays of objects)
@@ -173,7 +172,6 @@ FormTable.propTypes = {
           id: PropTypes.string,
           name: PropTypes.string,
           date: PropTypes.string,
-          conditionCategory: PropTypes.string,
         }),
       ),
     ),
