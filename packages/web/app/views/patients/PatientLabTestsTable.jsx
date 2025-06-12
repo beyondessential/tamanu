@@ -6,7 +6,7 @@ import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay } from '../../components';
+import { BodyText, DateDisplay, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { TranslatedOption } from '../../components/Translation/TranslatedOptions';
 
@@ -158,7 +158,12 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => (
           <CategoryCell data-testid="categorycell-7aet">
-            {row.testType}
+         <TranslatedReferenceData
+        fallback={row.testType}
+        value={row.testTypeId}
+        category="labTestType"
+        data-testid="translatedreferencedata-kplb"
+      />
             <br />
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}
