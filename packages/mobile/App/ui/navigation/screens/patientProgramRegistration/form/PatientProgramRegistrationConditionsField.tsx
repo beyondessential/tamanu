@@ -72,9 +72,9 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   const buildLabel = useCallback(() => {
     if (!condition || !category) return '';
 
-    const conditionStringId = getReferenceDataStringId('programRegistryCondition', condition.value);
+    const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
     const conditionLabel = getTranslation(conditionStringId, condition.label);
-    const categoryStringId = getReferenceDataStringId('programRegistryConditionCategory', category.value);
+    const categoryStringId = getReferenceDataStringId(category.value, 'programRegistryConditionCategory');
     const categoryLabel = getTranslation(categoryStringId, category.label);
 
     return `${conditionLabel} (${categoryLabel})`;

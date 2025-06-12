@@ -104,8 +104,8 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   // Sort alphabetically by condition name
   const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {
     const stringId = getReferenceDataStringId(
-      'programRegistryCondition',
       programRegistryCondition.id,
+      'programRegistryCondition',
     );
     return getTranslation(stringId, programRegistryCondition.name);
   });
