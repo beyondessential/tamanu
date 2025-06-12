@@ -89,11 +89,12 @@ const tableStyles = StyleSheet.create({
     flexDirection: 'row',
     borderLeft: borderStyle,
     alignItems: 'flex-start',
-    padding: 7,
+    padding: '5px 5px',
+    fontSize: 8,
   },
   p: {
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 8,
   },
   notesCell: {
     width: '100%',
@@ -123,9 +124,9 @@ const P = ({ style = {}, bold, children }) => (
   </Text>
 );
 
-const Cell = ({ children, style = {} }) => (
+const Cell = ({ children, style = {}, bold = false }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P>{children}</P>
+    <P bold={bold}>{children}</P>
   </View>
 );
 
@@ -199,8 +200,8 @@ const DataTable = ({ data, columns, title, type }) => {
       <DataTableHeading columns={columns} title={title} width={width} />
       {data.map((row) => (
         <Row key={row.id} wrap={false} width={width}>
-          {columns.map(({ key, accessor, style }) => (
-            <Cell key={key} style={style}>
+          {columns.map(({ key, accessor, style }, index) => (
+            <Cell key={key} style={style} bold={index === 0}>
               {accessor ? accessor(row) : row[key] || ''}
             </Cell>
           ))}
