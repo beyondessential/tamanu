@@ -716,7 +716,7 @@ export const MedicationForm = ({
                 label={
                   <TranslatedText
                     stringId="medication.isOngoing.label"
-                    fallback="Ongoing Medication"
+                    fallback="Ongoing medication"
                   />
                 }
                 component={CheckField}
@@ -731,7 +731,7 @@ export const MedicationForm = ({
               <Field
                 name="isPrn"
                 label={
-                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN Medication" />
+                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
                 }
                 component={CheckField}
               />
@@ -869,7 +869,7 @@ export const MedicationForm = ({
                 name="isPhoneOrder"
                 label={
                   <BodyText>
-                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone Order" />
+                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone order" />
                   </BodyText>
                 }
                 component={CheckField}
