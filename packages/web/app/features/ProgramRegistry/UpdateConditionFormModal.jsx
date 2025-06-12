@@ -22,6 +22,7 @@ import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { ConditionHistoryTable } from './ConditionHistoryTable';
 import Divider from '@material-ui/core/Divider';
 import { useSettings } from '../../contexts/Settings';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const StyledFormTable = styled(FormTable)`
   margin-top: 1rem;
@@ -58,10 +59,18 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const [warningOpen, setWarningOpen] = useState(false);
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { id: conditionId, patientProgramRegistrationId, conditionCategory } = condition;
+  const {
+    id: conditionId,
+    patientProgramRegistrationId,
+    programRegistryCondition,
+    programRegistryConditionCategory,
+  } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
+  );
+  const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
+    programRegistryCondition?.programRegistryId,
   );
 
   const areAuditChangesEnabled = getSetting('audit.changes.enabled');
@@ -73,7 +82,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   };
 
   const handleSubmit = async values => {
-    if (values.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
+    const recordedInErrorId = conditionCategories?.find(
+      category => category.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    )?.id;
+
+    if (values.programRegistryConditionCategoryId === recordedInErrorId) {
       setWarningOpen(true);
     } else {
       await handleConfirmedSubmit(values);
@@ -96,7 +109,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{ conditionCategory: conditionCategory }}
+        initialValues={{ programRegistryConditionCategoryId: programRegistryConditionCategory.id }}
         render={({ dirty, values }) => {
           const columns = [
             {
@@ -132,7 +145,8 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               width: 180,
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
-                  name="conditionCategory"
+                  name="programRegistryConditionCategoryId"
+                  programRegistryId={programRegistryCondition?.programRegistryId}
                   disabled={!programRegistryCondition?.id}
                   disabledTooltipText={getTranslation(
                     'programRegistry.relatedConditionsCategory.tooltip',
@@ -193,7 +207,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           );
         }}
         validationSchema={yup.object().shape({
-          conditionCategory: foreignKey().required(
+          programRegistryConditionCategoryId: foreignKey().required(
             getTranslation('validation.required.inline', '*Required'),
           ),
         })}
