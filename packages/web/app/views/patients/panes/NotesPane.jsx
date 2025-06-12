@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import {
   ButtonWithPermissionCheck,
@@ -14,56 +13,42 @@ import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { useNoteModal } from '../../../contexts/NoteModal';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   width: 200px;
 `;
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const { noteType, setNoteType } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
+  const { openNoteModal, updateNoteModalProps } = useNoteModal();
 
-  const noteModalOnSaved = async () => {
-    setModalOpen(false);
-    await loadEncounter(encounter.id);
+  const noteModalOnSaved = async createdNote => {
+    updateNoteModalProps({ note: createdNote });
+    loadEncounter(encounter.id);
+  };
+
+  const handleOpenNewNote = () => {
+    openNoteModal({
+      title: <TranslatedText stringId="note.modal.create.title" fallback="New note" />,
+      encounterId: encounter.id,
+      onSaved: noteModalOnSaved,
+      confirmText: <TranslatedText stringId="note.action.add" fallback="Add note" />,
+      noteFormMode: NOTE_FORM_MODES.CREATE_NOTE,
+    });
   };
 
   return (
-    <TabPane data-testid="tabpane-i5ka">
-      <NoteModal
-        title={
-          <TranslatedText
-            stringId="note.modal.create.title"
-            fallback="New note"
-            data-testid="translatedtext-rng8"
-          />
-        }
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
-        onSaved={noteModalOnSaved}
-        confirmText={
-          <TranslatedText
-            stringId="note.action.add"
-            fallback="Add note"
-            data-testid="translatedtext-pc3u"
-          />
-        }
-        noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
-        data-testid="notemodal-f7ax"
-      />
-      <TableButtonRow
-        variant="small"
-        justifyContent="space-between"
-        data-testid="tablebuttonrow-0cfz"
-      >
+    <TabPane>
+      <TableButtonRow variant="small" justifyContent="space-between">
         <StyledTranslatedSelectField
-          onChange={(e) => setNoteType(e.target.value)}
+          onChange={e => setNoteType(e.target.value)}
           value={noteType}
           name="noteType"
           enumValues={NOTE_TYPE_LABELS}
-          transformOptions={(options) => [
+          transformOptions={options => [
             {
               value: null,
               label: (
@@ -75,25 +60,27 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
               ),
             },
             ...options.filter(
-              (option) => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
+              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
             ),
           ]}
           isClearable={false}
           data-testid="styledtranslatedselectfield-oy9y"
         />
-        <ButtonWithPermissionCheck
-          onClick={() => setModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="EncounterNote"
-          data-testid="buttonwithpermissioncheck-qbou"
-        >
-          <TranslatedText
-            stringId="note.action.new"
-            fallback="New note"
-            data-testid="translatedtext-r2fu"
-          />
-        </ButtonWithPermissionCheck>
+        <NoteModalActionBlocker>
+          <ButtonWithPermissionCheck
+            onClick={handleOpenNewNote}
+            disabled={readonly}
+            verb="create"
+            noun="EncounterNote"
+            data-testid="buttonwithpermissioncheck-qbou"
+          >
+            <TranslatedText
+              stringId="note.action.new"
+              fallback="New note"
+              data-testid="translatedtext-r2fu"
+            />
+          </ButtonWithPermissionCheck>
+        </NoteModalActionBlocker>
       </TableButtonRow>
       <NoteTableWithPermission
         encounterId={encounter.id}
