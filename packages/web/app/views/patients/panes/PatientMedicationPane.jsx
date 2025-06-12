@@ -118,7 +118,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   padding-right: 20px;
   border: none;
   box-shadow: none;
-  max-height: ${props => (props.$noData ? '270px' : props.$maxHeight)};
+  max-height: 270px;
   .MuiTableHead-root {
     ${props => props.$noData && 'display: none;'}
     .MuiTableRow-root .MuiTableCell-head {
@@ -403,7 +403,6 @@ export const PatientMedicationPane = ({ patient }) => {
             setSelectedMedication(data);
             setAllowDiscontinue(true);
           }}
-          $maxHeight={'320px'}
         />
       </TableContainer>
       <TableContainer>
@@ -463,7 +462,6 @@ export const PatientMedicationPane = ({ patient }) => {
             setSelectedMedication(data);
             setAllowDiscontinue(false);
           }}
-          $maxHeight={'270px'}
         />
       </TableContainer>
       <MedicationModal
