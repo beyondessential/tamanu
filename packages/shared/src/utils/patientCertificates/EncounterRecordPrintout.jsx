@@ -166,15 +166,17 @@ const DataTableHeading = ({ columns, title, width }) => {
     <View fixed>
       <MultipageTableHeading title={title} />
       <Row wrap={false} width={width}>
-        {columns.map(({ key, title, style }) => {
+        {columns.map(({ key, title, style }, index) => {
           if (Array.isArray(title)) {
+            const rotateStyle = index > 0 ? { transform: 'rotate(-90deg)', paddingBottom: 10, paddingTop: 10 } : {};
             return (
-              <View
-                key={key}
-                style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
-              >
-                <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
-                <P>{title[1]}</P>
+              <View key={key} style={[tableStyles.baseCell, style]}>
+                <View
+                  style={rotateStyle}
+                >
+                  <P bold style={{ letterSpacing: 0.3 }}>{title[0]}</P>
+                  <P>{title[1]}</P>
+                </View>
               </View>
             );
           }
@@ -341,7 +343,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
@@ -361,7 +364,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
