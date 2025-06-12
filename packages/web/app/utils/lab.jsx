@@ -4,7 +4,6 @@ import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { rest } from 'lodash';
 
 export const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];
