@@ -13,7 +13,6 @@ import {
   ImagingRoutes,
   ImmunisationRoutes,
   LabsRoutes,
-  MedicationRoutes,
   PatientsRoutes,
   ProgramRegistryRoutes,
 } from './routes';
@@ -43,7 +42,6 @@ export const RoutingFacilityApp = React.memo(() => {
           <Route path="/appointments" component={AppointmentRoutes} />
           <Route path="/imaging-requests" component={ImagingRoutes} />
           <Route path="/lab-requests" component={LabsRoutes} />
-          <Route path="/medication-requests" component={MedicationRoutes} />
           <Route path="/invoices" component={BillingRoutes} />
           <Route path="/program-registry" component={ProgramRegistryRoutes} />
           <Route path="/immunisations" component={ImmunisationRoutes} />

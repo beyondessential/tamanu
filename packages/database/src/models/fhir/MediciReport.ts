@@ -116,7 +116,7 @@ export class MediciReport extends FhirResource {
       models.ScheduledVaccine,
       models.Discharge,
       models.EncounterDiagnosis,
-      models.EncounterMedication,
+      models.Prescription,
       models.Procedure,
       models.Triage,
       models.Note,

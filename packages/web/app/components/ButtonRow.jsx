@@ -12,7 +12,7 @@ const FlexSpaceBetween = styled.div`
 const Row = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: ${(p) => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
+  justify-content: ${p => (p.alignment === 'left' ? 'flex-start' : 'flex-end')};
   margin-top: 10px;
   width: 100%;
 
@@ -57,11 +57,12 @@ export const FormSubmitCancelRow = React.memo(
     confirmDisabled,
     confirmStyle,
     CustomConfirmButton,
+    'data-testid': testId = 'formsubmitcancelrow',
     ...props
   }) => (
-    <ButtonRow {...props} data-testid="buttonrow-4wf7">
+    <ButtonRow {...props}>
       {onCancel && (
-        <FormCancelButton onClick={onCancel} data-testid="formcancelbutton-aseq">
+        <FormCancelButton onClick={onCancel} data-testid={`${testId}-cancelButton`}>
           {cancelText}
         </FormCancelButton>
       )}
@@ -69,7 +70,7 @@ export const FormSubmitCancelRow = React.memo(
         <CustomConfirmButton
           onClick={onConfirm}
           disabled={confirmDisabled}
-          data-testid="customconfirmbutton-fnmk"
+          data-testid={`${testId}-confirmButton`}
         />
       ) : (
         <FormSubmitButton
@@ -77,7 +78,7 @@ export const FormSubmitCancelRow = React.memo(
           onSubmit={onConfirm}
           disabled={confirmDisabled}
           {...(confirmStyle && { confirmStyle })}
-          data-testid="formsubmitbutton-ygc6"
+          data-testid={`${testId}-confirmButton`}
         >
           {confirmText}
         </FormSubmitButton>
@@ -169,6 +170,9 @@ export const ConfirmCancelBackRow = ({
     />
   ),
   backDisabled = false,
+  onFinalise,
+  finaliseText,
+  finaliseDisabled = false,
   ...props
 }) => (
   <FlexSpaceBetween data-testid="flexspacebetween-f194">
@@ -177,6 +181,11 @@ export const ConfirmCancelBackRow = ({
         <OutlinedButton onClick={onBack} disabled={backDisabled} data-testid="outlinedbutton-1xr6">
           {backButtonText}
         </OutlinedButton>
+        {onFinalise && (
+          <OutlinedButton onClick={onFinalise} disabled={finaliseDisabled}>
+            {finaliseText}
+          </OutlinedButton>
+        )}
       </GoBackButtonContainer>
     )}
     <ConfirmCancelRow {...props} data-testid="confirmcancelrow-lked" />

@@ -295,6 +295,20 @@ export const isStartOfThisWeek = (date: Date | number) => {
   return isSameDay(date, startOfThisWeek);
 };
 
+// Custom validator for "YYYY-MM-DD" format
+export const dateCustomValidation = z.string().refine(
+  (val: string) => {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(val)) return false;
+
+    const date = new Date(val);
+    return isValid(date);
+  },
+  {
+    message: 'Invalid date format, expected YYYY-MM-DD',
+  },
+);
+
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
 export const datetimeCustomValidation = z.string().refine(
   (val: string) => {

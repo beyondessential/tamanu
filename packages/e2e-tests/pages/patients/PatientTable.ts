@@ -43,12 +43,17 @@ export class PatientTable {
     this.rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
     this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
-    this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
+    this.villageSuggestionList = page
+      .getByTestId('villagelocalisedfield-mcri-suggestionslist')
+      .locator('ul')
+      .locator('li');
     this.searchBtn = page.getByTestId('searchbutton-nt24');
     this.clearSearchBtn = page.getByTestId('clearbutton-z9x3');
     this.firstNameSortButton = page.getByTestId('tablesortlabel-0qxx-firstName').locator('svg');
     this.lastNameSortButton = page.getByTestId('tablesortlabel-0qxx-lastName').locator('svg');
-    this.culturalNameSortButton = page.getByTestId('tablesortlabel-0qxx-culturalName').locator('svg');
+    this.culturalNameSortButton = page
+      .getByTestId('tablesortlabel-0qxx-culturalName')
+      .locator('svg');
     this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
     this.NHNTxt = page.getByTestId('localisedfield-dzml-input');
@@ -57,7 +62,7 @@ export class PatientTable {
     this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
     this.CulturalNameTxt = page.getByTestId('localisedfield-epbq-input');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
-    this.includeDeceasedChk = page.getByTestId('checkinput-x2e3-controlcheck');
+    this.includeDeceasedChk = page.getByTestId('field-ngy7-controlcheck');
     this.advanceSearchIcon = page.getByTestId('iconbutton-zrkv');
     this.sexDropDownIcon = page.getByTestId('sexlocalisedfield-7lm9-expandmoreicon-h115');
     this.sexDropDownCrossIcon = page.getByTestId('stylediconbutton-6vh3');
@@ -65,8 +70,12 @@ export class PatientTable {
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
     this.downloadBtn = page.getByTestId('download-data-button');
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
-    this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
-    this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
+    this.patientPageRecordCount25 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('25');
+    this.patientPageRecordCount50 = page
+      .getByTestId('styledmenuitem-fkrw-undefined')
+      .getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2', { exact: true });
     this.pageRecordCount = page.getByTestId('pagerecordcount-m8ne');
   }
@@ -74,7 +83,7 @@ export class PatientTable {
   async waitForTableToLoad() {
     try {
       await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-      await this.loadingCell.waitFor({ state: 'hidden' });      
+      await this.loadingCell.waitFor({ state: 'hidden' });
     } catch (error) {
       throw new Error(`Failed to wait for table to load: ${error.message}`);
     }
@@ -82,7 +91,7 @@ export class PatientTable {
 
   async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
     try {
-      await this.page.waitForFunction(  
+      await this.page.waitForFunction(
         (count) => {
           const table = document.querySelector('table');
           if (!table) return false;
@@ -90,11 +99,11 @@ export class PatientTable {
           return rows.length === count;
         },
         expectedRowCount,
-        { timeout }
+        { timeout },
       );
     } catch (error) {
       throw new Error(
-        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`
+        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`,
       );
     }
   }
@@ -102,12 +111,12 @@ export class PatientTable {
   async clickOnFirstRow() {
     await this.waitForTableToLoad();
     await this.table.locator('tbody tr').first().click();
-    await this.page.waitForURL('**/#/patients/all/*');      
+    await this.page.waitForURL('**/#/patients/all/*');
   }
 
   async clickOnSearchResult(nhn: string) {
     await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
-    await this.page.waitForURL('**/#/patients/all/*');          
+    await this.page.waitForURL('**/#/patients/all/*');
   }
 
   async validateAtLeastOneSearchResult() {
@@ -137,7 +146,7 @@ export class PatientTable {
     const row = this.rows.nth(rowIndex);
     const cells = row.locator('td');
     const cellCount = await cells.count();
-    
+
     for (let i = 1; i < cellCount; i++) {
       const cell = cells.nth(i);
       await expect(cell).toHaveCSS('color', 'rgb(237, 51, 58)');
@@ -147,7 +156,7 @@ export class PatientTable {
   async validateAllRowsDateMatches(expectedDate: string, columnName: string) {
     const rowCount = await this.rows.count();
     const convertedExpectedDate = await convertDateFormat(expectedDate);
-    
+
     for (let i = 0; i < rowCount; i++) {
       const row = await this.rows.nth(i);
       const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
@@ -157,7 +166,7 @@ export class PatientTable {
   }
 
   async validateFirstRowContainsNHN(expectedText: string) {
-    await expect(this.nhnResultCell).toHaveText(expectedText)
+    await expect(this.nhnResultCell).toHaveText(expectedText);
   }
 
   async validateOneSearchResult() {
@@ -168,7 +177,7 @@ export class PatientTable {
   async validateSortOrder(isAscending: boolean, columnName: string) {
     const rowCount = await this.rows.count();
     const Values: string[] = [];
-    
+
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
       const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
@@ -187,10 +196,10 @@ export class PatientTable {
   async validateDateSortOrder(isAscending: boolean) {
     const rowCount = await this.rows.count();
     const dateValues: string[] = [];
-    
+
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-dateOfBirth`;  
+      const locatorText = `styledtablecell-2gyy-${i}-dateOfBirth`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) dateValues.push(cellText);
@@ -240,12 +249,15 @@ export class PatientTable {
       await SelectingFromSearchBox(
         this.villageSearchBox,
         this.villageSuggestionList,
-        searchCriteria.village
+        searchCriteria.village,
       );
     }
     if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
-      await this.page.getByTestId('twocolumnsfield-wg4x').getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
+      await this.page
+        .getByTestId('twocolumnsfield-wg4x')
+        .getByText(new RegExp(`^${searchCriteria.sex}$`, 'i'))
+        .click();
     }
     if (searchCriteria.deceased) {
       await this.includeDeceasedChk.check();
@@ -256,7 +268,7 @@ export class PatientTable {
     if (searchCriteria.DOBTo) {
       await this.DOBToTxt.fill(searchCriteria.DOBTo);
     }
-    
+
     await this.searchBtn.click();
   }
 
@@ -275,4 +287,4 @@ export class PatientTable {
     await expect(this.DOBFromTxt).toHaveValue('');
     await expect(this.DOBToTxt).toHaveValue('');
   }
-} 
+}

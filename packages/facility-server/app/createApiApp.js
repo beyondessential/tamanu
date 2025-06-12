@@ -1,5 +1,6 @@
 import config from 'config';
 import defineExpress from 'express';
+import helmet from 'helmet';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
@@ -35,6 +36,12 @@ export async function createApiApp({
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
+  express.use(
+    helmet({
+      crossOriginEmbedderPolicy: true,
+      strictTransportSecurity: false,
+    }),
+  );
   const { errorMiddleware } = addFacilityMiddleware(express);
 
   // Release the connection back to the pool when the server is closed

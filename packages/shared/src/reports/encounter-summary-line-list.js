@@ -122,18 +122,19 @@ with
   ),
   medications_info as (
     select
-      encounter_id,
+      ep.encounter_id,
       string_agg(
         concat(
           medication.name,
-          ', Discontinued: ', case when discontinued then 'true' else 'false' end,
-          ', Discontinuing reason: ', coalesce(discontinuing_reason, 'null')
+          ', Discontinued: ', case when prescription.discontinued then 'true' else 'false' end,
+          ', Discontinuing reason: ', coalesce(prescription.discontinuing_reason, 'null')
         ),
         '; '
       ) "Medications"
-    from encounter_medications em
-    join reference_data medication on medication.id = em.medication_id
-    group by encounter_id
+    from encounter_prescriptions ep
+    join prescriptions prescription on prescription.id = ep.prescription_id
+    join reference_data medication on medication.id = prescription.medication_id
+    group by ep.encounter_id
   ),
   diagnosis_info as (
     select
