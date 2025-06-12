@@ -321,7 +321,7 @@ export const EncounterMedicationTable = ({
         $noData={medications.length === 0}
         noDataMessage={
           <NoDataContainer>
-            {canImportOngoingPrescriptions && canCreatePrescription ? (
+            {canCreatePrescription && canImportOngoingPrescriptions ? (
               <Box
                 color={Colors.darkestText}
                 display="flex"
@@ -347,14 +347,14 @@ export const EncounterMedicationTable = ({
                   />
                 </StyledButton>
               </Box>
-            ) : canCreatePrescription ? (
+            ) : canCreatePrescription && !encounter?.endDate ? (
               <TranslatedText
                 stringId="medication.table.noMedicationsAndOngoing"
                 fallback="No medications to display and no existing ongoing medications to add to encounter."
               />
             ) : (
               <TranslatedText
-                stringId="medication.table.noPermissionsToCreate"
+                stringId="medication.table.noMedications"
                 fallback="No medications to display."
               />
             )}

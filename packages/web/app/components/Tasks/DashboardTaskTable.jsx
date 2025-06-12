@@ -191,7 +191,7 @@ const getDueTime = ({ dueTime }) => {
 
 const getLocation = ({ encounter }) => (
   <div>
-    <BodyText data-testid="bodytext-pajw">{encounter.location.locationGroup.name}</BodyText>
+    <BodyText data-testid="bodytext-pajw">{encounter.location.locationGroup?.name}</BodyText>
     <SmallBodyText color={Colors.midText} data-testid="smallbodytext-087a">
       {encounter.location.name}
     </SmallBodyText>
