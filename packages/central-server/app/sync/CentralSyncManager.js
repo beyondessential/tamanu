@@ -1,7 +1,7 @@
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
-import { isNaN } from 'lodash';
+import { isNil } from 'lodash';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
@@ -131,10 +131,7 @@ export class CentralSyncManager {
       // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
       const syncLookupUpToTick =
         await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
-      if (
-        this.constructor.config.sync.lookupTable.enabled &&
-        isNaN(parseInt(syncLookupUpToTick, 10))
-      ) {
+      if (this.constructor.config.sync.lookupTable.enabled && isNil(syncLookupUpToTick)) {
         throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
       }
 
