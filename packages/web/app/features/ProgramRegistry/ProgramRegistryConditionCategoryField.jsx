@@ -1,33 +1,57 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedSelectField, FieldWithTooltip } from '../../components';
+import {
+  BaseSelectField,
+  FieldWithTooltip,
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '../../components';
 import { Colors } from '../../constants';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
-const SelectField = styled(TranslatedSelectField)`
+const StyledBaseSelectField = styled(BaseSelectField)`
   .Mui-disabled {
     background-color: ${Colors.hoverGrey};
   }
 `;
 
 export const ProgramRegistryConditionCategoryField = ({
-  label,
   name,
+  programRegistryId,
+  label,
   disabled,
   disabledTooltipText,
   required = false,
   ariaLabelledby = null,
 }) => {
   const { getTranslation } = useTranslation();
+  const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
+    programRegistryId,
+  );
+  const options = conditionCategories.map(conditionCategory => ({
+    label: (
+      <TranslatedReferenceData
+        fallback={conditionCategory.name}
+        value={conditionCategory.id}
+        category="programRegistryConditionCategory"
+      />
+    ),
+    value: conditionCategory.id,
+    searchString: getTranslation(
+      getReferenceDataStringId(conditionCategory.id, 'programRegistryConditionCategory'),
+      conditionCategory.name,
+    ),
+  }));
+
   return (
     <FieldWithTooltip
       disabledTooltipText={disabled ? disabledTooltipText : ''}
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={SelectField}
-      enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+      component={StyledBaseSelectField}
+      options={options}
       disabled={disabled}
       required={required}
       aria-labelledby={ariaLabelledby}

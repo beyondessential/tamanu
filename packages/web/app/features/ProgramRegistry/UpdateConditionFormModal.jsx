@@ -58,7 +58,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const [warningOpen, setWarningOpen] = useState(false);
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { id: conditionId, patientProgramRegistrationId, conditionCategory } = condition;
+  const {
+    id: conditionId,
+    patientProgramRegistrationId,
+    programRegistryConditionCategory,
+  } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
@@ -96,7 +100,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{ conditionCategory: conditionCategory }}
+        initialValues={{ programRegistryConditionCategoryId: programRegistryConditionCategory.id }}
         render={({ dirty, values }) => {
           const columns = [
             {
@@ -132,7 +136,8 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               width: 180,
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
-                  name="conditionCategory"
+                  name="programRegistryConditionCategoryId"
+                  programRegistryId={programRegistryCondition?.programRegistryId}
                   disabled={!programRegistryCondition?.id}
                   disabledTooltipText={getTranslation(
                     'programRegistry.relatedConditionsCategory.tooltip',
@@ -193,7 +198,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
           );
         }}
         validationSchema={yup.object().shape({
-          conditionCategory: foreignKey().required(
+          programRegistryConditionCategoryId: foreignKey().required(
             getTranslation('validation.required.inline', '*Required'),
           ),
         })}

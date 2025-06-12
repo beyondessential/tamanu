@@ -359,6 +359,7 @@ export const RelatedConditionsForm = ({
                   return (
                     <ProgramRegistryConditionCategoryField
                       name={fieldName}
+                      programRegistryId={programRegistryId}
                       ariaLabelledby={ariaLabelledby}
                       disabled
                       disabledTooltipText={getTranslation(
@@ -374,6 +375,7 @@ export const RelatedConditionsForm = ({
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={fieldName}
+                    programRegistryId={programRegistryId}
                     ariaLabelledby={ariaLabelledby}
                     disabled
                     disabledTooltipText={getTranslation(
@@ -387,6 +389,7 @@ export const RelatedConditionsForm = ({
               return (
                 <ProgramRegistryConditionCategoryField
                   name={fieldName}
+                  programRegistryId={programRegistryId}
                   ariaLabelledby={ariaLabelledby}
                   disabled={!conditionId}
                   disabledTooltipText={
