@@ -1,6 +1,7 @@
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
+import { isNil } from 'lodash';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
@@ -91,7 +92,7 @@ export class CentralSyncManager {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    
+
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
     const parameters = { deviceId, facilityIds, isMobile };
@@ -127,6 +128,13 @@ export class CentralSyncManager {
 
   async prepareSession(syncSession) {
     try {
+      // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
+      const syncLookupUpToTick =
+        await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+      if (this.constructor.config.sync.lookupTable.enabled && isNil(syncLookupUpToTick)) {
+        throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
+      }
+
       await createSnapshotTable(this.store.sequelize, syncSession.id);
       const { tick } = await this.tickTockGlobalClock();
       await syncSession.markAsStartedAt(tick);
@@ -540,12 +548,6 @@ export class CentralSyncManager {
 
   async checkPullReady(sessionId) {
     await this.connectToSession(sessionId);
-
-    // if the sync_lookup table is enabled, wait until it has finished its first update run
-    const syncLookupUpToTick = await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
-    if (this.constructor.config.sync.lookupTable.enabled && syncLookupUpToTick === undefined) {
-      return false;
-    }
 
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
