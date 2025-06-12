@@ -86,8 +86,6 @@ const StyledTableRow = styled(TableRow)`
         padding-bottom: 40px !important;
       }
     `};
-}
-
 `;
 
 export const FormTable = React.memo(({ columns, data, className = '' }) => {
