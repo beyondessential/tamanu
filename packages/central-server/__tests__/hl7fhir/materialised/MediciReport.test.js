@@ -68,7 +68,8 @@ describe(`Materialised - MediciReport`, () => {
       ImagingRequest,
       Procedure,
       EncounterDiagnosis,
-      EncounterMedication,
+      Prescription,
+      EncounterPrescription,
       Note,
     } = ctx.store.models;
 
@@ -163,11 +164,16 @@ describe(`Materialised - MediciReport`, () => {
     const { id: medicationId } = await ReferenceData.create(
       fake(ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
     );
-    const encounterMedication = await EncounterMedication.create({
-      ...fake(EncounterMedication),
-      encounterId: encounter.id,
+    const prescription = await Prescription.create({
+      ...fake(Prescription),
       medicationId,
       discontinued: false,
+    });
+
+    await EncounterPrescription.create({
+      ...fake(EncounterPrescription),
+      encounterId: encounter.id,
+      prescriptionId: prescription.id,
     });
 
     const rootNote = await Note.create(
@@ -184,7 +190,7 @@ describe(`Materialised - MediciReport`, () => {
     return {
       encounter,
       encounterDiagnosis,
-      encounterMedication,
+      prescription,
       procedure,
       procedureType,
       rootNote,
@@ -193,7 +199,7 @@ describe(`Materialised - MediciReport`, () => {
   }
 
   it('materialise a Medici report', async () => {
-    const { encounter, encounterDiagnosis, encounterMedication, procedureType, labTestType } =
+    const { encounter, encounterDiagnosis, prescription, procedureType, labTestType } =
       await makeEncounter({
         encounterType: 'emergency',
       });
@@ -243,8 +249,8 @@ describe(`Materialised - MediciReport`, () => {
       medications: [
         {
           discontinued: false,
-          discontinuedDate: encounterMedication.discontinuedDate,
-          discontinuingReason: encounterMedication.discontinuingReason,
+          discontinuedDate: prescription.discontinuedDate,
+          discontinuingReason: prescription.discontinuingReason,
           name: 'Glucose (hypertonic) 5%',
         },
       ],
