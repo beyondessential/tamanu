@@ -48,7 +48,6 @@ const TableContainer = styled(Box)`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   background-color: ${Colors.white};
-  padding: 0 20px 20px;
   margin-top: 20px;
 `;
 
@@ -101,6 +100,7 @@ const NoDataContainer = styled.div`
   font-size: 14px;
   font-weight: 500;
   margin-top: 20px;
+  margin-bottom: 20px;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -114,9 +114,11 @@ const CellText = styled.div`
 `;
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  padding-left: 20px;
+  padding-right: 20px;
   border: none;
   box-shadow: none;
-  max-height: 270px;
+  max-height: ${props => (props.$noData ? '270px' : props.$maxHeight)};
   .MuiTableHead-root {
     ${props => props.$noData && 'display: none;'}
     .MuiTableRow-root .MuiTableCell-head {
@@ -150,6 +152,18 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       &:hover {
         background-color: ${props => (props.$noData ? 'transparent' : Colors.veryLightBlue)};
       }
+    }
+  }
+  .MuiTableFooter-root {
+    position: sticky;
+    bottom: 0;
+    background-color: ${Colors.white};
+    .MuiPagination-root {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    td {
+      border-top: 1px solid ${Colors.outline};
     }
   }
 `;
@@ -330,7 +344,7 @@ export const PatientMedicationPane = ({ patient }) => {
         </NotifyBanner>
       )}
       <TableContainer>
-        <TableTitle py={1.5}>
+        <TableTitle py={1.5} mx={2.5}>
           <TableTitleText>
             <TranslatedText
               stringId="patient.medication.ongoing.title"
@@ -389,10 +403,11 @@ export const PatientMedicationPane = ({ patient }) => {
             setSelectedMedication(data);
             setAllowDiscontinue(true);
           }}
+          $maxHeight={'320px'}
         />
       </TableContainer>
       <TableContainer>
-        <TableTitle py={2}>
+        <TableTitle py={2} mx={2.5}>
           <Box display={'flex'} alignItems={'center'} gap={0.5}>
             <TableTitleText>
               <TranslatedText
@@ -448,6 +463,7 @@ export const PatientMedicationPane = ({ patient }) => {
             setSelectedMedication(data);
             setAllowDiscontinue(false);
           }}
+          $maxHeight={'270px'}
         />
       </TableContainer>
       <MedicationModal
