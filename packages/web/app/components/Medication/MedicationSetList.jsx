@@ -4,7 +4,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { BodyText, Heading4, TranslatedText } from '..';
+import { BodyText, Heading4, SmallBodyText, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
@@ -12,7 +12,7 @@ import { useTranslation } from '../../contexts/Translation';
 const ListContainer = styled(Box)`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
   padding: 6px 0px;
   border-radius: 3px;
   background-color: ${Colors.white};
@@ -129,11 +129,12 @@ export const MedicationSetMedicationsList = ({
   editable = false,
   onEdit,
   onRemove,
+  existingDrugIds,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   return (
     <ListContainer width="420px">
-      <Heading4 textAlign="center" mt="6px" mb="12px">
+      <Heading4 textAlign="center" mt="6px" mb="2px">
         {medicationSet.name}
       </Heading4>
       {medicationSet.children.map(medication => {
@@ -148,43 +149,53 @@ export const MedicationSetMedicationsList = ({
           isOngoing,
         } = medication;
         return (
-          <MedicationListItem key={medicationRef.id}>
-            <BodyText fontWeight="500">{medicationRef.name}</BodyText>
-            {isOngoing && (
-              <CheckedLabel>
-                <CheckIcon color="primary" />
+          <div key={medicationRef.id}>
+            <MedicationListItem key={medicationRef.id}>
+              <BodyText fontWeight="500">{medicationRef.name}</BodyText>
+              {isOngoing && (
+                <CheckedLabel>
+                  <CheckIcon color="primary" />
+                  <TranslatedText
+                    stringId="medication.model.ongoingMedication.label"
+                    fallback="Ongoing medication"
+                  />
+                </CheckedLabel>
+              )}
+              {isPrn && (
+                <CheckedLabel>
+                  <CheckIcon color="primary" />
+                  <TranslatedText
+                    stringId="medication.model.prnMedication.label"
+                    fallback="PRN medication"
+                  />
+                </CheckedLabel>
+              )}
+              <BodyText>
+                {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+                {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
+                {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
+              </BodyText>
+              {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+              {editable && (
+                <>
+                  <StyledIconButton onClick={() => onEdit(medication)}>
+                    <EditIcon />
+                  </StyledIconButton>
+                  <RemoveText onClick={() => onRemove(medication)}>
+                    <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                  </RemoveText>
+                </>
+              )}
+            </MedicationListItem>
+            {existingDrugIds.includes(medicationRef.id) && (
+              <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
                 <TranslatedText
-                  stringId="medication.model.ongoingMedication.label"
-                  fallback="Ongoing medication"
+                  stringId="medication.warning.existingDrug"
+                  fallback="This medication is already in use. Please check the medication list to ensure you are not creating a duplicate."
                 />
-              </CheckedLabel>
+              </SmallBodyText>
             )}
-            {isPrn && (
-              <CheckedLabel>
-                <CheckIcon color="primary" />
-                <TranslatedText
-                  stringId="medication.model.prnMedication.label"
-                  fallback="PRN medication"
-                />
-              </CheckedLabel>
-            )}
-            <BodyText>
-              {getDose(medication, getTranslation, getEnumTranslation)},{' '}
-              {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
-              {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
-            </BodyText>
-            {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
-            {editable && (
-              <>
-                <StyledIconButton onClick={() => onEdit(medication)}>
-                  <EditIcon />
-                </StyledIconButton>
-                <RemoveText onClick={() => onRemove(medication)}>
-                  <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                </RemoveText>
-              </>
-            )}
-          </MedicationListItem>
+          </div>
         );
       })}
     </ListContainer>

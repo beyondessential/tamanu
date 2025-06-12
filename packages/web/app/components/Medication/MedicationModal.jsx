@@ -11,7 +11,7 @@ const StyledFormModal = styled(FormModal)`
   }
 `;
 
-export const MedicationModal = ({ open, onClose, onSaved, encounterId, isOngoingPrescription }) => {
+export const MedicationModal = ({ open, onClose, onSaved, encounterId, isOngoingPrescription, existingDrugIds }) => {
   return (
     <StyledFormModal
       title={
@@ -35,6 +35,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, isOngoing
         onCancel={onClose}
         onSaved={onSaved}
         isOngoingPrescription={isOngoingPrescription}
+        existingDrugIds={existingDrugIds}
       />
     </StyledFormModal>
   );

@@ -257,6 +257,8 @@ export const EncounterMedicationTable = ({
   encounter,
   canImportOngoingPrescriptions,
   onImportOngoingPrescriptions,
+  onMedicationsFetched,
+  medications,
 }) => {
   const location = useLocation();
   const api = useApi();
@@ -264,7 +266,6 @@ export const EncounterMedicationTable = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-  const [medications, setMedications] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -287,10 +288,6 @@ export const EncounterMedicationTable = ({
     setRefreshCount(refreshCount + 1);
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
   };
-
-  const onMedicationsFetched = useCallback(({ data }) => {
-    setMedications(data);
-  }, []);
 
   const rowStyle = ({ discontinued }) =>
     discontinued

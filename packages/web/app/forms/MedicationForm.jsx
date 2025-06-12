@@ -43,6 +43,7 @@ import {
   getReferenceDataStringId,
   NumberField,
   SelectField,
+  SmallBodyText,
   TextField,
   TranslatedSelectField,
 } from '../components';
@@ -513,6 +514,7 @@ export const MedicationForm = ({
   editingMedication,
   isOngoingPrescription,
   onDirtyChange,
+  existingDrugIds,
 }) => {
   const isEditing = !!onConfirmEdit;
   const api = useApi();
@@ -535,7 +537,8 @@ export const MedicationForm = ({
   const [awaitingPrint, setAwaitingPrint] = useState(false);
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
-
+  const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
+  
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
   });
@@ -622,6 +625,11 @@ export const MedicationForm = ({
     };
   };
 
+  const onDrugChange = drugId => {
+    const isExistingDrug = existingDrugIds.includes(drugId);
+    setShowExistingDrugWarning(isExistingDrug);
+  };
+
   return (
     <>
       <Form
@@ -675,8 +683,17 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
+                      onDrugChange(e.target.value);
                     }}
                   />
+                  {showExistingDrugWarning && (
+                    <SmallBodyText mt="2px" color={Colors.midText}>
+                      <TranslatedText
+                        stringId="medication.warning.existingDrug"
+                        fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
+                      />
+                    </SmallBodyText>
+                  )}
                 </div>
               </>
             ) : (

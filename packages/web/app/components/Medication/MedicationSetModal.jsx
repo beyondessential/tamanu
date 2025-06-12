@@ -88,6 +88,7 @@ const SelectScreen = ({
   medicationSetsLoading,
   onSelect,
   selectedMedicationSet,
+  existingDrugIds,
 }) => {
   return (
     <>
@@ -131,7 +132,10 @@ const SelectScreen = ({
                 fallback="Medication set medications"
               />
             </Heading5>
-            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
+            <MedicationSetMedicationsList
+              medicationSet={selectedMedicationSet}
+              existingDrugIds={existingDrugIds}
+            />
           </Box>
         )}
       </SetContainer>
@@ -167,13 +171,17 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
+export const MedicationSetModal = ({
+  open,
+  onClose,
+  openPrescriptionTypeModal,
+  onReloadTable,
+  existingDrugIds,
+}) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
@@ -349,6 +357,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
             medicationSetsLoading={medicationSetsLoading}
             onSelect={onSelect}
             selectedMedicationSet={selectedMedicationSet}
+            existingDrugIds={existingDrugIds}
           />
         );
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
