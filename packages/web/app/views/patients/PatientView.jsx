@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { useApi } from '../../api';
+import { reloadPatient } from '../../store/patient';
 import {
   DocumentsPane,
   SummaryPane,
@@ -177,6 +179,8 @@ const usePatientTabs = () => {
 };
 
 export const PatientView = () => {
+  const dispatch = useDispatch();
+  const { patientId } = useParams();
   const queryClient = useQueryClient();
   const { navigateToPatient } = usePatientNavigation();
   const query = useUrlSearchParams();
@@ -197,6 +201,12 @@ export const PatientView = () => {
   );
 
   useEffect(() => {
+    if (patientId && (!patient?.id || patient?.id !== patientId)) {
+      dispatch(reloadPatient(patientId));
+    }
+  }, [dispatch, patientId, patient?.id]);
+
+  useEffect(() => {
     if (queryTab && queryTab !== currentTab) {
       setCurrentTab(queryTab);
       // remove the query parameter 'tab' after the tab has already been selected
@@ -208,8 +218,10 @@ export const PatientView = () => {
   }, [queryTab]);
 
   useEffect(() => {
-    api.post(`user/recently-viewed-patients/${patient.id}`);
-  }, [api, patient.id]);
+    if (patient?.id) {
+      api.post(`user/recently-viewed-patients/${patient.id}`);
+    }
+  }, [api, patient?.id]);
 
   useEffect(() => {
     if (!isSyncing) {

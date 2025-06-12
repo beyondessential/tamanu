@@ -57,11 +57,12 @@ export const FormSubmitCancelRow = React.memo(
     confirmDisabled,
     confirmStyle,
     CustomConfirmButton,
+    'data-testid': testId = 'formsubmitcancelrow',
     ...props
   }) => (
-    <ButtonRow {...props} data-testid="buttonrow-4wf7">
+    <ButtonRow {...props}>
       {onCancel && (
-        <FormCancelButton onClick={onCancel} data-testid="formcancelbutton-aseq">
+        <FormCancelButton onClick={onCancel} data-testid={`${testId}-cancelButton`}>
           {cancelText}
         </FormCancelButton>
       )}
@@ -69,7 +70,7 @@ export const FormSubmitCancelRow = React.memo(
         <CustomConfirmButton
           onClick={onConfirm}
           disabled={confirmDisabled}
-          data-testid="customconfirmbutton-fnmk"
+          data-testid={`${testId}-confirmButton`}
         />
       ) : (
         <FormSubmitButton
@@ -77,7 +78,7 @@ export const FormSubmitCancelRow = React.memo(
           onSubmit={onConfirm}
           disabled={confirmDisabled}
           {...(confirmStyle && { confirmStyle })}
-          data-testid="formsubmitbutton-ygc6"
+          data-testid={`${testId}-confirmButton`}
         >
           {confirmText}
         </FormSubmitButton>
