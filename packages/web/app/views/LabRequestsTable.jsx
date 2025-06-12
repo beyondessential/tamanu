@@ -39,18 +39,45 @@ export const LabRequestsTable = React.memo(
         },
         {
           key: 'patientName',
-          title:  <TranslatedText stringId="general.patient.label" fallback="Patient" />,
+          title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
           accessor: getPatientName,
           maxWidth: 200,
           sortable: false,
         },
-        { key: 'requestId', title: <TranslatedText stringId="lab.requestId.label" fallback="Test ID" />, accessor: getRequestId, sortable: false },
-        { key: 'labTestPanelName', title: <TranslatedText stringId="lab.panel.label" fallback="Panel" />, accessor: getPanelType },
-        { key: 'testCategory', title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />, accessor: getRequestType },
-        { key: 'requestedDate', title: <TranslatedText stringId="general.requestedAtTime.label" fallback="Requested at time" />, accessor: getDateWithTimeTooltip },
+        {
+          key: 'requestId',
+          title: <TranslatedText stringId="lab.requestId.label" fallback="Test ID" />,
+          accessor: getRequestId,
+          sortable: false,
+        },
+        {
+          key: 'labTestPanelName',
+          title: <TranslatedText stringId="lab.panel.label" fallback="Panel" />,
+          accessor: getPanelType,
+        },
+        {
+          key: 'testCategory',
+          title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
+          accessor: getRequestType,
+        },
+        {
+          key: 'requestedDate',
+          title: (
+            <TranslatedText stringId="general.requestedAtTime.label" fallback="Requested at time" />
+          ),
+          accessor: getDateWithTimeTooltip,
+        },
         isPublishedTable
-          ? { key: 'publishedDate', title: <TranslatedText stringId="lab.completedDate.label" fallback="Completed" />, accessor: getPublishedDate }
-          : { key: 'priority', title: <TranslatedText stringId="lab.priority.label" fallback="Priority" />, accessor: getPriority },
+          ? {
+              key: 'publishedDate',
+              title: <TranslatedText stringId="lab.completedDate.label" fallback="Completed" />,
+              accessor: getPublishedDate,
+            }
+          : {
+              key: 'priority',
+              title: <TranslatedText stringId="lab.priority.label" fallback="Priority" />,
+              accessor: getPriority,
+            },
         {
           key: 'status',
           title: <TranslatedText stringId="general.status.label" fallback="Status" />,
@@ -62,7 +89,7 @@ export const LabRequestsTable = React.memo(
     }, [isPublishedTable]);
     const dispatch = useDispatch();
 
-    const selectLab = async (lab) => {
+    const selectLab = async lab => {
       await loadEncounter(lab.encounterId);
 
       if (lab.patientId) {
