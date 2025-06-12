@@ -18,6 +18,7 @@ import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation.jsx';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const ConditionsCell = ({ conditions }) => {
   const { getTranslation } = useTranslation();
@@ -152,14 +153,17 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
               action: () => setOpenModal({ action: 'Remove', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
               action: () => setOpenModal({ action: 'Delete', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
           ];
 

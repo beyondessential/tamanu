@@ -54,10 +54,10 @@ export const MenuButton = React.memo(
     };
 
     const handleToggle = () => {
-      setOpen((prevOpen) => !prevOpen);
+      setOpen(prevOpen => !prevOpen);
     };
 
-    const handleClose = (event) => {
+    const handleClose = event => {
       if (anchorRef.current && anchorRef.current.contains(event.target)) {
         return;
       }
@@ -89,16 +89,19 @@ export const MenuButton = React.memo(
             <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
               <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-dxm1">
                 <List data-testid="list-i0ae">
-                  {actions.filter(Boolean).map(({ action, label }, index) => (
-                    <Item
-                      disabled={!action}
-                      key={label.props.fallback}
-                      onClick={(event) => handleClick(event, action)}
-                      data-testid={`item-8ybn-${index}`}
-                    >
-                      {label}
-                    </Item>
-                  ))}
+                  {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
+                    const menuItem = (
+                      <Item
+                        disabled={!action}
+                        key={label.props.fallback}
+                        onClick={event => handleClick(event, action)}
+                        data-testid={`item-8ybn-${index}`}
+                      >
+                        {label}
+                      </Item>
+                    );
+                    return wrapper ? wrapper(menuItem) : menuItem;
+                  })}
                 </List>
               </ClickAwayListener>
             </Paper>
