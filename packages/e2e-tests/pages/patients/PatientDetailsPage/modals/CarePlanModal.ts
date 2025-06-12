@@ -35,12 +35,13 @@ export class CarePlanModal extends BasePatientModal {
       .getByRole('textbox', { name: 'Search...' });
     this.mainCarePlanFieldDetails = this.page.getByTestId('field-0yjf-input');
     this.submitNewCarePlanAddButton = this.page
-      .getByTestId('formgrid-iwuf')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-s3rl-confirmButton')
+      .first();
     this.additionalCarePlanNoteField = this.page.getByTestId('field-e8ln-input');
     this.addAdditionalNoteButton = this.page
-      .getByTestId('container-0zs2')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-2egx-confirmButton')
+      .filter({ hasText: 'Add note' })
+      .first();
     this.carePlanHeader = this.page.getByTestId('verticalcenteredtext-ni4s');
     this.completedCarePlan = this.page.getByTestId('notecontainer-6fi4');
     this.completedMainCarePlan = this.completedCarePlan.filter({ hasText: 'Main care plan' });
@@ -55,7 +56,9 @@ export class CarePlanModal extends BasePatientModal {
       .getByTestId('field-e8ln-input');
     this.saveEditedNoteButton = this.page
       .getByTestId('editablenoteformcontainer-mx3i')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-2egx-confirmButton')
+      .filter({ hasText: 'Save' })
+      .first();
     this.additionalNoteEditButton = this.page.getByTestId('item-8ybn-0');
     this.additionalNoteSavedDate = this.page
       .getByTestId('editablenoteformcontainer-mx3i')
@@ -70,7 +73,7 @@ export class CarePlanModal extends BasePatientModal {
     await this.carePlanClinicianDropdown.fill('Initial Admin');
     await this.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
     await this.mainCarePlanFieldDetails.fill(carePlanDetails);
-    await this.submitNewCarePlanAddButton.click();
+    await this.getAddCarePlanButton().click();
     await this.page.waitForLoadState('networkidle');
   }
 
@@ -78,11 +81,31 @@ export class CarePlanModal extends BasePatientModal {
     await this.additionalNoteClinicianDropdown.click();
     await this.page.getByRole('menuitem', { name: clinicianName, exact: true }).click();
     await this.additionalCarePlanNoteField.fill(carePlanNote);
-    await this.addAdditionalNoteButton.click();
+    await this.getAddNoteButton().click();
     await this.page.waitForLoadState('networkidle');
   }
 
   getAdditionalNoteKebabMenu(clinicianName: string) {
     return this.completedCarePlan.filter({ hasText: clinicianName }).getByTestId('openbutton-d1ec');
+  }
+
+  // Helper methods for handling multiple buttons with the same test ID
+  getAddNoteButton() {
+    return this.page
+      .getByTestId('formsubmitcancelrow-2egx-confirmButton')
+      .filter({ hasText: 'Add note' })
+      .first();
+  }
+
+  getSaveButton() {
+    return this.page
+      .getByTestId('editablenoteformcontainer-mx3i')
+      .getByTestId('formsubmitcancelrow-2egx-confirmButton')
+      .filter({ hasText: 'Save' })
+      .first();
+  }
+
+  getAddCarePlanButton() {
+    return this.page.getByTestId('formsubmitcancelrow-s3rl-confirmButton').first();
   }
 }

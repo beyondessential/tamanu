@@ -3,6 +3,7 @@ import compression from 'compression';
 import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
+import helmet from 'helmet';
 
 import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
@@ -71,6 +72,12 @@ export async function createApi(ctx) {
     }
   }
 
+  express.use(
+    helmet({
+      crossOriginEmbedderPolicy: true,
+      strictTransportSecurity: false,
+    }),
+  );
   express.use(loadshedder());
   express.use(compression());
   express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
