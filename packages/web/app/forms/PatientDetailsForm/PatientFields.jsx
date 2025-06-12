@@ -3,7 +3,6 @@ import {
   Field,
   FormGrid,
   NumberField,
-  SelectField,
   TextField,
   TranslatedReferenceData,
   TranslatedText,
@@ -12,6 +11,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptions';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -38,14 +38,15 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
   );
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
-    const fieldOptions = options.map(o => ({ label: o, value: o }));
     return (
       <Field
         name={fieldName}
-        component={SelectField}
+        component={TranslatedOptionSelectField}
+        referenceDataId={definitionId}
+        referenceDataCategory="patientFieldDefinition"
         label={label}
-        options={fieldOptions}
-        data-testid="field-32ps"
+        options={options}
+        data-testid={`custom-patient-field-${definitionId}`}
       />
     );
   }
@@ -56,7 +57,7 @@ export const PatientField = ({ definition: { definitionId, name, fieldType, opti
         component={TextField}
         label={label}
         enablePasting
-        data-testid="field-gcal"
+        data-testid={`custom-patient-field-${definitionId}`}
       />
     );
   }
