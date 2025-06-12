@@ -150,7 +150,7 @@ export const MedicationSetMedicationsList = ({
         } = medication;
         return (
           <div key={medicationRef.id}>
-            <MedicationListItem key={medicationRef.id}>
+            <MedicationListItem>
               <BodyText fontWeight="500">{medicationRef.name}</BodyText>
               {isOngoing && (
                 <CheckedLabel>
