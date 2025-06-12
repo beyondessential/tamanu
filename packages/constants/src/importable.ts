@@ -74,6 +74,9 @@ export const OTHER_REFERENCE_TYPES = {
   PROGRAM_REGISTRY: 'programRegistry',
   PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
   PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
+  PROGRAM: 'program',
+  PROGRAM_DATA_ELEMENT: 'programDataElement',
+  SURVEY: 'survey',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
