@@ -145,6 +145,7 @@ const TABS = [
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} data-testid="patientmedicationpane-9h95" />,
+    condition: ability => ability.can('list', 'Medication'),
   },
   {
     label: (

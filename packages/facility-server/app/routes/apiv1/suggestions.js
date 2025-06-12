@@ -14,6 +14,7 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -60,7 +61,15 @@ function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
+  {
+    mapper,
+    searchColumn,
+    extraReplacementsBuilder,
+    includeBuilder,
+    orderBuilder,
+    shouldSkipDefaultOrder,
+    queryOptions
+  },
 ) {
   suggestions.get(
     `/${endpoint}$`,
@@ -93,6 +102,11 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
+      const skipDefaultOrder = shouldSkipDefaultOrder?.(req);
+      const defaultOrder = [
+        positionQuery,
+        [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
+      ];
 
       const results = await model.findAll({
         where,
@@ -102,12 +116,7 @@ function createSuggesterRoute(
           // TODO: This is a hack to avoid ambiguous column references when we have includes
           // need to either fix this or enforce custom orderBuilder
           ...(order ? [order] : []),
-          ...(include
-            ? []
-            : [
-                positionQuery,
-                [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
-              ]),
+          ...(skipDefaultOrder ? [] : defaultOrder),
         ],
         bind: {
           positionMatch: searchQuery,
@@ -116,6 +125,7 @@ function createSuggesterRoute(
           ...extraReplacementsBuilder(query),
         },
         limit: DEFAULT_LIMIT,
+        ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));
@@ -353,6 +363,7 @@ createSuggester(
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
+    shouldSkipDefaultOrder: () => true,
   },
   true,
 );
@@ -368,28 +379,56 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
     {
       includeBuilder: (req) => {
         const {
-          models: { ReferenceData },
+          models: { ReferenceData, ReferenceMedicationTemplate },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-        if (!parentId) return undefined;
 
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          attributes: ['id'],
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
+        const result = [
+          parentId && {
+            model: ReferenceData,
+            as: 'parent',
+            required: true,
+            through: {
+              attributes: ['id'],
+              where: {
+                referenceDataParentId: parentId,
+                type: relationType,
+              },
             },
           },
-        };
+          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.MEDICATION_SET && {
+            model: ReferenceData,
+            as: 'children',
+            where: VISIBILITY_CRITERIA,
+            through: {
+              attributes: [],
+              where: {
+                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                deleted_at: null,
+              },
+            },
+            include: {
+              model: ReferenceMedicationTemplate,
+              as: 'medicationTemplate',
+              include: {
+                model: ReferenceData,
+                as: 'medication',
+                where: VISIBILITY_CRITERIA,
+              },
+            },
+          },
+        ].filter(Boolean);
+
+        return result.length > 0 ? result : null;
       },
+      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
+      mapper: (item) => item,
+      shouldSkipDefaultOrder: (req) =>
+        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );

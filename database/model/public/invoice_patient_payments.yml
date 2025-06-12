@@ -49,7 +49,6 @@ sources:
             description: "{{ doc('invoice_patient_payments__cheque_number') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              invoice_patient_payments."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_patient_payments."
             data_tests:
               - not_null
