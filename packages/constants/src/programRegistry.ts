@@ -1,5 +1,11 @@
 import { COLORS } from './colors.js';
 
+/**
+ * ########################################################################################################
+ *       All constants in this folder must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
+ * ########################################################################################################
+ */
+
 export const CURRENTLY_AT_TYPES = {
   VILLAGE: 'village',
   FACILITY: 'facility',
@@ -11,7 +17,6 @@ export const REGISTRATION_STATUSES = {
   RECORDED_IN_ERROR: 'recordedInError',
 };
 
-// Please keep in sync with packages/mobile/App/constants/programRegistries.ts
 export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [REGISTRATION_STATUSES.ACTIVE]: 'Active',
   [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
@@ -31,11 +36,8 @@ export const STATUS_COLOR = {
   teal: '#125E7E',
 };
 
-/**
- * ########################################################################################################
- *       These categories must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
- * ########################################################################################################
- */
+// Categories are now added as reference data in their own table, however,
+// these constants are mandatory on import and will be used to define UI behavior
 export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
   UNKNOWN: 'unknown',
   DISPROVEN: 'disproven',

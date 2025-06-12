@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -12,12 +12,9 @@ import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-} from '~/constants/programRegistries';
-import { TranslatedEnum, getEnumStringId } from '~/ui/components/Translations/TranslatedEnum';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
 
 interface FieldValue {
   label: string;
@@ -38,18 +35,20 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   error?: string;
   disabled?: boolean;
   isNewlyCreated?: boolean;
+  conditionCategoryOptions: FieldValue[];
 }
 
-const EXCLUDED_CONDITION_CATEGORIES = [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR];
+const getConditionCategoryOptions = (conditionCategories: IProgramRegistryConditionCategory[]) => {
+  if (!conditionCategories) return [];
 
-const CONDITION_CATEGORY_OPTIONS = Object.values(PROGRAM_REGISTRY_CONDITION_CATEGORIES)
-  .filter((category) => !EXCLUDED_CONDITION_CATEGORIES.includes(category))
-  .map((category) => ({
-    value: category,
-    label: (
-      <TranslatedEnum value={category} enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS} />
-    ),
+  return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
+    category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+  )
+  .map((category: IProgramRegistryConditionCategory) => ({
+    value: category.id,
+    label: category.name,
   }));
+}
 
 const PatientProgramRegistrationConditionsFieldItem = ({
   value,
@@ -60,6 +59,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   error,
   disabled,
   isNewlyCreated,
+  conditionCategoryOptions,
 }: PatientProgramRegistrationConditionsFieldItemProps): ReactElement => {
   const navigation = useNavigation();
   const { getTranslation } = useTranslation();
@@ -72,16 +72,10 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   const buildLabel = useCallback(() => {
     if (!condition || !category) return '';
 
-    const conditionStringId = getReferenceDataStringId('programRegistryCondition', condition.value);
+    const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
     const conditionLabel = getTranslation(conditionStringId, condition.label);
-    const categoryStringId = getEnumStringId(
-      category.value,
-      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-    );
-    const categoryLabel = getTranslation(
-      categoryStringId,
-      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[category.value],
-    );
+    const categoryStringId = getReferenceDataStringId(category.value, 'programRegistryConditionCategory');
+    const categoryLabel = getTranslation(categoryStringId, category.label);
 
     return `${conditionLabel} (${categoryLabel})`;
   }, [condition, category, getTranslation]);
@@ -134,11 +128,18 @@ const PatientProgramRegistrationConditionsFieldItem = ({
             },
           );
         },
-        options: CONDITION_CATEGORY_OPTIONS,
+        options: conditionCategoryOptions,
         modalTitle: getTranslation('programRegistry.category.addCategoryLabel', 'Add category'),
       });
     },
-    [setCategory, onChange, isNewlyCreated, onDelete, getTranslation, navigation],
+    [setCategory,
+      onChange,
+      isNewlyCreated,
+      onDelete,
+      getTranslation,
+      navigation,
+      conditionCategoryOptions,
+    ],
   );
 
   const openConditionScreen = useCallback(() => {
@@ -227,6 +228,17 @@ export const PatientProgramRegistrationConditionsField = ({
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
 
+  const [conditionCategories] = useBackendEffect(({ models }) => 
+    models.ProgramRegistryConditionCategory.find({
+      where: {
+        programRegistry: { id: programRegistryId },
+      },
+    }),
+  );
+
+  // Filter out recorded in error category and map to options
+  const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories);
+
   const conditionSuggester = new Suggester({
     model: models.ProgramRegistryCondition,
     options: {
@@ -269,6 +281,7 @@ export const PatientProgramRegistrationConditionsField = ({
         <PatientProgramRegistrationConditionsFieldItem
           conditionSuggester={conditionSuggester}
           onChange={addItem}
+          conditionCategoryOptions={conditionCategoryOptions}
         />
       ) : (
         conditions.map((value, index) => (
@@ -279,6 +292,7 @@ export const PatientProgramRegistrationConditionsField = ({
             onChange={editItem(index)}
             onDelete={deleteItem(index)}
             isNewlyCreated={value === undefined} // Newly created item
+            conditionCategoryOptions={conditionCategoryOptions}
           />
         ))
       )}
