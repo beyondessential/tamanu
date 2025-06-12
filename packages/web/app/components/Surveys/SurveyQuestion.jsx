@@ -12,7 +12,7 @@ import { Field, FieldWithTooltip } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
 import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 
 const Text = styled.div`
@@ -94,11 +94,14 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     text: componentText,
     validationCriteria,
   } = component;
+  console.log('component', component);
   const { encounter } = useEncounter();
   const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
-  const text = componentText || defaultText;
+  const text = componentText || (
+    <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
+  );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
@@ -121,8 +124,10 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       component={FieldComponent}
       patient={patient}
       name={id}
+      // TODO: translate the options
       options={options}
       config={configObject}
+      // TODO: translate the helpertext?
       helperText={detail}
       required={required}
       disabled={disabled}
