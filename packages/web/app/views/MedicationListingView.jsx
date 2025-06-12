@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContentPane, PageContainer, TopBar } from '../components';
+import { ContentPane, PageContainer, TopBar, TranslatedText } from '../components';
 
 export const MedicationListingView = React.memo(() => (
   <PageContainer data-testid="pagecontainer-fqd5">
