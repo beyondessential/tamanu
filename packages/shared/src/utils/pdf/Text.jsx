@@ -9,12 +9,7 @@ export const Text = ({ style, bold, ...props }) => {
   const newStyles = makeIntlStyleSheet(
     {
       ...mergedStyle,
-      ...(bold && {
-        fontFamily:
-          mergedStyle.fontStyle === 'italic'
-            ? 'Rubik-BoldItalic'
-            : 'Rubik-Bold',
-      }),
+      ...(bold && { fontWeight: 700 }),
     },
     bold,
   );
