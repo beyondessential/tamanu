@@ -22,6 +22,7 @@ import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { ConditionHistoryTable } from './ConditionHistoryTable';
 import Divider from '@material-ui/core/Divider';
 import { useSettings } from '../../contexts/Settings';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const StyledFormTable = styled(FormTable)`
   margin-top: 1rem;
@@ -61,11 +62,15 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   const {
     id: conditionId,
     patientProgramRegistrationId,
+    programRegistryCondition,
     programRegistryConditionCategory,
   } = condition;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
+  );
+  const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
+    programRegistryCondition?.programRegistryId,
   );
 
   const areAuditChangesEnabled = getSetting('audit.changes.enabled');
@@ -77,7 +82,11 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
   };
 
   const handleSubmit = async values => {
-    if (values.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
+    const recordedInErrorId = conditionCategories?.find(
+      category => category.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    )?.id;
+
+    if (values.programRegistryConditionCategoryId === recordedInErrorId) {
       setWarningOpen(true);
     } else {
       await handleConfirmedSubmit(values);
