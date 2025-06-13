@@ -164,9 +164,10 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
   ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
 
+    const ids = labRequests.map(request => request.id);
     useEffect(() => {
       registerFonts();
-    }, []);
+    }, [ids]);
 
     return (
       <Document>
@@ -195,6 +196,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
         </Page>
       </Document>
     );
+    
   },
 );
 
