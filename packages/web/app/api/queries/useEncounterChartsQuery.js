@@ -67,14 +67,14 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   return { recordedDates, records };
 }
 
-export const useEncounterChartsQuery = (encounterId, surveyId) => {
+export const useEncounterChartsQuery = (encounterId, surveyId, instanceId) => {
   const api = useApi();
   const chartQuery = useQuery(
-    ['encounterCharts', encounterId, surveyId],
+    ['encounterCharts', encounterId, surveyId, instanceId],
     () =>
       api.get(
         `encounter/${encounterId}/charts/${surveyId}`,
-        { rowsPerPage: 50 },
+        { rowsPerPage: 50, instanceId },
         { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     { enabled: Boolean(surveyId) },
