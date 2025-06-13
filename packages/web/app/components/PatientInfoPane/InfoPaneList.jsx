@@ -12,6 +12,7 @@ import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -154,7 +155,11 @@ export const InfoPaneList = ({
               data-test-class="add-button-section"
               data-testid="addbutton-b0ln"
             >
-              Add
+              <TranslatedText
+                stringId="general.action.add"
+                fallback="Add"
+                data-testid="translatedtext-add"
+              />
             </AddButton>
           </NoteModalActionBlocker>
         )}

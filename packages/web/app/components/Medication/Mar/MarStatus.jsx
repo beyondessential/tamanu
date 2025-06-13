@@ -1,0 +1,570 @@
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { addHours, format } from 'date-fns';
+import CancelIcon from '@material-ui/icons/Cancel';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import {
+  ADMINISTRATION_STATUS,
+  DRUG_UNIT_SHORT_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+} from '@tamanu/constants';
+import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
+import { Colors } from '../../../constants';
+import { TranslatedEnum, TranslatedText } from '../../Translation';
+import { ConditionalTooltip } from '../../Tooltip';
+import { useTranslation } from '../../../contexts/Translation';
+import { StatusPopper } from './StatusPopper';
+import { WarningModal } from '../WarningModal';
+import { MAR_WARNING_MODAL } from '../../../constants/medication';
+import { MarDetails } from './MarDetails';
+import { useMarDoses } from '../../../api/queries/useMarDoses';
+import { useAuth } from '../../../contexts/Auth';
+
+const StatusContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid ${Colors.outline};
+  border-right: none;
+  border-bottom: none;
+  background-color: ${Colors.white};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -1px;
+  margin-right: -1px;
+  ${p =>
+    (p.isDiscontinued || p.isEnd || p.isPaused) &&
+    `background-image: linear-gradient(${Colors.outline} 1px, transparent 1px);
+    background-size: 100% 5px;
+    background-position: 0 2.5px;`}
+  ${p =>
+    p.isDisabled || p.isDiscontinued || p.isEnd
+      ? `background-color: ${Colors.background}; color: ${Colors.softText};`
+      : `&:hover {
+    background-color: ${Colors.veryLightBlue};
+    cursor: ${p.canCreateMar || (p.status && p.canViewMar) ? 'pointer' : 'default'};
+  }`}
+`;
+
+const IconWrapper = styled.div`
+  height: 24px;
+  .MuiSvgIcon-root {
+    width: 24px;
+    height: 24px;
+    color: ${props => props.$color};
+  }
+`;
+
+const StyledPriorityHighIcon = styled(PriorityHighIcon)`
+  position: absolute;
+  right: 0px;
+  bottom: 3px;
+  font-size: 18px;
+  &.MuiSvgIcon-root {
+    color: ${Colors.alert};
+    width: 16px;
+  }
+`;
+
+const EditedIcon = styled.span`
+  position: absolute;
+  right: 3px;
+  top: 2px;
+`;
+
+const DoseInfo = styled.div`
+  text-align: center;
+  font-size: 12px;
+`;
+
+const SelectedOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: all 0.2s;
+  opacity: ${p => (p.isSelected && !p.isDisabled ? 1 : 0)};
+  border: 1px solid ${Colors.primary};
+`;
+
+const DiscontinuedDivider = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background-color: ${Colors.midText};
+`;
+
+const getIsPast = ({ timeSlot, selectedDate }) => {
+  const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date() > slotEndDate;
+};
+
+const getIsCurrent = ({ timeSlot, selectedDate }) => {
+  const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date() >= slotStartDate && new Date() < slotEndDate;
+};
+
+const getIsDisabled = ({ hasRecord, timeSlot, selectedDate }) => {
+  const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  if (!hasRecord) {
+    return slotStartDate > new Date();
+  }
+  return slotStartDate > addHours(new Date(), 2);
+};
+
+const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
+  if (hasRecord) {
+    return false;
+  }
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(endDate) < endDateOfSlot;
+};
+
+const getIsDiscontinued = ({
+  discontinuedDate,
+  dueAt,
+  isRecordedStatus,
+  timeSlot,
+  selectedDate,
+  nextMarInfo,
+}) => {
+  if (isRecordedStatus || !discontinuedDate || nextMarInfo?.status) {
+    return false;
+  }
+
+  if (dueAt) {
+    return new Date(dueAt) > new Date(discontinuedDate);
+  }
+
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+  return new Date(discontinuedDate) < endDateOfSlot;
+};
+
+const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMarInfo }) => {
+  if (!pauseRecords?.length) return false;
+
+  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
+
+  return pauseRecords.some(pauseRecord => {
+    const pauseStartDate = new Date(pauseRecord.pauseStartDate);
+    const pauseEndDate = new Date(pauseRecord.pauseEndDate);
+
+    if (recordedAt && new Date(recordedAt) <= pauseStartDate) {
+      return false;
+    }
+
+    // special case: when user records a dose in the future, then pauses the medication on the current slot, this slot will not be marked as paused
+    if (nextMarInfo?.recordedAt) {
+      if (
+        pauseStartDate >= startDateOfSlot &&
+        pauseStartDate < endDateOfSlot &&
+        pauseEndDate > endDateOfSlot &&
+        !getIsPaused({
+          pauseRecords,
+          timeSlot,
+          selectedDate,
+          recordedAt: nextMarInfo.recordedAt,
+          nextMarInfo: null,
+        })
+      ) {
+        return false;
+      }
+    }
+
+    return pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
+  });
+};
+
+const getIsPausedThenDiscontinued = ({
+  isPreviouslyPaused,
+  isDiscontinued,
+  timeSlot,
+  selectedDate,
+  discontinuedDate,
+}) => {
+  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
+  return isPreviouslyPaused && isDiscontinued && new Date(discontinuedDate) >= startDateOfSlot;
+};
+
+export const MarStatus = ({
+  selectedDate,
+  timeSlot,
+  marInfo,
+  previousMarInfo,
+  nextMarInfo,
+  medication,
+  pauseRecords,
+  anchorEl,
+  onAnchorElChange,
+}) => {
+  const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
+  const { getEnumTranslation } = useTranslation();
+  const { ability } = useAuth();
+  const canViewMar = ability.can('read', 'MedicationAdministration');
+  const canCreateMar = ability.can('create', 'MedicationAdministration');
+
+  const { dueAt, recordedAt, status, reasonNotGiven, isAutoGenerated, isEdited } = marInfo || {};
+  const { doseAmount, isPrn, units, discontinuedDate, endDate, isVariableDose } = medication || {};
+
+  const [isSelected, setIsSelected] = useState(false);
+
+  const [showWarningModal, setShowWarningModal] = useState('');
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
+
+  const containerRef = useRef(null);
+  const isPast = getIsPast({ timeSlot, selectedDate });
+  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
+  const isCurrent = getIsCurrent({ timeSlot, selectedDate });
+  const isDiscontinued = getIsDiscontinued({
+    discontinuedDate,
+    dueAt,
+    isRecordedStatus: !!recordedAt,
+    timeSlot,
+    selectedDate,
+    nextMarInfo,
+  });
+  const isEnd = getIsEnd({ endDate, hasRecord: !!marInfo, timeSlot, selectedDate });
+  const isPaused = getIsPaused({
+    pauseRecords: pauseRecords?.data,
+    timeSlot,
+    selectedDate,
+    recordedAt,
+    nextMarInfo,
+  });
+
+  const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
+    slot => slot.endTime === timeSlot.startTime,
+  );
+  const isPreviouslyPaused =
+    previousTimeSlot &&
+    previousMarInfo &&
+    getIsPaused({
+      pauseRecords: pauseRecords?.data,
+      timeSlot: previousTimeSlot,
+      selectedDate,
+      recordedAt: previousMarInfo.recordedAt,
+      nextMarInfo: marInfo,
+    });
+
+  const isPausedThenDiscontinued = getIsPausedThenDiscontinued({
+    isPreviouslyPaused,
+    isDiscontinued,
+    timeSlot,
+    selectedDate,
+    discontinuedDate,
+  });
+
+  const isRecordedOutsideAdministrationSchedule =
+    !isAutoGenerated || new Date(recordedAt) < new Date(dueAt) || (isPrn && isPast);
+  const isDoseAmountNotMatch =
+    !isVariableDose &&
+    status === ADMINISTRATION_STATUS.GIVEN &&
+    marDoses?.some(dose => Number(dose.doseAmount) !== Number(doseAmount));
+  const isRecordedDuringPaused = !!recordedAt && isPaused;
+  const isMultipleDoses = marDoses?.length > 1;
+  const isError = marInfo?.isError;
+  const isAlert =
+    !!recordedAt &&
+    (isRecordedOutsideAdministrationSchedule ||
+      isDoseAmountNotMatch ||
+      isRecordedDuringPaused ||
+      isMultipleDoses ||
+      isError);
+
+  const onSelected = event => {
+    if (anchorEl) return;
+    if (isDiscontinued || isDisabled || isEnd || !canViewMar) return;
+
+    if (status) {
+      handleOpenMarDetailsModal();
+      return;
+    }
+
+    if (!canCreateMar) {
+      return;
+    }
+
+    setSelectedElement(event.currentTarget);
+    if (isPaused) {
+      setShowWarningModal(MAR_WARNING_MODAL.PAUSED);
+      return;
+    }
+    if (isPast) {
+      setShowWarningModal(MAR_WARNING_MODAL.PAST);
+      return;
+    }
+    if (isFuture || (isCurrent && !marInfo?.id)) {
+      setShowWarningModal(MAR_WARNING_MODAL.FUTURE);
+      return;
+    }
+    handleStatusPopperOpen(event);
+  };
+
+  const handleStatusPopperOpen = eventOrElement => {
+    setIsSelected(true);
+    const element = eventOrElement.currentTarget || eventOrElement;
+    onAnchorElChange(element);
+  };
+
+  const handleClose = () => {
+    onAnchorElChange(null);
+    setIsSelected(false);
+  };
+
+  const handleOpenMarDetailsModal = () => {
+    setIsSelected(true);
+    setShowMarDetailsModal(true);
+  };
+
+  const handleCloseMarDetailsModal = () => {
+    setShowMarDetailsModal(false);
+    setIsSelected(false);
+  };
+
+  const handleConfirm = () => {
+    setShowWarningModal('');
+    if (selectedElement) {
+      handleStatusPopperOpen({ currentTarget: selectedElement });
+    }
+  };
+
+  const renderStatus = () => {
+    if (!marInfo || isEnd || isDiscontinued || (!status && isPaused)) return null;
+    switch (status) {
+      case ADMINISTRATION_STATUS.GIVEN:
+        return (
+          <IconWrapper $color={Colors.green}>
+            <CheckCircleIcon />
+            {isAlert && <StyledPriorityHighIcon />}
+            {isEdited && <EditedIcon>*</EditedIcon>}
+          </IconWrapper>
+        );
+      case ADMINISTRATION_STATUS.NOT_GIVEN:
+        return (
+          <IconWrapper $color={Colors.alert}>
+            <CancelIcon />
+            {isAlert && <StyledPriorityHighIcon />}
+            {isEdited && <EditedIcon>*</EditedIcon>}
+          </IconWrapper>
+        );
+      default: {
+        if (isPast) {
+          return isPrn ? null : (
+            <IconWrapper $color={Colors.darkOrange}>
+              <HelpOutlineIcon />
+            </IconWrapper>
+          );
+        }
+        if (!units) return null;
+        if (isVariableDose) {
+          return (
+            <DoseInfo>
+              <TranslatedText stringId="medication.mar.status.doseDue" fallback="Dose due" />
+            </DoseInfo>
+          );
+        }
+        return (
+          <DoseInfo>
+            <div>
+              {isVariableDose ? (
+                <TranslatedText stringId="medication.table.variable" fallback="Variable" />
+              ) : (
+                doseAmount
+              )}
+            </div>
+            <div>{units ? getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units) : ''}</div>
+          </DoseInfo>
+        );
+      }
+    }
+  };
+
+  const getTooltipText = () => {
+    if (isDiscontinued) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationDiscontinued.tooltip"
+            fallback="Medication discontinued"
+          />
+        </Box>
+      );
+    }
+    if (isEnd) {
+      return (
+        <Box maxWidth={105}>
+          <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
+          <div>{format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}</div>
+        </Box>
+      );
+    }
+    if (isPaused && !status) {
+      return (
+        <Box maxWidth={69}>
+          <TranslatedText
+            stringId="medication.mar.medicationPaused.tooltip"
+            fallback="Medication paused"
+          />
+        </Box>
+      );
+    }
+    if (marInfo) {
+      switch (status) {
+        case ADMINISTRATION_STATUS.NOT_GIVEN:
+          return (
+            <>
+              <Box>
+                {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
+                {isAlert && !isError && (
+                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+                )}
+              </Box>
+              <div>{reasonNotGiven?.name}</div>
+            </>
+          );
+        case ADMINISTRATION_STATUS.GIVEN: {
+          return (
+            <Box maxWidth={73}>
+              <Box>
+                {isError && <TranslatedText stringId="medication.mar.error" fallback="Error." />}
+                {isAlert && !isError && (
+                  <TranslatedText stringId="medication.mar.alert" fallback="Alert." />
+                )}
+              </Box>
+              {marDoses?.map(
+                dose =>
+                  !dose.isRemoved && (
+                    <div key={dose?.id}>
+                      <span>{dose?.doseAmount}</span>{' '}
+                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={units} />{' '}
+                      <TranslatedText
+                        stringId="medication.mar.givenAt.tooltip"
+                        fallback="given at :time"
+                        replacements={{
+                          time: format(new Date(dose?.givenTime), 'hh:mma').toLowerCase(),
+                        }}
+                      />
+                    </div>
+                  ),
+              )}
+            </Box>
+          );
+        }
+        default:
+          if (isDisabled) {
+            return (
+              <Box maxWidth={73}>
+                <TranslatedText
+                  stringId="medication.mar.future.tooltip"
+                  fallback="Cannot record future dose. Due at :dueAt."
+                  replacements={{
+                    dueAt: format(new Date(dueAt), 'h:mma').toLowerCase(),
+                  }}
+                />
+              </Box>
+            );
+          }
+          if (isPast) {
+            return isPrn ? null : (
+              <Box maxWidth={69}>
+                <TranslatedText
+                  stringId="medication.mar.missed.tooltip"
+                  fallback="Missed. Due at :dueAt"
+                  replacements={{
+                    dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                  }}
+                />
+              </Box>
+            );
+          }
+          return (
+            <Box maxWidth={69}>
+              <TranslatedText
+                stringId="medication.mar.dueAt.tooltip"
+                fallback="Due at :dueAt"
+                replacements={{
+                  dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                }}
+              />
+            </Box>
+          );
+      }
+    }
+    return null;
+  };
+
+  return (
+    <>
+      <ConditionalTooltip
+        visible={getTooltipText()}
+        title={<Box fontWeight={400}>{getTooltipText()}</Box>}
+        PopperProps={{
+          popperOptions: {
+            positionFixed: true,
+            modifiers: {
+              preventOverflow: {
+                enabled: true,
+                boundariesElement: 'window',
+              },
+            },
+          },
+        }}
+      >
+        <StatusContainer
+          ref={containerRef}
+          onClick={onSelected}
+          isDisabled={isDisabled}
+          isDiscontinued={isDiscontinued}
+          isEnd={isEnd}
+          isPaused={isPaused}
+          canCreateMar={canCreateMar}
+          canViewMar={canViewMar}
+          status={status}
+        >
+          {isPausedThenDiscontinued && <DiscontinuedDivider />}
+          {renderStatus()}
+          <SelectedOverlay isSelected={isSelected} isDisabled={isDisabled || isEnd} />
+        </StatusContainer>
+      </ConditionalTooltip>
+      <StatusPopper
+        open={!!anchorEl && !!containerRef.current && anchorEl === containerRef.current}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        timeSlot={timeSlot}
+        selectedDate={selectedDate}
+        marInfo={marInfo}
+        medication={medication}
+        isFuture={isFuture}
+        isPast={isPast}
+      />
+      <WarningModal
+        modal={showWarningModal}
+        onClose={() => setShowWarningModal('')}
+        onConfirm={handleConfirm}
+        isPast={isPast}
+      />
+      {showMarDetailsModal && (
+        <MarDetails
+          onClose={handleCloseMarDetailsModal}
+          medication={medication}
+          marInfo={marInfo}
+          timeSlot={timeSlot}
+          isRecordedOutsideAdministrationSchedule={isRecordedOutsideAdministrationSchedule}
+          isDoseAmountNotMatch={isDoseAmountNotMatch}
+          isRecordedDuringPaused={isRecordedDuringPaused}
+        />
+      )}
+    </>
+  );
+};

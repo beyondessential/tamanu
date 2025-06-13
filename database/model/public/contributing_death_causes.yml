@@ -48,7 +48,6 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in contributing_death_causes."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              contributing_death_causes."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in contributing_death_causes."
             data_tests:
               - not_null

@@ -51,8 +51,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in appointment_schedules."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              appointment_schedules."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in appointment_schedules."
             data_tests:
               - not_null
           - name: is_fully_generated

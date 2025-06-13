@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
@@ -18,6 +18,25 @@ function newlinesToArray(data) {
     .map((x) => x.trim())
     .filter((x) => x);
   return JSON.stringify(array);
+}
+
+function makeMandatory(validationCriteria) {
+    const { validationCriteria: originalValidationCriteria } = validationCriteria;
+    return JSON.stringify({
+      ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
+      mandatory: true,
+    });
+}
+
+function applyComponentTypeOverrides(type, surveyComponent) {
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+    const { validationCriteria } = surveyComponent;
+    return {
+      ...surveyComponent,
+      validationCriteria: makeMandatory(validationCriteria),
+    }
+  }
+  return surveyComponent;
 }
 
 function makeScreen(questions, componentData) {
@@ -40,7 +59,6 @@ function makeScreen(questions, componentData) {
 
     const deletedAt =
       VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
-
     return [
       {
         model: 'ProgramDataElement',
@@ -56,7 +74,7 @@ function makeScreen(questions, componentData) {
       {
         model: 'SurveyScreenComponent',
         sheetRow: row,
-        values: {
+        values: applyComponentTypeOverrides(type, {
           id: `${surveyId}-${elementData.code}`,
           dataElementId: dataElId,
           surveyId,
@@ -74,7 +92,7 @@ function makeScreen(questions, componentData) {
           ...otherComponentData,
           visibilityStatus,
           deletedAt,
-        },
+        }),
       },
     ];
   });
