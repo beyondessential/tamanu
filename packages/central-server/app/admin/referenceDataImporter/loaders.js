@@ -6,8 +6,10 @@ import {
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
+import { pluralize } from 'inflection';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -15,7 +17,7 @@ function stripNotes(fields) {
   return values;
 }
 
-export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
+export const loaderFactory = (model) => (fields) => [{ model, values: stripNotes(fields) }];
 
 export function referenceDataLoaderFactory(type) {
   return ({ id, code, name, visibilityStatus }) => [
@@ -40,8 +42,8 @@ export function patientFieldDefinitionLoader(values) {
         ...stripNotes(values),
         options: (values.options || '')
           .split(',')
-          .map(v => v.trim())
-          .filter(v => v !== ''),
+          .map((v) => v.trim())
+          .filter((v) => v !== ''),
       },
     },
   ];
@@ -89,7 +91,7 @@ export function administeredVaccineLoader(item) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+        consent: ['true', 'yes', 't', 'y'].some((v) => v === consent?.toLowerCase()),
         ...data,
 
         // relationships
@@ -149,7 +151,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
     if (
       predefinedPatientFields.includes(definitionId) ||
-      foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
+      foreignKeySchemata.Patient.find((schema) => schema.field === definitionId) ||
       !value
     )
       continue;
@@ -231,8 +233,8 @@ export function labTestPanelLoader(item) {
 
   (testTypesInPanel || '')
     .split(',')
-    .map(t => t.trim())
-    .forEach(testType => {
+    .map((t) => t.trim())
+    .forEach((testType) => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
@@ -250,13 +252,13 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   const { id: taskSetId, tasks: taskIdsString } = item;
   const taskIds = taskIdsString
     .split(',')
-    .map(taskId => taskId.trim())
+    .map((taskId) => taskId.trim())
     .filter(Boolean);
 
   const existingTaskIds = await models.ReferenceData.findAll({
     where: { id: { [Op.in]: taskIds } },
-  }).then(tasks => tasks.map(({ id }) => id));
-  const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
+  }).then((tasks) => tasks.map(({ id }) => id));
+  const nonExistentTaskIds = taskIds.filter((taskId) => !existingTaskIds.includes(taskId));
   if (nonExistentTaskIds.length > 0) {
     pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
   }
@@ -273,7 +275,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   });
 
   // Upsert tasks that are in task set
-  const rows = existingTaskIds.map(taskId => ({
+  const rows = existingTaskIds.map((taskId) => ({
     model: 'ReferenceDataRelation',
     values: {
       referenceDataId: taskId,
@@ -290,7 +292,7 @@ export async function userLoader(item, { models, pushError }) {
   const rows = [];
 
   const allowedFacilityIds = allowedFacilities
-    ? allowedFacilities.split(',').map(t => t.trim())
+    ? allowedFacilities.split(',').map((t) => t.trim())
     : [];
 
   rows.push({
@@ -308,10 +310,10 @@ export async function userLoader(item, { models, pushError }) {
 
   if (existingUser) {
     const idsToBeDeleted = existingUser.facilities
-      .map(f => f.id)
-      .filter(id => !allowedFacilityIds.includes(id));
+      .map((f) => f.id)
+      .filter((id) => !allowedFacilityIds.includes(id));
 
-    idsToBeDeleted.forEach(facilityId => {
+    idsToBeDeleted.forEach((facilityId) => {
       rows.push({
         model: 'UserFacility',
         values: {
@@ -324,7 +326,7 @@ export async function userLoader(item, { models, pushError }) {
     });
   }
 
-  allowedFacilityIds.forEach(facilityId => {
+  allowedFacilityIds.forEach((facilityId) => {
     rows.push({
       model: 'UserFacility',
       values: {
@@ -337,7 +339,7 @@ export async function userLoader(item, { models, pushError }) {
 
   const designationIds = (designations || '')
     .split(',')
-    .map(d => d.trim())
+    .map((d) => d.trim())
     .filter(Boolean);
 
   if (id) {
@@ -395,16 +397,16 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 
   const designationIds = (assignedTo || '')
     .split(',')
-    .map(d => d.trim())
+    .map((d) => d.trim())
     .filter(Boolean);
 
   await models.TaskTemplateDesignation.destroy({
     where: { taskTemplateId: newTaskTemplate.id, designationId: { [Op.notIn]: designationIds } },
   });
 
-  const existingDesignationIds = await models.ReferenceData.findByIds(
-    designationIds,
-  ).then(designations => designations.map(d => d.id));
+  const existingDesignationIds = await models.ReferenceData.findByIds(designationIds).then(
+    (designations) => designations.map((d) => d.id),
+  );
   for (const designationId of designationIds) {
     if (!existingDesignationIds.includes(designationId)) {
       pushError(`Designation "${designationId}" does not exist`);
@@ -419,5 +421,141 @@ export async function taskTemplateLoader(item, { models, pushError }) {
     });
   }
 
+  return rows;
+}
+
+export async function drugLoader(item, { models }) {
+  const { id: drugId, route, units, notes } = item;
+  const rows = [];
+
+  let existingDrug;
+  if (drugId) {
+    existingDrug = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: drugId },
+    });
+  }
+
+  const newDrug = {
+    id: existingDrug?.id || uuidv4(),
+    referenceDataId: drugId,
+    route,
+    units,
+    notes,
+  };
+  rows.push({
+    model: 'ReferenceDrug',
+    values: newDrug,
+  });
+
+  return rows;
+}
+
+export async function medicationTemplateLoader(item, { models, pushError }) {
+  const {
+    id: referenceDataId,
+    medication: drugReferenceDataId,
+    prnMedication,
+    doseAmount,
+    units,
+    frequency,
+    route,
+    duration,
+    notes,
+    dischargeQuantity,
+  } = item;
+
+  const rows = [];
+
+  const drug = await models.ReferenceData.findOne({
+    where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
+  });
+  if (!drug) {
+    pushError(`Drug with ID "${drugReferenceDataId}" does not exist.`);
+  }
+
+  if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
+    pushError(`Dose amount must be a number or the string "variable".`);
+  }
+
+  const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
+    where: { referenceDataId },
+  });
+
+  const [durationValue, durationUnit] = duration?.toString()?.split(' ') || [];
+
+  const newTemplate = {
+    id: existingTemplate?.id || uuidv4(),
+    referenceDataId,
+    medicationId: drugReferenceDataId,
+    isPrn: prnMedication,
+    isVariableDose: doseAmount?.toString().toLowerCase() === 'variable',
+    doseAmount: parseFloat(doseAmount) || null,
+    units,
+    frequency,
+    route,
+    durationValue: durationValue || null,
+    durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
+    notes: notes || null,
+    dischargeQuantity: dischargeQuantity || null,
+  };
+
+  rows.push({
+    model: 'ReferenceMedicationTemplate',
+    values: newTemplate,
+  });
+
+  return rows;
+}
+
+export async function medicationSetLoader(item, { models, pushError }) {
+  const { id, medicationTemplates: medicationTemplateIdsString } = stripNotes(item);
+
+  const rows = [];
+
+  const medicationTemplateIds = (medicationTemplateIdsString || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  let existingTemplateIds = [];
+  if (medicationTemplateIds.length > 0) {
+    const existingTemplates = await models.ReferenceData.findAll({
+      where: {
+        id: { [Op.in]: medicationTemplateIds },
+        type: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+      },
+    });
+    existingTemplateIds = existingTemplates.map(({ id }) => id);
+
+    const nonExistentTemplateIds = medicationTemplateIds.filter(
+      (id) => !existingTemplateIds.includes(id),
+    );
+    if (nonExistentTemplateIds.length > 0) {
+      pushError(
+        `Medication Templates ${nonExistentTemplateIds.join(', ')} for set "${id}" not found or not of type MEDICATION_TEMPLATE.`,
+      );
+    }
+  }
+
+  // Remove relations for templates no longer in the set
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: id,
+      type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+      referenceDataId: { [Op.notIn]: existingTemplateIds },
+    },
+  });
+
+  // Upsert relations for templates in the set
+  for (const templateId of existingTemplateIds) {
+    rows.push({
+      model: 'ReferenceDataRelation',
+      values: {
+        referenceDataParentId: id,
+        referenceDataId: templateId,
+        type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+      },
+    });
+  }
   return rows;
 }

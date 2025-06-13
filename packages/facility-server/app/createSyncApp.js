@@ -1,4 +1,5 @@
 import defineExpress from 'express';
+import helmet from 'helmet';
 
 import errorHandler from './middleware/errorHandler';
 import { createServer } from 'http';
@@ -9,6 +10,12 @@ export async function createSyncApp({ sequelize, syncManager, models, deviceId }
   const express = defineExpress();
   const server = createServer(express);
 
+  express.use(
+    helmet({
+      crossOriginEmbedderPolicy: true,
+      strictTransportSecurity: false,
+    }),
+  );
   const { errorMiddleware } = addFacilityMiddleware(express);
 
   express.use((req, res, next) => {

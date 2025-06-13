@@ -79,7 +79,9 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.savedOnGoingConditionNote.fill('Edited note');
 
-    await patientDetailsPage.clickAddButtonToConfirm(patientDetailsPage.submitEditsButton);
+    await patientDetailsPage.clickAddButtonToConfirm(
+      patientDetailsPage.getOngoingConditionEditSubmitButton(),
+    );
 
     await patientDetailsPage.firstListItem.click();
 
@@ -145,7 +147,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.firstListItem.click();
 
     await patientDetailsPage.savedAllergyNote.fill('Edited to add a note');
-    await patientDetailsPage.submitEditsButton.click();
+    await patientDetailsPage.getAllergyEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
 
@@ -153,7 +155,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedAllergyNote).toHaveValue('Edited to add a note');
 
     await patientDetailsPage.savedAllergyNote.fill('Second edit');
-    await patientDetailsPage.submitEditsButton.click();
+    await patientDetailsPage.getAllergyEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
 
@@ -225,7 +227,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.savedFamilyClinician.click();
     await patientDetailsPage.page.getByRole('menuitem', { name: 'Initial Admin' }).click();
     await patientDetailsPage.savedFamilyHistoryNote.fill('First edit to note');
-    await patientDetailsPage.submitEditsButton.click();
+    await patientDetailsPage.getFamilyHistoryEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
 
@@ -236,7 +238,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('First edit to note');
 
     await patientDetailsPage.savedFamilyHistoryNote.fill('Second edit to note');
-    await patientDetailsPage.submitEditsButton.click();
+    await patientDetailsPage.getFamilyHistoryEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
 
@@ -306,7 +308,7 @@ test.describe('Patient Side Bar', () => {
 
     await patientDetailsPage.savedOtherPatientIssueNote.fill('Edited warning');
     await patientDetailsPage.savedOtherPatientIssueDate.fill('2025-09-17');
-    await patientDetailsPage.submitEditsButton.click();
+    await patientDetailsPage.getOtherPatientIssuesEditSubmitButton().click();
 
     await patientDetailsPage.firstListItem.click();
 
@@ -348,7 +350,7 @@ test.describe('Patient Side Bar', () => {
 
     await expect(completedCarePlanModal.carePlanHeader).toContainText('Care plan: Diabetes');
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
-      'This is an example of main care plan details',
+      /This is an example of main care plan details/,
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
       'On behalf of Initial Admin',
@@ -381,7 +383,7 @@ test.describe('Patient Side Bar', () => {
     await completedCarePlanModal.completedCarePlanEditButton.click();
 
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
-    await completedCarePlanModal.saveEditedNoteButton.click();
+    await completedCarePlanModal.getSaveButton().click();
 
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText('Edited note');
     await expect(
@@ -411,7 +413,7 @@ test.describe('Patient Side Bar', () => {
 
     await completedCarePlanModal.additionalNoteSavedDate.fill('2025-04-26T15:40');
     await completedCarePlanModal.editableNoteContent.fill('Edited note');
-    await completedCarePlanModal.saveEditedNoteButton.click();
+    await completedCarePlanModal.getSaveButton().click();
 
     await expect(completedCarePlanModal.completedSystemAdditionalCarePlan).toContainText(
       'Edited note',
