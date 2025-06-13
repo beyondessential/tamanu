@@ -47,7 +47,7 @@ const ScrollToError = () => {
 };
 
 const StyledForm = styled.form`
-  ${(props) =>
+  ${props =>
     !props.$clickable
       ? `
       .MuiFormControl-root {
@@ -92,7 +92,7 @@ export class Form extends React.PureComponent {
     };
   }
 
-  setErrors = (validationErrors) => {
+  setErrors = validationErrors => {
     const { onError, showInlineErrorsOnly } = this.props;
     if (onError) {
       onError(validationErrors);
@@ -208,7 +208,7 @@ export class Form extends React.PureComponent {
 
     // if setValues is called, we need to update the values that the submission handler uses so that
     // it can be called immediately afterwards (i.e. setValues has a synchronous effect)
-    const setValues = (newValues) => {
+    const setValues = newValues => {
       values = newValues;
       originalSetValues(newValues);
     };
@@ -252,6 +252,11 @@ export class Form extends React.PureComponent {
     );
   };
 
+  // Check if the form has any submission errors
+  hasFormError = errors => {
+    return errors && typeof errors === 'object' && Object.hasOwn(errors, 'form');
+  };
+
   render() {
     const {
       onSubmit,
@@ -259,7 +264,7 @@ export class Form extends React.PureComponent {
       validateOnBlur,
       initialValues,
       formType,
-      suppressErrorDialog = false,
+      suppressErrorDialog,
       suppressErrorDialogCondition = () => true,
       ...props
     } = this.props;
@@ -292,22 +297,24 @@ export class Form extends React.PureComponent {
         >
           {this.renderFormContents}
         </Formik>
-        {!suppressErrorDialog && suppressErrorDialogCondition(validationErrors) && (
-          <Dialog
-            isVisible={hasErrors}
-            onClose={this.hideErrorDialog}
-            headerTitle={
-              <TranslatedText
-                stringId="general.form.validationError.heading"
-                fallback="Please fix below errors to continue"
-                data-testid="translatedtext-zyuh"
-              />
-            }
-            disableDevWarning
-            contentText={<FormErrors errors={validationErrors} data-testid="formerrors-yc9p" />}
-            data-testid="dialog-d6dt"
-          />
-        )}
+        {!suppressErrorDialog ||
+          !suppressErrorDialogCondition(validationErrors) ||
+          (this.hasFormError(validationErrors) && (
+            <Dialog
+              isVisible={hasErrors}
+              onClose={this.hideErrorDialog}
+              headerTitle={
+                <TranslatedText
+                  stringId="general.form.validationError.heading"
+                  fallback="Please fix below errors to continue"
+                  data-testid="translatedtext-zyuh"
+                />
+              }
+              disableDevWarning
+              contentText={<FormErrors errors={validationErrors} data-testid="formerrors-yc9p" />}
+              data-testid="dialog-d6dt"
+            />
+          ))}
       </>
     );
   }
@@ -332,4 +339,5 @@ Form.defaultProps = {
   initialValues: {},
   validateOnChange: false,
   validateOnBlur: false,
+  suppressErrorDialog: true,
 };
