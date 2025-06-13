@@ -916,10 +916,7 @@ describe('Programs import', () => {
       });
 
       const translations = await models.TranslatedString.findAll();
-
       const generatedStringIds = translations.map((translation) => translation.stringId);
-
-      console.log('generatedStringIds', generatedStringIds);
 
       const programStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.program.program-testvitals`;
       const surveyStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.survey.program-testvitals-vitalsgood`;
@@ -928,7 +925,7 @@ describe('Programs import', () => {
       expect(generatedStringIds).toContain(programStringId);
       expect(generatedStringIds).toContain(surveyStringId);
 
-      // Check each data element has a string id
+      // Check each data element has an appropriate string id
       const dataElements = await models.ProgramDataElement.findAll();
       dataElements.forEach((dataElement) => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${dataElement.id}`;
