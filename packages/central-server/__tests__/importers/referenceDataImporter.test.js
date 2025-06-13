@@ -349,38 +349,62 @@ describe('Data definition import', () => {
     });
   });
 
-  it('should create translations records for the translatable reference data types', async () => {
-    const { models } = ctx.store;
-    const { ReferenceData, TranslatedString } = models;
-    const { stats } = await doImport({ file: 'valid' });
+  describe('Translation', () => {
+    it('should create translations records for the translatable reference data types', async () => {
+      const { models } = ctx.store;
+      const { ReferenceData, TranslatedString } = models;
+      const { stats } = await doImport({ file: 'valid' });
 
-    // It should create a translation for each record in the reference data table
-    const refDataTableRecords = await ReferenceData.findAll({ raw: true });
-    const expectedStringIds = refDataTableRecords.map(
-      ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
-    );
+      // It should create a translation for each record in the reference data table
+      const refDataTableRecords = await ReferenceData.findAll({ raw: true });
+      const expectedStringIds = refDataTableRecords.map(
+        ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
+      );
 
-    // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
-      OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
-    );
-    await Promise.all(
-      translatableNonRefDataTableImports.map(async (type) => {
-        const recordsForDataType = await models[type].findAll({
-          attributes: ['id'],
-          raw: true,
-        });
-        const nonRefDataTableStringIds = recordsForDataType.map(
-          ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
-        );
-        expectedStringIds.push(...nonRefDataTableStringIds);
-      }),
-    );
+      // Filter out the clinical/patient record types as they dont get translated
+      const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
+        OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
+      );
+      await Promise.all(
+        translatableNonRefDataTableImports.map(async (type) => {
+          const recordsForDataType = await models[type].findAll({
+            attributes: ['id'],
+            raw: true,
+          });
+          const nonRefDataTableStringIds = recordsForDataType.map(
+            ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+          );
+          expectedStringIds.push(...nonRefDataTableStringIds);
+        }),
+      );
 
-    const createdTranslationCount = await TranslatedString.count({
-      where: { stringId: { [Op.in]: expectedStringIds } },
+      const createdTranslationCount = await TranslatedString.count({
+        where: { stringId: { [Op.in]: expectedStringIds } },
+      });
+      expect(expectedStringIds.length).toEqual(createdTranslationCount);
     });
-    expect(expectedStringIds.length).toEqual(createdTranslationCount);
+
+    it('should create nested translations for options', async () => {
+      const { models } = ctx.store;
+      await doImport({ file: 'valid' });
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.patientFieldDefinition%' } },
+      });
+      const stringIds = translations.map((translation) => translation.stringId);
+
+      expect(stringIds).toEqual(
+        expect.arrayContaining([
+          'refData.patientFieldDefinitionCategory.fieldCategory-LegalInformation',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.asylumSeeker',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.refugee',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.noStatus',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.unknown',
+          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.other',
+        ]),
+      );
+    });
   });
 
   it('should allow importing sensitive lab test types within the same lab test category', async () => {
