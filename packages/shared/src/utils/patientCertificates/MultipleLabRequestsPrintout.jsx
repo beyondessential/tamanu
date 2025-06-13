@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
@@ -15,6 +15,7 @@ import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { registerFonts } from '../pdf/registerFonts';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
@@ -28,7 +29,7 @@ const signingSectionStyles = StyleSheet.create({
     paddingRight: 32,
   },
   disclaimerText: {
-    fontFamily: 'Helvetica-Oblique',
+    fontStyle: 'italic',
     fontSize: 8,
   },
 });
@@ -45,9 +46,8 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
     marginVertical: 3,
   },
 });
@@ -101,7 +101,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(',\n');
+    return notes?.map(note => note?.content || '').filter(Boolean).join(',\n') || '';
   };
 
   return (
@@ -164,6 +164,11 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
   ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
 
+    const ids = labRequests.map(request => request.id);
+    useEffect(() => {
+      registerFonts();
+    }, [ids]);
+
     return (
       <Document>
         <Page size="A4" style={styles.page}>
@@ -191,6 +196,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
         </Page>
       </Document>
     );
+    
   },
 );
 
