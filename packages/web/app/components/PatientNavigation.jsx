@@ -41,7 +41,7 @@ export const PatientNavigation = ({ patientRoutes }) => {
     const match = matchPath(location.pathname, {
       path: `${PATIENT_PATHS.MAR}/view`,
     });
-    if (match.isExact) {
+    if (match?.isExact) {
       const params = match.params;
       dispatch(
         push(
