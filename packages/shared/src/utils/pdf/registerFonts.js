@@ -5,6 +5,7 @@ const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
 
 export const registerFonts = () => {
+  if (Font.getRegisteredFontFamilies().includes('Rubik')) return;
   Font.register({
     family: 'Rubik',
     fonts: [

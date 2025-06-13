@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
@@ -15,6 +15,7 @@ import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { registerFonts } from '../pdf/registerFonts';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
@@ -100,7 +101,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(',\n');
+    return notes?.map(note => note?.content || '').filter(Boolean).join(',\n') || '';
   };
 
   return (
@@ -162,6 +163,10 @@ const LabRequestDetailsView = ({ labRequests }) => {
 const MultipleLabRequestsPrintoutComponent = React.memo(
   ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
+
+    useEffect(() => {
+      registerFonts();
+    }, []);
 
     return (
       <Document>
