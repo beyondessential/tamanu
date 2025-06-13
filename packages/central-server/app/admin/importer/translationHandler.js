@@ -11,7 +11,7 @@ function extractRecordName(values, dataType) {
   return values.name;
 }
 
-function normaliseOptions(options) {
+export function normaliseOptions(options) {
   if (!options) return [];
 
   let parsedOptions;
