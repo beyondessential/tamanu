@@ -939,6 +939,7 @@ describe('Programs import', () => {
         dryRun: false,
       });
 
+      const elementWithOptions = 'pde-PatientVitalsAVPU';
       const options = {
         alert: 'Alert',
         verbal: 'Verbal',
@@ -947,7 +948,7 @@ describe('Programs import', () => {
       };
 
       const expectedStringIds = Object.keys(options).map((option) => {
-        return `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.pde-PatientVitalsAVPU.option.${option}`;
+        return `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${elementWithOptions}.option.${option}`;
       });
 
       const translations = await models.TranslatedString.findAll({

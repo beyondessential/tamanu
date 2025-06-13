@@ -385,6 +385,8 @@ describe('Data definition import', () => {
     });
 
     it('should create nested translations for options', async () => {
+      const elementWithOptions = 'fieldCategory-legalstatus';
+
       const { models } = ctx.store;
       await doImport({ file: 'valid' });
 
@@ -393,17 +395,16 @@ describe('Data definition import', () => {
       });
       const stringIds = translations.map((translation) => translation.stringId);
 
-      expect(stringIds).toEqual(
-        expect.arrayContaining([
-          'refData.patientFieldDefinitionCategory.fieldCategory-LegalInformation',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.asylumSeeker',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.refugee',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.noStatus',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.unknown',
-          'refData.patientFieldDefinition.fieldCategory-legalstatus.option.other',
-        ]),
+      const patientFieldDefinition = await models.PatientFieldDefinition.findOne({
+        where: { id: elementWithOptions },
+      });
+
+      const expectedStringIds = patientFieldDefinition.options.map(
+        (option) =>
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${elementWithOptions}.option.${camelCase(option)}`,
       );
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 
