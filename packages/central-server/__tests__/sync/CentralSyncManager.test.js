@@ -230,6 +230,21 @@ describe('CentralSyncManager', () => {
         .finally(() => spyMarkAsStartedAt.mockRestore());
     });
 
+    it('throws an error if the sync lookup table has not yet built', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await expect(waitForSession(centralSyncManager, sessionId)).rejects.toThrow(
+        `Sync session '${sessionId}' encountered an error: Sync lookup table has not yet built. Cannot initiate sync.`,
+      );
+    });
+
     it('throws an error when checking a session is ready if it never assigned a started_at_tick', async () => {
       const fakeMarkAsStartedAt = () => {
         // Do nothing and ensure we error out when the client starts polling
@@ -1700,6 +1715,8 @@ describe('CentralSyncManager', () => {
             maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
           },
         });
+        await centralSyncManager.updateLookupTable();
+
         const { sessionId } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionId);
 
@@ -1785,6 +1802,7 @@ describe('CentralSyncManager', () => {
             maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
           },
         });
+        await centralSyncManager.updateLookupTable();
         const { sessionId } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionId);
 
@@ -1935,6 +1953,7 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
+      await centralSyncManager.updateLookupTable();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -2022,6 +2041,7 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
+      await centralSyncManager.updateLookupTable();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -2091,6 +2111,7 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
+      await centralSyncManager.updateLookupTable();
       const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
       await waitForSession(centralSyncManager, sessionId);
 
