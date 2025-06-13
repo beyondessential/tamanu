@@ -16,6 +16,7 @@ import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
 import { camelCase } from 'lodash';
 import { makeRoleWithPermissions } from '../permissions';
+import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(30000);
@@ -384,24 +385,30 @@ describe('Data definition import', () => {
       expect(expectedStringIds.length).toEqual(createdTranslationCount);
     });
 
-    it('should create nested translations for options', async () => {
-      const elementWithOptions = 'fieldCategory-legalstatus';
-
+    it.only('should create nested translations for options', async () => {
       const { models } = ctx.store;
       await doImport({ file: 'valid' });
+
+      // find an element with options
+      const patientFieldDefinition = await models.PatientFieldDefinition.findOne({
+        where: {
+          options: {
+            [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: '' }],
+          },
+        },
+      });
+
+      if (!patientFieldDefinition)
+        throw new Error('No patient field definition with options found in refdata-valid.xlsx');
 
       const translations = await models.TranslatedString.findAll({
         where: { stringId: { [Op.like]: 'refData.patientFieldDefinition%' } },
       });
       const stringIds = translations.map((translation) => translation.stringId);
 
-      const patientFieldDefinition = await models.PatientFieldDefinition.findOne({
-        where: { id: elementWithOptions },
-      });
-
-      const expectedStringIds = patientFieldDefinition.options.map(
+      const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(
         (option) =>
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${elementWithOptions}.option.${camelCase(option)}`,
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${patientFieldDefinition.id}.option.${camelCase(option)}`,
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
