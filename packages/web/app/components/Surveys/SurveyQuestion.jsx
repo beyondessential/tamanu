@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
@@ -12,8 +12,9 @@ import { Field, FieldWithTooltip } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
 import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
+import { getReferenceDataOptionStringId } from '../Translation/TranslatedReferenceData';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -98,10 +99,23 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
-  const text = componentText || defaultText;
+  const text = componentText || (
+    <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
+  );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const FieldComponent = getComponentForQuestionType(type, configObject);
+  const translatedOptions = useMemo(
+    () =>
+      options.map(option => {
+        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', option);
+        return {
+          label: getTranslation(stringId, option),
+          value: option,
+        };
+      }),
+    [getTranslation, id, options],
+  );
 
+  const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
     encounterType: encounterType || encounter?.encounterType,
@@ -121,8 +135,9 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       component={FieldComponent}
       patient={patient}
       name={id}
-      options={options}
+      options={translatedOptions}
       config={configObject}
+      // TODO: translate the helpertext?
       helperText={detail}
       required={required}
       disabled={disabled}

@@ -41,6 +41,18 @@ export function normaliseSheetName(name, modelName) {
     return OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
   }
 
+  if (modelName === 'ProgramDataElement') {
+    return OTHER_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
+  }
+
+  if (modelName === 'Program') {
+    return OTHER_REFERENCE_TYPES.PROGRAM;
+  }
+
+  if (modelName === 'Survey') {
+    return OTHER_REFERENCE_TYPES.SURVEY;
+  }
+
   return normMapping[norm] || norm;
 }
 
