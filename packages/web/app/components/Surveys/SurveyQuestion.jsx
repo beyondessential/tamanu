@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
@@ -14,6 +14,7 @@ import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
+import { getReferenceDataOptionStringId } from '../Translation/TranslatedReferenceData';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -94,7 +95,6 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     text: componentText,
     validationCriteria,
   } = component;
-  console.log('component', component);
   const { encounter } = useEncounter();
   const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
@@ -103,8 +103,19 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const FieldComponent = getComponentForQuestionType(type, configObject);
+  const translatedOptions = useMemo(
+    () =>
+      options.map(option => {
+        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', option);
+        return {
+          label: getTranslation(stringId, option),
+          value: option,
+        };
+      }),
+    [getTranslation, id, options],
+  );
 
+  const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
     encounterType: encounterType || encounter?.encounterType,
@@ -124,8 +135,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       component={FieldComponent}
       patient={patient}
       name={id}
-      // TODO: translate the options
-      options={options}
+      options={translatedOptions}
       config={configObject}
       // TODO: translate the helpertext?
       helperText={detail}

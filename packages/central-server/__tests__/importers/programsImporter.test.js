@@ -1,11 +1,12 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { REFERENCE_DATA_TRANSLATION_PREFIX, SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
+import { Op } from 'sequelize';
 
 // the importer can take a little while
 jest.setTimeout(60000);
@@ -30,6 +31,7 @@ describe('Programs import', () => {
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
+      TranslatedString,
     } = ctx.store.models;
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
@@ -39,6 +41,7 @@ describe('Programs import', () => {
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await TranslatedString.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {
@@ -902,6 +905,60 @@ describe('Programs import', () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
+    });
+  });
+
+  describe('Translation', () => {
+    it('should create translations for the vitals survey', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      const translations = await models.TranslatedString.findAll();
+
+      const generatedStringIds = translations.map((translation) => translation.stringId);
+
+      console.log('generatedStringIds', generatedStringIds);
+
+      const programStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.program.program-testvitals`;
+      const surveyStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.survey.program-testvitals-vitalsgood`;
+
+      //check if the program and survey string ids are in the generated string ids
+      expect(generatedStringIds).toContain(programStringId);
+      expect(generatedStringIds).toContain(surveyStringId);
+
+      // Check each data element has a string id
+      const dataElements = await models.ProgramDataElement.findAll();
+      dataElements.forEach((dataElement) => {
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${dataElement.id}`;
+        expect(generatedStringIds).toContain(stringId);
+      });
+    });
+
+    it('translate nested options', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      const options = {
+        alert: 'Alert',
+        verbal: 'Verbal',
+        pain: 'Pain',
+        unresponsive: 'Unresponsive',
+      };
+
+      const expectedStringIds = Object.keys(options).map((option) => {
+        return `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.pde-PatientVitalsAVPU.option.${option}`;
+      });
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
+      });
+      const stringIds = translations.map((translation) => translation.stringId);
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 });

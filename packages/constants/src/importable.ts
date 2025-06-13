@@ -77,6 +77,7 @@ export const OTHER_REFERENCE_TYPES = {
   PROGRAM: 'program',
   PROGRAM_DATA_ELEMENT: 'programDataElement',
   SURVEY: 'survey',
+  SURVEY_SCREEN_COMPONENT: 'surveyScreenComponent',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
