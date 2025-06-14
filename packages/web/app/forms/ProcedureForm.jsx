@@ -254,8 +254,9 @@ ProcedureForm.propTypes = {
 
   anaestheticSuggester: suggesterType.isRequired,
   procedureSuggester: suggesterType.isRequired,
-  locationSuggester: suggesterType.isRequired,
-  practitionerSuggester: suggesterType.isRequired,
+  physicianSuggester: suggesterType.isRequired,
+  anaesthetistSuggester: suggesterType.isRequired,
+  assistantSuggester: suggesterType.isRequired,
 };
 
 ProcedureForm.defaultProps = {
