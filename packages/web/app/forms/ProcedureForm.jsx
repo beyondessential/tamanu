@@ -34,7 +34,9 @@ export const ProcedureForm = React.memo(
     editedObject,
     anaestheticSuggester,
     procedureSuggester,
-    practitionerSuggester,
+    physicianSuggester,
+    anaesthetistSuggester,
+    assistantSuggester,
   }) => {
     const { currentUser } = useAuth();
 
@@ -81,7 +83,7 @@ export const ProcedureForm = React.memo(
                     }
                     required
                     component={AutocompleteField}
-                    suggester={practitionerSuggester}
+                    suggester={physicianSuggester}
                   />
                   <Field
                     name="date"
@@ -139,7 +141,7 @@ export const ProcedureForm = React.memo(
                     />
                   }
                   component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  suggester={anaesthetistSuggester}
                 />
                 <Field
                   name="anaestheticId"
@@ -160,7 +162,7 @@ export const ProcedureForm = React.memo(
                     <TranslatedText stringId="procedure.assistant.label" fallback="Assistant" />
                   }
                   component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  suggester={assistantSuggester}
                 />
                 <Field
                   name="note"
