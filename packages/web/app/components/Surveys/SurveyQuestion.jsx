@@ -105,11 +105,11 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(
     () =>
-      options.map(option => {
-        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', option);
+      options?.map(({ value }) => {
+        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', value);
         return {
-          label: getTranslation(stringId, option),
-          value: option,
+          label: getTranslation(stringId, value),
+          value,
         };
       }),
     [getTranslation, id, options],

@@ -22,7 +22,7 @@ export function normaliseOptions(options) {
   }
 
   if (isArray(parsedOptions)) return parsedOptions;
-  if (isObject(parsedOptions)) return Object.keys(parsedOptions);
+  if (isObject(parsedOptions)) return Object.values(parsedOptions);
   if (isString(parsedOptions)) return parsedOptions.split(/\s*,\s*/).filter((x) => x);
 
   throw new Error('Invalid options format for translations');
