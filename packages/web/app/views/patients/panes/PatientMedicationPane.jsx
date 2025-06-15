@@ -1,227 +1,486 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { Box } from '@mui/material';
 
-import { Colors } from '../../../constants';
-import { ContentPane } from '../../../components/ContentPane';
-import { DateDisplay } from '../../../components/DateDisplay';
-import { OuterLabelFieldWrapper } from '../../../components/Field/OuterLabelFieldWrapper';
-import { DataFetchingTable, Table } from '../../../components/Table';
-import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { Colors, PATIENT_STATUS_COLORS } from '../../../constants';
+import { formatShortest } from '../../../components/DateDisplay';
+import { DataFetchingTable } from '../../../components/Table';
+import {
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '../../../components/Translation';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { Button } from '../../../components';
+import { ConditionalTooltip } from '../../../components/Tooltip';
+import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { useTranslation } from '../../../contexts/Translation';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { useAuth } from '../../../contexts/Auth';
 
-const StyledDiv = styled.div`
-  max-width: 20vw;
+const NotifyBanner = styled(Box)`
+  padding: 13px 22px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  background-color: ${Colors.white};
+  font-size: 14px;
+  font-weight: 400;
+  color: ${Colors.darkestText};
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: -10px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 10px;
+    height: calc(100% + 2px);
+    background-color: ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+    border-radius: 5px 0 0 5px;
+  }
 `;
 
-const StyledTextSpan = styled.span`
-  color: ${(props) => (props.color ? props.color : Colors.darkText)};
+const TableContainer = styled(Box)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+  margin-top: 20px;
 `;
 
-const getMedicationNameAndPrescription = ({ medication, prescription }) => (
-  <StyledDiv data-testid="styleddiv-pluj">
-    <StyledTextSpan data-testid="styledtextspan-ygy4">
-      <TranslatedReferenceData
-        fallback={medication.name}
-        value={medication.id}
-        category="drug"
-        data-testid="translatedreferencedata-vco4"
-      />
-    </StyledTextSpan>
-    <br />
-    <StyledTextSpan color={Colors.midText} data-testid="styledtextspan-fde4">
-      {prescription}
-    </StyledTextSpan>
-  </StyledDiv>
-);
+const TableTitle = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid ${Colors.outline};
+`;
 
-const DISCHARGED_MEDICATION_COLUMNS = [
+const TableTitleText = styled(Box)`
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 21px;
+  color: ${Colors.darkestText};
+`;
+
+const TableTitleNote = styled(Box)`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21px;
+  color: ${Colors.midText};
+`;
+
+const DarkestText = styled(Box)`
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: ${Colors.darkestText};
+`;
+
+const DarkText = styled(Box)`
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: ${Colors.darkText};
+`;
+
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    max-width: 180px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 400;
+  }
+`;
+
+const NoDataContainer = styled.div`
+  height: 230px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${Colors.hoverGrey};
+  color: ${Colors.primary};
+`;
+
+const CellText = styled.div`
+  text-decoration: ${props => (props.discontinued ? 'line-through' : 'none')};
+`;
+
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  padding-left: 20px;
+  padding-right: 20px;
+  border: none;
+  box-shadow: none;
+  max-height: ${props => (props.$noData ? '270px' : props.$maxHeight)};
+  .MuiTableHead-root {
+    ${props => props.$noData && 'display: none;'}
+    .MuiTableRow-root .MuiTableCell-head {
+      &:first-child {
+        padding-left: 10px;
+      }
+      background-color: ${Colors.white};
+      padding-top: 8px;
+      padding-bottom: 8px;
+      font-weight: 400;
+      color: ${Colors.midText};
+      position: sticky;
+      top: 0;
+      & .MuiTableSortLabel-root {
+        color: ${Colors.midText};
+      }
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root .MuiTableCell-body {
+      &:first-child {
+        padding-left: ${props => (props.$noData ? '0' : '10px')};
+      }
+      ${props => props.$noData && 'padding: 0;'}
+    }
+    .MuiTableRow-root:last-child .MuiTableCell-body {
+      border-bottom: none;
+    }
+    .MuiTableRow-root {
+      cursor: ${props => (props.$noData ? 'default' : 'pointer')};
+      &:hover {
+        background-color: ${props => (props.$noData ? 'transparent' : Colors.veryLightBlue)};
+      }
+    }
+  }
+  .MuiTableFooter-root {
+    position: sticky;
+    bottom: 0;
+    background-color: ${Colors.white};
+    .MuiPagination-root {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    td {
+      border-top: 1px solid ${Colors.outline};
+    }
+  }
+`;
+
+const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
-    key: 'Medication.name',
+    key: 'medication.name',
     title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.itemOrPrescription"
-        fallback="Item/Prescription"
-        data-testid="translatedtext-6eox"
+      <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
+    ),
+    sortable: true,
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>
+        <TranslatedReferenceData
+          fallback={data?.medication?.name}
+          value={data?.medication?.id}
+          category={data?.medication?.type}
+        />
+      </CellText>
+    ),
+  },
+  {
+    key: 'dose',
+    title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+      </CellText>
+    ),
+    sortable: false,
+  },
+  {
+    key: 'frequency',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
+    ),
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>
+        {data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : ''}
+      </CellText>
+    ),
+    sortable: false,
+  },
+  {
+    key: 'route',
+    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>
+        <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />
+      </CellText>
+    ),
+    sortable: true,
+  },
+  {
+    key: 'date',
+    title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
+    ),
+    sortable: true,
+  },
+  {
+    key: 'prescriber.displayName',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
+    ),
+    accessor: data => (
+      <CellText discontinued={data?.discontinued}>{data?.prescriber?.displayName ?? ''}</CellText>
+    ),
+    sortable: true,
+  },
+];
+
+const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
+  {
+    key: 'medication.name',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
+    ),
+    sortable: true,
+    accessor: data => (
+      <TranslatedReferenceData
+        fallback={data?.medication?.name}
+        value={data?.medication?.id}
+        category={data?.medication?.type}
       />
     ),
-    accessor: getMedicationNameAndPrescription,
-    sortable: true,
   },
   {
     key: 'quantity',
     title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.quantity"
-        fallback="Qty"
-        data-testid="translatedtext-l8ko"
-      />
+      <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Quantity" />
+    ),
+    sortable: false,
+    accessor: data => data?.quantity,
+  },
+  {
+    key: 'repeats',
+    title: <TranslatedText stringId="patient.medication.table.column.repeats" fallback="Repeats" />,
+    sortable: false,
+    accessor: data => data?.repeats,
+  },
+  {
+    key: 'dose',
+    title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
+    accessor: data => (
+      <>
+        {getDose(data, getTranslation, getEnumTranslation)}
+        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+      </>
     ),
     sortable: false,
   },
   {
-    key: 'prescriber',
+    key: 'frequency',
     title: (
-      <TranslatedText
-        stringId="general.localisedField.clinician.label"
-        fallback="Clinician"
-        data-testid="translatedtext-kqqo"
-      />
+      <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
     ),
-    accessor: (data) => data?.prescriber?.displayName ?? '',
+    accessor: data =>
+      data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : '',
     sortable: false,
   },
   {
-    key: 'location.facility.name',
+    key: 'prescriber.displayName',
     title: (
-      <TranslatedText
-        stringId="general.localisedField.facility.label"
-        fallback="Facility"
-        data-testid="translatedtext-7hyb"
-      />
+      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
     ),
-    accessor: (data) =>
-      data?.encounter?.location?.facility?.name ? (
-        <TranslatedReferenceData
-          fallback={data?.encounter?.location?.facility.name}
-          value={data?.encounter?.location?.facility.id}
-          category="facility"
-          data-testid="translatedreferencedata-vzpv"
-        />
-      ) : (
-        ''
-      ),
-    sortable: false,
-  },
-  {
-    key: 'endDate',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.endDate"
-        fallback="Discharge date"
-        data-testid="translatedtext-8p47"
-      />
-    ),
-    accessor: (data) => (
-      <DateDisplay date={data?.encounter?.endDate ?? ''} data-testid="datedisplay-zvsc" />
-    ),
+    accessor: data => data?.prescriber?.displayName ?? '',
     sortable: true,
   },
 ];
 
-// Presumably it will need different keys and accessors
-// and also date column title is different
-const DISPENSED_MEDICATION_COLUMNS = [
-  {
-    key: 'a',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.itemOrPrescription"
-        fallback="Item/Prescription"
-        data-testid="translatedtext-g5vl"
-      />
-    ),
-    sortable: true,
-  },
-  {
-    key: 'b',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.quantity"
-        fallback="Qty"
-        data-testid="translatedtext-kdu0"
-      />
-    ),
-    sortable: false,
-  },
-  {
-    key: 'c',
-    title: (
-      <TranslatedText
-        stringId="general.localisedField.clinician.label"
-        fallback="Clinician"
-        data-testid="translatedtext-haxa"
-      />
-    ),
-    sortable: false,
-  },
-  {
-    key: 'd',
-    title: (
-      <TranslatedText
-        stringId="general.localisedField.facility.label"
-        fallback="Facility"
-        data-testid="translatedtext-2cie"
-      />
-    ),
-    sortable: false,
-  },
-  {
-    key: 'e',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.dispensedDate"
-        fallback="Dispensed date"
-        data-testid="translatedtext-mykv"
-      />
-    ),
-    sortable: true,
-  },
-];
+export const PatientMedicationPane = ({ patient }) => {
+  const { ability } = useAuth();
+  const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
+  const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
-export const PatientMedicationPane = React.memo(({ patient }) => (
-  <>
-    <ContentPane data-testid="contentpane-yc27">
-      <OuterLabelFieldWrapper
-        label={
+  const { getTranslation, getEnumTranslation } = useTranslation();
+
+  const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
+  const [dischargeMedications, setDischargeMedications] = useState([]);
+  const [lastInpatientEncounter, setLastInpatientEncounter] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
+  const [selectedMedication, setSelectedMedication] = useState(null);
+  const [allowDiscontinue, setAllowDiscontinue] = useState(false);
+
+  const canCreateOngoingPrescription = ability.can('create', 'Medication');
+
+  const onOngoingPrescriptionsFetched = useCallback(({ data }) => {
+    setOngoingPrescriptions(data);
+  }, []);
+
+  const onDischargeMedicationsFetched = useCallback(({ data, otherData }) => {
+    setDischargeMedications(data);
+    setLastInpatientEncounter(otherData?.lastInpatientEncounter);
+  }, []);
+
+  const handleSavedOngoingPrescription = () => {
+    setRefreshCount(prev => prev + 1);
+    setCreateMedicationModalOpen(false);
+  };
+
+  const handleReloadOngoingPrescriptions = () => {
+    setRefreshCount(prev => prev + 1);
+    setSelectedMedication(null);
+  };
+
+  return (
+    <Box px={2.5} pb={2.5} overflow={'auto'}>
+      {currentEncounter && (
+        <NotifyBanner patientStatus={patientStatus}>
           <TranslatedText
-            stringId="patient.medication.discharge.table.title"
-            fallback="Most recent discharge medications"
-            data-testid="translatedtext-5fcj"
+            stringId="patient.medication.warning.activeEncounter"
+            fallback="This patient has an active encounter and these ongoing medications may change on discharge."
           />
-        }
-        data-testid="outerlabelfieldwrapper-2t2t"
-      >
-        <DataFetchingTable
-          endpoint={`patient/${patient.id}/lastDischargedEncounter/medications`}
-          columns={DISCHARGED_MEDICATION_COLUMNS}
-          noDataMessage={
+        </NotifyBanner>
+      )}
+      <TableContainer>
+        <TableTitle py={1.5} mx={2.5}>
+          <TableTitleText>
             <TranslatedText
-              stringId="patient.medication.discharge.table.noData"
-              fallback="No discharge medications found"
-              data-testid="translatedtext-3ixn"
+              stringId="patient.medication.ongoing.title"
+              fallback="Ongoing medications"
             />
-          }
-          initialSort={{ order: 'desc', orderBy: 'endDate' }}
-          data-testid="datafetchingtable-40hh"
-        />
-      </OuterLabelFieldWrapper>
-    </ContentPane>
-    <ContentPane data-testid="contentpane-epcl">
-      <OuterLabelFieldWrapper
-        label={
-          <TranslatedText
-            stringId="patient.medication.dispensed.table.title"
-            fallback="Dispensed medications"
-            data-testid="translatedtext-4cn1"
-          />
-        }
-        data-testid="outerlabelfieldwrapper-zdiq"
-      >
-        <Table
-          columns={DISPENSED_MEDICATION_COLUMNS}
-          data={[]}
+          </TableTitleText>
+          {canCreateOngoingPrescription && (
+            <StyledConditionalTooltip
+              visible={!!currentEncounter}
+              title={
+                <TranslatedText
+                  stringId="patient.medication.ongoing.add.warning"
+                  fallback="Please add any medications via the patient active encounter."
+                />
+              }
+              PopperProps={{
+                popperOptions: {
+                  positionFixed: true,
+                  modifiers: {
+                    preventOverflow: {
+                      enabled: true,
+                      boundariesElement: 'window',
+                    },
+                  },
+                },
+              }}
+            >
+              <Button
+                disabled={!!currentEncounter}
+                onClick={() => setCreateMedicationModalOpen(true)}
+              >
+                <TranslatedText
+                  stringId="patient.medication.ongoing.add"
+                  fallback="Add ongoing medication"
+                />
+              </Button>
+            </StyledConditionalTooltip>
+          )}
+        </TableTitle>
+        <StyledDataFetchingTable
+          endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           noDataMessage={
-            <TranslatedText
-              stringId="patient.medication.dispensed.table.noData"
-              fallback="No dispensed medications found"
-              data-testid="translatedtext-zv1j"
-            />
+            <NoDataContainer>
+              <TranslatedText
+                stringId="patient.medication.ongoing.table.noData"
+                fallback="No ongoing medications to display."
+              />
+            </NoDataContainer>
           }
-          // Next two props are used only to avoid a display error and an execution error
-          page={0}
-          onChangeOrderBy={() => {}}
-          data-testid="table-di95"
+          allowExport={false}
+          onDataFetched={onOngoingPrescriptionsFetched}
+          $noData={ongoingPrescriptions.length === 0}
+          refreshCount={refreshCount}
+          onClickRow={(_, data) => {
+            setSelectedMedication(data);
+            setAllowDiscontinue(true);
+          }}
+          $maxHeight={'320px'}
         />
-      </OuterLabelFieldWrapper>
-    </ContentPane>
-  </>
-));
+      </TableContainer>
+      <TableContainer>
+        <TableTitle py={2} mx={2.5}>
+          <Box display={'flex'} alignItems={'center'} gap={0.5}>
+            <TableTitleText>
+              <TranslatedText
+                stringId="patient.medication.discharge.title"
+                fallback="Discharge medications"
+              />
+              {' | '}
+            </TableTitleText>
+            <TableTitleNote>
+              <TranslatedText
+                stringId="patient.medication.discharge.lastInpatientEncounter"
+                fallback="Last inpatient encounter"
+              />
+            </TableTitleNote>
+          </Box>
+          {lastInpatientEncounter && (
+            <Box display={'flex'} alignItems={'center'} gap={0.25}>
+              <DarkestText>{lastInpatientEncounter.discharge.facilityName} |</DarkestText>
+              <DarkText>
+                <TranslatedText
+                  stringId="patient.medication.discharge.discharged"
+                  fallback="Discharged"
+                />
+                {': '}
+                {formatShortest(lastInpatientEncounter.endDate)}
+              </DarkText>
+            </Box>
+          )}
+        </TableTitle>
+        <StyledDataFetchingTable
+          endpoint={`/patient/${patient.id}/last-inpatient-discharge-medications`}
+          columns={DISCHARGE_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
+          noDataMessage={
+            <NoDataContainer>
+              {lastInpatientEncounter ? (
+                <TranslatedText
+                  stringId="patient.medication.discharge.table.noDischargeMedications"
+                  fallback="No last inpatient encounter discharge medications to display."
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patient.medication.discharge.table.noLastInpatientEncounter"
+                  fallback="This patient has had no inpatient encounters."
+                />
+              )}
+            </NoDataContainer>
+          }
+          disablePagination
+          allowExport={false}
+          onDataFetched={onDischargeMedicationsFetched}
+          $noData={dischargeMedications.length === 0}
+          onClickRow={(_, data) => {
+            setSelectedMedication(data);
+            setAllowDiscontinue(false);
+          }}
+          $maxHeight={'270px'}
+        />
+      </TableContainer>
+      <MedicationModal
+        open={createMedicationModalOpen}
+        onClose={() => setCreateMedicationModalOpen(false)}
+        onSaved={handleSavedOngoingPrescription}
+        isOngoingPrescription
+      />
+      {selectedMedication && (
+        <MedicationDetails
+          initialMedication={selectedMedication}
+          onClose={() => setSelectedMedication(null)}
+          isOngoingPrescription
+          onReloadTable={handleReloadOngoingPrescriptions}
+          allowDiscontinue={allowDiscontinue}
+        />
+      )}
+    </Box>
+  );
+};

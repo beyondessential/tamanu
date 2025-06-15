@@ -151,6 +151,9 @@ export class Encounter extends Model {
           afterUpdate: async (encounter: Encounter, opts) => {
             if (encounter.endDate && !encounter.previous('endDate')) {
               await models.Task.onEncounterDischarged(encounter, opts?.transaction ?? undefined);
+              await models.MedicationAdministrationRecord.removeInvalidMedicationAdministrationRecords(
+                opts?.transaction,
+              );
             }
           },
         },
@@ -236,9 +239,10 @@ export class Encounter extends Model {
       as: 'diagnoses',
     });
 
-    this.hasMany(models.EncounterMedication, {
+    this.belongsToMany(models.Prescription, {
       foreignKey: 'encounterId',
       as: 'medications',
+      through: models.EncounterPrescription,
     });
 
     this.hasMany(models.LabRequest, {

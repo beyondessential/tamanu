@@ -134,7 +134,7 @@ export const SelectInput = ({
         boxShadow: 'none',
         borderRadius: '3px',
         paddingTop: '11px',
-        paddingBottom: '9px',
+        paddingBottom: '9.81px',
         paddingLeft: '5px',
         paddingRight: '42px',
         fontSize,
@@ -232,6 +232,11 @@ export const SelectInput = ({
               ),
               DropdownIndicator: () => (
                 <ExpandIcon data-testid={`${dataTestId}-expandmoreicon-h115`} />
+              ),
+              Menu: menuProps => (
+                <components.Menu {...menuProps}>
+                  <div data-testid={`${dataTestId}-optioncontainer`}>{menuProps.children}</div>
+                </components.Menu>
               ),
             }}
             {...props}

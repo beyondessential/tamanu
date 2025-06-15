@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { usePatientMove } from '../../../api/mutations';
 import { LargeBodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   margin: 70px 0 80px;
@@ -16,7 +17,13 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
   };
   return (
     <Modal
-      title="Cancel move"
+      title={
+        <TranslatedText
+          stringId="patient.modal.cancelMove.title"
+          fallback="Cancel move"
+          data-testid="translatedtext-cancel-move-title"
+        />
+      }
       endpoint="plannedLocation"
       open={open}
       onClose={onClose}
@@ -24,11 +31,21 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     >
       <Container data-testid="container-vady">
         <LargeBodyText data-testid="largebodytext-jtqa">
-          Are you sure you want to cancel the planned patient move?
+          <TranslatedText
+            stringId="patient.modal.cancelMove.confirmation"
+            fallback="Are you sure you want to cancel the planned patient move?"
+            data-testid="translatedtext-cancel-move-confirmation"
+          />
         </LargeBodyText>
       </Container>
       <ModalActionRow
-        confirmText="Confirm"
+        confirmText={
+          <TranslatedText
+            stringId="general.action.confirm"
+            fallback="Confirm"
+            data-testid="translatedtext-confirm-action"
+          />
+        }
         onConfirm={onCancelMove}
         onCancel={onClose}
         data-testid="modalactionrow-aga7"

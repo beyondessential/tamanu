@@ -170,6 +170,9 @@ export const ConfirmCancelBackRow = ({
     />
   ),
   backDisabled = false,
+  onFinalise,
+  finaliseText,
+  finaliseDisabled = false,
   ...props
 }) => (
   <FlexSpaceBetween data-testid="flexspacebetween-f194">
@@ -178,6 +181,11 @@ export const ConfirmCancelBackRow = ({
         <OutlinedButton onClick={onBack} disabled={backDisabled} data-testid="outlinedbutton-1xr6">
           {backButtonText}
         </OutlinedButton>
+        {onFinalise && (
+          <OutlinedButton onClick={onFinalise} disabled={finaliseDisabled}>
+            {finaliseText}
+          </OutlinedButton>
+        )}
       </GoBackButtonContainer>
     )}
     <ConfirmCancelRow {...props} data-testid="confirmcancelrow-lked" />
