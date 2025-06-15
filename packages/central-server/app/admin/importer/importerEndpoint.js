@@ -43,6 +43,9 @@ export function normaliseSheetName(name, modelName) {
   if (modelName === 'ProgramDataElement') {
     return OTHER_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
   }
+  if (modelName === 'SurveyScreenComponent') {
+    return OTHER_REFERENCE_TYPES.SURVEY_SCREEN_COMPONENT;
+  }
   if (modelName === 'Program') {
     return OTHER_REFERENCE_TYPES.PROGRAM;
   }

@@ -6,9 +6,17 @@ import {
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
 
-function extractRecordName(values, dataType) {
+function extractTranslatableRecordText(values, dataType) {
   if (dataType === 'scheduledVaccine') return values.label;
+  if (dataType === 'surveyScreenComponent') return values.detail;
   return values.name;
+}
+
+function extractTranslatableOptions(values, dataType) {
+  if (dataType === 'programDataElement') {
+    return normaliseOptions(values.defaultOptions);
+  }
+  return normaliseOptions(values.options);
 }
 
 export function normaliseOptions(options) {
@@ -28,13 +36,6 @@ export function normaliseOptions(options) {
   throw new Error('Invalid options format for translations');
 }
 
-function extractOptions(values, dataType) {
-  if (dataType === 'programDataElement') {
-    return normaliseOptions(values.defaultOptions);
-  }
-  return normaliseOptions(values.options);
-}
-
 export function generateTranslationsForData(model, sheetName, values) {
   const translationData = [];
 
@@ -42,14 +43,22 @@ export function generateTranslationsForData(model, sheetName, values) {
   const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType;
   const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-  if (isTranslatable && isValidTable) {
-    translationData.push([
-      `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-      extractRecordName(values, dataType) ?? '',
-      DEFAULT_LANGUAGE_CODE,
-    ]);
+  if (model === 'SurveyScreenComponent') {
+    console.log({ model, dataType, values, isTranslatable, isValidTable });
+  }
 
-    const options = extractOptions(values, dataType);
+  if (isTranslatable && isValidTable) {
+    const recordText = extractTranslatableRecordText(values, dataType);
+
+    if (recordText) {
+      translationData.push([
+        `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
+        recordText,
+        DEFAULT_LANGUAGE_CODE,
+      ]);
+    }
+
+    const options = extractTranslatableOptions(values, dataType);
 
     // Create translations for reference data record options if they exist
     // This includes patient_field_definition options
