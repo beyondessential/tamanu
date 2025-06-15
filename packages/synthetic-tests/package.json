@@ -1,0 +1,24 @@
+{
+  "name": "@tamanu/synthetic-tests",
+  "version": "2.35.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "artillery": "^2.0.21"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "@types/node": "^24.0.1",
+    "esbuild": "^0.25.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "test": "artillery run src/scenarios/create-patient.yml"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
