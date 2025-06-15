@@ -385,7 +385,7 @@ describe('Data definition import', () => {
       expect(expectedStringIds.length).toEqual(createdTranslationCount);
     });
 
-    it.only('should create nested translations for options', async () => {
+    it('should create nested translations for options', async () => {
       const { models } = ctx.store;
       await doImport({ file: 'valid' });
 
@@ -393,7 +393,7 @@ describe('Data definition import', () => {
       const patientFieldDefinition = await models.PatientFieldDefinition.findOne({
         where: {
           options: {
-            [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: '' }],
+            [Op.ne]: null,
           },
         },
       });

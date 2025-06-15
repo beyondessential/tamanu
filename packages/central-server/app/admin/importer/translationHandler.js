@@ -35,7 +35,7 @@ function extractOptions(values, dataType) {
   return normaliseOptions(values.options);
 }
 
-export function collectTranslationData(model, sheetName, values) {
+export function generateTranslationsForData(model, sheetName, values) {
   const translationData = [];
 
   const dataType = normaliseSheetName(sheetName, model);
