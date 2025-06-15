@@ -1,4 +1,4 @@
-import { camelCase } from 'lodash';
+import { camelCase, isArray, isObject, isString } from 'lodash';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -11,7 +11,31 @@ function extractRecordName(values, dataType) {
   return values.name;
 }
 
-export function collectTranslationData(model, sheetName, values) {
+export function normaliseOptions(options) {
+  if (!options) return [];
+
+  let parsedOptions;
+  try {
+    parsedOptions = JSON.parse(options);
+  } catch (e) {
+    parsedOptions = options;
+  }
+
+  if (isArray(parsedOptions)) return parsedOptions;
+  if (isObject(parsedOptions)) return Object.values(parsedOptions);
+  if (isString(parsedOptions)) return parsedOptions.split(/\s*,\s*/).filter((x) => x);
+
+  throw new Error('Invalid options format for translations');
+}
+
+function extractOptions(values, dataType) {
+  if (dataType === 'programDataElement') {
+    return normaliseOptions(values.defaultOptions);
+  }
+  return normaliseOptions(values.options);
+}
+
+export function generateTranslationsForData(model, sheetName, values) {
   const translationData = [];
 
   const dataType = normaliseSheetName(sheetName, model);
@@ -25,14 +49,12 @@ export function collectTranslationData(model, sheetName, values) {
       DEFAULT_LANGUAGE_CODE,
     ]);
 
+    const options = extractOptions(values, dataType);
+
     // Create translations for reference data record options if they exist
     // This includes patient_field_definition options
-    if (values.options && values.options.length > 0) {
-      // Handle either an array or a comma-separated string of options
-      const optionArray = Array.isArray(values.options)
-        ? values.options
-        : values.options.split(/\s*,\s*/).filter((x) => x);
-      for (const option of optionArray) {
+    if (options.length > 0) {
+      for (const option of options) {
         translationData.push([
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(option)}`,
           option,

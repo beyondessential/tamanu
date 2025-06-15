@@ -1,11 +1,14 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { REFERENCE_DATA_TRANSLATION_PREFIX, SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
+import { Op } from 'sequelize';
+import { camelCase } from 'lodash';
+import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(60000);
@@ -30,6 +33,7 @@ describe('Programs import', () => {
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
+      TranslatedString,
     } = ctx.store.models;
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
@@ -39,6 +43,7 @@ describe('Programs import', () => {
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await TranslatedString.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {
@@ -902,6 +907,63 @@ describe('Programs import', () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
+    });
+  });
+
+  describe('Translation', () => {
+    it('should create translations for the vitals survey', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      const translations = await models.TranslatedString.findAll();
+      const generatedStringIds = translations.map((translation) => translation.stringId);
+
+      const programStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.program.program-testvitals`;
+      const surveyStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.survey.program-testvitals-vitalsgood`;
+
+      //check if the program and survey string ids are in the generated string ids
+      expect(generatedStringIds).toContain(programStringId);
+      expect(generatedStringIds).toContain(surveyStringId);
+
+      // Check each data element has an appropriate string id
+      const dataElements = await models.ProgramDataElement.findAll();
+      dataElements.forEach((dataElement) => {
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${dataElement.id}`;
+        expect(generatedStringIds).toContain(stringId);
+      });
+    });
+
+    it('translate nested options', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      // find an element with options
+      const programDataElement = await models.ProgramDataElement.findOne({
+        where: {
+          defaultOptions: {
+            [Op.ne]: null,
+          },
+        },
+      });
+
+      if (!programDataElement)
+        throw new Error('No program data element with options found in vitals-valid.xlsx');
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
+      });
+      const stringIds = translations.map((translation) => translation.stringId);
+
+      const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
+        (option) =>
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${programDataElement.id}.option.${camelCase(option)}`,
+      );
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 });
