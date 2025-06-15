@@ -2,7 +2,6 @@
   "name": "@tamanu/synthetic-tests",
   "version": "2.35.0",
   "private": true,
-  "type": "module",
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
     "@types/node": "^24.0.1",
