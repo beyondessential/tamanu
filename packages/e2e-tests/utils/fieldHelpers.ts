@@ -29,12 +29,7 @@ export const selectOptionFromPopper = async (
   let selectedOption: Locator | undefined;
 
   if (optionToSelect) {
-    for (const option of options) {
-      if ((await option.innerText()) === optionToSelect) {
-        selectedOption = option;
-        break;
-      }
-    }
+    selectedOption = options.find(async (option) => (await option.innerText()) === optionToSelect);
 
     if (!selectedOption) {
       throw new Error(`Option "${optionToSelect}" not found in popper`);
