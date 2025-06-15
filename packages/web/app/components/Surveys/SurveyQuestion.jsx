@@ -88,6 +88,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
   const {
+    id: componentId,
     dataElement,
     detail,
     config: componentConfig,
@@ -101,6 +102,13 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const configObject = getConfigObject(id, componentConfig);
   const text = componentText || (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
+  );
+  const helperText = (
+    <TranslatedReferenceData
+      category="surveyScreenComponent"
+      value={componentId}
+      fallback={detail}
+    />
   );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(
@@ -137,8 +145,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       name={id}
       options={translatedOptions}
       config={configObject}
-      // TODO: translate the helpertext?
-      helperText={detail}
+      helperText={helperText}
       required={required}
       disabled={disabled}
       data-testid="wrapperfieldcomponent-mkjr"
