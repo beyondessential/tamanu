@@ -28,7 +28,7 @@ const signingSectionStyles = StyleSheet.create({
     paddingRight: 32,
   },
   disclaimerText: {
-    fontFamily: 'Helvetica-Oblique',
+    fontStyle: 'italic',
     fontSize: 8,
   },
 });
@@ -45,9 +45,8 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
     marginVertical: 3,
   },
 });
@@ -101,7 +100,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note.content).join(',\n');
+    return notes?.map(note => note?.content || '').filter(Boolean).join(',\n') || '';
   };
 
   return (
@@ -163,7 +162,6 @@ const LabRequestDetailsView = ({ labRequests }) => {
 const MultipleLabRequestsPrintoutComponent = React.memo(
   ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
-
     return (
       <Document>
         <Page size="A4" style={styles.page}>
@@ -191,6 +189,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
         </Page>
       </Document>
     );
+    
   },
 );
 

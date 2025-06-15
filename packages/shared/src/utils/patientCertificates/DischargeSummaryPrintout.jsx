@@ -43,12 +43,10 @@ const infoBoxStyles = StyleSheet.create({
     padding: tablePadding,
   },
   labelText: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 700,
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
     fontWeight: 400,
   },
@@ -65,10 +63,9 @@ const notesSectionStyles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
   },
 });
 
