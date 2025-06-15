@@ -1,7 +1,8 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.35.0",
+  "private": true,
+  "type": "module",
   "dependencies": {
     "artillery": "^2.0.21"
   },
@@ -14,7 +15,7 @@
     "typescript": "^5.8.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "artillery run src/scenarios/create-patient.yml"
   },
   "keywords": [],
   "author": "",
