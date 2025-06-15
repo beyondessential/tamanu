@@ -8,7 +8,7 @@ import { normaliseSheetName } from './importerEndpoint';
 
 function extractTranslatableRecordText(values, dataType) {
   if (dataType === 'scheduledVaccine') return values.label;
-  if (dataType === 'surveyScreenComponent') return values.detail;
+  if (dataType === 'surveyScreenComponent') return { text: values.text, detail: values.detail };
   return values.name;
 }
 
@@ -43,19 +43,26 @@ export function generateTranslationsForData(model, sheetName, values) {
   const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType;
   const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-  if (model === 'SurveyScreenComponent') {
-    console.log({ model, dataType, values, isTranslatable, isValidTable });
-  }
-
   if (isTranslatable && isValidTable) {
     const recordText = extractTranslatableRecordText(values, dataType);
 
-    if (recordText) {
+    if (isString(recordText)) {
       translationData.push([
         `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
         recordText,
         DEFAULT_LANGUAGE_CODE,
       ]);
+    }
+
+    // Handle records with multiple translatable text fields by adding another layer of nesting
+    if (isObject(recordText)) {
+      Object.entries(recordText).forEach(([key, value]) => {
+        translationData.push([
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`,
+          value,
+          DEFAULT_LANGUAGE_CODE,
+        ]);
+      });
     }
 
     const options = extractTranslatableOptions(values, dataType);

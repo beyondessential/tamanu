@@ -87,27 +87,32 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
+  const { encounter } = useEncounter();
+  const { getTranslation } = useTranslation();
+
   const {
     id: componentId,
-    dataElement,
-    detail,
+    detail: componentDetail,
     config: componentConfig,
     options: componentOptions,
     text: componentText,
+    dataElement,
     validationCriteria,
   } = component;
-  const { encounter } = useEncounter();
-  const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
-  const configObject = getConfigObject(id, componentConfig);
-  const text = componentText || (
-    <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
-  );
+
+  const text = (
+    <TranslatedReferenceData
+      category="surveyScreenComponent"
+      value={componentId}
+      fallback={componentText}
+    />
+  ) || <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />;
   const helperText = (
     <TranslatedReferenceData
       category="surveyScreenComponent"
       value={componentId}
-      fallback={detail}
+      fallback={componentDetail}
     />
   );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
@@ -123,6 +128,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     [getTranslation, id, options],
   );
 
+  const configObject = getConfigObject(id, componentConfig);
   const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
