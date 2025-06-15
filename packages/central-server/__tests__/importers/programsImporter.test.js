@@ -7,6 +7,8 @@ import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
 import { Op } from 'sequelize';
+import { camelCase } from 'lodash';
+import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(60000);
@@ -939,22 +941,27 @@ describe('Programs import', () => {
         dryRun: false,
       });
 
-      const elementWithOptions = 'pde-PatientVitalsAVPU';
-      const options = {
-        alert: 'Alert',
-        verbal: 'Verbal',
-        pain: 'Pain',
-        unresponsive: 'Unresponsive',
-      };
-
-      const expectedStringIds = Object.keys(options).map((option) => {
-        return `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${elementWithOptions}.option.${option}`;
+      // find an element with options
+      const programDataElement = await models.ProgramDataElement.findOne({
+        where: {
+          defaultOptions: {
+            [Op.ne]: null,
+          },
+        },
       });
+
+      if (!programDataElement)
+        throw new Error('No program data element with options found in vitals-valid.xlsx');
 
       const translations = await models.TranslatedString.findAll({
         where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
       });
       const stringIds = translations.map((translation) => translation.stringId);
+
+      const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
+        (option) =>
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${programDataElement.id}.option.${camelCase(option)}`,
+      );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
