@@ -44,7 +44,8 @@
     "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
     "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
-    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
+    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
+    "synthetic-test": "npm run --workspace @tamanu/synthetic-tests test"
   },
   "engines": {
     "node": "^20.9.0"
@@ -67,7 +68,8 @@
       "packages/database",
       "packages/utils",
       "packages/fake-data",
-      "packages/e2e-tests"
+      "packages/e2e-tests",
+      "packages/synthetic-tests"
     ]
   },
   "devDependencies": {

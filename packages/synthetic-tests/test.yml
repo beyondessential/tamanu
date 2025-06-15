@@ -1,0 +1,17 @@
+config:
+  target: http://localhost:4000
+  processor: './src/hooks/authenticate.ts'
+
+scenarios:
+  - name: Test
+    beforeScenario:
+      - authenticate
+    flow:
+      - get:
+          url: '/api/users'
+          headers:
+            Authorization: 'Bearer {{token}}'
+          capture:
+            - json: '$.data'
+              as: 'result'
+          print: 'Result: {{ result }}'
