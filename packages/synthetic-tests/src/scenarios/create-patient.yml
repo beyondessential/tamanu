@@ -1,5 +1,5 @@
 config:
-  target: http://localhost:4000
+  target: https://facility-1.feature-synthetic-test-setup.cd.tamanu.app
   processor: '../hooks/authenticate.ts'
   phases:
     - duration: 60
