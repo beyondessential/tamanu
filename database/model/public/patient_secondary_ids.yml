@@ -48,7 +48,6 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_secondary_ids."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_secondary_ids."
             data_tests:
               - not_null

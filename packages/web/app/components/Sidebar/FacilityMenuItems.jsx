@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   labsIcon,
-  medicationIcon,
   patientIcon,
   programsIcon,
   radiologyIcon,
@@ -129,33 +128,6 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-mrfi"
           />
         ),
-        ability: { action: 'read' },
-      },
-    ],
-  },
-  {
-    key: 'medication',
-    label: (
-      <TranslatedText
-        stringId="sidebar.medication"
-        fallback="Medication"
-        data-testid="translatedtext-6sgi"
-      />
-    ),
-    path: '/medication-requests',
-    icon: medicationIcon,
-    ability: { subject: 'medication' },
-    children: [
-      {
-        label: (
-          <TranslatedText
-            stringId="sidebar.medication.requests"
-            fallback="Requests"
-            data-testid="translatedtext-mech"
-          />
-        ),
-        path: '/medication-requests/all',
-        key: 'medicationAll',
         ability: { action: 'read' },
       },
     ],

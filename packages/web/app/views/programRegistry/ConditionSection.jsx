@@ -13,6 +13,7 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { useTranslation } from '../../contexts/Translation';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 import { UpdateConditionFormModal } from '../../features/ProgramRegistry';
 
 const Container = styled.div`
@@ -83,11 +84,13 @@ const ConditionComponent = ({ condition, onClick, isInactive = false }) => {
   const [ref, isOverflowing] = useOverflow();
   return (
     <ConditionalTooltip title={`${translatedName} (${translatedCategory})`} visible={isOverflowing}>
-      <Condition onClick={() => onClick(condition.id)} disabled={isInactive}>
-        <ClippedConditionName ref={ref}>
-          {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
-        </ClippedConditionName>
-      </Condition>
+      <NoteModalActionBlocker>
+        <Condition onClick={() => onClick(condition.id)} disabled={isInactive}>
+          <ClippedConditionName ref={ref}>
+            {translatedName} <ConditionCategory>({translatedCategory})</ConditionCategory>
+          </ClippedConditionName>
+        </Condition>
+      </NoteModalActionBlocker>
     </ConditionalTooltip>
   );
 };
