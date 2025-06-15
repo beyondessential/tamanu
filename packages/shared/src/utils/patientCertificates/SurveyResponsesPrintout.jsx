@@ -42,7 +42,7 @@ const pageStyles = StyleSheet.create({
     fontSize: 9,
   },
   boldText: {
-    fontFamily: 'Rubik-Bold',
+    fontWeight: 700
   },
   boldDivider: {
     borderBottom: '2px solid black',

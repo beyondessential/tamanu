@@ -100,9 +100,8 @@ const signStyles = StyleSheet.create({
     marginVertical: 30,
   },
   text: {
-    fontFamily: 'Rubik-Bold',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 700,
     lineHeight: 1,
   },
   line: {
