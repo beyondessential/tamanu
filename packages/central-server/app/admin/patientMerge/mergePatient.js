@@ -14,7 +14,7 @@ const BULK_CREATE_BATCH_SIZE = 100;
 
 // IMPORTANT: Any models here that have child records, please add the logic to handle them
 // in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
+// - updateDependentRecordsForResync function in this file
 export const simpleUpdateModels = [
   'Encounter',
   'PatientAllergy',
@@ -41,7 +41,7 @@ export const simpleUpdateModels = [
 
 // IMPORTANT: Any models here that have child records, please add the logic to handle them
 // in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
+// - updateDependentRecordsForResync function in this file
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
