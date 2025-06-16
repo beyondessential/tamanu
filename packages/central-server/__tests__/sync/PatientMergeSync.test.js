@@ -4,7 +4,7 @@ import { makeTwoPatients } from '../admin/patientMerge/makeTwoPatients';
 import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 
-describe('Patient Merge Sync', () => {
+describe('Sync Patient Merge', () => {
   let ctx;
   let models;
   let keep, merge, facility, mergeEnc, mergeEnc2;
@@ -107,7 +107,7 @@ describe('Patient Merge Sync', () => {
     await models.User.truncate({ cascade: true, force: true });
   });
 
-  it('should refresh notes of encounters for sync', async () => {
+  it('pulls child records (notes) of merged encounters after merging patients', async () => {
     const { LocalSystemFact } = models;
 
     await setupMergeData();
@@ -152,7 +152,7 @@ describe('Patient Merge Sync', () => {
     expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
   });
 
-  it('should refresh notes of patient_care_plans for sync', async () => {
+  it('pulls child records (notes) of merged patient_care_plans after merging patients', async () => {
     const { LocalSystemFact } = models;
 
     await setupMergeData();
@@ -202,7 +202,7 @@ describe('Patient Merge Sync', () => {
     expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
   });
 
-  it('should refresh contributing_death_causes of patient_death_data for sync', async () => {
+  it('pulls child records (contributing_death_causes) of merged patient_death_data after merging patients', async () => {
     const { LocalSystemFact, User, ReferenceData } = models;
 
     await setupMergeData();
