@@ -10,3 +10,4 @@ export * from './programRegistry.js';
 export * from './survey.js';
 export * from './vaccine.js';
 export * from './importData.js';
+export * from './medication.js';

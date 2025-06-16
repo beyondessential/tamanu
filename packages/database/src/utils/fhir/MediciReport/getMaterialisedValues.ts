@@ -77,20 +77,22 @@ procedure_info as (
 
 medications_info as (
   select
-    encounter_id,
+    ep.encounter_id,
     json_agg(
       json_build_object(
         'name', medication.name,
-        'discontinued', coalesce(discontinued, false),
-        'discontinuedDate', discontinued_date,
-        'discontinuingReason', discontinuing_reason
-      ) order by date desc
+        'discontinued', coalesce(prescription.discontinued, false),
+        'discontinuedDate', prescription.discontinued_date,
+        'discontinuingReason', prescription.discontinuing_reason
+      ) order by prescription.date desc
     ) "Medications"
-  from encounter_medications em
-  join reference_data medication on medication.id = em.medication_id
-  where encounter_id = $encounter_id
-    and em.deleted_at isnull
-  group by encounter_id
+  from encounter_prescriptions ep
+  join prescriptions prescription on prescription.id = ep.prescription_id
+  join reference_data medication on medication.id = prescription.medication_id
+  where ep.encounter_id = $encounter_id
+    and ep.deleted_at is null
+    and prescription.deleted_at is null
+  group by ep.encounter_id
 ),
 
 diagnosis_info as (

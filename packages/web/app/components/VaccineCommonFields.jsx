@@ -97,7 +97,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
       }
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
-      onChange={(e) => {
+      onChange={e => {
         setCategory(e.target.value);
         setVaccineLabel(null);
         resetForm();
@@ -120,7 +120,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     }
     component={SelectField}
     options={vaccineOptions}
-    onChange={(e) => setVaccineLabel(e.target.value)}
+    onChange={e => setVaccineLabel(e.target.value)}
     required
     data-testid="field-npct"
   />
@@ -262,7 +262,7 @@ export const RecordedByField = () => {
   );
 };
 
-export const ConsentField = ({ label }) => (
+export const ConsentField = ({ label, ...props }) => (
   <FullWidthCol data-testid="fullwidthcol-q2z3">
     <OuterLabelFieldWrapper
       label={
@@ -276,7 +276,7 @@ export const ConsentField = ({ label }) => (
       required
       data-testid="outerlabelfieldwrapper-azty"
     />
-    <Field name="consent" label={label} component={CheckField} required data-testid="field-wvyn" />
+    <Field name="consent" label={label} component={CheckField} required {...props} />
   </FullWidthCol>
 );
 
@@ -299,7 +299,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
   const [scheduleOptions, setScheduledOptions] = useState([]);
   useEffect(() => {
     const options =
-      schedules?.map((s) => ({
+      schedules?.map(s => ({
         value: s.scheduledVaccineId,
         label: s.doseLabel,
         icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
@@ -343,7 +343,7 @@ export const VaccineNameField = () => (
     }
     component={TextField}
     required
-    data-testid="field-qshb"
+    data-testid="field-vaccineName"
   />
 );
 
@@ -388,7 +388,9 @@ export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false })
           fallback="Save"
           data-testid="translatedtext-xb1i"
         />
-      ) : undefined
+      ) : (
+        undefined
+      )
     }
     data-testid="formsubmitcancelrow-vv8q"
   />

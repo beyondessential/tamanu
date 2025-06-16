@@ -5,6 +5,7 @@ import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const COLUMN_KEYS = {
   ID: 'displayId',
@@ -25,13 +26,25 @@ const ImagingType = ({ imagingType }) => {
 const COMMON_COLUMNS = [
   {
     key: COLUMN_KEYS.ID,
-    title: 'Request ID',
+    title: (
+      <TranslatedText
+        stringId="imaging.requestId.label"
+        fallback="Request ID"
+        data-testid="translatedtext-req-id"
+      />
+    ),
     sortable: false,
     printout: { widthProportion: 4 },
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Request date & time',
+    title: (
+      <TranslatedText
+        stringId="general.requestDateTime.label"
+        fallback="Request date & time"
+        data-testid="translatedtext-req-datetime"
+      />
+    ),
     sortable: false,
     form: {
       accessor: ({ requestedDate }) => (
@@ -54,7 +67,13 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: 'Requested by',
+    title: (
+      <TranslatedText
+        stringId="general.requestedBy.label"
+        fallback="Requested by"
+        data-testid="translatedtext-req-by"
+      />
+    ),
     sortable: false,
     maxWidth: 300,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
@@ -62,7 +81,13 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.PRIORITY,
-    title: 'Priority',
+    title: (
+      <TranslatedText
+        stringId="imaging.priority.label"
+        fallback="Priority"
+        data-testid="translatedtext-priority"
+      />
+    ),
     sortable: false,
     form: { hidden: true },
     accessor: ({ priority }) => startCase(priority),
@@ -70,7 +95,13 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.TYPE,
-    title: 'Type',
+    title: (
+      <TranslatedText
+        stringId="general.type.label"
+        fallback="Type"
+        data-testid="translatedtext-type"
+      />
+    ),
     sortable: false,
     maxWidth: 70,
     accessor: ({ imagingType }) => (
@@ -80,14 +111,20 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.AREAS,
-    title: 'Areas to be imaged',
+    title: (
+      <TranslatedText
+        stringId="imaging.areasToBeImaged.label"
+        fallback="Areas to be imaged"
+        data-testid="translatedtext-areas"
+      />
+    ),
     sortable: false,
     accessor: getAreaNote,
     printout: { widthProportion: 6 },
   },
 ];
 
-export const FORM_COLUMNS = COMMON_COLUMNS.filter((c) => !c.form?.hidden).map(
+export const FORM_COLUMNS = COMMON_COLUMNS.filter(c => !c.form?.hidden).map(
   // printout is taken out of ...column
   // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({
@@ -96,7 +133,7 @@ export const FORM_COLUMNS = COMMON_COLUMNS.filter((c) => !c.form?.hidden).map(
   }),
 );
 
-export const PRINTOUT_COLUMNS = COMMON_COLUMNS.filter((c) => !c.printout?.hidden).map(
+export const PRINTOUT_COLUMNS = COMMON_COLUMNS.filter(c => !c.printout?.hidden).map(
   // form is taken out of ...column
   // eslint-disable-next-line no-unused-vars
   ({ printout, form, ...column }) => ({

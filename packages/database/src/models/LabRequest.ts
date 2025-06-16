@@ -103,7 +103,7 @@ export class LabRequest extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
-          afterUpdate: async (labRequest: LabRequest) => {
+          afterUpdate: async (labRequest: LabRequest, options) => {
             const shouldPushNotification = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
               LAB_REQUEST_STATUSES.PUBLISHED,
@@ -114,6 +114,7 @@ export class LabRequest extends Model {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.LAB_REQUEST,
                 labRequest.dataValues,
+                { transaction: options.transaction },
               );
             }
 
@@ -129,6 +130,7 @@ export class LabRequest extends Model {
                     id: labRequest.id,
                   },
                 },
+                transaction: options.transaction,
               });
             }
           },
