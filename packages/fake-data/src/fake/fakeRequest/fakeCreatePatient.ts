@@ -115,14 +115,49 @@ import { createPatientSchema } from '@tamanu/facility-server/schemas/patient';
 //   };
 // };
 
+const generateNHN = () => {
+  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
+  const numbers = faker.string.numeric(6);
+  const generatedId = `${letters}${numbers}`;
+
+  return generatedId;
+};
+
+const generateDisplayId = () => {
+  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
+  const numbers = faker.string.numeric(6);
+  const generatedId = `${letters}${numbers}`;
+
+  return generatedId;
+};
+
+const overrideForeignKeys = (schemaShape: z.ZodRawShape, mock: Record<string, any>) => {
+  for (const key in schemaShape) {
+    const schema = schemaShape[key];
+    if (typeof schema.description === 'string' && schema.description.includes('__foreignKey__')) {
+      mock[key] = undefined;
+    }
+  }
+  return mock;
+};
+
 export const fakePatientRequestBody = (
   overrides?: Partial<z.infer<typeof createPatientSchema>>,
-) => ({
-  ...generateMock(createPatientSchema, {
+) => {
+  const schemaShape = createPatientSchema.shape;
+
+  const mock = generateMock(createPatientSchema, {
     stringMap: {
       dateOfBirth: () => faker.date.birthdate().toISOString().split('T')[0], // YYYY-MM-DD format
       timeOfBirth: () => faker.date.recent().toISOString(), // Full ISO datetime string
+      NHN: () => generateNHN(),
+      displayId: () => generateDisplayId(),
     },
-  }),
-  ...overrides,
-});
+  });
+
+  mock.patientFields = {};
+
+  const final = { ...overrideForeignKeys(schemaShape, mock), ...overrides };
+
+  return final;
+};

@@ -13,16 +13,18 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
+export const foreignKeySchema = z.string().describe('__foreignKey__');
+
 export const createPatientSchema = z.object({
   // Required fields for patient creation
   patientRegistryType: z.enum([
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
   ]),
-  facilityId: z.string(),
+  facilityId: foreignKeySchema,
 
   // Primary Details (from GenericPrimaryDetailsLayout)
-  displayId: z.string().optional(), // Auto-generated if not provided
+  displayId: z.string().optional(),
   firstName: z.string().optional(),
   middleName: z.string().optional(),
   lastName: z.string().optional(),
@@ -30,13 +32,13 @@ export const createPatientSchema = z.object({
   email: z.string().email().optional(),
   dateOfBirth: z.string().optional(), // ISO date string
   sex: z.enum([SEX_VALUES.MALE, SEX_VALUES.FEMALE, SEX_VALUES.OTHER]),
-  villageId: z.string().optional(),
+  villageId: foreignKeySchema.optional(),
 
   // Identification Information (from GenericIdentificationFields)
   birthCertificate: z.string().optional(),
   drivingLicense: z.string().optional(),
   passport: z.string().optional(),
-  insurerId: z.string().optional(),
+  insurerId: foreignKeySchema.optional(),
   insurerPolicyNumber: z.string().optional(),
 
   // Contact Information (from GenericContactFields)
@@ -73,10 +75,10 @@ export const createPatientSchema = z.object({
     ])
     .optional(),
   placeOfBirth: z.string().optional(),
-  countryOfBirthId: z.string().optional(),
-  nationalityId: z.string().optional(),
-  ethnicityId: z.string().optional(),
-  religionId: z.string().optional(),
+  countryOfBirthId: foreignKeySchema.optional(),
+  nationalityId: foreignKeySchema.optional(),
+  ethnicityId: foreignKeySchema.optional(),
+  religionId: foreignKeySchema.optional(),
   educationalLevel: z
     .enum([
       EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING,
@@ -88,7 +90,7 @@ export const createPatientSchema = z.object({
       EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED,
     ])
     .optional(),
-  occupationId: z.string().optional(),
+  occupationId: foreignKeySchema.optional(),
   socialMedia: z
     .enum([
       SOCIAL_MEDIA_TYPES.FACEBOOK,
@@ -99,19 +101,19 @@ export const createPatientSchema = z.object({
       SOCIAL_MEDIA_TYPES.WHATSAPP,
     ])
     .optional(),
-  patientBillingTypeId: z.string().optional(),
-  motherId: z.string().optional(),
-  fatherId: z.string().optional(),
+  patientBillingTypeId: foreignKeySchema.optional(),
+  motherId: foreignKeySchema.optional(),
+  fatherId: foreignKeySchema.optional(),
 
   // Location Information (from GenericLocationFields)
   cityTown: z.string().optional(),
   streetVillage: z.string().optional(),
-  countryId: z.string().optional(),
-  divisionId: z.string().optional(),
-  subdivisionId: z.string().optional(),
-  settlementId: z.string().optional(),
-  medicalAreaId: z.string().optional(),
-  nursingZoneId: z.string().optional(),
+  countryId: foreignKeySchema.optional(),
+  divisionId: foreignKeySchema.optional(),
+  subdivisionId: foreignKeySchema.optional(),
+  settlementId: foreignKeySchema.optional(),
+  medicalAreaId: foreignKeySchema.optional(),
+  nursingZoneId: foreignKeySchema.optional(),
 
   // Birth Details (from GenericBirthFields - only when patientRegistryType is 'birth_registry')
   timeOfBirth: z.string().optional(), // ISO datetime string
@@ -123,7 +125,7 @@ export const createPatientSchema = z.object({
       PLACE_OF_BIRTH_TYPES.OTHER,
     ])
     .optional(),
-  birthFacilityId: z.string().nullable().optional(),
+  birthFacilityId: foreignKeySchema.nullable().optional(),
   attendantAtBirth: z
     .enum([
       ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
@@ -156,7 +158,7 @@ export const createPatientSchema = z.object({
   patientFields: z.record(z.string(), z.string()).optional(),
 
   // Backend-added fields (not from frontend form)
-  registeredById: z.string(),
+  registeredById: foreignKeySchema,
 });
 
 // Schema for updating patients (all fields optional)
