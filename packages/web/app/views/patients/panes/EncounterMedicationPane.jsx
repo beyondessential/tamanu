@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import { Box } from '@mui/material';
@@ -73,7 +73,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { navigateToMar } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
-  const [medications, setMedications] = useState([]);
 
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
@@ -107,14 +106,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     !!importableOngoingPrescriptions?.length && !encounter.endDate;
   const canAccessMar = ability.can('read', 'MedicationAdministration');
 
-  const onMedicationsFetched = useCallback(({ data }) => {
-    setMedications(data);
-  }, []);
-
-  const existingDrugIds = useMemo(() => medications.map(({ medication }) => medication?.id), [
-    medications,
-  ]);
-
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
@@ -131,7 +122,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             onClose={() => setPrescriptionType(null)}
             openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
             onReloadTable={() => setRefreshEncounterMedications(prev => prev + 1)}
-            existingDrugIds={existingDrugIds}
           />
         )}
         <MedicationModal
@@ -143,7 +133,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             setRefreshEncounterMedications(prev => prev + 1);
           }}
           data-testid="medicationmodal-s2hv"
-          existingDrugIds={existingDrugIds}
         />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
@@ -253,8 +242,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}
           onImportOngoingPrescriptions={() => setMedicationImportModalOpen(true)}
-          onMedicationsFetched={onMedicationsFetched}
-          medications={medications}
         />
       </TableContainer>
     </TabPane>

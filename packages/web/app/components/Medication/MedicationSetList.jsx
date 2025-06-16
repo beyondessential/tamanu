@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
@@ -8,6 +8,8 @@ import { BodyText, Heading4, SmallBodyText, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { useEncounter } from '../../contexts/Encounter';
 
 const ListContainer = styled(Box)`
   display: flex;
@@ -129,9 +131,13 @@ export const MedicationSetMedicationsList = ({
   editable = false,
   onEdit,
   onRemove,
-  existingDrugIds,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { encounter } = useEncounter();
+  const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounter?.id);
+  const existingDrugIds = useMemo(() => medications.map(({ medication }) => medication?.id), [
+    medications,
+  ]);
   return (
     <ListContainer width="420px">
       <Heading4 textAlign="center" mt="6px" mb="2px">

@@ -88,7 +88,6 @@ const SelectScreen = ({
   medicationSetsLoading,
   onSelect,
   selectedMedicationSet,
-  existingDrugIds,
 }) => {
   return (
     <>
@@ -132,10 +131,7 @@ const SelectScreen = ({
                 fallback="Medication set medications"
               />
             </Heading5>
-            <MedicationSetMedicationsList
-              medicationSet={selectedMedicationSet}
-              existingDrugIds={existingDrugIds}
-            />
+            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
           </Box>
         )}
       </SetContainer>
@@ -171,13 +167,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-export const MedicationSetModal = ({
-  open,
-  onClose,
-  openPrescriptionTypeModal,
-  onReloadTable,
-  existingDrugIds,
-}) => {
+export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
@@ -357,7 +347,6 @@ export const MedicationSetModal = ({
             medicationSetsLoading={medicationSetsLoading}
             onSelect={onSelect}
             selectedMedicationSet={selectedMedicationSet}
-            existingDrugIds={existingDrugIds}
           />
         );
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
@@ -6,7 +6,7 @@ import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@ta
 import { useLocation } from 'react-router-dom';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { DataFetchingTable } from '../Table';
+import { Table } from '../Table';
 import { formatShortest } from '../DateDisplay';
 import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
@@ -21,8 +21,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../Button';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 
-const StyledDataFetchingTable = styled(DataFetchingTable)`
+const StyledTable = styled(Table)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
   border: none;
   border-radius: 0;
@@ -257,8 +258,6 @@ export const EncounterMedicationTable = ({
   encounter,
   canImportOngoingPrescriptions,
   onImportOngoingPrescriptions,
-  onMedicationsFetched,
-  medications,
 }) => {
   const location = useLocation();
   const api = useApi();
@@ -266,6 +265,9 @@ export const EncounterMedicationTable = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+
+  const { data, isLoading } = useEncounterMedicationQuery(encounter.id);
+  const medications = data?.data ?? [];
 
   const queryClient = useQueryClient();
 
@@ -304,9 +306,10 @@ export const EncounterMedicationTable = ({
           onClose={() => setSelectedMedication(null)}
         />
       )}
-      <StyledDataFetchingTable
+      <StyledTable
         columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation, !!selectedMedication)}
-        endpoint={`encounter/${encounter.id}/medications`}
+        data={medications}
+        isLoading={isLoading}
         initialSort={{ orderBy: 'date', order: 'desc' }}
         rowStyle={rowStyle}
         elevated={false}
@@ -314,7 +317,6 @@ export const EncounterMedicationTable = ({
         disablePagination
         onRowClick={row => setSelectedMedication(row)}
         refreshCount={refreshCount}
-        onDataFetched={onMedicationsFetched}
         $noData={medications.length === 0}
         noDataMessage={
           <NoDataContainer>

@@ -66,6 +66,7 @@ import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -514,7 +515,6 @@ export const MedicationForm = ({
   editingMedication,
   isOngoingPrescription,
   onDirtyChange,
-  existingDrugIds,
 }) => {
   const isEditing = !!onConfirmEdit;
   const api = useApi();
@@ -524,6 +524,10 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
+  const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
+  const existingDrugIds = useMemo(() => medications.map(({ medication }) => medication?.id), [
+    medications,
+  ]);
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -538,7 +542,7 @@ export const MedicationForm = ({
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
-  
+
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
   });
