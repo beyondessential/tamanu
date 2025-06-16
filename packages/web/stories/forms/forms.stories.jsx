@@ -230,7 +230,6 @@ export const MedicationFormStory = {
   name: 'Medication Form',
   render: () => (
     <MedicationForm
-      onSubmit={action('submit')}
       onCancel={action('cancel')}
       practitionerSuggester={practitionerSuggester}
       drugSuggester={drugSuggester}

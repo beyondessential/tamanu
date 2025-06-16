@@ -53,7 +53,6 @@ sources:
             description: "{{ doc('survey_response_answers__body_legacy') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              survey_response_answers."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in survey_response_answers."
             data_tests:
               - not_null

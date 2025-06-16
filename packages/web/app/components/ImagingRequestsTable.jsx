@@ -211,7 +211,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       autoRefresh={!encounterId}
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
-      noDataMessage="No imaging requests found"
+      noDataMessage={
+        <TranslatedText
+          stringId="imaging.list.noData"
+          fallback="No imaging requests found"
+          data-testid="translatedtext-imaging.list-noData"
+        />
+      }
       onRowClick={selectImagingRequest}
       fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}
