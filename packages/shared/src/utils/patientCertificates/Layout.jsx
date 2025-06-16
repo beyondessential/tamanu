@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
     width: 100,
   },
   line: {

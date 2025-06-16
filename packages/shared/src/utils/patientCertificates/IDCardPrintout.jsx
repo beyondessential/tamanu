@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
   },
   detailsKey: {
     width: '18mm',
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
   detailsValue: {
     maxWidth: '35mm',
     overflow: 'hidden',
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
   barcodeRow: {
     height: '6.3mm',

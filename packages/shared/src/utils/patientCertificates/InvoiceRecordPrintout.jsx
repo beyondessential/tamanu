@@ -38,7 +38,7 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
 });
 
@@ -109,7 +109,7 @@ const HorizontalRule = ({ width = '1px' }) => {
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children, isBold }) => (
-  <Text style={[tableStyles.p, isBold && { fontWeight: 700 }, style]}>{children}</Text>
+  <Text style={[tableStyles.p, isBold && { fontFamily: 'Rubik-Bold' }, style]}>{children}</Text>
 );
 
 const Cell = ({ children, style = {} }) => (
@@ -157,7 +157,7 @@ const getInvoiceItemDetails = item => {
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontWeight: 700 }}>{children}</P>
+    <P style={{ fontFamily: 'Rubik-Bold' }}>{children}</P>
   </View>
 );
 

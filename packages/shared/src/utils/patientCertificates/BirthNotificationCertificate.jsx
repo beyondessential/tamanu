@@ -32,7 +32,7 @@ const topStyles = StyleSheet.create({
   },
   key: {
     fontSize: 9,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
     marginRight: 2,
   },
   value: {
@@ -314,12 +314,12 @@ const signatureStyles = StyleSheet.create({
   leftText: {
     width: 90,
     marginRight: 10,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
   rightText: {
     width: 30,
     marginRight: 10,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
   line: {
     flex: 1,

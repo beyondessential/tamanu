@@ -37,10 +37,10 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
   },
   tableColumnHeader: {
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
     fontSize: 10,
   },
   tableCellContent: {
@@ -51,12 +51,12 @@ const textStyles = StyleSheet.create({
   },
   headerLabel: {
     fontSize: 8,
-    fontWeight: 700,
+    fontFamily: 'Rubik-Bold',
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
-    fontWeight: 400,
+    fontFamily: 'Rubik',
     color: '#888888',
   },
 });
@@ -88,7 +88,7 @@ const tableStyles = StyleSheet.create({
   },
   p: {
     fontSize: 10,
-    fontWeight: 400,
+    fontFamily: 'Rubik',
   },
   notesCell: {
     width: '100%',
@@ -167,7 +167,7 @@ const DataTableHeading = ({ columns, title, width }) => {
                 key={key}
                 style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
               >
-                <P style={{ fontWeight: 700 }}>{title[0]}</P>
+                <P style={{ fontFamily: 'Rubik-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>
             );
