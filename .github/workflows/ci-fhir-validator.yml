@@ -1,0 +1,60 @@
+name: FHIR Validator Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/*
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
+
+jobs:
+  test-fhir-validator:
+    name: FHIR Validator
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm ci
+      - run: npm run build-shared
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 17
+          .github/scripts/setup-postgres-for-one-package.sh fake
+
+      - name: Run FHIR Validator
+        env:
+          NODE_CONFIG_DIR: ${{ github.workspace }}/packages/central-server/config
+        run: npm run --silent --workspace scripts test-fhir-validator
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    if: always() # always run even if dependencies fail
+    name: FHIR Validator pass
+    needs: [test-fhir-validator]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
