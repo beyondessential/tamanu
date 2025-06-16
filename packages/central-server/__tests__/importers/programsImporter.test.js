@@ -935,7 +935,7 @@ describe('Programs import', () => {
       });
     });
 
-    it('translate nested options', async () => {
+    it('should translate nested options', async () => {
       await doImport({
         file: 'vitals-valid',
         dryRun: false,
@@ -964,6 +964,32 @@ describe('Programs import', () => {
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
+    });
+
+    it('should translate text and detail fields for survey screen components', async () => {
+      await doImport({
+        file: 'valid',
+        dryRun: false,
+      });
+
+      const surveyScreenComponents = await models.SurveyScreenComponent.findAll();
+      let expectedStringIds = [];
+      surveyScreenComponents.forEach((surveyScreenComponent) => {
+        expectedStringIds.push(
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.text.${surveyScreenComponent.id}`,
+        );
+        expectedStringIds.push(
+          `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.detail.${surveyScreenComponent.id}`,
+        );
+      });
+
+      const translatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.surveyScreenComponent%' } },
+      });
+
+      const generatedStringIds = translatedStrings.map((translation) => translation.stringId);
+
+      expect(generatedStringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 });
