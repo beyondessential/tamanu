@@ -6,6 +6,48 @@ import {
   FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
 
+export const fakeResourcesOfFhirEncounter = async (models) => {
+  const {
+    Department,
+    Facility,
+    Location,
+    LocationGroup,
+    Patient,
+    User,
+    FhirPatient,
+    FhirOrganization,
+  } = models;
+  const [practitioner, patient, facility] = await Promise.all([
+    User.create(fake(User)),
+    Patient.create(fake(Patient)),
+    Facility.create(fake(Facility)),
+  ]);
+
+  const locationGroup = await LocationGroup.create(
+    fake(LocationGroup, { facilityId: facility.id }),
+  );
+
+  const [location, fhirPatient] = await Promise.all([
+    Location.create(fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id })),
+    FhirPatient.materialiseFromUpstream(patient.id),
+    FhirOrganization.materialiseFromUpstream(facility.id),
+  ]);
+
+  const department = await Department.create(
+    fake(Department, { facilityId: facility.id, locationId: location.id }),
+  );
+
+  return {
+    department,
+    practitioner,
+    patient,
+    facility,
+    location,
+    locationGroup,
+    fhirPatient,
+  };
+};
+
 export const fakeResourcesOfFhirServiceRequest = async (models) => {
   const {
     Department,

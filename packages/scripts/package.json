@@ -8,11 +8,16 @@
     "clean:deps": "rimraf node_modules",
     "test": "npm run build && tape 'tests/**/*.test.*js'",
     "download-translations": "npm run build && node dist/downloadTranslations.js ../web/resources/strings",
-    "test-determinism": "npm run build && node dist/testDeterminism.js"
+    "test-determinism": "npm run build && node dist/testDeterminism.js",
+    "test-fhir-validator": "npm run build && node dist/testFhirValidator.js"
   },
   "dependencies": {
+    "@tamanu/central-server": "*",
+    "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/fake-data": "*",
+    "@tamanu/settings": "*",
+    "@tamanu/shared": "*",
     "commander": "^9.0.0",
     "config": "^3.3.9",
     "google-spreadsheet": "^2.0.7",
@@ -21,9 +26,11 @@
     "pg": "^8.5.1",
     "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",
+    "supertest": "^4.0.2",
     "yaml": "^2.2.1"
   },
   "devDependencies": {
+    "@types/supertest": "^6.0.3",
     "@types/node": "^20.9.0",
     "@types/umzug": "^2.3.9",
     "tape": "^5.7.5"
