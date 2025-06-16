@@ -11,6 +11,10 @@ const BULK_CREATE_BATCH_SIZE = 100;
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
 // redirected to the new patient and that's all.
+
+// IMPORTANT: Any models here that have child records, please add the logic to handle them
+// in:
+// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const simpleUpdateModels = [
   'Encounter',
   'PatientAllergy',
@@ -34,6 +38,10 @@ export const simpleUpdateModels = [
 // These ones need a little more attention.
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
+
+// IMPORTANT: Any models here that have child records, please add the logic to handle them
+// in:
+// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
@@ -346,6 +354,12 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
+export async function refreshMultiChildRecordsForSync(model, records) {
+  for (const record of records) {
+    await refreshChildRecordsForSync(model, record.id);
+  }
+}
+
 /**
  * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
  * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
@@ -354,14 +368,26 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
  * @param {*} unwantedPatientId 
  */
 async function updateDependentRecordsForResync(models, unwantedPatientId) {
+  // Encounters
   const encounters = await models.Encounter.findAll({
     where: { patientId: unwantedPatientId },
     attributes: ['id'],
   });
+  await refreshMultiChildRecordsForSync(models.Encounter, encounters);
 
-  for (const encounter of encounters) {
-    await refreshChildRecordsForSync(models.Encounter, encounter.id);
-  }
+  // Patient Care Plans
+  const patientCarePlans = await models.PatientCarePlan.findOne({
+    where: { patientId: unwantedPatientId },
+    attributes: ['id'],
+  });
+  await refreshMultiChildRecordsForSync(models.PatientCarePlan, patientCarePlans);
+
+  // Patient Death Data
+  const patientDeathDataRecords = await models.PatientDeathData.findAll({
+    where: { patientId: unwantedPatientId },
+    attributes: ['id'],
+  });
+  await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
 }
 
 export async function mergePatient(models, keepPatientId, unwantedPatientId) {
