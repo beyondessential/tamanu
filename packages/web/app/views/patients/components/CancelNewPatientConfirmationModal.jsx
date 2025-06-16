@@ -52,6 +52,5 @@ export const CancelNewPatientConfirmationModal = ({ open, onClose, onCancelConfi
         data-testid="translatedtext-cancel-confirm"
       />
     }
-    width="sm"
   />
 );
