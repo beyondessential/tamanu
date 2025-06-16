@@ -244,6 +244,7 @@ export class TamanuApi extends ApiClient {
               />
             ),
           ]);
+        }
       }
 
       throw new Error(message);
