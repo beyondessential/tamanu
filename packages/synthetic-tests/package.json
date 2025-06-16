@@ -2,11 +2,15 @@
   "name": "@tamanu/synthetic-tests",
   "version": "2.35.0",
   "private": true,
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/test-data": "*"
+  },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0"
   },
   "scripts": {
-    "test": "artillery run src/scenarios/create-patient.yml"
+    "test": "npm run --workspace=@tamanu/facility-server build && npm run --workspace=@tamanu/fake-data build &&artillery run src/scenarios/create-patient.yml"
   },
   "keywords": [],
   "author": "",

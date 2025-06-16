@@ -2,8 +2,10 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
+import { createPatientSchema, updatePatientSchema } from './patient.schema';
 
 import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
@@ -31,6 +33,8 @@ import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query'
 import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
+
+const patientValidationLogger = createNamedLogger('PatientValidation');
 
 patientRoute.get(
   '/:id',
@@ -74,9 +78,28 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
+    // Validate request body using Zod schema with warnings instead of errors
+    const validationResult = updatePatientSchema.safeParse({ ...body, facilityId });
+
+    if (!validationResult.success) {
+      // Log warnings for validation failures but don't fail the request
+      patientValidationLogger.warn('Patient update validation warnings:', {
+        errors: JSON.stringify(validationResult.error.errors, null, 2),
+        body: JSON.stringify({ ...body, facilityId }, null, 2),
+        patientId: params.id,
+        userId: req.user?.id,
+        endpoint: 'PUT /patient/:id',
+      });
+    }
+
+    // Use the original body or the validated body if validation succeeded
+    const validatedBody = validationResult.success
+      ? validationResult.data
+      : { ...body, facilityId };
+
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
-      if (body.displayId && body.displayId !== patient.displayId) {
+      if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
@@ -88,7 +111,7 @@ patientRoute.put(
         });
       }
 
-      await patient.update(requestBodyToRecord(body));
+      await patient.update(requestBodyToRecord(validatedBody));
 
       const patientAdditionalData = await PatientAdditionalData.findOne({
         where: { patientId: patient.id },
@@ -96,24 +119,24 @@ patientRoute.put(
 
       if (!patientAdditionalData) {
         await PatientAdditionalData.create({
-          ...requestBodyToRecord(body),
+          ...requestBodyToRecord(validatedBody),
           patientId: patient.id,
         });
       } else {
-        await patientAdditionalData.update(requestBodyToRecord(body));
+        await patientAdditionalData.update(requestBodyToRecord(validatedBody));
       }
 
       const patientBirth = await PatientBirthData.findOne({
         where: { patientId: patient.id },
       });
-      const recordData = requestBodyToRecord(req.body);
+      const recordData = requestBodyToRecord(validatedBody);
       const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
       if (patientBirth) {
         await patientBirth.update(patientBirthRecordData);
       }
 
-      await patient.writeFieldValues(req.body.patientFields);
+      await patient.writeFieldValues(validatedBody.patientFields);
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -126,34 +149,57 @@ patientRoute.post(
     const { db, models, body } = req;
     const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
     req.checkPermission('create', 'Patient');
-    const requestData = requestBodyToRecord(body);
+
+    // Validate request body using Zod schema with warnings instead of errors
+    const validationResult = createPatientSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      // Log warnings for validation failures but don't fail the request
+      patientValidationLogger.warn('Patient creation validation warnings:', {
+        errors: JSON.stringify(validationResult.error.errors, null, 2),
+        body: JSON.stringify(body, null, 2),
+        userId: req.user?.id,
+        facilityId: body.facilityId,
+        endpoint: 'POST /patient',
+      });
+    }
+
+    // Use the original body or the validated body if validation succeeded
+    const validatedBody = validationResult.success ? validationResult.data : body;
+
+    const requestData = requestBodyToRecord(validatedBody);
     const { patientRegistryType, facilityId, ...patientData } = requestData;
 
     const patientRecord = await db.transaction(async () => {
-      const createdPatient = await Patient.create(patientData);
-      const patientAdditionalBirthData =
-        patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
-          ? { motherId: patientData.motherId, fatherId: patientData.fatherId }
-          : {};
+      try {
+        const createdPatient = await Patient.create(patientData);
+        const patientAdditionalBirthData =
+          patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
+            ? { motherId: patientData.motherId, fatherId: patientData.fatherId }
+            : {};
 
-      await PatientAdditionalData.create({
-        ...patientData,
-        ...patientAdditionalBirthData,
-        patientId: createdPatient.id,
-      });
-      await createdPatient.writeFieldValues(req.body.patientFields);
-
-      if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
-        await PatientBirthData.create({
-          ...pickPatientBirthData(PatientBirthData, patientData),
+        await PatientAdditionalData.create({
+          ...patientData,
+          ...patientAdditionalBirthData,
           patientId: createdPatient.id,
         });
+        await createdPatient.writeFieldValues(validatedBody.patientFields);
+
+        if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
+          await PatientBirthData.create({
+            ...pickPatientBirthData(PatientBirthData, patientData),
+            patientId: createdPatient.id,
+          });
+        }
+
+        // mark for sync in this facility
+        await PatientFacility.create({ facilityId, patientId: createdPatient.id });
+
+        return createdPatient;
+      } catch (error) {
+        patientValidationLogger.error('Error creating patient:', error);
+        throw error;
       }
-
-      // mark for sync in this facility
-      await PatientFacility.create({ facilityId, patientId: createdPatient.id });
-
-      return createdPatient;
     });
 
     res.send(dbRecordToResponse(patientRecord, facilityId));

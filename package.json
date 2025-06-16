@@ -69,7 +69,8 @@
       "packages/utils",
       "packages/fake-data",
       "packages/e2e-tests",
-      "packages/synthetic-tests"
+      "packages/synthetic-tests",
+      "packages/test-data"
     ]
   },
   "devDependencies": {
