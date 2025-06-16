@@ -233,6 +233,11 @@ export const SelectInput = ({
               DropdownIndicator: () => (
                 <ExpandIcon data-testid={`${dataTestId}-expandmoreicon-h115`} />
               ),
+              Menu: menuProps => (
+                <components.Menu {...menuProps}>
+                  <div data-testid={`${dataTestId}-optioncontainer`}>{menuProps.children}</div>
+                </components.Menu>
+              ),
             }}
             {...props}
           />
