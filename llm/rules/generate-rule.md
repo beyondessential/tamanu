@@ -16,7 +16,7 @@ Use this for:
 - Structure the rule document with these sections:
   - **Context**: When and why this rule should be used (be specific about triggers)
   - **Process**: Step-by-step instructions for the LLM to follow
-  - **Avoid**: Common pitfalls, anti-patterns, or mistakes to prevent - but don't generate this just for the sake of it, only include actual things that the conversation highlighted should be avoided
+  - **Avoid**: Common pitfalls, anti-patterns, or mistakes to prevent - only include things that actually came up in the conversation, don't add generic bullet points
 - Write instructions directly for the LLM (use "you" to address the LLM)
 - Include specific commands, file paths, and code patterns where relevant
 - Make the process actionable - each step should be something the LLM can execute
@@ -27,3 +27,4 @@ Use this for:
 - Writing rules that are too vague about when they should be applied
 - Creating steps that aren't actionable for an LLM
 - Making rules too broad or complex
+- Adding bullet points to the Avoid section just for the sake of it - only include what's genuinely relevant
