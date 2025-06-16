@@ -1,0 +1,33 @@
+# Context
+
+Use this rule when you need to create a commit for staged changes, following the project's conventional commit format as outlined in CONTRIBUTING.md.
+
+The project requires conventional commit format for PR titles, and it's good practice to use it for individual commits as well.
+
+# Process
+
+- Check what files are staged using `git status` or `git diff --cached --name-only`
+- Analyze the staged changes to understand what type of work was done
+- Determine the appropriate conventional commit type:
+  - `feat` for new features
+  - `fix` for bug fixes
+  - `doc` for documentation changes
+  - `refactor` for code refactoring
+  - `config` for configuration changes
+  - `db` for database schema changes
+  - `deps` for dependency changes
+  - `repo` for repository structure changes
+  - Other types as listed in CONTRIBUTING.md
+- Determine if a scope is appropriate (optional but helpful for clarity)
+- Write a commit message in the format: `type(scope): description` or `type: description`
+- Keep the description concise but descriptive of what was changed
+- Use present tense and imperative mood (e.g., "add", "fix", "update")
+- Run `git commit -m "commit message"`
+
+Example: `git commit -m "doc: restructure LLM documentation system"`
+
+# Avoid
+
+- Using past tense in commit messages (e.g., "added" instead of "add")
+- Making commit messages too vague or too detailed
+- Forgetting to check what's actually staged before committing
