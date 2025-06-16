@@ -45,7 +45,7 @@ export function generateTranslationsForData(model, sheetName, values) {
 
   if (isTranslatable && isValidTable) {
     const recordText = extractTranslatableRecordText(values, dataType);
-    if (isString(recordText)) {
+    if (recordText && isString(recordText)) {
       const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
       translationData.push([stringId, recordText, DEFAULT_LANGUAGE_CODE]);
     }
