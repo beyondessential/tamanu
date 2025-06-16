@@ -55,9 +55,9 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       id: 'category',
       title: <TranslatedText stringId="programRegistry.category" fallback="Category" />,
       width: '25%',
-      accessor: ({ conditionCategoryCode, conditionCategoryName }) => (
+      accessor: ({ conditionCategoryId, conditionCategoryName }) => (
         <TranslatedReferenceData
-          value={conditionCategoryCode}
+          value={conditionCategoryId}
           fallback={conditionCategoryName}
           category="programRegistryConditionCategory"
         />
