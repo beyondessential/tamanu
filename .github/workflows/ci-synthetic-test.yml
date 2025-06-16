@@ -8,6 +8,8 @@ on:
 jobs:
   check-synthetic-test-request:
     runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
     steps:
       - uses: actions/checkout@v4
       - id: check
