@@ -376,7 +376,7 @@ async function updateDependentRecordsForResync(models, unwantedPatientId) {
   await refreshMultiChildRecordsForSync(models.Encounter, encounters);
 
   // Patient Care Plans
-  const patientCarePlans = await models.PatientCarePlan.findOne({
+  const patientCarePlans = await models.PatientCarePlan.findAll({
     where: { patientId: unwantedPatientId },
     attributes: ['id'],
   });
