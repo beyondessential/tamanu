@@ -4,6 +4,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
+import { refreshChildRecordsForSync } from '@tamanu/shared/utils/refreshChildRecordsForSync';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -345,6 +346,24 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
+/**
+ * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
+ * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
+ * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
+ * @param {*} models 
+ * @param {*} unwantedPatientId 
+ */
+async function updateDependentRecordsForResync(models, unwantedPatientId) {
+  const encounters = await models.Encounter.findAll({
+    where: { patientId: unwantedPatientId },
+    attributes: ['id'],
+  });
+
+  for (const encounter of encounters) {
+    await refreshChildRecordsForSync(models.Encounter, encounter.id);
+  }
+}
+
 export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
 
@@ -380,6 +399,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       mergedIntoId: keepPatientId,
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
+
+    // See the function's documentation for more details on why this is needed
+    await updateDependentRecordsForResync(models, unwantedPatientId);
 
     updates.Patient = 2;
 
