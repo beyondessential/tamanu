@@ -16,6 +16,9 @@ import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/da
 import { useAuth } from '../../contexts/Auth';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
+import { MedicationWarningModal } from './MedicationWarningModal';
+import { useSelector } from 'react-redux';
+import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -171,21 +174,24 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
-  const [isDirty, setIsDirty] = useState(false);
+  const patient = useSelector(state => state.patient);
 
+  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(patient?.id);
   const {
     mutateAsync: createMedicationSet,
     isLoading: isCreatingMedicationSet,
   } = useCreateMedicationSetMutation({
     onSuccess: () => onReloadTable(),
   });
+
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);
   const [screen, setScreen] = useState(MODAL_SCREENS.SELECT_MEDICATION_SET);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [existingOngoingPrescriptions, setExistingOngoingPrescriptions] = useState([]);
 
   const onSelect = medicationSet => {
     const newMedicationSetChildren = medicationSet.children
@@ -246,9 +252,19 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
 
   const onNext = async () => {
     switch (screen) {
-      case MODAL_SCREENS.SELECT_MEDICATION_SET:
+      case MODAL_SCREENS.SELECT_MEDICATION_SET: {
+        const existingOngoingPrescriptions = ongoingPrescriptions?.data?.filter(
+          prescription =>
+            selectedMedicationSet.children.some(
+              child => child.medication.id === prescription.medication.id,
+            ) && !prescription.discontinued,
+        );
+        setShowWarningModal(!!existingOngoingPrescriptions?.length);
+        setExistingOngoingPrescriptions(existingOngoingPrescriptions);
+        if (existingOngoingPrescriptions?.length) return;
         setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
         break;
+      }
       case MODAL_SCREENS.REVIEW_MEDICATION_SET:
         await onSubmit();
         break;
@@ -488,67 +504,88 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     }
   };
 
+  const handleCloseWarningModal = () => {
+    setShowWarningModal(false);
+    setExistingOngoingPrescriptions([]);
+  };
+
   return (
-    <StyledModal
-      open={open}
-      onClose={onClose}
-      title={getModalTitle()}
-      cornerExitButton={!showCustomClose}
-      $maxWidth={getModalWidth()}
-    >
-      {showCustomClose && (
-        <StyledIconButton onClick={onCustomClose}>
-          <CloseIcon />
-        </StyledIconButton>
-      )}
-      {printModalOpen && (
-        <MultiplePrescriptionPrintoutModal
-          encounter={encounter}
-          prescriberId={currentUser.id}
-          prescriptions={selectedMedicationSet.children}
-          open={true}
-          onClose={() => {
-            setPrintModalOpen(false);
-            onClose();
+    <>
+      <StyledModal
+        open={open}
+        onClose={onClose}
+        title={getModalTitle()}
+        cornerExitButton={!showCustomClose}
+        $maxWidth={getModalWidth()}
+      >
+        {showCustomClose && (
+          <StyledIconButton onClick={onCustomClose}>
+            <CloseIcon />
+          </StyledIconButton>
+        )}
+        {printModalOpen && (
+          <MultiplePrescriptionPrintoutModal
+            encounter={encounter}
+            prescriberId={currentUser.id}
+            prescriptions={selectedMedicationSet.children}
+            open={true}
+            onClose={() => {
+              setPrintModalOpen(false);
+              onClose();
+            }}
+          />
+        )}
+        {renderScreen()}
+        {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
+          <>
+            <StyledDivider />
+            <ConfirmCancelBackRow
+              confirmText={getConfirmText()}
+              onConfirm={onNext}
+              confirmDisabled={!selectedMedicationSet || isCreatingMedicationSet}
+              cancelText={getCancelText()}
+              onCancel={onCancel}
+              backText={<TranslatedText stringId="general.action.back" fallback="Back" />}
+              onBack={
+                ![
+                  MODAL_SCREENS.REMOVE_MEDICATION,
+                  MODAL_SCREENS.DISCARD_CHANGES,
+                  MODAL_SCREENS.CANCEL_MEDICATION_SET,
+                ].includes(screen) && onBack
+              }
+              finaliseText={
+                <Box display="flex" alignItems="center" whiteSpace="nowrap">
+                  <Print />
+                  <TranslatedText
+                    stringId="medication.modal.action.finaliseAllPrint"
+                    fallback="Finalise all & print"
+                  />
+                </Box>
+              }
+              finaliseDisabled={isCreatingMedicationSet}
+              onFinalise={
+                MODAL_SCREENS.REVIEW_MEDICATION_SET === screen && canPrintPrescription
+                  ? onFinalise
+                  : undefined
+              }
+            />
+          </>
+        )}
+      </StyledModal>
+      {showWarningModal && (
+        <MedicationWarningModal
+          onClose={handleCloseWarningModal}
+          onBack={handleCloseWarningModal}
+          onCancelCreating={onClose}
+          onContinueCreating={() => {
+            setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+            handleCloseWarningModal();
           }}
+          existingOngoingPrescriptions={existingOngoingPrescriptions}
+          selectedMedications={selectedMedicationSet.children}
+          isCreatingMedicationSet
         />
       )}
-      {renderScreen()}
-      {screen !== MODAL_SCREENS.EDIT_MEDICATION && (
-        <>
-          <StyledDivider />
-          <ConfirmCancelBackRow
-            confirmText={getConfirmText()}
-            onConfirm={onNext}
-            confirmDisabled={!selectedMedicationSet || isCreatingMedicationSet}
-            cancelText={getCancelText()}
-            onCancel={onCancel}
-            backText={<TranslatedText stringId="general.action.back" fallback="Back" />}
-            onBack={
-              ![
-                MODAL_SCREENS.REMOVE_MEDICATION,
-                MODAL_SCREENS.DISCARD_CHANGES,
-                MODAL_SCREENS.CANCEL_MEDICATION_SET,
-              ].includes(screen) && onBack
-            }
-            finaliseText={
-              <Box display="flex" alignItems="center" whiteSpace="nowrap">
-                <Print />
-                <TranslatedText
-                  stringId="medication.modal.action.finaliseAllPrint"
-                  fallback="Finalise all & print"
-                />
-              </Box>
-            }
-            finaliseDisabled={isCreatingMedicationSet}
-            onFinalise={
-              MODAL_SCREENS.REVIEW_MEDICATION_SET === screen && canPrintPrescription
-                ? onFinalise
-                : undefined
-            }
-          />
-        </>
-      )}
-    </StyledModal>
+    </>
   );
 };
