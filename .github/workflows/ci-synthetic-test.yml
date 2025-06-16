@@ -4,12 +4,26 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
+    inputs:
+      should_run:
+        description: 'Should run the synthetic test?'
+        required: true
+        default: 'true'
+      target_url:
+        description: 'Target URL for synthetic tests'
+        required: false
+        default: 'http://localhost:4000'
+      retrigger:
+        description: 'Should retrigger the workflow when finished?'
+        required: false
+        default: 'true'
 
 jobs:
   check-synthetic-test-request:
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
+      target_url: ${{ steps.check.outputs.target_url }}
     steps:
       - uses: actions/checkout@v4
       - id: check
@@ -18,7 +32,14 @@ jobs:
           script: |
             const body = context.payload.pull_request?.body;
             const syntheticTestMatch = body?.match(/\[(?<checked>[ x])\]\s+\*\*Spin up synthetic test environment\*\* <!-- #synthetic-test -->/);
+            const targetUrlMatch = body?.match(/Target URL:\s*(https?:\/\/[^\s\n]+)/i);
+            
+            // Check if this is a workflow_dispatch event
+            const isWorkflowDispatch = context.eventName === 'workflow_dispatch';
+            const dispatchTargetUrl = context.payload.inputs?.target_url;
+            
             core.setOutput('should_run', syntheticTestMatch?.groups.checked === 'x');
+            core.setOutput('target_url', dispatchTargetUrl || targetUrlMatch?.[1] || 'http://localhost:4000');
 
   node_modules_cache:
     needs: check-synthetic-test-request
@@ -48,6 +69,8 @@ jobs:
     if: needs.check-synthetic-test-request.outputs.should_run == 'true'
     name: Synthetic Test
     runs-on: ubuntu-latest
+    env:
+      TARGET_URL: ${{ needs.check-synthetic-test-request.outputs.target_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,8 +90,20 @@ jobs:
         uses: artilleryio/action-cli@v1
         with:
           command: run packages/synthetic-tests/src/scenarios/create-patient.yml
+          args: --target ${{ env.TARGET_URL }}
 
       - name: Re-trigger synthetic test
+        if: github.event_name != 'workflow_dispatch' && github.event.inputs.retrigger != 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run ci-synthetic-test.yml
+        run: |
+          # Only retrigger if this is not already a retriggered run
+          if [[ "${{ github.event.head_commit.message }}" != *"[RETRIGGER]"* ]]; then
+            echo "Retriggering synthetic test workflow..."
+            gh workflow run ci-synthetic-test.yml \
+              --ref ${{ github.head_ref || github.ref }} \
+              --field target_url="${{ env.TARGET_URL }}" \
+              --field retrigger=false
+          else
+            echo "Skipping retrigger - this appears to be an already retriggered run"
+          fi
