@@ -1,50 +1,45 @@
 # Context
 
-Create or update documentation when exploring areas of the codebase during development sessions to capture institutional knowledge.
+Use this rule when creating new documentation for the Tamanu project. This could be technical documentation, user guides, or process documentation.
 
-Use this for:
-
-- Complex business logic that isn't immediately obvious from code
-- System architecture and how components interact
-- Common patterns and conventions used in specific areas
-- Gotchas, edge cases, and things that commonly trip people up
-- Database schemas and data relationships
+Focus on creating comprehensive, useful documentation that serves both current team members and future contributors.
 
 # Process
 
-## For New Documentation:
+## For New Documentation
 
-- After exploring a new area of the codebase, identify the key insights from the conversation
-- Create a new .md file in `llm/docs/` with a descriptive name (e.g., `user-authentication.md`, `payment-processing.md`)
+- Identify the topic and target audience (developers, users, administrators, etc.)
+- Create a clear, descriptive title
 - Structure the document with these sections:
-  - **Overview**: High-level description of what this area does
-  - **Key Components**: Main files, classes, or modules involved
-  - **Architecture**: How the pieces fit together
-  - **Data Flow**: How information moves through the system
-  - **Important Patterns**: Common approaches used in this area
-  - **Gotchas**: Things that commonly cause confusion or bugs
-  - **Related Areas**: Other parts of the codebase that interact with this
-  - **Undocumented Areas**: Related functionality that exists but isn't covered (only if relevant)
-  - **Useful Commands**: Any specific scripts, queries, or tools for this area
+  - **Overview**: Brief explanation of what this covers
+  - **Prerequisites**: What users need to know or have set up first
+  - **Main Content**: Step-by-step instructions, explanations, or reference material
+  - **Examples**: Practical examples where helpful
+  - **Related Areas**: Links to related documentation or code
+  - **Undocumented Areas** (only if relevant): Brief mention of related functionality that exists but isn't covered
+  - **Useful Commands**: Relevant commands or shortcuts
+- Use clear, concise language
+- Include code examples with proper syntax highlighting
+- Link to relevant files, functions, or other documentation
+- Test any instructions or code examples before publishing
 
-## For Updating Existing Documentation:
+## For Updating Existing Documentation
 
-- Check `llm/docs/` to find the relevant existing document
-- Review the current content to understand what's already documented
-- Update the relevant sections with new information:
-  - Add new items to existing lists
-  - Update architecture diagrams or descriptions
-  - Correct any outdated information
-  - Add new sections if needed (but keep it focused)
-
-## For Both:
-
-- Include code examples where helpful, but keep them concise
-- Link to relevant files using relative paths
-- Write for future LLM sessions - focus on what an LLM needs to know to work effectively in this area
+- Read through the existing content first
+- Identify what needs to be updated, added, or removed
+- Maintain the existing structure and tone unless there's a good reason to change it
+- Update any outdated information
+- Add new sections if needed, following the structure above
+- Ensure all links and references are still valid
 
 # Avoid
 
-- Creating docs that are too broad
-- Including outdated information without verification
-- Not linking to actual code files being discussed
+- Creating documentation that's too technical for the intended audience
+- Writing walls of text without clear structure
+- Including outdated information or broken links
+- Forgetting to include practical examples
+- Making assumptions about what readers already know
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology throughout documentation

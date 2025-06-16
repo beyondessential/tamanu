@@ -1,16 +1,20 @@
 # Context
 
-Update existing LLM rules when workflows evolve or new insights are discovered. Use this when you need to refine, expand, or correct existing rule documentation rather than creating entirely new rules.
+Use this rule when you need to update an existing rule based on new learnings or improved processes discovered during development sessions.
 
 # Process
 
-- Identify the existing rule in `llm/rules/` that needs updating
-- Read the existing rule to understand current workflow and requirements
-- Update following the same structure as documented in `generate-rule.md`
-- Maintain the same writing style - direct instructions to the LLM using "you"
-- Ensure all steps remain actionable for the LLM
+- Identify which existing rule in `llm/rules/` needs updating
+- Review what's changed or what new insights have been gained
+- Update the relevant sections while maintaining the existing structure
+- Add new process steps or avoid items based on recent experience
+- Ensure the rule remains actionable and specific
 
 # Avoid
 
-- Removing workflow steps without being certain they're no longer needed
-- Adding vague instructions that aren't actionable for the LLM
+- Completely rewriting rules unless the process has fundamentally changed
+- Adding generic advice that doesn't come from actual experience
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology when updating rules

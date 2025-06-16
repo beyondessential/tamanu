@@ -1,17 +1,21 @@
 # Context
 
-Update existing development plans when requirements change, new information is discovered, or progress needs to be tracked. Use this when working with an existing plan rather than creating a new one from scratch.
+Use this rule when you need to update an existing development plan based on new requirements, discoveries, or changes in approach.
 
 # Process
 
-- Identify the existing plan in `llm/plans/` that needs updating
-- Read the current plan to understand existing objectives and progress
-- Update following the same structure as documented in `generate-plan.md`
-- Mark completed steps with strikethrough (~~text~~) or checkmarks
-- Add new steps in logical order within the existing sequence
-- Present the updated plan to continue tracking progress
+- Identify which existing plan in `llm/plans/` needs updating
+- Review what's changed since the plan was created
+- Update the relevant sections with new information
+- Add new steps or modify existing ones based on what you've learned
+- Update estimates and timelines if they've changed
+- Note any new risks or dependencies that have been discovered
 
 # Avoid
 
-- Removing completed steps entirely - mark them as done instead
-- Adding steps that aren't actionable
+- Completely rewriting the plan unless the approach has fundamentally changed
+- Removing completed steps (mark them as done instead)
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology when updating development plans

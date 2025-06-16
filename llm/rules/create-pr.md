@@ -11,7 +11,7 @@ Use the project's PR template format from .github/pull_request_template.md.
 - Check the current branch name to extract the ticket code (e.g., from `feat/NASS-1712-description`)
 - Review the conversation history to understand what work was accomplished
 - Use `git diff main --name-only | cat` to see all files changed since branching from main
-- Use `git log --oneline main..HEAD` to see commit messages for context on what was done
+- Use `git log --oneline main..HEAD | cat` to see commit messages for context on what was done
 - Create a PR title in the format: `type: TICKET-123: description`
 - Use the same conventional commit type that matches the branch type and work done
 - For the PR description, use the template format:
@@ -73,3 +73,7 @@ doc: NASS-1712: restructure LLM system to capture institutional knowledge
 - Only looking at recent changes instead of the full branch diff
 - Modifying the template structure or removing sections
 - Forgetting to commit rule updates before generating the final PR
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology in PR titles and descriptions

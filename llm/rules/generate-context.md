@@ -4,7 +4,9 @@ Create and update documentation when exploring areas of the codebase to preserve
 
 # Context
 
-Create or update documentation when exploring areas of the codebase during development sessions to capture institutional knowledge.
+Use this rule when you need to create context documentation for a specific area of the codebase that you've been exploring during a development session.
+
+This helps capture the understanding you've built up about how different parts of the system work together.
 
 # Process
 
@@ -43,3 +45,7 @@ Create or update documentation when exploring areas of the codebase during devel
 - Creating docs that are too broad
 - Including outdated information without verification
 - Not linking to actual code files being discussed
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology throughout context documentation

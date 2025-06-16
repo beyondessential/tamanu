@@ -17,6 +17,7 @@ Use this for:
   - **Context**: When and why this rule should be used (be specific about triggers)
   - **Process**: Step-by-step instructions for the LLM to follow
   - **Avoid**: Common pitfalls, anti-patterns, or mistakes to prevent - only include things that actually came up in the conversation, don't add generic bullet points
+  - **Notes**: Include guidance about using Australian/NZ English spelling and terminology
 - Write instructions directly for the LLM (use "you" to address the LLM)
 - Include specific commands, file paths, and code patterns where relevant
 - Make the process actionable - each step should be something the LLM can execute
@@ -28,3 +29,7 @@ Use this for:
 - Creating steps that aren't actionable for an LLM
 - Making rules too broad or complex
 - Adding bullet points to the Avoid section just for the sake of it - only include what's genuinely relevant
+
+# Notes
+
+- Always include a Notes section in new rules with guidance about using Australian/NZ English spelling and terminology

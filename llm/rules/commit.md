@@ -8,7 +8,8 @@ The project requires conventional commit format for PR titles, and it's good pra
 
 - Check what files are staged using `git status --porcelain` (avoid `git status` alone as it can be verbose)
 - If you need to see changes, use `git diff --cached --name-only` for file list or `git diff --cached --stat` for summary
-- Analyze the staged changes to understand what type of work was done
+- If you need to see actual diff content, use `git diff --cached | cat` to avoid paging issues
+- Analyse the staged changes to understand what type of work was done
 - Determine the appropriate conventional commit type:
   - `feat` for new features
   - `fix` for bug fixes
@@ -32,5 +33,8 @@ Example: `git commit -m "doc: restructure LLM documentation system"`
 - Using past tense in commit messages (e.g., "added" instead of "add")
 - Making commit messages too vague or too detailed
 - Forgetting to check what's actually staged before committing
-- Using commands that produce paged output like `git diff` without `| cat` or specific flags
-- Commands like `git log` or `git show` that will open a pager
+- Using commands that produce paged output like `git diff`, `git log`, or `git show` without `| cat`
+
+# Notes
+
+- Use Australian/NZ English spelling (e.g., "organise", "colour", "centre") instead of American English (e.g., "organize", "color", "center")

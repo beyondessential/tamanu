@@ -30,3 +30,7 @@ Example structure:
 - Leading with the solution instead of the problem
 - Using overly directive language - prefer gentle suggestions like "we could" or "we can"
 - Using bold formatting - keep all text plain
+
+# Notes
+
+- Use Australian/NZ English spelling and terminology in ticket descriptions
