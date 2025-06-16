@@ -1,8 +1,6 @@
-import {
-  FACT_CURRENT_SYNC_TICK,
-  NOTE_RECORD_TYPES,
-} from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, NOTE_RECORD_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
+
 import { makeTwoPatients } from '../admin/patientMerge/makeTwoPatients';
 import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
@@ -22,7 +20,7 @@ jest.mock('config', () => ({
 describe('Sync Patient Merge', () => {
   let ctx;
   let models;
-  let keep, merge, facility, mergeEnc, mergeEnc2;
+  let keep, merge, facility, mergeEnc, mergeEnc2, examiner;
 
   const setupMergeData = async () => {
     const { Encounter, Facility, Department, Location, User, PatientFacility, LocalSystemFact } =
@@ -47,7 +45,7 @@ describe('Sync Patient Merge', () => {
       facilityId: facility.id,
     });
 
-    const examiner = await User.create(fakeUser());
+    examiner = await User.create(fakeUser());
 
     const baseEncounter = {
       locationId: location.id,
@@ -103,7 +101,7 @@ describe('Sync Patient Merge', () => {
     await models.SyncLookup.truncate({ cascade: true, force: true });
   });
 
-  it('pulls child records (notes) of merged encounters after merging patients', async () => {
+  it('pulls child records (notes and lab requests) of merged encounters after merging patients', async () => {
     const { LocalSystemFact } = models;
 
     await setupMergeData();
@@ -119,14 +117,25 @@ describe('Sync Patient Merge', () => {
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     });
 
+    const labRequest = await models.LabRequest.create({
+      ...fake(models.LabRequest),
+      encounterId: mergeEnc.id,
+      status: LAB_REQUEST_STATUSES.PUBLISHED,
+      requestedById: examiner.id,
+    });
+
+    const centralSyncManager = new CentralSyncManager(ctx);
+    const { sessionId } = await centralSyncManager.startSession();
+
+    // update lookup table for pre-merge data
+    await centralSyncManager.updateLookupTable();
+
     const NEW_SYNC_TICK = '4';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
 
-    const centralSyncManager = new CentralSyncManager(ctx);
-    const { sessionId } = await centralSyncManager.startSession();
-
+    // update lookup table for post-merge data
     await centralSyncManager.updateLookupTable();
 
     // Start the snapshot for pull process
@@ -140,12 +149,14 @@ describe('Sync Patient Merge', () => {
       () => true,
     );
 
-    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
-      limit: 10,
-    });
+    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const notes = changes.filter((c) => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
     expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
+
+    const labRequests = changes.filter((c) => c.recordType === 'lab_requests');
+    expect(labRequests).toHaveLength(1);
+    expect(labRequests[0].recordId).toEqual(labRequest.id);
   });
 
   it('pulls child records (notes) of merged patient_care_plans after merging patients', async () => {
@@ -194,24 +205,20 @@ describe('Sync Patient Merge', () => {
       () => true,
     );
 
-    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
-      limit: 10,
-    });
+    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const notes = changes.filter((c) => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
     expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
   });
 
   it('pulls child records (contributing_death_causes) of merged patient_death_data after merging patients', async () => {
-    const { LocalSystemFact, User, ReferenceData } = models;
+    const { LocalSystemFact, ReferenceData } = models;
 
     await setupMergeData();
 
-    const clinician = await User.create(fakeUser());
-
     const patientDeathData = await models.PatientDeathData.create({
       ...fake(models.PatientDeathData),
-      clinicianId: clinician.id,
+      clinicianId: examiner.id,
       patientId: merge.id,
     });
 
@@ -248,9 +255,7 @@ describe('Sync Patient Merge', () => {
       () => true,
     );
 
-    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
-      limit: 10,
-    });
+    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const contributingDeathCauses = changes.filter(
       (c) => c.recordType === 'contributing_death_causes',
     );
@@ -299,9 +304,7 @@ describe('Sync Patient Merge', () => {
       () => true,
     );
 
-    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
-      limit: 10,
-    });
+    const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const notes = changes.filter((c) => c.recordType === 'notes');
 
     expect(notes).toHaveLength(0);
