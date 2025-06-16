@@ -45,30 +45,23 @@ export function generateTranslationsForData(model, sheetName, values) {
 
   if (isTranslatable && isValidTable) {
     const recordText = extractTranslatableRecordText(values, dataType);
-
     if (isString(recordText)) {
-      translationData.push([
-        `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-        recordText,
-        DEFAULT_LANGUAGE_CODE,
-      ]);
+      const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
+      translationData.push([stringId, recordText, DEFAULT_LANGUAGE_CODE]);
     }
 
     // Handle records with multiple translatable text fields by adding another layer of nesting
     if (isObject(recordText)) {
-      Object.entries(recordText).forEach(([key, value]) => {
-        translationData.push([
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`,
-          value,
-          DEFAULT_LANGUAGE_CODE,
-        ]);
+      Object.entries(recordText).forEach(([key, text]) => {
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
+        if (text) {
+          translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
+        }
       });
     }
-
     const options = extractTranslatableOptions(values, dataType);
-
-    // Create translations for reference data record options if they exist
-    // This includes patient_field_definition options
+    // // Create translations for reference data record options if they exist
+    // // This includes patient_field_definition options
     if (options.length > 0) {
       for (const option of options) {
         translationData.push([
@@ -86,14 +79,19 @@ export function generateTranslationsForData(model, sheetName, values) {
 export async function bulkUpsertTranslationDefaults(models, translationData) {
   if (translationData.length === 0) return;
 
+  // throw out duplicate stringIds from invalid configuration to prevent confusing errors
+  const filteredTranslationData = translationData.filter(
+    (item, index, self) => self.findIndex((t) => t[0] === item[0]) === index,
+  );
+
   await models.TranslatedString.sequelize.query(
     `
       INSERT INTO translated_strings (string_id, text, language)
-      VALUES ${translationData.map(() => '(?)').join(',')}
+      VALUES ${filteredTranslationData.map(() => '(?)').join(',')}
         ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
     `,
     {
-      replacements: translationData,
+      replacements: filteredTranslationData,
       type: models.TranslatedString.sequelize.QueryTypes.INSERT,
     },
   );
