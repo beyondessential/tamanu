@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+
 import {
   ButtonRow,
   Heading3,
@@ -10,10 +12,6 @@ import {
   Table,
   TranslatedText,
 } from '../../../components';
-
-const LeftAlignedButton = styled(OutlinedButton)`
-  margin-right: auto;
-`;
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import {
   culturalName,
@@ -26,7 +24,11 @@ import {
 } from '../columns';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
 import { reloadPatient } from '../../../store';
-import { useDispatch } from 'react-redux';
+import { CancelNewPatientConfirmationModal } from './CancelNewPatientConfirmationModal';
+
+const LeftAlignedButton = styled(OutlinedButton)`
+  margin-right: auto;
+`;
 
 const COLUMNS = [displayId, firstName, lastName, culturalName, dateOfBirth, sex, village];
 
@@ -42,6 +44,8 @@ export const DuplicatePatientWarningModal = ({
 
   const { proposedPatient, potentialDuplicates } = warningModalData;
 
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = React.useState(false);
+
   const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
@@ -52,114 +56,122 @@ export const DuplicatePatientWarningModal = ({
   console.log(warningModalData);
 
   return (
-    <Modal
-      width="lg"
-      title={
-        <TranslatedText
-          stringId="patient.modal.create.title"
-          fallback="Add new patient"
-          data-testid="translatedtext-title"
+    <>
+      <Modal
+        width="lg"
+        title={
+          <TranslatedText
+            stringId="patient.modal.create.title"
+            fallback="Add new patient"
+            data-testid="translatedtext-title"
+          />
+        }
+        open={open}
+        onClose={() => handleClose(false)}
+        data-testid="modal-dgog"
+      >
+        <Heading3>
+          {isPlural ? (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.heading.plural"
+              fallback="Possible duplicate patient records"
+              data-testid="translatedtext-heading"
+            />
+          ) : (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.heading"
+              fallback="Possible duplicate patient record"
+              data-testid="translatedtext-heading"
+            />
+          )}
+        </Heading3>
+        <LargeBodyText color="textTertiary">
+          {isPlural ? (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.description.plural"
+              fallback="The below patient records already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
+              data-testid="translatedtext-description"
+            />
+          ) : (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.description"
+              fallback="The below patient record already exists. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
+              data-testid="translatedtext-description"
+            />
+          )}
+        </LargeBodyText>
+        <Heading4>
+          {isPlural ? (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.existingRecordsHeading.plural"
+              fallback="Existing patient records in Tamanu"
+              data-testid="translatedtext-existing-heading"
+            />
+          ) : (
+            <TranslatedText
+              stringId="patient.modal.duplicateWarning.existingRecordsHeading"
+              fallback="Existing patient record in Tamanu"
+              data-testid="translatedtext-existing-heading"
+            />
+          )}
+        </Heading4>
+        <Table
+          columns={COLUMNS}
+          data={potentialDuplicates}
+          onRowClick={row => {
+            dispatch(reloadPatient(row.id));
+            navigateToPatient(row.id);
+          }}
         />
-      }
-      open={open}
-      onClose={() => handleClose(false)}
-      data-testid="modal-dgog"
-    >
-      <Heading3>
-        {isPlural ? (
+        <Heading4>
           <TranslatedText
-            stringId="patient.modal.duplicateWarning.heading.plural"
-            fallback="Possible duplicate patient records"
-            data-testid="translatedtext-heading"
+            stringId="patient.modal.duplicateWarning.proposedRecordHeading"
+            fallback="Proposed new patient record"
+            data-testid="translatedtext-proposed-heading"
           />
-        ) : (
-          <TranslatedText
-            stringId="patient.modal.duplicateWarning.heading"
-            fallback="Possible duplicate patient record"
-            data-testid="translatedtext-heading"
-          />
-        )}
-      </Heading3>
-      <LargeBodyText color="textTertiary">
-        {isPlural ? (
-          <TranslatedText
-            stringId="patient.modal.duplicateWarning.description.plural"
-            fallback="The below patient records already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
-            data-testid="translatedtext-description"
-          />
-        ) : (
-          <TranslatedText
-            stringId="patient.modal.duplicateWarning.description"
-            fallback="The below patient record already exists. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
-            data-testid="translatedtext-description"
-          />
-        )}
-      </LargeBodyText>
-      <Heading4>
-        {isPlural ? (
-          <TranslatedText
-            stringId="patient.modal.duplicateWarning.existingRecordsHeading.plural"
-            fallback="Existing patient records in Tamanu"
-            data-testid="translatedtext-existing-heading"
-          />
-        ) : (
-          <TranslatedText
-            stringId="patient.modal.duplicateWarning.existingRecordsHeading"
-            fallback="Existing patient record in Tamanu"
-            data-testid="translatedtext-existing-heading"
-          />
-        )}
-      </Heading4>
-      <Table
-        columns={COLUMNS}
-        data={potentialDuplicates}
-        onRowClick={row => {
-          dispatch(reloadPatient(row.id));
-          navigateToPatient(row.id);
+        </Heading4>
+        <Table columns={COLUMNS} data={[proposedPatient]} />
+        <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
+        <ButtonRow data-testid="buttonrow-5x0v">
+          <LeftAlignedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
+            <TranslatedText
+              stringId="general.action.back"
+              fallback="Back"
+              data-testid="translatedtext-back"
+            />
+          </LeftAlignedButton>
+          <OutlinedButton
+            data-testid="outlinedbutton-p957"
+            onClick={() => setShowCancelConfirmModal(true)}
+          >
+            <TranslatedText
+              stringId="general.action.cancel"
+              fallback="Cancel"
+              data-testid="translatedtext-cancel"
+            />
+          </OutlinedButton>
+          <OutlinedButton
+            variant="contained"
+            data-testid="confirmbutton-y3tb"
+            onClick={() => handleClose(true)}
+          >
+            <TranslatedText
+              stringId="patient.action.addNewPatient"
+              fallback="Add new patient"
+              data-testid="translatedtext-confirm"
+            />
+          </OutlinedButton>
+        </ButtonRow>
+      </Modal>
+      <CancelNewPatientConfirmationModal
+        open={showCancelConfirmModal}
+        onClose={() => setShowCancelConfirmModal(false)}
+        onCancelConfirm={() => {
+          setShowCancelConfirmModal(false);
+          setShowWarningModal(false);
+          onCancelNewPatient();
         }}
       />
-      <Heading4>
-        <TranslatedText
-          stringId="patient.modal.duplicateWarning.proposedRecordHeading"
-          fallback="Proposed new patient record"
-          data-testid="translatedtext-proposed-heading"
-        />
-      </Heading4>
-      <Table columns={COLUMNS} data={[proposedPatient]} />
-      <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
-      <ButtonRow data-testid="buttonrow-5x0v">
-        <LeftAlignedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
-          <TranslatedText
-            stringId="general.action.back"
-            fallback="Back"
-            data-testid="translatedtext-back"
-          />
-        </LeftAlignedButton>
-        <OutlinedButton
-          data-testid="outlinedbutton-p957"
-          onClick={() => {
-            handleClose(false);
-            onCancelNewPatient();
-          }}
-        >
-          <TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-            data-testid="translatedtext-cancel"
-          />
-        </OutlinedButton>
-        <OutlinedButton
-          variant="contained"
-          data-testid="confirmbutton-y3tb"
-          onClick={() => handleClose(true)}
-        >
-          <TranslatedText
-            stringId="patient.action.addNewPatient"
-            fallback="Add new patient"
-            data-testid="translatedtext-confirm"
-          />
-        </OutlinedButton>
-      </ButtonRow>
-    </Modal>
+    </>
   );
 };
