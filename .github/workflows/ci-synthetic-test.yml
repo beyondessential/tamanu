@@ -69,6 +69,6 @@ jobs:
           command: run packages/synthetic-tests/src/scenarios/create-patient.yml
 
       - name: Re-trigger synthetic test
-        run: gh workflow run ci-synthetic-test.yml
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run ci-synthetic-test.yml
