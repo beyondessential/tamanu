@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import config from 'config';
 import { chunk, omit, omitBy } from 'lodash';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
@@ -364,8 +365,8 @@ export async function refreshMultiChildRecordsForSync(model, records) {
  * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
  * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
  * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
- * @param {*} models 
- * @param {*} unwantedPatientId 
+ * @param {*} models
+ * @param {*} unwantedPatientId
  */
 async function updateDependentRecordsForResync(models, unwantedPatientId) {
   // Encounters
@@ -390,7 +391,13 @@ async function updateDependentRecordsForResync(models, unwantedPatientId) {
   await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
 }
 
-export async function mergePatient(models, keepPatientId, unwantedPatientId) {
+export async function mergePatient(
+  models,
+  keepPatientId,
+  unwantedPatientId,
+  updateDependentRecordsForResyncEnabled = config.patientMerge
+    .updateDependentRecordsForResyncEnabled,
+) {
   const { sequelize } = models.Patient;
 
   if (keepPatientId === unwantedPatientId) {
@@ -427,7 +434,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     });
 
     // See the function's documentation for more details on why this is needed
-    await updateDependentRecordsForResync(models, unwantedPatientId);
+    if (updateDependentRecordsForResyncEnabled) {
+      await updateDependentRecordsForResync(models, unwantedPatientId);
+    }
 
     updates.Patient = 2;
 
