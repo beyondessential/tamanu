@@ -75,8 +75,8 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - name: Build shared packages
-        run: npm run build-shared
+      - run: npm ci
+      - run: npm run build-shared
 
       - name: Run artillery test
         uses: artilleryio/action-cli@v1
