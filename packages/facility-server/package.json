@@ -11,7 +11,7 @@
   "bin": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./schemas/patient": "./dist/routes/apiv1/patient/patient.schema.js",
+    "./schemas/patient.schema": "./dist/routes/apiv1/patient/patient.schema.js"
   },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",

@@ -1,11 +1,11 @@
 config:
-  target: https://facility-1.feature-synthetic-test-setup.cd.tamanu.app
+  target: http://localhost:4000
   processor: '../hooks/authenticate.ts'
   phases:
     - duration: 60
-      arrivalRate: 1
-    - duration: 300
       arrivalRate: 10
+    - duration: 300
+      arrivalRate: 50
 
 scenarios:
   - name: Create patient

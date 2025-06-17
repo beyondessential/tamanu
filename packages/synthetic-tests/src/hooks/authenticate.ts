@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { fakeCreatePatientRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createPatient';
 
 function extractUserIdFromJwt(token: string): string {
   const tokenParts = token.split('.');
@@ -9,35 +9,14 @@ function extractUserIdFromJwt(token: string): string {
   throw new Error('Invalid JWT token format');
 }
 
-function generateNHN() {
-  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
-  const numbers = faker.string.numeric(6);
-  const generatedId = `${letters}${numbers}`;
-
-  return generatedId;
-}
-
 export async function generatePatientPayload(context: any, _events: any): Promise<void> {
-  const gender = faker.helpers.arrayElement(['male', 'female']);
-  const firstName = faker.person.firstName(gender);
-  const lastName = faker.person.lastName();
-  const dob = faker.date.birthdate({ min: 0, max: 95, mode: 'age' });
-  const formattedDOB = dob.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  const nhn = generateNHN();
-  const culturalName = faker.person.middleName(gender);
-  context.vars.patientPayload = {
-    birthFacilityId: null,
-    dateOfBirth: formattedDOB,
-    displayId: nhn,
+  const testBody = fakeCreatePatientRequestBody({
     facilityId: context.vars.facilityId,
-    firstName: firstName,
-    lastName: lastName,
     patientRegistryType: 'new_patient',
     registeredById: context.vars.userId,
-    sex: gender,
-    villageId: 'village-Dama',
-    culturalName: culturalName,
-  };
+  });
+
+  context.vars.patientPayload = testBody;
 }
 
 export async function authenticate(context: any, _events: any): Promise<void> {

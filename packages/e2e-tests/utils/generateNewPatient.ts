@@ -1,36 +1,19 @@
-import { faker } from '@faker-js/faker';
 import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
 import { constructFacilityUrl } from './navigation';
-import { testData } from '../utils/testData';
-
-function generateNHN() {
-  const letters = faker.string.alpha({ length: 4, casing: 'upper' });
-  const numbers = faker.string.numeric(6);
-  const generatedId = `${letters}${numbers}`;
-
-  return generatedId;
-}
-
-// TODO: Refactor to use `fake-data` when importing is workings
-function generatePatientData() {
-  const gender = faker.helpers.arrayElement(['male', 'female']);
-  const firstName = faker.person.firstName(gender);
-  const lastName = faker.person.lastName();
-  const dob = faker.date.birthdate({ min: 0, max: 95, mode: 'age' });
-  const formattedDOB = dob.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  const nhn = generateNHN();
-  const culturalName = faker.person.middleName(gender);
-  const village = testData.village;
-  return { firstName, lastName, gender, formattedDOB, nhn, culturalName, village, id: '' };
-}
+import { fakeCreatePatientRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createPatient';
 
 export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
-  const patientData = generatePatientData();
-  allPatientsPage.setPatientData(patientData);
-
   const token = await getItemFromLocalStorage(allPatientsPage, 'apiToken');
   const userData = await getCurrentUser(token);
   const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
+
+  const patientData = fakeCreatePatientRequestBody({
+    facilityId: currentFacilityId,
+    registeredById: userData.id,
+    patientRegistryType: 'new_patient',
+  });
+
+  console.log('Patient data:', patientData);
 
   const apiPatientUrl = constructFacilityUrl(`/api/patient`);
 
@@ -40,19 +23,7 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
       authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      birthFacilityId: null,
-      dateOfBirth: patientData.formattedDOB,
-      displayId: patientData.nhn,
-      facilityId: currentFacilityId,
-      firstName: patientData.firstName,
-      lastName: patientData.lastName,
-      patientRegistryType: 'new_patient',
-      registeredById: userData.id,
-      sex: patientData.gender,
-      villageId:testData.VillageID,
-      culturalName: patientData.culturalName
-    }),
+    body: JSON.stringify(patientData),
   });
 
   if (!response.ok) {
@@ -60,9 +31,11 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   }
 
   const result = await response.json();
-  patientData.id = result.id; // Store the ID from response
-  allPatientsPage.setPatientData(patientData); // Update patient data with ID
-  return result;
+  patientData.id = result.id;
+
+  allPatientsPage.setPatientData(patientData);
+
+  return;
 }
 
 export async function getCurrentUser(token: string) {

@@ -1,1 +1,1 @@
-export * from './fakeCreatePatient.js';
+export * from './createPatient.js';
