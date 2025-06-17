@@ -176,12 +176,12 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
               { replacements: { shortLabel } },
             ),
           })
-          .required(
-            getTranslation(
-              'encounter.delete.validation.displayIdRequired',
-              ':shortLabel is required',
-              { replacements: { shortLabel } },
-            ),
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.displayId.label.short"
+              fallback="NHN"
+              data-testid="translatedtext-displayid-label"
+            />,
           ),
       })}
       onSubmit={onSubmit}
