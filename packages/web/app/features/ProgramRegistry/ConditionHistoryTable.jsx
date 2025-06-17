@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { DateDisplay, Heading5, TranslatedEnum, TranslatedText } from '../../components';
+import { DateDisplay, Heading5, TranslatedReferenceData, TranslatedText } from '../../components';
 
 const HistorySection = styled.section`
   display: flex;
@@ -63,9 +62,10 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
                 />
               </HistoryItemLabel>
               <HistoryItemValue>
-                <TranslatedEnum
-                  value={entry.data.conditionCategory}
-                  enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+                <TranslatedReferenceData
+                  value={entry.data.programRegistryConditionCategory.id}
+                  fallback={entry.data.programRegistryConditionCategory.name}
+                  category="programRegistryConditionCategory"
                 />
               </HistoryItemValue>
             </HistoryItemRow>

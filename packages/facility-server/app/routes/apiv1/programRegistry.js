@@ -97,6 +97,15 @@ programRegistry.get(
 );
 
 programRegistry.get(
+  '/:id/conditionCategories',
+  simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId', {
+    additionalFilters: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  }),
+);
+
+programRegistry.get(
   '/:id/registrations',
   asyncHandler(async (req, res) => {
     const {
