@@ -34,7 +34,9 @@ export const ProcedureForm = React.memo(
     editedObject,
     anaestheticSuggester,
     procedureSuggester,
-    practitionerSuggester,
+    physicianSuggester,
+    anaesthetistSuggester,
+    assistantSuggester,
   }) => {
     const { currentUser } = useAuth();
 
@@ -102,7 +104,7 @@ export const ProcedureForm = React.memo(
                     }
                     required
                     component={AutocompleteField}
-                    suggester={practitionerSuggester}
+                    suggester={physicianSuggester}
                     data-testid="field-lit6"
                   />
                   <Field
@@ -180,7 +182,7 @@ export const ProcedureForm = React.memo(
                     />
                   }
                   component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  suggester={anaesthetistSuggester}
                   data-testid="field-96eg"
                 />
                 <Field
@@ -208,7 +210,7 @@ export const ProcedureForm = React.memo(
                     />
                   }
                   component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  suggester={assistantSuggester}
                   data-testid="field-f3l4"
                 />
                 <Field
@@ -337,8 +339,9 @@ ProcedureForm.propTypes = {
 
   anaestheticSuggester: suggesterType.isRequired,
   procedureSuggester: suggesterType.isRequired,
-  locationSuggester: suggesterType.isRequired,
-  practitionerSuggester: suggesterType.isRequired,
+  physicianSuggester: suggesterType.isRequired,
+  anaesthetistSuggester: suggesterType.isRequired,
+  assistantSuggester: suggesterType.isRequired,
 };
 
 ProcedureForm.defaultProps = {
