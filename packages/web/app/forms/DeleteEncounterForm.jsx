@@ -68,8 +68,6 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
     reasonForEncounter,
   } = encounterToDelete;
 
-  console.log(encounterToDelete);
-
   return (
     <Form
       suppressErrorDialog
