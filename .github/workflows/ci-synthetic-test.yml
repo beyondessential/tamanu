@@ -5,18 +5,10 @@ on:
     types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
     inputs:
-      should_run:
-        description: 'Should run the synthetic test?'
-        required: true
-        default: 'true'
       target_url:
         description: 'Target URL for synthetic tests'
         required: false
-        default: 'http://localhost:4000'
-      retrigger:
-        description: 'Should retrigger the workflow when finished?'
-        required: false
-        default: 'true'
+        default: 'https://facility-1.feature-synthetic-test-setup.cd.tamanu.app'
 
 jobs:
   check-synthetic-test-request:
@@ -42,9 +34,9 @@ jobs:
             core.setOutput('target_url', dispatchTargetUrl || targetUrlMatch?.[1] || 'http://localhost:4000');
 
   node_modules_cache:
+    name: Cache node modules
     needs: check-synthetic-test-request
     if: needs.check-synthetic-test-request.outputs.should_run == 'true'
-    name: Cache node modules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,8 +57,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   synthetic-test:
-    needs: check-synthetic-test-request
-    if: needs.check-synthetic-test-request.outputs.should_run == 'true'
+    needs: node_modules_cache
     name: Synthetic Test
     runs-on: ubuntu-latest
     env:
@@ -84,10 +75,8 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
-
-      - name: Build packages
-        run: npm run build
+      - name: Build shared packages
+        run: npm run build-shared
 
       - name: Run artillery test
         uses: artilleryio/action-cli@v1
@@ -96,17 +85,10 @@ jobs:
           args: --target ${{ env.TARGET_URL }}
 
       - name: Re-trigger synthetic test
-        if: github.event_name != 'workflow_dispatch' && github.event.inputs.retrigger != 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Only retrigger if this is not already a retriggered run
-          if [[ "${{ github.event.head_commit.message }}" != *"[RETRIGGER]"* ]]; then
-            echo "Retriggering synthetic test workflow..."
-            gh workflow run ci-synthetic-test.yml \
-              --ref ${{ github.head_ref || github.ref }} \
-              --field target_url="${{ env.TARGET_URL }}" \
-              --field retrigger=false
-          else
-            echo "Skipping retrigger - this appears to be an already retriggered run"
-          fi
+          echo "Retriggering synthetic test workflow..."
+          gh workflow run ci-synthetic-test.yml \
+            --ref ${{ github.head_ref || github.ref }} \
+            --field target_url="${{ env.TARGET_URL }}"
