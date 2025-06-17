@@ -6,8 +6,9 @@ sources:
     tables:
       - name: notes
         description: '{{ doc("table__notes") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: death_revert_logs
         description: '{{ doc("table__death_revert_logs") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid

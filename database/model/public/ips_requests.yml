@@ -6,8 +6,9 @@ sources:
     tables:
       - name: ips_requests
         description: '{{ doc("table__ips_requests") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

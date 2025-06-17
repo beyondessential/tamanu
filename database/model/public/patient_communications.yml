@@ -6,8 +6,9 @@ sources:
     tables:
       - name: patient_communications
         description: '{{ doc("table__patient_communications") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

@@ -6,7 +6,9 @@ sources:
     tables:
       - name: encounter_pause_prescription_histories
         description: '{{ doc("table__encounter_pause_prescription_histories") }}'
-        tags: []
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: report_requests
         description: '{{ doc("table__report_requests") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)

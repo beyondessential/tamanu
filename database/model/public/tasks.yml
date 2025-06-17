@@ -6,7 +6,9 @@ sources:
     tables:
       - name: tasks
         description: '{{ doc("table__tasks") }}'
-        tags: []
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

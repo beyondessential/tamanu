@@ -6,8 +6,9 @@ sources:
     tables:
       - name: vital_logs
         description: '{{ doc("table__vital_logs") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

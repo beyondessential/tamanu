@@ -6,7 +6,9 @@ sources:
     tables:
       - name: prescriptions
         description: '{{ doc("table__prescriptions") }}'
-        tags: []
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

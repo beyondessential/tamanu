@@ -6,8 +6,9 @@ sources:
     tables:
       - name: patients
         description: '{{ doc("table__patients") }}'
-        tags:
-          - patient
+        config:
+          tags:
+            - patient
         columns:
           - name: id
             data_type: character varying(255)

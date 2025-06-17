@@ -6,7 +6,10 @@ sources:
     tables:
       - name: notes_legacy
         description: '{{ doc("table__notes_legacy") }}'
-        tags: []
+        config:
+          tags:
+            - clinical
+            - deprecated
         columns:
           - name: id
             data_type: character varying(255)

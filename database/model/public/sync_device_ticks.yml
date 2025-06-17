@@ -6,7 +6,9 @@ sources:
     tables:
       - name: sync_device_ticks
         description: '{{ doc("table__sync_device_ticks") }}'
-        tags: []
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: bigint

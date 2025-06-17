@@ -6,8 +6,9 @@ sources:
     tables:
       - name: invoice_insurer_payments
         description: '{{ doc("table__invoice_insurer_payments") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

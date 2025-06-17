@@ -6,9 +6,10 @@ sources:
     tables:
       - name: vitals
         description: '{{ doc("table__vitals") }}'
-        tags:
-          - clinical
-          - deprecated
+        config:
+          tags:
+            - clinical
+            - deprecated
         columns:
           - name: id
             data_type: character varying(255)

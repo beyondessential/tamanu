@@ -6,9 +6,10 @@ sources:
     tables:
       - name: note_pages
         description: '{{ doc("table__note_pages") }}'
-        tags:
-          - clinical
-          - deprecated
+        config:
+          tags:
+            - clinical
+            - deprecated
         columns:
           - name: id
             data_type: uuid

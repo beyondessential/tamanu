@@ -6,8 +6,9 @@ sources:
     tables:
       - name: imaging_request_areas
         description: '{{ doc("table__imaging_request_areas") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

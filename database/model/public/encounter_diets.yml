@@ -6,8 +6,9 @@ sources:
     tables:
       - name: encounter_diets
         description: '{{ doc("table__encounter_diets") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

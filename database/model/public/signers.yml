@@ -6,8 +6,9 @@ sources:
     tables:
       - name: signers
         description: '{{ doc("table__signers") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)

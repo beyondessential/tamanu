@@ -6,7 +6,9 @@ sources:
     tables:
       - name: medication_administration_records
         description: '{{ doc("table__medication_administration_records") }}'
-        tags: []
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

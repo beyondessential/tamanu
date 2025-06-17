@@ -6,8 +6,9 @@ sources:
     tables:
       - name: user_facilities
         description: '{{ doc("table__user_facilities") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)

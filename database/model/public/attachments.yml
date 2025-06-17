@@ -6,8 +6,9 @@ sources:
     tables:
       - name: attachments
         description: '{{ doc("table__attachments") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

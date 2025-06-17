@@ -6,8 +6,9 @@ sources:
     tables:
       - name: patient_field_values
         description: '{{ doc("table__patient_field_values") }}'
-        tags:
-          - patient
+        config:
+          tags:
+            - patient
         columns:
           - name: created_at
             data_type: timestamp with time zone

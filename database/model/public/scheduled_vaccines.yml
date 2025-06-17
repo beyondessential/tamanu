@@ -6,8 +6,9 @@ sources:
     tables:
       - name: scheduled_vaccines
         description: '{{ doc("table__scheduled_vaccines") }}'
-        tags:
-          - reference
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
