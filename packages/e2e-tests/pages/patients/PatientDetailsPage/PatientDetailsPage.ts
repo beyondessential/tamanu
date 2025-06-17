@@ -246,7 +246,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
     await this.dropdownMenuItem.waitFor({ state: 'hidden' });
-    await this.page.waitForTimeout(2000);
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
