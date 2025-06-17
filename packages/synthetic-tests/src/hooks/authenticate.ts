@@ -10,11 +10,15 @@ function extractUserIdFromJwt(token: string): string {
 }
 
 export async function generatePatientPayload(context: any, _events: any): Promise<void> {
-  const testBody = fakeCreatePatientRequestBody({
-    facilityId: context.vars.facilityId,
-    patientRegistryType: 'new_patient',
-    registeredById: context.vars.userId,
-  });
+  const testBody = fakeCreatePatientRequestBody(
+    {
+      facilityId: context.vars.facilityId,
+      registeredById: context.vars.userId,
+    },
+    {
+      patientRegistryType: 'new_patient',
+    },
+  );
 
   context.vars.patientPayload = testBody;
 }

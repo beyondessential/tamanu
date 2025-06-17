@@ -15,6 +15,10 @@ const overrideForeignKeys = (schemaShape: z.ZodRawShape, mock: Record<string, an
 };
 
 export const fakeCreatePatientRequestBody = (
+  required: {
+    registeredById: string;
+    facilityId: string;
+  },
   overrides?: Partial<z.infer<typeof createPatientSchema>>,
 ) => {
   const schemaShape = createPatientSchema.shape;
@@ -30,7 +34,11 @@ export const fakeCreatePatientRequestBody = (
 
   mock.patientFields = {};
 
-  const final = { ...overrideForeignKeys(schemaShape, mock), ...overrides };
+  const final = {
+    ...overrideForeignKeys(schemaShape, mock),
+    ...overrides,
+    ...required,
+  };
 
   return final;
 };
