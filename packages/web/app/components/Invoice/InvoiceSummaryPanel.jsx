@@ -10,7 +10,7 @@ import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
-import { Button } from '../Button';
+import { Button, DefaultIconButton } from '../Button';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
@@ -19,6 +19,7 @@ import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
 import { useSuggester } from '../../api';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -49,7 +50,7 @@ const DiscountedPrice = styled.div`
   flex-shrink: 0;
 `;
 
-const IconButton = styled.span`
+const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
   position: relative;
   top: 1px;
@@ -88,7 +89,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
 
   const insurerSuggester = useSuggester('insurer');
 
-  const preventInvalid = (event) => {
+  const preventInvalid = event => {
     if (!event.target.validity.valid) {
       event.target.value = '';
     }
@@ -96,7 +97,7 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
 
   return (
     <FieldArray name="insurers" data-testid="fieldarray-f3fl">
-      {(formArrayMethods) => {
+      {formArrayMethods => {
         return (
           <CardItem flexDirection="column" data-testid="carditem-p9rg">
             {!!insurers.length && (
@@ -117,25 +118,29 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
               >
                 <Box display="flex" style={{ gap: '8px', flex: 1 }}>
                   <Box style={{ flex: 1 }}>
-                    <Field
-                      name={`insurers.${index}.insurerId`}
-                      required
-                      component={AutocompleteField}
-                      suggester={insurerSuggester}
-                      style={{ width: '100%' }}
-                      data-testid={`field-6jf7-${index}`}
-                    />
+                    <NoteModalActionBlocker>
+                      <Field
+                        name={`insurers.${index}.insurerId`}
+                        required
+                        component={AutocompleteField}
+                        suggester={insurerSuggester}
+                        style={{ width: '100%' }}
+                        data-testid={`field-6jf7-${index}`}
+                      />
+                    </NoteModalActionBlocker>
                   </Box>
-                  <Field
-                    name={`insurers.${index}.percentage`}
-                    component={NumberField}
-                    min={1}
-                    max={100}
-                    onInput={preventInvalid}
-                    required
-                    style={{ width: '70px' }}
-                    data-testid={`field-v5p9-${index}`}
-                  />
+                  <NoteModalActionBlocker>
+                    <Field
+                      name={`insurers.${index}.percentage`}
+                      component={NumberField}
+                      min={1}
+                      max={100}
+                      onInput={preventInvalid}
+                      required
+                      style={{ width: '70px' }}
+                      data-testid={`field-v5p9-${index}`}
+                    />
+                  </NoteModalActionBlocker>
                   <Box marginTop="11px" data-testid={`box-mtns-${index}`}>
                     %
                   </Box>
@@ -152,44 +157,42 @@ const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
                   {insurerDiscountAmountDisplayList[index]
                     ? `-${insurerDiscountAmountDisplayList[index]}`
                     : ''}
-                  <RemoveInsurerButton
-                    onClick={() => formArrayMethods.remove(index)}
-                    data-testid={`removeinsurerbutton-7h8t-${index}`}
-                  >
-                    <CloseIcon />
-                  </RemoveInsurerButton>
+                  <NoteModalActionBlocker>
+                    <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
+                      <CloseIcon />
+                    </RemoveInsurerButton>
+                  </NoteModalActionBlocker>
                 </Box>
               </Box>
             ))}
-            <AddInsurerButton
-              variant="text"
-              disableRipple
-              onClick={() => {
-                formArrayMethods.push({
-                  id: uuidv4(),
-                  percentage:
-                    !insurers?.length && defaultContributionInsurer
-                      ? defaultContributionInsurer * 100
-                      : undefined,
-                });
-              }}
-              data-testid="addinsurerbutton-zsf0"
-            >
-              {'+ '}
-              {insurers.length ? (
-                <TranslatedText
-                  stringId="invoice.summary.action.addAnotherInsurer"
-                  fallback="Add another insurer"
-                  data-testid="translatedtext-j0rc"
-                />
-              ) : (
-                <TranslatedText
-                  stringId="invoice.summary.action.addInsurer"
-                  fallback="Add insurer"
-                  data-testid="translatedtext-79ap"
-                />
-              )}
-            </AddInsurerButton>
+            <NoteModalActionBlocker>
+              <AddInsurerButton
+                variant="text"
+                disableRipple
+                onClick={() => {
+                  formArrayMethods.push({
+                    id: uuidv4(),
+                    percentage:
+                      !insurers?.length && defaultContributionInsurer
+                        ? defaultContributionInsurer * 100
+                        : undefined,
+                  });
+                }}
+              >
+                {'+ '}
+                {insurers.length ? (
+                  <TranslatedText
+                    stringId="invoice.summary.action.addAnotherInsurer"
+                    fallback="Add another insurer"
+                  />
+                ) : (
+                  <TranslatedText
+                    stringId="invoice.summary.action.addInsurer"
+                    fallback="Add insurer"
+                  />
+                )}
+              </AddInsurerButton>
+            </NoteModalActionBlocker>
           </CardItem>
         );
       }}
@@ -233,7 +236,7 @@ const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
 export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) => {
   const formikContext = useFormikContext();
   const insurers =
-    formikContext?.values?.insurers?.map((insurer) => ({
+    formikContext?.values?.insurers?.map(insurer => ({
       ...insurer,
       percentage: isNaN(parseFloat(insurer.percentage)) ? undefined : insurer.percentage / 100,
     })) ||
@@ -322,13 +325,14 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           data-testid="translatedtext-5iru"
         />
         {editable && !invoice.discount && (
-          <Button onClick={handleEditDiscount} data-testid="button-lxbh">
-            <TranslatedText
-              stringId="invoice.summary.action.addDiscount"
-              fallback="Add discount"
-              data-testid="translatedtext-hng4"
-            />
-          </Button>
+          <NoteModalActionBlocker>
+            <Button onClick={handleEditDiscount}>
+              <TranslatedText
+                stringId="invoice.summary.action.addDiscount"
+                fallback="Add discount"
+              />
+            </Button>
+          </NoteModalActionBlocker>
         )}
         {!!invoice.discount && (
           <DiscountedPrice data-testid="discountedprice-nuxm">
@@ -385,9 +389,11 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             </ThemedTooltip>
           </DescriptionText>
           {editable && (
-            <IconButton onClick={handleEditDiscount} data-testid="iconbutton-w66q">
-              <PencilIcon data-testid="pencilicon-12fm" />
-            </IconButton>
+            <NoteModalActionBlocker>
+              <IconButton onClick={handleEditDiscount}>
+                <PencilIcon />
+              </IconButton>
+            </NoteModalActionBlocker>
           )}
         </CardItem>
       )}

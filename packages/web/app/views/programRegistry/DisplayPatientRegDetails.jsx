@@ -13,6 +13,7 @@ import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal
 import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const Row = styled.div`
   display: flex;
@@ -84,10 +85,12 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
     {
       label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
       action: () => setOpenRemoveProgramRegistryFormModal(true),
+      wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
     },
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setOpenDeleteProgramRegistryFormModal(true),
+      wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
     },
   ];
 
@@ -193,9 +196,19 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           }
           visible={isRemoved}
         >
-          <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-            <TranslatedText stringId="general.action.update" fallback="Update" />
-          </OutlinedButton>
+          <NoteModalActionBlocker>
+            <OutlinedButton
+              onClick={() => setOpenChangeStatusFormModal(true)}
+              disabled={isRemoved}
+              data-testid="outlinedbutton-ixex"
+            >
+              <TranslatedText
+                stringId="general.action.changeStatus"
+                fallback="Change status"
+                data-testid="translatedtext-hexl"
+              />
+            </OutlinedButton>
+          </NoteModalActionBlocker>
         </ConditionalTooltip>
         <PatientProgramRegistryUpdateModal
           patientProgramRegistration={patientProgramRegistration}
@@ -225,7 +238,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           if (success) {
             navigateToPatient(patientProgramRegistration.patientId);
           } else {
-            setOpenDeleteProgramRegistryFormModal(true);
+            setOpenDeleteProgramRegistryFormModal(false);
           }
         }}
       />

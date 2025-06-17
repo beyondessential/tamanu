@@ -13,7 +13,7 @@ const ThreeDotMenuItem = styled(MenuItem)`
   margin-left: 4px;
   margin-right: 4px;
   white-space: normal;
-  ${(props) => (props.$color ? `color: ${props.$color};` : '')} :hover {
+  ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
     background: ${Colors.veryLightBlue};
   }
 `;
@@ -30,11 +30,11 @@ const StyledIconButton = styled(IconButton)`
   padding: 7px;
 `;
 
-export const ThreeDotMenu = ({ items }) => {
+export const ThreeDotMenu = ({ items, disabled }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const onOpenKebabMenu = (event) => {
+  const onOpenKebabMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -42,14 +42,18 @@ export const ThreeDotMenu = ({ items }) => {
     setAnchorEl(null);
   };
 
-  const handleAction = (item) => {
+  const handleAction = item => {
     item.onClick?.();
     handleCloseKebabMenu();
   };
 
   return (
     <>
-      <StyledIconButton onClick={onOpenKebabMenu} data-testid="stylediconbutton-szh8">
+      <StyledIconButton
+        onClick={onOpenKebabMenu}
+        disabled={disabled}
+        data-testid="stylediconbutton-szh8"
+      >
         <MoreVert data-testid="morevert-kusc" />
       </StyledIconButton>
       <StyledMenu

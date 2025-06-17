@@ -10,7 +10,7 @@ import {
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { differenceInMilliseconds, format } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
@@ -317,7 +317,7 @@ const getLabTestRecords = async (
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
-        status: LAB_REQUEST_STATUS_CONFIG[labRequest?.status]?.label || labRequest?.status,
+        status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
         submittedDate: formatDate(labTest.date),

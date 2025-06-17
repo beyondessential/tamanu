@@ -9,7 +9,6 @@ import styled from 'styled-components';
 import {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
-  LAB_REQUEST_STATUS_CONFIG,
   NOTE_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -112,7 +111,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           return isCancelled
             ? [
                 {
-                  label: LAB_REQUEST_STATUS_CONFIG[IMAGING_REQUEST_STATUS_TYPES.CANCELLED].label,
+                  label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
                   value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
                 },
               ]
