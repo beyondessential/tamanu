@@ -975,12 +975,16 @@ describe('Programs import', () => {
       const surveyScreenComponents = await models.SurveyScreenComponent.findAll();
       let expectedStringIds = [];
       surveyScreenComponents.forEach((surveyScreenComponent) => {
-        expectedStringIds.push(
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.text.${surveyScreenComponent.id}`,
-        );
-        expectedStringIds.push(
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.detail.${surveyScreenComponent.id}`,
-        );
+        if (surveyScreenComponent.text) {
+          expectedStringIds.push(
+            `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.text.${surveyScreenComponent.id}`,
+          );
+        }
+        if (surveyScreenComponent.detail) {
+          expectedStringIds.push(
+            `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.detail.${surveyScreenComponent.id}`,
+          );
+        }
       });
 
       const translatedStrings = await models.TranslatedString.findAll({
