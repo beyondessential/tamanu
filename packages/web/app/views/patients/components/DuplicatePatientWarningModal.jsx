@@ -53,8 +53,6 @@ export const DuplicatePatientWarningModal = ({
 
   const isPlural = potentialDuplicates.length > 1;
 
-  console.log(warningModalData);
-
   return (
     <>
       <Modal
