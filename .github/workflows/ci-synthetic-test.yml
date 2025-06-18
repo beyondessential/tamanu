@@ -15,6 +15,9 @@ on:
       pr_ref:
         description: 'PR ref (for re-triggered runs)'
         required: false
+      pr_sha:
+        description: 'PR SHA (for re-triggered runs)'
+        required: false
 
 jobs:
   check-synthetic-test-request:
@@ -24,6 +27,7 @@ jobs:
       target_url: ${{ steps.check.outputs.target_url }}
       pr_number: ${{ steps.check.outputs.pr_number }}
       pr_ref: ${{ steps.check.outputs.pr_ref }}
+      pr_sha: ${{ steps.check.outputs.pr_sha }}
     steps:
       - uses: actions/checkout@v4
       - id: check
@@ -34,12 +38,14 @@ jobs:
             let targetUrl = 'https://facility-1.feature-synthetic-test-setup.cd.tamanu.app';
             let prNumber = null;
             let prRef = null;
+            let prSha = null;
             
             // Check if this is a workflow_dispatch event
             if (context.eventName === 'workflow_dispatch') {
               const dispatchTargetUrl = context.payload.inputs?.target_url;
               const dispatchPrNumber = context.payload.inputs?.pr_number;
               const dispatchPrRef = context.payload.inputs?.pr_ref;
+              const dispatchPrSha = context.payload.inputs?.pr_sha;
               
               if (dispatchPrNumber) {
                 // This is a re-triggered run, get PR info
@@ -55,7 +61,8 @@ jobs:
                 const targetUrlMatch = pr.body?.match(/Target URL:\s*(https?:\/\/[^\s\n]+)/i);
                 targetUrl = dispatchTargetUrl || targetUrlMatch?.[1] || targetUrl;
                 prNumber = dispatchPrNumber;
-                prRef = dispatchPrRef;
+                prRef = dispatchPrRef || pr.head.ref;
+                prSha = dispatchPrSha || pr.head.sha;
               } else {
                 // Manual dispatch without PR context
                 shouldRun = true;
@@ -71,12 +78,16 @@ jobs:
               targetUrl = targetUrlMatch?.[1] || targetUrl;
               prNumber = context.payload.pull_request?.number;
               prRef = context.payload.pull_request?.head?.ref;
+              prSha = context.payload.pull_request?.head?.sha;
             }
+            
+            console.log(`Event: ${context.eventName}, PR: ${prNumber}, SHA: ${prSha}`);
             
             core.setOutput('should_run', shouldRun);
             core.setOutput('target_url', targetUrl);
             core.setOutput('pr_number', prNumber);
             core.setOutput('pr_ref', prRef);
+            core.setOutput('pr_sha', prSha);
 
   node_modules_cache:
     name: Cache node modules
@@ -109,6 +120,7 @@ jobs:
     env:
       TARGET_URL: ${{ needs.check-synthetic-test-request.outputs.target_url }}
       PR_NUMBER: ${{ needs.check-synthetic-test-request.outputs.pr_number }}
+      PR_SHA: ${{ needs.check-synthetic-test-request.outputs.pr_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -125,18 +137,33 @@ jobs:
       - run: npm ci
       - run: npm run build-shared
 
-      - name: Update PR status with timestamp
+      - name: Update PR status
+        if: env.PR_NUMBER
         uses: actions/github-script@v7
         with:
           script: |
-            const timestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            let prSha = process.env.PR_SHA;
+            
+            // If we don't have the SHA, fetch the PR to get it
+            if (!prSha) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              prSha = pr.head.sha;
+            }
+            
+            console.log(`Updating status for PR #${prNumber}, SHA: ${prSha}`);
+            
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: process.env.PR_SHA,
+              sha: prSha,
               state: 'pending',
-              description: `Test iteration started at ${timestamp}`,
-              context: `synthetic-test-${Date.now()}`  // Unique context per run
+              description: 'Synthetic test running...',
+              context: 'synthetic-test'
             });
 
       - name: Run artillery test
@@ -150,16 +177,21 @@ jobs:
         with:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER);
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
+            let prSha = process.env.PR_SHA;
+            
+            if (!prSha) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              prSha = pr.head.sha;
+            }
             
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: pr.head.sha,
+              sha: prSha,
               state: 'success',
               description: 'Synthetic test completed successfully',
               context: 'synthetic-test'
@@ -171,16 +203,21 @@ jobs:
         with:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER);
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
+            let prSha = process.env.PR_SHA;
+            
+            if (!prSha) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              prSha = pr.head.sha;
+            }
             
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: pr.head.sha,
+              sha: prSha,
               state: 'failure',
               description: 'Synthetic test failed',
               context: 'synthetic-test'
@@ -195,4 +232,5 @@ jobs:
             --ref ${{ needs.check-synthetic-test-request.outputs.pr_ref || github.head_ref || github.ref }} \
             --field target_url="${{ env.TARGET_URL }}" \
             --field pr_number="${{ env.PR_NUMBER }}" \
-            --field pr_ref="${{ needs.check-synthetic-test-request.outputs.pr_ref || github.head_ref || github.ref }}"
+            --field pr_ref="${{ needs.check-synthetic-test-request.outputs.pr_ref || github.head_ref || github.ref }}" \
+            --field pr_sha="${{ env.PR_SHA }}"
