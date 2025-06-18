@@ -295,7 +295,9 @@ async function generateTableModel(schema, table, genericColNames) {
           {
             name: table.name,
             description: `{{ doc('${docPrefix(schema, 'table')}__${table.name}') }}`,
-            tags: [],
+            config: {
+              tags: [],
+            },
             columns: await Promise.all(
               table.columns.map((c) =>
                 generateColumnModel(schema, table.name, c, genericColNames.includes(c.name)),
