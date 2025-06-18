@@ -109,7 +109,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{ programRegistryConditionCategoryId: programRegistryConditionCategory.id }}
+        initialValues={{ programRegistryConditionCategoryId: programRegistryConditionCategory?.id }}
         render={({ dirty, values }) => {
           const columns = [
             {
