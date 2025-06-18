@@ -428,3 +428,32 @@ appointments.put(
     }
   }),
 );
+
+appointments.get(
+  '/hasPastAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+    req.checkListOrReadPermission('Appointment');
+
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { type, facilityId } = query;
+    const { Appointment } = models;
+
+    const facilityIdField =
+      type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
+
+    const pastAppointments = await Appointment.findOne({
+      where: {
+        patientId,
+        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+        startTime: { [Op.lt]: new Date() },
+        ...(facilityId && { [facilityIdField]: facilityId }),
+        ...(type === 'outpatient' && { locationGroupId: { [Op.not]: null } }),
+        ...(type === 'locationBooking' && { locationId: { [Op.not]: null } }),
+      },
+      include: ['locationGroup', 'location'],
+    });
+
+    res.send(pastAppointments !== null);
+  }),
+);

@@ -19,7 +19,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
-import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import { useHasPastOutpatientAppointmentsQuery, useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
@@ -317,14 +317,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   });
 
   // Query to check if there are past appointments
-  const pastAppointmentsQuery = useOutpatientAppointmentsQuery({
-    patientId: patient?.id,
-    before: getCurrentDateTimeString(),
-    after: '1970-01-01 00:00',
-    rowsPerPage: 1,
-  });
-
-  const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
+  const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id, );
 
   // Query for future appointments
   const { data, isLoading } = useOutpatientAppointmentsQuery(
