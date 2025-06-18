@@ -21,6 +21,10 @@
     "./fake/fakeRequest/createPatient": {
       "import": "./dist/mjs/fake/fakeRequest/createPatient.js",
       "require": "./dist/cjs/fake/fakeRequest/createPatient.js"
+    },
+    "./fake/fakeRequest/createEncounter": {
+      "import": "./dist/mjs/fake/fakeRequest/createEncounter.js",
+      "require": "./dist/cjs/fake/fakeRequest/createEncounter.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

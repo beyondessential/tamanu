@@ -1,4 +1,2 @@
 config:
-  # Facility server
-  target: http://localhost:4000
-  processor: './hooks/authenticate.ts'
+  processor: '../hooks/index.ts'

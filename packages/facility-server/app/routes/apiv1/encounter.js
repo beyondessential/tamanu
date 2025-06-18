@@ -38,6 +38,8 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import { validate } from '../../utils/validate';
+import { createEncounterSchema } from './encounter.schema';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -47,7 +49,8 @@ encounter.post(
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
-    const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
+    const validatedBody = validate(createEncounterSchema, body);
+    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);

@@ -1,5 +1,5 @@
 config:
-  # target: http://localhost:4000
+  target: http://localhost:4000
   processor: '../hooks/index.ts'
   phases:
     - duration: 60
@@ -8,16 +8,16 @@ config:
       arrivalRate: 50
 
 scenarios:
-  - name: Create patient
+  - name: Create encounter
     beforeScenario:
       - authenticate
     flow:
-      - function: generatePatientPayload
+      - function: generateEncounterPayload
       - post:
-          url: '/api/patient'
+          url: '/api/encounter'
           headers:
             Authorization: 'Bearer {{token}}'
             'Content-Type': 'application/json'
-          json: '{{patientPayload}}'
+          json: '{{encounterPayload}}'
           expect:
             - statusCode: [200, 201]
