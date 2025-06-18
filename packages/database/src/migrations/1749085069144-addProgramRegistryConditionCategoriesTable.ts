@@ -124,21 +124,15 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // Set the values for existing records
   await query.sequelize.query(`
-    WITH categories_map AS (
-      SELECT
-        prcc.id AS program_registry_condition_category_id,
-        pprc.id AS patient_program_registration_condition_id
+    UPDATE patient_program_registration_conditions
+    SET program_registry_condition_category_id = (
+      SELECT prcc.id
       FROM patient_program_registration_conditions pprc
       JOIN patient_program_registrations ppr ON pprc.patient_program_registration_id = ppr.id
       JOIN program_registry_condition_categories prcc
         ON pprc.condition_category = prcc.code
         AND prcc.program_registry_id = ppr.program_registry_id
-    )
-    UPDATE patient_program_registration_conditions
-    SET program_registry_condition_category_id = (
-      SELECT program_registry_condition_category_id
-      FROM categories_map
-      WHERE patient_program_registration_condition_id = patient_program_registration_conditions.id
+      WHERE pprc.id = patient_program_registration_conditions.id
     )
   `);
 
