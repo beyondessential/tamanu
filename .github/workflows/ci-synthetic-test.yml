@@ -57,7 +57,8 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
   synthetic-test:
-    needs: node_modules_cache
+    needs: [check-synthetic-test-request, node_modules_cache]
+    if: needs.check-synthetic-test-request.outputs.should_run == 'true'
     name: Synthetic Test
     runs-on: ubuntu-latest
     env:
