@@ -2,7 +2,7 @@ import { COLORS } from './colors.js';
 
 /**
  * ########################################################################################################
- *       All constants in this folder must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
+ *       All constants in this file must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
  * ########################################################################################################
  */
 

@@ -1,6 +1,6 @@
 /**
  * ########################################################################################################
- *       All constants in this folder must be kept in sync with the ones in @tamanu/constants/programRegistry
+ *       All constants in this file must be kept in sync with the ones in @tamanu/constants/programRegistry
  * ########################################################################################################
  */
 
