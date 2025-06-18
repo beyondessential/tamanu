@@ -37,4 +37,16 @@ export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
 };
 
+export const DEPRECATED_PRCC_LABELS = {
+  suspected: 'Suspected',
+  underInvestigation: 'Under investigation',
+  confirmed: 'Confirmed',
+  unknown: 'Unknown',
+  disproven: 'Disproven',
+  resolved: 'Resolved',
+  inRemission: 'In remission',
+  notApplicable: 'Not applicable',
+  recordedInError: 'Recorded in error',
+};
+
 // ########################################################################################################
