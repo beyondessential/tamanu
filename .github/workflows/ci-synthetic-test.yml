@@ -31,7 +31,7 @@ jobs:
             const dispatchTargetUrl = context.payload.inputs?.target_url;
             
             core.setOutput('should_run', syntheticTestMatch?.groups.checked === 'x');
-            core.setOutput('target_url', dispatchTargetUrl || targetUrlMatch?.[1] || 'http://localhost:4000');
+            core.setOutput('target_url', dispatchTargetUrl || targetUrlMatch?.[1] || 'https://facility-1.feature-synthetic-test-setup.cd.tamanu.app');
 
   node_modules_cache:
     name: Cache node modules
