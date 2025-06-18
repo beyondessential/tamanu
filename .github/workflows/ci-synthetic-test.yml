@@ -81,8 +81,7 @@ jobs:
       - name: Run artillery test
         uses: artilleryio/action-cli@v1
         with:
-          command: run packages/synthetic-tests/src/scenarios/create-patient.yml
-          args: --target ${{ env.TARGET_URL }}
+          command: run packages/synthetic-tests/src/scenarios/create-patient.yml --target=${{ env.TARGET_URL }}
 
       - name: Re-trigger synthetic test
         env:
