@@ -1,4 +1,5 @@
 import { log } from '@tamanu/shared/services/logging';
+import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
 import type { Models, Sequelize } from '@tamanu/database';
 import { listSteps, MIGRATIONS_END } from './listSteps.js';
@@ -21,7 +22,7 @@ export async function upgrade({
   serverType: 'central' | 'facility';
 }) {
   const fromVersion =
-    (await models.LocalSystemFact.get('version').catch((err) => {
+    (await models.LocalSystemFact.get(FACT_CURRENT_VERSION).catch((err) => {
       log.error('Failed to get current version, likely because there is not one recorded yet', err);
       return null;
     })) ?? '0.0.0';
@@ -128,5 +129,5 @@ export async function upgrade({
   }
 
   log.info('Tamanu has been upgraded', { toVersion });
-  await models.LocalSystemFact.set('version', toVersion);
+  await models.LocalSystemFact.set(FACT_CURRENT_VERSION, toVersion);
 }
