@@ -8,7 +8,8 @@ import { TranslatedText } from '../../Translations/TranslatedText';
 import { StyledText } from '~/ui/styled/common';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { ReferenceDataType } from '~/types/IReferenceData';
-import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
+
+export const ADDRESS_HIERARCHY_FIELD_ID = 'addressHierarchy';
 
 export const ADDRESS_HIERARCHY_FIELDS = [
   {
@@ -56,8 +57,8 @@ const AddressHierarchyField = ({ isEdit }): ReactElement => {
         marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
       >
         <TranslatedText
-          stringId={'patient.details.subheading.currentAddress'}
-          fallback={'Current address'}
+          stringId="patient.details.subheading.currentAddress"
+          fallback="Current address"
         />
       </StyledText>
       <HierarchyFields fields={ADDRESS_HIERARCHY_FIELDS} />

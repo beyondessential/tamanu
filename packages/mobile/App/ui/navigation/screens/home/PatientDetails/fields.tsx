@@ -1,8 +1,7 @@
 import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
-
-export const ADDRESS_HIERARCHY_FIELD_ID = 'addressHierarchy';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/components/Forms/PatientAdditionalDataForm/HierarchyField';
 
 export const COMMON_DATA_SECTIONS = [
   {

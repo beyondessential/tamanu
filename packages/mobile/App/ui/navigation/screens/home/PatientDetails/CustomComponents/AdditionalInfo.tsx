@@ -16,7 +16,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { ReferenceDataType } from '~/types/IReferenceData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
-import { ADDRESS_HIERARCHY_FIELD_ID } from '../fields';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/components/Forms/PatientAdditionalDataForm/HierarchyField';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
