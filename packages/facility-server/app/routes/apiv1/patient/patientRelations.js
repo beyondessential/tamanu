@@ -357,6 +357,8 @@ patientRelations.get(
       `SELECT
     reference_data.name AS test_category,
     lab_test_types.name AS test_type,
+    lab_test_types.options AS test_options,
+    lab_test_types.id AS test_type_id,
     FIRST(lab_test_types.unit) AS unit,
     JSONB_BUILD_OBJECT(
       'male', JSONB_BUILD_OBJECT(
@@ -416,7 +418,7 @@ patientRelations.get(
       : ''
   }
   GROUP BY
-    test_category, test_type
+    test_category, test_type, test_options, test_type_id
   ORDER BY
     test_category`,
       {

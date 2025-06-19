@@ -16,7 +16,7 @@ import { notifyError } from '../../utils';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
-  width: ${(props) => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
+  width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 
   // react auto suggest does not take a style or class prop so the only way to style it is to wrap it
   .react-autosuggest__container {
@@ -41,12 +41,12 @@ const SuggestionsList = styled(Paper)`
     list-style-type: none;
 
     .MuiButtonBase-root {
-      padding: ${(props) => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
-      ${(props) => (props.$multiSection ? 'padding-left: 28px;' : '')}
+      padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
+      ${props => (props.$multiSection ? 'padding-left: 28px;' : '')}
       white-space: normal;
 
       .MuiTypography-root {
-        font-size: ${(props) => (props.size === 'small' ? '11px' : '14px')};
+        font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
         line-height: 1.3em;
       }
 
@@ -56,7 +56,7 @@ const SuggestionsList = styled(Paper)`
     }
   }
 
-  ${(props) =>
+  ${props =>
     props.$hasCustomizeItem &&
     `
     li:last-child {
@@ -64,16 +64,14 @@ const SuggestionsList = styled(Paper)`
       bottom: 0;
       background: ${Colors.white};
       z-index: 1;
-      ${
-        !props.$onlyOneItem &&
+      ${!props.$onlyOneItem &&
         `&::before {
         content: '';
         display: block;
         border-top: 1px solid;
         border-color: ${Colors.outline};
         margin: 2px 10px;
-      }`
-      }
+      }`}
     }
 
     .react-autosuggest__section-container {
@@ -183,7 +181,7 @@ export class AutocompleteInput extends Component {
     }
   };
 
-  handleSuggestionChange = (option) => {
+  handleSuggestionChange = option => {
     const { onChange, name, suggester } = this.props;
     if (!option.isCustomizedOption) {
       onChange({ target: { ...option, name } });
@@ -191,8 +189,8 @@ export class AutocompleteInput extends Component {
       const payload = { name: option.label };
       suggester
         .createSuggestion(payload)
-        .then((result) => onChange({ target: { ...result, name } }))
-        .catch((e) => {
+        .then(result => onChange({ target: { ...result, name } }))
+        .catch(e => {
           notifyError(e.message);
           onChange({ target: { value: undefined, name } });
         });
@@ -204,7 +202,7 @@ export class AutocompleteInput extends Component {
     const { suggester, options } = this.props;
     return suggester
       ? suggester.fetchSuggestions(searchValue)
-      : options.filter((x) => x.label.toLowerCase().includes(searchValue.toLowerCase()));
+      : options.filter(x => x.label.toLowerCase().includes(searchValue.toLowerCase()));
   };
 
   fetchOptions = async ({ value, reason }) => {
@@ -231,7 +229,7 @@ export class AutocompleteInput extends Component {
       const trimmedValue = value.trim();
       suggestions = await this.fetchAllOptions(trimmedValue);
       const isValueInOptions = suggestions.some(
-        (suggest) => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
+        suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
       );
       if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
         suggestions.push({
@@ -271,8 +269,8 @@ export class AutocompleteInput extends Component {
       this.handleSuggestionChange({ value: undefined, label: '' });
     }
     if (typeof newValue !== 'undefined') {
-      this.setState((prevState) => {
-        const newSuggestion = prevState.suggestions.find((suggest) => suggest.label === newValue);
+      this.setState(prevState => {
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
         return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
       });
     }
@@ -288,7 +286,7 @@ export class AutocompleteInput extends Component {
     this.setState({ suggestions: [] });
   };
 
-  onKeyDown = (event) => {
+  onKeyDown = event => {
     // prevent enter button submitting the whole form
     if (event.keyCode === 13) {
       event.preventDefault();
@@ -297,16 +295,17 @@ export class AutocompleteInput extends Component {
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
+    const { 'data-testid': dataTestId } = this.props;
     return (
-      <Item selected={isHighlighted} component="div" data-testid="item-ttpg">
-        <Typography variant="body2" data-testid="typography-qxy3">
+      <Item selected={isHighlighted} component="div" data-testid={`${dataTestId}-option`}>
+        <Typography variant="body2" data-testid={`${dataTestId}-option-typography`}>
           {isCustomizedOption ? (
             <>
               &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
-                data-testid="translatedtext-cdcb"
+                data-testid={`${dataTestId}-option-translatedtext`}
               />
               )
             </>
@@ -315,7 +314,11 @@ export class AutocompleteInput extends Component {
           )}
         </Typography>
         {tag && (
-          <OptionTag $background={tag.background} $color={tag.color} data-testid="optiontag-quv2">
+          <OptionTag
+            $background={tag.background}
+            $color={tag.color}
+            data-testid={`${dataTestId}-optiontag`}
+          >
             {tag.label}
           </OptionTag>
         )}
@@ -323,8 +326,8 @@ export class AutocompleteInput extends Component {
     );
   };
 
-  renderContainer = (option) => {
-    const { size = 'medium', multiSection, ['data-testid']: dataTestId } = this.props;
+  renderContainer = option => {
+    const { size = 'medium', multiSection, 'data-testid': dataTestId } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -349,11 +352,11 @@ export class AutocompleteInput extends Component {
     );
   };
 
-  setAnchorRefForPopper = (ref) => {
+  setAnchorRefForPopper = ref => {
     this.anchorEl = ref;
   };
 
-  renderInputComponent = (inputProps) => {
+  renderInputComponent = inputProps => {
     const {
       label,
       required,
@@ -363,7 +366,7 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
-      dataTestId,
+      'data-testid': dataTestId,
       ...other
     } = inputProps;
     const { suggestions } = this.state;
@@ -381,7 +384,7 @@ export class AutocompleteInput extends Component {
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
-            'data-testid': `${dataTestId}-input`,
+            'data-testid': dataTestId,
             endAdornment: (
               <>
                 {tag && (
@@ -403,7 +406,7 @@ export class AutocompleteInput extends Component {
                 )}
                 <Icon
                   position="end"
-                  onClick={(event) => {
+                  onClick={event => {
                     event.preventDefault();
                     this.anchorEl.click();
                   }}
@@ -426,7 +429,7 @@ export class AutocompleteInput extends Component {
     );
   };
 
-  groupSuggestionsByKey = (suggestions) => {
+  groupSuggestionsByKey = suggestions => {
     const { groupByKey } = this.props;
     const groupedSuggestions = map(groupBy(suggestions, groupByKey), (data, groupByKey) => ({
       [this.props.groupByKey]: groupByKey,
@@ -436,11 +439,11 @@ export class AutocompleteInput extends Component {
     return groupedSuggestions;
   };
 
-  getSectionSuggestions = (section) => {
+  getSectionSuggestions = section => {
     return section?.data;
   };
 
-  renderSectionTitle = (section) => {
+  renderSectionTitle = section => {
     const { getSectionTitle } = this.props;
     return <SectionTitle data-testid="sectiontitle-a46q">{getSectionTitle(section)}</SectionTitle>;
   };
@@ -460,7 +463,7 @@ export class AutocompleteInput extends Component {
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
       multiSection,
-      ['data-testid']: dataTestId,
+      'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
 
     return (
@@ -492,7 +495,7 @@ export class AutocompleteInput extends Component {
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
-            dataTestId,
+            'data-testid': `${dataTestId}-input`,
             inputRef,
           }}
         />

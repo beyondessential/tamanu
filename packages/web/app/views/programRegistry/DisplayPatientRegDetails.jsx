@@ -238,7 +238,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           if (success) {
             navigateToPatient(patientProgramRegistration.patientId);
           } else {
-            setOpenDeleteProgramRegistryFormModal(true);
+            setOpenDeleteProgramRegistryFormModal(false);
           }
         }}
       />

@@ -1,4 +1,5 @@
 import { Page } from '@playwright/test';
+
 import { constructFacilityUrl } from '../utils/navigation';
 
 export class BasePage {
