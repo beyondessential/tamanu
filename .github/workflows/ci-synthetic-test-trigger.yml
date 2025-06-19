@@ -24,7 +24,7 @@ jobs:
             const syntheticTestMatch = pr.body?.match(/\[(?<checked>[ x])\]\s+\*\*Synthetic Test Environment\*\* <!-- #synthetic-test -->/);
             const shouldRun = syntheticTestMatch?.groups.checked === 'x';
 
-            const targetUrlMatch = pr.body?.match(/Target URL:\s*(https?:\/\/[^\s\n]+)/i);
+            const targetUrlMatch = pr.body?.match(/\*\*Target URL:\*\*\s*(https?:\/\/[^\s\n]+)/i);
             const targetUrl = targetUrlMatch?.[1] 
 
             if (!targetUrl && shouldRun) {
