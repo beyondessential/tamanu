@@ -122,14 +122,13 @@ export const AdditionalInfo = ({
       const onEditCallback = (): void =>
         onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
-      const fieldsWithData = [];
-      fields.map((field: string) => {
+      const fieldsWithData = fields.flatMap((field: string) => {
         if (field === ADDRESS_HIERARCHY_FIELD_ID) {
-          fieldsWithData.push(...getAddressHierarchyData(patient, patientAdditionalData));
+          return getAddressHierarchyData(patient, patientAdditionalData);
         } else if (Object.keys(customDataById).includes(field)) {
-          fieldsWithData.push([field, customDataById[field]]);
+          return [[field, customDataById[field]]];
         } else {
-          fieldsWithData.push([field, getPadFieldData(patientAdditionalData, field)]);
+          return [[field, getPadFieldData(patientAdditionalData, field)]];
         }
       });
 
