@@ -234,6 +234,7 @@ export const PatientProgramRegistrationConditionsField = ({
         programRegistry: { id: programRegistryId },
       },
     }),
+    [programRegistryId],
   );
 
   // Filter out recorded in error category and map to options

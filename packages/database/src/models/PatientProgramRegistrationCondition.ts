@@ -56,7 +56,7 @@ export class PatientProgramRegistrationCondition extends Model {
 
     this.belongsTo(models.ProgramRegistryConditionCategory, {
       foreignKey: { name: 'programRegistryConditionCategoryId', allowNull: false },
-      as: 'programRegistryCategory',
+      as: 'programRegistryConditionCategory',
     });
 
     this.belongsTo(models.User, {
@@ -71,7 +71,7 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['programRegistryCondition', 'programRegistryCategory'];
+    return ['programRegistryCondition', 'programRegistryConditionCategory'];
   }
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {

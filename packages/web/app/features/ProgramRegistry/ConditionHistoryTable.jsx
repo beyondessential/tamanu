@@ -1,7 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { DateDisplay, Heading5, TranslatedReferenceData, TranslatedText } from '../../components';
+import {
+  DateDisplay,
+  Heading5,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
+import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
 
 const HistorySection = styled.section`
   display: flex;
@@ -42,6 +49,26 @@ const SmallText = styled.div`
   }
 `;
 
+const ConditionCategoryDisplay = ({ data }) => {
+  if (data?.programRegistryConditionCategory?.id) {
+    return (
+      <TranslatedReferenceData
+        value={data.programRegistryConditionCategory.id}
+        fallback={data.programRegistryConditionCategory.name}
+        category="programRegistryConditionCategory"
+      />
+    );
+  }
+
+  // For backwards compatibility with the old enum values
+  return (
+    <TranslatedEnum
+      value={data.conditionCategory}
+      enumValues={DEPRECATED_PRCC_LABELS}
+    />
+  );
+};
+
 export const ConditionHistoryTable = ({ historyData = [] }) => {
   return (
     <>
@@ -62,11 +89,7 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
                 />
               </HistoryItemLabel>
               <HistoryItemValue>
-                <TranslatedReferenceData
-                  value={entry.data.programRegistryConditionCategory.id}
-                  fallback={entry.data.programRegistryConditionCategory.name}
-                  category="programRegistryConditionCategory"
-                />
+                <ConditionCategoryDisplay data={entry.data} />
               </HistoryItemValue>
             </HistoryItemRow>
             {entry.data.reasonForChange && (

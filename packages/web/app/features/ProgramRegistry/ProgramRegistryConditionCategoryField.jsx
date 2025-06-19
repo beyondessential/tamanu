@@ -26,7 +26,7 @@ export const ProgramRegistryConditionCategoryField = ({
   ariaLabelledby = null,
 }) => {
   const { getTranslation } = useTranslation();
-  const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
+  const { data: conditionCategories = [] } = useProgramRegistryConditionCategoriesQuery(
     programRegistryId,
   );
   const options = conditionCategories.map(conditionCategory => ({
