@@ -42,5 +42,6 @@ export async function authenticate(context: any, _events: any): Promise<void> {
     };
   } catch (error) {
     console.error('Authenticate error:', error);
+    throw error;
   }
 }

@@ -30,7 +30,7 @@ export const createPatientSchema = z.object({
   lastName: z.string().optional(),
   culturalName: z.string().optional(),
   email: z.string().email().optional(),
-  dateOfBirth: z.string().optional(), // ISO date string
+  dateOfBirth: z.coerce.date().optional(), // ISO date string
   sex: z.enum([SEX_VALUES.MALE, SEX_VALUES.FEMALE, SEX_VALUES.OTHER]),
   villageId: foreignKeySchema.optional(),
 
@@ -116,7 +116,7 @@ export const createPatientSchema = z.object({
   nursingZoneId: foreignKeySchema.optional(),
 
   // Birth Details (from GenericBirthFields - only when patientRegistryType is 'birth_registry')
-  timeOfBirth: z.string().optional(), // ISO datetime string
+  timeOfBirth: z.coerce.date().optional(), // ISO datetime string
   gestationalAgeEstimate: z.number().optional(),
   registeredBirthPlace: z
     .enum([

@@ -38,17 +38,17 @@ export async function generateEncounterPayload(context: any, _events: any): Prom
   const randomPatient = await getRandomPatient(target, token, facilityId);
 
   // Create encounter payload using fake data
-  const encounterPayload = fakeCreateEncounterRequestBody(
-    {
+  const encounterPayload = fakeCreateEncounterRequestBody({
+    required: {
       patientId: randomPatient.id,
       examinerId: context.vars.userId,
       locationId: context.vars.locationId || randomPatient.locationId,
       departmentId: context.vars.departmentId || randomPatient.departmentId,
     },
-    {
+    overrides: {
       reasonForEncounter: 'Synthetic test encounter',
     },
-  );
+  });
 
   context.vars.encounterPayload = encounterPayload;
   context.vars.selectedPatient = randomPatient;

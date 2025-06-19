@@ -3,7 +3,7 @@
 #   npm run merge-scenarios
 #
 config:
-  target: 'http://localhost:4000'
+  target: http://localhost:4000
   processor: hooks/index.ts
   phases:
     - name: Warmup
@@ -22,7 +22,7 @@ scenarios:
       - post:
           url: /api/encounter
           headers:
-            Authorization: 'Bearer {{token}}'
+            Authorization: Bearer {{token}}
             Content-Type: application/json
           json: '{{encounterPayload}}'
           expect:
@@ -37,7 +37,7 @@ scenarios:
       - post:
           url: /api/patient
           headers:
-            Authorization: 'Bearer {{token}}'
+            Authorization: Bearer {{token}}
             Content-Type: application/json
           json: '{{patientPayload}}'
           expect:

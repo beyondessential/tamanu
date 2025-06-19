@@ -45,7 +45,7 @@
     "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
-    "synthetic-test": "npm run --workspace @tamanu/synthetic-tests test"
+    "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
   },
   "engines": {
     "node": "^20.9.0"
