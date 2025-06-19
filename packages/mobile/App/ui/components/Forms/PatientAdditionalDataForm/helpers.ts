@@ -16,6 +16,7 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'lodash';
 import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/navigation/screens/home/PatientDetails/fields';
+import { ADDRESS_HIERARCHY_FIELDS } from './HierarchyField';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -196,18 +197,16 @@ export const getInitialAdditionalValues = (
   if (!data) {
     return {};
   }
+
   const values = {};
   for (const field of fields) {
-    // TODO: special case
-    if (field === ADDRESS_HIERARCHY_FIELD_ID) {
-      values.divisionId = data.divisionId;
-      values.settlementId = data.settlementId;
-      values.subdivisionId = data.subdivisionId;
-      values.villageId = data.villageId;
-    }
-
     const value = data[field];
     if (value) values[field] = value;
   }
+
+  if (fields.includes(ADDRESS_HIERARCHY_FIELD_ID)) {
+    ADDRESS_HIERARCHY_FIELDS.forEach(({ name }) => (values[name] = data[name]));
+  }
+
   return values;
 };
