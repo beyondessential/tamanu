@@ -16,6 +16,11 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
   relations?: Array<string>;
+  hierarchy?: {
+    parentId: string;
+    relationType: string;
+    isFirstLevel: boolean;
+  };
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
@@ -56,11 +61,6 @@ export interface SuggesterConfig<ModelType> {
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
   filter?: (entity: BaseModel) => boolean;
-  hierarchyOptions?: {
-    parentId?: string;
-    relationType?: string;
-    isFirstLevel?: boolean;
-  };
 }
 
 export class Suggester<ModelType> {
@@ -70,11 +70,6 @@ export class Suggester<ModelType> {
   filter?: (entity: BaseModel) => boolean;
   lastUpdatedAt: number;
   cachedData: any;
-  hierarchyOptions: {
-    parentId?: string;
-    relationType?: string;
-    isFirstLevel?: boolean;
-  };
 
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
@@ -86,7 +81,6 @@ export class Suggester<ModelType> {
     this.filter = config.filter;
     this.lastUpdatedAt = -Infinity;
     this.cachedData = null;
-    this.hierarchyOptions = config.hierarchyOptions;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -122,8 +116,12 @@ export class Suggester<ModelType> {
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
     const requestedAt = Date.now();
-    const { where = {}, column = 'name', relations } = this.options;
-    const { parentId, relationType, isFirstLevel } = this.hierarchyOptions || {};
+    const {
+      where = {},
+      column = 'name',
+      relations,
+      hierarchy: { parentId, relationType, isFirstLevel } = {},
+    } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
@@ -152,7 +150,7 @@ export class Suggester<ModelType> {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       });
 
-      if (this.hierarchyOptions && !isFirstLevel && parentId) {
+      if (parentId && !isFirstLevel) {
         query = query
           .andWhere('parents.referenceDataParentId = :parentId', {
             parentId,
@@ -161,7 +159,7 @@ export class Suggester<ModelType> {
             relationType,
           });
       }
-      
+
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
         .getRepository()

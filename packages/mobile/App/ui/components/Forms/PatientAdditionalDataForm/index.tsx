@@ -19,6 +19,7 @@ import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
+import { mapValues } from 'lodash';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;
@@ -58,15 +59,12 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
         },
       });
 
-      // Specifically for the case where village is within a hierarchy field in the PAD form
+      // Specific handling for the case where village is within a hierarchy field in the PAD form
       const updatedPatient = await Patient.updateValues(patient.id, {
         villageId: values?.villageId || null,
       });
 
-      const sanitizedValues = Object.fromEntries(
-        Object.entries(values).map(([key, value]) => [key, value === '' ? null : value]),
-      );
-
+      const sanitizedValues = mapValues(values, (value) => (value === '' ? null : value));
       await PatientAdditionalData.updateForPatient(patient.id, sanitizedValues);
 
       // Update any custom field definitions contained in this form

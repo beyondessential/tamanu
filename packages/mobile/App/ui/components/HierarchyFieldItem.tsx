@@ -24,12 +24,17 @@ export const HierarchyFieldItem = ({
         visibilityStatus: VisibilityStatus.Current,
       },
       relations: ['parents'],
+      hierarchy: {
+        parentId,
+        relationType,
+        isFirstLevel,
+      },
     },
-    hierarchyOptions: {
-      parentId,
-      relationType,
-      isFirstLevel,
-    },
+    // hierarchyOptions: {
+    //   parentId,
+    //   relationType,
+    //   isFirstLevel,
+    // },
   });
 
   return (
