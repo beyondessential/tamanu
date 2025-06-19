@@ -88,7 +88,7 @@ export const PatientAdditionalDataForm = compose(withPatient)(({
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, patient.id],
+    [navigation, patient.id, setSelectedPatient],
   );
 
   // Get the field group for this section of the additional data template

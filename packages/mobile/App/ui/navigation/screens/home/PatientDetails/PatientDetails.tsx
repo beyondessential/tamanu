@@ -3,9 +3,11 @@ import { GeneralInfo } from './GeneralInfo';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
-import { ADDITIONAL_DATA_SECTIONS } from './fields';
+import {
+  ADDITIONAL_DATA_SECTIONS,
+  ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY,
+} from './fields';
 import { useSettings } from '~/ui/contexts/SettingsContext';
-import { ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY } from './fields';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const { getSetting } = useSettings();
