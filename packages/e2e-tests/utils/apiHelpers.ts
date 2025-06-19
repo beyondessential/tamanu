@@ -28,15 +28,15 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
   const user = await getUser(api);
 
-  const requestBody = fakeCreatePatientRequestBody(
-    {
+  const requestBody = fakeCreatePatientRequestBody({
+    required: {
       facilityId,
       registeredById: user.id,
     },
-    {
+    overrides: {
       patientRegistryType: 'new_patient',
     },
-  );
+  });
 
   const response = await api.post(patientUrl, {
     data: requestBody,

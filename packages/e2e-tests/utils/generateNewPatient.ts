@@ -7,15 +7,15 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   const userData = await getCurrentUser(token);
   const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
 
-  const patientData = fakeCreatePatientRequestBody(
-    {
+  const patientData = fakeCreatePatientRequestBody({
+    required: {
       facilityId: currentFacilityId,
       registeredById: userData.id,
     },
-    {
+    overrides: {
       patientRegistryType: 'new_patient',
     },
-  );
+  });
 
   console.log('Patient data:', patientData);
 
