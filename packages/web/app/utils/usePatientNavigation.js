@@ -53,6 +53,15 @@ export const usePatientNavigation = () => {
     );
   };
 
+  const navigateToMar = () => {
+    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
+    navigate(
+      generatePath(`${PATIENT_PATHS.ENCOUNTER}/mar/view`, {
+        ...existingParams,
+      }),
+    );
+  };
+
   const navigateToLabRequest = (labRequestId, search) => {
     const labRequestRoute = generatePath(PATIENT_PATHS.LAB_REQUEST, {
       ...params,
@@ -104,6 +113,7 @@ export const usePatientNavigation = () => {
     navigateToImagingRequest,
     navigateToCategory,
     navigateToSummary,
+    navigateToMar,
     navigateToProgramRegistry,
     navigateToProgramRegistrySurvey,
   };

@@ -9,6 +9,7 @@ import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useChartData } from '../contexts/ChartData';
+import { TranslatedText } from './Translation';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   width: 105px;
@@ -19,7 +20,7 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null); // When the button is clicked, the anchorEl state is updated to the clicked button element, which will serve as the anchor for the Popover component.
 
-  const handleClick = (event) => {
+  const handleClick = event => {
     setAnchorEl(event.currentTarget);
     setOpen(() => !open);
   };
@@ -28,7 +29,7 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
     setOpen(false);
   };
 
-  const optionsWithSmallLabel = options.map((option) => ({
+  const optionsWithSmallLabel = options.map(option => ({
     ...option,
     label: <small>{option.label}</small>,
   }));
@@ -39,7 +40,11 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
       <div>
         <GreyOutlinedButton onClick={handleClick} data-testid="greyoutlinedbutton-a2al">
           <FilterListIcon color="primary" data-testid="filterlisticon-ansb" />
-          Filter
+          <TranslatedText
+            stringId="general.action.filter"
+            fallback="Filter"
+            data-testid="translatedtext-filter"
+          />
         </GreyOutlinedButton>
 
         <Popover
@@ -69,8 +74,12 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
-  const { chartKeys, setChartKeys, visualisationConfigs, allGraphedChartKeys } =
-    useVitalChartData();
+  const {
+    chartKeys,
+    setChartKeys,
+    visualisationConfigs,
+    allGraphedChartKeys,
+  } = useVitalChartData();
   const userPreferencesMutation = useUserPreferencesMutation();
   const { selectedChartTypeId } = useChartData();
 
@@ -78,9 +87,9 @@ export const VitalMultiChartFilter = () => {
     .filter(({ key }) => allGraphedChartKeys.includes(key))
     .map(({ key, name }) => ({ value: key, label: name }));
 
-  const handleChange = (newValues) => {
+  const handleChange = newValues => {
     const newSelectedChartKeys = newValues.target.value;
-    const sortedSelectedChartKeys = allGraphedChartKeys.filter((key) =>
+    const sortedSelectedChartKeys = allGraphedChartKeys.filter(key =>
       newSelectedChartKeys.includes(key),
     );
 

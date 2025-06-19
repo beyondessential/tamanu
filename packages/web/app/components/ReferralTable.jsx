@@ -18,6 +18,7 @@ import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -91,7 +92,7 @@ const MODAL_IDS = {
 
 export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { ability } = useAuth();
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
@@ -99,7 +100,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedReferral, setSelectedReferral] = useState({});
   const [selectedReferralId, setSelectedReferralId] = useState(null);
-  const onSelectReferral = useCallback((referral) => {
+  const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
     setSelectedReferral(referral);
   }, []);
@@ -121,7 +122,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
 
   const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
 
-  const handleChangeModalId = (id) => {
+  const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
@@ -146,7 +147,8 @@ export const ReferralTable = React.memo(({ patientId }) => {
         />
       ),
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
-      condition: (data) => data.status === REFERRAL_STATUSES.PENDING,
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -157,7 +159,8 @@ export const ReferralTable = React.memo(({ patientId }) => {
         />
       ),
       action: onCompleteReferral,
-      condition: (data) => data.status === REFERRAL_STATUSES.PENDING,
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -168,7 +171,8 @@ export const ReferralTable = React.memo(({ patientId }) => {
         />
       ),
       action: () => handleChangeModalId(MODAL_IDS.CANCEL),
-      condition: (data) => data.status === REFERRAL_STATUSES.PENDING,
+      condition: data => data.status === REFERRAL_STATUSES.PENDING,
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     {
       label: (
@@ -182,6 +186,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       permissionCheck: () => {
         return ability?.can('delete', 'Referral');
       },
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
     // Worth keeping around to address in proper linear card
     {
@@ -251,7 +256,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       sortable: false,
       CellComponent: ({ data }) => {
         const filteredActions = actions.filter(
-          (action) => !action.condition || action.condition(data),
+          action => !action.condition || action.condition(data),
         );
         return (
           <div onMouseEnter={() => setSelectedReferral(data)}>
@@ -282,7 +287,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
           data-testid="encountermodal-w69a"
         />
       ),
-      [MODAL_IDS.CANCEL]: (props) => (
+      [MODAL_IDS.CANCEL]: props => (
         <ConfirmModal
           {...props}
           title={

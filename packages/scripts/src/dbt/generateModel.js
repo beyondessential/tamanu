@@ -295,7 +295,9 @@ async function generateTableModel(schema, table, genericColNames) {
           {
             name: table.name,
             description: `{{ doc('${docPrefix(schema, 'table')}__${table.name}') }}`,
-            tags: [],
+            config: {
+              tags: [],
+            },
             columns: await Promise.all(
               table.columns.map((c) =>
                 generateColumnModel(schema, table.name, c, genericColNames.includes(c.name)),
@@ -498,7 +500,10 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
   await Promise.all(intersectionPromises);
 
   const tablePath = path.join(schema.path, tableName);
-  const modelPromise = fs.writeFile(tablePath + '.yml', YAML.stringify(dbtSrc));
+  const modelPromise = fs.writeFile(
+    tablePath + '.yml',
+    YAML.stringify(dbtSrc, { lineWidth: -1, noRefs: true })
+  );
   const docPromise = fs.writeFile(tablePath + '.md', stringifyTableDoc(schema, out.doc));
   await Promise.all([modelPromise, docPromise]);
 }

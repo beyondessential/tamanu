@@ -7,6 +7,7 @@ import {
   PageContainer,
   SearchTableTitle,
   TopBar,
+  TranslatedText,
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
@@ -25,7 +26,11 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
   return (
     <StyledContentPane data-testid="styledcontentpane-iuvf">
       <SearchTableTitle data-testid="searchtabletitle-pmmp">
-        Imaging request search
+        <TranslatedText
+          stringId="imaging.list.search.title"
+          fallback="Imaging request search"
+          data-testid="translatedtext-imaging-request-search-title"
+        />
       </SearchTableTitle>
       <ImagingRequestsSearchBar
         memoryKey={memoryKey}
@@ -44,7 +49,16 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
 
 export const ImagingRequestListingView = () => (
   <PageContainer data-testid="pagecontainer-6o1d">
-    <TopBar title="Active imaging requests" data-testid="topbar-nf61" />
+    <TopBar
+      title={
+        <TranslatedText
+          stringId="imaging.list.active.title"
+          fallback="Active imaging requests"
+          data-testid="translatedtext-imaging-request-active-title"
+        />
+      }
+      data-testid="topbar-nf61"
+    />
     {/* Here we give the listing an object containing the code for tracking the search state and also an array
     of statuses to be filtered by for each table */}
     <ImagingRequestListing
@@ -57,7 +71,16 @@ export const ImagingRequestListingView = () => (
 
 export const CompletedImagingRequestListingView = () => (
   <PageContainer data-testid="pagecontainer-t33i">
-    <TopBar title="Completed imaging requests" data-testid="topbar-wb10" />
+    <TopBar
+      title={
+        <TranslatedText
+          stringId="imaging.list.completed.title"
+          fallback="Completed imaging requests"
+          data-testid="translatedtext-imaging-request-completed-title"
+        />
+      }
+      data-testid="topbar-wb10"
+    />
     {/* This is the same situation as above. We decided to separate out the active and completed components as we were
     running into state problems when switching between contexts for the same component */}
     <ImagingRequestListing

@@ -7,7 +7,7 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants'
 
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import { ButtonRow, Form, FormSubmitButton } from '../../components';
+import { ButtonRow, Form, FormSubmitButton, NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
@@ -73,7 +73,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     const newData = { ...data };
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
@@ -85,8 +85,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-  const isRequiredPatientData = (fieldName) =>
-    getSetting(`fields.${fieldName}.requiredPatientData`);
+  const isRequiredPatientData = fieldName => getSetting(`fields.${fieldName}.requiredPatientData`);
 
   const api = useApi();
   const {
@@ -103,9 +102,9 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     enabled: Boolean(patient.id),
   });
 
-  const errors = [fieldDefError, fieldValError].filter((e) => Boolean(e));
+  const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
-    return <pre>{errors.map((e) => e.stack).join('\n')}</pre>;
+    return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
   const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
 
@@ -138,12 +137,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             data-testid="patientfields-csd1"
           />
           <ButtonRow data-testid="buttonrow-92zi">
-            <FormSubmitButton
-              variant="contained"
-              color="primary"
-              text="Save"
-              data-testid="formsubmitbutton-dzgy"
-            />
+            <NoteModalActionBlocker>
+              <FormSubmitButton
+                variant="contained"
+                color="primary"
+                text="Save"
+                data-testid="formsubmitbutton-dzgy"
+              />
+            </NoteModalActionBlocker>
           </ButtonRow>
         </>
       )}

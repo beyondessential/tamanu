@@ -4,6 +4,7 @@ import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
@@ -58,7 +59,17 @@ const columns = (sex) => [
       />
     ),
     key: 'result',
-    accessor: ({ result }) => result ?? '',
+    accessor: ({labTestType, result}) => {
+      const { options, id: labTestTypeId } = labTestType;
+      if (options && options.length > 0) {
+        return <TranslatedOption
+          value={result}
+          referenceDataId={labTestTypeId}
+          referenceDataCategory="labTestType"
+        />
+      }
+      return result ?? '';
+    },
   },
   {
     title: (

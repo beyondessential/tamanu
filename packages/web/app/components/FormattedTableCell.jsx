@@ -108,7 +108,13 @@ const LimitedLinesCellWrapper = styled.div`
   ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
-export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = false }) => {
+export const LimitedLinesCell = ({
+  value,
+  maxWidth,
+  maxLines = 2,
+  isOneLine = false,
+  disableTooltip = false,
+}) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -126,14 +132,8 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
     return () => window.removeEventListener('resize', handleResize);
   });
 
-  return (
-    <TableTooltip
-      title={value ?? ''}
-      open={isClamped && tooltipOpen}
-      onOpen={() => setTooltipOpen(true)}
-      onClose={() => setTooltipOpen(false)}
-      data-testid="tabletooltip-fs9r"
-    >
+  const renderLimitedLinesCellWrapper = () => {
+    return (
       <LimitedLinesCellWrapper
         ref={contentRef}
         maxLines={maxLines}
@@ -143,6 +143,22 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2, isOneLine = fa
       >
         {value}
       </LimitedLinesCellWrapper>
+    );
+  };
+
+  if (disableTooltip) {
+    return renderLimitedLinesCellWrapper();
+  }
+
+  return (
+    <TableTooltip
+      title={value ?? ''}
+      open={isClamped && tooltipOpen}
+      onOpen={() => setTooltipOpen(true)}
+      onClose={() => setTooltipOpen(false)}
+      data-testid="tabletooltip-fs9r"
+    >
+      {renderLimitedLinesCellWrapper()}
     </TableTooltip>
   );
 };
@@ -177,10 +193,11 @@ export const RangeValidatedCell = React.memo(
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(
-      () => getTooltip(float, config, validationCriteria),
-      [float, config, validationCriteria],
-    );
+    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
+      float,
+      config,
+      validationCriteria,
+    ]);
 
     const cell = (
       <CellContainer

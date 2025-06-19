@@ -8,9 +8,10 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
 import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Text = styled(BodyText)`
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   margin-top: 10px;
   margin-bottom: 40px;
 `;
@@ -26,7 +27,7 @@ const BedIcon = styled(SingleBedIcon)`
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
-    color: ${(props) => props.theme.palette.primary.main};
+    color: ${props => props.theme.palette.primary.main};
   }
 `;
 
@@ -63,10 +64,26 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
   const onConfirmMove = () => {
     submit({ locationId: plannedLocation.id });
   };
+
   return (
-    <Modal title="Finalise patient move" open={open} onClose={onClose} data-testid="modal-v19s">
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patient.modal.finaliseMove.title"
+          fallback="Finalise patient move"
+          data-testid="translatedtext-patient-modal-move-finalise-title"
+        />
+      }
+      open={open}
+      onClose={onClose}
+      data-testid="modal-v19s"
+    >
       <Text data-testid="text-oexz">
-        Please confirm the location details below to finalise the patient move.
+        <TranslatedText
+          stringId="patient.modal.finaliseMove.confirmation"
+          fallback="Please confirm the location details below to finalise the patient move."
+          data-testid="translatedtext-patient-modal-move-finalise-confirmation"
+        />
       </Text>
       <Container data-testid="container-c12u">
         <Box
@@ -91,15 +108,31 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           data-testid="box-476j"
         >
           <Card data-testid="card-enqf">
-            Current location: <span>{getFullLocationName(location)}</span>
+            <TranslatedText
+              stringId="patient.modal.finaliseMove.currentLocation"
+              fallback="Current location:"
+              data-testid="translatedtext-patient-modal-move-finalise-current-location"
+            />{' '}
+            <span>{getFullLocationName(location)}</span>
           </Card>
           <Card className="active" data-testid="card-rmih">
-            New location: <span>{getFullLocationName(plannedLocation)}</span>
+            <TranslatedText
+              stringId="patient.modal.finaliseMove.newLocation"
+              fallback="New location:"
+              data-testid="translatedtext-patient-modal-move-finalise-new-location"
+            />{' '}
+            <span>{getFullLocationName(plannedLocation)}</span>
           </Card>
         </Box>
       </Container>
       <ModalActionRow
-        confirmText="Confirm"
+        confirmText={
+          <TranslatedText
+            stringId="general.action.confirm"
+            fallback="Confirm"
+            data-testid="translatedtext-confirm-action"
+          />
+        }
         onConfirm={onConfirmMove}
         onCancel={onClose}
         data-testid="modalactionrow-1fvh"
