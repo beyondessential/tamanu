@@ -1,6 +1,8 @@
 name: Synthetic Test Runner
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
     inputs:
       target_url:
@@ -27,6 +29,12 @@ jobs:
       PR_SHA: ${{ inputs.pr_sha }}
 
     steps:
+      - name: Exit early if triggered by PR
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Workflow triggered by PR event - exiting early"
+          exit 0
+
       - name: Set dynamic commit status context
         id: metadata
         run: echo "RUN_CONTEXT=synthetic-test-run-$(date -u +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
