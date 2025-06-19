@@ -4,7 +4,7 @@ import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 export const ADDRESS_HIERARCHY_FIELD_ID = 'addressHierarchy';
 
-export const ADDITIONAL_DATA_SECTIONS = [
+export const COMMON_DATA_SECTIONS = [
   {
     sectionKey: 'identificationInformation',
     title: (
@@ -76,21 +76,49 @@ export const ADDITIONAL_DATA_SECTIONS = [
       ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
     ],
   },
-  {
-    sectionKey: 'otherWithHierarchy',
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.otherInformation"
-        fallback="Other information"
-      />
-    ),
-    fields: [
-      ADDRESS_HIERARCHY_FIELD_ID,
-      ADDITIONAL_DATA_FIELDS.CITY_TOWN,
-      ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
-      ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
-      ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
-      ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
-    ],
-  },
+];
+
+const BASIC_OTHER_INFORMATION_SECTION = {
+  sectionKey: 'otherInformation',
+  title: (
+    <TranslatedText
+      stringId="patient.details.subheading.otherInformation"
+      fallback="Other information"
+    />
+  ),
+  fields: [
+    ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
+    ADDITIONAL_DATA_FIELDS.CITY_TOWN,
+    ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+    ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+    ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
+    ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+    ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
+    ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
+  ],
+};
+
+export const ADDITIONAL_DATA_SECTIONS = [...COMMON_DATA_SECTIONS, BASIC_OTHER_INFORMATION_SECTION];
+
+const ADDRESS_HIERARCHY_SECTION = {
+  sectionKey: 'otherInformation',
+  title: (
+    <TranslatedText
+      stringId="patient.details.subheading.otherInformation"
+      fallback="Other information"
+    />
+  ),
+  fields: [
+    ADDRESS_HIERARCHY_FIELD_ID,
+    ADDITIONAL_DATA_FIELDS.CITY_TOWN,
+    ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
+    ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
+    ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
+    ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
+  ],
+};
+
+export const ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY = [
+  ...COMMON_DATA_SECTIONS,
+  ADDRESS_HIERARCHY_SECTION,
 ];

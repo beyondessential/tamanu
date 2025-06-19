@@ -5,6 +5,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { joinNames } from '~/ui/helpers/user';
 import { ADDITIONAL_DATA_SECTIONS } from './fields';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY } from './fields';
 
 export const PatientDetails = ({ patient, navigation }): ReactElement => {
   const { getSetting } = useSettings();
@@ -49,10 +50,8 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
         onEdit={editPatientAdditionalData}
         dataSections={
           isUsingAddressHierarchy
-            ? ADDITIONAL_DATA_SECTIONS.filter(({ sectionKey }) => sectionKey !== 'otherInformation')
-            : ADDITIONAL_DATA_SECTIONS.filter(
-                ({ sectionKey }) => sectionKey !== 'otherWithHierarchy',
-              )
+            ? ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY
+            : ADDITIONAL_DATA_SECTIONS
         }
       />
     </>
