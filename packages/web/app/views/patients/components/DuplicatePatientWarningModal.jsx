@@ -24,7 +24,6 @@ import {
 } from '../columns';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
 import { reloadPatient } from '../../../store';
-import { CancelNewPatientConfirmationModal } from './CancelNewPatientConfirmationModal';
 
 const LeftAlignedButton = styled(OutlinedButton)`
   margin-right: auto;
@@ -36,15 +35,13 @@ export const DuplicatePatientWarningModal = ({
   open,
   setShowWarningModal,
   resolveFn,
-  onCancelNewPatient,
-  warningModalData,
+  showCancelNewPatientModal,
+  data,
 }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
 
-  const { proposedPatient, potentialDuplicates } = warningModalData;
-
-  const [showCancelConfirmModal, setShowCancelConfirmModal] = React.useState(false);
+  const { proposedPatient, potentialDuplicates } = data;
 
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -138,10 +135,7 @@ export const DuplicatePatientWarningModal = ({
               data-testid="translatedtext-back"
             />
           </LeftAlignedButton>
-          <OutlinedButton
-            data-testid="outlinedbutton-p957"
-            onClick={() => setShowCancelConfirmModal(true)}
-          >
+          <OutlinedButton data-testid="outlinedbutton-p957" onClick={showCancelNewPatientModal}>
             <TranslatedText
               stringId="general.action.cancel"
               fallback="Cancel"
@@ -161,15 +155,6 @@ export const DuplicatePatientWarningModal = ({
           </OutlinedButton>
         </ButtonRow>
       </Modal>
-      <CancelNewPatientConfirmationModal
-        open={showCancelConfirmModal}
-        onClose={() => setShowCancelConfirmModal(false)}
-        onCancelConfirm={() => {
-          setShowCancelConfirmModal(false);
-          setShowWarningModal(false);
-          onCancelNewPatient();
-        }}
-      />
     </>
   );
 };

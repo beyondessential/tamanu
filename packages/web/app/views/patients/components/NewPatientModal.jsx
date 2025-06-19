@@ -9,23 +9,25 @@ import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
+import { CancelNewPatientConfirmationModal } from './CancelNewPatientConfirmationModal';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
   const { facilityId } = useAuth();
 
-  // Warning modal state
-  const [warningModalData, setWarningModalData] = useState({
+  const [cancelNewPatientModalOpen, setCancelNewPatientModalOpen] = useState(false);
+  const [duplicateWarningModalOpen, setDuplicateWarningModalOpen] = useState(false);
+  const [duplicateWarningModalData, setDuplicateWarningModalData] = useState({
     proposedPatient: {},
     potentialDuplicates: [],
   });
-  const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const confirmUniquePatientWithUser = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-      setShowWarningModal(true);
+      setDuplicateWarningModalOpen(true);
     });
 
   const onSubmit = useCallback(
@@ -36,7 +38,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         // If duplicates are found, populate the warning modal state and wait for the user to
         // confirm its unique. If the user confirms, proceed with creating the new patient
         if (potentialDuplicates.length > 0) {
-          setWarningModalData({
+          setDuplicateWarningModalData({
             proposedPatient: data,
             potentialDuplicates,
           });
@@ -56,6 +58,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     },
     [api, onCreateNewPatient, facilityId],
   );
+
   return (
     <>
       <FormModal
@@ -66,25 +69,34 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
             data-testid="translatedtext-q61s"
           />
         }
-        onClose={onCancel}
+        onClose={() => setCancelNewPatientModalOpen(true)}
         open={open}
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
           generateId={generateId}
-          onCancel={onCancel}
+          onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
           data-testid="newpatientform-4lx2"
         />
       </FormModal>
       <DuplicatePatientWarningModal
-        open={warningModalOpen}
-        setShowWarningModal={setShowWarningModal}
+        open={duplicateWarningModalOpen}
+        setShowWarningModal={setDuplicateWarningModalOpen}
         resolveFn={resolveFn}
         data-testid="warningmodal-h7av"
-        warningModalData={warningModalData}
-        onCancelNewPatient={onCancel}
+        data={duplicateWarningModalData}
+        showCancelNewPatientModal={() => setCancelNewPatientModalOpen(true)}
+      />
+      <CancelNewPatientConfirmationModal
+        open={cancelNewPatientModalOpen}
+        onClose={() => setCancelNewPatientModalOpen(false)}
+        onCancelConfirm={() => {
+          setCancelNewPatientModalOpen(false);
+          setDuplicateWarningModalOpen(false);
+          onCancel();
+        }}
       />
     </>
   );
