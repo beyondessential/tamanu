@@ -2,6 +2,8 @@ import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
+export const ADDRESS_HIERARCHY_FIELD_ID = 'addressHierarchy';
+
 export const ADDITIONAL_DATA_SECTIONS = [
   {
     sectionKey: 'identificationInformation',
@@ -72,6 +74,23 @@ export const ADDITIONAL_DATA_SECTIONS = [
       ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
       ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
       ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
+    ],
+  },
+  {
+    sectionKey: 'otherWithHierarchy',
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.otherInformation"
+        fallback="Other information"
+      />
+    ),
+    fields: [
+      ADDRESS_HIERARCHY_FIELD_ID,
+      ADDITIONAL_DATA_FIELDS.CITY_TOWN,
+      ADDITIONAL_DATA_FIELDS.COUNTRY_ID,
+      ADDITIONAL_DATA_FIELDS.MEDICAL_AREA_ID,
+      ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID,
+      ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
     ],
   },
 ];
