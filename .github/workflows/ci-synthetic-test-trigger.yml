@@ -45,13 +45,13 @@ jobs:
           echo "Cancelling in-progress synthetic test runs for PR #${{ steps.check.outputs.pr_number }}"
           
           PR_BRANCH="${{ steps.check.outputs.pr_ref }}"
-          RUN_IDS=$(gh run list --workflow=ci-synthetic-test-runner.yml --json databaseId,status,headBranch --limit 1000 \
+          RUN_IDS=$(gh run list --repo ${{ github.repository }} --workflow=ci-synthetic-test-runner.yml --json databaseId,status,headBranch --limit 1000 \
             | jq -r --arg branch "$PR_BRANCH" '.[] | select(.status == "in_progress" and .headBranch == $branch) | .databaseId')
 
           if [ -n "$RUN_IDS" ]; then
             echo "$RUN_IDS" | while read run_id; do
               echo "Cancelling run $run_id (branch: $PR_BRANCH)"
-              gh run cancel "$run_id"
+              gh run cancel --repo ${{ github.repository }} "$run_id"
             done
           else
             echo "No in-progress runs found for branch $PR_BRANCH"
