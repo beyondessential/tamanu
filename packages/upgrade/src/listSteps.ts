@@ -22,20 +22,7 @@ export async function listSteps() {
       (await fs.readdir(STEPS_DIR))
         .filter((file: string) => /^\d+-[^.:]+[.][jt]s$/.test(file))
         .sort()
-        .map(async (file: string) => {
-          const stepfile = basename(file, extname(file));
-          const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
-          return STEPS.map((step, i) => ({
-            id: `upgrade/${stepfile}/${i}` as StepStr,
-            file: `upgrade/${stepfile}` as StepStr,
-            step: {
-              before: [],
-              after: [],
-              check: () => Promise.resolve(true),
-              ...step,
-            },
-          }));
-        }),
+        .map(readStep),
     )
   ).flat();
 
@@ -43,15 +30,36 @@ export async function listSteps() {
     onlyMigrations(step.after).concat(onlyMigrations(step.before)),
   );
 
+  // we build a list of edges in a dependency directed graph:
+  // an edge A -> B is represented as [A, B]
+  //
+  // the goal is to convert the step requirement in the config (at, before, after)
+  // to a graph, and then convert that via toposort to a single order of steps to
+  // apply.
+  //
+  // migrations are mixed in only to the extent that they're referenced in the steps,
+  // and then in the fixed section added at the end in the concat(), which adds the
+  // first and last pending migrations to the ordering. this is because we use a
+  // "migrate up to" strategy, instead of running each migration individually.
+  //
+  // steps and migrations are differentiated by their "step ID", which is upgrade/...
+  // for upgrade steps and migration/... for migrations. there's an additional thing
+  // where upgrade files can have multiple steps in them, so you can define a pre and
+  // a post migration step in the same file if they're related. so upgrade steps have
+  // a full ID, which is upgrade/filename/N, where N is the index of the step within
+  // the file, and a short ID, which is upgrade/filename. steps can depend on either
+  // the filename, or a specific indexed step. and here we define this by having the
+  // graph include upgrade/name/N -> upgrade/step, such that once all indexed steps
+  // are done, steps that depend on the overall step file will run.
   const edges: Edge[] = edgeFilter(migrations.map((mig, i) => [migrations[i - 1], mig]))
     .concat(
       steps.flatMap(({ file, id, step }) => {
-        const topo: Edge[] = [];
+        const topo: Edge[] = [[id, file]];
 
         if (step.at === START) {
-          topo.push([START, id], [file, id]);
+          topo.push([START, id]);
         } else if (step.at === END) {
-          topo.push([id, END], [file, id]);
+          topo.push([id, END]);
         }
 
         for (const need of step.before) {
@@ -74,10 +82,28 @@ export async function listSteps() {
       ]),
     );
 
+  // we return both the order as a list of step IDs and a mapping of
+  // step IDs to step definitions. keeping the order list lightweight
+  // probably helps performance marginally, but is also the simplest.
   return {
     order: toposort(edges).reverse() as StepStr[],
     steps: new Map(steps.map((step) => [step.id, step])),
   };
+}
+
+async function readStep(file: string) {
+  const stepfile = basename(file, extname(file));
+  const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
+  return STEPS.map((step, i) => ({
+    id: `upgrade/${stepfile}/${i}` as StepStr,
+    file: `upgrade/${stepfile}` as StepStr,
+    step: {
+      before: [],
+      after: [],
+      check: () => Promise.resolve(true),
+      ...step,
+    },
+  }));
 }
 
 function edgeFilter(edges: [string | undefined, string | undefined][]): Edge[] {
