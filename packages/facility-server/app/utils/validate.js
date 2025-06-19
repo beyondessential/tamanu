@@ -8,7 +8,6 @@ import { log } from '@tamanu/shared/services/logging/log';
  * @returns {*} The validated data if successful, undefined if validation fails
  */
 export const validate = (schema, body) => {
-  log.info('Validating body:', body);
   const validationResult = schema.safeParse(body);
   if (!validationResult.success) {
     // We just want to log errors at the moment

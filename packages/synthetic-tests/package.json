@@ -4,13 +4,15 @@
   "private": true,
   "dependencies": {
     "@tamanu/constants": "*",
-    "@tamanu/test-data": "*"
+    "@tamanu/test-data": "*",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0"
   },
   "scripts": {
-    "test": "npm run --workspace=@tamanu/facility-server build && npm run --workspace=@tamanu/fake-data build &&artillery run src/scenarios/create-patient.yml"
+    "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",
+    "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
   },
   "keywords": [],
   "author": "",

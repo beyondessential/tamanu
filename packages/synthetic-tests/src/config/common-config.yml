@@ -1,2 +1,11 @@
 config:
+  target: 'http://localhost:4000'
   processor: '../hooks/index.ts'
+  phases:
+    - name: 'Warmup'
+      duration: 30m
+      arrivalRate: 1
+      rampTo: 5
+    - name: 'Sustained'
+      duration: 6h
+      arrivalRate: 5
