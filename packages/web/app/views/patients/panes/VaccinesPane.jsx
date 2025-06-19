@@ -17,6 +17,7 @@ import {
 } from '../../../components/PatientPrinting';
 import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
 import { useAdministeredVaccines } from '../../../api/queries';
+import { useSettings } from '../../../contexts/Settings';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -36,6 +37,8 @@ const TableWrapper = styled.div`
 `;
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {
+  const { getSettings } = useSettings();
+  const [showUpcomingVaccines, setShowUpcomingVaccines] = useState(!getSettings('features.hideUpcomingVaccines'));
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
@@ -43,6 +46,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
+
+
+  const handleShowUpcomingVaccines = useCallback(() => {
+    setShowUpcomingVaccines(true);
+  }, []);
 
   const handleOpenDeleteModal = useCallback(async row => {
     setIsDeleteAdministeredModalOpen(true);
@@ -138,10 +146,14 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <TableWrapper>
+          {showUpcomingVaccines ? (
           <ImmunisationScheduleTable
-            patient={patient}
-            onItemEdit={id => handleOpenRecordModal(id)}
-          />
+              patient={patient}
+              onItemEdit={id => handleOpenRecordModal(id)}
+            />
+          ) : (
+            <Button onClick={handleShowUpcomingVaccines}><TranslatedText stringId="vaccine.action.showUpcomingVaccines" fallback="Show upcoming vaccines" /></Button>
+          )}
         </TableWrapper>
         <ImmunisationsTable
           patient={patient}
