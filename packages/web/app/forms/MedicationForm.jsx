@@ -525,9 +525,7 @@ export const MedicationForm = ({
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
-  const existingDrugIds = useMemo(() => medications.map(({ medication }) => medication?.id), [
-    medications,
-  ]);
+  const existingDrugIds = medications.map(({ medication }) => medication?.id);
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -629,7 +627,7 @@ export const MedicationForm = ({
     };
   };
 
-  const onDrugChange = drugId => {
+  const handleChangeMedication = drugId => {
     const isExistingDrug = existingDrugIds.includes(drugId);
     setShowExistingDrugWarning(isExistingDrug);
   };
@@ -687,7 +685,7 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
-                      onDrugChange(e.target.value);
+                      handleChangeMedication(e.target.value);
                     }}
                   />
                   {showExistingDrugWarning && (

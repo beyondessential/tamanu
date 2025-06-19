@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
@@ -135,9 +135,8 @@ export const MedicationSetMedicationsList = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounter?.id);
-  const existingDrugIds = useMemo(() => medications.map(({ medication }) => medication?.id), [
-    medications,
-  ]);
+  const existingDrugIds = medications.map(({ medication }) => medication?.id);
+
   return (
     <ListContainer width="420px">
       <Heading4 textAlign="center" mt="6px" mb="2px">
