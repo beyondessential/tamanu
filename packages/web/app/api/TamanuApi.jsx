@@ -1,6 +1,6 @@
 import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -205,9 +205,8 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        // TODO: this is a hack to get the language from the browser
         const language = localStorage.getItem(LANGUAGE);
-        if (language === 'en') {
+        if (language === ENGLISH_LANGUAGE_CODE) {
           notifyError([
             <b key="general.api.notification.requestFailed">
               <TranslatedText
@@ -230,12 +229,20 @@ export class TamanuApi extends ApiClient {
           ]);
         } else {
           notifyError([
-            <b key="general.api.notification.requestFailed.generic">
+            <b key="general.api.notification.requestFailed">
               <TranslatedText
-                stringId="general.api.notification.requestFailed.generic"
+                stringId="general.api.notification.requestFailed"
                 fallback="Network request failed. Please contact your administrator."
               />
             </b>,
+            err.status && (
+              <TranslatedText
+                key="general.api.notification.requestFailed.status"
+                stringId="general.api.notification.requestFailed.status"
+                fallback="Status code: :status"
+                replacements={{ status: err.status }}
+              />
+            ),
           ]);
         }
       }
