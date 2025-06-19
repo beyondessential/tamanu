@@ -22,7 +22,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     potentialDuplicates: [],
   });
   const [resolveFn, setResolveFn] = useState(null);
-  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const confirmUniquePatientWithUser = async () =>
     new Promise(resolve => {
