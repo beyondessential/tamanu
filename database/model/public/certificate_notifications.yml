@@ -6,8 +6,9 @@ sources:
     tables:
       - name: certificate_notifications
         description: '{{ doc("table__certificate_notifications") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

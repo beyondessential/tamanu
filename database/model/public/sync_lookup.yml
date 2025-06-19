@@ -6,8 +6,9 @@ sources:
     tables:
       - name: sync_lookup
         description: '{{ doc("table__sync_lookup") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: bigint

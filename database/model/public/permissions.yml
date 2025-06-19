@@ -6,8 +6,9 @@ sources:
     tables:
       - name: permissions
         description: '{{ doc("table__permissions") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)

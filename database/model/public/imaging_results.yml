@@ -6,8 +6,9 @@ sources:
     tables:
       - name: imaging_results
         description: '{{ doc("table__imaging_results") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid

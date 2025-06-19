@@ -5,8 +5,9 @@ sources:
     tables:
       - name: SequelizeMeta
         description: '{{ doc("table__SequelizeMeta") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: name
             data_type: character varying(255)

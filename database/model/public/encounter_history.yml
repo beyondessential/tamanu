@@ -6,8 +6,9 @@ sources:
     tables:
       - name: encounter_history
         description: '{{ doc("table__encounter_history") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid

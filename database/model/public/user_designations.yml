@@ -6,7 +6,9 @@ sources:
     tables:
       - name: user_designations
         description: '{{ doc("table__user_designations") }}'
-        tags: []
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

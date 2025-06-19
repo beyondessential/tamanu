@@ -6,8 +6,9 @@ sources:
     tables:
       - name: surveys
         description: '{{ doc("table__surveys") }}'
-        tags:
-          - reference
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

@@ -6,7 +6,9 @@ sources:
     tables:
       - name: notifications
         description: '{{ doc("table__notifications") }}'
-        tags: []
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid

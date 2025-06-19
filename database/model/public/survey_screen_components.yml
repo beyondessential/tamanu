@@ -6,8 +6,9 @@ sources:
     tables:
       - name: survey_screen_components
         description: '{{ doc("table__survey_screen_components") }}'
-        tags:
-          - reference
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

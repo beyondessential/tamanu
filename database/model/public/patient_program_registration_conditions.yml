@@ -6,8 +6,9 @@ sources:
     tables:
       - name: patient_program_registration_conditions
         description: '{{ doc("table__patient_program_registration_conditions") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -67,6 +68,17 @@ sources:
             description: "{{ doc('patient_program_registration_conditions__condition_category') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - suspected
+                    - underInvestigation
+                    - confirmed
+                    - unknown
+                    - disproven
+                    - resolved
+                    - inRemission
+                    - notApplicable
+                    - recordedInError
           - name: reason_for_change
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__reason_for_change') }}"

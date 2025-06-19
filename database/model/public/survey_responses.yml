@@ -6,8 +6,9 @@ sources:
     tables:
       - name: survey_responses
         description: '{{ doc("table__survey_responses") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

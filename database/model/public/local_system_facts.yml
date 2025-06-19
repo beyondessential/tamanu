@@ -6,8 +6,9 @@ sources:
     tables:
       - name: local_system_facts
         description: '{{ doc("table__local_system_facts") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)
