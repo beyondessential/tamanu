@@ -56,15 +56,21 @@ jobs:
           else
             echo "No in-progress runs found for branch $PR_BRANCH"
           fi
-      
+
       - name: Trigger Synthetic Test Runner
         if: steps.check.outputs.should_run == 'true'
-        uses: benc-uk/workflow-dispatch@v1
+        uses: actions/github-script@v7
         with:
-          workflow: ci-synthetic-test-runner.yml
-          ref: ${{ steps.check.outputs.pr_ref }}
-          inputs: |
-            target_url: ${{ steps.check.outputs.target_url }}
-            pr_number: ${{ steps.check.outputs.pr_number }}
-            pr_ref: ${{ steps.check.outputs.pr_ref }}
-            pr_sha: ${{ steps.check.outputs.pr_sha }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci-synthetic-test-runner.yml',
+              ref: '${{ steps.check.outputs.pr_ref }}',
+              inputs: {
+                target_url: '${{ steps.check.outputs.target_url }}',
+                pr_number: '${{ steps.check.outputs.pr_number }}',
+                pr_ref: '${{ steps.check.outputs.pr_ref }}',
+                pr_sha: '${{ steps.check.outputs.pr_sha }}'
+              }
+            });
