@@ -1,16 +1,9 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { createPatientViaApi } from '../../utils/generateNewPatient';
 
 test.describe('Patient Side Bar', () => {
-  test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
-    await allPatientsPage.goto();
-    await createPatientViaApi(allPatientsPage);
-
-    //this is to replicate the workflow of visiting an existing patient
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+  test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
+    await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
-    await expect(patientDetailsPage.patientNHN).toContainText(patientData.nhn);
   });
 
   test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
@@ -166,10 +159,9 @@ test.describe('Patient Side Bar', () => {
 
   test('Add allergy that is not in dropdown list', async ({
     patientDetailsPage,
-    allPatientsPage,
+    newPatient,
   }) => {
-    const patientData = allPatientsPage.getPatientData();
-    const newAllergy = patientDetailsPage.generateNewAllergy(patientData.nhn);
+    const newAllergy = patientDetailsPage.generateNewAllergy(newPatient.displayId);
 
     await patientDetailsPage.searchNewAllergyNotInDropdown(newAllergy);
 
@@ -280,6 +272,7 @@ test.describe('Patient Side Bar', () => {
   test('Warning appears when navigating to patient with a warning', async ({
     patientDetailsPage,
     allPatientsPage,
+    newPatient,
   }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning(
       'A warning appears when navigating to a patient with a warning',
@@ -287,8 +280,7 @@ test.describe('Patient Side Bar', () => {
 
     await allPatientsPage.goto();
 
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+    await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
 
     await expect(
       patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' }),
@@ -298,7 +290,7 @@ test.describe('Patient Side Bar', () => {
     );
   });
 
-  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage }) => {
+  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage, newPatient }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
     await patientDetailsPage.warningModalOkayButton.click();
 
@@ -316,8 +308,7 @@ test.describe('Patient Side Bar', () => {
 
     await allPatientsPage.goto();
 
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+    await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
 
     await expect(
       patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' }),
