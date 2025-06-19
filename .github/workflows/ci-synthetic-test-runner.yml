@@ -1,0 +1,150 @@
+name: Synthetic Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL for synthetic tests'
+        required: true
+      pr_number:
+        description: 'PR number'
+        required: true
+      pr_ref:
+        description: 'PR ref'
+        required: true
+      pr_sha:
+        description: 'PR SHA'
+        required: true
+
+jobs:
+  validate-and-run:
+    name: synthetic-test-run-${{ github.event.inputs.pr_number }}-${{ github.run_id }}
+    runs-on: ubuntu-latest
+    env:
+      TARGET_URL: ${{ github.event.inputs.target_url }}
+      PR_NUMBER: ${{ github.event.inputs.pr_number }}
+      PR_REF: ${{ github.event.inputs.pr_ref }}
+      PR_SHA: ${{ github.event.inputs.pr_sha }}
+
+    steps:
+      - name: Set dynamic commit status context
+        id: metadata
+        run: echo "RUN_CONTEXT=synthetic-test-run-$(date -u +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Verify checkbox is still checked
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('PR_NUMBER from env:', process.env.PR_NUMBER);
+            console.log('PR_NUMBER type:', typeof process.env.PR_NUMBER);
+            
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            console.log('Parsed PR number:', prNumber);
+            console.log('Is NaN:', isNaN(prNumber));
+            
+            if (isNaN(prNumber)) {
+              core.setFailed(`Invalid PR number: ${process.env.PR_NUMBER}`);
+              return;
+            }
+            
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const isStillChecked = pr.body?.includes('[x] **Synthetic Test Environment** <!-- #synthetic-test -->');
+            if (!isStillChecked) {
+              core.setFailed('Checkbox is no longer checked – skipping test.');
+            }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build-shared
+
+      - name: Set commit status to pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'pending',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test running...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Ensure latest merged scenarios
+        run: npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+
+      - name: Run synthetic test
+        uses: artilleryio/action-cli@v1
+        with:
+          command: run packages/synthetic-tests/src/merged-scenarios.yml --target=${{ env.TARGET_URL }}
+
+      - name: Update commit status on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'success',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test passed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Update commit status on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'failure',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Update commit status on cancel
+        if: cancelled()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'error',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test was cancelled',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Retrigger synthetic test 
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering ci-synthetic-test-runner.yml on ref ${{ steps.check.outputs.pr_ref }}"
+          gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
+            --ref "${{ steps.check.outputs.pr_ref }}" \
+            --field target_url="${{ steps.check.outputs.target_url }}" \
+            --field pr_number="${{ steps.check.outputs.pr_number }}" \
+            --field pr_ref="${{ steps.check.outputs.pr_ref }}" \
+            --field pr_sha="${{ steps.check.outputs.pr_sha }}"
