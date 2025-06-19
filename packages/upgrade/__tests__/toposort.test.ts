@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { START, END, MigrationStr } from '../src/step.js';
-import { MIGRATIONS_END, MIGRATIONS_START, orderSteps } from '../src/listSteps.ts';
+import { MIGRATIONS_END, MIGRATIONS_START, orderSteps } from '../src/listSteps.js';
 
 const PENDING_MIGRATIONS: MigrationStr[] = [
   'migration/1744261686398-addEnabledCheckToAuditTrigger',
