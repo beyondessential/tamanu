@@ -1,0 +1,67 @@
+name: Synthetic Test Trigger
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-and-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.check.outputs.pr_number }}
+    steps:
+      - uses: actions/github-script@v7
+        id: check
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number || parseInt(core.getInput('pr_number'));
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const syntheticTestMatch = pr.body?.match(/\[(?<checked>[ x])\]\s+\*\*Synthetic Test Environment\*\* <!-- #synthetic-test -->/);
+            const shouldRun = syntheticTestMatch?.groups.checked === 'x';
+
+            const targetUrlMatch = pr.body?.match(/Target URL:\s*(https?:\/\/[^\s\n]+)/i);
+            const targetUrl = targetUrlMatch?.[1] 
+
+            if (!targetUrl) {
+              core.setFailed('No target URL found in PR body, please add a target URL to the PR body');
+            }
+
+            core.setOutput('should_run', shouldRun);
+            core.setOutput('target_url', targetUrl);
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('pr_ref', pr.head.ref);
+            core.setOutput('pr_sha', pr.head.sha);
+
+      - name: Cancel in-progress runs for this PR
+        if: steps.check.outputs.should_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Cancelling all in-progress synthetic test runs for PR #${{ steps.check.outputs.pr_number }}"
+          gh run list --workflow=ci-synthetic-test-runner.yml --json databaseId,status,prNumber --limit 1000 |
+          jq -r --arg pr_number "${{ steps.check.outputs.pr_number }}" '
+            .[] |
+            select(.status == "in_progress" and .prNumber == ($pr_number | tonumber)) |
+            .databaseId
+          ' |
+          while read run_id; do
+            echo "Cancelling run $run_id"
+            gh run cancel "$run_id"
+          done
+      
+      - name: Trigger Synthetic Test Runner
+        if: steps.check.outputs.should_run == 'true'
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: ci-synthetic-test-runner.yml
+          ref: ${{ steps.check.outputs.pr_ref }}
+          inputs: |
+            target_url: ${{ steps.check.outputs.target_url }}
+            pr_number: ${{ steps.check.outputs.pr_number }}
+            pr_ref: ${{ steps.check.outputs.pr_ref }}
+            pr_sha: ${{ steps.check.outputs.pr_sha }}

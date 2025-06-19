@@ -32,12 +32,14 @@ export async function getRandomPatient(
   );
 
   if (!response.ok) {
+    console.error('Failed to fetch patients', response);
     throw new Error(`Failed to fetch patients: ${response.statusText}`);
   }
 
   const data = await response.json();
 
   if (!data.data || data.data.length === 0) {
+    console.error('No patients found in the system', data);
     throw new Error('No patients found in the system');
   }
 

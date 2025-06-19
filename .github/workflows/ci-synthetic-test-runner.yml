@@ -1,0 +1,134 @@
+name: Synthetic Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL for synthetic tests'
+        required: true
+      pr_number:
+        description: 'PR number'
+        required: true
+      pr_ref:
+        description: 'PR ref'
+        required: true
+      pr_sha:
+        description: 'PR SHA'
+        required: true
+
+jobs:
+  validate-and-run:
+    name: synthetic-test-run-${{ github.event.inputs.pr_number }}-${{ github.run_id }}
+    runs-on: ubuntu-latest
+    env:
+      TARGET_URL: ${{ inputs.target_url }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+      PR_REF: ${{ inputs.pr_ref }}
+      PR_SHA: ${{ inputs.pr_sha }}
+
+    steps:
+      - name: Set dynamic commit status context
+        id: metadata
+        run: echo "RUN_CONTEXT=synthetic-test-run-$(date -u +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Verify checkbox is still checked
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const isStillChecked = pr.body?.includes('[x] **Synthetic Test Environment** <!-- #synthetic-test -->');
+            if (!isStillChecked) {
+              core.setFailed('Checkbox is no longer checked – skipping test.');
+            }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build-shared
+
+      - name: Set commit status to pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'pending',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test running...'
+            });
+
+      - name: Run synthetic test
+        run: npm run synthetic-test -- -- --target=${{ env.TARGET_URL }}
+
+      - name: Update commit status on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'success',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test passed'
+            });
+
+      - name: Update commit status on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'failure',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test failed'
+            });
+
+      - name: Retrigger synthetic test if still checked
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const stillChecked = pr.body?.includes('[x] **Synthetic Test Environment** <!-- #synthetic-test -->');
+            if (stillChecked) {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'ci-synthetic-test-runner.yml',
+                ref: process.env.PR_REF,
+                inputs: {
+                  target_url: process.env.TARGET_URL,
+                  pr_number: process.env.PR_NUMBER,
+                  pr_ref: process.env.PR_REF,
+                  pr_sha: process.env.PR_SHA
+                }
+              });
+            } else {
+              console.log("Checkbox is unchecked – not retriggering.");
+            }

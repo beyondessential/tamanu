@@ -11,7 +11,7 @@ config:
       arrivalRate: 1
       rampTo: 5
     - name: Sustained
-      duration: 6h
+      duration: 5h
       arrivalRate: 5
 scenarios:
   - name: Create encounter

@@ -7,5 +7,6 @@ config:
       arrivalRate: 1
       rampTo: 5
     - name: 'Sustained'
-      duration: 6h
+      ## GitHub Actions has a 6h limit
+      duration: 5h
       arrivalRate: 5
