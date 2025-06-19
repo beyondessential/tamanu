@@ -35,8 +35,14 @@ export * from './ReferenceDataRelation';
 export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
+
 export * from './EncounterDiagnosis';
-export * from './EncounterMedication';
+export * from './Prescription';
+export * from './PatientOngoingPrescription';
+export * from './EncounterPrescription';
+export * from './EncounterPausePrescription';
+export * from './EncounterPausePrescriptionHistory';
+
 export * from './EncounterDiet';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
@@ -104,6 +110,11 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
+export * from './ReferenceDrug';
+export * from './MedicationAdministrationRecord';
+export * from './MedicationAdministrationRecordDose';
+export * from './ReferenceMedicationTemplate';
+
 export * from './Notification';
 
 export * from './Signer';
@@ -129,4 +140,7 @@ export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
+export * from './SyncLookupTick';
+
 export * from './AccessLog';
+export * from './ChangeLog';

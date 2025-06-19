@@ -48,8 +48,7 @@ sources:
             description: "{{ doc('patient_field_definitions__options') }}"
           - name: visibility_status
             data_type: character varying(255)
-            description: "{{ doc('generic__visibility_status') }} in
-              patient_field_definitions."
+            description: "{{ doc('generic__visibility_status') }} in patient_field_definitions."
             data_tests:
               - not_null
           - name: category_id
@@ -62,7 +61,6 @@ sources:
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_field_definitions."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_field_definitions."
             data_tests:
               - not_null

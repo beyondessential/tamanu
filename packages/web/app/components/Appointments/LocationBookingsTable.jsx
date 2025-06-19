@@ -21,7 +21,6 @@ import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingM
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
 import { useAuth } from '../../contexts/Auth';
-import { CompactContentPane as ContentPane } from '../ContentPane';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -206,7 +205,6 @@ const DateText = styled.div`
 `;
 
 const NoDataContainer = styled.div`
-  margin: 10px 30px;
   padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
@@ -456,7 +454,7 @@ export const LocationBookingsTable = ({ patient }) => {
   }
 
   return (
-    <ContentPane>
+    <div>
       <StyledTable
         isLoading={isLoading}
         data={appointments}
@@ -495,6 +493,6 @@ export const LocationBookingsTable = ({ patient }) => {
           data-testid="pastbookingsmodal-x4ug"
         />
       )}
-    </ContentPane>
+    </div>
   );
 };

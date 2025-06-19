@@ -136,7 +136,7 @@ export const VaccineNotGivenForm = ({
       onConfirm={submitForm}
       editMode={editMode}
       onCancel={onCancel}
-      data-testid="confirmcancelrowfield-wzd0"
+      data-testid="confirmcancelrowfield-8qv4"
     />
   </TwoTwoGrid>
 );

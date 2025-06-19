@@ -10,7 +10,9 @@ import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -69,7 +71,7 @@ const getItems = (isIssuesPane, response) => {
   const warnings = items.filter(shouldShowIssueInWarningModal);
   const sortedIssues = [
     ...warnings,
-    ...items.filter((issue) => !shouldShowIssueInWarningModal(issue)),
+    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
   ];
 
   return { items: sortedIssues, warnings };
@@ -105,10 +107,10 @@ export const InfoPaneList = ({
     () => setAddEditState({ adding: !adding, editKey: null }),
     [adding],
   );
-  const handleRowClick = useCallback((id) => setAddEditState({ adding: false, editKey: id }), []);
+  const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
   const handleCloseForm = useCallback(() => setAddEditState({ adding: false, editKey: null }), []);
 
-  const Wrapper = (props) =>
+  const Wrapper = props =>
     behavior === 'collapse' ? (
       <Collapse in={adding} {...props} data-testid="collapse-qeou" />
     ) : (
@@ -146,14 +148,20 @@ export const InfoPaneList = ({
       >
         <TitleText data-testid="titletext-rvdl">{title}</TitleText>
         {!readonly && (
-          <AddButton
-            onClick={handleAddButtonClick}
-            endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
-            data-test-class="add-button-section"
-            data-testid="addbutton-b0ln"
-          >
-            Add
-          </AddButton>
+          <NoteModalActionBlocker>
+            <AddButton
+              onClick={handleAddButtonClick}
+              endIcon={<AddCircleIcon data-testid="addcircleicon-m4ab" />}
+              data-test-class="add-button-section"
+              data-testid="addbutton-b0ln"
+            >
+              <TranslatedText
+                stringId="general.action.add"
+                fallback="Add"
+                data-testid="translatedtext-add"
+              />
+            </AddButton>
+          </NoteModalActionBlocker>
         )}
       </TitleContainer>
       <DataList data-testid="datalist-073t">

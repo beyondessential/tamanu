@@ -11,6 +11,7 @@ function generateNHN() {
   return generatedId;
 }
 
+// TODO: Refactor to use `fake-data` when importing is workings
 function generatePatientData() {
   const gender = faker.helpers.arrayElement(['male', 'female']);
   const firstName = faker.person.firstName(gender);

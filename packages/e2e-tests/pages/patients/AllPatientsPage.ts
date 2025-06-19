@@ -4,10 +4,10 @@ import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
 import { SelectingFromSearchBox, convertDateFormat } from '../../utils/testHelper';
 
+import { PatientTable } from './PatientTable';
 
 export class AllPatientsPage extends BasePage {
-  readonly allPatientsTable: Locator;
-  readonly allPatientsTableLoadingCell: Locator;
+  readonly patientTable: PatientTable;
   readonly addNewPatientBtn: Locator;
   readonly NewPatientFirstName: Locator;
   readonly NewPatientLastName: Locator;
@@ -63,11 +63,7 @@ export class AllPatientsPage extends BasePage {
   readonly dobSortButton: Locator;
   constructor(page: Page) {
     super(page, routes.patients.all);
-
-    this.allPatientsTable = page.getByRole('table');
-    this.allPatientsTableLoadingCell = page
-      .getByTestId('statustablecell-rwkq')
-      .filter({ hasText: 'Loading' });
+    this.patientTable = new PatientTable(page);
     this.addNewPatientBtn = page.getByTestId('component-enxe');
     this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
     this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
@@ -372,7 +368,7 @@ export class AllPatientsPage extends BasePage {
       try {
         await this.nhnSearchInput.fill(nhn);
         await this.patientSearchButton.click();
-        await this.waitForTableToLoad();
+        await this.patientTable.waitForTableToLoad();
 
         //the below if statement is to handle flakiness where sometimes a patient isn't immediately searchable after being created
         if (await this.page.getByRole('cell', { name: 'No patients found' }).isVisible()) {
@@ -381,14 +377,14 @@ export class AllPatientsPage extends BasePage {
         }
 
         //the below if statement is required because sometimes the search results load all results instead of the specific result
-        if (await this.secondNHNResultCell.isVisible()) {
+        if (await this.patientTable.secondNHNResultCell.isVisible()) {
           await this.page.reload();
           await this.page.waitForTimeout(3000);
           attempts++;
           continue;
         }
 
-        await this.clickOnSearchResult(nhn);
+        await this.patientTable.clickOnSearchResult(nhn);
         return;
       } catch (error) {
         attempts++;

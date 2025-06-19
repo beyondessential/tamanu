@@ -104,6 +104,16 @@ export class ReferenceData extends Model {
       as: 'taskTemplate',
       foreignKey: 'referenceDataId',
     });
+
+    this.hasOne(models.ReferenceDrug, {
+      as: 'referenceDrug',
+      foreignKey: 'referenceDataId',
+    });
+
+    this.hasOne(models.ReferenceMedicationTemplate, {
+      as: 'medicationTemplate',
+      foreignKey: 'referenceDataId',
+    });
   }
 
   static async create(values: any): Promise<any> {

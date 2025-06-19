@@ -1,21 +1,19 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm';
+import { Entity, ManyToOne, RelationId, Column } from 'typeorm';
 
 import {
   DateTimeString,
   IPatientProgramRegistrationCondition,
   ID,
-  IPatient,
-  IProgramRegistry,
   IUser,
   IProgramRegistryCondition,
 } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
-import { ProgramRegistry } from './ProgramRegistry';
-import { Patient } from './Patient';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 
 @Entity('patient_program_registration_conditions')
 export class PatientProgramRegistrationCondition
@@ -31,22 +29,19 @@ export class PatientProgramRegistrationCondition
   @DateTimeStringColumn()
   deletionDate?: DateTimeString;
 
+  @Column({ nullable: false, default: 'unknown' })
+  conditionCategory: string;
+
+  @Column({ nullable: true })
+  reasonForChange: string;
+
   // Relations
-  @ManyToOne(() => ProgramRegistry)
-  programRegistry: IProgramRegistry;
-  @RelationId(({ programRegistry }) => programRegistry)
-  programRegistryId: ID;
+  @ManyToOne(() => PatientProgramRegistration)
+  patientProgramRegistration: IPatientProgramRegistration;
+  @RelationId(({ patientProgramRegistration }) => patientProgramRegistration)
+  patientProgramRegistrationId: ID;
 
-  @ManyToOne(() => Patient)
-  patient: IPatient;
-  @RelationId(({ patient }) => patient)
-  patientId: ID;
-
-  @ManyToOne(
-    () => ProgramRegistryCondition,
-    ({ patientProgramRegistrationConditions }) => patientProgramRegistrationConditions,
-    { nullable: true },
-  )
+  @ManyToOne(() => ProgramRegistryCondition, ({ conditions }) => conditions, { nullable: true })
   programRegistryCondition?: IProgramRegistryCondition;
 
   @RelationId(({ programRegistryCondition }) => programRegistryCondition)
@@ -62,14 +57,14 @@ export class PatientProgramRegistrationCondition
   @RelationId(({ deletionClinician }) => deletionClinician)
   deletionClinicianId?: ID;
 
-  static async findForRegistryAndPatient(programRegistryId: string, patientId: string) {
+  static async findForRegistration(patientProgramRegistrationId: string) {
     const conditionsRepository = this.getRepository();
-    const conditions = await conditionsRepository
+    return conditionsRepository
       .createQueryBuilder('condition')
-      .where('condition.programRegistryId = :programRegistryId', { programRegistryId })
-      .andWhere('condition.patientId = :patientId', { patientId })
+      .where('condition.patientProgramRegistrationId = :patientProgramRegistrationId', {
+        patientProgramRegistrationId,
+      })
       .leftJoinAndSelect('condition.programRegistryCondition', 'programRegistryCondition')
       .getMany();
-    return conditions;
   }
 }

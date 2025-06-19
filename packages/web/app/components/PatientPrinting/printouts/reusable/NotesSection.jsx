@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { NoteContentSection } from './SimplePrintout';
 import { BodyText } from '../../../Typography';
+import { TranslatedText } from '../../../Translation/TranslatedText';
 
 export const StyledNotesSectionWrapper = styled.div`
   margin-top: 30px;
@@ -16,7 +17,7 @@ const StyledId = styled.b`
 export const NotesSection = ({ idsAndNotes }) => {
   const notes = idsAndNotes
     .map(([id, noteObjects]) => {
-      const content = noteObjects.map((n) => n.content).join(', ');
+      const content = noteObjects.map(n => n.content).join(', ');
       if (!content) {
         return null;
       }
@@ -29,11 +30,17 @@ export const NotesSection = ({ idsAndNotes }) => {
         ),
       };
     })
-    .filter((note) => !!note);
+    .filter(note => !!note);
   return (
     <StyledNotesSectionWrapper data-testid="stylednotessectionwrapper-dzmv">
       <NoteContentSection
-        title="Notes"
+        title={
+          <TranslatedText
+            stringId="note.section.title"
+            fallback="Notes"
+            data-testid="translatedtext-notes-title"
+          />
+        }
         notes={notes}
         height="auto"
         separator={null}

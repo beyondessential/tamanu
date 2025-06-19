@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -11,16 +11,43 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
+import { getFormInitialValues, getValidationSchema } from '../utils';
+import { usePatientAdditionalDataQuery } from '../api/queries';
+import { combineQueries } from '../api';
+import { useTranslation } from '../contexts/Translation';
 
 export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
-  const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
-  const { components = [] } = chartSurvey || {};
+  const { currentUser } = useAuth();
+  const { getTranslation } = useTranslation();
+  const chartSurveyQuery = useChartSurveyQuery(chartSurveyId);
+  const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
+  const {
+    data: [chartSurveyData, patientAdditionalData],
+    isLoading,
+    isError,
+    error,
+  } = combineQueries([chartSurveyQuery, patientAdditionalDataQuery]);
+
+  const { components = [] } = chartSurveyData || {};
   const visibleComponents = components.filter(
-    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
 
   const { ability } = useAuth();
   const canCreateChart = ability.can('create', 'Charting');
+
+  const initialValues = useMemo(
+    () => getFormInitialValues(
+    visibleComponents,
+    patient,
+    patientAdditionalData,
+    currentUser,
+  ), [visibleComponents, patient, patientAdditionalData, currentUser]);
+
+  const validationSchema = useMemo(
+    () => getValidationSchema(chartSurveyData, getTranslation),
+    [chartSurveyData, getTranslation],
+  );
 
   if (isLoading) {
     return <ModalLoader data-testid="modalloader-wncd" />;
@@ -49,7 +76,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
     );
   }
 
-  const handleSubmit = async (data) => onSubmit({ survey: chartSurvey, ...data });
+  const handleSubmit = async data => onSubmit({ survey: chartSurveyData, ...data });
 
   return (
     <Form
@@ -57,6 +84,8 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
+      validationSchema={validationSchema}
+      initialValues={initialValues}
       render={({ submitForm, values, setFieldValue }) => (
         <>
           <SurveyScreen
