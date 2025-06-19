@@ -80,14 +80,14 @@ export const NewPatientForm = memo(
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-    const isRequiredPatientData = (fieldName) =>
+    const isRequiredPatientData = fieldName =>
       getSetting(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;
     }
 
-    const handleSubmit = async (data) => {
+    const handleSubmit = async data => {
       const newData = { ...data };
       newData.patientRegistryType = patientRegistryType;
 
@@ -120,7 +120,7 @@ export const NewPatientForm = memo(
             name: 'newPatient',
             label: 'New patient action',
             value: patientRegistryType,
-            onChange: (event) => setPatientRegistryType(event.target?.value),
+            onChange: event => setPatientRegistryType(event.target?.value),
           }}
           options={[
             {
