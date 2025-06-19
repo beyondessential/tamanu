@@ -27,7 +27,7 @@ jobs:
             const targetUrlMatch = pr.body?.match(/Target URL:\s*(https?:\/\/[^\s\n]+)/i);
             const targetUrl = targetUrlMatch?.[1] 
 
-            if (!targetUrl) {
+            if (!targetUrl && shouldRun) {
               core.setFailed('No target URL found in PR body, please add a target URL to the PR body');
             }
 
