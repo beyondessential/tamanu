@@ -96,7 +96,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       accessor: (row, i) => {
-        const { resultType, options } = row.labTestType;
+        const { resultType, options, id: labTestTypeId } = row.labTestType;
         return (
           <LabResultAccessorField
             resultType={resultType}
@@ -105,6 +105,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             name={LAB_TEST_PROPERTIES.RESULT}
             onChange={(e) => onChangeResult(e.target.value, row.id)}
             id={row.id}
+            labTestTypeId={labTestTypeId}
             tabIndex={tabIndex(0, i)}
             data-testid="labresultaccessorfield-1r9h"
           />

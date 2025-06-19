@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -37,7 +37,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 
@@ -332,7 +332,7 @@ export const LabRequestView = () => {
                 $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}
                 data-testid="tiletag-zdg8"
               >
-                {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
+                <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={displayStatus} data-testid="translatedenum-lab-request-status" />
               </TileTag>
             }
             actions={[

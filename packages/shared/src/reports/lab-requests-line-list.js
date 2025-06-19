@@ -1,5 +1,5 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -43,8 +43,8 @@ const reportColumnTemplate = FIELDS.map(field => {
     return {
       title: field,
       accessor: data =>
-        LAB_REQUEST_STATUS_CONFIG[data[field]]
-          ? LAB_REQUEST_STATUS_CONFIG[data[field]].label
+        LAB_REQUEST_STATUS_LABELS[data[field]]
+          ? LAB_REQUEST_STATUS_LABELS[data[field]]
           : data[field],
     };
   }

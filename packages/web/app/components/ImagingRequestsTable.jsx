@@ -67,30 +67,88 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const encounterColumns = [
-    { key: 'displayId', title: 'Request ID', sortable: false },
+    {
+      key: 'displayId',
+      title: (
+        <TranslatedText
+          stringId="imaging.requestId.label"
+          fallback="Request ID"
+          data-testid="translatedtext-req-id"
+        />
+      ),
+      sortable: false,
+    },
     {
       key: 'imagingType',
-      title: 'Type',
+      title: (
+        <TranslatedText
+          stringId="general.type.label"
+          fallback="Type"
+          data-testid="translatedtext-type"
+        />
+      ),
       accessor: getImagingRequestType(imagingTypes),
     },
-    { key: 'requestedDate', title: 'Requested at time', accessor: getDate },
-    { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
+    {
+      key: 'requestedDate',
+      title: (
+        <TranslatedText
+          stringId="general.requestedAtTime.label"
+          fallback="Requested at time"
+          data-testid="translatedtext-req-time"
+        />
+      ),
+      accessor: getDate,
+    },
+    {
+      key: 'requestedBy.displayName',
+      title: (
+        <TranslatedText
+          stringId="general.requestedBy.label"
+          fallback="Requested by"
+          data-testid="translatedtext-req-by"
+        />
+      ),
+      accessor: getDisplayName,
+    },
     ...(isCompletedTable
       ? [
           {
             key: 'completedAt',
-            title: 'Completed',
+            title: (
+              <TranslatedText
+                stringId="general.completed.label"
+                fallback="Completed"
+                data-testid="translatedtext-completed"
+              />
+            ),
             accessor: getCompletedDate,
           },
         ]
       : [
           {
             key: 'priority',
-            title: 'Priority',
+            title: (
+              <TranslatedText
+                stringId="imaging.priority.label"
+                fallback="Priority"
+                data-testid="translatedtext-priority"
+              />
+            ),
             accessor: getPriority,
           },
         ]),
-    { key: 'status', title: 'Status', accessor: getStatus },
+    {
+      key: 'status',
+      title: (
+        <TranslatedText
+          stringId="general.status.label"
+          fallback="Status"
+          data-testid="translatedtext-status"
+        />
+      ),
+      accessor: getStatus,
+    },
   ];
 
   const globalColumns = [
@@ -106,12 +164,23 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       accessor: getPatientDisplayId,
       sortable: false,
     },
-    { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+    {
+      key: 'patient',
+      title: (
+        <TranslatedText
+          stringId="general.patient.label"
+          fallback="Patient"
+          data-testid="translatedtext-patient"
+        />
+      ),
+      accessor: getPatientName,
+      sortable: false,
+    },
     ...encounterColumns,
   ];
 
   const selectImagingRequest = useCallback(
-    async (imagingRequest) => {
+    async imagingRequest => {
       if (isRowsDisabled) return;
       setIsRowsDisabled(true);
       const { encounter } = imagingRequest;
@@ -124,9 +193,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       const category = params.category || 'all';
       dispatch(
         push(
-          `/patients/${category}/${patientId}/encounter/${
-            encounterId || encounter.id
-          }/imaging-request/${imagingRequest.id}`,
+          `/patients/${category}/${patientId}/encounter/${encounterId ||
+            encounter.id}/imaging-request/${imagingRequest.id}`,
         ),
       );
       setIsRowsDisabled(false);
@@ -143,7 +211,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       autoRefresh={!encounterId}
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
-      noDataMessage="No imaging requests found"
+      noDataMessage={
+        <TranslatedText
+          stringId="imaging.list.noData"
+          fallback="No imaging requests found"
+          data-testid="translatedtext-imaging.list-noData"
+        />
+      }
       onRowClick={selectImagingRequest}
       fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}

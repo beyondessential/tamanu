@@ -3,6 +3,7 @@ import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 import { BaseModel } from '~/models/BaseModel';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export interface OptionType {
   label: string;
@@ -161,6 +162,16 @@ export class Suggester<ModelType> {
           });
       }
       
+      // Add visibility status filtering if the model has a visibilityStatus column
+      const hasVisibilityStatus = this.model
+        .getRepository()
+        .metadata.columns.find((col) => col.propertyName === 'visibilityStatus');
+      if (hasVisibilityStatus) {
+        query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
+          visibilityStatus: VisibilityStatus.Current,
+        });
+      }
+
       query = query.orderBy('entity_display_label', 'ASC').limit(25);
 
       const data = await query.getRawMany();

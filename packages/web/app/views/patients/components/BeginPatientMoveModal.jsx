@@ -18,8 +18,26 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 
 const patientMoveActionOptions = [
-  { label: 'Plan', value: 'plan' },
-  { label: 'Finalise', value: 'finalise' },
+  {
+    label: (
+      <TranslatedText
+        stringId="encounter.modal.patientMove.action.plan"
+        fallback="Plan"
+        data-testid="translatedtext-patient-move-action-plan"
+      />
+    ),
+    value: 'plan',
+  },
+  {
+    label: (
+      <TranslatedText
+        stringId="encounter.modal.patientMove.action.finalise"
+        fallback="Finalise"
+        data-testid="translatedtext-patient-move-action-finalise"
+      />
+    ),
+    value: 'finalise',
+  },
 ];
 
 const Container = styled.div`
@@ -31,7 +49,7 @@ const Container = styled.div`
 `;
 
 const Text = styled(BodyText)`
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   padding-bottom: 20px;
 `;
 
@@ -40,7 +58,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
 
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const onSubmit = (data) => {
+  const onSubmit = data => {
     if (data.action === 'plan') {
       return submit(data);
     }
@@ -49,7 +67,18 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
     return submit({ locationId, ...rest });
   };
   return (
-    <FormModal title="Move patient" open={open} onClose={onClose} data-testid="formmodal-z0n0">
+    <FormModal
+      title={
+        <TranslatedText
+          stringId="encounter.modal.patientMove.title"
+          fallback="Move patient"
+          data-testid="translatedtext-encounter-modal-patient-move-title"
+        />
+      }
+      open={open}
+      onClose={onClose}
+      data-testid="formmodal-z0n0"
+    >
       <Form
         initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
         onSubmit={onSubmit}
@@ -97,12 +126,21 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                 />
               </Container>
               <Text data-testid="text-5y59">
-                By selecting ‘Plan’ the new location will not be reflected in the patient encounter
-                until you finalise the move. If the move is not finalised within{' '}
-                {plannedMoveTimeoutHours} hours, the location will be deemed ‘Available’ again.
+                <TranslatedText
+                  stringId="encounter.modal.patientMove.planningNote"
+                  fallback="By selecting 'Plan' the new location will not be reflected in the patient encounter until you finalise the move. If the move is not finalised within :hours hours, the location will be deemed 'Available' again."
+                  replacements={{ hours: plannedMoveTimeoutHours }}
+                  data-testid="translatedtext-encounter-modal-patient-move-planning-note"
+                />
               </Text>
               <ModalActionRow
-                confirmText="Confirm"
+                confirmText={
+                  <TranslatedText
+                    stringId="general.action.confirm"
+                    fallback="Confirm"
+                    data-testid="translatedtext-confirm-action"
+                  />
+                }
                 onConfirm={submitForm}
                 onCancel={onClose}
                 data-testid="modalactionrow-t42b"
