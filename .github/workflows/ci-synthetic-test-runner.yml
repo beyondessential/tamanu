@@ -103,32 +103,14 @@ jobs:
               description: 'Synthetic test failed'
             });
 
-      - name: Retrigger synthetic test if still checked
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = parseInt(process.env.PR_NUMBER);
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-
-            const stillChecked = pr.body?.includes('[x] **Synthetic Test Environment** <!-- #synthetic-test -->');
-            if (stillChecked) {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'ci-synthetic-test-runner.yml',
-                ref: process.env.PR_REF,
-                inputs: {
-                  target_url: process.env.TARGET_URL,
-                  pr_number: process.env.PR_NUMBER,
-                  pr_ref: process.env.PR_REF,
-                  pr_sha: process.env.PR_SHA
-                }
-              });
-            } else {
-              console.log("Checkbox is unchecked – not retriggering.");
-            }
+      - name: Retrigger synthetic test 
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering ci-synthetic-test-runner.yml on ref ${{ steps.check.outputs.pr_ref }}"
+          gh workflow run ci-synthetic-test-runner.yml \
+            --ref "${{ steps.check.outputs.pr_ref }}" \
+            --field target_url="${{ steps.check.outputs.target_url }}" \
+            --field pr_number="${{ steps.check.outputs.pr_number }}" \
+            --field pr_ref="${{ steps.check.outputs.pr_ref }}" \
+            --field pr_sha="${{ steps.check.outputs.pr_sha }}"
