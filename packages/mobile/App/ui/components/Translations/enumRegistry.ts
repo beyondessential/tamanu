@@ -1,7 +1,4 @@
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-  PROGRAM_REGISTRATION_STATUS_LABELS,
-} from '~/constants/programRegistries';
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from '~/constants/programRegistries';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -12,12 +9,10 @@ type EnumEntries = [EnumKeys, EnumValues][];
 // version matches 100% the constants package version.
 const registeredEnums = {
   PROGRAM_REGISTRATION_STATUS_LABELS,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 };
 
 const translationPrefixes: Record<EnumKeys, string> = {
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS: 'programRegistry.property.conditionCategory',
 };
 
 const prefixMap = new Map(
