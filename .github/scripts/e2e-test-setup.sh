@@ -38,11 +38,11 @@ EOF
         },
 
         facilities: {
-            "facility-test": {
-                name: "Facility Test",
-                code: "test",
-                user: "facility-test@tamanu.io",
-                password: "facility-test",
+            "facility-1": {
+                name: "facility-1",
+                code: "facility-1",
+                user: "facility-1@tamanu.io",
+                password: "facility-1",
             },
         },
 
@@ -63,10 +63,10 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
-	    "serverFacilityIds": ["facility-test"],
+	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
-	        "email": "facility-test@tamanu.io",
-	        "password": "facility-test",
+	        "email": "facility-1@tamanu.io",
+	        "password": "facility-1",
 	        "enabled": true,
 	        "host": "http://localhost:3000"
 	    },

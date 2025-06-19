@@ -3,7 +3,7 @@ import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
 import { constructFacilityUrl } from './navigation';
 import { testData } from '../utils/testData';
 
-function generateNHN() {
+export function generateNHN() {
   const letters = faker.string.alpha({ length: 4, casing: 'upper' });
   const numbers = faker.string.numeric(6);
   const generatedId = `${letters}${numbers}`;
@@ -24,6 +24,7 @@ function generatePatientData() {
   return { firstName, lastName, gender, formattedDOB, nhn, culturalName, village, id: '' };
 }
 
+//TODO: delete this once all tests that use it are refactored to use the new patient fixture
 export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   const patientData = generatePatientData();
   allPatientsPage.setPatientData(patientData);
