@@ -80,7 +80,8 @@ jobs:
               sha: process.env.PR_SHA,
               state: 'pending',
               context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
-              description: 'Synthetic test running...'
+              description: 'Synthetic test running...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
             });
 
       - name: Ensure latest merged scenarios
@@ -102,7 +103,8 @@ jobs:
               sha: process.env.PR_SHA,
               state: 'success',
               context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
-              description: 'Synthetic test passed'
+              description: 'Synthetic test passed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
             });
 
       - name: Update commit status on failure
@@ -116,7 +118,23 @@ jobs:
               sha: process.env.PR_SHA,
               state: 'failure',
               context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
-              description: 'Synthetic test failed'
+              description: 'Synthetic test failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Update commit status on cancel
+        if: cancelled()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'error',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test was cancelled',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
             });
 
       - name: Retrigger synthetic test 
