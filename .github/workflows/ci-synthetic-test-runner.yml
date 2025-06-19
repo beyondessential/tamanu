@@ -27,39 +27,6 @@ jobs:
       PR_SHA: ${{ github.event.inputs.pr_sha }}
 
     steps:
-      - name: Exit early if triggered by PR
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "Workflow triggered by PR event - exiting early"
-          exit 0
-
-      - name: Debug input values
-        run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "PR Number from inputs: ${{ github.event.inputs.pr_number }}"
-          echo "PR Ref from inputs: ${{ github.event.inputs.pr_ref }}"
-          echo "PR SHA from inputs: ${{ github.event.inputs.pr_sha }}"
-          echo "Target URL from inputs: ${{ github.event.inputs.target_url }}"
-
-      - name: Validate required inputs
-        run: |
-          if [ -z "${{ github.event.inputs.pr_number }}" ] || [ "${{ github.event.inputs.pr_number }}" = "null" ]; then
-            echo "Error: PR number is required but not provided"
-            exit 1
-          fi
-          if [ -z "${{ github.event.inputs.pr_ref }}" ] || [ "${{ github.event.inputs.pr_ref }}" = "null" ]; then
-            echo "Error: PR ref is required but not provided"
-            exit 1
-          fi
-          if [ -z "${{ github.event.inputs.pr_sha }}" ] || [ "${{ github.event.inputs.pr_sha }}" = "null" ]; then
-            echo "Error: PR SHA is required but not provided"
-            exit 1
-          fi
-          if [ -z "${{ github.event.inputs.target_url }}" ] || [ "${{ github.event.inputs.target_url }}" = "null" ]; then
-            echo "Error: Target URL is required but not provided"
-            exit 1
-          fi
-
       - name: Set dynamic commit status context
         id: metadata
         run: echo "RUN_CONTEXT=synthetic-test-run-$(date -u +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
@@ -116,8 +83,13 @@ jobs:
               description: 'Synthetic test running...'
             });
 
+      - name: Ensure latest merged scenarios
+        run: npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+
       - name: Run synthetic test
-        run: npm run synthetic-test -- -- --target=${{ env.TARGET_URL }}
+        uses: artilleryio/action-cli@v1
+        with:
+          command: run packages/synthetic-tests/src/merged-scenarios.yml --target=${{ env.TARGET_URL }}
 
       - name: Update commit status on success
         if: success()
