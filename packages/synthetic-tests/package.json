@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@tamanu/constants": "*",
-    "@tamanu/test-data": "*",
+    "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
