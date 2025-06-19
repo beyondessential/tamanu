@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import { basename, extname, join } from 'node:path';
 import toposort from 'toposort';
-import type { Step, Steps, StepStr } from './step.ts';
+import type { MigrationStr, Step, Steps, StepStr } from './step.ts';
 import { START, END, MIGRATION_PREFIX, onlyMigrations } from './step.js';
 
 const STEPS_DIR = join(__dirname, 'steps');
@@ -30,6 +30,11 @@ export async function listSteps() {
     onlyMigrations(step.after).concat(onlyMigrations(step.before)),
   );
 
+  return orderSteps(steps, migrations);
+}
+
+/** @internal exported only for testing purposes, use listSteps instead */
+export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr[]) {
   // we build a list of edges in a dependency directed graph:
   // an edge A -> B is represented as [A, B]
   //
@@ -51,6 +56,11 @@ export async function listSteps() {
   // the filename, or a specific indexed step. and here we define this by having the
   // graph include upgrade/name/N -> upgrade/step, such that once all indexed steps
   // are done, steps that depend on the overall step file will run.
+  //
+  // when there are before/after dependencies, the at: START|END specifier *biases*
+  // the result but doesn't make it absolute. when there are no before/after deps,
+  // then START steps will always be before migrations, and the END steps will
+  // always be after migrations.
   const edges: Edge[] = edgeFilter(migrations.map((mig, i) => [migrations[i - 1], mig]))
     .concat(
       steps.flatMap(({ file, id, step }) => {
@@ -67,6 +77,13 @@ export async function listSteps() {
         }
         for (const need of step.after) {
           topo.push([need, id]);
+        }
+        if (step.before.length === 0 && step.after.length === 0) {
+          if (step.at === START) {
+            topo.push([file, MIGRATIONS_START], [id, MIGRATIONS_START]);
+          } else if (step.at === END) {
+            topo.push([MIGRATIONS_END, file], [MIGRATIONS_END, id]);
+          }
         }
 
         return topo;
@@ -86,7 +103,7 @@ export async function listSteps() {
   // step IDs to step definitions. keeping the order list lightweight
   // probably helps performance marginally, but is also the simplest.
   return {
-    order: toposort(edges).reverse() as StepStr[],
+    order: toposort(edges) as StepStr[],
     steps: new Map(steps.map((step) => [step.id, step])),
   };
 }
