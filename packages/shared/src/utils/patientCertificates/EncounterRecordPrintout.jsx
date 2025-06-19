@@ -35,33 +35,28 @@ const pageStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontFamily: 'Rubik-Bold',
   },
   tableColumnHeader: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Rubik-Bold',
     fontSize: 10,
   },
   tableCellContent: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   tableCellFooter: {
-    fontFamily: 'Helvetica',
     fontSize: 8,
   },
   headerLabel: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
+    fontFamily: 'Rubik-Bold',
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Rubik',
     color: '#888888',
   },
 });
@@ -92,8 +87,8 @@ const tableStyles = StyleSheet.create({
     padding: 7,
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
+    fontFamily: 'Rubik',
   },
   notesCell: {
     width: '100%',
@@ -172,7 +167,7 @@ const DataTableHeading = ({ columns, title, width }) => {
                 key={key}
                 style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
               >
-                <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
+                <P style={{ fontFamily: 'Rubik-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>
             );

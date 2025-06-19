@@ -6,6 +6,6 @@ import { flatten } from './flattenStyles';
 export const Page = ({ style, ...props }) => {
   const { makeIntlStyleSheet } = useLanguageContext();
   const mergedStyle = flatten(style);
-  const newStyles = makeIntlStyleSheet({ fontFamily: 'Helvetica', ...mergedStyle });
+  const newStyles = makeIntlStyleSheet({ fontFamily: 'Rubik', ...mergedStyle });
   return <BasePage style={newStyles} {...props} />;
 };

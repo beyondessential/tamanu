@@ -36,10 +36,9 @@ const pageStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 600,
+    fontFamily: 'Rubik-Bold',
   },
 });
 
@@ -63,11 +62,9 @@ const tableStyles = StyleSheet.create({
     padding: 7,
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 9,
   },
   noteText: {
-    fontFamily: 'Helvetica',
     fontSize: 7,
     marginTop: 1,
   },
@@ -112,7 +109,7 @@ const HorizontalRule = ({ width = '1px' }) => {
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children, isBold }) => (
-  <Text style={[tableStyles.p, isBold && { fontFamily: 'Helvetica-Bold' }, style]}>{children}</Text>
+  <Text style={[tableStyles.p, isBold && { fontFamily: 'Rubik-Bold' }, style]}>{children}</Text>
 );
 
 const Cell = ({ children, style = {} }) => (
@@ -160,7 +157,7 @@ const getInvoiceItemDetails = item => {
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+    <P style={{ fontFamily: 'Rubik-Bold' }}>{children}</P>
   </View>
 );
 
