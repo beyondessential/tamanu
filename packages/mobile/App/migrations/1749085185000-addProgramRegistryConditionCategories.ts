@@ -162,7 +162,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
     // Set the values for existing records
     await queryRunner.query(`
       UPDATE patient_program_registration_conditions
-      SET program_registry_condition_category_id = (
+      SET programRegistryConditionCategoryId = (
         SELECT prcc.id
         FROM patient_program_registration_conditions pprc
         JOIN patient_program_registrations ppr ON pprc.patientProgramRegistrationId = ppr.id
@@ -181,7 +181,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
     await queryRunner.query(`
       DELETE FROM program_registry_condition_categories
       WHERE code NOT IN (${newCategoriesClause})
-      AND id NOT IN (SELECT program_registry_condition_category_id FROM patient_program_registration_conditions)
+      AND id NOT IN (SELECT programRegistryConditionCategoryId FROM patient_program_registration_conditions)
     `);
 
     // Add foreign key constraint
