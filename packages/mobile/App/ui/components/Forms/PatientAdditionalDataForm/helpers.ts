@@ -15,8 +15,7 @@ import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'lodash';
-import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/components/Forms/PatientAdditionalDataForm/HierarchyField';
-import { ADDRESS_HIERARCHY_FIELDS } from './HierarchyField';
+import { ADDRESS_HIERARCHY_FIELDS, ADDRESS_HIERARCHY_FIELD_ID } from './HierarchyField';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
