@@ -108,7 +108,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Triggering ci-synthetic-test-runner.yml on ref ${{ steps.check.outputs.pr_ref }}"
-          gh workflow run ci-synthetic-test-runner.yml \
+          gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
             --ref "${{ steps.check.outputs.pr_ref }}" \
             --field target_url="${{ steps.check.outputs.target_url }}" \
             --field pr_number="${{ steps.check.outputs.pr_number }}" \
