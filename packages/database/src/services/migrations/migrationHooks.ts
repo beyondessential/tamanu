@@ -152,7 +152,7 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       await sequelize.query(`
         UPDATE logs.changes
         SET updated_at_sync_tick = (
-          SELECT value::bigint FROM local_system_facts WHERE key = '${FACT_CURRENT_SYNC_TICK}'
+          SELECT CAST(value AS bigint) FROM local_system_facts WHERE key = '${FACT_CURRENT_SYNC_TICK}'
         )
         WHERE updated_at_sync_tick = 0;
       `);
