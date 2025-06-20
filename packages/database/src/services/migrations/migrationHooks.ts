@@ -145,6 +145,8 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       CREATE INDEX ${table}_updated_at_sync_tick_index ON "${schema}"."${table}" (updated_at_sync_tick);
     `);
 
+    // Manually inserted logs.changes records might have updated_at_sync_tick = 0,
+    // so we need to bump them to the current sync tick to avoid them being skipped
     if (schema === 'logs' && table === 'changes') {
       log.info('Bumping logs.changes updated_at_sync_tick for existing records with updated_at_sync_tick = 0');
       await sequelize.query(`
