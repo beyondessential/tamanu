@@ -4,6 +4,7 @@ import config from 'config';
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
@@ -143,6 +144,17 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
     await sequelize.query(`
       CREATE INDEX ${table}_updated_at_sync_tick_index ON "${schema}"."${table}" (updated_at_sync_tick);
     `);
+
+    if (schema === 'logs' && table === 'changes') {
+      log.info('Bumping logs.changes updated_at_sync_tick for existing records with updated_at_sync_tick = 0');
+      await sequelize.query(`
+        UPDATE logs.changes
+        SET updated_at_sync_tick = (
+          SELECT value::bigint FROM local_system_facts WHERE key = '${FACT_CURRENT_SYNC_TICK}'
+        )
+        WHERE updated_at_sync_tick = 0;
+      `);
+    }
   }
 
   const functionExists = (name: string) =>
