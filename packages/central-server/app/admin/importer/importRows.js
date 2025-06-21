@@ -50,8 +50,6 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
-
-
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {}, skipExisting = false },
@@ -218,12 +216,20 @@ export async function importRows(
     }
 
     try {
+      // Normalize undefined values to null to avoid incorrect change detection
+      const normalizedValues = { ...values };
+      Object.keys(normalizedValues).forEach((key) => {
+        if (normalizedValues[key] === undefined) {
+          normalizedValues[key] = null;
+        }
+      });
+
       if (existing) {
-        await existing.update(values);
-        if (values.deletedAt) {
+        if (normalizedValues.deletedAt) {
           if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
+          await existing.update(normalizedValues);
           await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
@@ -231,13 +237,24 @@ export async function importRows(
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
-          updateStat(stats, statkey(model, sheetName), 'updated');
+
+          existing.set(normalizedValues);
+          const hasValueChanges = Object.keys(normalizedValues).some((key) =>
+            existing.changed(key),
+          );
+
+          if (hasValueChanges) {
+            updateStat(stats, statkey(model, sheetName), 'updated');
+          } else {
+            updateStat(stats, statkey(model, sheetName), 'skipped');
+          }
+          await existing.save();
         }
       } else {
-        await Model.create(values);
+        await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
-      const recordTranslationData = collectTranslationData(model, sheetName, values);
+      const recordTranslationData = collectTranslationData(model, sheetName, normalizedValues);
       translationData.push(...recordTranslationData);
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
