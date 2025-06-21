@@ -7,9 +7,11 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
+  NOUNS_WITH_OBJECT_ID,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -191,8 +193,34 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   return rows;
 }
 
-export function permissionLoader(item) {
+async function validateObjectId(item, models, pushError) {
+  const { noun, objectId } = item;
+  if (!objectId || !noun || !NOUNS_WITH_OBJECT_ID.includes(noun)) {
+    return;
+  }
+
+  if (noun === 'StaticReport') {
+    const allowedReportIds = [
+      ...GENERIC_SURVEY_EXPORT_REPORT_ID,
+      ...REPORT_DEFINITIONS.map(({ id }) => id),
+    ];
+    if (!allowedReportIds.includes(objectId)) {
+      pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+    }
+    return;
+  }
+
+  const record = await models[noun].findByPk(objectId);
+  if (!record) {
+    pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+  }
+}
+
+export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
+
+  await validateObjectId(item, models, pushError);
+
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
   return Object.entries(roles)
