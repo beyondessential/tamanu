@@ -41,8 +41,7 @@ patientRoute.post(
     const potentialDuplicates = await models.Patient.sequelize.query(
       `SELECT 
         p.*,
-        reference_data.id AS village_id,
-        reference_data.name AS village_name
+        reference_data.name AS villageName
       FROM find_potential_patient_duplicates(:patient) p
       LEFT JOIN reference_data
         ON reference_data.id = p.village_id`,
