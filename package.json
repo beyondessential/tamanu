@@ -48,29 +48,28 @@
     "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
   },
   "engines": {
-    "node": "^20.9.0"
+    "node": ">=20.9.0"
   },
   "packageManager": "npm@10.8.0",
   "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/build-tooling",
-      "packages/scripts",
-      "packages/web",
-      "packages/facility-server",
-      "packages/central-server",
-      "packages/shared",
-      "packages/constants",
-      "packages/settings",
       "packages/api-client",
-      "packages/mobile",
+      "packages/build-tooling",
+      "packages/central-server",
+      "packages/constants",
       "packages/database",
-      "packages/utils",
-      "packages/fake-data",
       "packages/e2e-tests",
-      "packages/synthetic-tests",
-      "packages/test-data"
+      "packages/facility-server",
+      "packages/fake-data",
+      "packages/mobile",
+      "packages/scripts",
+      "packages/settings",
+      "packages/shared",
+      "packages/upgrade",
+      "packages/utils",
+      "packages/web"
     ]
   },
   "devDependencies": {
