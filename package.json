@@ -69,7 +69,8 @@
       "packages/shared",
       "packages/upgrade",
       "packages/utils",
-      "packages/web"
+      "packages/web",
+      "packages/synthetic-tests"
     ]
   },
   "devDependencies": {
