@@ -43,6 +43,7 @@
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "@tamanu/upgrade": "*",
     "@tamanu/utils": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",

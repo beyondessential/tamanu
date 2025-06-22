@@ -1,4 +1,4 @@
-import { push } from 'connected-react-router';
+import { push, replace } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
@@ -8,16 +8,16 @@ export const usePatientNavigation = () => {
   const params = useParams();
   const location = useLocation();
 
-  const navigate = (url) => dispatch(push(url));
+  const navigate = url => dispatch(push(url));
 
-  const getParams = (path) =>
+  const getParams = path =>
     matchPath(location.pathname, {
       path,
       exact: false,
       strict: false,
     })?.params ?? {};
 
-  const navigateToCategory = (category) => {
+  const navigateToCategory = category => {
     navigate(
       generatePath(PATIENT_PATHS.CATEGORY, {
         category,
@@ -35,13 +35,17 @@ export const usePatientNavigation = () => {
     navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
-  const navigateToEncounter = (encounterId, search) => {
+  const navigateToEncounter = (encounterId, search, replaceInHistory = false) => {
     const existingParams = getParams(PATIENT_PATHS.PATIENT);
     const encounterRoute = generatePath(PATIENT_PATHS.ENCOUNTER, {
       ...existingParams,
       encounterId,
     });
-    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
+    if (replaceInHistory) {
+      dispatch(replace(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`));
+    } else {
+      navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
+    }
   };
 
   const navigateToSummary = () => {
@@ -82,7 +86,7 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToProgramRegistry = (programRegistryId) => {
+  const navigateToProgramRegistry = programRegistryId => {
     if (programRegistryId) {
       const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
         ...params,

@@ -54,7 +54,7 @@ EOF
     }
 EOF
 
-    npm run --workspace @tamanu/central-server start migrate
+    npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
 }
 
@@ -79,7 +79,7 @@ e2e_test_setup_setup_facility() {
 	}
 EOF
 
-    npm run --workspace @tamanu/facility-server start migrate
+    npm run --workspace @tamanu/facility-server start upgrade
 }
 
 e2e_test_setup_start_servers() {

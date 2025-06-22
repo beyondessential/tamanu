@@ -1,13 +1,10 @@
-import { goBack, push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { BackButton } from './Button';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
-import { matchPath, useLocation } from 'react-router-dom';
-import { PATIENT_PATHS } from '../constants/patientPaths';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
@@ -35,24 +32,8 @@ const VerticalDivider = styled.div`
 `;
 
 export const PatientNavigation = ({ patientRoutes }) => {
-  const location = useLocation();
   const dispatch = useDispatch();
-  const navigateBack = () => {
-    const match = matchPath(location.pathname, {
-      path: `${PATIENT_PATHS.MAR}/view`,
-    });
-    if (match.isExact) {
-      const params = match.params;
-      dispatch(
-        push(
-          `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
-        ),
-      );
-    } else {
-      dispatch(goBack());
-    }
-  };
-
+  const navigateBack = () => dispatch(goBack());
   return (
     <StickyContainer data-testid="stickycontainer-ju8w">
       <NoteModalActionBlocker isNavigationBlock>
