@@ -2,7 +2,7 @@ sql: |
   SELECT
     id,
     errors::text,
-    json_array_elements_text(debug_info->'facilityIds') AS facility_id,
+    json_array_elements_text(parameters->'facilityIds') AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
   FROM sync_sessions
@@ -11,7 +11,7 @@ sql: |
   AND errors IS NOT NULL
   AND (
     (
-      debug_info->>'isMobile' <> 'true'
+      parameters->>'isMobile' <> 'true'
       AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
     )
     OR errors <> ARRAY['could not serialize access due to concurrent update']

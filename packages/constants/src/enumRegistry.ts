@@ -5,52 +5,57 @@ import {
   EDUCATIONAL_ATTAINMENT_LABELS,
   SOCIAL_MEDIA_LABELS,
   TITLE_LABELS,
-} from './patientFields.js';
+} from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-} from './invoices.js';
-import { ENCOUNTER_TYPE_LABELS } from './encounters.js';
-import { NOTE_TYPE_LABELS } from './notes.js';
+} from './invoices';
+import { ENCOUNTER_TYPE_LABELS } from './encounters';
+import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
-} from './statuses.js';
-import {
-  VACCINE_STATUS_LABELS,
-  INJECTION_SITE_LABELS,
-  VACCINE_CATEGORY_LABELS,
-} from './vaccines.js';
+} from './statuses';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_LABELS,
-} from './births.js';
+} from './births';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_STATUS_LABELS,
-} from './reports.js';
-import { TEMPLATE_TYPE_LABELS } from './templates.js';
-import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
-import { ASSET_NAME_LABELS } from './importable.js';
-import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
-import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
-import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks.js';
-import { IMAGING_TYPES } from './imaging.js';
+} from './reports';
+import { TEMPLATE_TYPE_LABELS } from './templates';
+import { LAB_REQUEST_STATUS_LABELS } from './labs';
+import { ASSET_NAME_LABELS } from './importable';
+import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
+import {
+  ADMINISTRATION_STATUS_LABELS,
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
+  REPEATS_LABELS,
+} from './medications.js';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
+import { IMAGING_TYPES } from './imaging';
 import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
-} from './appointments.js';
-import { PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry.js';
+} from './appointments';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRATION_STATUS_LABELS,
+} from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -62,6 +67,7 @@ type EnumEntries = [EnumKeys, EnumValues][];
  * of new enum constants when maintaining translations
  */
 export const registeredEnums = {
+  ADMINISTRATION_STATUS_LABELS,
   APPOINTMENT_STATUSES,
   ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
@@ -70,6 +76,8 @@ export const registeredEnums = {
   BLOOD_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
   IMAGING_TYPES,
@@ -88,6 +96,7 @@ export const registeredEnums = {
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPEAT_FREQUENCY_LABELS,
@@ -114,6 +123,7 @@ export const registeredEnums = {
  * ['patient.property.sex.male', 'patient.property.female', 'patient.property.other']
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
+  ADMINISTRATION_STATUS_LABELS: 'medication.property.status',
   APPOINTMENT_STATUSES: 'appointment.property.status',
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
@@ -122,6 +132,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   BLOOD_LABELS: 'patient.property.blood',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
+  DRUG_UNIT_LABELS: 'medication.property.unit',
+  DRUG_UNIT_SHORT_LABELS: 'medication.property.unitShort',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
   IMAGING_TYPES: 'imaging.property.type',
@@ -140,6 +152,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',

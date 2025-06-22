@@ -25,6 +25,7 @@ export const simpleUpdateModels = [
   'CertificateNotification',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
+  'PatientOngoingPrescription',
   'PatientContact',
   'IPSRequest',
   'Notification',
@@ -37,7 +38,6 @@ export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
   'PatientProgramRegistration',
-  'PatientProgramRegistrationCondition',
   'PatientBirthData',
   'PatientDeathData',
   'Note',
@@ -229,45 +229,14 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    // Move to keep patient and reset isMostRecent to false
+    // Move to keep patient
     await unwantedRegistration.update({
       patientId: keepPatientId,
-      isMostRecent: false,
     });
 
     // Soft delete the registration
     await unwantedRegistration.destroy();
     results.push(unwantedRegistration);
-  }
-
-  return results;
-}
-
-export async function mergePatientProgramRegistrationConditions(
-  models,
-  keepPatientId,
-  unwantedPatientId,
-) {
-  const existingUnwantedRegistrationConditions =
-    await models.PatientProgramRegistrationCondition.findAll({
-      where: { patientId: unwantedPatientId },
-    });
-
-  if (!existingUnwantedRegistrationConditions.length) {
-    return [];
-  }
-
-  const results = [];
-
-  for (const unwantedCondition of existingUnwantedRegistrationConditions) {
-    // Move to keep patient
-    await unwantedCondition.update({
-      patientId: keepPatientId,
-    });
-
-    // Soft delete the registration
-    await unwantedCondition.destroy();
-    results.push(unwantedCondition);
   }
 
   return results;
@@ -442,13 +411,6 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     );
     if (patientProgramRegistrationUpdates.length > 0) {
       updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
-    }
-
-    const patientProgramRegistrationConditionUpdates =
-      await mergePatientProgramRegistrationConditions(models, keepPatientId, unwantedPatientId);
-    if (patientProgramRegistrationConditionUpdates.length > 0) {
-      updates.PatientProgramRegistrationCondition =
-        patientProgramRegistrationConditionUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

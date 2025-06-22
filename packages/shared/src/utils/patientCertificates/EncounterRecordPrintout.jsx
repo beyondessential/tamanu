@@ -21,6 +21,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort, formatTime } from '@tamanu/utils/dateTime';
+import { getDose, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 
@@ -471,31 +472,44 @@ const EncounterRecordPrintoutComponent = ({
         key: 'medication',
         title: getTranslation('medication.medication.label', 'Medication'),
         accessor: ({ medication }) => medication?.name,
-        style: { width: '20%' },
+        style: { width: '21%' },
       },
       {
-        key: 'instructions',
-        title: getTranslation('medication.medication.instructions', 'Instructions'),
-        accessor: ({ prescription }) => prescription || '',
-        style: { width: '30%' },
+        key: 'dose',
+        title: getTranslation('pdf.table.column.dose', 'Dose'),
+        accessor: (medication) => {
+          return (
+            <Text>
+              {getDose(medication, getTranslation, getEnumTranslation)}
+              {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+            </Text>
+          );
+        },
+        style: { width: '9%' },
+      },
+      {
+        key: 'frequency',
+        title: getTranslation('pdf.table.column.frequency', 'Frequency'),
+        accessor: ({ frequency }) => getTranslatedFrequency(frequency, getTranslation),
+        style: { width: '19%' },
       },
       {
         key: 'route',
         title: getTranslation('medication.route.label', 'Route'),
         accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
-        style: { width: '12.5%' },
+        style: { width: '10%' },
       },
       {
         key: 'prescriber',
         title: getTranslation('medication.prescriber.label', 'Prescriber'),
         accessor: ({ prescriber }) => prescriber?.displayName,
-        style: { width: '25%' },
+        style: { width: '18%' },
       },
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
         accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-        style: { width: '22.5%' },
+        style: { width: '23%' },
       },
     ],
   };

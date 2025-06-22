@@ -2,16 +2,23 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
-import { AddCircleOutline, RemoveCircleOutline } from '@material-ui/icons';
+import { Add, Remove } from '@material-ui/icons';
 import { generate } from 'shortid';
-
 import { Button } from '../Button';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const AddButton = styled(Button)`
   justify-self: start;
   padding-left: 10px;
   margin-top: -10px;
   margin-bottom: -20px;
+
+  .MuiButton-startIcon {
+    margin-right: 0;
+  }
+  .MuiSvgIcon-root {
+    margin-right: 0;
+  }
 `;
 
 const RemoveButton = styled(IconButton)`
@@ -59,21 +66,17 @@ export const ArrayField = ({
                 }}
                 data-testid={`removebutton-qmfs-${index}`}
               >
-                <RemoveCircleOutline data-testid={`removecircleoutline-65ov-${index}`} />
+                <Remove />
               </RemoveButton>
             );
 
-            return (
-              <React.Fragment key={id} data-testid={`fragment-ie51-${index}`}>
-                {renderField(index, DeleteButton)}
-              </React.Fragment>
-            );
+            return <React.Fragment key={id}>{renderField(index, DeleteButton)}</React.Fragment>;
           })}
 
           {/* Render the button to add another field below the array of fields */}
           {fields.length < maxFields && (
             <AddButton
-              startIcon={<AddCircleOutline data-testid="addcircleoutline-b8do" />}
+              startIcon={<Add />}
               type="button"
               variant="text"
               onClick={() => {
@@ -81,7 +84,11 @@ export const ArrayField = ({
               }}
               data-testid="addbutton-4ojv"
             >
-              Add additional
+              <TranslatedText
+                stringId="general.action.addAdditional"
+                fallback="Add additional"
+                data-testid="translatedtext-add-additional"
+              />
             </AddButton>
           )}
         </>

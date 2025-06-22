@@ -20,6 +20,9 @@ export default async () => {
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
+    optimizeDeps: {
+      exclude: ['chunk-SVRLYAES'],
+    },
     esbuild: {
       loader: 'jsx',
     },

@@ -8,7 +8,6 @@ import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistri
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
-import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 @Entity('program_registries')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
@@ -38,12 +37,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   )
   patientProgramRegistrations: PatientProgramRegistration[];
 
-  @OneToMany<PatientProgramRegistrationCondition>(
-    () => PatientProgramRegistrationCondition,
-    ({ programRegistry }) => programRegistry,
-  )
-  PatientProgramRegistrationConditions: PatientProgramRegistrationCondition[];
-
   @OneToOne(() => Program)
   @JoinColumn()
   program: Program;
@@ -59,7 +52,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .distinct(true)
       .where(`ppr.patientId = :patientId`, { patientId })
       .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
-      .andWhere('ppr.isMostRecent = 1')
       .getRawMany();
 
     const programRegistryRepository = this.getRepository();

@@ -21,9 +21,10 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
     background-color: ${Colors.primaryDark};
     color: ${Colors.white};
     font-weight: 400;
-    font-size: 11px;
+    font-size: 0.6875rem;
     line-height: 15px;
     white-space: pre-line;
+    padding: 0.375rem 0.5rem;
     cursor: pointer;
     max-width: 500px;
     display: -webkit-box;

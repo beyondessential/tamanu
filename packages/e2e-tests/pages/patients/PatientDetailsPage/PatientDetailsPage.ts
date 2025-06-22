@@ -1,7 +1,10 @@
 import { Locator, Page, expect } from '@playwright/test';
+import { Patient } from '@tamanu/database';
+import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
   readonly healthIdText: Locator;
@@ -17,7 +20,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
   readonly onGoingConditionForm: Locator;
-  readonly submitEditsButton: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -56,6 +58,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedClinician: Locator;
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
+  readonly submitEditsButton: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -90,12 +93,9 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
     this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
-    this.submitEditsButton = this.page
-      .getByTestId('collapse-0a33')
-      .getByTestId('formsubmitbutton-ygc6');
     this.submitNewOngoingConditionAddButton = this.page
-      .getByTestId('formgrid-lqds')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
+      .first();
     this.initiateNewAllergyAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -114,8 +114,8 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByRole('textbox');
     this.savedAllergyNote = this.page.getByTestId('collapse-0a33').getByTestId('field-dayn-input');
     this.submitNewAllergyAddButton = this.page
-      .getByTestId('formgrid-p12d')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-nx2z-confirmButton')
+      .first();
     this.initiateNewFamilyHistoryAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -131,8 +131,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.familyHistoryClinicianField = this.page.getByTestId('field-kbwi-input');
     this.familyHistoryNotes = this.page.getByTestId('field-mgiu-input');
     this.submitNewFamilyHistoryAddButton = this.page
-      .getByTestId('formgrid-kjns')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
+      .first();
+
     this.savedFamilyHistoryDateRecorded = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-wrp3-input')
@@ -163,8 +164,8 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('field-nj3s-input');
     this.submitNewOtherPatientIssuesAddButton = this.page
-      .getByTestId('formgrid-vv7x')
-      .getByTestId('formsubmitbutton-ygc6');
+      .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
+      .first();
     this.initiateNewCarePlanAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -180,7 +181,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.warningModalOkayButton = this.page.getByTestId('button-3i9s');
     this.resolvedCheckbox = this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('checkinput-x2e3-controlcheck');
+      .getByTestId('field-c7nr-controlcheck')
+      .first();
     this.resolvedClinician = this.page
       .getByRole('combobox')
       .filter({ hasText: 'Clinician confirming' })
@@ -190,6 +192,10 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('field-3b4u-input')
       .getByRole('textbox');
+    this.submitEditsButton = this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
+      .first();
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -198,6 +204,10 @@ export class PatientDetailsPage extends BasePatientPage {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
     return this.patientVaccinePane;
+  }
+
+  async goToPatient(patient: Patient) {
+    await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
@@ -238,6 +248,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
     await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
@@ -328,13 +339,44 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async getCurrentBrowserDateISOFormat() {
-    const browserDate = await this.page.evaluate(() => {
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    });
-    return browserDate;
+    const currentDate = new Date();
+    return currentDate.toISOString().split('T')[0];
+  }
+
+  // Helper methods for handling multiple buttons with the same test ID
+  getSubmitEditsButton() {
+    // Generic method - should be used with specific context
+    return this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
+      .first();
+  }
+
+  getOngoingConditionEditSubmitButton() {
+    return this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
+      .first();
+  }
+
+  getAllergyEditSubmitButton() {
+    return this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-nx2z-confirmButton')
+      .first();
+  }
+
+  getFamilyHistoryEditSubmitButton() {
+    return this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
+      .first();
+  }
+
+  getOtherPatientIssuesEditSubmitButton() {
+    return this.page
+      .getByTestId('collapse-0a33')
+      .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
+      .first();
   }
 }

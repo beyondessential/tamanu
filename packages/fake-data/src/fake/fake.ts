@@ -196,18 +196,13 @@ export function fakeEncounterDiagnosis(prefix: string = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix: string = 'test-') {
+export function fakePrescription(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    qtyMorning: chance.integer({ min: 0, max: 10 }),
-    qtyLunch: chance.integer({ min: 0, max: 10 }),
-    qtyEvening: chance.integer({ min: 0, max: 10 }),
-    qtyNight: chance.integer({ min: 0, max: 10 }),
-    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+    ...fakeStringFields(`${prefix}prescription${id}_`, [
       'id',
-      'prescription',
       'note',
       'indication',
       'route',
@@ -418,6 +413,18 @@ const MODEL_SPECIFIC_OVERRIDES = {
         : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
+  ChangeLog: () => ({
+    recordId: fakeUUID(),
+    id: fakeUUID(),
+    tableOid: chance.integer({ min: 10000, max: 99999 }),
+    tableSchema: chance.pickone(['public', 'fhir', 'logs']),
+    tableName: chance.pickone(['patients', 'encounters', 'lab_requests']),
+    loggedAt: fakeDateTimeString(),
+    recordCreatedAt: fakeDateTimeString(),
+    recordUpdatedAt: fakeDateTimeString(),
+    updatedByUserId: fakeUUID(),
+    recordUpdate: true,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {

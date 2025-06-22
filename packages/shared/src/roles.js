@@ -77,10 +77,15 @@ export const practitioner = [
   { verb: 'create', noun: 'EncounterDiagnosis' },
   { verb: 'list', noun: 'EncounterDiagnosis' },
 
-  { verb: 'read', noun: 'EncounterMedication' },
-  { verb: 'write', noun: 'EncounterMedication' },
-  { verb: 'create', noun: 'EncounterMedication' },
-  { verb: 'list', noun: 'EncounterMedication' },
+  { verb: 'read', noun: 'Medication' },
+  { verb: 'write', noun: 'Medication' },
+  { verb: 'create', noun: 'Medication' },
+  { verb: 'list', noun: 'Medication' },
+
+  { verb: 'read', noun: 'MedicationAdministration' },
+  { verb: 'write', noun: 'MedicationAdministration' },
+  { verb: 'create', noun: 'MedicationAdministration' },
+  { verb: 'list', noun: 'MedicationAdministration' },
 
   { verb: 'list', noun: 'Program' },
   { verb: 'read', noun: 'Program' },
@@ -240,6 +245,7 @@ export const practitioner = [
   { verb: 'list', noun: 'PatientProgramRegistration' },
   { verb: 'create', noun: 'PatientProgramRegistration' },
   { verb: 'write', noun: 'PatientProgramRegistration' },
+  { verb: 'delete', noun: 'PatientProgramRegistration' },
 
   { verb: 'read', noun: 'PatientProgramRegistrationCondition' },
   { verb: 'list', noun: 'PatientProgramRegistrationCondition' },
@@ -263,6 +269,10 @@ export const practitioner = [
   { verb: 'create', noun: 'Tasking' },
   { verb: 'write', noun: 'Tasking' },
   { verb: 'delete', noun: 'Tasking' },
+  { verb: 'delete', noun: 'Charting' },
+
+  { verb: 'create', noun: 'MedicationPharmacyNote' },
+  { verb: 'write', noun: 'MedicationPharmacyNote' },
 ];
 
 // "Manage all" is a special case in CASL for the admin to grant everything

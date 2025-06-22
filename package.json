@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.33.0",
+  "version": "2.35.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -47,27 +47,28 @@
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
   },
   "engines": {
-    "node": "^20.9.0"
+    "node": ">=20.9.0"
   },
   "packageManager": "npm@10.8.0",
   "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/build-tooling",
-      "packages/scripts",
-      "packages/web",
-      "packages/facility-server",
-      "packages/central-server",
-      "packages/shared",
-      "packages/constants",
-      "packages/settings",
       "packages/api-client",
-      "packages/mobile",
+      "packages/build-tooling",
+      "packages/central-server",
+      "packages/constants",
       "packages/database",
-      "packages/utils",
+      "packages/e2e-tests",
+      "packages/facility-server",
       "packages/fake-data",
-      "packages/e2e-tests"
+      "packages/mobile",
+      "packages/scripts",
+      "packages/settings",
+      "packages/shared",
+      "packages/upgrade",
+      "packages/utils",
+      "packages/web"
     ]
   },
   "devDependencies": {
@@ -90,7 +91,8 @@
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
     "patch-package": "^8.0.0",
-    "pm2": "^4.5.0"
+    "pm2": "^4.5.0",
+    "re-resizable": "^6.11.2"
   },
   "overrides": {
     "react": "18.2.0",
