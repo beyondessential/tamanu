@@ -17,10 +17,16 @@ export const STEPS: Steps = [
       await sequelize.query(`
         UPDATE logs.changes
         SET updated_at_sync_tick = (
-          SELECT CAST(value AS bigint) FROM local_system_facts WHERE key = '${FACT_CURRENT_SYNC_TICK}'
+          SELECT CAST(value AS bigint) FROM local_system_facts WHERE key = :currentSyncTick
         )
         WHERE updated_at_sync_tick = 0 AND table_name = 'patient_program_registrations';
-      `);
+      `,
+        {
+          replacements: {
+            currentSyncTick: FACT_CURRENT_SYNC_TICK,
+          },
+        },
+      );
     },
   },
 ];
