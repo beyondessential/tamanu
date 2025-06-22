@@ -39,7 +39,13 @@ patientRoute.post(
     const { models, body: patient } = req;
 
     const potentialDuplicates = await models.Patient.sequelize.query(
-      `SELECT * FROM find_potential_patient_duplicates(:patient)`,
+      `SELECT 
+        p.*,
+        reference_data.id AS village_id,
+        reference_data.name AS village_name
+      FROM find_potential_patient_duplicates(:patient) p
+      LEFT JOIN reference_data
+        ON reference_data.id = p.village_id`,
       {
         replacements: { patient: JSON.stringify(patient) },
         type: QueryTypes.SELECT,
