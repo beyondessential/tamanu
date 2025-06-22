@@ -6,10 +6,37 @@ import {
   TableColumn,
   TableForeignKey,
 } from 'typeorm';
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
-} from '~/constants/programRegistries';
+
+const OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
+  SUSPECTED: 'suspected',
+  UNDER_INVESTIGATION: 'underInvestigation',
+  CONFIRMED: 'confirmed',
+  UNKNOWN: 'unknown',
+  DISPROVEN: 'disproven',
+  RESOLVED: 'resolved',
+  IN_REMISSION: 'inRemission',
+  NOT_APPLICABLE: 'notApplicable',
+  RECORDED_IN_ERROR: 'recordedInError',
+};
+
+const OLD_PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED]: 'Suspected',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNDER_INVESTIGATION]: 'Under investigation',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED]: 'Confirmed',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN]: 'Unknown',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN]: 'Disproven',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED]: 'Resolved',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.IN_REMISSION]: 'In remission',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE]: 'Not applicable',
+  [OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
+};
+
+const NEW_PROGRAM_REGISTRY_CONDITION_CATEGORY_VALUES = [
+  'unknown',
+  'disproven',
+  'resolved',
+  'recordedInError',
+];
 
 const TABLE_NAME = 'program_registry_condition_categories';
 
@@ -88,9 +115,9 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
 
     const ID_PREFIX = 'program-registry-condition-category-';
 
-    const selectStatements = Object.entries(PROGRAM_REGISTRY_CONDITION_CATEGORIES).map(
+    const selectStatements = Object.entries(OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES).map(
       ([_, code]) => {
-        const name = PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code];
+        const name = OLD_PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code];
         if (!name) {
           throw new Error(`Missing label for category code: ${code}`);
         }
@@ -122,9 +149,6 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
     // Get the patient_program_registration_conditions table
     const table = await queryRunner.getTable('patient_program_registration_conditions');
 
-    // Remove the conditionCategory column
-    await queryRunner.dropColumn(table, 'conditionCategory');
-
     // Add the programRegistryConditionCategoryId column
     await queryRunner.addColumn(
       table,
@@ -139,13 +163,25 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
     await queryRunner.query(`
       UPDATE patient_program_registration_conditions
       SET programRegistryConditionCategoryId = (
-        SELECT prc.id
-        FROM program_registry_condition_categories prc
-        JOIN patient_program_registrations ppr ON prc.programRegistryId = ppr.programRegistryId
-        WHERE ppr.id = patient_program_registration_conditions.patientProgramRegistrationId
-        AND prc.code = 'unknown'
-        LIMIT 1
+        SELECT prcc.id
+        FROM patient_program_registration_conditions pprc
+        JOIN patient_program_registrations ppr ON pprc.patientProgramRegistrationId = ppr.id
+        JOIN program_registry_condition_categories prcc
+          ON pprc.conditionCategory = prcc.code
+          AND prcc.programRegistryId = ppr.programRegistryId
+        WHERE pprc.id = patient_program_registration_conditions.id
       )
+    `);
+
+    const newCategoriesClause = NEW_PROGRAM_REGISTRY_CONDITION_CATEGORY_VALUES
+      .map((code) => `'${code}'`)
+      .join(',');
+
+    // Remove all unused categories per registry not in the new list
+    await queryRunner.query(`
+      DELETE FROM program_registry_condition_categories
+      WHERE code NOT IN (${newCategoriesClause})
+      AND id NOT IN (SELECT programRegistryConditionCategoryId FROM patient_program_registration_conditions)
     `);
 
     // Add foreign key constraint
@@ -168,6 +204,9 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
         isNullable: false,
       }),
     );
+
+    // Remove the conditionCategory column
+    await queryRunner.dropColumn(table, 'conditionCategory');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
