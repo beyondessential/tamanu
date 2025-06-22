@@ -66,7 +66,7 @@ FHIR resources include: Patient, Encounter, Practitioner, Organization, ServiceR
 ```
 tamanu/
 ├── packages/
-│   ├── central-server/     # Central synchronisation server
+│   ├── central-server/     # Central server for synchronisation, external integrations, & admin actions
 │   ├── facility-server/    # Local facility server
 │   ├── web/               # Desktop web application
 │   ├── mobile/            # React Native mobile app
@@ -83,12 +83,11 @@ tamanu/
 
 ## Common Development Tasks
 
-- **Database migrations** - Use Sequelize migrations for schema changes
+- **Database migrations** - Use Sequelize migrations for schema changes on the server and TypeORM migrations for mobile database schema changes. Always write corresponding mobile migrations at the same time as server migrations
 - **API development** - Add routes to facility-server or central-server
 - **UI components** - Create reusable components in the web package
 - **Sync configuration** - Set sync directions on models
 - **FHIR resources** - Implement materialisation for new resource types
-- **Mobile features** - Develop offline-capable mobile functionality
 
 ## Key Files to Know
 
@@ -103,7 +102,7 @@ tamanu/
 - **Node.js 20.9.0** required
 - **PostgreSQL** for databases
 - **npm workspaces** for package management
-- **Local configuration** via `config/local.json5` files
+- **Local configuration** via `config/local.json5` files (to override config/default.json5 defaults)
 - **Hot reloading** for development servers
 
 ## Getting Help

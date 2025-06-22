@@ -8,9 +8,9 @@ The loaded content is for your background knowledge only - you don't need to sum
 
 - Load the initial overview document: `llm/docs/initial-overview.md`
 - Load commonly used rules that provide essential guidance:
-  - `llm/rules/generate-docs.md` - for documentation tasks
+  - `llm/rules/create-docs.md` - for documentation tasks
   - `llm/rules/update-docs.md` - for updating existing documentation
-  - `llm/rules/generate-context.md` - for creating context documentation
+  - `llm/rules/create-context.md` - for creating context documentation
 - Read key styling constants from the codebase:
   - `packages/web/app/constants/styles.js` - web styling constants and colours
   - `packages/web/app/theme/theme.js` - Material-UI theme configuration
