@@ -5,10 +5,12 @@ import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_STATUSES,
+  ENCOUNTER_TYPE_LABELS,
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
+import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
@@ -26,6 +28,7 @@ import {
   useInvoiceTotalOutstandingBalanceQuery,
 } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
+import { useTranslation } from '../../contexts/Translation';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -69,15 +72,15 @@ const Table = styled(DataFetchingTable)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;
 
 const getDate = ({ date }) => formatShortest(date);
-const getInvoiceTotal = (row) => {
+const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (
     <TranslatedText
@@ -90,7 +93,7 @@ const getInvoiceTotal = (row) => {
     `$${patientTotal}`
   );
 };
-const getPaymentStatus = (row) => {
+const getPaymentStatus = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED) {
     return (
       <TranslatedText
@@ -123,17 +126,18 @@ const getPaymentStatus = (row) => {
     </>
   );
 };
-const getEncounterType = (row) => {
-  const label = ENCOUNTER_OPTIONS_BY_VALUE[row.encounter.encounterType]?.label || '';
-  const abbreviationLabel = upperCase(
-    label
-      .split(' ')
-      .map((it) => it[0])
-      .join(''),
+const getEncounterType = row => {
+  const { encounter } = row;
+  const label = (
+    <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
   );
+
   return (
     <ThemedTooltip title={label} data-testid="themedtooltip-zxwp">
-      <span>{abbreviationLabel}</span>
+      <TranslatedEnum
+        enumValues={ENCOUNTER_TYPE_ABBREVIATION_LABELS}
+        value={encounter.encounterType}
+      />
     </ThemedTooltip>
   );
 };
@@ -141,7 +145,7 @@ const getStatus = ({ status }) => (
   <InvoiceStatus status={status} data-testid="invoicestatus-i1yc" />
 );
 
-const getRemainingBalance = (row) => {
+const getRemainingBalance = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED)
     return (
       <TranslatedText
@@ -244,11 +248,11 @@ export const InvoicesTable = ({ patient }) => {
   const { data: invoice } = useEncounterInvoiceQuery(selectedInvoice?.encounterId);
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
-  const afterDeleteInvoice = useCallback(() => setRefreshTable((prev) => prev + 1), []);
+  const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);
 
   useEffect(() => {
     if (invoice) {
-      setRefreshTable((prev) => prev + 1);
+      setRefreshTable(prev => prev + 1);
     }
   }, [invoice]);
 
