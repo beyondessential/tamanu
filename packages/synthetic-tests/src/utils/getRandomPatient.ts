@@ -21,7 +21,7 @@ export async function getRandomPatient(
 ): Promise<any> {
   // Get a list of patients and pick a random one
   const response = await fetch(
-    `${baseUrl}/api/patient?rowsPerPage=100&page=0&facilityId=${facilityId}`,
+    `${baseUrl}/api/patient?rowsPerPage=100&page=0&facilityId=${facilityId}&isAllPatientsListing=true`,
     {
       method: 'GET',
       headers: {
