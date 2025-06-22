@@ -18,14 +18,9 @@
   },
   "yaml.schemas": {
     "https://www.artillery.io/schema.json": [
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/config/common-config.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/tests/test.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/scenarios/create-patient.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/dist/mjs/test.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/config/common-config.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/scenarios/create-patient.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/scenarios/create-encounter.yml",
-      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/merged-scenarios.yml"
+      "packages/synthetic-tests/src/config/*.yml",
+      "packages/synthetic-tests/src/scenarios/*.yml",
+      "packages/synthetic-tests/src/merged-scenarios.yml"
     ]
   }
 }
