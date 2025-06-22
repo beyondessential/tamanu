@@ -6,6 +6,7 @@ The project requires conventional commit format for PR titles, and it's good pra
 
 # Process
 
+- First, stage all files using `git add .` to ensure all changes are included
 - Check what files are staged using `git status --porcelain` (avoid `git status` alone as it can be verbose)
 - If you need to see changes, use `git diff --cached --name-only` for file list or `git diff --cached --stat` for summary
 - If you need to see actual diff content, use `git diff --cached | cat` to avoid paging issues
@@ -25,6 +26,7 @@ The project requires conventional commit format for PR titles, and it's good pra
 - Keep the description concise but descriptive of what was changed
 - Use present tense and imperative mood (e.g., "add", "fix", "update")
 - Run `git commit -m "commit message"`
+- If the user requested "commit and push", also run `git push` after the commit
 
 Example: `git commit -m "doc: restructure LLM documentation system"`
 
@@ -32,9 +34,11 @@ Example: `git commit -m "doc: restructure LLM documentation system"`
 
 - Using past tense in commit messages (e.g., "added" instead of "add")
 - Making commit messages too vague or too detailed
-- Forgetting to check what's actually staged before committing
+- Forgetting to stage all files before committing
 - Using commands that produce paged output like `git diff`, `git log`, or `git show` without `| cat`
 
 # Notes
 
 - Use Australian/NZ English spelling (e.g., "organise", "colour", "centre") instead of American English (e.g., "organize", "color", "center")
+- Always stage all changes before committing to ensure consistency
+- When user says "commit and push", perform both operations in sequence
