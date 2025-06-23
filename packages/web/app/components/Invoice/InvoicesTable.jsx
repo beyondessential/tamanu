@@ -15,7 +15,6 @@ import { DataFetchingTable } from '../Table';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
-import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
 import {
@@ -28,7 +27,6 @@ import {
   useInvoiceTotalOutstandingBalanceQuery,
 } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
-import { useTranslation } from '../../contexts/Translation';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
