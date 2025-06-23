@@ -72,7 +72,7 @@ describe('Merging Patient Program Registration Conditions', () => {
 
     const newKeepPatientConditions = await PatientProgramRegistrationCondition.findAll({
       where: { patientProgramRegistrationId: keepRegistration.id },
-      paranoid: false, // include the soft deleted conditions
+      paranoid: false, // include any soft deleted conditions
       raw: true,
     });
     const newMergePatientConditions = await PatientProgramRegistrationCondition.findAll({
