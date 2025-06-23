@@ -21,7 +21,6 @@ export const HierarchyFieldItem = ({
     options: {
       where: {
         type: referenceType,
-        visibilityStatus: VisibilityStatus.Current,
       },
       relations: ['parents'],
       hierarchy: {
