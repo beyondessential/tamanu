@@ -557,5 +557,57 @@ export async function medicationSetLoader(item, { models, pushError }) {
       },
     });
   }
+
+  return rows;
+}
+
+export async function procedureTypeLoader(item, { models }) {
+  const { id, surveyIds, ...otherFields } = item;
+  const rows = [];
+
+  const surveyIdList = surveyIds ? surveyIds.split(',').map((s) => s.trim()) : [];
+
+  rows.push({
+    model: 'ReferenceData',
+    values: {
+      id,
+      type: 'procedureType',
+      ...otherFields,
+    },
+  });
+
+  const existingProcedureType = await models.ReferenceData.findByPk(id, {
+    include: [{ model: models.Survey, as: 'surveys' }],
+  });
+
+  if (existingProcedureType) {
+    const idsToBeDeleted = existingProcedureType.surveys
+      .map((s) => s.id)
+      .filter((surveyId) => !surveyIdList.includes(surveyId));
+
+    idsToBeDeleted.forEach((surveyId) => {
+      rows.push({
+        model: 'ProcedureTypeSurvey',
+        values: {
+          id: `${id};${surveyId}`,
+          procedureTypeId: id,
+          surveyId: surveyId,
+          deletedAt: new Date(),
+        },
+      });
+    });
+  }
+
+  surveyIdList.forEach((surveyId) => {
+    rows.push({
+      model: 'ProcedureTypeSurvey',
+      values: {
+        id: `${id};${surveyId}`,
+        procedureTypeId: id,
+        surveyId: surveyId,
+      },
+    });
+  });
+
   return rows;
 }
