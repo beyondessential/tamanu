@@ -481,7 +481,7 @@ appointments.get(
       ...(type === 'outpatient' && { locationGroupId: { [Op.not]: null } }),
       ...(type === 'locationBooking' && { locationId: { [Op.not]: null } }),
     },
-    include: ['locationGroup', 'location'],
+    include: ['locationGroup', 'location', 'clinician', 'appointmentType'],
   });
 
   res.send(upcomingAppointments);

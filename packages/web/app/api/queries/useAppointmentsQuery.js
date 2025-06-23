@@ -9,11 +9,7 @@ const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   const facilityFetchOptions = { facilityId, ...fetchOptions };
   return useQuery(
     ['appointments', facilityFetchOptions],
-    async() => {
-      const response = await api.get('appointments', facilityFetchOptions);
-      console.log('refreshing appointments');
-      return response;
-    },
+    () => api.get('appointments', facilityFetchOptions),
     useQueryOptions,
   );
 };
