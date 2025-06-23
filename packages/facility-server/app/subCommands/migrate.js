@@ -8,4 +8,4 @@ async function migrate(direction) {
   process.exit(0);
 }
 
-export const migrateCommand = createMigrateCommand(Command, migrate);
+export const migrateCommand = createMigrateCommand(Command, migrate, 'just-migrate');
