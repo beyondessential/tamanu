@@ -38,8 +38,8 @@ const TableWrapper = styled.div`
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const { getSetting } = useSettings();
-  const [showUpcomingVaccines, setShowUpcomingVaccines] = useState(
-    !getSetting('features.hideUpcomingVaccines'),
+  const [hideUpcomingVaccines, setHideUpcomingVaccines] = useState(
+    getSetting('features.hideUpcomingVaccines'),
   );
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
@@ -50,7 +50,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [vaccineData, setVaccineData] = useState();
 
   const handleShowUpcomingVaccines = useCallback(() => {
-    setShowUpcomingVaccines(true);
+    setHideUpcomingVaccines(false);
   }, []);
 
   const handleOpenDeleteModal = useCallback(async row => {
@@ -147,18 +147,18 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <TableWrapper>
-          {showUpcomingVaccines ? (
-            <ImmunisationScheduleTable
-              patient={patient}
-              onItemEdit={id => handleOpenRecordModal(id)}
-            />
-          ) : (
+          {hideUpcomingVaccines ? (
             <Button onClick={handleShowUpcomingVaccines}>
               <TranslatedText
                 stringId="vaccine.action.showUpcomingVaccines"
                 fallback="Show upcoming vaccines"
               />
             </Button>
+          ) : (
+            <ImmunisationScheduleTable
+              patient={patient}
+              onItemEdit={id => handleOpenRecordModal(id)}
+            />
           )}
         </TableWrapper>
         <ImmunisationsTable
