@@ -562,10 +562,10 @@ export async function medicationSetLoader(item, { models, pushError }) {
 }
 
 export async function procedureTypeLoader(item, { models, pushError }) {
-  const { id, surveyIds, ...otherFields } = item;
+  const { id, formLink, ...otherFields } = item;
   const rows = [];
 
-  const surveyIdList = surveyIds ? surveyIds.split(',').map((s) => s.trim()) : [];
+  const surveyIdList = formLink ? formLink.split(',').map((s) => s.trim()) : [];
 
   rows.push({
     model: 'ReferenceData',
@@ -586,7 +586,9 @@ export async function procedureTypeLoader(item, { models, pushError }) {
       (surveyId) => !existingSurveyIds.includes(surveyId),
     );
     if (nonExistentSurveyIds.length > 0) {
-      pushError(`Surveys ${nonExistentSurveyIds.join(', ')} for procedure type "${id}" not found.`);
+      pushError(
+        `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
+      );
     }
   }
 
