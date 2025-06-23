@@ -457,3 +457,32 @@ appointments.get(
     res.send(pastAppointments !== null);
   }),
 );
+
+
+appointments.get(
+  '/upcomingAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+  req.checkListOrReadPermission('Appointment');
+
+  const { models, params, query } = req;
+  const { patientId } = params;
+  const { type, facilityId } = query;
+  const { Appointment } = models;
+
+  const facilityIdField =
+    type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
+
+  const upcomingAppointments = await Appointment.findAll({
+    where: {
+      patientId,
+      status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+      startTime: { [Op.gt]: new Date() },
+      ...(facilityId && { [facilityIdField]: facilityId }),
+      ...(type === 'outpatient' && { locationGroupId: { [Op.not]: null } }),
+      ...(type === 'locationBooking' && { locationId: { [Op.not]: null } }),
+    },
+    include: ['locationGroup', 'location'],
+  });
+
+  res.send(upcomingAppointments);
+}));

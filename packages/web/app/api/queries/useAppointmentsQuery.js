@@ -9,7 +9,11 @@ const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   const facilityFetchOptions = { facilityId, ...fetchOptions };
   return useQuery(
     ['appointments', facilityFetchOptions],
-    () => api.get('appointments', facilityFetchOptions),
+    async() => {
+      const response = await api.get('appointments', facilityFetchOptions);
+      console.log('refreshing appointments');
+      return response;
+    },
     useQueryOptions,
   );
 };
@@ -51,4 +55,23 @@ export const useHasPastOutpatientAppointmentsQuery = (patientId, useQueryOptions
 export const useHasPastLocationBookingsQuery = (patientId, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
   return useHasPastAppointmentsQuery(patientId, { facilityId, type: 'locationBooking' }, useQueryOptions);
+}
+
+const useUpcomingAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+  const api = useApi();
+  return useQuery(
+    ['upcomingAppointments', patientId],
+    () => api.get(`appointments/upcomingAppointments/${patientId}`, fetchOptions),
+    useQueryOptions,
+  );
+}
+
+export const useUpcomingOutpatientAppointmentsQuery = (patientId, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'outpatient' }, useQueryOptions);
+}
+
+export const useUpcomingLocationBookingsQuery = (patientId, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'locationBooking' }, useQueryOptions);
 }
