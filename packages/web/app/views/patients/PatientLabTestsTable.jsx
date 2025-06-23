@@ -6,8 +6,9 @@ import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay } from '../../components';
+import { BodyText, DateDisplay, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedOption } from '../../components/Translation/TranslatedOptions';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -17,19 +18,19 @@ const StyledTable = styled(Table)`
     position: relative;
     width: initial;
 
-    thead tr th:nth-child(-n + ${(props) => props.$stickyColumns}),
-    tbody tr td:nth-child(-n + ${(props) => props.$stickyColumns}) {
+    thead tr th:nth-child(-n + ${props => props.$stickyColumns}),
+    tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
       position: sticky;
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
     }
 
-    thead tr th:nth-child(${(props) => props.$stickyColumns}),
-    tbody tr td:nth-child(${(props) => props.$stickyColumns}) {
+    thead tr th:nth-child(${props => props.$stickyColumns}),
+    tbody tr td:nth-child(${props => props.$stickyColumns}) {
       border-right: 2px solid ${Colors.outline};
     }
 
-    ${(props) =>
+    ${props =>
       COLUMN_WIDTHS.slice(0, props.$stickyColumns)
         .map(
           (width, index) => `
@@ -59,7 +60,7 @@ const StyledTable = styled(Table)`
     }
 
     thead tr th {
-      color: ${(props) => props.theme.palette.text.secondary};
+      color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
       white-space: break-spaces;
     }
@@ -105,7 +106,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const getTitle = (value) => {
+const getTitle = value => {
   const date = DateDisplay.stringFormat(value);
   const timeWithSeconds = DateDisplay.stringFormat(value, formatTimeWithSeconds);
   return `${date} ${timeWithSeconds}`;
@@ -115,7 +116,7 @@ export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
-    const openModal = (id) => {
+    const openModal = id => {
       if (id) {
         setModalLabTestId(id);
         setModalOpen(true);
@@ -124,7 +125,7 @@ export const PatientLabTestsTable = React.memo(
 
     const allDates = isLoading
       ? []
-      : Object.keys(Object.assign({}, ...labTests.map((x) => x.results)));
+      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
 
     const stickyColumns = [
       // Only include category column if not filtering by category
@@ -139,7 +140,7 @@ export const PatientLabTestsTable = React.memo(
                   data-testid="translatedtext-0dpy"
                 />
               ),
-              accessor: (row) => (
+              accessor: row => (
                 <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
               ),
               sortable: false,
@@ -155,9 +156,14 @@ export const PatientLabTestsTable = React.memo(
             data-testid="translatedtext-hrn5"
           />
         ),
-        accessor: (row) => (
+        accessor: row => (
           <CategoryCell data-testid="categorycell-7aet">
-            {row.testType}
+         <TranslatedReferenceData
+        fallback={row.testType}
+        value={row.testTypeId}
+        category="labTestType"
+        data-testid="translatedreferencedata-kplb"
+      />
             <br />
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}
@@ -175,7 +181,7 @@ export const PatientLabTestsTable = React.memo(
             data-testid="translatedtext-v8jk"
           />
         ),
-        accessor: (row) => {
+        accessor: row => {
           const range = row.normalRanges[patient?.sex];
           const value = !range.min
             ? '—' // em dash
@@ -194,7 +200,7 @@ export const PatientLabTestsTable = React.memo(
           title: <DateHeadCell value={date} data-testid={`dateheadcell-qvnq-${index}`} />,
           sortable: false,
           key: date,
-          accessor: (row) => {
+          accessor: row => {
             const normalRange = row.normalRanges[patient?.sex];
             const cellData = row.results[date];
             if (cellData) {
@@ -203,12 +209,20 @@ export const PatientLabTestsTable = React.memo(
                   onClick={() => openModal(cellData.id)}
                   data-testid={`styledbutton-d5us-${index}`}
                 >
-                  <RangeValidatedCell
-                    value={cellData.result}
-                    config={{ unit: row.unit, rounding: null }}
-                    validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-                    data-testid={`rangevalidatedcell-ebuf-${index}`}
-                  />
+                  {row.testOptions ? (
+                    <TranslatedOption
+                      value={cellData.result}
+                      referenceDataId={row.testTypeId}
+                      referenceDataCategory="labTestType"
+                    />
+                  ) : (
+                    <RangeValidatedCell
+                      value={cellData.result}
+                      config={{ unit: row.unit, rounding: null }}
+                      validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                      data-testid={`rangevalidatedcell-ebuf-${index}`}
+                    />
+                  )}
                 </StyledButton>
               );
             }
@@ -221,7 +235,7 @@ export const PatientLabTestsTable = React.memo(
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
-            accessor: (row) => row.results[date]?.result || '—', // em dash
+            accessor: row => row.results[date]?.result || '—', // em dash
           },
         })),
     ];

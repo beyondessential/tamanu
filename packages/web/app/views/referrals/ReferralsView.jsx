@@ -18,6 +18,7 @@ import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -81,7 +82,11 @@ const ReferralFlow = ({ patient, currentUser }) => {
       <ProgramsPane data-testid="programspane-6xjz">
         <ProgramsPaneHeader data-testid="programspaneheader-8cj1">
           <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-a55s">
-            Select a referral
+            <TranslatedText
+              stringId="referral.selectReferral.label"
+              fallback="Select a referral"
+              data-testid="translatedtext-referral-select-referral-text"
+            />
           </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1} data-testid="formgrid-prtu">
@@ -90,7 +95,13 @@ const ReferralFlow = ({ patient, currentUser }) => {
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={referralSurveys}
-            buttonText="Begin referral"
+            buttonText={
+              <TranslatedText
+                stringId="referral.action.begin"
+                fallback="Begin referral"
+                data-testid="translatedtext-referral-action-begin"
+              />
+            }
             data-testid="surveyselector-6c7l"
           />
         </FormGrid>

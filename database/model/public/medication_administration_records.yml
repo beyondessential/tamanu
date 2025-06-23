@@ -1,0 +1,76 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: medication_administration_records
+        description: '{{ doc("table__medication_administration_records") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in medication_administration_records."
+            data_tests:
+              - unique
+              - not_null
+          - name: status
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__status') }}"
+          - name: due_at
+            data_type: character(19)
+            description: "{{ doc('medication_administration_records__due_at') }}"
+            data_tests:
+              - not_null
+          - name: recorded_at
+            data_type: character(19)
+            description: "{{ doc('medication_administration_records__recorded_at') }}"
+          - name: recorded_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__recorded_by_user_id') }}"
+          - name: prescription_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__prescription_id') }}"
+          - name: is_auto_generated
+            data_type: boolean
+            description: "{{ doc('medication_administration_records__is_auto_generated') }}"
+            data_tests:
+              - not_null
+          - name: changing_status_reason
+            data_type: text
+            description: "{{ doc('medication_administration_records__changing_status_reason') }}"
+          - name: reason_not_given_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__reason_not_given_id') }}"
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in medication_administration_records."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in medication_administration_records."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in medication_administration_records."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in medication_administration_records."
+            data_tests:
+              - not_null
+          - name: is_error
+            data_type: boolean
+            description: "{{ doc('medication_administration_records__is_error') }}"
+          - name: error_notes
+            data_type: text
+            description: "{{ doc('medication_administration_records__error_notes') }}"
+          - name: changing_not_given_info_reason
+            data_type: character varying(255)
+            description: "{{ doc('medication_administration_records__changing_not_given_info_reason') }}"
+          - name: is_edited
+            data_type: boolean
+            description: "{{ doc('medication_administration_records__is_edited') }}"
+            data_tests:
+              - not_null
