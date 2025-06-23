@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 
 import {
   ButtonRow,
-  Heading3,
   Heading4,
   LargeBodyText,
   Modal,
@@ -81,7 +80,7 @@ export const DuplicatePatientWarningModal = ({
         <Heading4>
           <TranslatedText
             stringId="patient.modal.duplicateWarning.existingRecordsHeading"
-            fallback="Existing patient records in Tamanu"
+            fallback="Existing patient record/s"
             data-testid="translatedtext-existing-heading"
           />
         </Heading4>
