@@ -20,5 +20,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  query.sequelize.query('DROP FUNCTION public.set_updated_at()');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS public.set_updated_at() CASCADE');
 }
