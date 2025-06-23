@@ -36,7 +36,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const practitionerSuggester = new Suggester({
     model: models.User,
     options: { column: 'displayName' },
-    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
   });
   const facilitySuggester = new Suggester({
     model: models.Facility,

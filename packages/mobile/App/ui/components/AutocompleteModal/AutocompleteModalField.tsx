@@ -69,13 +69,7 @@ export const AutocompleteModalField = ({
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value, language);
       if (data) {
-        const refDataType = getReferenceDataTypeFromSuggester(suggester);
-        setLabel(
-          <TranslatedText
-            stringId={getReferenceDataStringId(data.value, refDataType)}
-            fallback={data.label}
-          />,
-        );
+        setLabel(data.label);
       } else {
         setLabel(null);
       }

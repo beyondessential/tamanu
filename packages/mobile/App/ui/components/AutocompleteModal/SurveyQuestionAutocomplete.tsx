@@ -50,10 +50,6 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
       where,
       column: getNameColumnForModel(source),
     },
-    formatter: (val) => ({
-      label: getDisplayNameForModel(source, val),
-      value: val.id,
-    }),
   });
 
   return (

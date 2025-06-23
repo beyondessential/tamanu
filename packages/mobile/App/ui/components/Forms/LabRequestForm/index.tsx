@@ -57,7 +57,6 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   const practitionerSuggester = new Suggester({
     model: models.User,
     options: { column: 'displayName' },
-    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
   });
 
   const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
