@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/central-server",
-  "version": "2.16.22",
+  "version": "2.16.23",
   "private": true,
   "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
