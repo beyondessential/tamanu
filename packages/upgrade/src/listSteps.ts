@@ -10,7 +10,7 @@ export const MIGRATIONS_END = MIGRATION_PREFIX + END;
 
 export interface ResolvedStep {
   id: StepStr;
-  file: StepStr;
+  file: string;
   step: Required<Step>;
 }
 
@@ -50,12 +50,10 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
   // steps and migrations are differentiated by their "step ID", which is upgrade/...
   // for upgrade steps and migration/... for migrations. there's an additional thing
   // where upgrade files can have multiple steps in them, so you can define a pre and
-  // a post migration step in the same file if they're related. so upgrade steps have
-  // a full ID, which is upgrade/filename/N, where N is the index of the step within
-  // the file, and a short ID, which is upgrade/filename. steps can depend on either
-  // the filename, or a specific indexed step. and here we define this by having the
-  // graph include upgrade/name/N -> upgrade/step, such that once all indexed steps
-  // are done, steps that depend on the overall step file will run.
+  // a post migration step in the same file if they're related. so upgrade steps IDs
+  // have an index suffix, such that in upgrade/filename/N, N is the zero-based index
+  // of the step within the file. step relationships must specify an index, not doing
+  // so throws immediately.
   //
   // when there are before/after dependencies, the at: START|END specifier *biases*
   // the result but doesn't make it absolute. when there are no before/after deps,
@@ -63,8 +61,8 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
   // always be after migrations.
   const edges: Edge[] = edgeFilter(migrations.map((mig, i) => [migrations[i - 1], mig]))
     .concat(
-      steps.flatMap(({ file, id, step }) => {
-        const topo: Edge[] = [[id, file]];
+      steps.flatMap(({ id, step }) => {
+        const topo: Edge[] = [];
 
         if (step.at === START) {
           topo.push([START, id]);
@@ -80,9 +78,9 @@ export async function orderSteps(steps: ResolvedStep[], migrations: MigrationStr
         }
         if (step.before.length === 0 && step.after.length === 0) {
           if (step.at === START) {
-            topo.push([file, MIGRATIONS_START], [id, MIGRATIONS_START]);
+            topo.push([id, MIGRATIONS_START]);
           } else if (step.at === END) {
-            topo.push([MIGRATIONS_END, file], [MIGRATIONS_END, id]);
+            topo.push([MIGRATIONS_END, id]);
           }
         }
 
@@ -113,7 +111,7 @@ async function readStep(file: string) {
   const { STEPS }: { STEPS: Steps } = await import(join(STEPS_DIR, file));
   return STEPS.map((step, i) => ({
     id: `upgrade/${stepfile}/${i}` as StepStr,
-    file: `upgrade/${stepfile}` as StepStr,
+    file,
     step: {
       before: [],
       after: [],
