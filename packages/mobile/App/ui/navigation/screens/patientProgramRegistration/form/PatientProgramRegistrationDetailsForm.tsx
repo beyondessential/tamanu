@@ -4,7 +4,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { DateField } from '~/ui/components/DateField/DateField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledScrollView, StyledView } from '~/ui/styled/common';

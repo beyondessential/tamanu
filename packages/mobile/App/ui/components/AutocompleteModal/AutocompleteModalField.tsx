@@ -2,11 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import {
-  BaseModelSubclass,
-  getReferenceDataTypeFromSuggester,
-  Suggester,
-} from '../../helpers/suggester';
+import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -15,7 +11,6 @@ import { RequiredIndicator } from '../RequiredIndicator';
 import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface AutocompleteModalFieldProps {

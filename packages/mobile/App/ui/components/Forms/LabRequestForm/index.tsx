@@ -7,7 +7,7 @@ import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { SubmitButton } from '../SubmitButton';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
