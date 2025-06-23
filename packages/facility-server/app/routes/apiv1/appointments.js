@@ -429,6 +429,15 @@ appointments.put(
   }),
 );
 
+const getAppointmentTypeWhereQuery = (type, facilityId) => {
+  const facilityIdField =
+    type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
+  if (type === 'outpatient') {
+    return { locationGroupId: { [Op.not]: null }, [facilityIdField]: facilityId };
+  }
+  return { locationId: { [Op.not]: null }, [facilityIdField]: facilityId };
+}
+
 appointments.get(
   '/hasPastAppointments/:patientId',
   asyncHandler(async (req, res) => {
@@ -439,17 +448,12 @@ appointments.get(
     const { type, facilityId } = query;
     const { Appointment } = models;
 
-    const facilityIdField =
-      type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
-
     const pastAppointments = await Appointment.findOne({
       where: {
         patientId,
         status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
         startTime: { [Op.lt]: new Date() },
-        ...(facilityId && { [facilityIdField]: facilityId }),
-        ...(type === 'outpatient' && { locationGroupId: { [Op.not]: null } }),
-        ...(type === 'locationBooking' && { locationId: { [Op.not]: null } }),
+        ...getAppointmentTypeWhereQuery(type, facilityId),
       },
       include: ['locationGroup', 'location'],
     });
@@ -469,17 +473,12 @@ appointments.get(
   const { type, facilityId } = query;
   const { Appointment } = models;
 
-  const facilityIdField =
-    type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
-
   const upcomingAppointments = await Appointment.findAll({
     where: {
       patientId,
       status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
       startTime: { [Op.gt]: new Date() },
-      ...(facilityId && { [facilityIdField]: facilityId }),
-      ...(type === 'outpatient' && { locationGroupId: { [Op.not]: null } }),
-      ...(type === 'locationBooking' && { locationId: { [Op.not]: null } }),
+      ...getAppointmentTypeWhereQuery(type, facilityId),
     },
     include: ['locationGroup', 'location', 'clinician', 'appointmentType'],
   });
