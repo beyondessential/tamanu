@@ -143,7 +143,7 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 async function migrate(dbConfig: any): Promise<void> {
   const script = `
     (async () => {
-      const { version } = require('./package.json');
+      const { version } = require('../package.json');
       const { initDatabase } = require('@tamanu/database/services/database');
       const { upgrade } = require('@tamanu/upgrade');
 
