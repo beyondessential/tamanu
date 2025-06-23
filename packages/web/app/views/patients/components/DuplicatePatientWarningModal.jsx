@@ -64,13 +64,13 @@ export const DuplicatePatientWarningModal = ({
         onClose={() => handleClose(false)}
         data-testid="modal-dgog"
       >
-        <Heading3>
+        <Heading4>
           <TranslatedText
             stringId="patient.modal.duplicateWarning.heading"
             fallback="Possible duplicate patient record"
             data-testid="translatedtext-heading"
           />
-        </Heading3>
+        </Heading4>
         <LargeBodyText color="textTertiary">
           <TranslatedText
             stringId="patient.modal.duplicateWarning.description"
