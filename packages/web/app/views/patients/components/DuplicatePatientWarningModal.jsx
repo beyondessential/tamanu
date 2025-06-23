@@ -30,6 +30,7 @@ const LeftAlignedButton = styled(OutlinedButton)`
 `;
 
 const COLUMNS = [displayId, firstName, lastName, culturalName, dateOfBirth, sex, village];
+const UNSORTABLE_COLUMNS = COLUMNS.map(column => ({ ...column, sortable: false }));
 
 export const DuplicatePatientWarningModal = ({
   open,
@@ -48,8 +49,6 @@ export const DuplicatePatientWarningModal = ({
     resolveFn(confirmed);
   };
 
-  const isPlural = potentialDuplicates.length > 1;
-
   return (
     <>
       <Modal
@@ -66,52 +65,28 @@ export const DuplicatePatientWarningModal = ({
         data-testid="modal-dgog"
       >
         <Heading3>
-          {isPlural ? (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.heading.plural"
-              fallback="Possible duplicate patient records"
-              data-testid="translatedtext-heading"
-            />
-          ) : (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.heading"
-              fallback="Possible duplicate patient record"
-              data-testid="translatedtext-heading"
-            />
-          )}
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.heading"
+            fallback="Possible duplicate patient record"
+            data-testid="translatedtext-heading"
+          />
         </Heading3>
         <LargeBodyText color="textTertiary">
-          {isPlural ? (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.description.plural"
-              fallback="The below patient records already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
-              data-testid="translatedtext-description"
-            />
-          ) : (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.description"
-              fallback="The below patient record already exists. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
-              data-testid="translatedtext-description"
-            />
-          )}
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.description"
+            fallback="The below patient record/s already exist. Please review the patient details and ensure you are not adding a duplicate record. If the patient you are creating is listed below, please select the required record to continue. Otherwise, click 'Add new patient' to continue adding a new patient record."
+            data-testid="translatedtext-description"
+          />
         </LargeBodyText>
         <Heading4>
-          {isPlural ? (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.existingRecordsHeading.plural"
-              fallback="Existing patient records in Tamanu"
-              data-testid="translatedtext-existing-heading"
-            />
-          ) : (
-            <TranslatedText
-              stringId="patient.modal.duplicateWarning.existingRecordsHeading"
-              fallback="Existing patient record in Tamanu"
-              data-testid="translatedtext-existing-heading"
-            />
-          )}
+          <TranslatedText
+            stringId="patient.modal.duplicateWarning.existingRecordsHeading"
+            fallback="Existing patient records in Tamanu"
+            data-testid="translatedtext-existing-heading"
+          />
         </Heading4>
         <Table
-          columns={COLUMNS}
+          columns={UNSORTABLE_COLUMNS}
           data={potentialDuplicates}
           onRowClick={row => {
             dispatch(reloadPatient(row.id));
@@ -125,7 +100,7 @@ export const DuplicatePatientWarningModal = ({
             data-testid="translatedtext-proposed-heading"
           />
         </Heading4>
-        <Table columns={COLUMNS} data={[proposedPatient]} />
+        <Table columns={UNSORTABLE_COLUMNS} data={[proposedPatient]} />
         <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
         <ButtonRow data-testid="buttonrow-5x0v">
           <LeftAlignedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
