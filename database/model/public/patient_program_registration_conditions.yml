@@ -72,8 +72,6 @@ sources:
               - not_null
           - name: program_registry_condition_category_id
             data_type: text
-            description: "{{
-              doc('patient_program_registration_conditions__program_registry_co\
-              ndition_category_id') }}"
+            description: "{{ doc('patient_program_registration_conditions__program_registry_condition_category_id') }}"
             data_tests:
               - not_null
