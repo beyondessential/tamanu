@@ -2,8 +2,11 @@ import { isPlainObject } from 'lodash';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-function mapAndCompactArray(input: object[]): object[] {
-  return input.map((v) => objectAsFhir(v)).filter((v) => v !== null && v !== undefined);
+function mapAndCompactArray(input: object[]): object[] | undefined {
+  const compactArray = input
+    .map((v) => objectAsFhir(v))
+    .filter((v) => v !== null && v !== undefined);
+  return compactArray.length === 0 ? undefined : compactArray;
 }
 
 export function objectAsFhir(input: object | object[]) {
@@ -11,7 +14,7 @@ export function objectAsFhir(input: object | object[]) {
     return mapAndCompactArray(input);
   }
 
-  if (!isPlainObject(input)) {
+  if (!isPlainObject(input) || input === null) {
     return input;
   }
 
