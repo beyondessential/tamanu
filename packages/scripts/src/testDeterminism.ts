@@ -32,7 +32,10 @@ async function listTables(sequelize: Sequelize): Promise<string[]> {
     (sequelize.modelManager.all as (typeof Model)[])
       // No need for determinism test when data is not shared between central and facility
       .filter((model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC)
-      .map((model) => model.tableName)
+      .map((model) => {
+        const schema = (model as any).options?.schema || 'public';
+        return `"${schema}"."${model.tableName}"`;
+      })
   );
 }
 
@@ -58,7 +61,7 @@ async function hashTables(sequelize: Sequelize, tables: string[]): Promise<Table
 
   const hashes: TableHashes = new Map();
   for (const table of tables) {
-    await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE "${table}"`);
+    await sequelize.query(`CREATE TEMPORARY TABLE determinism_check_table AS TABLE ${table}`);
     for (const column of UNHASHED_COLUMNS) {
       try {
         await sequelize.query(`ALTER TABLE determinism_check_table DROP "${column}"`);
@@ -140,10 +143,13 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 async function migrate(dbConfig: any): Promise<void> {
   const script = `
     (async () => {
+      const { version } = require('../package.json');
       const { initDatabase } = require('@tamanu/database/services/database');
-      const db = await initDatabase(${JSON.stringify(dbConfig)});
-      await db.sequelize.migrate('up');
-      await db.sequelize.close();
+      const { upgrade } = require('@tamanu/upgrade');
+
+      const { models, sequelize } = await initDatabase(${JSON.stringify(dbConfig)});
+      await upgrade({ models, sequelize, serverType: 'facility', toVersion: version });
+      await sequelize.close();
     })().catch(err => {
       console.error(err);
       process.exit(1);

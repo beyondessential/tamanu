@@ -7,7 +7,7 @@ import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { SubmitButton } from '../SubmitButton';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -21,32 +21,43 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   const [labTestTypes, setLabTestTypes] = useState([]);
   const { models } = useBackend();
 
-  const labRequestCategorySuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabTestCategory,
+  const labRequestCategorySuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabTestCategory,
+      },
     },
   });
-  const labRequestPrioritySuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabTestPriority,
+  const labRequestPrioritySuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabTestPriority,
+      },
     },
   });
-  const labSampleSiteSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.LabSampleSite,
+  const labSampleSiteSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.LabSampleSite,
+      },
     },
   });
-  const specimenTypeSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.SpecimenType,
+  const specimenTypeSuggester = new Suggester({
+    model: models.ReferenceData,
+    options: {
+      where: {
+        type: ReferenceDataType.SpecimenType,
+      },
     },
   });
 
-  const practitionerSuggester = new Suggester(
-    models.User,
-    { column: 'displayName' },
-    (model): OptionType => ({ label: model.displayName, value: model.id }),
-  );
+  const practitionerSuggester = new Suggester({
+    model: models.User,
+    options: { column: 'displayName' },
+  });
 
   const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
     const where: any = {

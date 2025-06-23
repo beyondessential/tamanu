@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.31.0",
+  "version": "2.35.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -101,6 +101,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-country-flag": "^3.1.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "react-dropzone": "^4.2.10",
     "react-events": "^1.0.1",
     "react-idle-timer": "=5.4.2",

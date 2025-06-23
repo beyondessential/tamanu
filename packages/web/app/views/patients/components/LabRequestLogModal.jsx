@@ -4,15 +4,43 @@ import { useQuery } from '@tanstack/react-query';
 import { getStatus } from '../../../utils/lab';
 import { DateDisplay, Modal, ModalLoader, Table } from '../../../components';
 import { useApi } from '../../../api';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const COLUMNS = [
   {
     key: 'createdAt',
-    title: 'Date & time',
-    accessor: ({ createdAt }) => <DateDisplay date={createdAt} showTime />,
+    title: (
+      <TranslatedText
+        stringId="general.dateAndTime.label"
+        fallback="Date & time"
+        data-testid="translatedtext-lab-modal-log-column-datetime"
+      />
+    ),
+    accessor: ({ createdAt }) => (
+      <DateDisplay date={createdAt} showTime data-testid="datedisplay-0e5f" />
+    ),
   },
-  { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'updatedByDisplayName', title: 'Recorded by' },
+  {
+    key: 'status',
+    title: (
+      <TranslatedText
+        stringId="lab.modal.log.column.status"
+        fallback="Status"
+        data-testid="translatedtext-lab-modal-log-column-status"
+      />
+    ),
+    accessor: getStatus,
+  },
+  {
+    key: 'updatedByDisplayName',
+    title: (
+      <TranslatedText
+        stringId="lab.modal.log.column.recordedBy"
+        fallback="Recorded by"
+        data-testid="translatedtext-lab-modal-log-column-recordedby"
+      />
+    ),
+  },
 ];
 
 const StyledTable = styled(Table)`
@@ -40,11 +68,29 @@ export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   );
 
   return (
-    <Modal open={open} onClose={onClose} title="Status Log" width="md">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText
+          stringId="lab.modal.log.title"
+          fallback="Status Log"
+          data-testid="translatedtext-lab-modal-log-title"
+        />
+      }
+      width="md"
+      data-testid="modal-ut08"
+    >
       {isLoading ? (
-        <ModalLoader />
+        <ModalLoader data-testid="modalloader-dxm4" />
       ) : (
-        <StyledTable columns={COLUMNS} data={data?.data} allowExport={false} elevated={false} />
+        <StyledTable
+          columns={COLUMNS}
+          data={data?.data}
+          allowExport={false}
+          elevated={false}
+          data-testid="styledtable-ma21"
+        />
       )}
     </Modal>
   );

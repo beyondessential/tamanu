@@ -86,12 +86,16 @@ export const SettingInput = ({
 
   useEffect(() => {
     try {
-      typeSchema.validateSync(value);
+      if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
+        typeSchema.validateSync(JSON.parse(value));
+      } else {
+        typeSchema.validateSync(value);
+      }
       setError(null);
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema]);
+  }, [value, typeSchema, type]);
 
   const DefaultButton = () => {
     if (disabled) return null;
@@ -103,18 +107,22 @@ export const SettingInput = ({
             <TranslatedText
               stringId="admin.settings.action.resetToDefault.unchangedTooltip"
               fallback="This setting is already at its default value"
+              data-testid="translatedtext-1kr8"
             />
           )
         }
+        data-testid="conditionaltooltip-qp1v"
       >
         <div>
           <DefaultSettingButton
             disabled={isUnchangedFromDefault}
             onClick={() => handleChangeSetting(path, defaultValue)}
+            data-testid="defaultsettingbutton-4vbq"
           >
             <TranslatedText
               stringId="admin.settings.action.resetToDefault"
               fallback="Reset to default"
+              data-testid="translatedtext-8elp"
             />
           </DefaultSettingButton>
         </div>
@@ -135,19 +143,20 @@ export const SettingInput = ({
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
       return (
-        <Flexbox>
+        <Flexbox data-testid="flexbox-66e4">
           <Switch
             color="primary"
             checked={displayValue}
             onChange={handleChangeSwitch}
             disabled={disabled}
+            data-testid="switch-b88q"
           />
-          <DefaultButton />
+          <DefaultButton data-testid="defaultbutton-urt3" />
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
       return (
-        <Flexbox>
+        <Flexbox data-testid="flexbox-wwbe">
           <StyledTextInput
             value={displayValue ?? ''}
             onChange={handleChangeText}
@@ -155,13 +164,14 @@ export const SettingInput = ({
             error={error}
             helperText={error?.message}
             disabled={disabled}
+            data-testid="styledtextinput-fpam"
           />
-          <DefaultButton />
+          <DefaultButton data-testid="defaultbutton-iw4g" />
         </Flexbox>
       );
     case SETTING_TYPES.NUMBER:
       return (
-        <Flexbox>
+        <Flexbox data-testid="flexbox-w2c5">
           <StyledNumberInput
             value={displayValue}
             onChange={handleChangeNumber}
@@ -169,14 +179,15 @@ export const SettingInput = ({
             error={error}
             helperText={error?.message}
             disabled={disabled}
+            data-testid="stylednumberinput-v04t"
           />
-          <Unit>{unit}</Unit>
-          <DefaultButton />
+          <Unit data-testid="unit-ip4s">{unit}</Unit>
+          <DefaultButton data-testid="defaultbutton-wbg5" />
         </Flexbox>
       );
     case SETTING_TYPES.LONG_TEXT:
       return (
-        <Flexbox>
+        <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
             onChange={handleChangeText}
@@ -185,14 +196,15 @@ export const SettingInput = ({
             error={error}
             helperText={error?.message}
             disabled={disabled}
+            data-testid="styledtextinput-9fw2"
           />
-          <DefaultButton />
+          <DefaultButton data-testid="defaultbutton-5efq" />
         </Flexbox>
       );
     case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
       return (
-        <Flexbox>
+        <Flexbox data-testid="flexbox-bpq4">
           <JSONEditor
             height="156px"
             width="353px"
@@ -200,17 +212,19 @@ export const SettingInput = ({
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
             onChange={handleChangeJSON}
             error={error}
+            data-testid="jsoneditor-6t9w"
           />
-          <DefaultButton />
+          <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
       );
     default:
       return (
-        <LargeBodyText>
+        <LargeBodyText data-testid="largebodytext-e29s">
           <TranslatedText
             stringId="admin.settings.error.noComponent"
             fallback="No component for this type: :type (default: :defaultValue)"
             replacements={{ type, defaultValue }}
+            data-testid="translatedtext-ah4n"
           />
         </LargeBodyText>
       );

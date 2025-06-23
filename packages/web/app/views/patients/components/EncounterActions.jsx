@@ -9,7 +9,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, NoteModalActionBlocker } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -78,18 +78,30 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   if (encounter.endDate) {
     return (
-      <ActionsContainer>
-        <StyledButton size="small" variant="outlined" onClick={onViewEncounterRecord}>
+      <ActionsContainer data-testid="actionscontainer-w92z">
+        <StyledButton
+          size="small"
+          variant="outlined"
+          onClick={onViewEncounterRecord}
+          data-testid="styledbutton-00iz"
+        >
           <TranslatedText
             stringId="patient.encounter.action.encounterSummary"
             fallback="Encounter summary"
+            data-testid="translatedtext-ftbh"
           />
         </StyledButton>
         <br />
-        <StyledButton size="small" color="primary" onClick={onViewSummary}>
+        <StyledButton
+          size="small"
+          color="primary"
+          onClick={onViewSummary}
+          data-testid="styledbutton-0m1p"
+        >
           <TranslatedText
             stringId="patient.encounter.action.dischargeSummary"
             fallback="Discharge summary"
+            data-testid="translatedtext-0hzq"
           />
         </StyledButton>
       </ActionsContainer>
@@ -113,6 +125,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.moveToEdCare"
           fallback="Move to active ED care"
+          data-testid="translatedtext-ebwz"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
@@ -123,6 +136,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.moveToShortStay"
           fallback="Move to emergency short stay"
+          data-testid="translatedtext-3mla"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
@@ -133,6 +147,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.admitToHospital"
           fallback="Admit to hospital"
+          data-testid="translatedtext-lav0"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
@@ -143,6 +158,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.prepareDischargeWithoutBeingSeen"
           fallback="Prepare discharge without being seen"
+          data-testid="translatedtext-f8lm"
         />
       ),
       onClick: onDischargeOpen,
@@ -153,6 +169,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.finalisePatientMove"
           fallback="Finalise patient move"
+          data-testid="translatedtext-10xc"
         />
       ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
@@ -163,13 +180,20 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.cancelPatientMove"
           fallback="Cancel patient move"
+          data-testid="translatedtext-0d5b"
         />
       ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onCancelLocationChange,
     },
     {
-      label: <TranslatedText stringId="patient.encounter.action.prepareDischarge" fallback="Prepare discharge" />,
+      label: (
+        <TranslatedText
+          stringId="patient.encounter.action.prepareDischarge"
+          fallback="Prepare discharge"
+          data-testid="translatedtext-zxed"
+        />
+      ),
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
@@ -179,6 +203,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.admitToHospital"
           fallback="Admit to hospital"
+          data-testid="translatedtext-4l99"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
@@ -186,7 +211,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="patient.encounter.action.movePatient" fallback="Move patient" />
+        <TranslatedText
+          stringId="patient.encounter.action.movePatient"
+          fallback="Move patient"
+          data-testid="translatedtext-7n9k"
+        />
       ),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
@@ -196,6 +225,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.changeDepartment"
           fallback="Change department"
+          data-testid="translatedtext-0dtg"
         />
       ),
       onClick: onChangeDepartment,
@@ -211,9 +241,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
                 stringId="general.localisedField.clinician.label"
                 fallback="Clinician"
                 casing="lower"
+                data-testid="translatedtext-5pzw"
               />
             ),
           }}
+          data-testid="translatedtext-5dr2"
         />
       ),
       onClick: onChangeClinician,
@@ -223,6 +255,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.changeLocation"
           fallback="Change location"
+          data-testid="translatedtext-a1zx"
         />
       ),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
@@ -230,7 +263,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="patient.encounter.action.changeReason" fallback="Change reason" />
+        <TranslatedText
+          stringId="patient.encounter.action.changeReason"
+          fallback="Change reason"
+          data-testid="translatedtext-kjya"
+        />
       ),
       condition: () =>
         [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
@@ -238,7 +275,11 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     },
     {
       label: (
-        <TranslatedText stringId="patient.encounter.action.changeDiet" fallback="Change diet" />
+        <TranslatedText
+          stringId="patient.encounter.action.changeDiet"
+          fallback="Change diet"
+          data-testid="translatedtext-p8fm"
+        />
       ),
       condition: () => isInpatient(encounter.encounterType),
       onClick: onChangeDiet,
@@ -248,13 +289,18 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         <TranslatedText
           stringId="patient.encounter.action.encounterProgressRecord"
           fallback="Encounter progress record"
+          data-testid="translatedtext-fhfi"
         />
       ),
       onClick: onViewEncounterProgressRecord,
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <StyledDropdownButton actions={actions} />;
+  return (
+    <NoteModalActionBlocker>
+      <StyledDropdownButton actions={actions} data-testid="styleddropdownbutton-zjxy" />
+    </NoteModalActionBlocker>
+  );
 };
 
 export const EncounterActions = React.memo(({ encounter }) => {
@@ -268,60 +314,75 @@ export const EncounterActions = React.memo(({ encounter }) => {
         encounter={encounter}
         setOpenModal={setOpenModal}
         setNewEncounterType={setNewEncounterType}
+        data-testid="encounteractiondropdown-n27n"
       />
       <DischargeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.DISCHARGE}
         onClose={onClose}
+        data-testid="dischargemodal-9lol"
       />
       <ChangeEncounterTypeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_TYPE}
         onClose={onClose}
         newType={newEncounterType}
+        data-testid="changeencountertypemodal-crha"
       />
       <ChangeDepartmentModal
         open={openModal === ENCOUNTER_MODALS.CHANGE_DEPARTMENT}
         onClose={onClose}
+        data-testid="changedepartmentmodal-uqvy"
       />
       <ChangeClinicianModal
         open={openModal === ENCOUNTER_MODALS.CHANGE_CLINICIAN}
         onClose={onClose}
+        data-testid="changeclinicianmodal-hmn3"
       />
       <MoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_LOCATION}
         onClose={onClose}
+        data-testid="movemodal-me3p"
       />
       <BeginPatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
         onClose={onClose}
+        data-testid="beginpatientmovemodal-2upr"
       />
       <FinalisePatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
         onClose={onClose}
+        data-testid="finalisepatientmovemodal-hvk3"
       />
       <CancelPatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
         onClose={onClose}
+        data-testid="cancelpatientmovemodal-x8xx"
       />
       <EncounterRecordModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD || openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
+        open={
+          openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD ||
+          openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD
+        }
         onClose={onClose}
+        data-testid="encounterrecordmodal-00xl"
       />
       <ChangeReasonModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
         onClose={onClose}
+        data-testid="changereasonmodal-a2yv"
       />
       <ChangeDietModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_DIET}
         onClose={onClose}
+        data-testid="changedietmodal-imzd"
       />
     </>
   );

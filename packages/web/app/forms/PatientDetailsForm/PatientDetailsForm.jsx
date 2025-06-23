@@ -7,7 +7,7 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants'
 
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import { ButtonRow, Form, FormSubmitButton } from '../../components';
+import { ButtonRow, Form, FormSubmitButton, NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
@@ -68,7 +68,7 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const { getTranslation } = useTranslation();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
@@ -109,7 +109,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-6mh5" />;
   }
 
   return (
@@ -121,20 +121,30 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
             isDetailsForm
+            data-testid="primarydetails-gyok"
           />
-          <StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <StyledPatientDetailSecondaryDetailsGroupWrapper data-testid="styledpatientdetailsecondarydetailsgroupwrapper-ox05">
             <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
+              data-testid="secondarydetails-2fpb"
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <PatientFields
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
+            data-testid="patientfields-csd1"
           />
-          <ButtonRow>
-            <FormSubmitButton variant="contained" color="primary" text="Save" />
+          <ButtonRow data-testid="buttonrow-92zi">
+            <NoteModalActionBlocker>
+              <FormSubmitButton
+                variant="contained"
+                color="primary"
+                text="Save"
+                data-testid="formsubmitbutton-dzgy"
+              />
+            </NoteModalActionBlocker>
           </ButtonRow>
         </>
       )}
@@ -152,6 +162,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         getTranslation,
         getSetting,
       )}
+      data-testid="form-9v1j"
     />
   );
 };

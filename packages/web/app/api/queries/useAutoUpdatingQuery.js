@@ -28,10 +28,10 @@ export const useAutoUpdatingQuery = (
     const channels = Array.isArray(updateDetectionChannels)
       ? updateDetectionChannels
       : [updateDetectionChannels];
-    channels.forEach(channel => socket.on(channel, handleDataUpdatedEvent));
+    channels.forEach((channel) => socket.on(channel, handleDataUpdatedEvent));
 
     return () => {
-      channels.forEach(channel => socket.off(channel, handleDataUpdatedEvent));
+      channels.forEach((channel) => socket.off(channel, handleDataUpdatedEvent));
     };
   }, [socket, updateDetectionChannels, queryClient, queryKey]);
 

@@ -3,95 +3,98 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { camelCase, keyBy, omit } from 'lodash';
+import { camelCase } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
-  ENGLISH_LANGUAGE_CODE,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
+  DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
 
-export const suggestions = express.Router();
-
-const defaultLimit = 25;
-
-const defaultMapper = ({ name, code, id }) => ({ name, code, id });
-
-// Translation helpers
-const extractDataId = ({ stringId }) => stringId.split('.').pop();
-const replaceDataLabelsWithTranslations = ({ data, translations }) => {
-  const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map((item) => {
-    const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
-    return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
-  });
-};
+const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
   ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
+  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+// The string_id for the translated_strings table is a concatenation of this prefix
+// and the id of the record so we need to construct it for the translation attribute
+const getTranslationPrefix = (endpoint) =>
+  `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
+
+// Helper function to generate the translation subquery
+const getTranslationSubquery = (endpoint, modelName) => `(
+  SELECT "text"
+  FROM "translated_strings"
+  WHERE "language" = $language
+  AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
+  LIMIT 1
+)`;
+
+// Get the translation label for the record, otherwise the get the untranslated searchColumn
+const translationCoalesce = (endpoint, modelName, searchColumn) =>
+  `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`;
+const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
+  Sequelize.literal(translationCoalesce(endpoint, modelName, searchColumn));
+
+// Overwrite the default search column with translation if it exists
+const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
+  include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), searchColumn]],
+});
+
+export const suggestions = express.Router();
 
 function createSuggesterRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder, orderBuilder },
+  {
+    mapper,
+    searchColumn,
+    extraReplacementsBuilder,
+    includeBuilder,
+    orderBuilder,
+    shouldSkipDefaultOrder,
+    queryOptions
+  },
 ) {
   suggestions.get(
     `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const { language } = query;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
-        `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
+        `POSITION(LOWER($positionMatch) in LOWER(${translationCoalesce(endpoint, modelName, searchColumn)})) > 1`,
       );
-      const dataType = getDataType(endpoint);
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-
-      const translations = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: dataType,
-            queryString: searchQuery,
-            limit: defaultLimit,
-          })
-        : [];
-      const suggestedIds = translations.map(extractDataId);
-
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
-
-      const where = {
-        [Op.or]: [
-          whereQuery,
-          {
-            // Wrap inside AND block to avoid being overwritten by whereQuery results
-            [Op.and]: {
-              id: { [Op.in]: suggestedIds },
-            },
-            ...omit(whereQuery, 'name'),
-          },
-        ],
-      };
+      // We supply the searchQuery to both the whereBuilder and the bind so that we can
+      // either use the bind key in SQL or in the whereBuilder directly using sequelize
+      const where = whereBuilder({
+        search: `%${searchQuery}%`,
+        query,
+        req,
+        endpoint,
+        modelName,
+        searchColumn,
+      });
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -99,26 +102,33 @@ function createSuggesterRoute(
 
       const include = includeBuilder?.(req);
       const order = orderBuilder?.(req);
+      const skipDefaultOrder = shouldSkipDefaultOrder?.(req);
+      const defaultOrder = [
+        positionQuery,
+        [translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC'],
+      ];
 
       const results = await model.findAll({
         where,
         include,
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
         order: [
+          // TODO: This is a hack to avoid ambiguous column references when we have includes
+          // need to either fix this or enforce custom orderBuilder
           ...(order ? [order] : []),
-          positionQuery,
-          [Sequelize.literal(`"${modelName}"."${searchColumn}"`), 'ASC'],
+          ...(skipDefaultOrder ? [] : defaultOrder),
         ],
-        replacements: {
+        bind: {
           positionMatch: searchQuery,
+          language,
+          searchQuery: `%${searchQuery}%`,
           ...extraReplacementsBuilder(query),
         },
-        limit: defaultLimit,
+        limit: DEFAULT_LIMIT,
+        ...queryOptions,
       });
-
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map((r) => mapper(r)));
-
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -126,47 +136,28 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
       const {
         models,
         params,
-        query: { language = ENGLISH_LANGUAGE_CODE },
+        query: { language = DEFAULT_LANGUAGE_CODE },
       } = req;
       req.checkPermission('list', modelName);
-      const record = await models[modelName].findByPk(params.id);
-      if (!record) throw new NotFoundError();
 
-      req.checkPermission('read', record);
-      const mappedRecord = await mapper(record);
-
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedRecord);
-        return;
-      }
-
-      const translation = await models.TranslatedString.findOne({
-        where: {
-          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
+      const record = await models[modelName].findOne({
+        where: { id: params.id },
+        bind: {
           language,
         },
-        attributes: ['stringId', 'text'],
-        raw: true,
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
       });
 
-      if (!translation) {
-        res.send(mappedRecord);
-        return;
-      }
+      if (!record) throw new NotFoundError();
 
-      const translatedRecord = replaceDataLabelsWithTranslations({
-        data: [mappedRecord],
-        translations: [translation],
-      })[0];
-
-      res.send(translatedRecord);
+      res.send(await mapper(record));
     }),
   );
 }
@@ -182,35 +173,23 @@ function createAllRecordsRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
+      const { language = DEFAULT_LANGUAGE_CODE } = query;
 
       const model = models[modelName];
-      const where = whereBuilder('%', query, req);
+      const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
+
       const results = await model.findAll({
         where,
-        order: [[Sequelize.literal(searchColumn), 'ASC']],
-        replacements: extraReplacementsBuilder(query),
+        order: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC']],
+        attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
+        bind: {
+          language,
+          searchQuery: '%',
+          ...extraReplacementsBuilder(query),
+        },
       });
-
-      const mappedResults = await Promise.all(results.map(mapper));
-
-      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
-        res.send(mappedResults);
-        return;
-      }
-
-      const translatedStrings =
-        await models.TranslatedString.getReferenceDataTranslationsByDataType({
-          language: query.language,
-          refDataType: getDataType(endpoint),
-        });
-
-      const translatedResults = replaceDataLabelsWithTranslations({
-        data: mappedResults,
-        translations: translatedStrings,
-      });
-
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(translatedResults);
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -237,6 +216,24 @@ function createSuggesterCreateRoute(
   );
 }
 
+// Search against the translation if it exists, otherwise search against the searchColumn
+const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
+  return Sequelize.literal(
+    `${translationCoalesce(endpoint, modelName, searchColumn)} ILIKE $searchQuery`,
+  );
+};
+
+const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name' }) => ({
+  [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
+  ...VISIBILITY_CRITERIA,
+});
+
+const DEFAULT_MAPPER = ({ name, code, id }) => ({
+  name,
+  code,
+  id,
+});
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -249,7 +246,7 @@ function createSuggester(
   allowCreatingNewSuggestion,
 ) {
   const options = {
-    mapper: defaultMapper,
+    mapper: DEFAULT_MAPPER,
     searchColumn: 'name',
     extraReplacementsBuilder: () => {},
     ...optionOverrides,
@@ -300,10 +297,9 @@ const referenceDataBodyBuilder = ({ type, name }) => {
 createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  (search, { types }) => ({
+  ({ endpoint, modelName, query: { types } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     type: { [Op.in]: types },
-    name: { [Op.iLike]: search },
-    ...VISIBILITY_CRITERIA,
   }),
   {
     includeBuilder: (req) => {
@@ -346,7 +342,7 @@ createSuggester(
       if (!types?.length) return;
 
       const caseStatement = types
-        .map((_, index) => `WHEN :type${index} THEN ${index + 1}`)
+        .map((_, index) => `WHEN $type${index} THEN ${index + 1}`)
         .join(' ');
 
       return [
@@ -367,6 +363,7 @@ createSuggester(
     creatingBodyBuilder: (req) =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
+    shouldSkipDefaultOrder: () => true,
   },
   true,
 );
@@ -375,51 +372,79 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    (search) => ({
-      name: { [Op.iLike]: search },
+    ({ endpoint, modelName }) => ({
+      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
       type: typeName,
-      ...VISIBILITY_CRITERIA,
     }),
     {
       includeBuilder: (req) => {
         const {
-          models: { ReferenceData },
+          models: { ReferenceData, ReferenceMedicationTemplate },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-        if (!parentId) return undefined;
 
-        return {
-          model: ReferenceData,
-          as: 'parent',
-          required: true,
-          through: {
-            attributes: [],
-            where: {
-              referenceDataParentId: parentId,
-              type: relationType,
+        const result = [
+          parentId && {
+            model: ReferenceData,
+            as: 'parent',
+            required: true,
+            through: {
+              attributes: ['id'],
+              where: {
+                referenceDataParentId: parentId,
+                type: relationType,
+              },
             },
           },
-        };
+          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.MEDICATION_SET && {
+            model: ReferenceData,
+            as: 'children',
+            where: VISIBILITY_CRITERIA,
+            through: {
+              attributes: [],
+              where: {
+                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                deleted_at: null,
+              },
+            },
+            include: {
+              model: ReferenceMedicationTemplate,
+              as: 'medicationTemplate',
+              include: {
+                model: ReferenceData,
+                as: 'medication',
+                where: VISIBILITY_CRITERIA,
+              },
+            },
+          },
+        ].filter(Boolean);
+
+        return result.length > 0 ? result : null;
       },
+      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
       creatingBodyBuilder: (req) =>
         referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
+      mapper: (item) => item,
+      shouldSkipDefaultOrder: (req) =>
+        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
 });
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
-  mapper: ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
+  mapper: ({ name, code, id, labTestCategoryId }) => ({
+    name,
+    code,
+    id,
+    labTestCategoryId,
+  }),
 });
 
-const DEFAULT_WHERE_BUILDER = (search) => ({
-  name: { [Op.iLike]: search },
-  ...VISIBILITY_CRITERIA,
-});
-
-const filterByFacilityWhereBuilder = (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   // Parameters are passed as strings, so we need to check for 'true'
   const shouldFilterByFacility =
     query.filterByFacility === 'true' || query.filterByFacility === true;
@@ -440,9 +465,9 @@ const createNameSuggester = (
   options,
 ) =>
   createSuggester(endpoint, modelName, whereBuilderFn, {
-    mapper: ({ id, name }) => ({
-      id,
+    mapper: ({ name, id }) => ({
       name,
+      id,
     }),
     ...options,
   });
@@ -455,8 +480,8 @@ createSuggester(
   'location',
   'Location',
   // Allow filtering by parent location group
-  (search, query) => {
-    const baseWhere = filterByFacilityWhereBuilder(search, query);
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = filterByFacilityWhereBuilder({ endpoint, modelName, query });
 
     const { ...filters } = query;
     delete filters.q;
@@ -479,7 +504,7 @@ createSuggester(
       const lg = await location.getLocationGroup();
       const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
       return {
-        name,
+        name: name,
         code,
         maxOccupancy,
         id,
@@ -494,17 +519,25 @@ createSuggester(
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
-createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
-  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) =>
+  filterByFacilityWhereBuilder({
+    endpoint,
+    modelName,
+    query: { ...query, filterByFacility: true },
+  }),
 );
 
 // Location groups filtered by isBookable. Used in location bookings view
-createNameSuggester('bookableLocationGroup', 'LocationGroup', (search, query) => ({
-  ...filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => ({
+  ...filterByFacilityWhereBuilder({
+    endpoint,
+    modelName,
+    query: { ...query, filterByFacility: true },
+  }),
   isBookable: true,
 }));
 
-createNameSuggester('survey', 'Survey', (search, { programId }) => ({
+createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
   name: { [Op.iLike]: search },
   ...(programId ? { programId } : programId),
   surveyType: {
@@ -513,12 +546,11 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 }));
 
 createSuggester(
-  'invoiceProducts',
+  'invoiceProduct',
   'InvoiceProduct',
-  (search) => ({
-    name: { [Op.iLike]: search },
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
-    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: (product) => {
@@ -540,7 +572,7 @@ createSuggester(
 createSuggester(
   'practitioner',
   'User',
-  (search) => ({
+  ({ search }) => ({
     displayName: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
@@ -565,7 +597,7 @@ const trimAndConcat = (col1, col2) =>
 createSuggester(
   'patient',
   'Patient',
-  (search) => ({
+  ({ search }) => ({
     [Op.or]: [
       Sequelize.where(trimAndConcat('first_name', 'last_name'), { [Op.iLike]: search }),
       Sequelize.where(trimAndConcat('last_name', 'first_name'), { [Op.iLike]: search }),
@@ -592,54 +624,46 @@ createSuggester(
   },
 );
 
-createSuggester(
-  'nonSensitiveLabTestCategory',
-  'ReferenceData',
-  (search) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
-    return {
-      ...baseWhere,
-      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      id: {
-        [Op.in]: Sequelize.literal(
-          `(
+createSuggester('nonSensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
             SELECT DISTINCT(lab_test_category_id)
             FROM lab_test_types
             WHERE lab_test_types.is_sensitive IS FALSE
           )`,
-        ),
-      },
-    };
-  },
-);
+      ),
+    },
+  };
+});
 
-createSuggester(
-  'sensitiveLabTestCategory',
-  'ReferenceData',
-  (search) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
-    return {
-      ...baseWhere,
-      type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-      id: {
-        [Op.in]: Sequelize.literal(
-          `(
+createSuggester('sensitiveLabTestCategory', 'ReferenceData', ({ endpoint, modelName }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
             SELECT DISTINCT(lab_test_category_id)
             FROM lab_test_types
             WHERE lab_test_types.is_sensitive IS TRUE
           )`,
-        ),
-      },
-    };
-  },
-);
+      ),
+    },
+  };
+});
 
 // Specifically fetches lab test categories that have a lab request against a patient
 createSuggester(
   'patientLabTestCategories',
   'ReferenceData',
-  (search, query, req) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  ({ endpoint, modelName, query, req }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
 
     if (!query.patientId) {
       return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
@@ -652,8 +676,8 @@ createSuggester(
           FROM lab_requests
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
@@ -671,8 +695,8 @@ createSuggester(
             ON (lab_requests.id = lab_tests.lab_request_id)
           INNER JOIN lab_test_types
             ON (lab_test_types.id = lab_tests.lab_test_type_id)
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
             AND lab_test_types.is_sensitive IS FALSE
@@ -698,8 +722,8 @@ createSuggester(
 createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
-  (search, query) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
 
     if (!query.patientId) {
       return baseWhere;
@@ -720,8 +744,8 @@ createSuggester(
             lab_requests ON lab_requests.id = lab_tests.lab_request_id
           INNER JOIN
             encounters ON encounters.id = lab_requests.encounter_id
-          WHERE lab_requests.status = :lab_request_status
-            AND encounters.patient_id = :patient_id
+          WHERE lab_requests.status = $lab_request_status
+            AND encounters.patient_id = $patient_id
             AND encounters.deleted_at is null
             AND lab_requests.deleted_at is null
         )`,
@@ -740,8 +764,8 @@ createSuggester(
 createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
-  (search, { programRegistryId }) => ({
-    ...DEFAULT_WHERE_BUILDER(search),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -749,8 +773,8 @@ createNameSuggester(
 createSuggester(
   'programRegistry',
   'ProgramRegistry',
-  (search, query) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -766,7 +790,7 @@ createSuggester(
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = :patient_id
+            ppr.patient_id = $patient_id
           AND
             ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
@@ -784,8 +808,8 @@ createSuggester(
 createNameSuggester(
   'programRegistryClinicalStatus',
   'ProgramRegistryClinicalStatus',
-  (search, { programRegistryId }) => ({
-    ...DEFAULT_WHERE_BUILDER(search),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -793,8 +817,8 @@ createNameSuggester(
 createNameSuggester(
   'programRegistryCondition',
   'ProgramRegistryCondition',
-  (search, { programRegistryId }) => ({
-    ...DEFAULT_WHERE_BUILDER(search),
+  ({ endpoint, modelName, query: { programRegistryId } }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
     ...(programRegistryId ? { programRegistryId } : {}),
   }),
 );
@@ -802,8 +826,8 @@ createNameSuggester(
 createNameSuggester(
   'programRegistry',
   'ProgramRegistry',
-  (search, query) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     if (!query.patientId) {
       return baseWhere;
     }
@@ -819,7 +843,7 @@ createNameSuggester(
           INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
-            ppr.patient_id = :patient_id
+            ppr.patient_id = $patient_id
           AND
             ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
         )`,
@@ -837,8 +861,8 @@ createNameSuggester(
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
-createNameSuggester('template', 'Template', (search, query) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   const { type } = query;
 
   if (!type) {

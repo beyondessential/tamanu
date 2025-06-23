@@ -3,9 +3,17 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
-
+import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
+import {
+  AutocompleteField,
+  AutocompleteInput,
+  DateTimeField,
+  Field,
+  TextField,
+  TranslatedSelectField,
+  DateTimeInput,
+} from './Field';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -28,7 +36,7 @@ const StyledInfoCard = styled(InfoCard)`
 `;
 
 const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-gupn">
     {props.children}
   </Tooltip>
 ))`
@@ -55,6 +63,7 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
       placement="top"
       followCursor
       title="This note type already exists for this encounter"
+      data-testid="styledtooltip-tj9s"
     >
       <div>{label}</div>
     </StyledTooltip>
@@ -62,12 +71,48 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
+
+export const PreviouslyWrittenByField = ({
+  label = (
+    <TranslatedText
+      stringId="note.writtenBy.label"
+      fallback="Written by (or on behalf of)"
+      data-testid="translatedtext-rzft"
+    />
+  ),
+  value,
+  size,
+}) => {
+  return (
+    <AutocompleteInput
+      label={label}
+      disabled
+      value={value}
+      size={size}
+      allowFreeTextForExistingValue
+    />
+  );
+};
+
+export const PreviousDateTimeField = ({
+  label = <TranslatedText stringId="note.dateTime.label" fallback="Date & time" />,
+  value,
+  size,
+}) => {
+  return <DateTimeInput label={label} disabled value={value} size={size} />;
+};
+
 export const WrittenByField = ({
   label = (
-    <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+    <TranslatedText
+      stringId="note.writtenBy.label"
+      fallback="Written by (or on behalf of)"
+      data-testid="translatedtext-rzgt"
+    />
   ),
   required,
   disabled,
+  size,
 }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -79,38 +124,99 @@ export const WrittenByField = ({
       component={AutocompleteField}
       suggester={practitionerSuggester}
       disabled={disabled}
+      size={size}
+      data-testid="field-ar9q"
     />
   );
 };
 
-export const NoteDateTimeField = ({ required, disabled }) => {
-  const { getSetting } = useSettings()
+export const NoteDateTimeField = ({ required, disabled, size }) => {
+  const { getSetting } = useSettings();
 
   return (
     <Field
       name="date"
-      label={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
+      label={
+        <TranslatedText
+          stringId="note.dateTime.label"
+          fallback="Date & time"
+          data-testid="translatedtext-jrp9"
+        />
+      }
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
+      size={size}
+      data-testid="field-nwwl"
     />
   );
 };
 
+/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+and deals with in-field scrolling at small heights */
+
+const NoteContentBox = styled(Box)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 1.2rem;
+  margin-bottom: 30px;
+`;
+
+const fieldWrapperSx = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+};
+
+const inputContainerSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  alignItems: 'start',
+  flex: 1,
+};
+
+const textareaSx = {
+  flex: 1,
+  minHeight: 0,
+  overflow: 'auto',
+  width: '100%',
+};
+
 export const NoteContentField = ({
-  label = <TranslatedText stringId="note.edit.label" fallback="Edit note" />,
+  label = (
+    <TranslatedText
+      stringId="note.edit.label"
+      fallback="Edit note"
+      data-testid="translatedtext-7pw2"
+    />
+  ),
   onChange,
+  size,
 }) => (
-  <Field
-    name="content"
-    label={label}
-    required
-    component={TextField}
-    multiline
-    onChange={onChange}
-    minRows={18}
-  />
+  <NoteContentBox>
+    <Field
+      name="content"
+      label={label}
+      required
+      component={TextField}
+      multiline
+      onChange={onChange}
+      style={fieldWrapperSx}
+      InputProps={{
+        style: inputContainerSx,
+      }}
+      inputProps={{
+        style: textareaSx,
+      }}
+      data-testid="field-wxzr"
+      size={size}
+    />
+  </NoteContentBox>
 );
 
 export const NoteInfoSection = ({
@@ -120,19 +226,29 @@ export const NoteInfoSection = ({
   writtenByLabel,
   writtenBy,
   dateLabel,
+  size,
 }) => (
   <StyledInfoCard
     gridRowGap={10}
     elevated={false}
     numberOfColumns={numberOfColumns}
     contentPadding={12}
+    size={size}
+    data-testid="styledinfocard-t83a"
   >
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label={<TranslatedText stringId="note.noteType.label" fallback="Note type" />}
+      label={
+        <TranslatedText
+          stringId="note.noteType.label"
+          fallback="Note type"
+          data-testid="translatedtext-w7oa"
+        />
+      }
       value={noteType}
       borderHeight={50}
+      data-testid="infocarditem-tpuk"
     />
     <InfoCardItem
       numberOfColumns={numberOfColumns}
@@ -140,23 +256,31 @@ export const NoteInfoSection = ({
       label={writtenByLabel}
       value={writtenBy}
       borderHeight={50}
+      data-testid="infocarditem-44ig"
     />
     {date && (
       <InfoCardItem
         numberOfColumns={numberOfColumns}
         fontSize={14}
         label={dateLabel}
-        value={<DateDisplay date={date} showTime />}
+        value={<DateDisplay date={date} showTime data-testid="datedisplay-cfwj" />}
         borderHeight={50}
+        data-testid="infocarditem-0my5"
       />
     )}
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
   <Field
     name="noteType"
-    label={<TranslatedText stringId="note.type.label" fallback="Type" />}
+    label={
+      <TranslatedText
+        stringId="note.type.label"
+        fallback="Type"
+        data-testid="translatedtext-43jz"
+      />
+    }
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
@@ -173,10 +297,15 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     onChange={onChange}
+    menuPosition="absolute"
+    menuPlacement="auto"
+    size={size}
+    disabled={disabled}
+    data-testid="field-a0mv"
   />
 );
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
+export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
   const templateSuggester = useSuggester('template', {
     baseQueryParameters: { type: noteType },
   });
@@ -184,11 +313,19 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate }) => {
   return (
     <Field
       name="template"
-      label={<TranslatedText stringId="note.template.label" fallback="Template" />}
+      label={
+        <TranslatedText
+          stringId="note.template.label"
+          fallback="Template"
+          data-testid="translatedtext-xgj5"
+        />
+      }
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType}
+      disabled={!noteType || disabled}
+      size={size}
+      data-testid="field-ej08"
     />
   );
 };

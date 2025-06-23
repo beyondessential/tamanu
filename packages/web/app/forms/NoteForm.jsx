@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -8,10 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 import { Form } from '../components/Field';
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
-import { EditNoteForm } from './EditNoteForm';
-import { NoteChangelogForm } from './NoteChangelogForm';
-import { CreateNoteForm } from './CreateNoteForm';
-import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
+import { CreateEditNoteForm } from './CreateEditNoteForm';
 import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -21,49 +18,29 @@ export const NoteForm = ({
   noteTypeCountByType,
   noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
-  setNoteContent,
 }) => {
   const { currentUser } = useAuth();
 
-  const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
-    setNoteContent,
-  ]);
-
   const renderForm = ({ submitForm, values, setValues }) => {
-    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
-      const props = {
-        note,
-        onNoteContentChange: handleNoteContentChange,
-        onSubmit: submitForm,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <EditTreatmentPlanNoteForm {...props} />
-      ) : (
-        <EditNoteForm {...props} />
-      );
-    }
-
-    if (noteFormMode === NOTE_FORM_MODES.VIEW_NOTE) {
-      const props = {
-        note,
-        onCancel,
-      };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <TreatmentPlanNoteChangelogForm {...props} />
-      ) : (
-        <NoteChangelogForm {...props} />
+    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+      return (
+        <EditTreatmentPlanNoteForm
+          note={note}
+          onSubmit={submitForm}
+          onCancel={onCancel}
+          noteTypeCountByType={noteTypeCountByType}
+        />
       );
     }
 
     return (
-      <CreateNoteForm
+      <CreateEditNoteForm
         note={note}
-        onNoteContentChange={handleNoteContentChange}
         onSubmit={submitForm}
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
         values={values}
+        noteFormMode={noteFormMode}
         setValues={setValues}
       />
     );
@@ -120,5 +97,4 @@ export const NoteForm = ({
 
 NoteForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  setNoteContent: PropTypes.func.isRequired,
 };

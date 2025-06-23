@@ -4,7 +4,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { DateField } from '~/ui/components/DateField/DateField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledScrollView, StyledView } from '~/ui/styled/common';
@@ -16,33 +16,33 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
 import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData, getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
   const { getTranslation } = useTranslation();
   const { models } = useBackend();
-  const practitionerSuggester = new Suggester(
-    models.User,
-    { column: 'displayName' },
-    (model): OptionType => ({ label: model.displayName, value: model.id }),
-  );
-  const facilitySuggester = new Suggester(models.Facility, {
-    where: {
-      visibilityStatus: VisibilityStatus.Current,
-    },
+  const practitionerSuggester = new Suggester({
+    model: models.User,
+    options: { column: 'displayName' },
   });
-  const conditionSuggester = new Suggester(models.ProgramRegistryCondition, {
-    where: {
-      programRegistry: programRegistry.id,
+  const facilitySuggester = new Suggester({
+    model: models.Facility,
+    options: {
+      where: {
+        visibilityStatus: VisibilityStatus.Current,
+      },
     },
   });
 
@@ -55,13 +55,13 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         },
       });
 
-      return statuses.map(status => {
+      return statuses.map((status) => {
         const translatedName = getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
         );
         return {
-            ...status,
+          ...status,
           translatedName,
         };
       });
@@ -69,7 +69,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     [programRegistry.id],
   );
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
-    const newPpr: any = await PatientProgramRegistration.appendRegistration(
+    const newPpr: any = await PatientProgramRegistration.upsertRegistration(
       selectedPatient.id,
       programRegistry.id,
       {
@@ -84,10 +84,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       for (const condition of formData.conditions) {
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
-          programRegistry: programRegistry.id,
-          patient: selectedPatient.id,
-          programRegistryCondition: condition.value,
+          programRegistryCondition: condition.condition.value,
+          conditionCategory: condition.category.value,
           clinician: formData.clinicianId,
+          patientProgramRegistration: newPpr.id,
         });
       }
     }
@@ -97,6 +97,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     });
   };
   const { user } = useAuth();
+
   return (
     <FullView>
       <StyledScrollView>
@@ -121,8 +122,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           validationSchema={yup.object().shape({
             // programRegistryId: yup.string().required('Program Registry must be selected'),
             clinicalStatusId: yup.string(),
-            date: yup.date(),
-            registeringFacilityId: yup.string(),
+            date: yup.date().required(),
+            registeringFacilityId: yup.string().required('Registering facility is required'),
             clinicianId: yup
               .string()
               .required()
@@ -132,7 +133,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup.string(),
+            conditions: yup.array().of(
+              yup.object().shape({
+                condition: yup.object().shape({ value: yup.string().required() }),
+                category: yup.object().shape({ value: yup.string().required() }),
+              }),
+            ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >
@@ -151,6 +157,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={DateField}
                     min={new Date()}
                     name="date"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -167,6 +174,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={practitionerSuggester}
                     name="clinicianId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -183,6 +191,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     navigation={navigation}
                     suggester={facilitySuggester}
                     name="registeringFacilityId"
+                    required
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
@@ -192,34 +201,26 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({ label: x.translatedName, value: x.id })) || []
+                      clinicalStatusOptions?.map((x) => ({
+                        label: x.translatedName,
+                        value: x.id,
+                      })) || []
                     }
                   />
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
+                  <PatientProgramRegistrationConditionsField
                     label={
                       <TranslatedText
                         stringId="programRegistry.relatedConditions.label"
                         fallback="Related conditions"
                       />
                     }
-                    labelFontSize={14}
-                    component={MultiSelectModalField}
-                    modalTitle={
-                      getTranslation('programRegistry.conditions.label', 'Conditions')
-                    }
-                    suggester={conditionSuggester}
-                    placeholder={getTranslation('general.placeholder.search', 'Search')}
-                    navigation={navigation}
-                    name="conditions"
-                    value={values.conditions}
-                    searchPlaceholder={
-                      getTranslation(
-                        'programRegistry.search.conditions',
-                        'Search conditions...',
-                      )
-                    }
+                    programRegistryId={programRegistry.id}
+                    values={values.conditions}
+                    onChange={(newValue) => {
+                      values.conditions = newValue;
+                    }}
                   />
                 </StyledView>
                 <Button

@@ -8,6 +8,7 @@ import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -19,15 +20,24 @@ const DiagnosisHeading = styled.div`
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
     return (
-      <DiagnosisHeading>
-        <TranslatedText stringId="diagnosis.list.noData" fallback="No diagnoses recorded." />
+      <DiagnosisHeading data-testid="diagnosisheading-gcfy">
+        <TranslatedText
+          stringId="diagnosis.list.noData"
+          fallback="No diagnoses recorded."
+          data-testid="translatedtext-6z2v"
+        />
       </DiagnosisHeading>
     );
   }
 
   return (
-    <DiagnosisHeading>
-      <TranslatedText stringId="diagnosis.list.heading" fallback="Diagnosis" />:
+    <DiagnosisHeading data-testid="diagnosisheading-csy6">
+      <TranslatedText
+        stringId="diagnosis.list.heading"
+        fallback="Diagnosis"
+        data-testid="translatedtext-idpc"
+      />
+      :
     </DiagnosisHeading>
   );
 });
@@ -54,17 +64,22 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
 
   const DiagnosesDisplay = canListDiagnoses ? (
     <>
-      <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} />
-      <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readOnly && editDiagnosis} />
+      <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} data-testid="diagnosislabel-z9sb" />
+      <DiagnosisList
+        diagnoses={validDiagnoses}
+        onEditDiagnosis={!readOnly && editDiagnosis}
+        data-testid="diagnosislist-18dz"
+      />
     </>
   ) : (
     <>
       <div />
-      <Box display="flex" alignItems="center">
-        <Typography variant="body2">
+      <Box display="flex" alignItems="center" data-testid="box-myvc">
+        <Typography variant="body2" data-testid="typography-2w6q">
           <TranslatedText
             stringId="diagnosis.list.error.forbiddenMessage"
             fallback="You do not have permission to list diagnoses."
+            data-testid="translatedtext-dcsk"
           />
         </Typography>
       </Box>
@@ -79,17 +94,25 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readOnly }) => {
         encounterId={id}
         excludeDiagnoses={validDiagnoses}
         onClose={() => editDiagnosis(null)}
+        data-testid="diagnosismodal-g9yv"
       />
-      <DiagnosisGrid>
+      <DiagnosisGrid data-testid="diagnosisgrid-y0tp">
         {DiagnosesDisplay}
-        <AddDiagnosisButton
-          onClick={() => editDiagnosis({})}
-          variant="outlined"
-          color="primary"
-          disabled={readOnly}
-        >
-          <TranslatedText stringId="diagnosis.action.add" fallback="Add diagnosis" />
-        </AddDiagnosisButton>
+        <NoteModalActionBlocker>
+          <AddDiagnosisButton
+            onClick={() => editDiagnosis({})}
+            variant="outlined"
+            color="primary"
+            disabled={readOnly}
+            data-testid="adddiagnosisbutton-2ij9"
+          >
+            <TranslatedText
+              stringId="diagnosis.action.add"
+              fallback="Add diagnosis"
+              data-testid="translatedtext-2m57"
+            />
+          </AddDiagnosisButton>
+        </NoteModalActionBlocker>
       </DiagnosisGrid>
     </>
   );

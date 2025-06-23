@@ -32,27 +32,55 @@ export const LabRequestsTable = React.memo(
             <TranslatedText
               stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
+              data-testid="translatedtext-n6rk"
             />
           ),
           accessor: getPatientDisplayId,
         },
         {
           key: 'patientName',
-          title: 'Patient',
+          title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
           accessor: getPatientName,
           maxWidth: 200,
           sortable: false,
         },
-        { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
-        { key: 'labTestPanelName', title: 'Panel', accessor: getPanelType },
-        { key: 'testCategory', title: 'Test category', accessor: getRequestType },
-        { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
+        {
+          key: 'requestId',
+          title: <TranslatedText stringId="lab.requestId.label" fallback="Test ID" />,
+          accessor: getRequestId,
+          sortable: false,
+        },
+        {
+          key: 'labTestPanelName',
+          title: <TranslatedText stringId="lab.panel.label" fallback="Panel" />,
+          accessor: getPanelType,
+        },
+        {
+          key: 'testCategory',
+          title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
+          accessor: getRequestType,
+        },
+        {
+          key: 'requestedDate',
+          title: (
+            <TranslatedText stringId="general.requestedAtTime.label" fallback="Requested at time" />
+          ),
+          accessor: getDateWithTimeTooltip,
+        },
         isPublishedTable
-          ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
-          : { key: 'priority', title: 'Priority', accessor: getPriority },
+          ? {
+              key: 'publishedDate',
+              title: <TranslatedText stringId="lab.completedDate.label" fallback="Completed" />,
+              accessor: getPublishedDate,
+            }
+          : {
+              key: 'priority',
+              title: <TranslatedText stringId="lab.priority.label" fallback="Priority" />,
+              accessor: getPriority,
+            },
         {
           key: 'status',
-          title: 'Status',
+          title: <TranslatedText stringId="general.status.label" fallback="Status" />,
           accessor: getStatus,
           maxWidth: 200,
           sortable: !isPublishedTable,
@@ -83,7 +111,13 @@ export const LabRequestsTable = React.memo(
         autoRefresh
         endpoint="labRequest"
         columns={columns}
-        noDataMessage="No lab requests found"
+        noDataMessage={
+          <TranslatedText
+            stringId="lab.list.noData"
+            fallback="No lab requests found"
+            data-testid="translatedtext-lab-request-list-noData"
+          />
+        }
         onRowClick={selectLab}
         fetchOptions={{
           ...searchFilters,
@@ -94,6 +128,7 @@ export const LabRequestsTable = React.memo(
           order: 'desc',
           orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',
         }}
+        data-testid="searchtablewithpermissioncheck-yyx3"
       />
     );
   },

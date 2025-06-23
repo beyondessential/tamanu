@@ -25,11 +25,55 @@ import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
 } from './global-settings-properties/layouts';
+import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import {
+  medicationFrequencyDefault,
+  medicationFrequencySchema,
+} from './definitions/medicationFrequencySchema';
+
+const generateFrequencyProperties = (frequencies) => {
+  return Object.fromEntries(
+    frequencies.map((frequency) => [
+      frequency,
+      {
+        description: frequency,
+        type: medicationFrequencySchema(frequency),
+        defaultValue: medicationFrequencyDefault[frequency],
+      },
+    ]),
+  );
+};
 
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    audit: {
+      description: 'Audit settings',
+      highRisk: true,
+      properties: {
+        accesses: {
+          description: 'Audit accesses',
+          properties: {
+            enabled: {
+              description: 'Enable audit accesses',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        changes: {
+          description: 'Audit changes',
+          properties: {
+            enabled: {
+              description: 'Enable audit changes',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
     auth: {
       highRisk: true,
       description: 'Authentication options',
@@ -1084,10 +1128,6 @@ export const globalSettings = {
                 schedulingLocations: { properties: layoutModuleProperties },
               },
             },
-            medication: {
-              description: '_',
-              properties: { medicationAll: { properties: layoutModuleProperties } },
-            },
             imaging: {
               description: '_',
               properties: {
@@ -1302,6 +1342,102 @@ export const globalSettings = {
           description: 'Settings for the time frame of recent notifications',
           type: yup.number(),
           defaultValue: 48,
+        },
+      },
+    },
+    medications: {
+      description: 'Medication settings',
+      properties: {
+        frequenciesEnabled: {
+          description: 'Enable medication frequencies',
+          properties: {
+            [ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_IN_THE_MORNING,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_MIDDAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY_AT_NIGHT,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
+              description: ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_WEEK,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH]: {
+              description: ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.IMMEDIATELY]: {
+              description: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.AS_DIRECTED]: {
+              description: ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY]: {
+              description: ADMINISTRATION_FREQUENCIES.TWICE_DAILY_AM_AND_MIDDAY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+        defaultAdministrationTimes: {
+          description: '-',
+          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
+            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
+          )),
         },
       },
     },

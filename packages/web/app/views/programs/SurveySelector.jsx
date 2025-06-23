@@ -11,7 +11,7 @@ const StyledButtonRow = styled(ButtonRow)`
 
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
   const handleChange = useCallback(
-    event => {
+    (event) => {
       const surveyId = event.target.value;
       onChange(surveyId);
     },
@@ -24,9 +24,21 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
 
   return (
     <>
-      <SelectInput name="survey" options={surveys} value={value ?? ''} onChange={handleChange} />
-      <StyledButtonRow>
-        <Button onClick={handleSubmit} disabled={!value} variant="contained" color="primary">
+      <SelectInput
+        name="survey"
+        options={surveys}
+        value={value ?? ''}
+        onChange={handleChange}
+        data-testid="selectinput-4g3c"
+      />
+      <StyledButtonRow data-testid="styledbuttonrow-nem0">
+        <Button
+          onClick={handleSubmit}
+          disabled={!value}
+          variant="contained"
+          color="primary"
+          data-testid="button-qsbg"
+        >
           {buttonText}
         </Button>
       </StyledButtonRow>

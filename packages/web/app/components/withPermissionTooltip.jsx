@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const withPermissionTooltip = Component => {
   const WrappedComponent = ({ hasPermission, ...props }) => {
@@ -9,7 +10,16 @@ export const withPermissionTooltip = Component => {
     }
 
     return (
-      <Tooltip title="You do not have permission to complete this action.">
+      <Tooltip
+        title={
+          <TranslatedText
+            stringId="permission.tooltip.denied"
+            fallback="You do not have permission to complete this action."
+            data-testid="translatedtext-no-permission"
+          />
+        }
+        data-testid="tooltip-zl30"
+      >
         {/*
           Tooltip needs a ref to its children, using an outer div will
           save us from having to modify every component passed to this HOC.

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { Button, FormModal, TableButtonRow } from '../../../components';
+import { Button, FormModal, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
@@ -36,30 +36,44 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   };
 
   return (
-    <TabPane>
-      <VitalChartDataProvider>
+    <TabPane data-testid="tabpane-op0v">
+      <VitalChartDataProvider data-testid="vitalchartdataprovider-bmi9">
         <FormModal
           title={
             <TranslatedText
               stringId="encounter.vitals.modal.recordVitals.title"
               fallback="Record vitals"
+              data-testid="translatedtext-clah"
             />
           }
           open={modalOpen}
           onClose={handleClose}
+          data-testid="formmodal-nzft"
         >
-          <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
+          <VitalsForm
+            onClose={handleClose}
+            onSubmit={submitVitals}
+            patient={patient}
+            data-testid="vitalsform-dsuf"
+          />
         </FormModal>
-        <VitalChartsModal />
-        <TableButtonRow variant="small">
-          <Button onClick={() => setModalOpen(true)} disabled={readonly}>
-            <TranslatedText
-              stringId="encounter.vitals.action.recordVitals"
-              fallback="Record vitals"
-            />
-          </Button>
+        <VitalChartsModal data-testid="vitalchartsmodal-atry" />
+        <TableButtonRow variant="small" data-testid="tablebuttonrow-60ze">
+          <NoteModalActionBlocker>
+            <Button
+              onClick={() => setModalOpen(true)}
+              disabled={readonly}
+              data-testid="button-mk5r"
+            >
+              <TranslatedText
+                stringId="encounter.vitals.action.recordVitals"
+                fallback="Record vitals"
+                data-testid="translatedtext-odq2"
+              />
+            </Button>
+          </NoteModalActionBlocker>
         </TableButtonRow>
-        <VitalsTable />
+        <VitalsTable data-testid="vitalstable-syw0" />
       </VitalChartDataProvider>
     </TabPane>
   );

@@ -5,13 +5,14 @@ import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
   return (
-    <TabPane>
+    <TabPane data-testid="tabpane-q1xp">
       <ProcedureModal
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
@@ -20,18 +21,30 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
           setEditedProcedure(null);
           await loadEncounter(encounter.id);
         }}
+        data-testid="proceduremodal-xq2p"
       />
-      <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
-          onClick={() => setEditedProcedure({})}
-          disabled={readonly}
-          verb="create"
-          noun="Procedure"
-        >
-          <TranslatedText stringId="procedure.action.create" fallback="New procedure" />
-        </ButtonWithPermissionCheck>
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-o76z">
+        <NoteModalActionBlocker>
+          <ButtonWithPermissionCheck
+            onClick={() => setEditedProcedure({})}
+            disabled={readonly}
+            verb="create"
+            noun="Procedure"
+            data-testid="buttonwithpermissioncheck-h58o"
+          >
+            <TranslatedText
+              stringId="procedure.action.create"
+              fallback="New procedure"
+              data-testid="translatedtext-gqco"
+            />
+          </ButtonWithPermissionCheck>
+        </NoteModalActionBlocker>
       </TableButtonRow>
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
+      <ProcedureTable
+        encounterId={encounter.id}
+        onItemClick={item => setEditedProcedure(item)}
+        data-testid="proceduretable-4661"
+      />
     </TabPane>
   );
 });

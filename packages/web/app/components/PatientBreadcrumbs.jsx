@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
-
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 const StyledBreadcrumbs = styled(Breadcrumbs)`
   & ol > .MuiBreadcrumbs-separator {
     font-size: 12px;
@@ -30,13 +30,24 @@ const BreadcrumbLink = styled(Typography)`
 `;
 
 const Breadcrumb = ({ onClick, children, path }) => (
-  <BreadcrumbLink key={`breadcrumb-${path}`} underline="hover" color="inherit" onClick={onClick}>
+  <BreadcrumbLink
+    key={`breadcrumb-${path}`}
+    underline="hover"
+    color="inherit"
+    onClick={onClick}
+    data-testid="breadcrumblink-gv2r"
+  >
     {children}
   </BreadcrumbLink>
 );
 
 const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
-  <Breadcrumb path={path} onClick={navigateTo} key={`breadcrumb-${path}`}>
+  <Breadcrumb
+    path={path}
+    onClick={navigateTo}
+    key={`breadcrumb-${path}`}
+    data-testid="breadcrumb-strg"
+  >
     {title}
   </Breadcrumb>
 );
@@ -47,7 +58,6 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   const params = useParams();
 
   const handleCategoryClick = () => navigateToCategory(params.category);
-
   // Navigates down the patientRoutes tree to get the active route hierarchy
   // and outputs a list of links and titles for these routes.
   const getPatientCrumbs = (routeList, crumbs = []) => {
@@ -58,8 +68,13 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
         path: routeConfig.path,
       });
       if (matched) {
+        let subCrumbs = [];
+        if (routeConfig?.subPaths?.length) {
+          subCrumbs = routeConfig.subPaths.map(subPath => getBreadcrumbFromRoute(subPath));
+        }
         return getPatientCrumbs(routeConfig.routes, [
           ...crumbs,
+          ...subCrumbs,
           getBreadcrumbFromRoute(routeConfig),
         ]);
       }
@@ -68,10 +83,12 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   };
 
   return (
-    <StyledBreadcrumbs>
-      <Breadcrumb onClick={handleCategoryClick}>
-        {PATIENT_CATEGORY_LABELS[params.category]}
-      </Breadcrumb>
+    <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
+      <NoteModalActionBlocker isNavigationBlock>
+        <Breadcrumb onClick={handleCategoryClick} data-testid="breadcrumb-0r0o">
+          {PATIENT_CATEGORY_LABELS[params.category]}
+        </Breadcrumb>
+      </NoteModalActionBlocker>
       {getPatientCrumbs(patientRoutes)}
     </StyledBreadcrumbs>
   );

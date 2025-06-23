@@ -11,14 +11,20 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
       title={
         <TranslatedText
           stringId="medication.modal.printMultiple.title"
-          fallback="Print prescriptions"
+          fallback="Print prescription"
+          data-testid="translatedtext-rrc8"
         />
       }
       width="md"
       open={open}
       onClose={onClose}
+      data-testid="formmodal-i302"
     >
-      <PrintMultipleMedicationSelectionForm encounter={encounter} onClose={onClose} />
+      <PrintMultipleMedicationSelectionForm
+        encounter={encounter}
+        onClose={onClose}
+        data-testid="printmultiplemedicationselectionform-xffp"
+      />
     </FormModal>
   );
 };

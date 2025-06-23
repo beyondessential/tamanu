@@ -2,8 +2,10 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import defineExpress from 'express';
+import asyncHandler from 'express-async-handler';
+import helmet from 'helmet';
 
-import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
@@ -20,11 +22,33 @@ import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+
+const rawBodySaver = function (req, res, buf) {
+  if (buf && buf.length) {
+    req.rawBody = buf;
+  }
+};
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
   apiRoutes.use('/public', publicRoutes);
+  apiRoutes.post(
+    '/timesync',
+    bodyParser.raw({ verify: rawBodySaver, type: '*/*' }),
+    asyncHandler(async (req, res) => {
+      try {
+        const timeRes = await ctx.timesync.answerClient(req.rawBody);
+        res.type('application/octet-stream');
+        res.send(timeRes);
+      } catch (error) {
+        log.error('Error in timesync:', error);
+        res.status(500).send(error.toString());
+      }
+    }),
+  );
   apiRoutes.use(authModule);
+  apiRoutes.use(attachAuditUserToDbSession);
   apiRoutes.use('/translation', translationRoutes);
   apiRoutes.use(constructPermission);
   apiRoutes.use(buildRoutes(ctx));
@@ -48,10 +72,16 @@ export async function createApi(ctx) {
     }
   }
 
+  express.use(
+    helmet({
+      crossOriginEmbedderPolicy: true,
+      strictTransportSecurity: false,
+    }),
+  );
   express.use(loadshedder());
   express.use(compression());
-  express.use(bodyParser.json({ limit: '50mb' }));
-  express.use(bodyParser.urlencoded({ extended: true }));
+  express.use(bodyParser.json({ verify: rawBodySaver, limit: '50mb' }));
+  express.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   express.set('trust proxy', config.proxy.trusted);

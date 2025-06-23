@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
 import { ContentPane } from './ContentPane';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const DebugInfo = styled.pre`
   max-height: 10rem;
@@ -26,15 +27,51 @@ export const ErrorView = React.memo(({ error }) => {
   }, [reduxState]);
 
   return (
-    <ContentPane>
-      <h2>Oops!</h2>
-      <p>The application encountered an error when trying to display this information.</p>
-      <p>The message of the error is:</p>
-      <DebugInfo onClick={logError}>{error.message}</DebugInfo>
-      <p>The stack of the error are:</p>
-      <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
-      <p>The contents of the application state are:</p>
-      <DebugInfo onClick={logState}>{JSON.stringify({ reduxState }, null, 2)}</DebugInfo>
+    <ContentPane data-testid="contentpane-3cof">
+      <h2>
+        <TranslatedText
+          stringId="error.boundary.title"
+          fallback="Oops!"
+          data-testid="translatedtext-error-title"
+        />
+      </h2>
+      <p>
+        <TranslatedText
+          stringId="error.boundary.description"
+          fallback="The application encountered an error when trying to display this information."
+          data-testid="translatedtext-error-description"
+        />
+      </p>
+      <p>
+        <TranslatedText
+          stringId="error.boundary.message"
+          fallback="The message of the error is:"
+          data-testid="translatedtext-error-message"
+        />
+      </p>
+      <DebugInfo onClick={logError} data-testid="debuginfo-4a5k">
+        {error.message}
+      </DebugInfo>
+      <p>
+        <TranslatedText
+          stringId="error.boundary.stack"
+          fallback="The stack of the error is:"
+          data-testid="translatedtext-error-stack"
+        />
+      </p>
+      <DebugInfo onClick={logError} data-testid="debuginfo-dnuz">
+        {error.stack}
+      </DebugInfo>
+      <p>
+        <TranslatedText
+          stringId="error.boundary.state"
+          fallback="The contents of the application state are:"
+          data-testid="translatedtext-error-state"
+        />
+      </p>
+      <DebugInfo onClick={logState} data-testid="debuginfo-w6d2">
+        {JSON.stringify({ reduxState }, null, 2)}
+      </DebugInfo>
     </ContentPane>
   );
 });
@@ -63,7 +100,7 @@ export class ErrorBoundary extends React.PureComponent {
     const { ErrorComponent = ErrorView, children } = this.props;
     const { error } = this.state;
     if (error) {
-      return <ErrorComponent error={error} />;
+      return <ErrorComponent error={error} data-testid="errorcomponent-puxl" />;
     }
 
     return children || null;

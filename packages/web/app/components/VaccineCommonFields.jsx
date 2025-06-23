@@ -40,29 +40,61 @@ export const VerticalDivider = styled(Divider)`
 const VACCINE_FIELD_CATEGORY_OPTIONS = [
   {
     value: VACCINE_CATEGORIES.ROUTINE,
-    label: <TranslatedText stringId="vaccine.category.option.routine" fallback="Routine" />,
+    label: (
+      <TranslatedText
+        stringId="vaccine.category.option.routine"
+        fallback="Routine"
+        data-testid="translatedtext-rl66"
+      />
+    ),
   },
   {
     value: VACCINE_CATEGORIES.CATCHUP,
-    label: <TranslatedText stringId="vaccine.category.option.catchUp" fallback="Catch-up" />,
+    label: (
+      <TranslatedText
+        stringId="vaccine.category.option.catchUp"
+        fallback="Catch-up"
+        data-testid="translatedtext-gbmf"
+      />
+    ),
   },
   {
     value: VACCINE_CATEGORIES.CAMPAIGN,
-    label: <TranslatedText stringId="vaccine.category.option.campaign" fallback="Campaign" />,
+    label: (
+      <TranslatedText
+        stringId="vaccine.category.option.campaign"
+        fallback="Campaign"
+        data-testid="translatedtext-4f97"
+      />
+    ),
   },
   {
     value: VACCINE_CATEGORIES.OTHER,
-    label: <TranslatedText stringId="vaccine.category.option.other" fallback="Other" />,
-    leftOptionalElement: <VerticalDivider orientation="vertical" />,
+    label: (
+      <TranslatedText
+        stringId="vaccine.category.option.other"
+        fallback="Other"
+        data-testid="translatedtext-t1qy"
+      />
+    ),
+    leftOptionalElement: (
+      <VerticalDivider orientation="vertical" data-testid="verticaldivider-n0cy" />
+    ),
     style: { marginLeft: '15px' },
   },
 ];
 
 export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
-  <FullWidthCol>
+  <FullWidthCol data-testid="fullwidthcol-vxpe">
     <Field
       name="category"
-      label={<TranslatedText stringId="vaccine.category.label" fallback="Category" />}
+      label={
+        <TranslatedText
+          stringId="vaccine.category.label"
+          fallback="Category"
+          data-testid="translatedtext-rkdl"
+        />
+      }
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
       onChange={e => {
@@ -79,7 +111,13 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
 export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
-    label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.vaccine.label"
+        fallback="Vaccine"
+        data-testid="translatedtext-4lmo"
+      />
+    }
     component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
@@ -91,8 +129,15 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
 export const BatchField = () => (
   <Field
     name="batch"
-    label={<TranslatedText stringId="vaccine.batch.label" fallback="Batch" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.batch.label"
+        fallback="Batch"
+        data-testid="translatedtext-t1tl"
+      />
+    }
     component={TextField}
+    data-testid="field-865y"
   />
 );
 
@@ -106,15 +151,23 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
     min={min}
     max={max}
     keepIncorrectValue={keepIncorrectValue}
+    data-testid="field-8sou"
   />
 );
 
 export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
-    label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.injectionSite.label"
+        fallback="Injection site"
+        data-testid="translatedtext-m2p8"
+      />
+    }
     component={TranslatedSelectField}
     enumValues={INJECTION_SITE_LABELS}
+    data-testid="field-jz48"
   />
 );
 
@@ -124,6 +177,7 @@ export const LocationField = () => (
     component={LocalisedLocationField}
     enableLocationStatus={false}
     required
+    data-testid="field-zrlv"
   />
 );
 
@@ -134,17 +188,30 @@ export const DepartmentField = () => {
   return (
     <Field
       name="departmentId"
-      label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+      label={
+        <TranslatedText
+          stringId="general.department.label"
+          fallback="Department"
+          data-testid="translatedtext-5svl"
+        />
+      }
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
+      data-testid="field-5sfc"
     />
   );
 };
 
 export const GivenByField = ({
-  label = <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
-}) => <Field name="givenBy" label={label} component={TextField} />;
+  label = (
+    <TranslatedText
+      stringId="vaccine.givenBy.label"
+      fallback="Given by"
+      data-testid="translatedtext-qx9v"
+    />
+  ),
+}) => <Field name="givenBy" label={label} component={TextField} data-testid="field-xycc" />;
 
 export const GivenByCountryField = () => {
   const countrySuggester = useSuggester('country');
@@ -152,11 +219,18 @@ export const GivenByCountryField = () => {
   return (
     <Field
       name="givenBy"
-      label={<TranslatedText stringId="vaccine.country.label" fallback="Country" />}
+      label={
+        <TranslatedText
+          stringId="vaccine.country.label"
+          fallback="Country"
+          data-testid="translatedtext-0bhi"
+        />
+      }
       component={AutocompleteField}
       suggester={countrySuggester}
       required
       allowFreeTextForExistingValue
+      data-testid="field-e5kc"
     />
   );
 };
@@ -168,7 +242,13 @@ export const RecordedByField = () => {
     <Field
       disabled
       name="recorderId"
-      label={<TranslatedText stringId="vaccine.recordedBy.label" fallback="Recorded by" />}
+      label={
+        <TranslatedText
+          stringId="vaccine.recordedBy.label"
+          fallback="Recorded by"
+          data-testid="translatedtext-rrd9"
+        />
+      }
       component={BaseSelectField}
       options={[
         {
@@ -177,26 +257,41 @@ export const RecordedByField = () => {
         },
       ]}
       value={currentUser.id}
+      data-testid="field-c1vf"
     />
   );
 };
 
-export const ConsentField = ({ label }) => (
-  <FullWidthCol>
+export const ConsentField = ({ label, ...props }) => (
+  <FullWidthCol data-testid="fullwidthcol-q2z3">
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="vaccine.consent.label" fallback="Consent" />}
+      label={
+        <TranslatedText
+          stringId="vaccine.consent.label"
+          fallback="Consent"
+          data-testid="translatedtext-45ol"
+        />
+      }
       style={{ marginBottom: '5px' }}
       required
+      data-testid="outerlabelfieldwrapper-azty"
     />
-    <Field name="consent" label={label} component={CheckField} required data-testid="field-wvyn" />
+    <Field name="consent" label={label} component={CheckField} required {...props} />
   </FullWidthCol>
 );
 
 export const ConsentGivenByField = () => (
   <Field
     name="consentGivenBy"
-    label={<TranslatedText stringId="vaccine.consentGivenBy.label" fallback="Consent given by" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.consentGivenBy.label"
+        fallback="Consent given by"
+        data-testid="translatedtext-aagt"
+      />
+    }
     component={TextField}
+    data-testid="field-inc8"
   />
 );
 
@@ -215,10 +310,16 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
 
   return (
     scheduleOptions.length > 0 && (
-      <FullWidthCol>
+      <FullWidthCol data-testid="fullwidthcol-3xje">
         <Field
           name="scheduledVaccineId"
-          label={<TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />}
+          label={
+            <TranslatedText
+              stringId="vaccine.schedule.label"
+              fallback="Schedule"
+              data-testid="translatedtext-59am"
+            />
+          }
           component={RadioField}
           options={scheduleOptions}
           required
@@ -233,25 +334,46 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
 export const VaccineNameField = () => (
   <Field
     name="vaccineName"
-    label={<TranslatedText stringId="vaccine.vaccineName.label" fallback="Vaccine name" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.vaccineName.label"
+        fallback="Vaccine name"
+        data-testid="translatedtext-hejh"
+      />
+    }
     component={TextField}
     required
+    data-testid="field-vaccineName"
   />
 );
 
 export const VaccineBrandField = () => (
   <Field
     name="vaccineBrand"
-    label={<TranslatedText stringId="vaccine.vaccineBrand.label" fallback="Vaccine brand" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.vaccineBrand.label"
+        fallback="Vaccine brand"
+        data-testid="translatedtext-msq6"
+      />
+    }
     component={TextField}
+    data-testid="field-f1vm"
   />
 );
 
 export const DiseaseField = () => (
   <Field
     name="disease"
-    label={<TranslatedText stringId="vaccine.disease.label" fallback="Disease" />}
+    label={
+      <TranslatedText
+        stringId="vaccine.disease.label"
+        fallback="Disease"
+        data-testid="translatedtext-7e50"
+      />
+    }
     component={TextField}
+    data-testid="field-gcfk"
   />
 );
 
@@ -260,7 +382,16 @@ export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false })
     onConfirm={onConfirm}
     onCancel={onCancel}
     confirmText={
-      editMode ? <TranslatedText stringId="general.action.save" fallback="Save" /> : undefined
+      editMode ? (
+        <TranslatedText
+          stringId="general.action.save"
+          fallback="Save"
+          data-testid="translatedtext-xb1i"
+        />
+      ) : (
+        undefined
+      )
     }
+    data-testid="formsubmitcancelrow-vv8q"
   />
 );

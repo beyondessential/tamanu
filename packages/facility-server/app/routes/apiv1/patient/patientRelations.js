@@ -36,7 +36,7 @@ patientRelations.get(
       encounterType: `
         CASE
           ${ENCOUNTER_TYPE_VALUES.map(
-            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+            (value) => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
           ).join(' ')}
         END
       `,
@@ -104,7 +104,11 @@ patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patient
 patientRelations.get(
   '/:id/additionalData',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
 
     req.checkPermission('read', 'Patient');
 
@@ -114,6 +118,16 @@ patientRelations.get(
     });
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+
+    if (additionalDataRecord) {
+      await req.audit.access({
+        recordId: additionalDataRecord.id,
+        params,
+        model: models.PatientAdditionalData,
+        facilityId,
+      });
+    }
+
     res.send(recordData);
   }),
 );
@@ -343,6 +357,8 @@ patientRelations.get(
       `SELECT
     reference_data.name AS test_category,
     lab_test_types.name AS test_type,
+    lab_test_types.options AS test_options,
+    lab_test_types.id AS test_type_id,
     FIRST(lab_test_types.unit) AS unit,
     JSONB_BUILD_OBJECT(
       'male', JSONB_BUILD_OBJECT(
@@ -402,7 +418,7 @@ patientRelations.get(
       : ''
   }
   GROUP BY
-    test_category, test_type
+    test_category, test_type, test_options, test_type_id
   ORDER BY
     test_category`,
       {
@@ -413,7 +429,7 @@ patientRelations.get(
       },
     );
 
-    const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
+    const formattedData = results.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       count: results.length,

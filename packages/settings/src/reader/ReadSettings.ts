@@ -6,6 +6,7 @@ import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
 export const KEYS_EXPOSED_TO_FRONT_END = [
+  'audit',
   'appointments',
   'ageDisplayFormat',
   'customisations',
@@ -24,6 +25,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'upcomingVaccinations',
   'vaccinations',
   'vitalEditReasons',
+  'medications',
 ] as const;
 
 export class ReadSettings<Path = SettingPath> {
@@ -34,7 +36,7 @@ export class ReadSettings<Path = SettingPath> {
     this.facilityId = facilityId;
   }
 
-  async get<T extends string | number | object>(key: Path) {
+  async get<T extends string | number | object>(key: Path): Promise<T> {
     const settings = await this.getAll();
     return lodashGet(settings, key as string) as T;
   }

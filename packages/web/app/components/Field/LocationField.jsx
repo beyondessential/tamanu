@@ -38,6 +38,7 @@ export const LocationInput = React.memo(
     locationGroupSuggesterType = 'facilityLocationGroup',
     autofill = true,
     isMulti = false,
+    'data-testid': dataTestId,
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -121,10 +122,12 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
-          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          // do not autofill if there is a pre-filled value
+          autofill={!value && autofill}
           size={size}
           helperText={helperText}
           error={error}
+          data-testid={`${dataTestId}-group`}
         />
         <LocationAutocompleteInput
           label={label}
@@ -137,8 +140,10 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
-          autofill={!value && autofill} // do not autofill if there is a pre-filled value
+          // do not autofill if there is a pre-filled value
+          autofill={!value && autofill}
           size={size}
+          data-testid={`${dataTestId}-location`}
         />
       </>
     );
@@ -154,6 +159,7 @@ LocationInput.propTypes = {
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
+  'data-testid': PropTypes.string,
 };
 
 LocationInput.defaultProps = {
@@ -165,6 +171,7 @@ LocationInput.defaultProps = {
   name: undefined,
   helperText: '',
   className: '',
+  'data-testid': undefined,
 };
 
 export const LocationField = React.memo(({ field, ...props }) => {
@@ -182,10 +189,18 @@ export const LocalisedLocationField = React.memo(props => {
   return (
     <LocationField
       label={
-        <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+        <TranslatedText
+          stringId="general.localisedField.locationId.label"
+          fallback="Location"
+          data-testid="translatedtext-2nxr"
+        />
       }
       locationGroupLabel={
-        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        <TranslatedText
+          stringId="general.localisedField.locationGroupId.label"
+          fallback="Area"
+          data-testid="translatedtext-lqc7"
+        />
       }
       {...props}
     />
@@ -207,18 +222,24 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text {...props}>
-        This location is reserved by another patient. Please ensure the bed is available before
-        confirming.
+      <Text {...props} data-testid="text-voq8">
+        <TranslatedText
+          stringId="location.availability.reserved.message"
+          fallback="This location is reserved by another patient. Please ensure the bed is available before confirming."
+          data-testid="translatedtext-location-reserved"
+        />
       </Text>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text {...props}>
-        This location is occupied by another patient. Please ensure the bed is available before
-        confirming.
+      <Text {...props} data-testid="text-heyi">
+        <TranslatedText
+          stringId="location.availability.occupied.message"
+          fallback="This location is occupied by another patient. Please ensure the bed is available before confirming."
+          data-testid="translatedtext-location-occupied"
+        />
       </Text>
     );
   }

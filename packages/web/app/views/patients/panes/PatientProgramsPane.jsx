@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -14,13 +14,23 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
     dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
 
   return (
-    <ContentPane>
-      <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>
-          <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
-        </Button>
+    <ContentPane data-testid="contentpane-8dfj">
+      <TableButtonRow variant="small" data-testid="tablebuttonrow-iyka">
+        <NoteModalActionBlocker>
+          <Button onClick={handleNewSurvey} data-testid="button-i54d">
+            <TranslatedText
+              stringId="program.action.newSurvey"
+              fallback="New form"
+              data-testid="translatedtext-865f"
+            />
+          </Button>
+        </NoteModalActionBlocker>
       </TableButtonRow>
-      <DataFetchingProgramsTable endpoint={endpoint} patient={patient} />
+      <DataFetchingProgramsTable
+        endpoint={endpoint}
+        patient={patient}
+        data-testid="datafetchingprogramstable-uytn"
+      />
     </ContentPane>
   );
 });

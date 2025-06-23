@@ -17,20 +17,17 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              patient_field_definition_categories."
+            description: "{{ doc('generic__created_at') }} in patient_field_definition_categories."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              patient_field_definition_categories."
+            description: "{{ doc('generic__updated_at') }} in patient_field_definition_categories."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              patient_field_definition_categories."
+            description: "{{ doc('generic__deleted_at') }} in patient_field_definition_categories."
           - name: name
             data_type: character varying(255)
             description: "{{ doc('patient_field_definition_categories__name') }}"
@@ -38,7 +35,6 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_field_definition_categories."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_field_definition_categories."
             data_tests:
               - not_null

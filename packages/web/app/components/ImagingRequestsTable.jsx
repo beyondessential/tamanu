@@ -21,22 +21,36 @@ const StatusDisplay = React.memo(({ status }) => {
   const {
     background = '#EDEDED',
     color = '#444444;',
-    label = <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />,
+    label = (
+      <TranslatedText
+        stringId="general.fallback.unknown"
+        fallback="Unknown"
+        data-testid="translatedtext-zecb"
+      />
+    ),
   } = IMAGING_REQUEST_STATUS_CONFIG[status];
 
   return (
-    <TableCellTag $background={background} $color={color}>
+    <TableCellTag $background={background} $color={color} data-testid="tablecelltag-8fjj">
       {label}
     </TableCellTag>
   );
 });
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
-const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
+const getPatientName = ({ encounter }) => (
+  <PatientNameDisplay patient={encounter.patient} data-testid="patientnamedisplay-rwx6" />
+);
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
-const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
-const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
+const getStatus = ({ status }) => (
+  <StatusDisplay status={status} data-testid="statusdisplay-uuoz" />
+);
+const getDate = ({ requestedDate }) => (
+  <DateDisplay date={requestedDate} timeOnlyTooltip data-testid="datedisplay-d0si" />
+);
+const getCompletedDate = ({ completedAt }) => (
+  <DateDisplay date={completedAt} timeOnlyTooltip data-testid="datedisplay-xh2e" />
+);
 const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown');
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
@@ -53,42 +67,115 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const encounterColumns = [
-    { key: 'displayId', title: 'Request ID', sortable: false },
+    {
+      key: 'displayId',
+      title: (
+        <TranslatedText
+          stringId="imaging.requestId.label"
+          fallback="Request ID"
+          data-testid="translatedtext-req-id"
+        />
+      ),
+      sortable: false,
+    },
     {
       key: 'imagingType',
-      title: 'Type',
+      title: (
+        <TranslatedText
+          stringId="general.type.label"
+          fallback="Type"
+          data-testid="translatedtext-type"
+        />
+      ),
       accessor: getImagingRequestType(imagingTypes),
     },
-    { key: 'requestedDate', title: 'Requested at time', accessor: getDate },
-    { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
+    {
+      key: 'requestedDate',
+      title: (
+        <TranslatedText
+          stringId="general.requestedAtTime.label"
+          fallback="Requested at time"
+          data-testid="translatedtext-req-time"
+        />
+      ),
+      accessor: getDate,
+    },
+    {
+      key: 'requestedBy.displayName',
+      title: (
+        <TranslatedText
+          stringId="general.requestedBy.label"
+          fallback="Requested by"
+          data-testid="translatedtext-req-by"
+        />
+      ),
+      accessor: getDisplayName,
+    },
     ...(isCompletedTable
       ? [
           {
             key: 'completedAt',
-            title: 'Completed',
+            title: (
+              <TranslatedText
+                stringId="general.completed.label"
+                fallback="Completed"
+                data-testid="translatedtext-completed"
+              />
+            ),
             accessor: getCompletedDate,
           },
         ]
       : [
           {
             key: 'priority',
-            title: 'Priority',
+            title: (
+              <TranslatedText
+                stringId="imaging.priority.label"
+                fallback="Priority"
+                data-testid="translatedtext-priority"
+              />
+            ),
             accessor: getPriority,
           },
         ]),
-    { key: 'status', title: 'Status', accessor: getStatus },
+    {
+      key: 'status',
+      title: (
+        <TranslatedText
+          stringId="general.status.label"
+          fallback="Status"
+          data-testid="translatedtext-status"
+        />
+      ),
+      accessor: getStatus,
+    },
   ];
 
   const globalColumns = [
     {
       key: 'encounter.patient.displayId',
       title: (
-        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        <TranslatedText
+          stringId="general.localisedField.displayId.label.short"
+          fallback="NHN"
+          data-testid="translatedtext-iwfv"
+        />
       ),
       accessor: getPatientDisplayId,
       sortable: false,
     },
-    { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+    {
+      key: 'patient',
+      title: (
+        <TranslatedText
+          stringId="general.patient.label"
+          fallback="Patient"
+          data-testid="translatedtext-patient"
+        />
+      ),
+      accessor: getPatientName,
+      sortable: false,
+    },
     ...encounterColumns,
   ];
 
@@ -124,7 +211,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       autoRefresh={!encounterId}
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
-      noDataMessage="No imaging requests found"
+      noDataMessage={
+        <TranslatedText
+          stringId="imaging.list.noData"
+          fallback="No imaging requests found"
+          data-testid="translatedtext-imaging.list-noData"
+        />
+      }
       onRowClick={selectImagingRequest}
       fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}
@@ -133,6 +226,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
         orderBy: isCompletedTable ? 'completedAt' : 'requestedDate',
       }}
       isRowsDisabled={isRowsDisabled}
+      data-testid="searchtablewithpermissioncheck-jjp4"
     />
   );
 });

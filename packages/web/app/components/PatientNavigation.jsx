@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { BackButton } from './Button';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
@@ -34,10 +35,12 @@ export const PatientNavigation = ({ patientRoutes }) => {
   const dispatch = useDispatch();
   const navigateBack = () => dispatch(goBack());
   return (
-    <StickyContainer>
-      <BackButton onClick={navigateBack} />
-      <VerticalDivider />
-      <PatientBreadcrumbs patientRoutes={patientRoutes} />
+    <StickyContainer data-testid="stickycontainer-ju8w">
+      <NoteModalActionBlocker isNavigationBlock>
+        <BackButton onClick={navigateBack} data-testid="backbutton-1n40" />
+      </NoteModalActionBlocker>
+      <VerticalDivider data-testid="verticaldivider-yzxo" />
+      <PatientBreadcrumbs patientRoutes={patientRoutes} data-testid="patientbreadcrumbs-383h" />
     </StickyContainer>
   );
 };

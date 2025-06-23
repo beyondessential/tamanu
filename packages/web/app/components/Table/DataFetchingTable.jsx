@@ -61,7 +61,7 @@ export const DataFetchingTable = memo(
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
-      setForcedRefreshCount(prevCount => prevCount + 1);
+      setForcedRefreshCount((prevCount) => prevCount + 1);
     }, []);
 
     const manualRefresh = useCallback(() => {
@@ -71,7 +71,7 @@ export const DataFetchingTable = memo(
     }, [initialSort, refreshTable]);
 
     const handleChangeOrderBy = useCallback(
-      columnKey => {
+      (columnKey) => {
         const { order, orderBy } = sorting;
         const isDesc = orderBy === columnKey && order === 'desc';
         const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
@@ -82,7 +82,7 @@ export const DataFetchingTable = memo(
     );
 
     const fetchData = async () => {
-      const { data, count } = await api.get(
+      const { data, count, ...rest } = await api.get(
         endpoint,
         {
           page,
@@ -94,7 +94,7 @@ export const DataFetchingTable = memo(
           showUnknownErrorToast: false,
         },
       );
-      return { data, count };
+      return { data, count, ...rest };
     };
 
     const highlightDataRows = (data, newRows) => {
@@ -136,7 +136,7 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     const updateTableWithData = useCallback(
-      (data, count) => {
+      (data, count, otherData) => {
         clearLoadingIndicators();
         updateFetchState(data, count);
 
@@ -145,6 +145,7 @@ export const DataFetchingTable = memo(
           onDataFetched({
             data,
             count,
+            otherData,
           });
         }
       },
@@ -227,12 +228,12 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           setErrorMessage('');
-          const { data, count } = await fetchData();
+          const { data, count, ...rest } = await fetchData();
 
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
-          updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
+          updateTableWithData(transformedData, count, rest); // Set the data for table rows and update the previous fetch state
         } catch (error) {
           clearTimeout(loadingDelay);
           clearLoadingIndicators();
@@ -289,8 +290,10 @@ export const DataFetchingTable = memo(
             <TranslatedText
               stringId="general.table.error.noPermission"
               fallback="You do not have permission to view this table. If you require access, please contact your administrator."
+              data-testid="translatedtext-r2tx"
             />
           }
+          data-testid="table-6fs4"
         />
       );
     }
@@ -305,10 +308,15 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setIsNotificationMuted(true);
             }}
+            data-testid="tablenotification-pij8"
           />
         )}
         {enableAutoRefresh && (
-          <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
+          <TableRefreshButton
+            lastUpdatedTime={lastUpdatedAt}
+            refreshTable={manualRefresh}
+            data-testid="tablerefreshbutton-4u94"
+          />
         )}
         <Table
           isLoading={isLoading}
@@ -325,7 +333,7 @@ export const DataFetchingTable = memo(
           orderBy={orderBy}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
-          rowStyle={row => {
+          rowStyle={(row) => {
             const rowStyle = [];
             if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
             if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');
@@ -334,6 +342,7 @@ export const DataFetchingTable = memo(
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
+          data-testid="table-4rt7"
         />
       </>
     );

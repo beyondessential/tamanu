@@ -1,8 +1,46 @@
 import React from 'react';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../Translation/TranslatedText';
+
+const getTextLines = isVital => {
+  if (isVital) {
+    return {
+      lineOne: (
+        <TranslatedText
+          stringId="charts.noData.vitals.lineOne"
+          fallback="No recorded vitals to display for the selected date range. To record"
+          data-testid="translatedtext-vitals-line1"
+        />
+      ),
+      lineTwo: (
+        <TranslatedText
+          stringId="charts.noData.vitals.lineTwo"
+          fallback="vitals, please click the 'Record vitals' button from the vitals table."
+          data-testid="translatedtext-vitals-line2"
+        />
+      ),
+    };
+  }
+  return {
+    lineOne: (
+      <TranslatedText
+        stringId="charts.noData.general.lineOne"
+        fallback="No recorded entries to display for the selected date range. To record"
+        data-testid="translatedtext-general-line1"
+      />
+    ),
+    lineTwo: (
+      <TranslatedText
+        stringId="charts.noData.general.lineTwo"
+        fallback="an entry, please click the 'Record' button from the chart table."
+        data-testid="translatedtext-general-line2"
+      />
+    ),
+  };
+};
 
 export const NoDataStateScreen = props => {
-  const { height, width, offset, isLoading } = props;
+  const { isVital, height, width, offset, isLoading } = props;
   const { height: offsetHeight, width: offsetWidth, top: offsetTop, left: offsetLeft } = offset; // height and width without Axis
 
   const screenMarginTopAndBottom = 10;
@@ -26,10 +64,15 @@ export const NoDataStateScreen = props => {
     textAnchor: 'middle',
   };
   const lineHeight = 18;
-  const lineOne = `No recorded vitals to display for the selected date range. To record`;
-  const lineTwo = `vitals, please click the 'Record vitals' button from the vitals table.`;
+  const { lineOne, lineTwo } = getTextLines(isVital);
 
-  const loadingMessage = 'Vitals graph loading...';
+  const loadingMessage = (
+    <TranslatedText
+      stringId="charts.loading.vitals"
+      fallback="Vitals graph loading..."
+      data-testid="translatedtext-loading"
+    />
+  );
 
   return (
     <svg width={width} height={height}>

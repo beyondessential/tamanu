@@ -11,6 +11,8 @@ declare module 'sequelize' {
   export interface Sequelize extends sequelize.Sequelize {
     models: typeof import('./models'),
     isInsideTransaction(): boolean;
+    setTransactionVar(key: string, value: any): Promise<void>;
+    setSessionVar(key: string, value: any): Promise<void>;
     migrate: (
       // eslint-disable-next-line no-unused-vars
       direction: 'up' | 'down' | 'downToLastReversibleMigration' | 'redoLatest',

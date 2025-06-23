@@ -1,6 +1,7 @@
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
+import { isNil } from 'lodash';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
@@ -19,14 +20,16 @@ import {
   insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  SYNC_SESSION_DIRECTION,
   updateSnapshotRecords,
   waitForPendingEditsUsingSyncTick,
-  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
   repeatableReadTransaction,
+  SYNC_SESSION_DIRECTION,
+  SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
+import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
+import { getLookupSourceTickRange } from './getLookupSourceTickRange';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -85,13 +88,14 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession(debugInfo = {}) {
+  async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
 
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
+    const parameters = { deviceId, facilityIds, isMobile };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
     const syncSession = await this.store.models.SyncSession.create({
@@ -99,6 +103,7 @@ export class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
       debugInfo,
+      parameters,
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
@@ -114,6 +119,7 @@ export class CentralSyncManager {
 
     log.info('CentralSyncManager.startSession', {
       sessionId: syncSession.id,
+      ...parameters,
       ...debugInfo,
     });
 
@@ -122,6 +128,13 @@ export class CentralSyncManager {
 
   async prepareSession(syncSession) {
     try {
+      // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
+      const syncLookupUpToTick =
+        await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
+      if (this.constructor.config.sync.lookupTable.enabled && isNil(syncLookupUpToTick)) {
+        throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
+      }
+
       await createSnapshotTable(this.store.sequelize, syncSession.id);
       const { tick } = await this.tickTockGlobalClock();
       await syncSession.markAsStartedAt(tick);
@@ -181,8 +194,8 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityIds: session.debugInfo.facilityIds,
-      deviceId: session.debugInfo.deviceId,
+      facilityIds: session.parameters.facilityIds,
+      deviceId: session.parameters.deviceId,
     });
   }
 
@@ -262,13 +275,22 @@ export class CentralSyncManager {
       await repeatableReadTransaction(store.sequelize, async (transaction) => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
-        if (!isInitialBuildOfLookupTable) {
+        if (isInitialBuildOfLookupTable) {
+          await this.store.models.SyncLookupTick.create({
+            sourceStartTick: previouslyUpToTick,
+            lookupEndTick: currentTick,
+          });
+        } else {
           transaction.afterCommit(async () => {
             // Wrap inside transaction so that any writes to currentSyncTick
             // will have to wait until this transaction is committed
             await store.sequelize.transaction(async () => {
-              const { tick: currentTick } = await this.tickTockGlobalClock();
-              await updateSyncLookupPendingRecords(store, currentTick);
+              const { tick: lookupEndTick } = await this.tickTockGlobalClock();
+              await updateSyncLookupPendingRecords(store, lookupEndTick);
+              await this.store.models.SyncLookupTick.create({
+                sourceStartTick: previouslyUpToTick,
+                lookupEndTick: lookupEndTick,
+              });
             });
           });
         }
@@ -278,7 +300,9 @@ export class CentralSyncManager {
         // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
         // it can update the flagged ones post transaction commit to the latest sync tick,
         // avoiding sync sessions missing records while sync lookup is being refreshed
-        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
+        const syncLookupTick = isInitialBuildOfLookupTable
+          ? null
+          : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
           getModelsForPull(this.store.models),
@@ -328,7 +352,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile, deviceId },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -348,14 +372,22 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(tick);
 
+      const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(
+        this.store,
+        since,
+        tick,
+      );
+
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
       );
 
-      await models.SyncSession.addDebugInfo(sessionId, {
-        isMobile,
+      await models.SyncSession.setParameters(sessionId, {
+        minSourceTick,
+        maxSourceTick,
         tablesForFullResync,
+        useSyncLookup: this.constructor.config.sync.lookupTable.enabled,
       });
 
       const modelsToInclude = tablesToInclude
@@ -409,7 +441,7 @@ export class CentralSyncManager {
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
-        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -555,17 +587,27 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    await this.connectToSession(sessionId);
-    return findSyncSnapshotRecords(
+    const session = await this.connectToSession(sessionId);
+    const snapshotRecords = await findSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
       limit,
     );
+    const { minSourceTick, maxSourceTick } = session.parameters;
+    if (!minSourceTick || !maxSourceTick) {
+      return snapshotRecords;
+    }
+
+    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+      minSourceTick,
+      maxSourceTick,
+    });
+    return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -581,6 +623,11 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
+        // currently we do not create audit logs on mobile devices
+        // so we rely on sync process to create audit logs
+        if (!isMobile) {
+          await pauseAudit(sequelize);
+        }
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -602,6 +649,11 @@ export class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
 
+        // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
+        // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
+        // (specifically won't be removed by removeEchoedChanges())
+        await this.tickTockGlobalClock();
+
         return tock;
       });
 
@@ -609,9 +661,6 @@ export class CentralSyncManager {
         deviceId,
         persistedAtSyncTick,
       });
-      // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
-      // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
-      await this.tickTockGlobalClock();
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
       // mark for repull any records that were modified by an incoming sync hook
@@ -646,18 +695,22 @@ export class CentralSyncManager {
       incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
       sessionId,
     });
+
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
-      unmarkSessionAsProcessing,
-    );
+    this.persistIncomingChanges(
+      sessionId,
+      deviceId,
+      tablesToInclude,
+      session.parameters.isMobile,
+    ).finally(unmarkSessionAsProcessing);
   }
 
   async checkPushComplete(sessionId) {

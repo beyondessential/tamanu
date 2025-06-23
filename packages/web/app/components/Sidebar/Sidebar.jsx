@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -206,34 +207,53 @@ export const Sidebar = React.memo(({ items }) => {
     }
     if (!facility) {
       return (
-        <TranslatedText stringId="general.meta.centralServer" fallback="Central admin server" />
+        <TranslatedText
+          stringId="general.meta.centralServer"
+          fallback="Central admin server"
+          data-testid="translatedtext-rv78"
+        />
       );
     }
     return (
-      <TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />
+      <TranslatedReferenceData
+        fallback={facility.name}
+        value={facility.id}
+        category="facility"
+        data-testid="translatedreferencedata-4bgq"
+      />
     );
   }, [facility, isFacilityLoading]);
 
   return (
-    <Container $retracted={isRetracted}>
-      <HeaderContainer $retracted={isRetracted}>
+    <Container $retracted={isRetracted} data-testid="container-wiqr">
+      <HeaderContainer $retracted={isRetracted} data-testid="headercontainer-rg0x">
         {isRetracted ? (
           <>
-            <RetractedLogo height="31px" />
-            <ExtendButton onClick={handleExtendButtonClick} color="secondary" size="medium">
-              <NavigateNext />
+            <RetractedLogo height="31px" data-testid="retractedlogo-h4sf" />
+            <ExtendButton
+              onClick={handleExtendButtonClick}
+              color="secondary"
+              size="medium"
+              data-testid="extendbutton-c1vl"
+            >
+              <NavigateNext data-testid="navigatenext-q9ro" />
             </ExtendButton>
           </>
         ) : (
           <>
-            <ExtendedLogo height="31px" />
-            <RetractButton onClick={handleRetractButtonClick} color="secondary" size="medium">
-              <NavigateBefore />
+            <ExtendedLogo height="31px" data-testid="extendedlogo-cc0l" />
+            <RetractButton
+              onClick={handleRetractButtonClick}
+              color="secondary"
+              size="medium"
+              data-testid="retractbutton-f6p7"
+            >
+              <NavigateBefore data-testid="navigatebefore-ffig" />
             </RetractButton>
           </>
         )}
       </HeaderContainer>
-      <List component="nav">
+      <List component="nav" data-testid="list-zolh">
         {items.map((item, i) => {
           const commonProps = {
             retracted: isRetracted,
@@ -251,72 +271,105 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
+          const dataTestIdSuffix = item.path.replace(/\//g, '-');
+
           if (item.Component) {
             const { Component } = item;
-            return <Component {...commonProps} key={item.key} />;
-          }
-
-          if (!item.children) {
             return (
-              <TopLevelSidebarItem
-                key={item.path}
+              <Component
                 {...commonProps}
-                isCurrent={currentPath.includes(item.path)}
-                disabled={!permissionCheck(item)}
-                onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+                key={item.key}
+                data-testid={`component-itt0${dataTestIdSuffix}`}
               />
             );
           }
 
+          if (!item.children) {
+            return (
+              <NoteModalActionBlocker key={item.path} isNavigationBlock>
+                <TopLevelSidebarItem
+                  key={item.path}
+                  {...commonProps}
+                  isCurrent={currentPath.includes(item.path)}
+                  disabled={!permissionCheck(item)}
+                  onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+                  data-testid={`toplevelsidebaritem-i3fu${dataTestIdSuffix}`}
+                />
+              </NoteModalActionBlocker>
+            );
+          }
+
           if (isRetracted) {
-            return <PrimarySidebarItem key={item.path} {...commonProps} />;
+            return (
+              <PrimarySidebarItem
+                key={item.path}
+                {...commonProps}
+                data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
+              />
+            );
           }
           return (
-            <PrimarySidebarItem key={item.path} {...commonProps}>
+            <PrimarySidebarItem
+              key={item.path}
+              {...commonProps}
+              data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
+            >
               {item.children.map(child => (
-                <SecondarySidebarItem
-                  key={child.path}
-                  path={child.path}
-                  isCurrent={currentPath.includes(child.path)}
-                  color={child.color}
-                  label={child.label}
-                  disabled={!permissionCheck(child, item)}
-                  onClick={() => onPathChanged(child.path)}
-                />
+                <NoteModalActionBlocker key={child.path} isNavigationBlock>
+                  <SecondarySidebarItem
+                    key={child.path}
+                    path={child.path}
+                    isCurrent={currentPath.includes(child.path)}
+                    color={child.color}
+                    label={child.label}
+                    disabled={!permissionCheck(child, item)}
+                    onClick={() => onPathChanged(child.path)}
+                    data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                  />
+                </NoteModalActionBlocker>
               ))}
             </PrimarySidebarItem>
           );
         })}
       </List>
-      <Footer $retracted={isRetracted}>
-        <StyledDivider $invisible={isRetracted} />
-        <UserInfo $retracted={isRetracted}>
+      <Footer $retracted={isRetracted} data-testid="footer-ymwe">
+        <StyledDivider $invisible={isRetracted} data-testid="styleddivider-hx9s" />
+        <UserInfo $retracted={isRetracted} data-testid="userinfo-covo">
           <StyledHiddenSyncAvatar
             $retracted={isRetracted}
             onClick={isRetracted ? extendSidebar : undefined}
+            data-testid="styledhiddensyncavatar-0pir"
           >
             {initials}
           </StyledHiddenSyncAvatar>
           {!isRetracted && (
             <>
-              <StyledUserInfoContent flex={1}>
-                <UserName>{currentUser?.displayName}</UserName>
-                <Box display="flex" justifyContent="space-between">
-                  <ConnectedTo>
+              <StyledUserInfoContent flex={1} data-testid="styleduserinfocontent-2x2p">
+                <UserName data-testid="username-p59p">{currentUser?.displayName}</UserName>
+                <Box display="flex" justifyContent="space-between" data-testid="box-idqw">
+                  <ConnectedTo data-testid="connectedto-6awb">
                     {roleName} <br /> {connectionName}
                   </ConnectedTo>
                 </Box>
               </StyledUserInfoContent>
-              <KebabMenu />
+              <KebabMenu data-testid="kebabmenu-65zk" />
             </>
           )}
         </UserInfo>
         {!isRetracted && (
           <>
-            <StyledDivider $invisible={isRetracted} />
-            <StyledMetadataBox display="flex" justifyContent="space-between">
-              <Version title={FULL_VERSION}>
-                <TranslatedText stringId="general.meta.version" fallback="Version" />{' '}
+            <StyledDivider $invisible={isRetracted} data-testid="styleddivider-seqb" />
+            <StyledMetadataBox
+              display="flex"
+              justifyContent="space-between"
+              data-testid="styledmetadatabox-u53t"
+            >
+              <Version title={FULL_VERSION} data-testid="version-oxic">
+                <TranslatedText
+                  stringId="general.meta.version"
+                  fallback="Version"
+                  data-testid="translatedtext-7m4p"
+                />{' '}
                 {api.agentVersion}
               </Version>
               <LogoutButton
@@ -324,8 +377,13 @@ export const Sidebar = React.memo(({ items }) => {
                 onClick={onLogout}
                 id="logout"
                 data-test-id="siderbar-logout-item"
+                data-testid="logoutbutton-4zn4"
               >
-                <TranslatedText stringId="auth.action.logout" fallback="Log out" />
+                <TranslatedText
+                  stringId="auth.action.logout"
+                  fallback="Log out"
+                  data-testid="translatedtext-sasg"
+                />
               </LogoutButton>
             </StyledMetadataBox>
           </>

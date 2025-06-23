@@ -6,8 +6,9 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Box } from '@mui/material';
 
-import { labsIcon, radiologyIcon } from '../../constants/images';
+import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
@@ -18,10 +19,12 @@ import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useEncounter } from '../../contexts/Encounter';
 import { reloadImagingRequest, reloadPatient } from '../../store';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
   [NOTIFICATION_TYPES.IMAGING_REQUEST]: radiologyIcon,
+  [NOTIFICATION_TYPES.PHARMACY_NOTE]: medicationIcon,
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
@@ -52,6 +55,12 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
+  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+    return getTranslation(
+      'notification.content.pharmacyNote',
+      'Pharmacy note for :patientName (:displayId)',
+      { replacements: { displayId: patient.displayId, patientName } },
+    );
   }
 };
 
@@ -172,20 +181,31 @@ const Card = ({ notification }) => {
     await loadEncounter(encounterId);
     if (patient?.id) await dispatch(reloadPatient(patient.id));
 
-    history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+      history.push(
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
+      );
+    } else {
+      history.push(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);
+    }
   };
   return (
-    <CardContainer onClick={onNotificationClick}>
-      {status === NOTIFICATION_STATUSES.UNREAD && <CardIndicator />}
+    <CardContainer onClick={onNotificationClick} data-testid="cardcontainer-qqc2">
+      {status === NOTIFICATION_STATUSES.UNREAD && (
+        <CardIndicator data-testid="cardindicator-bkvg" />
+      )}
       <img src={NOTIFICATION_ICONS[type]} />
-      <div>
+      <Box flex={1}>
         <BodyText
           dangerouslySetInnerHTML={{
             __html: getNotificationText({ getTranslation, type, patient, metadata }),
           }}
+          data-testid="bodytext-xa84"
         />
-        <CardDatetime>{`${formatTime(createdTime)} ${formatShortest(createdTime)}`}</CardDatetime>
-      </div>
+        <CardDatetime data-testid="carddatetime-vyqg">
+          {`${formatTime(createdTime).replace(' ', '')} ${formatShortest(createdTime)}`}
+        </CardDatetime>
+      </Box>
     </CardContainer>
   );
 };
@@ -204,36 +224,40 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
   };
 
   return (
-    <StyledDrawer open={open} onClose={onClose} anchor="right">
-      <Title>
+    <StyledDrawer open={open} onClose={onClose} anchor="right" data-testid="styleddrawer-fn4h">
+      <Title data-testid="title-cg5h">
         <TranslatedText
           fallback="Notifications"
           stringId="dashboard.notification.notifications.title"
           replacements={{ count: unreadNotifications.length }}
+          data-testid="translatedtext-2asn"
         />{' '}
         {!!unreadNotifications.length && (
           <TranslatedText
             fallback="(:count new)"
             stringId="dashboard.notification.title.countNew"
             replacements={{ count: unreadNotifications.length }}
+            data-testid="translatedtext-fq6k"
           />
         )}
-        <CloseButton onClick={onClose}>
-          <CloseIcon />
+        <CloseButton onClick={onClose} data-testid="closebutton-rgw9">
+          <CloseIcon data-testid="closeicon-x89c" />
         </CloseButton>
       </Title>
       {!unreadNotifications.length && !readNotifications.length && (
-        <NoDataContainer>
-          <Heading3 margin={0}>
+        <NoDataContainer data-testid="nodatacontainer-2xqs">
+          <Heading3 margin={0} data-testid="heading3-xlfm">
             <TranslatedText
               fallback="No notifications to display "
               stringId="dashboard.notification.empty.title"
+              data-testid="translatedtext-owm5"
             />
           </Heading3>
-          <BodyText>
+          <BodyText data-testid="bodytext-7fkl">
             <TranslatedText
               fallback="Check back again later"
               stringId="dashboard.notification.empty.subTitle"
+              data-testid="translatedtext-dpro"
             />
           </BodyText>
         </NoDataContainer>
@@ -241,40 +265,54 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
       {!isLoading ? (
         <>
           {!!unreadNotifications.length && (
-            <UnreadTitle>
-              <Heading5 margin={0}>
-                <TranslatedText fallback="Unread" stringId="dashboard.notification.unread.title" />
+            <UnreadTitle data-testid="unreadtitle-raz1">
+              <Heading5 margin={0} data-testid="heading5-lwm3">
+                <TranslatedText
+                  fallback="Unread"
+                  stringId="dashboard.notification.unread.title"
+                  data-testid="translatedtext-ddcf"
+                />
               </Heading5>
-              <ActionLink onClick={onMarkAllAsRead}>
+              <ActionLink onClick={onMarkAllAsRead} data-testid="actionlink-10rj">
                 <TranslatedText
                   fallback="Mark all as read"
                   stringId="dashboard.notification.action.markAllAsRead"
+                  data-testid="translatedtext-essh"
                 />
               </ActionLink>
             </UnreadTitle>
           )}
-          <NotificationList>
-            {unreadNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} />
+          <NotificationList data-testid="notificationlist-xmfz">
+            {unreadNotifications.map((notification, index) => (
+              <Card
+                notification={notification}
+                key={notification.id}
+                data-testid={`card-2yld-${index}`}
+              />
             ))}
           </NotificationList>
           {!!readNotifications.length && (
-            <ReadTitle>
+            <ReadTitle data-testid="readtitle-svo6">
               <TranslatedText
                 fallback="Recent (last :recentNotificationsTimeFrame hours)"
                 stringId="dashboard.notification.recent.title"
                 replacements={{ recentNotificationsTimeFrame }}
+                data-testid="translatedtext-314f"
               />
             </ReadTitle>
           )}
-          <NotificationList>
-            {readNotifications.map(notification => (
-              <Card notification={notification} key={notification.id} />
+          <NotificationList data-testid="notificationlist-wek6">
+            {readNotifications.map((notification, index) => (
+              <Card
+                notification={notification}
+                key={notification.id}
+                data-testid={`card-trcn-${index}`}
+              />
             ))}
           </NotificationList>
         </>
       ) : (
-        <LoadingIndicator backgroundColor={Colors.white} />
+        <LoadingIndicator backgroundColor={Colors.white} data-testid="loadingindicator-36ut" />
       )}
     </StyledDrawer>
   );

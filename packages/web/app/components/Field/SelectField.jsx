@@ -46,16 +46,23 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-const Option = ({ children, ...props }) => {
+const ExpandIcon = styled(ExpandMoreIcon)`
+  position: absolute;
+  right: 12px;
+`;
+
+const Option = ({ children, ['data-testid']: dataTestId, ...props }) => {
   const tag = props.data?.tag;
   return (
     <components.Option {...props}>
-      {children}
-      {tag && (
-        <OptionTag $background={tag.background} $color={tag.color}>
-          {tag.label}
-        </OptionTag>
-      )}
+      <div data-testid={`${dataTestId}-option`}>
+        {children}
+        {tag && (
+          <OptionTag $background={tag.background} $color={tag.color} data-testid="optiontag-dcl5">
+            {tag.label}
+          </OptionTag>
+        )}
+      </div>
     </components.Option>
   );
 };
@@ -63,10 +70,10 @@ const Option = ({ children, ...props }) => {
 const SingleValue = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <components.SingleValue {...props}>
+    <components.SingleValue {...props} data-testid="singlevalue-tsqx">
       {children}
       {tag && (
-        <SelectTag $background={tag.background} $color={tag.color}>
+        <SelectTag $background={tag.background} $color={tag.color} data-testid="selecttag-aq4z">
           {tag.label}
         </SelectTag>
       )}
@@ -76,8 +83,8 @@ const SingleValue = ({ children, ...props }) => {
 
 const ClearIndicator = ({ innerProps, tabIndex = 0 }) => {
   return (
-    <StyledIconButton {...innerProps} tabIndex={tabIndex}>
-      <StyledClearIcon />
+    <StyledIconButton {...innerProps} tabIndex={tabIndex} data-testid="stylediconbutton-6vh3">
+      <StyledClearIcon data-testid="styledclearicon-aao1" />
     </StyledIconButton>
   );
 };
@@ -96,6 +103,7 @@ export const SelectInput = ({
   inputProps = {},
   isClearable = true,
   customStyleObject,
+  ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.form;
@@ -126,9 +134,9 @@ export const SelectInput = ({
         boxShadow: 'none',
         borderRadius: '3px',
         paddingTop: '11px',
-        paddingBottom: '9px',
+        paddingBottom: '9.81px',
         paddingLeft: '5px',
-        paddingRight: '13px',
+        paddingRight: '42px',
         fontSize,
       };
     },
@@ -188,6 +196,7 @@ export const SelectInput = ({
           readOnly={isReadonly}
           components={{ Option, SingleValue }}
           {...props}
+          data-testid={`${dataTestId}-input`}
         />
       </OuterLabelFieldWrapper>
     );
@@ -198,29 +207,46 @@ export const SelectInput = ({
   return (
     <OuterLabelFieldWrapper label={label} ref={inputRef} {...props}>
       <StyledFormControl {...props}>
-        <Select
-          value={selectedOption}
-          onChange={handleChange}
-          options={options.filter(option => option.value !== '')}
-          menuPlacement="auto"
-          menuPosition="fixed"
-          styles={customStyleObject || defaultStyles}
-          menuShouldBlockScroll="true"
-          placeholder={getTranslation('general.placeholder.select', 'Select')}
-          isClearable={value !== '' && isClearable && !disabled}
-          isSearchable={false}
-          tabIndex={inputProps.tabIndex}
-          components={{
-            Option,
-            SingleValue,
-            ClearIndicator: innerProps => (
-              <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
-            ),
-            DropdownIndicator: () => <ExpandMoreIcon />,
-          }}
-          {...props}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+        <div data-testid={`${dataTestId}-select`}>
+          <Select
+            value={selectedOption}
+            onChange={handleChange}
+            options={options.filter(option => option.value !== '')}
+            menuPlacement="auto"
+            menuPosition="fixed"
+            styles={customStyleObject || defaultStyles}
+            menuShouldBlockScroll="true"
+            placeholder={getTranslation('general.placeholder.select', 'Select')}
+            isClearable={value !== '' && isClearable && !disabled}
+            isSearchable={false}
+            tabIndex={inputProps.tabIndex}
+            components={{
+              Option: optionProps => <Option {...optionProps} data-testid={dataTestId} />,
+              SingleValue,
+              ClearIndicator: innerProps => (
+                <ClearIndicator
+                  {...innerProps}
+                  tabIndex={inputProps.tabIndex}
+                  data-testid={`${dataTestId}-clearindicator`}
+                />
+              ),
+              DropdownIndicator: () => (
+                <ExpandIcon data-testid={`${dataTestId}-expandmoreicon-h115`} />
+              ),
+              Menu: menuProps => (
+                <components.Menu {...menuProps}>
+                  <div data-testid={`${dataTestId}-optioncontainer`}>{menuProps.children}</div>
+                </components.Menu>
+              ),
+            }}
+            {...props}
+          />
+        </div>
+        {helperText && (
+          <FormHelperText data-testid={`${dataTestId}-formhelptertext`}>
+            {helperText}
+          </FormHelperText>
+        )}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );

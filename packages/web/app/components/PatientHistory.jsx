@@ -4,10 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS_COLORS } from '../constants';
+import { Colors, PATIENT_STATUS_COLORS } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -16,11 +18,12 @@ import { MenuButton } from './MenuButton';
 import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { useAuth } from '../contexts/Auth';
-import { TranslatedReferenceData } from './Translation/index.js';
+import { TranslatedEnum, TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
 import { ThemedTooltip } from './Tooltip.jsx';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -161,28 +164,42 @@ const StyledMenuButton = styled(MenuButton)`
 const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
-    <DateWrapper>
+    <DateWrapper data-testid="datewrapper-5lb0">
       <div>
-        <StatusIndicator patientStatus={patientStatus} />
-        <DateDisplay date={startDate} />
+        <StatusIndicator patientStatus={patientStatus} data-testid="statusindicator-c389" />
+        <DateDisplay date={startDate} data-testid="datedisplay-kvmn" />
         &nbsp;&ndash;{' '}
         {endDate ? (
-          <DateDisplay date={endDate} />
+          <DateDisplay date={endDate} data-testid="datedisplay-k7rd" />
         ) : (
-          <TranslatedText stringId="general.date.current" fallback="Current" />
+          <TranslatedText
+            stringId="general.date.current"
+            fallback="Current"
+            data-testid="translatedtext-kxsz"
+          />
         )}
       </div>
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
+const getType = ({ encounterType }) => <TranslatedEnum
+  enumValues={ENCOUNTER_TYPE_LABELS}
+  value={encounterType}
+/>
 const getReasonForEncounter = ({ reasonForEncounter }) => (
-  <ReasonForEncounterWrapper>{reasonForEncounter}</ReasonForEncounterWrapper>
+  <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
+    {reasonForEncounter}
+  </ReasonForEncounterWrapper>
 );
 const getFacility = ({ facilityName, facilityId }) => (
-  <FacilityWrapper>
+  <FacilityWrapper data-testid="facilitywrapper-s4m4">
     {facilityId ? (
-      <TranslatedReferenceData category="facility" fallback={facilityName} value={facilityId} />
+      <TranslatedReferenceData
+        category="facility"
+        fallback={facilityName}
+        value={facilityId}
+        data-testid="translatedreferencedata-o3fw"
+      />
     ) : (
       { facilityName }
     )}
@@ -207,10 +224,11 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   if (!isSyncing) return null;
 
   return (
-    <SyncWarning>
+    <SyncWarning data-testid="syncwarning-5go9">
       <TranslatedText
         stringId="patient.history.syncWarning"
         fallback="Patient is being synced, so records might not be fully updated."
+        data-testid="translatedtext-upt5"
       />
     </SyncWarning>
   );
@@ -226,11 +244,18 @@ export const PatientHistory = ({ patient, onItemClick }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+      label: (
+        <TranslatedText
+          stringId="general.action.delete"
+          fallback="Delete"
+          data-testid="translatedtext-yzqv"
+        />
+      ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'Encounter');
       },
+      wrapper: actionButton => <NoteModalActionBlocker>{actionButton}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => {
     return permissionCheck ? permissionCheck() : true;
@@ -239,27 +264,55 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const columns = [
     {
       key: 'startDate',
-      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+      title: (
+        <TranslatedText
+          stringId="general.date.label"
+          fallback="Date"
+          data-testid="translatedtext-wank"
+        />
+      ),
       accessor: getDate,
     },
     {
       key: 'encounterType',
-      title: <TranslatedText stringId="encounter.type.label" fallback="Type" />,
+      title: (
+        <TranslatedText
+          stringId="encounter.type.label"
+          fallback="Type"
+          data-testid="translatedtext-sj3a"
+        />
+      ),
       accessor: getType,
     },
     {
       key: 'facilityName',
-      title: <TranslatedText stringId="general.table.column.facilityName" fallback="Facility" />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.facilityName"
+          fallback="Facility"
+          data-testid="translatedtext-w2dq"
+        />
+      ),
       accessor: getFacility,
       CellComponent: LimitedLinesCell,
     },
     {
       key: 'locationGroupName',
-      title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.area"
+          fallback="Area"
+          data-testid="translatedtext-joqe"
+        />
+      ),
       accessor: props => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
-        <TranslationContext.Provider value={translationContext}>
-          <LocationGroupCell style={{ minWidth: 45 }} {...props} />
+        <TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
+          <LocationGroupCell
+            style={{ minWidth: 45 }}
+            {...props}
+            data-testid="locationgroupcell-loyq"
+          />
         </TranslationContext.Provider>
       ),
       CellComponent: LimitedLinesCell,
@@ -270,6 +323,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         <TranslatedText
           stringId="encounter.reasonForEncounter.label"
           fallback="Reason for encounter"
+          data-testid="translatedtext-3qx2"
         />
       ),
       accessor: getReasonForEncounter,
@@ -290,27 +344,33 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         <MenuContainer
           className="menu-container"
           onMouseEnter={() => setSelectedEncounterData(data)}
+          data-testid="menucontainer-ox22"
         >
-          <StyledMenuButton actions={actions} />
+          <StyledMenuButton actions={actions} data-testid="styledmenubutton-rtq7" />
         </MenuContainer>
       ),
     });
   }
 
   if (!patient.markedForSync) {
-    return <MarkPatientForSync patient={patient} />;
+    return <MarkPatientForSync patient={patient} data-testid="markpatientforsync-t5tf" />;
   }
   return (
     <>
-      <SyncWarningBanner patient={patient} onRefresh={updateRefreshCount} />
+      <SyncWarningBanner
+        patient={patient}
+        onRefresh={updateRefreshCount}
+        data-testid="syncwarningbanner-hi4l"
+      />
       <StyledTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
-          <Box mx="auto" p="40px">
+          <Box mx="auto" p="40px" data-testid="box-t8fy">
             <TranslatedText
               stringId="patient.history.table.noDataMessage"
               fallback="No encounter records to display"
+              data-testid="translatedtext-1759"
             />
           </Box>
         }
@@ -318,24 +378,37 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
         TableHeader={
-          <Heading4 mt="15px" mb="15px">
+          <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
             <TranslatedText
               stringId="patient.history.table.encounterHistory"
               fallback="Encounter history"
+              data-testid="translatedtext-nmkf"
             />
           </Heading4>
         }
         ExportButton={props => (
           <ThemedTooltip
-            title={<TranslatedText stringId="general.action.export" fallback="Export" />}
+            title={
+              <TranslatedText
+                stringId="general.action.export"
+                fallback="Export"
+                data-testid="translatedtext-nap8"
+              />
+            }
+            data-testid="themedtooltip-0jfc"
           >
-            <StyledIconButton size="small" variant="outlined" {...props}>
-              <GetAppIcon />
+            <StyledIconButton
+              size="small"
+              variant="outlined"
+              {...props}
+              data-testid="stylediconbutton-bjog"
+            >
+              <GetAppIcon data-testid="getappicon-ccvs" />
             </StyledIconButton>
           </ThemedTooltip>
         )}
+        data-testid="styledtable-6fdu"
       />
-
       <DeleteEncounterModal
         open={modalOpen}
         encounterToDelete={selectedEncounterData}
@@ -345,6 +418,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
           updateRefreshCount();
         }}
+        data-testid="deleteencountermodal-0psi"
       />
     </>
   );

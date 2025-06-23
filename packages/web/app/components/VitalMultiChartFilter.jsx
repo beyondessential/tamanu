@@ -9,6 +9,7 @@ import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useChartData } from '../contexts/ChartData';
+import { TranslatedText } from './Translation';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   width: 105px;
@@ -35,11 +36,15 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
 
   return (
     // Notice that ClickAwayListener only accepts one child element.
-    <ClickAwayListener onClickAway={handleOnClose}>
+    <ClickAwayListener onClickAway={handleOnClose} data-testid="clickawaylistener-j6m2">
       <div>
-        <GreyOutlinedButton onClick={handleClick}>
-          <FilterListIcon color="primary" />
-          Filter
+        <GreyOutlinedButton onClick={handleClick} data-testid="greyoutlinedbutton-a2al">
+          <FilterListIcon color="primary" data-testid="filterlisticon-ansb" />
+          <TranslatedText
+            stringId="general.action.filter"
+            fallback="Filter"
+            data-testid="translatedtext-filter"
+          />
         </GreyOutlinedButton>
 
         <Popover
@@ -54,11 +59,13 @@ export const DumbVitalMultiChartFilter = ({ options, field }) => {
             vertical: 'top',
             horizontal: 'right',
           }}
+          data-testid="popover-5s9v"
         >
           <ExpandedMultiSelectField
             selectAllOptionLabel={<small>Select All</small>}
             options={optionsWithSmallLabel}
             field={field}
+            data-testid="expandedmultiselectfield-rekh"
           />
         </Popover>
       </div>
@@ -88,13 +95,15 @@ export const VitalMultiChartFilter = () => {
 
     setChartKeys(sortedSelectedChartKeys);
 
-    const graphPreferenceKey = selectedChartTypeId === null
-      ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
-      : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
+    const graphPreferenceKey =
+      selectedChartTypeId === null
+        ? USER_PREFERENCES_KEYS.SELECTED_GRAPHED_VITALS_ON_FILTER
+        : USER_PREFERENCES_KEYS.SELECTED_GRAPHED_CHARTS_ON_FILTER;
 
-    const selectedKeys = sortedSelectedChartKeys.length === allGraphedChartKeys.length
-      ? 'select-all'
-      : sortedSelectedChartKeys.join(',');
+    const selectedKeys =
+      sortedSelectedChartKeys.length === allGraphedChartKeys.length
+        ? 'select-all'
+        : sortedSelectedChartKeys.join(',');
     userPreferencesMutation.mutate({
       key: graphPreferenceKey,
       value: selectedKeys,
@@ -107,5 +116,11 @@ export const VitalMultiChartFilter = () => {
     onChange: handleChange,
   };
 
-  return <DumbVitalMultiChartFilter options={filterOptions} field={field} />;
+  return (
+    <DumbVitalMultiChartFilter
+      options={filterOptions}
+      field={field}
+      data-testid="dumbvitalmultichartfilter-8e0t"
+    />
+  );
 };

@@ -3,7 +3,6 @@ import config from 'config';
 
 import {
   createDummyEncounter,
-  createDummyEncounterMedication,
   createDummyPatient,
 } from '@tamanu/database/demoData/patients';
 import {
@@ -629,61 +628,6 @@ describe('Encounter', () => {
         expect(notes[0].authorId).toEqual(app.user.id);
       });
 
-      it('should only update medications marked for discharge', async () => {
-        // Create encounter to be discharged
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models, { current: true })),
-          patientId: patient.id,
-        });
-
-        // Create two encounter medications with specific quantities to compare
-        const medicationOne = await models.EncounterMedication.create({
-          ...(await createDummyEncounterMedication(models, { quantity: 1 })),
-          encounterId: encounter.id,
-        });
-        const medicationTwo = await models.EncounterMedication.create({
-          ...(await createDummyEncounterMedication(models, { quantity: 2 })),
-          encounterId: encounter.id,
-        });
-
-        // Mark only one medication for discharge
-        const result = await app.put(`/api/encounter/${encounter.id}`).send({
-          endDate: new Date(),
-          discharge: {
-            encounterId: encounter.id,
-            dischargerId: app.user.id,
-          },
-          medications: {
-            [medicationOne.id]: {
-              isDischarge: true,
-              quantity: 3,
-              repeats: 0,
-            },
-            [medicationTwo.id]: {
-              isDischarge: false,
-              quantity: 0,
-              repeats: 1,
-            },
-          },
-        });
-        expect(result).toHaveSucceeded();
-
-        // Reload medications and make sure only the first one got edited
-        await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
-
-        // Only compare explicitly set values
-        expect(medicationOne.dataValues).toMatchObject({
-          id: medicationOne.id,
-          isDischarge: true,
-          quantity: 3,
-          repeats: 0,
-        });
-        expect(medicationTwo.dataValues).toMatchObject({
-          id: medicationTwo.id,
-          quantity: 2,
-        });
-      });
-
       it('should not update encounter to an invalid location or add a note', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -791,10 +735,15 @@ describe('Encounter', () => {
       });
 
       it('should record a medication', async () => {
-        const result = await app.post('/api/medication').send({
-          encounterId: medicationEncounter.id,
+        const result = await app.post(`/api/medication/encounterPrescription/${medicationEncounter.id}`).send({
           medicationId: testMedication.id,
           prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'Immediately',
+          route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
         });
         expect(result).toHaveSucceeded();
         expect(result.body.date).toBeTruthy();
@@ -1016,7 +965,7 @@ describe('Encounter', () => {
           );
 
           const result = await app.get(
-            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/graphData/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;
@@ -1046,7 +995,7 @@ describe('Encounter', () => {
           const startDateString = answers[0].submissionDate;
           const endDateString = formatISO9075(new Date());
           const result = await app.get(
-            `/api/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+            `/api/encounter/${vitalsEncounter.id}/graphData/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
           );
           expect(result).toHaveSucceeded();
           const { body } = result;

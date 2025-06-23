@@ -13,6 +13,7 @@ import { TextInput } from './Field/TextField';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const EditTextWrapper = styled.div`
   width: 100%;
@@ -73,8 +74,8 @@ const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
 const StyledTooltip = styled(props => (
-  <ClickAwayListener onClickAway={props.onClickAway}>
-    <Tooltip classes={{ popper: props.className }} {...props}>
+  <ClickAwayListener onClickAway={props.onClickAway} data-testid="clickawaylistener-ttee">
+    <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-o9f3">
       {props.children}
     </Tooltip>
   </ClickAwayListener>
@@ -102,17 +103,28 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
     return null;
   }
 
-  return childNoteItems.map(noteItem => (
+  return childNoteItems.map((noteItem, index) => (
     <div key={noteItem.id}>
-      <StyledNoteItemLogMetadata>
+      <StyledNoteItemLogMetadata data-testid={`noteitemlogmetadata-fvac-${index}`}>
         {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
         {noteItem.onBehalfOf?.displayName ? (
-          <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
+          <span>
+            <TranslatedText
+              stringId="note.onBehalfOf"
+              fallback="on behalf of :displayName"
+              replacements={{
+                displayName: noteItem.onBehalfOf.displayName,
+              }}
+              data-testid="translatedtext-on-behalf-prefix"
+            />
+          </span>
         ) : null}
-        <DateDisplay date={noteItem.date} showTime />
+        <DateDisplay date={noteItem.date} showTime data-testid={`datedisplay-5hu9${index}`} />
       </StyledNoteItemLogMetadata>
 
-      <StyledNoteItemLogContent>{noteItem.content}</StyledNoteItemLogContent>
+      <StyledNoteItemLogContent data-testid={`noteitemlogcontent-8n3s${index}`}>
+        {noteItem.content}
+      </StyledNoteItemLogContent>
       <br />
     </div>
   ));
@@ -125,25 +137,52 @@ const NoteItemSecondary = ({ noteItem, isEditing, onEditClick, hasPermission }) 
   const { currentUser } = useAuth();
 
   return (
-    <StyledNoteItemSecondaryWrapper>
+    <StyledNoteItemSecondaryWrapper data-testid="stylednoteitemsecondarywrapper-vit4">
       {!isEditing && (hasPermission || currentUser.id === noteItem.authorId) && (
-        <StyledEditIcon onClick={onEditClick} />
+        <StyledEditIcon onClick={onEditClick} data-testid="styledediticon-s5ol" />
       )}
       <br />
       <>
         <span>{noteItem.author?.displayName || ''} </span>
-        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
-        <DateDisplay date={noteItem.date} showTime />
+        {noteItem.onBehalfOf ? (
+          <span>
+            <TranslatedText
+              stringId="note.onBehalfOf"
+              fallback="on behalf of :displayName"
+              replacements={{
+                displayName: noteItem.onBehalfOf.displayName,
+              }}
+              data-testid="translatedtext-on-behalf-prefix2"
+            />
+          </span>
+        ) : null}
+        <DateDisplay date={noteItem.date} showTime data-testid="datedisplay-zaes" />
         {noteItem?.noteItems?.length > 0 && (
           <>
-            <span> (edited) </span>
+            <span>
+              <TranslatedText
+                stringId="note.status.edited"
+                fallback="(edited)"
+                data-testid="translatedtext-edited"
+              />
+            </span>
             <StyledTooltip
               open={isTooltipOpen}
               onClickAway={() => setTooltipOpen(false)}
-              title={<ItemTooltip childNoteItems={noteItem.noteItems} />}
+              title={
+                <ItemTooltip childNoteItems={noteItem.noteItems} data-testid="itemtooltip-bv1t" />
+              }
+              data-testid="styledtooltip-egfj"
             >
-              <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(true)}>
-                View change log
+              <StyledViewChangeLogWrapper
+                onClick={() => setTooltipOpen(true)}
+                data-testid="styledviewchangelogwrapper-bl80"
+              >
+                <TranslatedText
+                  stringId="note.action.viewChangeLog"
+                  fallback="View change log"
+                  data-testid="translatedtext-view-changelog"
+                />
               </StyledViewChangeLogWrapper>
             </StyledTooltip>
           </>
@@ -165,42 +204,56 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
 
   return (
     <>
-      {index !== 0 && <Divider />}
-      <ListItem ref={lastNoteItemRef}>
+      {index !== 0 && <Divider data-testid="divider-hyr6" />}
+      <ListItem ref={lastNoteItemRef} data-testid="listitem-ynmh">
         {isEditing ? (
-          <EditTextWrapper>
+          <EditTextWrapper data-testid="edittextwrapper-e5gj">
             <TextInput
               style={{ width: '100%' }}
               fullWidth
               value={content}
               multiline
               onChange={event => setContent(event.target.value)}
+              data-testid="textinput-l960"
             />
-            <StyledSaveText onClick={handleDone}>Save</StyledSaveText>
+            <StyledSaveText onClick={handleDone} data-testid="styledsavetext-y7f6">
+              <TranslatedText
+                stringId="general.action.save"
+                fallback="Save"
+                data-testid="translatedtext-save"
+              />
+            </StyledSaveText>
             <StyledCancelText
               onClick={() => {
                 // resetting note item content
                 setContent(noteItem.content);
                 setIsEditing(!isEditing);
               }}
+              data-testid="styledcanceltext-s95j"
             >
-              Cancel
+              <TranslatedText
+                stringId="general.action.cancel"
+                fallback="Cancel"
+                data-testid="translatedtext-cancel"
+              />
             </StyledCancelText>
           </EditTextWrapper>
         ) : (
           <StyledListItemText
             primary={
               <>
-                <NoteItemMain noteItem={noteItem} />
+                <NoteItemMain noteItem={noteItem} data-testid="noteitemmain-4p45" />
                 <NoteItemSecondaryWithPermission
                   noteItem={noteItem}
                   isEditing={isEditing}
                   onEditClick={() => setIsEditing(!isEditing)}
                   verb="write"
                   noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
+                  data-testid="noteitemsecondarywithpermission-w8d2"
                 />
               </>
             }
+            data-testid="styledlistitemtext-dxed"
           />
         )}
       </ListItem>

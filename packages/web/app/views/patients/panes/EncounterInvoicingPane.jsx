@@ -15,6 +15,7 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -67,58 +68,85 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   return (
     <>
       {invoice ? (
-        <TabPane>
-          <InvoiceContainer>
-            <InvoiceTopBar>
-              <InvoiceHeading>
-                <InvoiceTitle>
-                  <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
+        <TabPane data-testid="tabpane-3i52">
+          <InvoiceContainer data-testid="invoicecontainer-8sm4">
+            <InvoiceTopBar data-testid="invoicetopbar-96rq">
+              <InvoiceHeading data-testid="invoiceheading-f1vs">
+                <InvoiceTitle data-testid="invoicetitle-6asf">
+                  <TranslatedText
+                    stringId="invoice.invoiceNumber"
+                    fallback="Invoice number"
+                    data-testid="translatedtext-8m4h"
+                  />
                   {`: ${invoice.displayId}`}
                 </InvoiceTitle>
-                <InvoiceStatus status={invoice.status} />
+                <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
               {(cancelable || deletable) && (
-                <ActionsPane>
-                  <ThreeDotMenu
-                    items={[
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.cancelInvoice"
-                            fallback="Cancel invoice"
-                          />
-                        ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
-                        hidden: !cancelable,
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.deleteInvoice"
-                            fallback="Delete invoice"
-                          />
-                        ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
-                        hidden: !deletable,
-                      },
-                    ]}
-                  />
-                  <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}>
-                    <TranslatedText stringId="invoice.action.edit" fallback="Edit invoice" />
-                  </Button>
+                <ActionsPane data-testid="actionspane-l9ey">
+                  <NoteModalActionBlocker>
+                    <ThreeDotMenu
+                      items={[
+                        {
+                          label: (
+                            <TranslatedText
+                              stringId="invoice.modal.editInvoice.cancelInvoice"
+                              fallback="Cancel invoice"
+                              data-testid="translatedtext-n7tk"
+                            />
+                          ),
+                          onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
+                          hidden: !cancelable,
+                        },
+                        {
+                          label: (
+                            <TranslatedText
+                              stringId="invoice.modal.editInvoice.deleteInvoice"
+                              fallback="Delete invoice"
+                              data-testid="translatedtext-d2ou"
+                            />
+                          ),
+                          onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
+                          hidden: !deletable,
+                        },
+                      ]}
+                      data-testid="threedotmenu-5t9u"
+                    />
+                  </NoteModalActionBlocker>
+                  <NoteModalActionBlocker>
+                    <Button
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
+                      data-testid="button-2zyp"
+                    >
+                      <TranslatedText
+                        stringId="invoice.action.edit"
+                        fallback="Edit invoice"
+                        data-testid="translatedtext-6nrc"
+                      />
+                    </Button>
+                  </NoteModalActionBlocker>
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceItemsTable invoice={invoice} />
+            <InvoiceItemsTable invoice={invoice} data-testid="invoiceitemstable-86zi" />
           </InvoiceContainer>
-          <InvoiceSummaryPanel invoice={invoice} />
+          <InvoiceSummaryPanel invoice={invoice} data-testid="invoicesummarypanel-40qi" />
         </TabPane>
       ) : (
-        <EmptyPane>
+        <EmptyPane data-testid="emptypane-cjxo">
           {ability.can('create', 'Invoice') && (
-            <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
-              <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
-            </Button>
+            <NoteModalActionBlocker>
+              <Button
+                onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
+                data-testid="button-j06y"
+              >
+                <TranslatedText
+                  stringId="invoice.action.create"
+                  fallback="Create invoice"
+                  data-testid="translatedtext-um8m"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           )}
         </EmptyPane>
       )}
@@ -128,6 +156,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           initialInvoice={invoice}
           encounterId={encounter.id}
           onClose={() => setOpenInvoiceModal()}
+          data-testid="invoicemodalgroup-rx7c"
         />
       )}
     </>

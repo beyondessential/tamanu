@@ -13,10 +13,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
-import { theme } from './theme';
+import { theme, GlobalStyles } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
-import { ReferralProvider } from './contexts/Referral';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
@@ -27,28 +26,29 @@ import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
 import { CustomToastContainer } from './customToastContainer';
 import { ClearIcon } from './components/Icons/ClearIcon';
+import { NoteModalProvider } from './contexts/NoteModal';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <EncounterNotesProvider>
-          <ProgramRegistryProvider>
-            <LabRequestProvider store={store}>
-              <PatientSearchProvider>
-                <SettingsProvider>
-                  <SyncStateProvider>
-                    <TranslationProvider>
-                      <LocalisationProvider store={store}>{children}</LocalisationProvider>
-                    </TranslationProvider>
-                  </SyncStateProvider>
-                </SettingsProvider>
-              </PatientSearchProvider>
-            </LabRequestProvider>
-          </ProgramRegistryProvider>
-        </EncounterNotesProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
+    <ImagingRequestsProvider>
+      <EncounterNotesProvider>
+        <ProgramRegistryProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <SettingsProvider>
+                <SyncStateProvider>
+                  <TranslationProvider>
+                    <LocalisationProvider store={store}>
+                      <NoteModalProvider>{children}</NoteModalProvider>
+                    </LocalisationProvider>
+                  </TranslationProvider>
+                </SyncStateProvider>
+              </SettingsProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </ProgramRegistryProvider>
+      </EncounterNotesProvider>
+    </ImagingRequestsProvider>
   </EncounterProvider>
 );
 
@@ -74,6 +74,7 @@ function Root({ api, store, history }) {
                     <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
                       <StateContextProviders store={store}>
                         <ReactQueryDevtools initialIsOpen={false} />
+                        <GlobalStyles />
                         <CustomToastContainer
                           hideProgressBar
                           transition={Slide}

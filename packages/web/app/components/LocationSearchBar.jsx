@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
 import { FormSubmitButton } from './Button';
 import { Field, Form, TextField } from './Field';
+import { TranslatedText } from './Translation/TranslatedText';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -47,11 +48,20 @@ const PaddedSearchIcon = styled(SearchIcon)`
 `;
 
 const renderSearchBar = ({ placeholder, submitForm }) => (
-  <SearchInputContainer>
-    <Field component={TextField} placeholder={placeholder} name="name" />
-    <FormSubmitButton color="primary" variant="contained" onClick={submitForm}>
-      <PaddedSearchIcon />
-      Search
+  <SearchInputContainer data-testid="searchinputcontainer-p9q0">
+    <Field component={TextField} placeholder={placeholder} name="name" data-testid="field-gf6j" />
+    <FormSubmitButton
+      color="primary"
+      variant="contained"
+      onClick={submitForm}
+      data-testid="formsubmitbutton-zef2"
+    >
+      <PaddedSearchIcon data-testid="paddedsearchicon-5bb7" />
+      <TranslatedText
+        stringId="general.action.search"
+        fallback="Search"
+        data-testid="translatedtext-search"
+      />
     </FormSubmitButton>
   </SearchInputContainer>
 );
@@ -61,8 +71,8 @@ export const LocationSearchBar = memo(({ onSearch }) => {
   const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
 
   return (
-    <Container>
-      <Form onSubmit={handleSearch} render={renderSearchBar} />
+    <Container data-testid="container-jjro">
+      <Form onSubmit={handleSearch} render={renderSearchBar} data-testid="form-8yoa" />
     </Container>
   );
 });

@@ -32,7 +32,9 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
-  const practitionerSuggester = useSuggester('practitioner');
+  const physicianSuggester = useSuggester('practitioner');
+  const anaesthetistSuggester = useSuggester('practitioner');
+  const assistantSuggester = useSuggester('practitioner');
   const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
 
@@ -45,18 +47,28 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           fallback=":action procedure"
           replacements={{
             action: editedProcedure?.id ? (
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+              <TranslatedText
+                stringId="general.action.edit"
+                fallback="Edit"
+                data-testid="translatedtext-l65z"
+              />
             ) : (
-              <TranslatedText stringId="general.action.new" fallback="New" />
+              <TranslatedText
+                stringId="general.action.new"
+                fallback="New"
+                data-testid="translatedtext-c8x5"
+              />
             ),
           }}
+          data-testid="translatedtext-om64"
         />
       }
       open={!!editedProcedure}
       onClose={onClose}
+      data-testid="formmodal-otam"
     >
       <ProcedureForm
-        onSubmit={async data => {
+        onSubmit={async (data) => {
           const actualDateTime = getActualDateTime(data.date, data.startTime);
           const updatedData = {
             ...data,
@@ -76,9 +88,12 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
         onCancel={onClose}
         editedObject={editedProcedure}
         locationSuggester={locationSuggester}
-        practitionerSuggester={practitionerSuggester}
+        physicianSuggester={physicianSuggester}
+        anaesthetistSuggester={anaesthetistSuggester}
+        assistantSuggester={assistantSuggester}
         procedureSuggester={procedureSuggester}
         anaestheticSuggester={anaestheticSuggester}
+        data-testid="procedureform-euca"
       />
     </FormModal>
   );

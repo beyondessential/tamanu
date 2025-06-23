@@ -8,6 +8,7 @@ export class SyncDeviceTick extends Model {
   declare persistedAtSyncTick: number;
   declare deviceId?: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
@@ -22,7 +23,7 @@ export class SyncDeviceTick extends Model {
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
-        persistedAtSyncTick: { type: DataTypes.BIGINT, primaryKey: !!primaryKey },
+        persistedAtSyncTick: { type: DataTypes.BIGINT, primaryKey: true },
         deviceId: {
           type: DataTypes.TEXT,
         },

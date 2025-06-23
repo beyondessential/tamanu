@@ -295,15 +295,17 @@ export class AutocompleteInput extends Component {
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag, isCustomizedOption } = suggestion;
+    const { 'data-testid': dataTestId } = this.props;
     return (
-      <Item selected={isHighlighted} component="div">
-        <Typography variant="body2">
+      <Item selected={isHighlighted} component="div" data-testid={`${dataTestId}-option`}>
+        <Typography variant="body2" data-testid={`${dataTestId}-option-typography`}>
           {isCustomizedOption ? (
             <>
               &ldquo;{suggestion.label}&rdquo; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
+                data-testid={`${dataTestId}-option-translatedtext`}
               />
               )
             </>
@@ -312,7 +314,11 @@ export class AutocompleteInput extends Component {
           )}
         </Typography>
         {tag && (
-          <OptionTag $background={tag.background} $color={tag.color}>
+          <OptionTag
+            $background={tag.background}
+            $color={tag.color}
+            data-testid={`${dataTestId}-optiontag`}
+          >
             {tag.label}
           </OptionTag>
         )}
@@ -321,7 +327,7 @@ export class AutocompleteInput extends Component {
   };
 
   renderContainer = option => {
-    const { size = 'medium', multiSection } = this.props;
+    const { size = 'medium', multiSection, 'data-testid': dataTestId } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -330,6 +336,7 @@ export class AutocompleteInput extends Component {
         anchorEl={this.anchorEl}
         open={!!option.children}
         placement="bottom-start"
+        data-testid={`${dataTestId}-suggestionscontainer`}
       >
         <SuggestionsList
           {...option.containerProps}
@@ -337,6 +344,7 @@ export class AutocompleteInput extends Component {
           $multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
+          data-testid={`${dataTestId}-suggestionslist`}
         >
           {option.children}
         </SuggestionsList>
@@ -358,6 +366,7 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
+      'data-testid': dataTestId,
       ...other
     } = inputProps;
     const { suggestions } = this.state;
@@ -368,21 +377,30 @@ export class AutocompleteInput extends Component {
         className={className}
         infoTooltip={infoTooltip}
         size={size}
+        data-testid={`${dataTestId}-outerlabelfieldwrapper`}
       >
         <StyledTextField
           variant="outlined"
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
+            'data-testid': dataTestId,
             endAdornment: (
               <>
                 {tag && (
-                  <SelectTag $background={tag.background} $color={tag.color}>
+                  <SelectTag
+                    $background={tag.background}
+                    $color={tag.color}
+                    data-testid={`${dataTestId}-selecttag`}
+                  >
                     {tag.label}
                   </SelectTag>
                 )}
                 {value && !disabled && (
-                  <StyledIconButton onClick={this.handleClearValue}>
+                  <StyledIconButton
+                    onClick={this.handleClearValue}
+                    data-testid={`${dataTestId}-clearbutton`}
+                  >
                     <StyledClearIcon />
                   </StyledIconButton>
                 )}
@@ -393,7 +411,11 @@ export class AutocompleteInput extends Component {
                     this.anchorEl.click();
                   }}
                 >
-                  {suggestions.length > 0 ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {suggestions.length > 0 ? (
+                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon`} />
+                  ) : (
+                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} />
+                  )}
                 </Icon>
               </>
             ),
@@ -423,7 +445,7 @@ export class AutocompleteInput extends Component {
 
   renderSectionTitle = section => {
     const { getSectionTitle } = this.props;
-    return <SectionTitle>{getSectionTitle(section)}</SectionTitle>;
+    return <SectionTitle data-testid="sectiontitle-a46q">{getSectionTitle(section)}</SectionTitle>;
   };
 
   render() {
@@ -441,6 +463,7 @@ export class AutocompleteInput extends Component {
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
       multiSection,
+      'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
 
     return (
@@ -472,6 +495,7 @@ export class AutocompleteInput extends Component {
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
+            'data-testid': `${dataTestId}-input`,
             inputRef,
           }}
         />

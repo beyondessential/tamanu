@@ -161,11 +161,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter Record"
+        data-testid="translatedtext-fzew"
       />
     ) : (
       <TranslatedText
         stringId="patient.modal.print.encounterProgressRecord.title"
         fallback="Patient Encounter Progress Record"
+        data-testid="translatedtext-9czu"
       />
     ),
     color: Colors.white,
@@ -178,8 +180,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   if (allQueries.isError) {
     if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
       return (
-        <Modal {...modalProps}>
-          <ForbiddenErrorModalContents onClose={onClose} />
+        <Modal {...modalProps} data-testid="modal-5jy7">
+          <ForbiddenErrorModalContents
+            onClose={onClose}
+            data-testid="forbiddenerrormodalcontents-00se"
+          />
         </Modal>
       );
     }
@@ -194,11 +199,15 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     if (!hasOnlyDischargeNotFoundError) {
       // If this next bit ever shows up it means it's a bug - show some detail
       return (
-        <Modal {...modalProps}>
+        <Modal {...modalProps} data-testid="modal-hoyx">
           <p>An unexpected error occurred. Please contact your system administrator.</p>
           <p>Error details:</p>
           <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
-          <ModalActionRow onConfirm={onClose} confirmText="Close" />
+          <ModalActionRow
+            onConfirm={onClose}
+            confirmText="Close"
+            data-testid="modalactionrow-db91"
+          />
         </Modal>
       );
     }
@@ -258,10 +267,14 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       imagingName: imagingTypeNames[imagingRequest.imagingType],
     }));
 
-  // Remove discontinued medications and sort by date
+  // Remove discontinued medications and sort by medication name
   const medications = encounter.medications
-    .filter(medication => !medication.discontinued)
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .filter(medication =>
+      encounter.endDate
+        ? medication.encounterPrescription?.isSelectedForDischarge
+        : !medication.discontinued,
+    )
+    .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter(note => {
     return note.noteType !== NOTE_TYPES.SYSTEM;
@@ -324,8 +337,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   };
 
   return (
-    <Modal {...modalProps} onPrint={() => printPDF('encounter-record')}>
-      <PDFLoader isLoading={allQueries.isFetching} id="encounter-record">
+    <Modal {...modalProps} onPrint={() => printPDF('encounter-record')} data-testid="modal-fxo5">
+      <PDFLoader
+        isLoading={allQueries.isFetching}
+        id="encounter-record"
+        data-testid="pdfloader-d2ja"
+      >
         <EncounterRecordPrintout
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
@@ -346,6 +363,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           medications={medications}
           getLocalisation={getLocalisation}
           translations={translations}
+          data-testid="encounterrecordprintout-yqe1"
         />
       </PDFLoader>
     </Modal>

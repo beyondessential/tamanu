@@ -130,7 +130,7 @@ const VerticalLine = styled.div`
   height: 100%;
 `;
 
-const useSelectable = formType => {
+const useSelectable = (formType) => {
   const api = useApi();
   const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
   return useQuery([endpoint], () => api.get(endpoint), {
@@ -139,7 +139,7 @@ const useSelectable = formType => {
 };
 
 const queryBySearch = (formType, data, { search, labTestCategoryId }, getTranslation) => {
-  return data.filter(result => {
+  return data.filter((result) => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
       const categoryName = getTranslation(
@@ -183,7 +183,7 @@ export const TestSelectorInput = ({
   const allSelected = queriedData.length && queriedData.every(isSelected);
   const someSelected = queriedData.some(isSelected) && !allSelected;
 
-  const handleChange = newSelected => {
+  const handleChange = (newSelected) => {
     if (!onChange) return;
     const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
     onChange({ target: { name, value: newSelected }, selectedObjects });
@@ -192,20 +192,20 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     handleChange([]);
   };
-  const handleChangeSearchQuery = event =>
+  const handleChangeSearchQuery = (event) =>
     setSearchQuery({ ...searchQuery, [event.target.name]: event.target.value });
 
   const handleSelectAll = () =>
     handleChange(
       allSelected
-        ? value.filter(id => !queriedData.some(({ id: dataId }) => dataId === id))
+        ? value.filter((id) => !queriedData.some(({ id: dataId }) => dataId === id))
         : [...value, ...queriedData.filter(({ id }) => !value.includes(id)).map(({ id }) => id)],
     );
-  const handleSelect = event => {
+  const handleSelect = (event) => {
     handleChange(
       event.target.checked
         ? [...value, event.target.name]
-        : value.filter(id => id !== event.target.name),
+        : value.filter((id) => id !== event.target.name),
     );
   };
 
@@ -218,10 +218,10 @@ export const TestSelectorInput = ({
   };
 
   return (
-    <Container>
-      <LabelText>{label}</LabelText>
-      <Wrapper>
-        <SelectorContainer>
+    <Container data-testid="container-04yz">
+      <LabelText data-testid="labeltext-79xr">{label}</LabelText>
+      <Wrapper data-testid="wrapper-u8cg">
+        <SelectorContainer data-testid="selectorcontainer-xky9">
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
             <>
               <SuggesterSelectField
@@ -230,27 +230,41 @@ export const TestSelectorInput = ({
                   onChange: handleChangeSearchQuery,
                 }}
                 label={
-                  <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />
+                  <TranslatedText
+                    stringId="lab.testCategory.label"
+                    fallback="Test category"
+                    data-testid="translatedtext-0a6u"
+                  />
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
                 baseOptions={[
                   {
-                    label: <TranslatedText stringId="general.select.all" fallback="All" />,
+                    label: (
+                      <TranslatedText
+                        stringId="general.select.all"
+                        fallback="All"
+                        data-testid="translatedtext-am0x"
+                      />
+                    ),
                     value: '',
                   },
                 ]}
+                data-testid="suggesterselectfield-3mdo"
               />
-              <FormSeparatorLine />
+              <FormSeparatorLine data-testid="formseparatorline-3j0n" />
             </>
           )}
-          <TextTypeLabel>{capitalize(selectableName)}s</TextTypeLabel>
-          <Box display="flex" alignItems="center">
+          <TextTypeLabel data-testid="texttypelabel-3owb">
+            {capitalize(selectableName)}s
+          </TextTypeLabel>
+          <Box display="flex" alignItems="center" data-testid="box-vnqq">
             <SelectableTestItem
               name="selectAll"
               indeterminate={someSelected}
               checked={allSelected}
               onChange={handleSelectAll}
+              data-testid="selectabletestitem-k1uu"
             />
             <StyledSearchField
               field={{
@@ -259,14 +273,17 @@ export const TestSelectorInput = ({
                 onChange: handleChangeSearchQuery,
               }}
               placeholder={getSearchFieldPlaceholder()}
+              data-testid="styledsearchfield-92y3"
             />
           </Box>
-          <FormSeparatorLine />
-          <SelectorTable>
-            {showLoadingText && <BodyText>Loading {selectableName}s</BodyText>}
+          <FormSeparatorLine data-testid="formseparatorline-1waq" />
+          <SelectorTable data-testid="selectortable-dwrp">
+            {showLoadingText && (
+              <BodyText data-testid="bodytext-ldne">Loading {selectableName}s</BodyText>
+            )}
             {!showLoadingText &&
               (queriedData.length > 0 ? (
-                queriedData.map(selectable => (
+                queriedData.map((selectable) => (
                   <SelectableTestItem
                     key={`${selectable.id}-checkbox`}
                     label={
@@ -278,6 +295,7 @@ export const TestSelectorInput = ({
                         }
                         fallback={selectable.name}
                         value={selectable.id}
+                        data-testid={`translatedreferencedata-zkjo-${selectable.code}`}
                       />
                     }
                     name={selectable.id}
@@ -287,31 +305,46 @@ export const TestSelectorInput = ({
                           fallback={selectable.category.name}
                           value={selectable.category.id}
                           category={selectable.category.type}
+                          data-testid={`translatedreferencedata-gqmt-${selectable.code}`}
                         />
                       )
                     }
                     checked={isSelected(selectable)}
                     onChange={handleSelect}
+                    data-testid={`selectabletestitem-sfbf-${selectable.code}`}
                   />
                 ))
               ) : (
-                <BodyText>No {selectableName}s found.</BodyText>
+                <BodyText data-testid="bodytext-7zxj">
+                  <TranslatedText
+                    stringId="lab.testSelect.noData"
+                    fallback="No :selectableName found."
+                    replacements={{ selectableName }}
+                    data-testid="translatedtext-test-selector-no-data"
+                  />
+                </BodyText>
               ))}
           </SelectorTable>
         </SelectorContainer>
-        <VerticalLine />
-        <SelectorContainer>
-          <Box display="flex" justifyContent="space-between">
-            <SectionHeader>Selected {selectableName}s</SectionHeader>
+        <VerticalLine data-testid="verticalline-n5vj" />
+        <SelectorContainer data-testid="selectorcontainer-gewc">
+          <Box display="flex" justifyContent="space-between" data-testid="box-x57a">
+            <SectionHeader data-testid="sectionheader-r7n4">
+              Selected {selectableName}s
+            </SectionHeader>
             {value.length > 0 && (
-              <ClearAllButton onClick={handleClear}>
-                <TranslatedText stringId="general.action.clearAll" fallback="Clear all" />
+              <ClearAllButton onClick={handleClear} data-testid="clearallbutton-ao0r">
+                <TranslatedText
+                  stringId="general.action.clearAll"
+                  fallback="Clear all"
+                  data-testid="translatedtext-to84"
+                />
               </ClearAllButton>
             )}
           </Box>
-          <FormSeparatorLine />
-          <SelectorTable>
-            {selected.map(option => {
+          <FormSeparatorLine data-testid="formseparatorline-2m0r" />
+          <SelectorTable data-testid="selectortable-6eaw">
+            {selected.map((option) => {
               return (
                 <TestItem
                   key={`${option.id}-selected`}
@@ -324,6 +357,7 @@ export const TestSelectorInput = ({
                       }
                       fallback={option.name}
                       value={option.id}
+                      data-testid={`translatedreferencedata-lv0m-${option.code}`}
                     />
                   }
                   name={option.id}
@@ -333,21 +367,33 @@ export const TestSelectorInput = ({
                         fallback={option.category.name}
                         value={option.category.id}
                         category={option.category.type}
+                        data-testid={`translatedreferencedata-x0k0-${option.code}`}
                       />
                     )
                   }
                   onRemove={handleSelect}
+                  data-testid={`testitem-wkzy-${option.code}`}
                 />
               );
             })}
           </SelectorTable>
         </SelectorContainer>
       </Wrapper>
-      {helperText && <FormHelperText error={error}>{helperText}</FormHelperText>}
+      {helperText && (
+        <FormHelperText error={error} data-testid="formhelpertext-198r">
+          {helperText}
+        </FormHelperText>
+      )}
     </Container>
   );
 };
 
 export const TestSelectorField = ({ field, ...props }) => (
-  <TestSelectorInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <TestSelectorInput
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    {...props}
+    data-testid="testselectorinput-v3d3"
+  />
 );

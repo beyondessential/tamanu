@@ -6,6 +6,7 @@ import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem'
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
 import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
@@ -28,22 +29,32 @@ export const ProgramRegistrySidebarItem = ({
 
   return (
     <PrimarySidebarItem
-      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
+      {...{ icon, label, children, selected, highlighted, onClick, divider, retracted, path }}
+      data-testid="primarysidebaritem-kx7z"
     >
-      {programRegistries.data.map(({ id, name }) => {
-        const secondaryPath = `${path}/${id}?name=${name}`;
+      {programRegistries.data.map(({ id, name }, index) => {
+        const baseSecondaryPath = `${path}/${id}`;
+        const secondaryPath = `${baseSecondaryPath}?name=${name}`;
         return !retracted ? (
-          <SecondarySidebarItem
-            key={id}
-            path={secondaryPath}
-            isCurrent={currentPath.includes(secondaryPath)}
-            color=""
-            label={
-              <TranslatedReferenceData value={id} fallback={name} category="programRegistry" />
-            }
-            disabled={false}
-            onClick={() => onPathChanged(secondaryPath)}
-          />
+          <NoteModalActionBlocker>
+            <SecondarySidebarItem
+              key={id}
+              path={secondaryPath}
+              isCurrent={currentPath.includes(baseSecondaryPath)}
+              color=""
+              label={
+                <TranslatedReferenceData
+                  value={id}
+                  fallback={name}
+                  category="programRegistry"
+                  data-testid={`translatedreferencedata-2dpm-${index}`}
+                />
+              }
+              disabled={false}
+              onClick={() => onPathChanged(secondaryPath)}
+              data-testid={`secondarysidebaritem-3uo3-${index}`}
+            />
+          </NoteModalActionBlocker>
         ) : null;
       })}
     </PrimarySidebarItem>

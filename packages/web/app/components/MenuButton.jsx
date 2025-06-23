@@ -68,8 +68,13 @@ export const MenuButton = React.memo(
 
     return (
       <div className={className}>
-        <OpenButton disabled={disabled} onClick={handleToggle} ref={anchorRef}>
-          <Icon style={{ color: iconColor, cursor: 'pointer' }} />
+        <OpenButton
+          disabled={disabled}
+          onClick={handleToggle}
+          ref={anchorRef}
+          data-testid="openbutton-d1ec"
+        >
+          <Icon style={{ color: iconColor, cursor: 'pointer' }} data-testid="icon-p0po" />
         </OpenButton>
         <Popper
           open={open}
@@ -78,20 +83,25 @@ export const MenuButton = React.memo(
           disablePortal
           placement={placement}
           style={{ zIndex: 10 }}
+          data-testid="popper-0e9z"
         >
           {() => (
-            <Paper id="menu-list-grow" variant="outlined">
-              <ClickAwayListener onClickAway={handleClose}>
-                <List>
-                  {actions.filter(Boolean).map(({ action, label }) => (
-                    <Item
-                      disabled={!action}
-                      key={label.props.fallback}
-                      onClick={event => handleClick(event, action)}
-                    >
-                      {label}
-                    </Item>
-                  ))}
+            <Paper id="menu-list-grow" variant="outlined" data-testid="paper-f59g">
+              <ClickAwayListener onClickAway={handleClose} data-testid="clickawaylistener-dxm1">
+                <List data-testid="list-i0ae">
+                  {actions.filter(Boolean).map(({ action, label, wrapper }, index) => {
+                    const menuItem = (
+                      <Item
+                        disabled={!action}
+                        key={label.props.fallback}
+                        onClick={event => handleClick(event, action)}
+                        data-testid={`item-8ybn-${index}`}
+                      >
+                        {label}
+                      </Item>
+                    );
+                    return wrapper ? wrapper(menuItem) : menuItem;
+                  })}
                 </List>
               </ClickAwayListener>
             </Paper>

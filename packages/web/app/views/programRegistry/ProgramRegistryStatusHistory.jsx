@@ -1,35 +1,54 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Table } from '../../components/Table/Table';
-import { DateDisplay } from '../../components/DateDisplay';
-import { Colors } from '../../constants';
-import { Heading5 } from '../../components/Typography';
+import { useParams } from 'react-router-dom';
+import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
-import { TranslatedText } from '../../components';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
-  width: ${p => (p.fullWidth ? '100%' : '70%')};
-  background-color: ${Colors.white};
-  padding: 13px 15px 30px 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: center;
-  margin-right: 10px;
-  border-radius: 5px;
-  border: 1px solid ${Colors.softOutline};
 `;
 
-export const ProgramRegistryStatusHistory = ({
-  patientProgramRegistration,
-  programRegistryConditions,
-}) => {
-  const { data, isLoading } = useProgramRegistryClinicalStatusQuery(
-    patientProgramRegistration.patientId,
-    patientProgramRegistration.programRegistryId,
+const StyledTable = styled(Table)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-color: ${Colors.outline};
+
+  table tr:last-child td {
+    border: none; // remove border from last row of table to prevent double border
+  }
+
+  .MuiTableCell-head {
+    height: 45px;
+    padding: 5px;
+    color: ${Colors.darkText};
+    border-color: ${Colors.outline};
+
+    &:first-child {
+      padding-left: 15px;
+    }
+  }
+
+  .MuiTableCell-body {
+    height: 50px;
+    padding: 5px;
+
+    &:first-child {
+      padding-left: 15px;
+    }
+  }
+`;
+
+export const ProgramRegistryStatusHistory = () => {
+  const { patientId, programRegistryId } = useParams();
+  const { data = [], isLoading } = useProgramRegistryClinicalStatusQuery(
+    patientId,
+    programRegistryId,
     {
       orderBy: 'date',
       order: 'desc',
@@ -42,9 +61,7 @@ export const ProgramRegistryStatusHistory = ({
   });
 
   const columns = useMemo(() => {
-    const removedOnce = (data ? data.data : []).some(
-      row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE,
-    );
+    const removedOnce = data.some(row => row.registrationStatus === REGISTRATION_STATUSES.INACTIVE);
     return [
       {
         key: 'clinicalStatusId',
@@ -65,13 +82,13 @@ export const ProgramRegistryStatusHistory = ({
       },
       {
         key: 'date',
+        sortable: false,
         title: (
           <TranslatedText
             stringId="programRegistry.statusHistory.dateRecorded"
             fallback="Date recorded"
           />
         ),
-        sortable: true,
         accessor: row => <DateDisplay date={row.date} />,
       },
       ...(removedOnce
@@ -93,24 +110,22 @@ export const ProgramRegistryStatusHistory = ({
   }, [data]);
 
   return (
-    <Container fullWidth={programRegistryConditions?.length === 0}>
-      <Heading5 style={{ marginBottom: '13px' }}>
+    <Container>
+      <Heading5 mt={0} mb={1}>
         <TranslatedText
           stringId="programRegistry.statusHistory.title"
           fallback="Program status history"
         />
       </Heading5>
-      <Table
+      <StyledTable
         isBodyScrollable
         initialSort={{
           orderBy: 'date',
           order: 'asc',
         }}
-        data={data ? data.data : []}
+        data={data}
         columns={columns}
         rowsPerPage={4}
-        rowStyle={() => `height: 50px; padding: 0px;`}
-        containerStyle="max-height: 290px;"
         allowExport={false}
         noDataMessage={
           <TranslatedText

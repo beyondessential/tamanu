@@ -95,8 +95,10 @@ const StyledLabelTitle = styled.p`
 
 const LabelWithDescription = ({ label, description }) => (
   <div>
-    <StyledLabelTitle>{label}</StyledLabelTitle>
-    <StyledLabelDescription>{description}</StyledLabelDescription>
+    <StyledLabelTitle data-testid="styledlabeltitle-y511">{label}</StyledLabelTitle>
+    <StyledLabelDescription data-testid="styledlabeldescription-zze1">
+      {description}
+    </StyledLabelDescription>
   </div>
 );
 
@@ -110,6 +112,7 @@ export const RadioInput = ({
   style,
   error,
   autofillSingleAvailableOption = false,
+  'data-testid': dataTestId = 'radioinput',
   ...props
 }) => {
   const { onChange } = props;
@@ -127,8 +130,14 @@ export const RadioInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options]);
   return (
-    <OuterLabelFieldWrapper label={label} error={error} {...props} style={style}>
-      <StyledFormControl error={error} {...props}>
+    <OuterLabelFieldWrapper
+      label={label}
+      error={error}
+      {...props}
+      style={style}
+      data-testid="outerlabelfieldwrapper-ce71"
+    >
+      <StyledFormControl error={error} {...props} data-testid="styledformcontrol-67x0">
         <StyledRadioGroup
           length={options.length}
           aria-label={name}
@@ -136,6 +145,7 @@ export const RadioInput = ({
           value={value || ''}
           error={error}
           {...props}
+          data-testid={`${dataTestId}-styledradiogroup`}
         >
           {options.map(option => (
             <Fragment key={option.value}>
@@ -154,11 +164,16 @@ export const RadioInput = ({
                         }
                       : {})}
                     disabled={option.disabled}
+                    data-testid={`radio-il3t-${option.value}`}
                   />
                 }
                 label={
                   option.description ? (
-                    <LabelWithDescription label={option.label} description={option.description} />
+                    <LabelWithDescription
+                      label={option.label}
+                      description={option.description}
+                      data-testid={`labelwithdescription-cizd-${option.value}`}
+                    />
                   ) : (
                     option.label
                   )
@@ -177,11 +192,14 @@ export const RadioInput = ({
                       }
                     : DEFAULT_LABEL_THEME
                 }
+                data-testid={`controllabel-kkx2-${option.value}`}
               />
             </Fragment>
           ))}
         </StyledRadioGroup>
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+        {helperText && (
+          <FormHelperText data-testid="formhelpertext-sz5u">{helperText}</FormHelperText>
+        )}
       </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
@@ -211,5 +229,12 @@ export const RadioField = ({ field, error, ...props }) => (
 );
 
 export const TranslatedRadioField = ({ error, ...props }) => {
-  return <TranslatedEnumField error={error || undefined} {...props} component={RadioInput} />;
+  return (
+    <TranslatedEnumField
+      error={error || undefined}
+      {...props}
+      component={RadioInput}
+      data-testid="translatedenumfield-qh1t"
+    />
+  );
 };

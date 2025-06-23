@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal, OutlinedButton } from '../../components';
+import { Modal, OutlinedButton, TranslatedText } from '../../components';
 import { Colors } from '../../constants';
 
 const TextContainer = styled.div`
@@ -17,9 +17,13 @@ const StyledButtonRow = styled.div`
 `;
 
 const CloseButtonRow = ({ onClose }) => (
-  <StyledButtonRow>
-    <OutlinedButton variant="contained" onClick={onClose}>
-      Close
+  <StyledButtonRow data-testid="styledbuttonrow-xyl4">
+    <OutlinedButton variant="contained" onClick={onClose} data-testid="outlinedbutton-2myt">
+      <TranslatedText
+        stringId="general.action.close"
+        fallback="Close"
+        data-testid="translatedtext-report-about-modal-close"
+      />
     </OutlinedButton>
   </StyledButtonRow>
 );
@@ -29,8 +33,9 @@ export const ReportAboutModal = ({ title, open, onClose, content }) => (
     open={open}
     onClose={onClose}
     fixedBottomRow
-    bottomRowContent={<CloseButtonRow onClose={onClose} />}
+    bottomRowContent={<CloseButtonRow onClose={onClose} data-testid="closebuttonrow-0q3h" />}
+    data-testid="modal-oo22"
   >
-    <TextContainer>{content}</TextContainer>
+    <TextContainer data-testid="textcontainer-qqsq">{content}</TextContainer>
   </Modal>
 );

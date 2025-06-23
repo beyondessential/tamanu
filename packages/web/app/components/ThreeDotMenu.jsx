@@ -30,7 +30,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 7px;
 `;
 
-export const ThreeDotMenu = ({ items }) => {
+export const ThreeDotMenu = ({ items, disabled }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -49,8 +49,12 @@ export const ThreeDotMenu = ({ items }) => {
 
   return (
     <>
-      <StyledIconButton onClick={onOpenKebabMenu}>
-        <MoreVert />
+      <StyledIconButton
+        onClick={onOpenKebabMenu}
+        disabled={disabled}
+        data-testid="stylediconbutton-szh8"
+      >
+        <MoreVert data-testid="morevert-kusc" />
       </StyledIconButton>
       <StyledMenu
         anchorEl={anchorEl}
@@ -65,6 +69,7 @@ export const ThreeDotMenu = ({ items }) => {
           vertical: 'top',
           horizontal: 'right',
         }}
+        data-testid="styledmenu-7k45"
       >
         {items.map(
           (item, index) =>
@@ -73,6 +78,7 @@ export const ThreeDotMenu = ({ items }) => {
                 key={index}
                 onClick={() => handleAction(item)}
                 disabled={item.disabled}
+                data-testid={`menuitem-${index}`}
               >
                 {item.label}
               </ThreeDotMenuItem>

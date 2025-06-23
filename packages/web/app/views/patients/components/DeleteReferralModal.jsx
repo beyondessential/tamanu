@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const SubText = styled.div`
   text-align: left;
@@ -20,19 +21,39 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
 
   return (
     <ConfirmModal
-      title="Delete referral"
+      title={
+        <TranslatedText
+          stringId="referral.modal.delete.title"
+          fallback="Delete referral"
+          data-testid="translatedtext-referral-modal-delete-title"
+        />
+      }
       subText={
-        <SubText>
-          This action is irreversible.
+        <SubText data-testid="subtext-k8va">
+          <TranslatedText
+            stringId="general.warning.irreversible"
+            fallback="This action is irreversible."
+            data-testid="translatedtext-warning-irreversible"
+          />
           <br />
           <br />
-          Are you sure you would like to delete the &apos;
-          <strong>{referralName}</strong>&apos;?
+          <TranslatedText
+            stringId="referral.modal.delete.confirmation.prefix"
+            fallback="Are you sure you would like to delete the"
+            data-testid="translatedtext-referral-modal-delete-confirmation-prefix"
+          />{' '}
+          <strong>{referralName}</strong>{' '}
+          <TranslatedText
+            stringId="referral.modal.delete.confirmation.suffix"
+            fallback="?"
+            data-testid="translatedtext-referral-modal-delete-confirmation-suffix"
+          />
         </SubText>
       }
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
+      data-testid="confirmmodal-dy1r"
     />
   );
 };

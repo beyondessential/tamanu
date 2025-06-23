@@ -5,22 +5,35 @@ import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
-import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import {
+  DeleteProgramRegistryFormModal,
+  PatientProgramRegistryUpdateModal,
+  PatientProgramRegistryActivateModal,
+} from '../../features/ProgramRegistry';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { ClinicalStatusCell } from './ClinicalStatusDisplay';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
-import { useTranslation } from '../../contexts/Translation';
+import { useTranslation } from '../../contexts/Translation.jsx';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
+
+const ConditionsCell = ({ conditions }) => {
+  const { getTranslation } = useTranslation();
+  return conditions
+    ?.map(condition => {
+      const { id, name } = condition;
+      return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
+    })
+    .sort((a, b) => b.localeCompare(a))
+    .join(', ');
+};
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
-  const { getTranslation } = useTranslation();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
@@ -88,15 +101,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ({ conditions }) => {
-          return conditions
-            ?.map(condition => {
-              const { id, name } = condition;
-              return getTranslation(getReferenceDataStringId(id, 'programRegistryCondition'), name);
-            })
-            .sort((a, b) => b.localeCompare(a))
-            .join(', ');
-        },
+        accessor: ConditionsCell,
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
@@ -130,7 +135,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'clinicalStatus',
         title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
-        CellComponent: ClinicalStatusCell,
+        accessor: row => {
+          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
+        },
         maxWidth: 200,
       },
       {
@@ -146,14 +153,17 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
                 <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: <TranslatedText stringId="general.action.remove" fallback="Remove" />,
               action: () => setOpenModal({ action: 'Remove', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
             {
               label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
               action: () => setOpenModal({ action: 'Delete', data: row }),
+              wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
           ];
 
@@ -206,6 +216,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   return (
     <>
       <SearchTable
+        rowIdKey="patientId"
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
@@ -225,9 +236,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           orderBy: 'displayId',
         }}
       />
-
       {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
-        <ChangeStatusFormModal
+        <PatientProgramRegistryUpdateModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();
@@ -236,9 +246,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Activate' && (
-        <ActivatePatientProgramRegistry
+        <PatientProgramRegistryActivateModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
             updateRefreshCount();
@@ -247,7 +256,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Remove' && (
         <RemoveProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
@@ -258,7 +266,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           open
         />
       )}
-
       {openModal && openModal?.data && openModal?.action === 'Delete' && (
         <DeleteProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}

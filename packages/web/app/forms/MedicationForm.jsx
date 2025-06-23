@@ -1,482 +1,1039 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { Box } from '@material-ui/core';
-import { DRUG_ROUTE_LABELS, DRUG_ROUTE_VALUES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import PrintIcon from '@material-ui/icons/Print';
+import {
+  DRUG_UNIT_VALUES,
+  DRUG_UNIT_LABELS,
+  DRUG_ROUTE_LABELS,
+  DRUG_ROUTE_VALUES,
+  MEDICATION_DURATION_UNITS_LABELS,
+  MEDICATION_ADMINISTRATION_TIME_SLOTS,
+  ADMINISTRATION_FREQUENCIES,
+} from '@tamanu/constants';
+import {
+  findAdministrationTimeSlotFromIdealTime,
+  getDateFromTimeString,
+  getFirstAdministrationDate,
+} from '@tamanu/shared/utils/medication';
+import {
+  formatShort,
+  getCurrentDateString,
+  getCurrentDateTimeString,
+} from '@tamanu/utils/dateTime';
+import { format, subSeconds } from 'date-fns';
+import { useFormikContext } from 'formik';
+import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
-import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   AutocompleteField,
-  Button,
-  ButtonRow,
+  BodyText,
+  CheckField,
+  CheckInput,
   DateField,
+  DateTimeField,
+  Dialog,
   Field,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  getDateDisplay,
+  getReferenceDataStringId,
   NumberField,
+  SelectField,
   TextField,
   TranslatedSelectField,
 } from '../components';
-import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
-import { getReferenceDataStringId } from '../components/Translation/index.js';
+import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
+import { useAuth } from '../contexts/Auth';
+import { useSettings } from '../contexts/Settings';
+import { ChevronIcon } from '../components/Icons/ChevronIcon';
+import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
+import { capitalize } from 'lodash';
+import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { formatTimeSlot } from '../utils/medications';
+import { useEncounter } from '../contexts/Encounter';
+import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
+import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 
-const validationSchema = readOnly =>
-  !readOnly
-    ? yup.object().shape({
-        medicationId: foreignKey().translatedLabel(
-          <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
+const validationSchema = yup.object().shape({
+  medicationId: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ),
+  isOngoing: yup.boolean().optional(),
+  isPrn: yup.boolean().optional(),
+  doseAmount: yup
+    .number()
+    .positive()
+    .translatedLabel(
+      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
+    )
+    .when('isVariableDose', {
+      is: true,
+      then: schema => schema.optional(),
+      otherwise: schema =>
+        schema.required(
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
         ),
-        prescriberId: foreignKey().translatedLabel(
-          <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
-        ),
-        prescription: yup
-          .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText stringId="medication.instructions.label" fallback="Instructions" />,
-          ),
-        route: yup
-          .string()
-          .oneOf(DRUG_ROUTE_VALUES)
-          .required()
-          .translatedLabel(<TranslatedText stringId="medication.route.label" fallback="Route" />),
-        date: yup
-          .date()
-          .required()
-          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
-        endDate: yup.date(),
-        note: yup.string(),
-        quantity: yup.number().integer(),
-      })
-    : yup.object().shape({
-        discontinuingReason: yup.string(),
-        discontinuingClinicianId: foreignKey().translatedLabel(
-          <TranslatedText stringId="general.clinician.label" fallback="Clinician" />,
-        ),
-      });
+    }),
+  units: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ).oneOf(DRUG_UNIT_VALUES),
+  frequency: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ),
+  route: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ).oneOf(DRUG_ROUTE_VALUES),
+  date: yup
+    .date()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  startDate: yup
+    .date()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  durationValue: yup
+    .number()
+    .positive()
+    .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
+  durationUnit: yup
+    .string()
+    .when('durationValue', (durationValue, schema) =>
+      durationValue
+        ? schema.required(
+            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+          )
+        : schema.optional(),
+    ),
+  prescriberId: foreignKey(
+    <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+  ),
+  quantity: yup.number().integer(),
+  patientWeight: yup.number().positive(),
+});
 
-const DiscontinuePrintButtonRow = styled.div`
-  display: grid;
-  grid-auto-flow: column;
-  grid-column-gap: 0.7rem;
-  grid-template-columns: 8rem auto 8rem 8rem;
-  grid-column: -1 / 1;
+const CheckboxGroup = styled.div`
+  position: relative;
+  .MuiTypography-body1 {
+    font-size: 14px;
+  }
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid ${Colors.outline};
+  > div {
+    max-width: fit-content;
+  }
 `;
 
-const DiscontinuedLabel = ({ medication }) => {
-  const { discontinuedDate, discontinuingClinician, discontinuingReason } = medication;
+const ButtonRow = styled.div`
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  height: 40px;
+`;
+
+const FieldLabel = styled(Box)`
+  color: ${Colors.darkText};
+  font-weight: 500;
+  font-size: 14px;
+`;
+
+const FieldContent = styled(Box)`
+  color: ${Colors.darkText};
+  font-weight: 400;
+  font-size: 14px;
+`;
+
+const StyledAccordion = styled(Accordion)`
+  background-color: unset;
+  grid-column: 1 / -1;
+  margin: 0 !important;
+  box-shadow: none;
+  &::before {
+    content: none;
+  }
+`;
+
+const StyledAccordionSummary = styled(AccordionSummary)`
+  padding: 0;
+  min-height: unset !important;
+  .expanded-icon {
+    transition: transform 0.15s;
+  }
+  .MuiAccordionSummary-content {
+    margin: 0;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .MuiAccordionSummary-content.Mui-expanded .expanded-icon {
+    transform: rotate(180deg);
+  }
+`;
+
+const StyledAccordionDetails = styled(AccordionDetails)`
+  padding: 0;
+  margin-top: 8px;
+  flex-direction: column;
+`;
+
+const ResetToDefaultButton = styled(Box)`
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
+const StyledIcon = styled.i`
+  border-radius: 0.1875rem;
+  font-size: 1rem;
+  line-height: 0.875rem;
+  margin: 0.0625rem 0;
+`;
+
+const StyledFormGrid = styled(FormGrid)`
+  .MuiFormHelperText-root.Mui-error {
+    font-size: 12px;
+  }
+`;
+
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  max-width: 200px;
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+  }
+`;
+
+const StyledOngoingTooltip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+    width: 180px;
+    padding: 8px 16px;
+  }
+`;
+
+const StyledTimePicker = styled(TimePicker)`
+  .MuiInputBase-root {
+    font-size: 14px;
+    color: ${Colors.darkestText};
+    background-color: ${Colors.white};
+    &.Mui-disabled {
+      background-color: inherit;
+    }
+    &.Mui-disabled .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.outline};
+    }
+    .MuiSvgIcon-root {
+      font-size: 22px;
+    }
+    .MuiInputBase-input {
+      padding-top: 11.85px;
+      padding-bottom: 11.85px;
+      text-transform: lowercase;
+    }
+    .MuiOutlinedInput-notchedOutline {
+      border-width: 1px !important;
+    }
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.primary} !important;
+    }
+    :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
+      border-color: ${Colors.softText};
+    }
+  }
+`;
+
+const isOneTimeFrequency = frequency =>
+  [ADMINISTRATION_FREQUENCIES.AS_DIRECTED, ADMINISTRATION_FREQUENCIES.IMMEDIATELY].includes(
+    frequency,
+  );
+
+const MedicationAdministrationForm = () => {
+  const { getSetting } = useSettings();
+  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
+
+  const { values, setValues } = useFormikContext();
+  const selectedTimeSlots = values.timeSlots;
+
+  const { defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: values.frequency,
+  });
+
+  const firstAdministrationTime = useMemo(() => {
+    if (!values.startDate) return '';
+    if (!values.frequency) return '';
+    if (!selectedTimeSlots?.length) return '';
+
+    const startDate = new Date(values.startDate);
+
+    const firstStartTime = getFirstAdministrationDate(
+      startDate,
+      selectedTimeSlots.map(s => s.value),
+    ).getTime();
+
+    const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
+
+    return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
+      getDateFromTimeString(firstSlot.endTime),
+    )} ${formatShort(new Date(firstStartTime))}`;
+  }, [values.startDate, selectedTimeSlots]);
+
+  useEffect(() => {
+    if (values.frequency) {
+      handleResetToDefault();
+    }
+  }, [values.frequency]);
+
+  const handleResetToDefault = () => {
+    if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
+
+    setValues({
+      ...values,
+      timeSlots: defaultTimeSlots,
+    });
+  };
+
+  const handleSelectTimeSlot = (checked, slot, index) => {
+    setValues({
+      ...values,
+      timeSlots: checked
+        ? [
+            ...selectedTimeSlots,
+            {
+              index,
+              value: getDefaultIdealTimeFromTimeSlot(slot, index),
+              timeSlot: slot,
+            },
+          ]
+        : selectedTimeSlots.filter(s => s.index !== index),
+    });
+  };
+
+  const handleChangeTime = (value, index, context) => {
+    if (context.validationError) return;
+    setValues({
+      ...values,
+      timeSlots: selectedTimeSlots.map(s =>
+        s.index === index ? { ...s, value: format(value, 'HH:mm') } : s,
+      ),
+    });
+  };
+
+  const getDefaultIdealTimeFromTimeSlot = (slot, index) => {
+    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
+    const correspondingSlot = defaultIdealTimes
+      ?.map(findAdministrationTimeSlotFromIdealTime)
+      .find(it => it.index === index);
+    return correspondingSlot?.value || slot.startTime;
+  };
+
   return (
-    <Box color="error.main" ml={2}>
-      <strong>
-        <TranslatedText stringId="medication.detail.discontinued.title" fallback="Discontinued" />
-      </strong>
-      <br />
-      <TranslatedText
-        stringId="medication.detail.discontinued.discontinuedAt"
-        fallback="Discontinued at: :date"
-        replacements={{ date: getDateDisplay(discontinuedDate) }}
-      />
-      <br />
-      <TranslatedText
-        stringId="medication.detail.discontinued.discontinuedBy"
-        fallback="by: :clinician"
-        replacements={{ clinician: discontinuingClinician?.displayName }}
-      />
-      <br />
-      <TranslatedText
-        stringId="medication.detail.discontinued.reason"
-        fallback="Reason: :reason"
-        replacements={{ reason: discontinuingReason }}
-      />
-      <br />
-    </Box>
+    <StyledAccordion defaultExpanded={!isOneTimeFrequency(values.frequency)}>
+      <StyledAccordionSummary>
+        <FieldLabel>
+          <TranslatedText
+            stringId="medication.medicationAdministrationSchedule.label"
+            fallback="Medication administration schedule"
+          />
+        </FieldLabel>
+        <ChevronIcon width={12} height={12} className="expanded-icon" />
+      </StyledAccordionSummary>
+      <StyledAccordionDetails>
+        <FieldContent lineHeight={'18px'}>
+          <TranslatedText
+            stringId="medication.medicationAdministrationSchedule.description"
+            fallback="Administration times have been preset based on the frequency selected above. These times can be adjusted by deselecting and selecting the desired administration times. You can also set an ideal administration time within each administration window. The first administration time is displayed below, and can be adjusted by changing the start date & time above."
+          />
+        </FieldContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+          <Box display="inline-flex">
+            <FieldLabel>
+              <TranslatedText
+                stringId="medication.medicationAdministrationSchedule.firstAdministrationTime"
+                fallback="First administration time"
+              />
+              {':'}
+            </FieldLabel>
+            <FieldContent>&nbsp;{firstAdministrationTime}</FieldContent>
+          </Box>
+          <ResetToDefaultButton onClick={handleResetToDefault}>
+            <TranslatedText stringId="general.action.resetToDefault" fallback="Reset to default" />
+          </ResetToDefaultButton>
+        </Box>
+        <Box display="flex" flexDirection="column" mt={2} style={{ gap: 12 }}>
+          {MEDICATION_ADMINISTRATION_TIME_SLOTS.map((slot, index) => {
+            const startTime = getDateFromTimeString(slot.startTime);
+            const endTime = getDateFromTimeString(slot.endTime);
+
+            const selectedTimeSlot = selectedTimeSlots?.find(s => s.index === index);
+            const checked = !!selectedTimeSlot;
+            const isDisabled =
+              (!checked &&
+                frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
+                  selectedTimeSlots?.length) ||
+              isOneTimeFrequency(values.frequency);
+            const selectedTime = selectedTimeSlot
+              ? getDateFromTimeString(selectedTimeSlot.value)
+              : null;
+
+            return (
+              <Box
+                key={index}
+                {...(slot.periodLabel && {
+                  p: 1,
+                  border: `1px solid ${Colors.outline}`,
+                  borderRadius: '3px',
+                  width: 'fit-content',
+                })}
+              >
+                {slot.periodLabel && (
+                  <FieldLabel mb={'3px'}>
+                    <TranslatedText
+                      stringId={`medication.medicationAdministrationSchedule.periodLabel.${slot.periodLabel}`}
+                      fallback={capitalize(slot.periodLabel)}
+                    />
+                  </FieldLabel>
+                )}
+                <Box display="flex" ml={slot.periodLabel ? 0 : 1}>
+                  <StyledConditionalTooltip
+                    visible={isDisabled}
+                    title={
+                      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED ? (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltipAsDirected"
+                          fallback="Medication administration schedule not applicable for selected frequency."
+                        />
+                      ) : values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ? (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltipImmediately"
+                          fallback="Medication administration schedule is not applicable for selected frequency. Dose will be due immediately."
+                        />
+                      ) : (
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.disabledTooltip"
+                          fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
+                          replacements={{
+                            slots: frequenciesAdministrationIdealTimes?.[values.frequency]?.length,
+                          }}
+                        />
+                      )
+                    }
+                  >
+                    <Box
+                      px={1.5}
+                      py={1.25}
+                      bgcolor={isDisabled ? undefined : Colors.white}
+                      borderRadius="3px"
+                      width="187px"
+                      height="fit-content"
+                      border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
+                    >
+                      <CheckInput
+                        label={
+                          <FieldContent>{`${formatTimeSlot(startTime)} - ${formatTimeSlot(
+                            endTime,
+                          )}`}</FieldContent>
+                        }
+                        value={checked}
+                        onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
+                        disabled={isDisabled}
+                        {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
+                      />
+                    </Box>
+                  </StyledConditionalTooltip>
+                  <Box ml={1} width="187px">
+                    <StyledTimePicker
+                      disabled={isDisabled || !checked}
+                      value={selectedTime}
+                      onChange={(value, context) => handleChangeTime(value, index, context)}
+                      format="hh:mmaa"
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                          InputProps: {
+                            placeholder: '--:-- --',
+                          },
+                        },
+                        layout: {
+                          sx: {
+                            '.MuiList-root:nth-child(3) :not(.Mui-selected)': {
+                              pointerEvents: 'none',
+                              opacity: 0.38,
+                            },
+                          },
+                        },
+                        digitalClockSectionItem: {
+                          sx: { fontSize: '14px' },
+                        },
+                      }}
+                      placeholder="--:-- --"
+                      timeSteps={{ minutes: 1 }}
+                      minTime={startTime}
+                      maxTime={subSeconds(endTime, 1)}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      </StyledAccordionDetails>
+    </StyledAccordion>
   );
 };
 
-export const MedicationForm = React.memo(
-  ({
-    onCancel,
-    onSaved,
-    onSubmit,
-    drugSuggester,
-    practitionerSuggester,
-    medication,
-    submittedMedication,
-    shouldDiscontinue,
-    onDiscontinue,
-    readOnly,
-  }) => {
-    const api = useApi();
+const MedicationBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  padding: 12px 20px;
+  background-color: ${Colors.white};
+  grid-column: 1 / -1;
+`;
 
-    const { getTranslation } = useTranslation();
-    const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
+export const MedicationForm = ({
+  encounterId,
+  onCancel,
+  onSaved,
+  onConfirmEdit,
+  onCancelEdit,
+  editingMedication,
+  isOngoingPrescription,
+  onDirtyChange,
+}) => {
+  const isEditing = !!onConfirmEdit;
+  const api = useApi();
+  const { ability, currentUser } = useAuth();
+  const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
+  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
+  const queryClient = useQueryClient();
+  const { loadEncounter } = useEncounter();
 
-    const patient = useSelector(state => state.patient);
-    const age = getAgeDurationFromDate(patient.dateOfBirth).years;
-    const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
+  const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
-    const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
-    const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
+  const patient = useSelector(state => state.patient);
+  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
+  const canPrintPrescription = ability.can('read', 'Medication');
 
-    const [printModalOpen, setPrintModalOpen] = useState();
-    const [awaitingPrint, setAwaitingPrint] = useState(false);
-    const [patientWeight, setPatientWeight] = useState('');
+  const [submittedMedication, setSubmittedMedication] = useState(null);
+  const [printModalOpen, setPrintModalOpen] = useState();
+  const [awaitingPrint, setAwaitingPrint] = useState(false);
+  const [patientWeight, setPatientWeight] = useState('');
+  const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
 
-    const { data: allergies, isLoading: isLoadingAllergies } = useQuery(
-      [`allergies`, patient?.id],
-      () => api.get(`patient/${patient?.id}/allergies`),
-      { enabled: !!patient?.id },
-    );
-    const allergiesList = allergies?.data
-      ?.map(allergyDetail =>
-        getTranslation(
-          getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
-          allergyDetail?.allergy.name,
-        ),
-      )
-      .join(', ');
+  const { defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: editingMedication?.frequency,
+  });
 
-    // Transition to print page as soon as we have the generated id
-    useEffect(() => {
-      (async () => {
-        if (awaitingPrint && submittedMedication) {
-          setPrintModalOpen(true);
-        }
-      })();
-    }, [awaitingPrint, submittedMedication]);
+  const practitionerSuggester = useSuggester('practitioner');
+  const drugSuggester = useSuggester('drug', {
+    formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
+  });
 
-    const preventNegative = value => {
-      if (!value.target.validity.valid) {
-        value.target.value = 0;
+  const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
+  const allergiesList = allergies?.data
+    ?.map(allergyDetail =>
+      getTranslation(
+        getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
+        allergyDetail?.allergy.name,
+      ),
+    )
+    .join(', ');
+
+  // Transition to print page as soon as we have the generated id
+  useEffect(() => {
+    (async () => {
+      if (awaitingPrint && submittedMedication) {
+        setPrintModalOpen(true);
       }
-    };
+    })();
+  }, [awaitingPrint, submittedMedication]);
 
-    return (
-      <>
-        <Form
-          onSubmit={onSubmit}
-          onSuccess={() => {
-            if (!awaitingPrint) {
-              onSaved();
-            }
-          }}
-          initialValues={{
-            medicationId: medication?.medication?.id,
-            prescriberId: medication?.prescriberId,
-            note: medication?.note ?? '',
-            route: medication?.route ?? '',
-            prescription: medication?.prescription ?? '',
-            date: medication?.date ?? getCurrentDateTimeString(),
-            qtyMorning: medication?.qtyMorning ?? 0,
-            qtyLunch: medication?.qtyLunch ?? 0,
-            qtyEvening: medication?.qtyEvening ?? 0,
-            qtyNight: medication?.qtyNight ?? 0,
-            quantity: medication?.quantity ?? 0,
-            indication: medication?.indication ?? '',
-          }}
-          formType={!readOnly ? (medication ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM) : null}
-          validationSchema={validationSchema(readOnly)}
-          render={({ submitForm }) => (
-            <FormGrid>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-                <span style={{ fontWeight: 500 }}>
-                  {!isLoadingAllergies &&
-                    (allergiesList || (
+  const onSubmit = async data => {
+    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
+    if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
+      setIdealTimesErrorOpen(true);
+      return Promise.reject({ message: 'Administration times discrepancy error' });
+    }
+
+    const idealTimes = data.timeSlots.map(slot => slot.value);
+    const payload = {
+      ...data,
+      doseAmount: data.doseAmount || undefined,
+      durationValue: data.durationValue || undefined,
+      durationUnit: data.durationUnit || undefined,
+      idealTimes,
+    };
+    let medicationSubmission;
+    try {
+      medicationSubmission = await (isOngoingPrescription
+        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
+        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+      // The return from the post doesn't include the joined tables like medication and prescriber
+      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      setSubmittedMedication(newMedication);
+    } catch (error) {
+      toast.error(error.message);
+      return Promise.reject(error);
+    }
+    if (loadEncounter && encounterId) {
+      loadEncounter(encounterId, false);
+    }
+    if (encounterId) {
+      queryClient.invalidateQueries(['encounterMedication', encounterId]);
+    }
+    if (patient) {
+      queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
+    }
+  };
+
+  const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
+    setAwaitingPrint(isPrinting);
+    if (onDirtyChange) {
+      onDirtyChange(dirty);
+    }
+    await submitForm(data);
+  };
+
+  const getInitialValues = () => {
+    return {
+      date: getCurrentDateString(),
+      prescriberId: currentUser.id,
+      isVariableDose: false,
+      startDate: getCurrentDateTimeString(),
+      isOngoing: isOngoingPrescription,
+      ...editingMedication,
+      timeSlots: defaultTimeSlots,
+    };
+  };
+
+  return (
+    <>
+      <Form
+        suppressErrorDialog
+        onSubmit={onConfirmEdit || onSubmit}
+        onSuccess={() => {
+          if (isEditing) return;
+          if (encounterId) {
+            queryClient.invalidateQueries(['encounterMedication', encounterId]);
+          }
+          if (!awaitingPrint) {
+            onSaved();
+          }
+        }}
+        initialValues={getInitialValues()}
+        formType={FORM_TYPES.CREATE_FORM}
+        validationSchema={validationSchema}
+        render={({ submitForm, setValues, values, dirty }) => (
+          <StyledFormGrid>
+            {!isEditing ? (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                  <span style={{ fontWeight: 500 }}>
+                    {!isLoadingAllergies &&
+                      (allergiesList || (
+                        <TranslatedText
+                          stringId="medication.allergies.noRecord"
+                          fallback="None recorded"
+                        />
+                      ))}
+                  </span>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Field
+                    name="medicationId"
+                    label={
                       <TranslatedText
-                        stringId="medication.allergies.noRecord"
-                        fallback="None recorded"
+                        stringId="medication.medication.label"
+                        fallback="Medication"
                       />
-                    ))}
-                </span>
-              </div>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <Field
-                  name="medicationId"
-                  label={
-                    <TranslatedText stringId="medication.medication.label" fallback="Medication" />
+                    }
+                    component={AutocompleteField}
+                    suggester={drugSuggester}
+                    required
+                    onChange={e => {
+                      const referenceDrug = e.target.referenceDrug;
+                      setValues({
+                        ...values,
+                        route: referenceDrug?.route?.toLowerCase() || '',
+                        units: referenceDrug?.units || '',
+                        notes: referenceDrug?.notes || '',
+                      });
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <MedicationBox>
+                <BodyText color={Colors.midText}>
+                  <TranslatedText stringId="medication.medication.label" fallback="Medication" />
+                </BodyText>
+                <BodyText color={Colors.darkestText} fontWeight={500}>
+                  {editingMedication.medication.name}
+                </BodyText>
+              </MedicationBox>
+            )}
+            <CheckboxGroup>
+              {isOngoingPrescription && (
+                <StyledOngoingTooltip
+                  title={
+                    <TranslatedText
+                      stringId="medication.isOngoing.tooltip"
+                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                    />
                   }
-                  component={AutocompleteField}
-                  suggester={drugSuggester}
-                  disabled={readOnly}
-                  required={!readOnly}
-                />
-              </div>
+                >
+                  <Box
+                    component={'span'}
+                    width={32}
+                    height={16}
+                    position={'absolute'}
+                    zIndex={1}
+                    top={2.5}
+                    left={-9}
+                  />
+                </StyledOngoingTooltip>
+              )}
+
               <Field
-                name="prescription"
+                name="isOngoing"
                 label={
                   <TranslatedText
-                    stringId="medication.instructions.label"
-                    fallback="Instructions"
+                    stringId="medication.isOngoing.label"
+                    fallback="Ongoing medication"
                   />
                 }
-                component={TextField}
-                required={!readOnly}
-                disabled={readOnly}
+                component={CheckField}
+                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                {...(isOngoingPrescription && { value: true })}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, durationValue: '', durationUnit: '' });
+                  }
+                }}
               />
               <Field
-                name="route"
+                name="isPrn"
                 label={
-                  <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
+                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
                 }
-                component={TranslatedSelectField}
-                enumValues={DRUG_ROUTE_LABELS}
-                disabled={readOnly}
-                required={!readOnly}
+                component={CheckField}
               />
+            </CheckboxGroup>
+            <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
               <Field
-                name="date"
+                name="isVariableDose"
                 label={
-                  <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
+                  <BodyText>
+                    <TranslatedText
+                      stringId="medication.variableDose.label"
+                      fallback="Variable dose"
+                    />
+                  </BodyText>
                 }
-                saveDateAsString
-                component={DateField}
-                required={!readOnly}
-                disabled={readOnly}
+                component={CheckField}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, doseAmount: '' });
+                  }
+                }}
               />
+            </div>
+            <Field
+              name="doseAmount"
+              label={
+                <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />
+              }
+              component={NumberField}
+              min={0}
+              onInput={validateDecimalPlaces}
+              required={!values.isVariableDose}
+              disabled={values.isVariableDose}
+            />
+            <Field
+              name="units"
+              label={<TranslatedText stringId="medication.units.label" fallback="Units" />}
+              component={TranslatedSelectField}
+              enumValues={DRUG_UNIT_LABELS}
+              required
+            />
+            <Field
+              name="frequency"
+              component={FrequencySearchField}
+              required
+              onChange={e => {
+                if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
+                  setValues({ ...values, durationValue: '', durationUnit: '' });
+                }
+              }}
+            />
+            <Field
+              name="route"
+              label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
+              component={TranslatedSelectField}
+              enumValues={DRUG_ROUTE_LABELS}
+              required
+            />
+            <Field
+              name="date"
+              label={
+                <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
+              }
+              saveDateAsString
+              component={DateField}
+              required
+            />
+            <Field
+              name="startDate"
+              label={
+                <TranslatedText
+                  stringId="medication.startDatetime.label"
+                  fallback="Start date & time"
+                />
+              }
+              saveDateAsString
+              component={DateTimeField}
+              required
+            />
+            <FormGrid nested>
+              <StyledConditionalTooltip
+                visible={values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
+                title={
+                  <TranslatedText
+                    stringId="medication.duration.tooltip"
+                    fallback="Duration is not supported by the selected frequency"
+                  />
+                }
+              >
+                <Field
+                  name="durationValue"
+                  label={
+                    <TranslatedText stringId="medication.duration.label" fallback="Duration" />
+                  }
+                  component={NumberField}
+                  min={0}
+                  onInput={preventInvalidNumber}
+                  disabled={
+                    values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                  }
+                />
+              </StyledConditionalTooltip>
               <Field
-                name="endDate"
-                label={<TranslatedText stringId="medication.endDate.label" fallback="End date" />}
-                saveDateAsString
-                component={DateField}
-                disabled={readOnly}
-                value={medication?.endDate}
+                name="durationUnit"
+                label={<Box sx={{ opacity: 0 }}>.</Box>}
+                component={SelectField}
+                options={Object.entries(MEDICATION_DURATION_UNITS_LABELS).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+                disabled={
+                  values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
+                }
               />
+            </FormGrid>
+            <div />
+            <Field
+              name="prescriberId"
+              label={
+                <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />
+              }
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+              required
+            />
+            <Field
+              name="indication"
+              label={
+                <TranslatedText stringId="medication.indication.label" fallback="Indication" />
+              }
+              component={TextField}
+            />
+            <div style={{ gridColumn: '1/-1' }}>
               <Field
-                name="prescriberId"
+                name="isPhoneOrder"
                 label={
-                  <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />
+                  <BodyText>
+                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone order" />
+                  </BodyText>
                 }
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-                required={!readOnly}
-                disabled={readOnly}
+                component={CheckField}
               />
-              {showPatientWeight && (
+            </div>
+            <Field
+              name="notes"
+              label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
+              component={TextField}
+              style={{ gridColumn: '1/-1' }}
+            />
+            <div style={{ gridColumn: '1 / -1' }}>
+              <Divider />
+            </div>
+            {values.frequency ? (
+              <MedicationAdministrationForm />
+            ) : (
+              <div style={{ gridColumn: '1 / -1' }}>
+                <FieldLabel>
+                  <TranslatedText
+                    stringId="medication.medicationAdministrationSchedule.label"
+                    fallback="Medication administration schedule"
+                  />
+                </FieldLabel>
+                <FieldContent>
+                  <TranslatedText
+                    stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
+                    fallback="Select a frequency above to complete the medication administration schedule"
+                  />
+                </FieldContent>
+              </div>
+            )}
+            {!isOngoingPrescription && (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Divider />
+                </div>
+                <Field
+                  name="quantity"
+                  label={
+                    <TranslatedText
+                      stringId="medication.dischargeQuantity.label"
+                      fallback="Discharge quantity"
+                    />
+                  }
+                  min={0}
+                  component={NumberField}
+                  onInput={preventInvalidNumber}
+                />
+              </>
+            )}
+            {showPatientWeight && (
+              <>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Divider />
+                </div>
                 <Field
                   name="patientWeight"
                   label={
                     <TranslatedText
                       stringId="medication.patientWeight.label"
-                      fallback="Patient weight :unit"
-                      replacements={{ unit: `(${weightUnit})` }}
+                      fallback="Patient weight if printing (:unit)"
+                      replacements={{ unit: weightUnit }}
                     />
                   }
                   onChange={e => setPatientWeight(e.target.value)}
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
+                  data-testid="field-2hh7"
                 />
-              )}
-              <Field
-                name="note"
-                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
-                component={TextField}
-                style={{ gridColumn: '1/-1' }}
-                disabled={readOnly}
-              />
-              <FormGrid nested>
-                <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
-                <Field
-                  name="qtyMorning"
-                  label={
-                    <TranslatedText
-                      stringId="medication.quantityMorning.label"
-                      fallback="Morning"
-                    />
-                  }
-                  min={0}
-                  component={NumberField}
-                  onInput={preventNegative}
-                  disabled={readOnly}
-                />
-                <Field
-                  name="qtyLunch"
-                  min={0}
-                  label={
-                    <TranslatedText stringId="medication.quantityLunch.label" fallback="Lunch" />
-                  }
-                  component={NumberField}
-                  disabled={readOnly}
-                  onInput={preventNegative}
-                />
-                <Field
-                  name="qtyEvening"
-                  label={
-                    <TranslatedText
-                      stringId="medication.quantityEvening.label"
-                      fallback="Evening"
-                    />
-                  }
-                  min={0}
-                  component={NumberField}
-                  disabled={readOnly}
-                  onInput={preventNegative}
-                />
-                <Field
-                  name="qtyNight"
-                  label={
-                    <TranslatedText stringId="medication.quantityNight.label" fallback="Night" />
-                  }
-                  min={0}
-                  component={NumberField}
-                  disabled={readOnly}
-                  onInput={preventNegative}
-                />
-              </FormGrid>
-              <Field
-                name="indication"
-                label={
-                  <TranslatedText stringId="medication.indication.label" fallback="Indication" />
-                }
-                component={TextField}
-                disabled={readOnly}
-              />
-              <Field
-                name="quantity"
-                label={
+              </>
+            )}
+            <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
+              <Divider />
+            </div>
+            <ButtonRow>
+              {isOngoingPrescription || isEditing || !canPrintPrescription ? (
+                <div />
+              ) : (
+                <FormSubmitButton
+                  color="primary"
+                  onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
+                  variant="outlined"
+                  startIcon={<PrintIcon />}
+                >
                   <TranslatedText
-                    stringId="medication.dischargeQuantity.label"
-                    fallback="Discharge quantity"
+                    stringId="medication.action.finaliseAndPrint"
+                    fallback="Finalise & Print"
                   />
-                }
-                min={0}
-                component={NumberField}
-                disabled={readOnly}
-                onInput={preventNegative}
-              />
-              {shouldShowDiscontinuationButton && (
-                <>
-                  <DiscontinuePrintButtonRow>
-                    <Button variant="outlined" color="primary" onClick={onDiscontinue}>
+                </FormSubmitButton>
+              )}
+              <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
+                {(!isEditing || dirty) && (
+                  <FormCancelButton onClick={onCancelEdit || onCancel}>
+                    {isEditing ? (
                       <TranslatedText
-                        stringId="medication.action.discontinue"
-                        fallback="Discontinue"
+                        stringId="general.action.cancelChanges"
+                        fallback="Cancel changes"
                       />
-                    </Button>
-                    <div />
-                    {!shouldDiscontinue && (
-                      <>
-                        <Button variant="outlined" color="primary" onClick={onCancel}>
-                          <TranslatedText stringId="general.action.close" fallback="Close" />
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => setPrintModalOpen(true)}
-                        >
-                          <TranslatedText stringId="general.action.print" fallback="Print" />
-                        </Button>
-                      </>
+                    ) : (
+                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                     )}
-                  </DiscontinuePrintButtonRow>
-                </>
-              )}
-              <div>
-                {shouldDiscontinue && (
-                  <>
-                    <Field
-                      name="discontinuingClinicianId"
-                      label={
-                        <TranslatedText
-                          stringId="medication.discontinuedBy.label"
-                          fallback="Discontinued by"
-                        />
-                      }
-                      component={AutocompleteField}
-                      suggester={practitionerSuggester}
-                      value={medication?.discontinuingClinicianId}
-                    />
-                    <Field
-                      name="discontinuingReason"
-                      label={
-                        <TranslatedText
-                          stringId="medication.discontinuedReason.label"
-                          fallback="Discontinued reason"
-                        />
-                      }
-                      component={TextField}
-                    />
-                  </>
-                )}
-                {medication?.discontinuedDate && <DiscontinuedLabel medication={medication} />}
-              </div>
-              {shouldShowSubmitButton && (
-                <ButtonRow>
-                  <FormCancelButton onClick={onCancel}>
-                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                   </FormCancelButton>
-                  {shouldDiscontinue ? (
-                    <FormSubmitButton
-                      color="primary"
-                      onClick={data => {
-                        setAwaitingPrint(false);
-                        submitForm(data);
-                      }}
-                    >
-                      <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
-                    </FormSubmitButton>
+                )}
+                <FormSubmitButton
+                  color="primary"
+                  onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
+                >
+                  {isEditing ? (
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                   ) : (
-                    <FormSubmitDropdownButton
-                      actions={[
-                        {
-                          label: (
-                            <TranslatedText
-                              stringId="general.action.finalise"
-                              fallback="Finalise"
-                            />
-                          ),
-                          onClick: data => {
-                            setAwaitingPrint(false);
-                            submitForm(data);
-                          },
-                        },
-                        {
-                          label: (
-                            <TranslatedText
-                              stringId="general.action.finaliseAndPrint"
-                              fallback="Finalise & print"
-                            />
-                          ),
-                          onClick: data => {
-                            setAwaitingPrint(true);
-                            submitForm(data, true);
-                          },
-                        },
-                      ]}
-                    />
+                    <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
                   )}
-                </ButtonRow>
-              )}
-            </FormGrid>
-          )}
-        />
-        {(submittedMedication || medication) && (
-          <PrintPrescriptionModal
-            medication={submittedMedication || medication}
-            patientWeight={showPatientWeight ? patientWeight : undefined}
-            open={printModalOpen}
-            onClose={() => {
-              if (awaitingPrint) {
-                onSaved();
-              }
-              setAwaitingPrint(false);
-              setPrintModalOpen(false);
-            }}
-          />
+                </FormSubmitButton>
+              </Box>
+            </ButtonRow>
+          </StyledFormGrid>
         )}
-      </>
-    );
-  },
-);
+      />
+      {submittedMedication && (
+        <PrintPrescriptionModal
+          medication={submittedMedication}
+          patientWeight={showPatientWeight ? patientWeight : undefined}
+          open={printModalOpen}
+          onClose={() => {
+            if (awaitingPrint) {
+              onSaved();
+            }
+            setAwaitingPrint(false);
+            setPrintModalOpen(false);
+          }}
+        />
+      )}
+      {idealTimesErrorOpen && (
+        <Dialog
+          isVisible
+          onClose={() => setIdealTimesErrorOpen(false)}
+          headerTitle={
+            <TranslatedText
+              stringId="medication.medicationAdministrationSchedule.discrepancyError.title"
+              fallback="Administration times discrepancy"
+            />
+          }
+          disableDevWarning
+          contentText={
+            <>
+              <FieldContent pt={3} pb={4}>
+                <TranslatedText
+                  stringId="medication.medicationAdministrationSchedule.discrepancyError.content"
+                  fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
+                />
+              </FieldContent>
+              <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />
+            </>
+          }
+          okText={
+            <TranslatedText
+              stringId="medication.medicationAdministrationSchedule.discrepancyError.backToPrescription"
+              fallback="Back to prescription"
+            />
+          }
+        />
+      )}
+    </>
+  );
+};

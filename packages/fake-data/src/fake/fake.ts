@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { isFunction, snakeCase } from 'lodash';
 import Chance from 'chance';
 import Sequelize, { DataTypes } from 'sequelize';
@@ -38,7 +39,7 @@ import { Model } from '@tamanu/database/models/Model';
 
 // this file is most commonly used within tests, but also outside them
 // jest won't always be defined, in which case we can use a random seed
-export const chance = new Chance(global.jest?.getSeed() ?? null);
+export const chance = new Chance(global.jest?.getSeed() ?? randomInt(2 ** 42));
 
 export function fakeStringFields(prefix: string, fields: string[]) {
   return fields.reduce(
@@ -195,18 +196,13 @@ export function fakeEncounterDiagnosis(prefix: string = 'test-') {
   };
 }
 
-export function fakeEncounterMedication(prefix: string = 'test-') {
+export function fakePrescription(prefix: string = 'test-') {
   const id = fakeUUID();
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    qtyMorning: chance.integer({ min: 0, max: 10 }),
-    qtyLunch: chance.integer({ min: 0, max: 10 }),
-    qtyEvening: chance.integer({ min: 0, max: 10 }),
-    qtyNight: chance.integer({ min: 0, max: 10 }),
-    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+    ...fakeStringFields(`${prefix}prescription${id}_`, [
       'id',
-      'prescription',
       'note',
       'indication',
       'route',
@@ -291,12 +287,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
-    let nameGender;
-    if (sex === 'male' || sex === 'female') {
-      nameGender = sex;
-    }
+    const nameGender: 'male' | 'female' =
+      sex === 'male' || sex === 'female' ? sex : chance.pickone(['male', 'female']);
     return {
-      displayId: chance.hash({ length: 8 }),
+      displayId: chance
+        .hash({ length: 4 })
+        .toUpperCase()
+        .concat(chance.integer({ min: 10000000, max: 99999999 }).toString()),
       sex,
       firstName: chance.first({ gender: nameGender }),
       middleName: chance.first({ gender: nameGender }),
@@ -364,7 +361,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
   }),
   User: () => ({
-    email: chance.email(),
+    email: chance.email({ length: 20 }),
     displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
@@ -407,6 +404,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     const frequency = chance.pickone(REPEAT_FREQUENCY_VALUES);
     const endsMode = chance.pickone(['on', 'after']);
     return {
+      frequency,
       daysOfWeek: [chance.pickone(DAYS_OF_WEEK)],
       nthWeekday:
         frequency === REPEAT_FREQUENCY.MONTHLY ? chance.integer({ min: -1, max: 4 }) : null,
@@ -415,6 +413,18 @@ const MODEL_SPECIFIC_OVERRIDES = {
         : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
     };
   },
+  ChangeLog: () => ({
+    recordId: fakeUUID(),
+    id: fakeUUID(),
+    tableOid: chance.integer({ min: 10000, max: 99999 }),
+    tableSchema: chance.pickone(['public', 'fhir', 'logs']),
+    tableName: chance.pickone(['patients', 'encounters', 'lab_requests']),
+    loggedAt: fakeDateTimeString(),
+    recordCreatedAt: fakeDateTimeString(),
+    recordUpdatedAt: fakeDateTimeString(),
+    updatedByUserId: fakeUUID(),
+    recordUpdate: true,
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {

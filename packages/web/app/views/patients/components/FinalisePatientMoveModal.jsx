@@ -8,6 +8,7 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
 import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
@@ -63,16 +64,40 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
   const onConfirmMove = () => {
     submit({ locationId: plannedLocation.id });
   };
+
   return (
-    <Modal title="Finalise patient move" open={open} onClose={onClose}>
-      <Text>Please confirm the location details below to finalise the patient move.</Text>
-      <Container>
-        <Box display="flex" flexDirection="column" alignItems="center" py={1}>
-          <BedIcon />
-          <Dot />
-          <Dot />
-          <Dot />
-          <BedIcon color="primary" />
+    <Modal
+      title={
+        <TranslatedText
+          stringId="patient.modal.finaliseMove.title"
+          fallback="Finalise patient move"
+          data-testid="translatedtext-patient-modal-move-finalise-title"
+        />
+      }
+      open={open}
+      onClose={onClose}
+      data-testid="modal-v19s"
+    >
+      <Text data-testid="text-oexz">
+        <TranslatedText
+          stringId="patient.modal.finaliseMove.confirmation"
+          fallback="Please confirm the location details below to finalise the patient move."
+          data-testid="translatedtext-patient-modal-move-finalise-confirmation"
+        />
+      </Text>
+      <Container data-testid="container-c12u">
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          py={1}
+          data-testid="box-f8a6"
+        >
+          <BedIcon data-testid="bedicon-5mw8" />
+          <Dot data-testid="dot-f4o0" />
+          <Dot data-testid="dot-v34s" />
+          <Dot data-testid="dot-ww01" />
+          <BedIcon color="primary" data-testid="bedicon-xy5f" />
         </Box>
         <Box
           display="flex"
@@ -80,16 +105,38 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           alignItems="stretch"
           justifyContent="space-between"
           ml={2}
+          data-testid="box-476j"
         >
-          <Card>
-            Current location: <span>{getFullLocationName(location)}</span>
+          <Card data-testid="card-enqf">
+            <TranslatedText
+              stringId="patient.modal.finaliseMove.currentLocation"
+              fallback="Current location:"
+              data-testid="translatedtext-patient-modal-move-finalise-current-location"
+            />{' '}
+            <span>{getFullLocationName(location)}</span>
           </Card>
-          <Card className="active">
-            New location: <span>{getFullLocationName(plannedLocation)}</span>
+          <Card className="active" data-testid="card-rmih">
+            <TranslatedText
+              stringId="patient.modal.finaliseMove.newLocation"
+              fallback="New location:"
+              data-testid="translatedtext-patient-modal-move-finalise-new-location"
+            />{' '}
+            <span>{getFullLocationName(plannedLocation)}</span>
           </Card>
         </Box>
       </Container>
-      <ModalActionRow confirmText="Confirm" onConfirm={onConfirmMove} onCancel={onClose} />
+      <ModalActionRow
+        confirmText={
+          <TranslatedText
+            stringId="general.action.confirm"
+            fallback="Confirm"
+            data-testid="translatedtext-confirm-action"
+          />
+        }
+        onConfirm={onConfirmMove}
+        onCancel={onClose}
+        data-testid="modalactionrow-1fvh"
+      />
     </Modal>
   );
 });

@@ -2,16 +2,23 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
-import { AddCircleOutline, RemoveCircleOutline } from '@material-ui/icons';
+import { Add, Remove } from '@material-ui/icons';
 import { generate } from 'shortid';
-
 import { Button } from '../Button';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const AddButton = styled(Button)`
   justify-self: start;
   padding-left: 10px;
   margin-top: -10px;
   margin-bottom: -20px;
+
+  .MuiButton-startIcon {
+    margin-right: 0;
+  }
+  .MuiSvgIcon-root {
+    margin-right: 0;
+  }
 `;
 
 const RemoveButton = styled(IconButton)`
@@ -44,7 +51,7 @@ export const ArrayField = ({
   const [fields, setFields] = useState(initialState);
 
   return (
-    <FieldArray name={field.name} validateOnChange={false}>
+    <FieldArray name={field.name} validateOnChange={false} data-testid="fieldarray-a1xx">
       {({ remove }) => (
         <>
           {fields.map(({ id }, index) => {
@@ -54,11 +61,12 @@ export const ArrayField = ({
               <RemoveButton
                 color="primary"
                 onClick={() => {
-                  setFields(currentFields => currentFields.filter(x => x.id !== id));
+                  setFields((currentFields) => currentFields.filter((x) => x.id !== id));
                   remove(index);
                 }}
+                data-testid={`removebutton-qmfs-${index}`}
               >
-                <RemoveCircleOutline />
+                <Remove />
               </RemoveButton>
             );
 
@@ -68,14 +76,19 @@ export const ArrayField = ({
           {/* Render the button to add another field below the array of fields */}
           {fields.length < maxFields && (
             <AddButton
-              startIcon={<AddCircleOutline />}
+              startIcon={<Add />}
               type="button"
               variant="text"
               onClick={() => {
-                setFields(currentFields => [...currentFields, { id: generate() }]);
+                setFields((currentFields) => [...currentFields, { id: generate() }]);
               }}
+              data-testid="addbutton-4ojv"
             >
-              Add additional
+              <TranslatedText
+                stringId="general.action.addAdditional"
+                fallback="Add additional"
+                data-testid="translatedtext-add-additional"
+              />
             </AddButton>
           )}
         </>

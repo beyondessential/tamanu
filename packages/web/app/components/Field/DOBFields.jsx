@@ -15,7 +15,7 @@ const JoinedField = styled(Field)`
     left: 100%;
     width: 50px;
     height: 1px;
-    background: ${props => props.theme.palette.grey['400']};
+    background: ${(props) => props.theme.palette.grey['400']};
     content: '';
   }
 `;
@@ -31,9 +31,11 @@ export const DOBFields = ({ showExactBirth = true }) => (
           <TranslatedText
             stringId="general.localisedField.dateOfBirth.label.short"
             fallback="DOB"
+            data-testid="translatedtext-skqd"
           />
         }
         max={getCurrentDateString()}
+        data-testid="field-h3d3"
       />
     )}
     <JoinedField
@@ -44,9 +46,11 @@ export const DOBFields = ({ showExactBirth = true }) => (
         <TranslatedText
           stringId="general.localisedField.dateOfBirthFrom.label.short"
           fallback="DOB from"
+          data-testid="translatedtext-2nkk"
         />
       }
       max={getCurrentDateString()}
+      data-testid="joinedfield-swzm"
     />
     <Field
       name="dateOfBirthTo"
@@ -56,9 +60,11 @@ export const DOBFields = ({ showExactBirth = true }) => (
         <TranslatedText
           stringId="general.localisedField.dateOfBirthTo.label.short"
           fallback="DOB to"
+          data-testid="translatedtext-v82q"
         />
       }
       max={getCurrentDateString()}
+      data-testid="field-aax5"
     />
   </>
 );

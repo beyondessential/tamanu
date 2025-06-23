@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes } from 'sequelize';
+import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
 import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
@@ -8,6 +8,8 @@ import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
   IPS_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
+  DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
 
@@ -19,8 +21,10 @@ import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
-import { patientProgramRegistration } from './patientProgramRegistration';
-import { getOrderClause } from '../../../database/utils';
+import {
+  patientProgramRegistration,
+  patientProgramRegistrationConditions,
+} from './patientProgramRegistration';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
@@ -41,6 +45,12 @@ patientRoute.get(
       include: Patient.getFullReferenceAssociations(),
     });
     if (!patient) throw new NotFoundError();
+
+    await req.audit.access({
+      recordId: params.id,
+      params,
+      model: Patient,
+    });
 
     res.send(dbRecordToResponse(patient, facilityId));
   }),
@@ -156,6 +166,7 @@ patientRoute.get(
     const {
       models: { Encounter },
       params,
+      query: { facilityId },
     } = req;
 
     req.checkPermission('read', 'Patient');
@@ -169,65 +180,17 @@ patientRoute.get(
       include: Encounter.getFullReferenceAssociations(),
     });
 
-    // explicitly send as json (as it might be null)
-    res.json(currentEncounter);
-  }),
-);
-
-patientRoute.get(
-  '/:id/lastDischargedEncounter/medications',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Encounter, EncounterMedication },
-      params,
-      query,
-    } = req;
-
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
-    req.checkPermission('list', 'EncounterMedication');
-
-    const lastDischargedEncounter = await Encounter.findOne({
-      where: {
-        patientId: params.id,
-        endDate: { [Op.not]: null },
-      },
-      order: [['endDate', 'DESC']],
-    });
-
-    // Return empty values if there isn't a discharged encounter
-    if (!lastDischargedEncounter) {
-      res.send({
-        count: 0,
-        data: [],
+    if (currentEncounter) {
+      await req.audit.access({
+        recordId: currentEncounter.id,
+        params,
+        model: Encounter,
+        facilityId,
       });
-      return;
     }
 
-    // Find and return all associated encounter medications
-    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
-      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
-      include: [
-        ...EncounterMedication.getFullReferenceAssociations(),
-        {
-          association: 'encounter',
-          include: [{ association: 'location', include: ['facility'] }],
-        },
-      ],
-      order: orderBy ? getOrderClause(order, orderBy) : undefined,
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
-    });
-
-    const { count } = lastEncounterMedications;
-    const data = lastEncounterMedications.rows.map(x => x.forResponse());
-
-    res.send({
-      count,
-      data,
-    });
+    // explicitly send as json (as it might be null)
+    res.json(currentEncounter);
   }),
 );
 
@@ -253,14 +216,14 @@ patientRoute.get(
       PATIENT_SORT_KEYS.firstName,
       PATIENT_SORT_KEYS.displayId,
     ]
-      .filter(v => v !== orderBy)
-      .map(v => `${v} ASC`)
+      .filter((v) => v !== orderBy)
+      .map((v) => `${v} ASC`)
       .join(', ');
 
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin']
-      .filter(k => filterParams[k])
-      .forEach(k => {
+      .filter((k) => filterParams[k])
+      .forEach((k) => {
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
@@ -277,7 +240,7 @@ patientRoute.get(
     // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
     // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
     if (!orderBy) {
-      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter((v) => filterParams[v]);
       if (selectedFilters?.length) {
         filterSortReplacements = selectedFilters.reduce((acc, filter) => {
           return {
@@ -290,18 +253,20 @@ patientRoute.get(
         // Exact match sort
         const exactMatchSort = selectedFilters
           .map(
-            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+            (filter) => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
           )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .map(
+            (filter) => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`,
+          )
           .join(', ');
 
         // the last one is
         const alphabeticSort = selectedFilters
-          .map(filter => `patients.${snakeCase(filter)} ASC`)
+          .map((filter) => `patients.${snakeCase(filter)} ASC`)
           .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
@@ -437,8 +402,9 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY  ${filterSort &&
-          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${
+          filterSort && `${filterSort},`
+        } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
@@ -455,7 +421,7 @@ patientRoute.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       data: forResponse,
@@ -508,6 +474,121 @@ patientRoute.post(
   }),
 );
 
+patientRoute.get(
+  '/:id/ongoing-prescriptions',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Medication');
+
+    const { models, params, query } = req;
+    const patientId = params.id;
+    const { PatientOngoingPrescription, Prescription } = models;
+    const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
+
+    const baseQuery = {
+      include: [
+        ...Prescription.getListReferenceAssociations(),
+        {
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: { patientId },
+        },
+      ],
+    };
+
+    const ongoingPrescriptions = await Prescription.findAll({
+      ...baseQuery,
+      order: [
+        [
+          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
+          'DESC',
+        ],
+        orderBy === 'route'
+          ? [
+              literal(
+                `CASE "route" ${Object.entries(DRUG_ROUTE_LABELS)
+                  .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
+                  .join(' ')} ELSE "route" END`,
+              ),
+              order.toUpperCase(),
+            ]
+          : [...orderBy.split('.'), order.toUpperCase()],
+      ],
+      ...(page && rowsPerPage
+        ? {
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+          }
+        : {}),
+    });
+
+    const count = await Prescription.count({
+      ...baseQuery,
+    });
+
+    res.json({ data: ongoingPrescriptions, count });
+  }),
+);
+
+patientRoute.get(
+  '/:id/last-inpatient-discharge-medications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, Discharge, Prescription, EncounterPrescription },
+      params,
+      query,
+    } = req;
+    const patientId = params.id;
+
+    req.checkPermission('list', 'Medication');
+
+    const { order = 'ASC', orderBy = 'medication.name' } = query;
+
+    const lastInpatientEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        endDate: {
+          [Op.not]: null,
+        },
+      },
+      include: [
+        {
+          model: Discharge,
+          as: 'discharge',
+          attributes: ['facilityName'],
+        },
+      ],
+      order: [['endDate', 'DESC']],
+    });
+
+    if (!lastInpatientEncounter) {
+      res.json({ data: [], count: 0 });
+      return;
+    }
+
+    const dischargeMedications = await Prescription.findAll({
+      include: [
+        ...Prescription.getListReferenceAssociations(),
+        {
+          model: EncounterPrescription,
+          as: 'encounterPrescription',
+          where: {
+            isSelectedForDischarge: true,
+            encounterId: lastInpatientEncounter.id,
+          },
+        },
+      ],
+      order: [[...orderBy.split('.'), order.toUpperCase()]],
+    });
+
+    res.json({
+      data: dischargeMedications,
+      count: dischargeMedications.length,
+      lastInpatientEncounter,
+    });
+  }),
+);
+
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
@@ -515,6 +596,7 @@ patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
 patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
+patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 
 export { patientRoute as patient };

@@ -4,6 +4,7 @@ import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
@@ -16,42 +17,91 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || max === 0;
-  const hasMin = min || min === 0;
+const makeRangeStringAccessor =
+  (sex) =>
+  ({ labTestType }) => {
+    const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
+    const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+    const hasMax = max || max === 0;
+    const hasMin = min || min === 0;
 
-  if (hasMin && hasMax) return `${min} – ${max}`;
-  if (hasMin) return `>${min}`;
-  if (hasMax) return `<${max}`;
-  return 'N/A';
-};
+    if (hasMin && hasMax) return `${min} – ${max}`;
+    if (hasMin) return `>${min}`;
+    if (hasMax) return `<${max}`;
+    return 'N/A';
+  };
 
-const columns = sex => [
+const columns = (sex) => [
   {
-    title: <TranslatedText stringId="lab.testType.label" fallback="Test type" />,
+    title: (
+      <TranslatedText
+        stringId="lab.testType.label"
+        fallback="Test type"
+        data-testid="translatedtext-bk9k"
+      />
+    ),
     key: 'labTestType.name',
-    accessor: row => <TranslatedReferenceData fallback={row.labTestType.name} value={row.labTestType.id} category="labTestType"/>,
+    accessor: (row) => (
+      <TranslatedReferenceData
+        fallback={row.labTestType.name}
+        value={row.labTestType.id}
+        category="labTestType"
+        data-testid="translatedreferencedata-kplb"
+      />
+    ),
   },
   {
-    title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
+    title: (
+      <TranslatedText
+        stringId="lab.results.table.column.result"
+        fallback="Result"
+        data-testid="translatedtext-0e13"
+      />
+    ),
     key: 'result',
-    accessor: ({ result }) => result ?? '',
+    accessor: ({labTestType, result}) => {
+      const { options, id: labTestTypeId } = labTestType;
+      if (options && options.length > 0) {
+        return <TranslatedOption
+          value={result}
+          referenceDataId={labTestTypeId}
+          referenceDataCategory="labTestType"
+        />
+      }
+      return result ?? '';
+    },
   },
   {
-    title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
+    title: (
+      <TranslatedText
+        stringId="lab.results.table.column.unit"
+        fallback="Units"
+        data-testid="translatedtext-hmp2"
+      />
+    ),
     key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
   },
   {
-    title: <TranslatedText stringId="lab.results.table.column.reference" fallback="Reference" />,
+    title: (
+      <TranslatedText
+        stringId="lab.results.table.column.reference"
+        fallback="Reference"
+        data-testid="translatedtext-840i"
+      />
+    ),
     key: 'reference',
     accessor: makeRangeStringAccessor(sex),
     sortable: false,
   },
   {
-    title: <TranslatedText stringId="lab.results.table.column.labTestMethod" fallback="Method" />,
+    title: (
+      <TranslatedText
+        stringId="lab.results.table.column.labTestMethod"
+        fallback="Method"
+        data-testid="translatedtext-w6f1"
+      />
+    ),
     key: 'labTestMethod',
     accessor: getMethod,
     sortable: false,
@@ -61,19 +111,28 @@ const columns = sex => [
       <TranslatedText
         stringId="lab.results.table.column.laboratoryOfficer"
         fallback="Lab officer"
+        data-testid="translatedtext-qh7q"
       />
     ),
     key: 'laboratoryOfficer',
   },
   {
     title: (
-      <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
+      <TranslatedText
+        stringId="lab.results.table.column.verification"
+        fallback="Verification"
+        data-testid="translatedtext-ldkr"
+      />
     ),
     key: 'verification',
   },
   {
     title: (
-      <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
+      <TranslatedText
+        stringId="lab.results.table.column.completedDate"
+        fallback="Completed"
+        data-testid="translatedtext-qwxt"
+      />
     ),
     key: 'completedDate',
     accessor: getCompletedDate,
@@ -92,6 +151,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       disablePagination
       elevated={false}
       refreshCount={refreshCount}
+      data-testid="styleddatafetchingtable-brdm"
     />
   );
 });

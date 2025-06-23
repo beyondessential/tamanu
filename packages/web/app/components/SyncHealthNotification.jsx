@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { ApiContext } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
   position: absolute;
@@ -46,8 +47,14 @@ export const SyncHealthNotificationComponent = () => {
   if (!message) return null;
 
   return (
-    <Container>
-      <h3>Sync Health: Unable to sync</h3>
+    <Container data-testid="container-jeb9">
+      <h3>
+        <TranslatedText
+          stringId="syncHealth.notification.title"
+          fallback="Sync Health: Unable to sync"
+          data-testid="translatedtext-sync-health-title"
+        />
+      </h3>
       <p>{`${message}`}</p>
     </Container>
   );

@@ -37,7 +37,7 @@ export const DiagnosisForm = React.memo(
     const isEdit = !!diagnosis?.id;
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
+    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter((value) =>
       shouldIncludeCertaintyOption({ value }, isTriage, isEdit),
     );
     const defaultCertainty = certaintyOptions[0].value;
@@ -45,7 +45,7 @@ export const DiagnosisForm = React.memo(
     const { currentUser } = useAuth();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
-      filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
+      filterer: (icd) => !excludeDiagnoses.some((d) => d.diagnosisId === icd.id),
     });
     const practitionerSuggester = useSuggester('practitioner');
 
@@ -65,6 +65,7 @@ export const DiagnosisForm = React.memo(
             <TranslatedText
               stringId="general.localisedField.diagnosis.label"
               fallback="Diagnosis"
+              data-testid="translatedtext-xf0m"
             />,
           ),
           certainty: yup
@@ -72,15 +73,25 @@ export const DiagnosisForm = React.memo(
             .oneOf(certaintyOptions)
             .required()
             .translatedLabel(
-              <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />,
+              <TranslatedText
+                stringId="diagnosis.certainty.label"
+                fallback="Certainty"
+                data-testid="translatedtext-unsr"
+              />,
             ),
           date: yup
             .date()
             .required()
-            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+            .translatedLabel(
+              <TranslatedText
+                stringId="general.date.label"
+                fallback="Date"
+                data-testid="translatedtext-r4iw"
+              />,
+            ),
         })}
         render={({ submitForm }) => (
-          <FormGrid>
+          <FormGrid data-testid="formgrid-40h5">
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
@@ -88,35 +99,58 @@ export const DiagnosisForm = React.memo(
                   <TranslatedText
                     stringId="general.localisedField.diagnosis.label"
                     fallback="Diagnosis"
+                    data-testid="translatedtext-5vck"
                   />
                 }
                 component={AutocompleteField}
                 suggester={diagnosisSuggester}
                 required
+                data-testid="field-f5vm"
               />
             </div>
             <Field
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
-              label={<TranslatedText stringId="diagnosis.isPrimary.label" fallback="Is primary" />}
+              label={
+                <TranslatedText
+                  stringId="diagnosis.isPrimary.label"
+                  fallback="Is primary"
+                  data-testid="translatedtext-lctz"
+                />
+              }
               component={CheckField}
+              data-testid="field-52wo"
             />
             <Field
               name="certainty"
-              label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
+              label={
+                <TranslatedText
+                  stringId="diagnosis.certainty.label"
+                  fallback="Certainty"
+                  data-testid="translatedtext-31jr"
+                />
+              }
               component={TranslatedSelectField}
               enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-              transformOptions={options =>
-                options.filter(option => shouldIncludeCertaintyOption(option, isTriage, isEdit))
+              transformOptions={(options) =>
+                options.filter((option) => shouldIncludeCertaintyOption(option, isTriage, isEdit))
               }
               required
+              data-testid="field-a9rl"
             />
             <Field
               name="date"
-              label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+              label={
+                <TranslatedText
+                  stringId="general.date.label"
+                  fallback="Date"
+                  data-testid="translatedtext-r74v"
+                />
+              }
               component={DateField}
               required
               saveDateAsString
+              data-testid="field-fszu"
             />
             <Field
               name="clinicianId"
@@ -124,14 +158,21 @@ export const DiagnosisForm = React.memo(
                 <TranslatedText
                   stringId="general.localisedField.clinician.label"
                   fallback="Clinician"
+                  data-testid="translatedtext-lma3"
                 />
               }
               component={AutocompleteField}
               suggester={practitionerSuggester}
+              data-testid="field-af83"
             />
-            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              onCancel={onCancel}
+              data-testid="formsubmitcancelrow-jfcw"
+            />
           </FormGrid>
         )}
+        data-testid="form-g4qp"
       />
     );
   },

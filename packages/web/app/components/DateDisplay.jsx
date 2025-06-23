@@ -27,12 +27,12 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-const formatShortExplicit = date =>
+const formatShortExplicit = (date) =>
   intlFormatDate(date, {
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
-const formatShortestExplicit = date =>
+const formatShortestExplicit = (date) =>
   intlFormatDate(date, {
     year: '2-digit',
     month: 'short',
@@ -63,7 +63,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
-  const handleOpen = event => {
+  const handleOpen = (event) => {
     if (event.shiftKey) {
       setDebug(true);
     }
@@ -77,7 +77,11 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
 
   const dateTooltip = timeOnlyTooltip ? formatTime(date) : formatLong(date);
 
-  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : dateTooltip;
+  const tooltipTitle = debug ? (
+    <DiagnosticInfo date={date} data-testid="diagnosticinfo-adv2" />
+  ) : (
+    dateTooltip
+  );
 
   return (
     <ThemedTooltip
@@ -85,6 +89,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
       onClose={handleClose}
       onOpen={handleOpen}
       title={tooltipTitle}
+      data-testid="themedtooltip-k6a1"
     >
       {children}
     </ThemedTooltip>
@@ -125,18 +130,19 @@ export const DateDisplay = React.memo(
     fontWeight,
     noTooltip = false,
     timeOnlyTooltip = false,
+    style,
     ...props
   }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
 
     if (noTooltip) {
-      return <span style={{ color, fontWeight }}>{displayDateString}</span>;
+      return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
     }
 
     const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span style={{ color, fontWeight }}>{displayDateString}</span>
+      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip} data-testid="datetooltip-mhkq">
+        <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
   },
@@ -146,9 +152,13 @@ export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
     const TimeText = isTimeSoft ? SoftText : Text;
     return (
-      <Box>
-        <DateDisplay date={date} showExplicitDate={showExplicitDate} />
-        <TimeText>{formatTime(date)}</TimeText>
+      <Box data-testid="box-ana9">
+        <DateDisplay
+          date={date}
+          showExplicitDate={showExplicitDate}
+          data-testid="datedisplay-qqlo"
+        />
+        <TimeText data-testid="timetext-5t0o">{formatTime(date)}</TimeText>
       </Box>
     );
   },

@@ -53,15 +53,32 @@ const ControlCheck = styled(CheckControl)`
 `;
 
 export const CheckInput = React.memo(
-  ({ label, value, className, style, error, helperText, ...props }) => (
+  ({
+    label,
+    value,
+    className,
+    style,
+    error,
+    helperText,
+    ['data-testid']: dataTestId,
+    ...props
+  }) => (
     <FormControl style={style} className={className} error={error}>
       <FormControlLabel
-        control={<ControlCheck value={value} {...props} />}
+        control={
+          <ControlCheck
+            value={value}
+            {...props}
+            inputProps={{ 'data-testid': `${dataTestId}-controlcheck` }}
+          />
+        }
         style={style}
         label={label}
         $color={error ? Colors.alert : null}
       />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+      {helperText && (
+        <FormHelperText data-testid="formhelpertext-2d0o">{helperText}</FormHelperText>
+      )}
     </FormControl>
   ),
 );

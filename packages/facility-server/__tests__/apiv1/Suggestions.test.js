@@ -15,9 +15,10 @@ import {
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/fake-data/fake';
+import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
+import { sortBy } from 'lodash';
 
 describe('Suggestions', () => {
   let userApp = null;
@@ -604,88 +605,279 @@ describe('Suggestions', () => {
     });
   });
 
-  it('should return translated labels for current language if present in the db', async () => {
-    const { TranslatedString, ReferenceData } = models;
-
-    const DATA_TYPE = 'diagnosis';
-    const DATA_ID = 'test-diagnosis';
-    const ORIGINAL_LABEL = 'AAAOriginal label'; // A's are to ensure it comes first in the list
-    const ENGLISH_LABEL = 'AAAEnglish label';
-    const KHMER_LABEL = 'AAAKhmer label';
-    const ENGLISH_CODE = 'en';
-    const KHMER_CODE = 'km';
-
-    await ReferenceData.create({
-      id: DATA_ID,
-      type: DATA_TYPE,
-      name: ORIGINAL_LABEL,
-      code: 'test-diagnosis',
+  describe('Translations', () => {
+    beforeEach(async () => {
+      const { TranslatedString, ReferenceData } = models;
+      await ReferenceData.truncate({ cascade: true, force: true });
+      await TranslatedString.truncate({ cascade: true, force: true });
     });
 
-    await TranslatedString.create({
-      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
-      text: ENGLISH_LABEL,
-      language: ENGLISH_CODE,
+    it('should return translated labels for current language if present in the db', async () => {
+      const { TranslatedString, ReferenceData } = models;
+
+      const DATA_TYPE = 'diagnosis';
+      const DATA_ID = 'test-diagnosis';
+      const ORIGINAL_LABEL = 'AAAOriginal label'; // A's are to ensure it comes first in the list
+      const ENGLISH_LABEL = 'AAAEnglish label';
+      const KHMER_LABEL = 'AAAKhmer label';
+      const ENGLISH_CODE = 'en';
+      const KHMER_CODE = 'km';
+
+      await ReferenceData.create({
+        id: DATA_ID,
+        type: DATA_TYPE,
+        name: ORIGINAL_LABEL,
+        code: 'test-diagnosis',
+      });
+
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
+        text: ENGLISH_LABEL,
+        language: ENGLISH_CODE,
+      });
+
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
+        text: KHMER_LABEL,
+        language: KHMER_CODE,
+      });
+
+      const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=en`);
+      const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=km`);
+
+      const englishRecord = englishResults.body.find(({ id }) => id === DATA_ID);
+      expect(englishRecord.name).toEqual(ENGLISH_LABEL);
+
+      const khmerRecord = khmerResults.body.find(({ id }) => id === DATA_ID);
+      expect(khmerRecord.name).toEqual(KHMER_LABEL);
+
+      await TranslatedString.truncate({ cascade: true, force: true });
+
+      const untranslatedResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=en`);
+      const untranslatedRecord = untranslatedResults.body.find(({ id }) => id === DATA_ID);
+      expect(untranslatedRecord.name).toEqual(ORIGINAL_LABEL);
     });
 
-    await TranslatedString.create({
-      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
-      text: KHMER_LABEL,
-      language: KHMER_CODE,
+    it('should return a translated label for a single record if it exists', async () => {
+      const { TranslatedString, ReferenceData } = models;
+
+      await ReferenceData.create({
+        id: 'test-drug',
+        type: 'drug',
+        name: 'banana',
+        code: 'test-drug',
+      });
+
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.drug.test-drug`,
+        text: 'apple',
+        language: 'en',
+      });
+
+      const result = await userApp.get(`/api/suggestions/drug/test-drug?language=en`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.name).toEqual('apple');
+
+      await TranslatedString.truncate({ cascade: true, force: true });
+
+      const result2 = await userApp.get(`/api/suggestions/drug/test-drug?language=en`);
+      expect(result2).toHaveSucceeded();
+      expect(result2.body.name).toEqual('banana');
     });
 
-    const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=en`);
-    const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=km`);
+    it('should only search against translated names if they exist', async () => {
+      const { TranslatedString, ReferenceData } = models;
 
-    const englishRecord = englishResults.body.find(({ id }) => id === DATA_ID);
-    expect(englishRecord.name).toEqual(ENGLISH_LABEL);
+      await ReferenceData.create({
+        id: 'test-drug',
+        type: 'drug',
+        name: 'banana',
+        code: 'test-drug',
+      });
 
-    const khmerRecord = khmerResults.body.find(({ id }) => id === DATA_ID);
-    expect(khmerRecord.name).toEqual(KHMER_LABEL);
+      await TranslatedString.create({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.drug.test-drug`,
+        text: 'apple',
+        language: 'en',
+      });
+
+      // Check that the translated label can be matched through search
+      const result1 = await userApp.get(`/api/suggestions/drug?language=en&q=apple`);
+      expect(result1.body.length).toEqual(1);
+      expect(result1.body[0].name).toEqual('apple');
+
+      // Check that the original label is not matched since a translated label exists
+      const result2 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+      expect(result2.body.length).toEqual(0);
+
+      // Drop the translation and check that the original label is matched
+      await TranslatedString.truncate({ cascade: true, force: true });
+      const result3 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+      expect(result3.body.length).toEqual(1);
+      expect(result3.body[0].name).toEqual('banana');
+    });
+
+    it('should order by translated name if it exists', async () => {
+      const { TranslatedString, ReferenceData } = models;
+
+      // Create 10 reference data records with random names
+      const testData = Array.from({ length: 10 }, (_, i) => ({
+        id: `test-drug-${i}`,
+        type: 'drug',
+        name: `Drug ${chance.word()}`,
+        code: `test-drug-${i}`,
+      }));
+      await ReferenceData.bulkCreate(testData);
+
+      const alphabeticalTestDataNames = sortBy(testData, 'name').map(({ name }) => name);
+
+      // Check they order alphabetically
+      const result = await userApp.get('/api/suggestions/drug?q=drug');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ name }) => name)).toEqual(alphabeticalTestDataNames);
+
+      // Create 10 random translations
+      const translations = Array.from({ length: 10 }, (_, i) => ({
+        stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.drug.test-drug-${i}`,
+        text: `Drug ${chance.word()}`,
+        language: 'en',
+      }));
+      await TranslatedString.bulkCreate(translations);
+
+      const alphabeticalTranslationText = sortBy(translations, 'text').map(({ text }) => text);
+
+      // Check they order by translated name
+      const result2 = await userApp.get('/api/suggestions/drug?q=drug&language=en');
+      expect(result2).toHaveSucceeded();
+      expect(result2.body.map(({ name }) => name)).toEqual(alphabeticalTranslationText);
+    });
   });
 
-  it.skip('should return translated labels for the correct facility', async () => {
-    const { TranslatedString } = models;
+  describe('Address hierarchy', () => {
+    it('should filter address_hierarchy fields by parent id if supplied in query', async () => {
+      const { ReferenceData, ReferenceDataRelation } = models;
+      const fakeReferenceData = async (type) =>
+        await ReferenceData.create(fake(ReferenceData, { type }));
 
-    const facility1 = await findOneOrCreate(models, models.Facility, {
-      id: 'facility-1',
+      const fakeReferenceDataRelation = async ({ parentId, childId }) =>
+        await ReferenceDataRelation.create(
+          fake(ReferenceDataRelation, {
+            type: 'address_hierarchy',
+            referenceDataId: childId,
+            referenceDataParentId: parentId,
+          }),
+        );
+
+      // create a linked address hierarchy division, subdivision, settlement and village
+      const divisionInHierarchy = await fakeReferenceData('division');
+      const subdivisionInHierarchy = await fakeReferenceData('subdivision');
+      const settlementInHierarchy = await fakeReferenceData('settlement');
+      const villageInHierarchy = await fakeReferenceData('village');
+
+      // Create the links between the hierarchy
+      await fakeReferenceDataRelation({
+        parentId: divisionInHierarchy.id,
+        childId: subdivisionInHierarchy.id,
+      });
+      await fakeReferenceDataRelation({
+        parentId: subdivisionInHierarchy.id,
+        childId: settlementInHierarchy.id,
+      });
+      await fakeReferenceDataRelation({
+        parentId: settlementInHierarchy.id,
+        childId: villageInHierarchy.id,
+      });
+
+      // Create data outside of the hierarchy
+      await fakeReferenceData('subdivision');
+      await fakeReferenceData('settlement');
+      await fakeReferenceData('village');
+
+      const divisionResults = await userApp.get('/api/suggestions/division');
+      expect(divisionResults).toHaveSucceeded();
+      expect(divisionResults.body.length).toEqual(1);
+      expect(divisionResults.body[0].id).toEqual(divisionInHierarchy.id);
+
+      const subdivisionResults = await userApp.get(
+        `/api/suggestions/subdivision?parentId=${divisionInHierarchy.id}`,
+      );
+      expect(subdivisionResults).toHaveSucceeded();
+      expect(subdivisionResults.body.length).toEqual(1);
+      expect(subdivisionResults.body[0].id).toEqual(subdivisionInHierarchy.id);
+
+      const settlementResults = await userApp.get(
+        `/api/suggestions/settlement?parentId=${subdivisionInHierarchy.id}`,
+      );
+      expect(settlementResults).toHaveSucceeded();
+      expect(settlementResults.body.length).toEqual(1);
+      expect(settlementResults.body[0].id).toEqual(settlementInHierarchy.id);
+
+      const villageResults = await userApp.get(
+        `/api/suggestions/village?parentId=${settlementInHierarchy.id}`,
+      );
+      expect(villageResults).toHaveSucceeded();
+      expect(villageResults.body.length).toEqual(1);
+      expect(villageResults.body[0].id).toEqual(villageInHierarchy.id);
     });
 
-    const facility2 = await findOneOrCreate(models, models.Facility, {
-      id: 'facility-2',
-    });
-    await findOneOrCreate(models, models.LocationGroup, {
-      id: 'f1-test-area',
-      name: 'F1 Test Area',
-      facilityId: facility1.id,
-    });
+    it('should test early limit application in address hierarchy filtering', async () => {
+      // Create 30 divisions with names that ensure alphabetical ordering
+      // Use zero-padded numbers to ensure proper alphabetical order
+      const divisions = [];
+      for (let i = 1; i <= 30; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        const division = await models.ReferenceData.create({
+          id: `test-division-${paddedNumber}`,
+          code: `DIV_${paddedNumber}`,
+          type: 'division',
+          name: `Division ${paddedNumber}`,
+          visibilityStatus: 'current',
+        });
+        divisions.push(division);
+      }
 
-    await findOneOrCreate(models, models.LocationGroup, {
-      id: 'f2-test-area',
-      name: 'F2 Test Area',
-      facilityId: facility2.id,
+      // Create one parent to filter by
+      const parentCountry = await models.ReferenceData.create({
+        id: 'test-parent-country',
+        code: 'PARENT_COUNTRY',
+        type: 'country',
+        name: 'Parent Country',
+        visibilityStatus: 'current',
+      });
+
+      // Only create relations for the last 5 divisions (26-30)
+      // With zero-padding, these will be alphabetically last
+      for (let i = 26; i <= 30; i++) {
+        const paddedNumber = i.toString().padStart(2, '0');
+        await models.ReferenceDataRelation.create({
+          referenceDataId: `test-division-${paddedNumber}`,
+          referenceDataParentId: parentCountry.id,
+          type: 'address_hierarchy',
+        });
+      }
+
+      const result = await userApp.get(
+        `/api/suggestions/division?q=division&parentId=${parentCountry.id}&language=en`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toBeInstanceOf(Array);
+      // If the limit is applied correctly (after the join), we should get 5 results
+      // If limit is applied too early (before the join), we might get 0 results
+      expect(body.length).toBe(5);
+
+      // Verify we got the correct divisions (26-30)
+      const returnedIds = body.map((item) => item.id).sort();
+      const expectedIds = [
+        'test-division-26',
+        'test-division-27',
+        'test-division-28',
+        'test-division-29',
+        'test-division-30',
+      ];
+      expect(returnedIds).toEqual(expectedIds);
     });
-
-    const DATA_TYPE = 'locationGroup';
-    const ENGLISH_CODE = 'en';
-    const KHMER_CODE = 'km';
-
-    await TranslatedString.create({
-      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f1-test-area`,
-      text: 'Facility 1 Test Area',
-      language: ENGLISH_CODE,
-    });
-
-    await TranslatedString.create({
-      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f2-test-area`,
-      text: 'Facility 1 Test Area',
-      language: KHMER_CODE,
-    });
-
-    const englishResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=en`);
-    const khmerResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=km`);
-    expect(englishResults.body.length).toEqual(1);
-    expect(khmerResults.body.length).toEqual(1);
   });
 
   it('should respect visibility status', async () => {
@@ -723,5 +915,106 @@ describe('Suggestions', () => {
     const result = await userApp.get('/api/suggestions/diagnosis/all');
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveLength(30);
+  });
+
+  it('should handle complex includes in invoiceProduct suggester', async () => {
+    const referenceData = await models.ReferenceData.create({
+      id: 'test-ref-data-id',
+      code: 'TEST_PRODUCT',
+      type: 'additionalInvoiceProduct',
+      name: 'Test Reference Product',
+      visibilityStatus: 'current',
+    });
+
+    const invoiceProduct = await models.InvoiceProduct.create({
+      id: referenceData.id,
+      name: 'Test Invoice Product',
+      price: 100,
+      discountable: true,
+      visibilityStatus: 'current',
+    });
+
+    const result = await userApp.get('/api/suggestions/invoiceProduct?q=test&language=en');
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body[0]).toHaveProperty('id', invoiceProduct.id);
+  });
+
+  it('should handle complex includes in multiReferenceData suggester', async () => {
+    const parentTaskTemplate = await models.ReferenceData.create({
+      id: 'test-task-template-parent',
+      code: 'TASK_PARENT',
+      type: 'taskTemplate',
+      name: 'Parent Task Template',
+      visibilityStatus: 'current',
+    });
+
+    const childTaskTemplate = await models.ReferenceData.create({
+      id: 'test-task-template-child',
+      code: 'TASK_CHILD',
+      type: 'taskTemplate',
+      name: 'Child Task Template',
+      visibilityStatus: 'current',
+    });
+
+    await models.TaskTemplate.create({
+      referenceDataId: parentTaskTemplate.id,
+    });
+
+    await models.TaskTemplate.create({
+      referenceDataId: childTaskTemplate.id,
+    });
+
+    await models.ReferenceDataRelation.create({
+      referenceDataId: childTaskTemplate.id,
+      referenceDataParentId: parentTaskTemplate.id,
+      type: 'task',
+    });
+
+    const result = await userApp.get(
+      '/api/suggestions/multiReferenceData?q=task&types[]=taskTemplate&relationType=task&language=en',
+    );
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+  });
+
+  it('should handle self-referencing includes in address hierarchy suggesters', async () => {
+    const parentDivision = await models.ReferenceData.create({
+      id: 'test-parent-division',
+      code: 'PARENT_DIV',
+      type: 'division',
+      name: 'Parent Division',
+      visibilityStatus: 'current',
+    });
+
+    const childSubdivision = await models.ReferenceData.create({
+      id: 'test-child-subdivision',
+      code: 'CHILD_SUB',
+      type: 'subdivision',
+      name: 'Child Subdivision',
+      visibilityStatus: 'current',
+    });
+
+    await models.ReferenceDataRelation.create({
+      referenceDataId: childSubdivision.id,
+      referenceDataParentId: parentDivision.id,
+      type: 'address_hierarchy',
+    });
+
+    const result = await userApp.get(
+      `/api/suggestions/subdivision?q=child&parentId=${parentDivision.id}&language=en`,
+    );
+    expect(result).toHaveSucceeded();
+
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body[0]).toHaveProperty('id', childSubdivision.id);
   });
 });

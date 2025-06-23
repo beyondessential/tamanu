@@ -12,6 +12,7 @@ import {
   DateField,
   Field,
   Form,
+  NoteModalActionBlocker,
   NumberField,
   TextField,
   TranslatedText,
@@ -21,8 +22,9 @@ import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
+import { DefaultIconButton } from '../components/Button';
 
-const IconButton = styled.div`
+const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
   color: ${Colors.primary};
   position: absolute;
@@ -138,12 +140,12 @@ export const PatientPaymentForm = ({
   const renderChequeNumberField = () => {
     if (selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID) {
       return (
-        <FieldContainer width="15%">
-          <Field name="chequeNumber" component={TextField} size="small" />
+        <FieldContainer width="15%" data-testid="fieldcontainer-ffnv">
+          <Field name="chequeNumber" component={TextField} size="small" data-testid="field-xhya" />
         </FieldContainer>
       );
     }
-    return showChequeNumberColumn ? <Box width="15%" /> : null;
+    return showChequeNumberColumn ? <Box width="15%" data-testid="box-5e2q" /> : null;
   };
 
   return (
@@ -152,68 +154,104 @@ export const PatientPaymentForm = ({
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
-        <FormRow>
-          <FieldContainer width="19%">
-            <Field name="date" required component={DateField} saveDateAsString size="small" />
+        <FormRow data-testid="formrow-su8c">
+          <FieldContainer width="19%" data-testid="fieldcontainer-1p4t">
+            <NoteModalActionBlocker>
+              <Field
+                name="date"
+                required
+                component={DateField}
+                saveDateAsString
+                size="small"
+                data-testid="field-cx1w"
+              />
+            </NoteModalActionBlocker>
           </FieldContainer>
-          <FieldContainer width="19%">
-            <Field
-              name="methodId"
-              required
-              component={AutocompleteField}
-              suggester={paymentMethodSuggester}
-              size="small"
-              onChange={e => onDataChange({ paymentMethod: e.target })}
-            />
+          <FieldContainer width="19%" data-testid="fieldcontainer-mgnx">
+            <NoteModalActionBlocker>
+              <Field
+                name="methodId"
+                required
+                component={AutocompleteField}
+                suggester={paymentMethodSuggester}
+                size="small"
+                onChange={e => onDataChange({ paymentMethod: e.target })}
+                data-testid="field-c2nv"
+              />
+            </NoteModalActionBlocker>
           </FieldContainer>
           {renderChequeNumberField()}
-          <FieldContainer width="13%">
-            <Field
-              name="amount"
-              required
-              component={NumberField}
-              size="small"
-              min={0}
-              onInput={validateDecimalPlaces}
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-            />
+          <FieldContainer width="13%" data-testid="fieldcontainer-8d8a">
+            <NoteModalActionBlocker>
+              <Field
+                name="amount"
+                required
+                component={NumberField}
+                size="small"
+                min={0}
+                onInput={validateDecimalPlaces}
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                data-testid="field-773f"
+              />
+            </NoteModalActionBlocker>
           </FieldContainer>
-          <FieldContainer sx={{ width: '18%', position: 'relative', marginRight: '23px' }}>
-            <Field
-              name="receiptNumber"
-              required
-              component={TextField}
-              size="small"
-              onChange={e => setFieldValue('receiptNumber', e.target.value)}
-            />
+          <FieldContainer
+            sx={{ width: '18%', position: 'relative', marginRight: '23px' }}
+            data-testid="fieldcontainer-4dkq"
+          >
+            <NoteModalActionBlocker>
+              <Field
+                name="receiptNumber"
+                required
+                component={TextField}
+                size="small"
+                onChange={e => setFieldValue('receiptNumber', e.target.value)}
+                data-testid="field-9boo"
+              />
+            </NoteModalActionBlocker>
             <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="invoice.payment.tooltip.generateReceiptNumber"
                   fallback="Generate receipt number"
+                  data-testid="translatedtext-8ggk"
                 />
               }
+              data-testid="themedtooltip-i9dx"
             >
-              <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
-                <CachedIcon />
-              </IconButton>
+              <NoteModalActionBlocker>
+                <IconButton
+                  onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
+                  data-testid="iconbutton-9yvq"
+                >
+                  <CachedIcon data-testid="cachedicon-vghh" />
+                </IconButton>
+              </NoteModalActionBlocker>
             </ThemedTooltip>
           </FieldContainer>
-          <Box sx={{ marginLeft: 'auto' }}>
-            <Button
-              size="small"
-              onClick={submitForm}
-              disabled={isCreatingPayment || isUpdatingPayment}
-            >
-              <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
-            </Button>
+          <Box sx={{ marginLeft: 'auto' }} data-testid="box-t4yy">
+            <NoteModalActionBlocker>
+              <Button
+                size="small"
+                onClick={submitForm}
+                disabled={isCreatingPayment || isUpdatingPayment}
+                data-testid="button-dre1"
+              >
+                <TranslatedText
+                  stringId="invoice.modal.payment.action.record"
+                  fallback="Record"
+                  data-testid="translatedtext-dpmj"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           </Box>
           {openConfirmPaidModal && (
             <ConfirmPaidModal
               open
               onClose={() => setOpenConfirmPaidModal(false)}
               onConfirm={submitForm}
+              data-testid="confirmpaidmodal-b7z6"
             />
           )}
         </FormRow>
@@ -221,26 +259,46 @@ export const PatientPaymentForm = ({
       validationSchema={yup.object().shape({
         date: yup
           .string()
-          .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          .required(
+            <TranslatedText
+              stringId="general.required"
+              fallback="Required"
+              data-testid="translatedtext-l7v1"
+            />,
+          ),
         methodId: yup
           .string()
-          .required(<TranslatedText stringId="general.required" fallback="Required" />),
+          .required(
+            <TranslatedText
+              stringId="general.required"
+              fallback="Required"
+              data-testid="translatedtext-zkrq"
+            />,
+          ),
         chequeNumber: yup.string().matches(/^[A-Za-z0-9]+$/, {
           message: (
             <TranslatedText
               stringId="invoice.payment.validation.invalidChequeNumber"
               fallback="Invalid cheque number - alphanumeric characters only"
+              data-testid="translatedtext-1as6"
             />
           ),
         }),
         amount: yup
           .string()
-          .required(<TranslatedText stringId="general.required" fallback="Required" />)
+          .required(
+            <TranslatedText
+              stringId="general.required"
+              fallback="Required"
+              data-testid="translatedtext-pern"
+            />,
+          )
           .test(
             'is-valid-amount',
             <TranslatedText
               stringId="invoice.payment.validation.exceedAmount"
               fallback="Cannot be more than outstanding balance"
+              data-testid="translatedtext-dzh7"
             />,
             function(value) {
               const editingAmount = Number(editingPayment?.amount)
@@ -254,12 +312,19 @@ export const PatientPaymentForm = ({
           ),
         receiptNumber: yup
           .string()
-          .required(<TranslatedText stringId="general.required" fallback="Required" />)
+          .required(
+            <TranslatedText
+              stringId="general.required"
+              fallback="Required"
+              data-testid="translatedtext-svvn"
+            />,
+          )
           .matches(/^[A-Za-z0-9]+$/, {
             message: (
               <TranslatedText
                 stringId="invoice.payment.validation.invalidReceiptNumber"
                 fallback="Invalid receipt number - alphanumeric characters only"
+                data-testid="translatedtext-wplr"
               />
             ),
           }),
@@ -272,6 +337,7 @@ export const PatientPaymentForm = ({
         receiptNumber: editingPayment.receiptNumber,
       }}
       formType={editingPayment?.DateField ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      data-testid="form-gsr7"
     />
   );
 };

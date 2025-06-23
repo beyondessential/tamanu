@@ -18,6 +18,7 @@ import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -31,12 +32,12 @@ const ReferralFlow = ({ patient, currentUser }) => {
   useEffect(() => {
     (async () => {
       const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
-      setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
+      setReferralSurveys(response.surveys.map((x) => ({ value: x.id, label: x.name })));
     })();
   }, [api]);
 
   const setSelectedReferral = useCallback(
-    async id => {
+    async (id) => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
       setStartTime(getCurrentDateTimeString());
@@ -48,7 +49,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     setReferralSurvey(null);
   }, []);
 
-  const submitReferral = async data => {
+  const submitReferral = async (data) => {
     await api.post('referral', {
       surveyId: referralSurvey.id,
       startTime,
@@ -61,31 +62,47 @@ const ReferralFlow = ({ patient, currentUser }) => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
   };
 
-  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
-    patient.id,
-  );
+  const {
+    isLoading,
+    data: patientAdditionalData,
+    isError,
+    error,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator data-testid="loadingindicator-uqkf" />;
   }
 
   if (isError) {
-    return <ErrorMessage title="Error" error={error} />;
+    return <ErrorMessage title="Error" error={error} data-testid="errormessage-ub43" />;
   }
 
   if (!referralSurvey) {
     return (
-      <ProgramsPane>
-        <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
+      <ProgramsPane data-testid="programspane-6xjz">
+        <ProgramsPaneHeader data-testid="programspaneheader-8cj1">
+          <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-a55s">
+            <TranslatedText
+              stringId="referral.selectReferral.label"
+              fallback="Select a referral"
+              data-testid="translatedtext-referral-select-referral-text"
+            />
+          </ProgramsPaneHeading>
         </ProgramsPaneHeader>
-        <FormGrid columns={1}>
+        <FormGrid columns={1} data-testid="formgrid-prtu">
           <SurveySelector
             onSubmit={setSelectedReferral}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={referralSurveys}
-            buttonText="Begin referral"
+            buttonText={
+              <TranslatedText
+                stringId="referral.action.begin"
+                fallback="Begin referral"
+                data-testid="translatedtext-referral-action-begin"
+              />
+            }
+            data-testid="surveyselector-6c7l"
           />
         </FormGrid>
       </ProgramsPane>
@@ -99,23 +116,27 @@ const ReferralFlow = ({ patient, currentUser }) => {
       patient={patient}
       patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
+      data-testid="surveyview-3mvd"
     />
   );
 };
 
 export const ReferralsView = () => {
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const currentUser = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   if (!patient.id) {
     return (
       <PatientListingView
-        onViewPatient={id => {
+        onViewPatient={(id) => {
           dispatch(reloadPatient(id));
         }}
+        data-testid="patientlistingview-o7jr"
       />
     );
   }
 
-  return <ReferralFlow patient={patient} currentUser={currentUser} />;
+  return (
+    <ReferralFlow patient={patient} currentUser={currentUser} data-testid="referralflow-ctqh" />
+  );
 };

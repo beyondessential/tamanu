@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { useSettings } from '../../contexts/Settings';
+import { useTranslation } from '../../contexts/Translation';
 
 const JoinedFieldStyles = css`
   position: relative;
@@ -15,29 +16,29 @@ const JoinedFieldStyles = css`
     left: 100%;
     width: 50px;
     height: 1px;
-    background: ${props => props.theme.palette.grey['400']};
+    background: ${(props) => props.theme.palette.grey['400']};
     content: '';
   }
 `;
 
 export const StyledTextField = styled(MuiTextField)`
-  ${props => (props.$joined ? JoinedFieldStyles : null)};
+  ${(props) => (props.$joined ? JoinedFieldStyles : null)};
 
   .MuiInputBase-root {
-    background: ${props => (props.disabled ? 'inherit' : Colors.white)};
+    background: ${(props) => (props.disabled ? 'inherit' : Colors.white)};
   }
 
   // The actual input field
   .MuiInputBase-input {
-    ${props =>
+    ${(props) =>
       props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
     padding-block: 13px;
     padding-inline: 15px 12px;
     line-height: 18px;
-    ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
-    ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
+    ${(props) => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
+    ${(props) => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
 
-    font-size: ${props => (props.size === 'small' ? '11px' : '15px')};
+    font-size: ${(props) => (props.size === 'small' ? '11px' : '15px')};
 
     &::placeholder {
       color: ${Colors.softText};
@@ -59,13 +60,13 @@ export const StyledTextField = styled(MuiTextField)`
 
   // Hover state
   .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-    border-color: ${props => props.theme.palette.grey['400']};
+    border-color: ${(props) => props.theme.palette.grey['400']};
   }
 
   // Focused state
   .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
   .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
-    border: 1px solid ${props => props.theme.palette.primary.main};
+    border: 1px solid ${(props) => props.theme.palette.primary.main};
   }
 
   // Place holder color when focused
@@ -74,7 +75,7 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   .MuiFormLabel-root.Mui-focused {
-    color: ${props => props.theme.palette.text.primary};
+    color: ${(props) => props.theme.palette.text.primary};
   }
 
   // text area fields
@@ -93,13 +94,19 @@ export const StyledTextField = styled(MuiTextField)`
   }
 `;
 
-export const TextInput = ({ value = '', label, enablePasting = false, ...props }) => {
+export const TextInput = ({
+  value = '',
+  label,
+  enablePasting = false,
+  ['data-testid']: dataTestId,
+  ...props
+}) => {
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
   // eslint-disable-next-line no-unused-vars
   const { saveDateAsString, ...rest } = props;
 
-  const onPaste = e => {
+  const onPaste = (e) => {
     if (!enablePasting && disableInputPasting) {
       e.preventDefault();
       return false;
@@ -107,14 +114,35 @@ export const TextInput = ({ value = '', label, enablePasting = false, ...props }
   };
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledTextField value={value} variant="outlined" onPaste={onPaste} {...rest} />
+      <StyledTextField
+        value={value}
+        variant="outlined"
+        onPaste={onPaste}
+        inputProps={{
+          ...props.inputProps,
+          'data-testid': `${dataTestId}-input`,
+        }}
+        {...rest}
+      />
     </OuterLabelFieldWrapper>
   );
 };
 
-export const LimitedTextField = ({ limit = 255, ...props }) => (
-  <TextField {...props} inputProps={{ maxLength: limit }} />
-);
+export const LimitedTextField = ({ limit = 255, helperText, inputProps, ...props }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <TextField
+      {...props}
+      inputProps={{ maxLength: limit, ...inputProps }}
+      helperText={
+        helperText ||
+        getTranslation('field.limitedTextField.helperText', 'Max :limit characters', {
+          replacements: { limit },
+        })
+      }
+    />
+  );
+};
 
 export const TextField = ({ field, ...props }) => (
   <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
@@ -130,7 +158,7 @@ export const MultilineTextField = ({ field, ...props }) => (
   />
 );
 
-export const TallMultilineTextField = props => (
+export const TallMultilineTextField = (props) => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
 );
 

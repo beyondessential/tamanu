@@ -2,17 +2,12 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
-import {
-  TRANSLATABLE_REFERENCE_TYPES,
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-  DEFAULT_LANGUAGE_CODE,
-} from '@tamanu/constants';
-import { normaliseSheetName } from './importerEndpoint';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
 import { validateTableRows } from './validateTableRows';
+import { collectTranslationData, bulkUpsertTranslationDefaults } from './translationHandler';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -55,10 +50,7 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
-function extractRecordName(values, dataType) {
-  if (dataType === 'scheduledVaccine') return values.label;
-  return values.name;
-}
+
 
 export async function importRows(
   { errors, log, models },
@@ -245,37 +237,15 @@ export async function importRows(
         await Model.create(values);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
-
-      const dataType = normaliseSheetName(sheetName, model);
-      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
-      if (isTranslatable && isValidTable) {
-        translationData.push([
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-          extractRecordName(values, dataType) ?? '',
-          DEFAULT_LANGUAGE_CODE,
-        ]);
-      }
+      const recordTranslationData = collectTranslationData(model, sheetName, values);
+      translationData.push(...recordTranslationData);
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
   }
 
-  // Bulk upsert translation defaults
-  if (translationData.length > 0) {
-    await models.TranslatedString.sequelize.query(
-      `
-        INSERT INTO translated_strings (string_id, text, language)
-        VALUES ${translationData.map(() => '(?)').join(',')}
-          ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-      `,
-      {
-        replacements: translationData,
-        type: models.TranslatedString.sequelize.QueryTypes.INSERT,
-      },
-    );
-  }
+  await bulkUpsertTranslationDefaults(models, translationData);
 
   log.debug('Done with these rows');
   return stats;

@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 
 import { IS_DEVELOPMENT } from '../../utils/env';
-import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
+import {
+  getEnumPrefix,
+  throwIfNotRegisteredEnum,
+  toCamelCase,
+} from '@tamanu/shared/utils/enumRegistry';
 
 export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ...restProps }) => {
   if (IS_DEVELOPMENT) {
@@ -12,13 +16,27 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
-      <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} {...restProps} />
+      <TranslatedText
+        stringId="general.fallback.unknown"
+        fallback={enumFallback}
+        {...restProps}
+        data-testid="translatedtext-h109"
+      />
     );
   }
 
   const fallback = enumValues[value];
-  const stringId = `${prefix}.${value}`;
-  return <TranslatedText stringId={stringId} fallback={fallback} {...restProps} />;
+  // convert the enum value to a string id
+  const camelCaseValue = toCamelCase(value);
+  const stringId = `${prefix}.${camelCaseValue}`;
+  return (
+    <TranslatedText
+      stringId={stringId}
+      fallback={fallback}
+      {...restProps}
+      data-testid="translatedtext-buer"
+    />
+  );
 };
 
 TranslatedEnum.propTypes = {

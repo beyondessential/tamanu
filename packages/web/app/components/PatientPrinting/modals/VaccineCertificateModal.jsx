@@ -15,6 +15,7 @@ import {
   useAdministeredVaccinesQuery,
   useReferenceDataQuery,
 } from '../../../api/queries';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
@@ -84,16 +85,28 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   return (
     <Modal
-      title="Immunisation Certificate"
+      title={
+        <TranslatedText
+          stringId="vaccine.modal.certificate.title"
+          fallback="Immunisation Certificate"
+          data-testid="translatedtext-immunisation-certificate-title"
+        />
+      }
       open={open}
       onClose={onClose}
       width="md"
       printable
       onPrint={() => printPDF(VACCINE_CERTIFICATE_PDF_ID)}
-      additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
+      additionalActions={
+        <EmailButton
+          onEmail={createVaccineCertificateNotification}
+          data-testid="emailbutton-f55q"
+        />
+      }
+      data-testid="modal-377p"
     >
       {isLoading ? (
-        <LoadingIndicator height="500px" />
+        <LoadingIndicator height="500px" data-testid="loadingindicator-skvx" />
       ) : (
         <WorkerRenderedPDFViewer
           id={VACCINE_CERTIFICATE_PDF_ID}
@@ -110,6 +123,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
+          data-testid="workerrenderedpdfviewer-e076"
         />
       )}
     </Modal>
