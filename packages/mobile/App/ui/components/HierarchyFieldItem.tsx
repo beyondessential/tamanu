@@ -30,11 +30,6 @@ export const HierarchyFieldItem = ({
         isFirstLevel,
       },
     },
-    // hierarchyOptions: {
-    //   parentId,
-    //   relationType,
-    //   isFirstLevel,
-    // },
   });
 
   return (
