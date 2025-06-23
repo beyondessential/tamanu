@@ -1,4 +1,3 @@
-import { ValidationError } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -34,28 +33,6 @@ export class ProcedureTypeSurvey extends Model {
       foreignKey: 'surveyId',
       as: 'survey',
     });
-  }
-
-  static async create(values: any, options: any): Promise<any> {
-    const { procedureTypeId, surveyId } = values;
-
-    // Validate procedure type exists and is of correct type
-    const existingProcedureType = await this.sequelize.models.ReferenceData.findOne({
-      where: { id: procedureTypeId, type: 'procedureType' },
-    });
-    if (!existingProcedureType) {
-      throw new ValidationError(`Invalid procedureTypeId: ${procedureTypeId}`, []);
-    }
-
-    // Validate survey exists
-    const existingSurvey = await this.sequelize.models.Survey.findOne({
-      where: { id: surveyId },
-    });
-    if (!existingSurvey) {
-      throw new ValidationError(`Invalid surveyId: ${surveyId}`, []);
-    }
-
-    return super.create(values, options);
   }
 
   static buildSyncFilter() {

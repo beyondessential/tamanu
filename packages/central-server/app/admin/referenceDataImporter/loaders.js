@@ -561,7 +561,7 @@ export async function medicationSetLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function procedureTypeLoader(item, { models }) {
+export async function procedureTypeLoader(item, { models, pushError }) {
   const { id, surveyIds, ...otherFields } = item;
   const rows = [];
 
@@ -575,6 +575,20 @@ export async function procedureTypeLoader(item, { models }) {
       ...otherFields,
     },
   });
+
+  // Validate that all surveys exist before creating relationships
+  if (surveyIdList.length > 0) {
+    const existingSurveys = await models.Survey.findAll({
+      where: { id: { [Op.in]: surveyIdList } },
+    });
+    const existingSurveyIds = existingSurveys.map(({ id }) => id);
+    const nonExistentSurveyIds = surveyIdList.filter(
+      (surveyId) => !existingSurveyIds.includes(surveyId),
+    );
+    if (nonExistentSurveyIds.length > 0) {
+      pushError(`Surveys ${nonExistentSurveyIds.join(', ')} for procedure type "${id}" not found.`);
+    }
+  }
 
   const existingProcedureType = await models.ReferenceData.findByPk(id, {
     include: [{ model: models.Survey, as: 'surveys' }],
