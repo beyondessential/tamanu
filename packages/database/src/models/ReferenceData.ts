@@ -76,12 +76,6 @@ export class ReferenceData extends Model {
       foreignKey: 'designationId',
     });
 
-    this.belongsToMany(models.Survey, {
-      through: models.ProcedureTypeSurvey,
-      as: 'surveys',
-      foreignKey: 'procedureTypeId',
-    });
-
     this.belongsToMany(this, {
       as: 'parent',
       through: 'reference_data_relations',

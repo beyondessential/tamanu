@@ -87,7 +87,6 @@ export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
-export * from './ProcedureTypeSurvey';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
