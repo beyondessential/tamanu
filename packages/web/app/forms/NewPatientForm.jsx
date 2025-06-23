@@ -128,7 +128,7 @@ export const NewPatientForm = memo(
               label: (
                 <TranslatedText
                   stringId="patient.newPatientAction.option.newPatient"
-                  fallback="Create new patient"
+                  fallback="Add new patient"
                   data-testid="translatedtext-kswe"
                 />
               ),
@@ -208,7 +208,13 @@ export const NewPatientForm = memo(
           )}
         </Collapse>
         <ModalFormActionRow
-          confirmText="Confirm"
+          confirmText={
+            <TranslatedText
+              stringId="patient.register.action.createNewPatient"
+              fallback="Add new patient"
+              data-testid="translatedtext-add-new-patient"
+            />
+          }
           onConfirm={submitForm}
           onCancel={onCancel}
           data-testid="modalformactionrow-h4kx"
