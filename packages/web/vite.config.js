@@ -47,6 +47,7 @@ export default async () => {
         env: {
           NODE_ENV: process.env.NODE_ENV,
           REVISION: revision,
+          PATIENT_PORTAL: process.env.PATIENT_PORTAL,
         },
         arch: 'wasm',
         platform: 'web',

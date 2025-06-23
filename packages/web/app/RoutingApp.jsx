@@ -21,9 +21,16 @@ import { UserActivityMonitor } from './components/UserActivityMonitor';
 import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
+import { PatientPortalViews } from './views/patientPortal/PatientPortalViews';
 
 export const RoutingApp = () => {
+  const isPatientPortal = process.env.PATIENT_PORTAL === 'true';
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
+
+  if (isPatientPortal) {
+    return <RoutingPatientPortalApp />;
+  }
+
   return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
@@ -59,6 +66,16 @@ export const RoutingAdminApp = React.memo(() => {
       <Switch>
         <Redirect exact path="/" to="/admin" />
         <Route path="/admin" component={AdministrationRoutes} />
+      </Switch>
+    </App>
+  );
+});
+
+export const RoutingPatientPortalApp = React.memo(() => {
+  return (
+    <App>
+      <Switch>
+        <Route path="/" component={PatientPortalViews} />
       </Switch>
     </App>
   );
