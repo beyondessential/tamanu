@@ -605,7 +605,6 @@ export async function procedureTypeLoader(item, { models, pushError }) {
       rows.push({
         model: 'ProcedureTypeSurvey',
         values: {
-          id: `${id};${surveyId}`,
           procedureTypeId: id,
           surveyId: surveyId,
           deletedAt: new Date(),
@@ -618,7 +617,6 @@ export async function procedureTypeLoader(item, { models, pushError }) {
     rows.push({
       model: 'ProcedureTypeSurvey',
       values: {
-        id: `${id};${surveyId}`,
         procedureTypeId: id,
         surveyId: surveyId,
       },

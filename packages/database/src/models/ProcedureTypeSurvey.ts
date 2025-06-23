@@ -7,10 +7,16 @@ export class ProcedureTypeSurvey extends Model {
   declare procedureTypeId?: string;
   declare surveyId?: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel(options: InitOptions) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("procedure_type_id", ';', ':') || ';' || REPLACE("survey_id", ';', ':')) STORED`,
+          primaryKey: true,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored
+          },
+        },
       },
       {
         ...options,
