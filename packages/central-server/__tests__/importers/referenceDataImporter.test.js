@@ -567,6 +567,16 @@ describe('Data definition import', () => {
   });
 
   describe('Procedure Type Survey', () => {
+    beforeAll(async () => {
+      await models.ProcedureType.destroy({ where: {}, force: true });
+      await models.Survey.destroy({ where: {}, force: true });
+      await models.ProcedureTypeSurvey.destroy({ where: {}, force: true });
+    });
+
+    afterAll(async () => {
+      await ctx.close();
+    });
+
     it.todo('should import procedure type without formlink');
     it.todo('should import procedure type with formlink');
     it.todo('should validate that the form exists');
