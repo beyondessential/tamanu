@@ -101,13 +101,15 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
 
-  const text = (
+  const text = componentText ? (
     <TranslatedReferenceData
       category="surveyScreenComponent"
       value={componentId}
       fallback={componentText}
     />
-  ) || <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />;
+  ) : (
+    <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
+  );
   const helperText = (
     <TranslatedReferenceData
       category="surveyScreenComponent"
