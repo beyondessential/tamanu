@@ -15,17 +15,17 @@ function newlinesToArray(data) {
 
   const array = data
     .split(split)
-    .map((x) => x.trim())
-    .filter((x) => x);
+    .map(x => x.trim())
+    .filter(x => x);
   return JSON.stringify(array);
 }
 
 function makeMandatory(validationCriteria) {
-    const { validationCriteria: originalValidationCriteria } = validationCriteria;
-    return JSON.stringify({
-      ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
-      mandatory: true,
-    });
+  const { validationCriteria: originalValidationCriteria } = validationCriteria;
+  return JSON.stringify({
+    ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
+    mandatory: true,
+  });
 }
 
 function applyComponentTypeOverrides(type, surveyComponent) {
@@ -34,7 +34,7 @@ function applyComponentTypeOverrides(type, surveyComponent) {
     return {
       ...surveyComponent,
       validationCriteria: makeMandatory(validationCriteria),
-    }
+    };
   }
   return surveyComponent;
 }
@@ -119,7 +119,7 @@ function importDataElement(row) {
 function splitIntoScreens(questions) {
   const screenStarts = questions
     .map((q, i) => ({ newScreen: q.newScreen, i }))
-    .filter((q) => q.i === 0 || q.newScreen)
+    .filter(q => q.i === 0 || q.newScreen)
     .concat([{ i: questions.length }]);
 
   return screenStarts.slice(0, -1).map((q, i) => {
@@ -130,7 +130,7 @@ function splitIntoScreens(questions) {
 }
 
 export function readSurveyQuestions(data, survey) {
-  const questions = data.map(importDataElement).filter((q) => q.code);
+  const questions = data.map(importDataElement).filter(q => q.code);
   const screens = splitIntoScreens(questions);
 
   return screens.flatMap((x, i) =>
