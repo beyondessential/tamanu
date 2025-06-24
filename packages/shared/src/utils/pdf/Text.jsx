@@ -9,7 +9,7 @@ export const Text = ({ style, bold, ...props }) => {
   const newStyles = makeIntlStyleSheet(
     {
       ...mergedStyle,
-      ...(bold && { fontFamily: 'Rubik-Bold' }),
+      ...(bold && { fontFamily: 'NotoKufiArabic-Bold' }),
     },
     bold,
   );
