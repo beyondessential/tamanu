@@ -1,7 +1,7 @@
 name: Synthetic Test Runner
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       attempt:
         description: 'Attempt number'
@@ -12,10 +12,6 @@ on:
         required: false
         type: number
         default: 5
-      ref:
-        description: 'Ref'
-        required: true
-        type: string
       target_url:
         description: 'Target URL for synthetic tests'
         required: true
@@ -153,14 +149,21 @@ jobs:
 
   retrigger-synthetic-test:
     name: retrigger-synthetic-test-${{ inputs.attempt }}-${{ inputs.pr_number }}-${{ github.run_id }}
+    runs-on: ubuntu-latest
     needs: validate-and-run
     if: success() && inputs.attempt < ${{ inputs.max_attempts }}
-    uses: ${{ github.repository }}/.github/workflows/ci-synthetic-test-runner.yml@${{ inputs.ref }}
-    with:
-      attempt: ${{ inputs.attempt + 1 }}
-      max_attempts: ${{ inputs.max_attempts }}
-      ref: ${{ inputs.ref }}
-      target_url: ${{ inputs.target_url }}
-      pr_number: ${{ inputs.pr_number }}
-      pr_ref: ${{ inputs.pr_ref }}
-      pr_sha: ${{ inputs.pr_sha }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Trigger Synthetic Test Runner
+        run: |
+          echo "Triggering ci-synthetic-test-runner.yml on ref ${{ inputs.pr_ref }}"
+          NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+          gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
+            --ref "${{ inputs.pr_ref }}" \
+            --field attempt="${{ NEXT_ATTEMPT }}" \
+            --field target_url="${{ inputs.target_url }}" \
+            --field pr_number="${{ inputs.pr_number }}" \
+            --field pr_ref="${{ inputs.pr_ref }}" \
+            --field pr_sha="${{ inputs.pr_sha }}"
+
