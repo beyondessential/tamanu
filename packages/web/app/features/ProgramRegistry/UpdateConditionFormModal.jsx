@@ -11,6 +11,7 @@ import {
   TranslatedText,
   DateDisplay,
   ModalFormActionRow,
+  TranslatedReferenceData,
 } from '../../components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
@@ -121,7 +122,13 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                 />
               ),
               width: 220,
-              accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
+              accessor: ({ programRegistryCondition }) => (
+                <TranslatedReferenceData
+                  value={programRegistryCondition?.id}
+                  fallback={programRegistryCondition?.name}
+                  category="programRegistryCondition"
+                />
+              ),
             },
             {
               title: (
