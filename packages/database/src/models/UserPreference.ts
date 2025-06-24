@@ -16,7 +16,6 @@ export class UserPreference extends Model {
       {
         id: {
           type: `TEXT GENERATED ALWAYS AS ("user_id" || ';' || "key" || ';' || COALESCE("facility_id", '')) STORED`,
-          primaryKey: true,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
@@ -24,10 +23,12 @@ export class UserPreference extends Model {
         key: {
           type: DataTypes.STRING,
           allowNull: false,
+          primaryKey: true,
         },
         value: {
           type: DataTypes.JSONB,
           allowNull: false,
+          primaryKey: true,
         },
       },
       {

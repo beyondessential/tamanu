@@ -1,6 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import { DataTypes } from 'sequelize';
 
 export class ProcedureTypeSurvey extends Model {
   declare id: string;
@@ -12,10 +13,19 @@ export class ProcedureTypeSurvey extends Model {
       {
         id: {
           type: `TEXT GENERATED ALWAYS AS (REPLACE("procedure_type_id", ';', ':') || ';' || REPLACE("survey_id", ';', ':')) STORED`,
-          primaryKey: true,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
+        },
+        procedureTypeId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          primaryKey: true,
+        },
+        surveyId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          primaryKey: true,
         },
       },
       {
