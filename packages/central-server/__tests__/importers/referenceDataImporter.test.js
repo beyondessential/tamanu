@@ -565,6 +565,12 @@ describe('Data definition import', () => {
       'Lab test panels cannot contain sensitive lab test types',
     );
   });
+
+  describe('Procedure Type Survey', () => {
+    it.todo('should import procedure type without formlink');
+    it.todo('should import procedure type with formlink');
+    it.todo('should validate that the form exists');
+  });
 });
 
 describe('Permissions import', () => {
