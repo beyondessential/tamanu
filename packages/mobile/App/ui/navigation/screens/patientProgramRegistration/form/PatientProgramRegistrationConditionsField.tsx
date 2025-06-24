@@ -232,6 +232,7 @@ export const PatientProgramRegistrationConditionsField = ({
     models.ProgramRegistryConditionCategory.find({
       where: {
         programRegistry: { id: programRegistryId },
+        visibilityStatus: VisibilityStatus.Current,
       },
     }),
     [programRegistryId],
