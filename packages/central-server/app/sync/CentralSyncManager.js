@@ -41,66 +41,165 @@ const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // Timing helper for sync performance metrics
+// Creates a hierarchical benchmark structure similar to Final Fantasy XIV's performance tracking:
+// - grandTotal: overall statistics for the entire operation
+// - actions: array of main actions with their timing data and nested subActions
+// - timeline: chronological log of all actions and sub-actions
 const createTimingLogger = (operation, sessionId, isMobile = false, store = null) => {
   const startTime = Date.now();
-  const operationTotals = new Map(); // Track total time per sub-operation
-  const subOperationLogs = []; // Track individual sub-operation logs
+  const actions = new Map(); // Track actions and their subactions
+  const actionLogs = []; // Track individual action logs with timestamps
   
   return {
-    log: (subOperation, additionalData = {}) => {
-      const duration = Date.now() - startTime;
+    log: (action, additionalData = {}) => {
+      const currentTime = Date.now();
+      const duration = currentTime - startTime;
       
-      // Track total time for this sub-operation across all calls
-      const currentTotal = operationTotals.get(subOperation) || 0;
-      operationTotals.set(subOperation, currentTotal + duration);
+      // Create or update action entry
+      if (!actions.has(action)) {
+        actions.set(action, {
+          name: action,
+          totalDurationMs: 0,
+          callCount: 0,
+          subActions: [],
+          firstCallAt: currentTime,
+          lastCallAt: currentTime,
+        });
+      }
+      
+      const actionEntry = actions.get(action);
+      actionEntry.totalDurationMs += duration;
+      actionEntry.callCount += 1;
+      actionEntry.lastCallAt = currentTime;
       
       // Store individual log entry
       const logEntry = {
-        subOperation,
+        action,
         timestamp: new Date().toISOString(),
         durationMs: duration,
-        totalDurationMs: Date.now() - startTime,
-        subOperationTotalMs: currentTotal + duration,
+        totalDurationMs: currentTime - startTime,
         ...additionalData,
       };
-      subOperationLogs.push(logEntry);
+      actionLogs.push(logEntry);
       
       log.debug('CentralSyncManager.timing', {
         operation,
-        subOperation,
+        action,
         sessionId,
         isMobile,
         durationMs: duration,
-        totalDurationMs: Date.now() - startTime,
-        subOperationTotalMs: currentTotal + duration,
+        totalDurationMs: currentTime - startTime,
         ...additionalData,
       });
     },
-    getDuration: () => Date.now() - startTime,
-    getOperationTotals: () => {
-      const totals = {};
-      operationTotals.forEach((total, subOperation) => {
-        totals[subOperation] = total;
+    
+    // Add sub-action tracking for nested operations
+    logSubAction: (parentAction, subAction, additionalData = {}) => {
+      const currentTime = Date.now();
+      const duration = currentTime - startTime;
+      
+      // Ensure parent action exists
+      if (!actions.has(parentAction)) {
+        actions.set(parentAction, {
+          name: parentAction,
+          totalDurationMs: 0,
+          callCount: 0,
+          subActions: [],
+          firstCallAt: currentTime,
+          lastCallAt: currentTime,
+        });
+      }
+      
+      const parentEntry = actions.get(parentAction);
+      
+      // Find or create sub-action
+      let subActionEntry = parentEntry.subActions.find(sa => sa.name === subAction);
+      if (!subActionEntry) {
+        subActionEntry = {
+          name: subAction,
+          totalDurationMs: 0,
+          callCount: 0,
+          firstCallAt: currentTime,
+          lastCallAt: currentTime,
+        };
+        parentEntry.subActions.push(subActionEntry);
+      }
+      
+      subActionEntry.totalDurationMs += duration;
+      subActionEntry.callCount += 1;
+      subActionEntry.lastCallAt = currentTime;
+      
+      // Store individual log entry
+      const logEntry = {
+        parentAction,
+        subAction,
+        timestamp: new Date().toISOString(),
+        durationMs: duration,
+        totalDurationMs: currentTime - startTime,
+        ...additionalData,
+      };
+      actionLogs.push(logEntry);
+      
+      log.debug('CentralSyncManager.timing.subAction', {
+        operation,
+        parentAction,
+        subAction,
+        sessionId,
+        isMobile,
+        durationMs: duration,
+        totalDurationMs: currentTime - startTime,
+        ...additionalData,
       });
-      return totals;
     },
-    getSubOperationLogs: () => subOperationLogs,
-    logFinal: (additionalData = {}) => {
+    
+    getDuration: () => Date.now() - startTime,
+    
+    getBenchmarkData: () => {
       const totalDuration = Date.now() - startTime;
-      const operationTotalsObj = {};
-      operationTotals.forEach((total, subOperation) => {
-        operationTotalsObj[subOperation] = total;
+      const actionsArray = [];
+      
+      actions.forEach((actionData, actionName) => {
+        actionsArray.push({
+          name: actionName,
+          totalDurationMs: actionData.totalDurationMs,
+          callCount: actionData.callCount,
+          averageDurationMs: actionData.totalDurationMs / actionData.callCount,
+          firstCallAt: new Date(actionData.firstCallAt).toISOString(),
+          lastCallAt: new Date(actionData.lastCallAt).toISOString(),
+          subActions: actionData.subActions.map(sa => ({
+            name: sa.name,
+            totalDurationMs: sa.totalDurationMs,
+            callCount: sa.callCount,
+            averageDurationMs: sa.totalDurationMs / sa.callCount,
+            firstCallAt: new Date(sa.firstCallAt).toISOString(),
+            lastCallAt: new Date(sa.lastCallAt).toISOString(),
+          })),
+        });
       });
+      
+      return {
+        grandTotal: {
+          totalDurationMs: totalDuration,
+          actionCount: actionsArray.length,
+          totalActionCalls: actionsArray.reduce((sum, action) => sum + action.callCount, 0),
+        },
+        actions: actionsArray,
+        timeline: actionLogs,
+      };
+    },
+    
+    logFinal: (additionalData = {}) => {
+      const benchmarkData = this.getBenchmarkData();
       
       log.debug('CentralSyncManager.timing.final', {
         operation,
         sessionId,
         isMobile,
-        totalDurationMs: totalDuration,
-        operationTotals: operationTotalsObj,
+        benchmark: benchmarkData,
         ...additionalData,
       });
     },
+    
     saveTimingsToDebugInfo: async (additionalData = {}) => {
       if (!store || !sessionId) {
         log.warn('CentralSyncManager.timing.saveTimingsToDebugInfo', {
@@ -111,29 +210,21 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
         return;
       }
       
-      const totalDuration = Date.now() - startTime;
-      const operationTotalsObj = {};
-      operationTotals.forEach((total, subOperation) => {
-        operationTotalsObj[subOperation] = total;
-      });
-      
-      const timingData = {
-        operation,
-        isMobile,
-        totalDurationMs: totalDuration,
-        operationTotals: operationTotalsObj,
-        subOperationLogs,
-        ...additionalData,
-      };
+      const benchmarkData = this.getBenchmarkData();
       
       try {
         await store.models.SyncSession.addDebugInfo(sessionId, {
-          [`timing_${operation}`]: timingData,
+          benchmark: {
+            operation,
+            isMobile,
+            ...benchmarkData,
+            ...additionalData,
+          },
         });
         log.debug('CentralSyncManager.timing.savedToDebugInfo', {
           operation,
           sessionId,
-          totalDurationMs: totalDuration,
+          totalDurationMs: benchmarkData.grandTotal.totalDurationMs,
         });
       } catch (error) {
         log.error('CentralSyncManager.timing.saveTimingsToDebugInfo.error', {
@@ -615,8 +706,6 @@ export class CentralSyncManager {
       // as the snapshot only contains read queries plus writes to the specific sync snapshot table
       // that it controls, there should be no concurrent update issues :)
       await repeatableReadTransaction(this.store.sequelize, async () => {
-        const transactionTiming = createTimingLogger('setupSnapshotForPull_transaction', sessionId, true, this.store);
-        
         const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
         if (snapshotTransactionTimeoutMs) {
           transactionTimeout = setTimeout(() => {
@@ -636,14 +725,14 @@ export class CentralSyncManager {
           deviceId,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
         );
-        transactionTiming.log('snapshotOutgoingChanges_full');
+        timing.logSubAction('repeatableReadTransaction', 'snapshotOutgoingChanges_full');
 
         // get changes since the last successful sync for all other synced patients and independent
         // record types
         const patientFacilitiesCount = await models.PatientFacility.count({
           where: { facilityId: facilityIds },
         });
-        transactionTiming.log('countPatientFacilities', { patientFacilitiesCount });
+        timing.logSubAction('repeatableReadTransaction', 'countPatientFacilities', { patientFacilitiesCount });
 
         // regular changes
         await snapshotOutgoingChanges(
@@ -657,7 +746,7 @@ export class CentralSyncManager {
           deviceId,
           sessionConfig,
         );
-        transactionTiming.log('snapshotOutgoingChanges_incremental');
+        timing.logSubAction('repeatableReadTransaction', 'snapshotOutgoingChanges_incremental');
 
         // any tables for full resync from (used when mobile needs to wipe and resync tables as
         // part of the upgrade process)
@@ -674,14 +763,14 @@ export class CentralSyncManager {
             deviceId,
             sessionConfig,
           );
-          transactionTiming.log('snapshotOutgoingChanges_fullResync');
+          timing.logSubAction('repeatableReadTransaction', 'snapshotOutgoingChanges_fullResync');
         }
 
         // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
-        transactionTiming.log('removeEchoedChanges');
+        timing.logSubAction('repeatableReadTransaction', 'removeEchoedChanges');
         
-        transactionTiming.log('transactionComplete');
+        timing.logSubAction('repeatableReadTransaction', 'transactionComplete');
       });
       timing.log('repeatableReadTransaction');
       
@@ -841,13 +930,11 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        const transactionTiming = createTimingLogger('persistIncomingChanges_transaction', sessionId, isMobile, this.store);
-        
         // currently we do not create audit logs on mobile devices
         // so we rely on sync process to create audit logs
         if (!isMobile) {
           await pauseAudit(sequelize);
-          transactionTiming.log('pauseAudit');
+          timing.logSubAction('sequelizeTransaction', 'pauseAudit');
         }
         
         // we tick-tock the global clock to make sure there is a unique tick for these changes
@@ -856,15 +943,15 @@ export class CentralSyncManager {
         // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
         // saving with a unique tick
         const { tock } = await this.tickTockGlobalClock();
-        transactionTiming.log('tickTockGlobalClock');
+        timing.logSubAction('sequelizeTransaction', 'tickTockGlobalClock');
 
         // run any side effects for each model
         // eg: resolving duplicated patient display IDs
         await incomingSyncHook(sequelize, modelsToInclude, sessionId);
-        transactionTiming.log('incomingSyncHook');
+        timing.logSubAction('sequelizeTransaction', 'incomingSyncHook');
 
         await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
-        transactionTiming.log('saveIncomingChanges');
+        timing.logSubAction('sequelizeTransaction', 'saveIncomingChanges');
         
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
@@ -874,15 +961,15 @@ export class CentralSyncManager {
           { savedAtSyncTick: tock },
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
-        transactionTiming.log('updateSnapshotRecords');
+        timing.logSubAction('sequelizeTransaction', 'updateSnapshotRecords');
 
         // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
         // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
         // (specifically won't be removed by removeEchoedChanges())
         await this.tickTockGlobalClock();
-        transactionTiming.log('tickTockGlobalClock_second');
+        timing.logSubAction('sequelizeTransaction', 'tickTockGlobalClock_second');
 
-        transactionTiming.log('transactionComplete');
+        timing.logSubAction('sequelizeTransaction', 'transactionComplete');
         return tock;
       });
       timing.log('sequelizeTransaction');
