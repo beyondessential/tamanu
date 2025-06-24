@@ -12,7 +12,7 @@ import {
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
-import { ENCOUNTER_TYPE_LABELS } from './encounters';
+import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -80,6 +80,7 @@ export const registeredEnums = {
   DRUG_UNIT_SHORT_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -136,6 +137,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DRUG_UNIT_SHORT_LABELS: 'medication.property.unitShort',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS: 'encounter.property.typeAbbreviation',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
