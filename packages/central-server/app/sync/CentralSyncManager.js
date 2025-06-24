@@ -44,10 +44,62 @@ const errorMessageFromSession = (session) =>
 // Creates a comprehensive benchmark across all operations in a sync session
 const createSessionTimingAggregator = (sessionId, store) => {
   const sessionStartTime = Date.now();
-  const operations = new Map(); // Track all operations in this session
+  const routes = new Map(); // Track all routes in this session (top level)
   
   return {
-    createOperationTimer: (operation, isMobile = false) => {
+    createRouteTimer: (routeName, isMobile = false) => {
+      const routeStartTime = Date.now();
+      const timing = createTimingLogger(routeName, sessionId, isMobile, store);
+      
+      // Initialize route entry if it doesn't exist
+      if (!routes.has(routeName)) {
+        routes.set(routeName, {
+          routeName,
+          isMobile,
+          startTime: routeStartTime,
+          endTime: null,
+          benchmarkData: null,
+          operations: new Map(), // Operations nested under this route
+        });
+      }
+      
+      // Override the saveTimingsToDebugInfo to only aggregate into session-wide benchmark
+      timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
+        const benchmarkData = this.getBenchmarkData();
+        const routeEntry = routes.get(routeName);
+        
+        // Update route with final timing data
+        routeEntry.endTime = Date.now();
+        routeEntry.benchmarkData = benchmarkData;
+        routeEntry.additionalData = additionalData;
+        
+        // Convert route actions to operations format
+        routeEntry.routeOperations = benchmarkData.actions.map(action => ({
+          name: action.name,
+          totalDurationMs: action.durationMs,
+          ...(action.callCount > 1 && { 
+            callCount: action.callCount,
+            averageDurationMs: action.averageDurationMs 
+          }),
+          ...(action.subActions && action.subActions.length > 0 && {
+            actions: action.subActions.map(sa => ({
+              name: sa.name,
+              durationMs: sa.durationMs,
+              ...(sa.callCount > 1 && { 
+                callCount: sa.callCount,
+                averageDurationMs: sa.averageDurationMs 
+              }),
+            }))
+          })
+        }));
+        
+        // Don't save individual route benchmarks - only collect for final session benchmark
+      };
+      
+      return timing;
+    },
+    
+    createOperationTimer: (operation, isMobile = false, routeName = null) => {
       const operationStartTime = Date.now();
       const timing = createTimingLogger(operation, sessionId, isMobile, store);
       
@@ -55,20 +107,21 @@ const createSessionTimingAggregator = (sessionId, store) => {
       timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
         const benchmarkData = this.getBenchmarkData();
         
-        // Store this operation's benchmark data for final session benchmark
-        operations.set(operation, {
-          operation,
-          isMobile,
-          startTime: operationStartTime,
-          endTime: Date.now(),
-          ...benchmarkData,
-          ...additionalData,
-        });
+        if (routeName && routes.has(routeName)) {
+          // Nest this operation under the specified route
+          const routeEntry = routes.get(routeName);
+          routeEntry.operations.set(operation, {
+            operation,
+            isMobile,
+            startTime: operationStartTime,
+            endTime: Date.now(),
+            ...benchmarkData,
+            ...additionalData,
+          });
+        }
         
         // Don't save individual operation benchmarks - only collect for final session benchmark
       };
-      
-      // Remove intermediate session benchmark saving - only save final benchmark
       
       return timing;
     },
@@ -80,22 +133,47 @@ const createSessionTimingAggregator = (sessionId, store) => {
       const sessionEndTime = Date.now();
       const sessionTotalDuration = sessionEndTime - sessionStartTime;
       
-      // Create final aggregated benchmark
-            const allOperations = [];
+      // Create final aggregated benchmark with routes containing nested operations
+      const allRoutes = [];
+      let totalOperationCount = 0;
       
-              operations.forEach((opData) => {
-        allOperations.push({
-          name: opData.operation,
-          startTime: new Date(opData.startTime).toISOString(),
-          endTime: new Date(opData.endTime).toISOString(),
-          totalDurationMs: opData.grandTotal.totalDurationMs,
-          actions: opData.actions,
+      // Process routes with their nested operations
+      routes.forEach((routeEntry) => {
+        const allOperations = [];
+        
+        // Add route-level operations (actions from the route itself)
+        if (routeEntry.routeOperations) {
+          allOperations.push(...routeEntry.routeOperations);
+          totalOperationCount += routeEntry.routeOperations.length;
+        }
+        
+        // Add CentralSyncManager operations nested under this route
+        routeEntry.operations.forEach((opData) => {
+          allOperations.push({
+            name: opData.operation,
+            startTime: new Date(opData.startTime).toISOString(),
+            endTime: new Date(opData.endTime).toISOString(),
+            totalDurationMs: opData.grandTotal.totalDurationMs,
+            actions: opData.actions,
+          });
+          totalOperationCount++;
         });
+        
+        // Add route with its nested operations
+        if (routeEntry.benchmarkData) {
+          allRoutes.push({
+            name: routeEntry.routeName,
+            startTime: new Date(routeEntry.startTime).toISOString(),
+            endTime: new Date(routeEntry.endTime).toISOString(),
+            totalDurationMs: routeEntry.benchmarkData.grandTotal.totalDurationMs,
+            operations: allOperations, // All operations (route + sync manager)
+          });
+        }
       });
       
       const benchmark = {
         totalDurationMs: sessionTotalDuration,
-        operations: allOperations,
+        routes: allRoutes,
       };
       
       try {
@@ -105,7 +183,8 @@ const createSessionTimingAggregator = (sessionId, store) => {
         log.info('CentralSyncManager.benchmark.saved', {
           sessionId,
           totalDurationMs: sessionTotalDuration,
-          operationCount: allOperations.length,
+          routeCount: allRoutes.length,
+          operationCount: totalOperationCount,
         });
       } catch (error) {
         log.error('CentralSyncManager.benchmark.error', {
@@ -353,9 +432,17 @@ export class CentralSyncManager {
   }
   
   // Create timing logger that integrates with session-wide benchmarking
-  createOperationTiming(sessionId, operation, isMobile = false) {
+  createOperationTiming(sessionId, operation, isMobile = false, routeName = null) {
+    if (!sessionId) return null; // Don't benchmark if no sessionId
     const sessionAggregator = this.getSessionTimingAggregator(sessionId);
-    return sessionAggregator.createOperationTimer(operation, isMobile);
+    return sessionAggregator.createOperationTimer(operation, isMobile, routeName);
+  }
+  
+  // Create route-level timing (top level in hierarchy)
+  createRouteTiming(sessionId, routeName, isMobile = false) {
+    if (!sessionId) return null; // Don't benchmark if no sessionId
+    const sessionAggregator = this.getSessionTimingAggregator(sessionId);
+    return sessionAggregator.createRouteTimer(routeName, isMobile);
   }
 
   async getIsSyncCapacityFull() {
@@ -502,25 +589,38 @@ export class CentralSyncManager {
     return session;
   }
 
-  async endSession(sessionId) {
-    const session = await this.connectToSession(sessionId);
-    const durationMs = Date.now() - session.startTime;
-    log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
-    await completeSyncSession(this.store, sessionId);
+  async endSession(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'End Session', false, routeName);
     
-    // Finalize and save the complete session benchmark
-    const sessionAggregator = this.sessionTimingAggregators.get(sessionId);
-    if (sessionAggregator) {
-      await sessionAggregator.finalizeSession();
-      this.sessionTimingAggregators.delete(sessionId);
+    try {
+      const session = await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSession');
+      
+      const durationMs = Date.now() - session.startTime;
+      log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
+      
+      await completeSyncSession(this.store, sessionId);
+      if (timing) timing.log('completeSyncSession');
+      
+      // Finalize and save the complete session benchmark
+      const sessionAggregator = this.sessionTimingAggregators.get(sessionId);
+      if (sessionAggregator) {
+        await sessionAggregator.finalizeSession();
+        this.sessionTimingAggregators.delete(sessionId);
+      }
+      if (timing) timing.log('finalizeSessionBenchmark');
+      
+      log.info('CentralSyncManager.completedSession', {
+        sessionId,
+        durationMs,
+        facilityIds: session.parameters.facilityIds,
+        deviceId: session.parameters.deviceId,
+      });
+      
+      if (timing) timing.log('endSessionComplete');
+    } finally {
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
-    
-    log.info('CentralSyncManager.completedSession', {
-      sessionId,
-      durationMs,
-      facilityIds: session.parameters.facilityIds,
-      deviceId: session.parameters.deviceId,
-    });
   }
 
   async markSessionAsProcessing(sessionId) {
@@ -552,34 +652,34 @@ export class CentralSyncManager {
   }
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
-  async initiatePull(sessionId, params) {
-    const timing = this.createOperationTiming(sessionId, 'Initiate Pull', params?.isMobile);
+  async initiatePull(sessionId, params, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Initiate Pull', params?.isMobile, routeName);
     
     try {
       await this.connectToSession(sessionId);
-      timing.log('connectToSession');
+      if (timing) timing.log('connectToSession');
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
       // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
       const isAlreadyProcessing = await this.checkSessionIsProcessing(sessionId);
-      timing.log('checkSessionIsProcessing');
+      if (timing) timing.log('checkSessionIsProcessing');
       
       if (isAlreadyProcessing) {
         throw new Error(`Snapshot for session ${sessionId} is already being processed`);
       }
 
       const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-      timing.log('markSessionAsProcessing');
+      if (timing) timing.log('markSessionAsProcessing');
       
       this.setupSnapshotForPull(sessionId, params, unmarkSessionAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
-      timing.log('setupSnapshotForPullStarted');
+      if (timing) timing.log('setupSnapshotForPullStarted');
     } catch (error) {
-      timing.log('initiatePullError', { error: error.message });
+      if (timing) timing.log('initiatePullError', { error: error.message });
       log.error('CentralSyncManager.initiatePull encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     } finally {
       // Save timing data to debug_info
-      await timing.saveTimingsToDebugInfo();
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
   }
 
@@ -898,84 +998,120 @@ export class CentralSyncManager {
     }
   }
 
-  async checkSessionReady(sessionId) {
-    // if this session is still initiating, return false to tell the client to keep waiting
-    const sessionIsInitiating = await this.checkSessionIsProcessing(sessionId);
-    if (sessionIsInitiating) {
-      return false;
-    }
+  async checkSessionReady(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Check Session Ready', false, routeName);
+    
+    try {
+      // if this session is still initiating, return false to tell the client to keep waiting
+      const sessionIsInitiating = await this.checkSessionIsProcessing(sessionId);
+      if (timing) timing.log('checkSessionIsProcessing');
+      
+      if (sessionIsInitiating) {
+        if (timing) timing.log('sessionStillInitiating');
+        return false;
+      }
 
-    // if this session is not marked as processing, but also never set startedAtTick, record an error
-    const session = await this.connectToSession(sessionId);
-    if (session.startedAtTick === null) {
-      await session.markErrored(
-        'Session initiation incomplete, likely because the central server restarted during the process',
-      );
-      throw new Error(errorMessageFromSession(session));
-    }
+      // if this session is not marked as processing, but also never set startedAtTick, record an error
+      const session = await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSession');
+      
+      if (session.startedAtTick === null) {
+        if (timing) timing.log('sessionErrorNoStartedAtTick');
+        await session.markErrored(
+          'Session initiation incomplete, likely because the central server restarted during the process',
+        );
+        throw new Error(errorMessageFromSession(session));
+      }
 
-    // session ready!
-    return true;
+      // session ready!
+      if (timing) timing.log('sessionReady');
+      return true;
+    } finally {
+      if (timing) await timing.saveTimingsToDebugInfo();
+    }
   }
 
-  async checkPullReady(sessionId) {
-    await this.connectToSession(sessionId);
+  async checkPullReady(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Check Pull Ready', false, routeName);
+    
+    try {
+      await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSession');
 
-    // if this snapshot still processing, return false to tell the client to keep waiting
-    const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
-    if (snapshotIsProcessing) {
-      return false;
+      // if this snapshot still processing, return false to tell the client to keep waiting
+      const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
+      if (timing) timing.log('checkSessionIsProcessing');
+      
+      if (snapshotIsProcessing) {
+        if (timing) timing.log('snapshotStillProcessing');
+        return false;
+      }
+
+      // if this snapshot is not marked as processing, but also never completed, record an error
+      const session = await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSessionAgain');
+      
+      if (session.snapshotCompletedAt === null) {
+        if (timing) timing.log('snapshotErrorNotCompleted');
+        await session.markErrored(
+          'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
+        );
+        throw new Error(errorMessageFromSession(session));
+      }
+
+      // snapshot processing complete!
+      if (timing) timing.log('snapshotReady');
+      return true;
+    } finally {
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
-
-    // if this snapshot is not marked as processing, but also never completed, record an error
-    const session = await this.connectToSession(sessionId);
-    if (session.snapshotCompletedAt === null) {
-      await session.markErrored(
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
-      );
-      throw new Error(errorMessageFromSession(session));
-    }
-
-    // snapshot processing complete!
-    return true;
   }
 
-  async fetchSyncMetadata(sessionId) {
-    // Minimum metadata info for now but can grow in the future
-    const { startedAtTick } = await this.connectToSession(sessionId);
-    return { startedAtTick };
+  async fetchSyncMetadata(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Fetch Sync Metadata', false, routeName);
+    
+    try {
+      // Minimum metadata info for now but can grow in the future
+      const { startedAtTick } = await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSession');
+      
+      if (timing) timing.log('fetchMetadataComplete');
+      return { startedAtTick };
+    } finally {
+      if (timing) await timing.saveTimingsToDebugInfo();
+    }
   }
 
-  async fetchPullMetadata(sessionId) {
-    const timing = this.createOperationTiming(sessionId, 'Fetch Pull Metadata', true); // Assume mobile for performance tracking
+  async fetchPullMetadata(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Fetch Pull Metadata', true, routeName); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
-      timing.log('connectToSession');
+      if (timing) timing.log('connectToSession');
       
       const totalToPull = await countSyncSnapshotRecords(
         this.store.sequelize,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      timing.log('countSyncSnapshotRecords', { totalToPull });
+      if (timing) timing.log('countSyncSnapshotRecords', { totalToPull });
       
       await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
-      timing.log('addDebugInfo');
+      if (timing) timing.log('addDebugInfo');
       
       const { pullUntil } = session;
-      timing.log('fetchPullMetadataComplete', { totalToPull, pullUntil });
+      if (timing) timing.log('fetchPullMetadataComplete', { totalToPull, pullUntil });
       return { totalToPull, pullUntil };
     } finally {
       // Save timing data to debug_info
-      await timing.saveTimingsToDebugInfo();
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
   }
 
-  async getOutgoingChanges(sessionId, { fromId, limit }) {
-    const timing = this.createOperationTiming(sessionId, 'Get Outgoing Changes', true); // Assume mobile for performance tracking
+  async getOutgoingChanges(sessionId, { fromId, limit }, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Get Outgoing Changes', true, routeName); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
-      timing.log('connectToSession');
+      if (timing) timing.log('connectToSession');
       
       const snapshotRecords = await findSyncSnapshotRecords(
         this.store.sequelize,
@@ -984,7 +1120,7 @@ export class CentralSyncManager {
         fromId,
         limit,
       );
-      timing.log('findSyncSnapshotRecords', { 
+      if (timing) timing.log('findSyncSnapshotRecords', { 
         recordsCount: snapshotRecords.length, 
         fromId, 
         limit 
@@ -992,7 +1128,7 @@ export class CentralSyncManager {
       
       const { minSourceTick, maxSourceTick } = session.parameters;
       if (!minSourceTick || !maxSourceTick) {
-        timing.log('getOutgoingChangesComplete_noChangelog');
+        if (timing) timing.log('getOutgoingChangesComplete_noChangelog');
         return snapshotRecords;
       }
 
@@ -1000,13 +1136,13 @@ export class CentralSyncManager {
         minSourceTick,
         maxSourceTick,
       });
-      timing.log('attachChangelogToSnapshotRecords');
+      if (timing) timing.log('attachChangelogToSnapshotRecords');
       
-      timing.log('getOutgoingChangesComplete_withChangelog');
+      if (timing) timing.log('getOutgoingChangesComplete_withChangelog');
       return recordsForPull;
     } finally {
       // Save timing data to debug_info
-      await timing.saveTimingsToDebugInfo();
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
   }
 
@@ -1109,13 +1245,13 @@ export class CentralSyncManager {
     }
   }
 
-  async addIncomingChanges(sessionId, changes) {
-    const timing = this.createOperationTiming(sessionId, 'Add Incoming Changes', true); // Assume mobile for performance tracking
+  async addIncomingChanges(sessionId, changes, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Add Incoming Changes', true, routeName); // Assume mobile for performance tracking
     try {
       const { sequelize } = this.store;
       
       await this.connectToSession(sessionId);
-      timing.log('connectToSession');
+      if (timing) timing.log('connectToSession');
       
       const incomingSnapshotRecords = changes.map((c) => ({
         ...c,
@@ -1124,7 +1260,7 @@ export class CentralSyncManager {
           ? Object.values(c.data.updatedAtByField).reduce((s, v) => s + v)
           : null,
       }));
-      timing.log('mapIncomingSnapshotRecords', { changesCount: changes.length });
+      if (timing) timing.log('mapIncomingSnapshotRecords', { changesCount: changes.length });
 
       log.debug('CentralSyncManager.addIncomingChanges', {
         incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
@@ -1132,25 +1268,25 @@ export class CentralSyncManager {
       });
 
       await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
-      timing.log('insertSnapshotRecords');
+      if (timing) timing.log('insertSnapshotRecords');
       
-      timing.log('addIncomingChangesComplete');
+      if (timing) timing.log('addIncomingChangesComplete');
     } finally {
       // Save timing data to debug_info
-      await timing.saveTimingsToDebugInfo();
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude) {
-    const timing = this.createOperationTiming(sessionId, 'Complete Push', true); // Assume mobile for performance tracking
+  async completePush(sessionId, deviceId, tablesToInclude, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Complete Push', true, routeName); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
-      timing.log('connectToSession');
+      if (timing) timing.log('connectToSession');
 
       // don't await persisting, the client should asynchronously poll as it may take longer than
       // the http request timeout
       const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-      timing.log('markSessionAsProcessing');
+      if (timing) timing.log('markSessionAsProcessing');
       
       this.persistIncomingChanges(
         sessionId,
@@ -1158,32 +1294,45 @@ export class CentralSyncManager {
         tablesToInclude,
         session.parameters.isMobile,
       ).finally(unmarkSessionAsProcessing);
-      timing.log('persistIncomingChangesStarted');
+      if (timing) timing.log('persistIncomingChangesStarted');
       
-      timing.log('completePushComplete');
+      if (timing) timing.log('completePushComplete');
     } finally {
       // Save timing data to debug_info
-      await timing.saveTimingsToDebugInfo();
+      if (timing) await timing.saveTimingsToDebugInfo();
     }
   }
 
-  async checkPushComplete(sessionId) {
-    // if the push is still persisting, return false to tell the client to keep waiting
-    const persistIsProcessing = await this.checkSessionIsProcessing(sessionId);
-    if (persistIsProcessing) {
-      return false;
-    }
+  async checkPushComplete(sessionId, routeName = null) {
+    const timing = this.createOperationTiming(sessionId, 'Check Push Complete', false, routeName);
+    
+    try {
+      // if the push is still persisting, return false to tell the client to keep waiting
+      const persistIsProcessing = await this.checkSessionIsProcessing(sessionId);
+      if (timing) timing.log('checkSessionIsProcessing');
+      
+      if (persistIsProcessing) {
+        if (timing) timing.log('persistStillProcessing');
+        return false;
+      }
 
-    // if this session is not marked as processing, but also never set persistCompletedAt, record an error
-    const session = await this.connectToSession(sessionId);
-    if (session.persistCompletedAt === null) {
-      await session.markErrored(
-        'Push persist incomplete, likely because the central server restarted during the process',
-      );
-      throw new Error(errorMessageFromSession(session));
-    }
+      // if this session is not marked as processing, but also never set persistCompletedAt, record an error
+      const session = await this.connectToSession(sessionId);
+      if (timing) timing.log('connectToSession');
+      
+      if (session.persistCompletedAt === null) {
+        if (timing) timing.log('persistErrorNotCompleted');
+        await session.markErrored(
+          'Push persist incomplete, likely because the central server restarted during the process',
+        );
+        throw new Error(errorMessageFromSession(session));
+      }
 
-    // push complete!
-    return true;
+      // push complete!
+      if (timing) timing.log('pushComplete');
+      return true;
+    } finally {
+      if (timing) await timing.saveTimingsToDebugInfo();
+    }
   }
 }
