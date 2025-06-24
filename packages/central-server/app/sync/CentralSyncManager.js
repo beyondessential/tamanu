@@ -195,13 +195,13 @@ export class CentralSyncManager {
   }
 
   async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
-    const timing = createTimingLogger('startSession', null, isMobile, this.store);
     
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-
+    
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
+    const timing = createTimingLogger('startSession', sessionId, isMobile, this.store);
     timing.log('generateSessionId');
     
     const startTime = new Date();
@@ -481,8 +481,8 @@ export class CentralSyncManager {
     }
   }
 
-  async waitForPendingEdits(tick) {
-    const timing = createTimingLogger('waitForPendingEdits', null, true, this.store); // Assume mobile for performance tracking
+  async waitForPendingEdits(tick, sessionId) {
+    const timing = createTimingLogger('waitForPendingEdits', sessionId, true, this.store); // Assume mobile for performance tracking
     
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
@@ -525,7 +525,7 @@ export class CentralSyncManager {
       const { tick } = await this.tickTockGlobalClock();
       timing.log('tickTockGlobalClock');
 
-      await this.waitForPendingEdits(tick);
+      await this.waitForPendingEdits(tick, sessionId);
       timing.log('waitForPendingEdits');
 
       const { minSourceTick, maxSourceTick } = await getLookupSourceTickRange(
