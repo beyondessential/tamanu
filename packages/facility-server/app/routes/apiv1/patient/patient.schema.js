@@ -12,15 +12,13 @@ import {
   BIRTH_DELIVERY_TYPES,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
+import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
 export const foreignKeySchema = z.string().describe('__foreignKey__');
 
 export const createPatientSchema = z.object({
   // Required fields for patient creation
-  patientRegistryType: z.enum([
-    PATIENT_REGISTRY_TYPES.NEW_PATIENT,
-    PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
-  ]),
+  patientRegistryType: z.enum(Object.values(PATIENT_REGISTRY_TYPES)),
   facilityId: foreignKeySchema,
 
   // Primary Details (from GenericPrimaryDetailsLayout)
@@ -30,7 +28,7 @@ export const createPatientSchema = z.object({
   lastName: z.string().optional(),
   culturalName: z.string().optional(),
   email: z.string().email().optional(),
-  dateOfBirth: z.coerce.date().optional(), // ISO date string
+  dateOfBirth: datetimeCustomValidation.optional(),
   sex: z.enum([SEX_VALUES.MALE, SEX_VALUES.FEMALE, SEX_VALUES.OTHER]),
   villageId: foreignKeySchema.optional(),
 
@@ -51,56 +49,16 @@ export const createPatientSchema = z.object({
   title: z
     .enum([TITLES.MR, TITLES.MRS, TITLES.MS, TITLES.MISS, TITLES.DR, TITLES.SR, TITLES.SN])
     .optional(),
-  maritalStatus: z
-    .enum([
-      MARTIAL_STATUS_VALUES.DEFACTO,
-      MARTIAL_STATUS_VALUES.MARRIED,
-      MARTIAL_STATUS_VALUES.SINGLE,
-      MARTIAL_STATUS_VALUES.WIDOW,
-      MARTIAL_STATUS_VALUES.DIVORCED,
-      MARTIAL_STATUS_VALUES.SEPARATED,
-      MARTIAL_STATUS_VALUES.UNKNOWN,
-    ])
-    .optional(),
-  bloodType: z
-    .enum([
-      BLOOD_TYPES.A_POSITIVE,
-      BLOOD_TYPES.A_NEGATIVE,
-      BLOOD_TYPES.AB_NEGATIVE,
-      BLOOD_TYPES.AB_POSITIVE,
-      BLOOD_TYPES.B_POSITIVE,
-      BLOOD_TYPES.B_NEGATIVE,
-      BLOOD_TYPES.O_POSITIVE,
-      BLOOD_TYPES.O_NEGATIVE,
-    ])
-    .optional(),
+  maritalStatus: z.enum(Object.values(MARTIAL_STATUS_VALUES)).optional(),
+  bloodType: z.enum(Object.values(BLOOD_TYPES)).optional(),
   placeOfBirth: z.string().optional(),
   countryOfBirthId: foreignKeySchema.optional(),
   nationalityId: foreignKeySchema.optional(),
   ethnicityId: foreignKeySchema.optional(),
   religionId: foreignKeySchema.optional(),
-  educationalLevel: z
-    .enum([
-      EDUCATIONAL_ATTAINMENT_TYPES.NO_FORMAL_SCHOOLING,
-      EDUCATIONAL_ATTAINMENT_TYPES.LESS_THAN_PRIMARY_SCHOOL,
-      EDUCATIONAL_ATTAINMENT_TYPES.PRIMARY_SCHOOL_COMPLETED,
-      EDUCATIONAL_ATTAINMENT_TYPES.SEC_SCHOOL_COMPLETED,
-      EDUCATIONAL_ATTAINMENT_TYPES.HIGH_SCHOOL_COMPLETED,
-      EDUCATIONAL_ATTAINMENT_TYPES.UNIVERSITY_COMPLETED,
-      EDUCATIONAL_ATTAINMENT_TYPES.POST_GRAD_COMPLETED,
-    ])
-    .optional(),
+  educationalLevel: z.enum(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)).optional(),
   occupationId: foreignKeySchema.optional(),
-  socialMedia: z
-    .enum([
-      SOCIAL_MEDIA_TYPES.FACEBOOK,
-      SOCIAL_MEDIA_TYPES.TWITTER,
-      SOCIAL_MEDIA_TYPES.INSTAGRAM,
-      SOCIAL_MEDIA_TYPES.LINKEDIN,
-      SOCIAL_MEDIA_TYPES.VIBER,
-      SOCIAL_MEDIA_TYPES.WHATSAPP,
-    ])
-    .optional(),
+  socialMedia: z.enum(Object.values(SOCIAL_MEDIA_TYPES)).optional(),
   patientBillingTypeId: foreignKeySchema.optional(),
   motherId: foreignKeySchema.optional(),
   fatherId: foreignKeySchema.optional(),
@@ -116,43 +74,19 @@ export const createPatientSchema = z.object({
   nursingZoneId: foreignKeySchema.optional(),
 
   // Birth Details (from GenericBirthFields - only when patientRegistryType is 'birth_registry')
-  timeOfBirth: z.coerce.date().optional(), // ISO datetime string
-  gestationalAgeEstimate: z.number().optional(),
-  registeredBirthPlace: z
-    .enum([
-      PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
-      PLACE_OF_BIRTH_TYPES.HOME,
-      PLACE_OF_BIRTH_TYPES.OTHER,
-    ])
-    .optional(),
+  timeOfBirth: datetimeCustomValidation.optional(),
+  gestationalAgeEstimate: z.number().min(1).max(45).optional(),
+  registeredBirthPlace: z.enum(Object.values(PLACE_OF_BIRTH_TYPES)).optional(),
   birthFacilityId: foreignKeySchema.nullable().optional(),
-  attendantAtBirth: z
-    .enum([
-      ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
-      ATTENDANT_OF_BIRTH_TYPES.NURSE,
-      ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
-      ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-      ATTENDANT_OF_BIRTH_TYPES.OTHER,
-    ])
-    .optional(),
+  attendantAtBirth: z.enum(Object.values(ATTENDANT_OF_BIRTH_TYPES)).optional(),
   nameOfAttendantAtBirth: z.string().optional(),
-  birthDeliveryType: z
-    .enum([
-      BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
-      BIRTH_DELIVERY_TYPES.BREECH,
-      BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
-      BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
-      BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
-      BIRTH_DELIVERY_TYPES.FORCEPS,
-      BIRTH_DELIVERY_TYPES.OTHER,
-    ])
-    .optional(),
-  birthType: z.enum([BIRTH_TYPES.SINGLE, BIRTH_TYPES.PLURAL]).optional(),
-  birthWeight: z.number().optional(),
-  birthLength: z.number().optional(),
-  apgarScoreOneMinute: z.number().int().min(0).max(10).optional(),
-  apgarScoreFiveMinutes: z.number().int().min(0).max(10).optional(),
-  apgarScoreTenMinutes: z.number().int().min(0).max(10).optional(),
+  birthDeliveryType: z.enum(Object.values(BIRTH_DELIVERY_TYPES)).optional(),
+  birthType: z.enum(Object.values(BIRTH_TYPES)).optional(),
+  birthWeight: z.number().min(0).max(6).optional(),
+  birthLength: z.number().min(0).max(100).optional(),
+  apgarScoreOneMinute: z.number().int().min(1).max(10).optional(),
+  apgarScoreFiveMinutes: z.number().int().min(1).max(10).optional(),
+  apgarScoreTenMinutes: z.number().int().min(1).max(10).optional(),
 
   // Custom patient fields (dynamic field definitions)
   patientFields: z.record(z.string(), z.string()).optional(),
@@ -161,7 +95,6 @@ export const createPatientSchema = z.object({
   registeredById: foreignKeySchema,
 });
 
-// Schema for updating patients (all fields optional)
 export const updatePatientSchema = createPatientSchema.partial().omit({
-  patientRegistryType: true, // Not needed for updates
+  patientRegistryType: true,
 });
