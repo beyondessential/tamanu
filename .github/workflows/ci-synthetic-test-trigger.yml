@@ -56,41 +56,22 @@ jobs:
             --field pr_sha="${{ steps.check.outputs.pr_sha }}" \
             --field max_attempts=5
 
-  cancel-synthetic-test-runs:
-    name: Cancel Synthetic Test Runs
-    runs-on: ubuntu-latest
-    needs: check-and-trigger
-    if: needs.check-and-trigger.outputs.should_run != 'true'
-    steps:
       - name: Cancel Synthetic Test Runs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = ${{ needs.check-and-trigger.outputs.pr_number }};
-            const prBranch = '${{ needs.check-and-trigger.outputs.pr_ref }}';
-            
-            console.log(`Cancelling in-progress synthetic test runs for PR #${prNumber}`);
-            
-            // Get all workflow runs
-            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci-synthetic-test-runner.yml',
-              status: 'in_progress',
-              head_branch: prBranch,
-              per_page: 100
-            });
-            
-            // Cancel each in-progress run
-            for (const run of runs.workflow_runs) {
-              console.log(`Cancelling run ${run.id} (branch: ${prBranch})`);
-              await github.rest.actions.cancelWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: run.id
-              });
-            }
-            
-            if (runs.workflow_runs.length === 0) {
-              console.log(`No in-progress runs found for branch ${prBranch}`);
-            }
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.check.outputs.should_run != 'true'
+        run: |
+          echo "Cancelling in-progress synthetic test runs for PR #${{ steps.check.outputs.pr_number }}"
+          
+          PR_BRANCH="${{ steps.check.outputs.pr_ref }}"
+          RUN_IDS=$(gh run list --repo ${{ github.repository }} --json databaseId,status,headBranch,workflowName --limit 1000 \
+            | jq -r --arg branch "$PR_BRANCH" --arg workflow "ci-synthetic-test-runner.yml" '.[] | select(.status == "in_progress" and .headBranch == $branch and .workflowName == "Synthetic Test Runner") | .databaseId')
+
+          if [ -n "$RUN_IDS" ]; then
+            echo "$RUN_IDS" | while read run_id; do
+              echo "Cancelling run $run_id (branch: $PR_BRANCH)"
+              gh run cancel --repo ${{ github.repository }} "$run_id"
+            done
+          else
+            echo "No in-progress runs found for branch $PR_BRANCH"
+          fi
