@@ -66,9 +66,8 @@ jobs:
     name: Trigger Synthetic Test Runner
     needs: check-and-output
     if: needs.check-and-output.outputs.should_run == 'true'
-    uses: ${{ github.repository }}/.github/workflows/ci-synthetic-test-runner.yml@${{ github.ref_name }}
+    uses: ${{ github.repository }}/.github/workflows/ci-synthetic-test-runner.yml@${{ github.sha }}
     with:
-      ref: ${{ github.ref_name }}
       target_url: ${{ needs.check-and-output.outputs.target_url }}
       pr_number: ${{ needs.check-and-output.outputs.pr_number }}
       pr_ref: ${{ needs.check-and-output.outputs.pr_ref }}
