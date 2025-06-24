@@ -81,24 +81,21 @@ const createSessionTimingAggregator = (sessionId, store) => {
       const sessionTotalDuration = sessionEndTime - sessionStartTime;
       
       // Create final aggregated benchmark
-      const allOperations = [];
-      let totalActionCount = 0;
+            const allOperations = [];
       let totalActionCalls = 0;
       
               operations.forEach((opData) => {
-          allOperations.push({
-            name: opData.operation,
-            startTime: new Date(opData.startTime).toISOString(),
-            endTime: new Date(opData.endTime).toISOString(),
-            totalDurationMs: opData.grandTotal.totalDurationMs,
-            actionCount: opData.grandTotal.actionCount,
-            totalActionCalls: opData.grandTotal.totalActionCalls,
-            actions: opData.actions,
-          });
-          
-          totalActionCount += opData.grandTotal.actionCount;
-          totalActionCalls += opData.grandTotal.totalActionCalls;
+        allOperations.push({
+          name: opData.operation,
+          startTime: new Date(opData.startTime).toISOString(),
+          endTime: new Date(opData.endTime).toISOString(),
+          totalDurationMs: opData.grandTotal.totalDurationMs,
+          totalActionCalls: opData.grandTotal.totalActionCalls,
+          actions: opData.actions,
         });
+        
+        totalActionCalls += opData.grandTotal.totalActionCalls;
+      });
       
       const benchmark = {
         sessionId,
@@ -107,8 +104,6 @@ const createSessionTimingAggregator = (sessionId, store) => {
         sessionTotalDurationMs: sessionTotalDuration,
         grandTotal: {
           totalDurationMs: sessionTotalDuration,
-          operationCount: allOperations.length,
-          actionCount: totalActionCount,
           totalActionCalls: totalActionCalls,
         },
         operations: allOperations,
@@ -289,7 +284,6 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
       return {
         grandTotal: {
           totalDurationMs: totalDuration,
-          actionCount: actionsArray.length,
           totalActionCalls: actionsArray.reduce((sum, action) => sum + action.callCount, 0),
         },
         actions: actionsArray,
