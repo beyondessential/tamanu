@@ -40,6 +40,162 @@ import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLooku
 const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
+// Session-wide timing aggregator for complete sync session benchmarks
+// Creates a comprehensive benchmark across all operations in a sync session
+const createSessionTimingAggregator = (sessionId, store) => {
+  const sessionStartTime = Date.now();
+  const operations = new Map(); // Track all operations in this session
+  
+  return {
+    createOperationTimer: (operation, isMobile = false) => {
+      const operationStartTime = Date.now();
+      const timing = createTimingLogger(operation, sessionId, isMobile, store);
+      
+      // Override the saveTimingsToDebugInfo to aggregate into session-wide benchmark
+      const originalSaveTimings = timing.saveTimingsToDebugInfo;
+      timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
+        const benchmarkData = this.getBenchmarkData();
+        
+        // Store this operation's benchmark data
+        operations.set(operation, {
+          operation,
+          isMobile,
+          startTime: operationStartTime,
+          endTime: Date.now(),
+          ...benchmarkData,
+          ...additionalData,
+        });
+        
+        // Also save individual operation timing (for backward compatibility)
+        await originalSaveTimings.call(this, additionalData);
+        
+        // Save aggregated session benchmark
+        await this.saveSessionBenchmark();
+      };
+      
+      // Add method to save complete session benchmark
+      timing.saveSessionBenchmark = async () => {
+        if (!store || !sessionId) return;
+        
+        const sessionEndTime = Date.now();
+        const sessionTotalDuration = sessionEndTime - sessionStartTime;
+        
+        // Aggregate all operations
+        const allOperations = [];
+        let totalActionCount = 0;
+        let totalActionCalls = 0;
+        
+        operations.forEach((opData) => {
+          allOperations.push({
+            name: opData.operation,
+            startTime: new Date(opData.startTime).toISOString(),
+            endTime: new Date(opData.endTime).toISOString(),
+            totalDurationMs: opData.grandTotal.totalDurationMs,
+            actionCount: opData.grandTotal.actionCount,
+            totalActionCalls: opData.grandTotal.totalActionCalls,
+            actions: opData.actions,
+            timeline: opData.timeline,
+          });
+          
+          totalActionCount += opData.grandTotal.actionCount;
+          totalActionCalls += opData.grandTotal.totalActionCalls;
+        });
+        
+        const sessionBenchmark = {
+          sessionId,
+          sessionStartTime: new Date(sessionStartTime).toISOString(),
+          sessionEndTime: new Date(sessionEndTime).toISOString(),
+          sessionTotalDurationMs: sessionTotalDuration,
+          grandTotal: {
+            totalDurationMs: sessionTotalDuration,
+            operationCount: allOperations.length,
+            actionCount: totalActionCount,
+            totalActionCalls: totalActionCalls,
+          },
+          operations: allOperations,
+        };
+        
+        try {
+          await store.models.SyncSession.addDebugInfo(sessionId, {
+            sessionBenchmark,
+          });
+          log.debug('CentralSyncManager.sessionBenchmark.saved', {
+            sessionId,
+            totalDurationMs: sessionTotalDuration,
+            operationCount: allOperations.length,
+          });
+        } catch (error) {
+          log.error('CentralSyncManager.sessionBenchmark.error', {
+            sessionId,
+            error: error.message,
+          });
+        }
+      };
+      
+      return timing;
+    },
+    
+    // Method to finalize and save the complete session benchmark
+    finalizeSession: async () => {
+      if (!store || !sessionId) return;
+      
+      const sessionEndTime = Date.now();
+      const sessionTotalDuration = sessionEndTime - sessionStartTime;
+      
+      // Create final aggregated benchmark
+      const allOperations = [];
+      let totalActionCount = 0;
+      let totalActionCalls = 0;
+      
+      operations.forEach((opData) => {
+        allOperations.push({
+          name: opData.operation,
+          startTime: new Date(opData.startTime).toISOString(),
+          endTime: new Date(opData.endTime).toISOString(),
+          totalDurationMs: opData.grandTotal.totalDurationMs,
+          actionCount: opData.grandTotal.actionCount,
+          totalActionCalls: opData.grandTotal.totalActionCalls,
+          actions: opData.actions,
+          timeline: opData.timeline,
+        });
+        
+        totalActionCount += opData.grandTotal.actionCount;
+        totalActionCalls += opData.grandTotal.totalActionCalls;
+      });
+      
+      const finalSessionBenchmark = {
+        sessionId,
+        sessionStartTime: new Date(sessionStartTime).toISOString(),
+        sessionEndTime: new Date(sessionEndTime).toISOString(),
+        sessionTotalDurationMs: sessionTotalDuration,
+        grandTotal: {
+          totalDurationMs: sessionTotalDuration,
+          operationCount: allOperations.length,
+          actionCount: totalActionCount,
+          totalActionCalls: totalActionCalls,
+        },
+        operations: allOperations,
+      };
+      
+      try {
+        await store.models.SyncSession.addDebugInfo(sessionId, {
+          finalSessionBenchmark,
+        });
+        log.info('CentralSyncManager.finalSessionBenchmark.saved', {
+          sessionId,
+          totalDurationMs: sessionTotalDuration,
+          operationCount: allOperations.length,
+        });
+      } catch (error) {
+        log.error('CentralSyncManager.finalSessionBenchmark.error', {
+          sessionId,
+          error: error.message,
+        });
+      }
+    },
+  };
+};
+
 // Timing helper for sync performance metrics
 // Creates a hierarchical benchmark structure similar to Final Fantasy XIV's performance tracking:
 // - grandTotal: overall statistics for the entire operation
@@ -47,6 +203,7 @@ const errorMessageFromSession = (session) =>
 // - timeline: chronological log of all actions and sub-actions
 const createTimingLogger = (operation, sessionId, isMobile = false, store = null) => {
   const startTime = Date.now();
+  const startDate = new Date(startTime);
   const actions = new Map(); // Track actions and their subactions
   const actionLogs = []; // Track individual action logs with timestamps
   
@@ -75,7 +232,7 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
       // Store individual log entry
       const logEntry = {
         action,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(currentTime).toISOString(),
         durationMs: duration,
         totalDurationMs: currentTime - startTime,
         ...additionalData,
@@ -98,8 +255,9 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
       const currentTime = Date.now();
       const duration = currentTime - startTime;
       
-      // Ensure parent action exists
+      // Ensure parent action exists and is logged first
       if (!actions.has(parentAction)) {
+        // Create the parent action entry
         actions.set(parentAction, {
           name: parentAction,
           totalDurationMs: 0,
@@ -108,6 +266,15 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
           firstCallAt: currentTime,
           lastCallAt: currentTime,
         });
+        
+        // Also log the parent action to the timeline
+        const parentLogEntry = {
+          action: parentAction,
+          timestamp: new Date(currentTime).toISOString(),
+          durationMs: 0, // Parent action starts with 0 duration
+          totalDurationMs: currentTime - startTime,
+        };
+        actionLogs.push(parentLogEntry);
       }
       
       const parentEntry = actions.get(parentAction);
@@ -129,11 +296,16 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
       subActionEntry.callCount += 1;
       subActionEntry.lastCallAt = currentTime;
       
+      // Update parent action timing
+      parentEntry.totalDurationMs += duration;
+      parentEntry.callCount += 1;
+      parentEntry.lastCallAt = currentTime;
+      
       // Store individual log entry
       const logEntry = {
         parentAction,
         subAction,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(currentTime).toISOString(),
         durationMs: duration,
         totalDurationMs: currentTime - startTime,
         ...additionalData,
@@ -185,10 +357,12 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
         },
         actions: actionsArray,
         timeline: actionLogs,
+        sessionStartTime: startDate.toISOString(),
+        sessionEndTime: new Date().toISOString(),
       };
     },
     
-    logFinal: (additionalData = {}) => {
+    logFinal: function(additionalData = {}) {
       const benchmarkData = this.getBenchmarkData();
       
       log.debug('CentralSyncManager.timing.final', {
@@ -200,7 +374,7 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
       });
     },
     
-    saveTimingsToDebugInfo: async (additionalData = {}) => {
+    saveTimingsToDebugInfo: async function(additionalData = {}) {
       if (!store || !sessionId) {
         log.warn('CentralSyncManager.timing.saveTimingsToDebugInfo', {
           message: 'Cannot save timings - missing store or sessionId',
@@ -257,13 +431,37 @@ export class CentralSyncManager {
   store;
 
   purgeInterval;
+  
+  // Session timing aggregators for tracking complete session benchmarks
+  sessionTimingAggregators = new Map();
 
   constructor(ctx) {
     this.store = ctx.store;
     ctx.onClose(this.close);
   }
 
-  close = () => clearInterval(this.purgeInterval);
+  close = () => {
+    clearInterval(this.purgeInterval);
+    // Finalize any remaining session benchmarks
+    this.sessionTimingAggregators.forEach(async (aggregator) => {
+      await aggregator.finalizeSession();
+    });
+    this.sessionTimingAggregators.clear();
+  };
+  
+  // Get or create session timing aggregator for a session
+  getSessionTimingAggregator(sessionId) {
+    if (!this.sessionTimingAggregators.has(sessionId)) {
+      this.sessionTimingAggregators.set(sessionId, createSessionTimingAggregator(sessionId, this.store));
+    }
+    return this.sessionTimingAggregators.get(sessionId);
+  }
+  
+  // Create timing logger that integrates with session-wide benchmarking
+  createOperationTiming(sessionId, operation, isMobile = false) {
+    const sessionAggregator = this.getSessionTimingAggregator(sessionId);
+    return sessionAggregator.createOperationTimer(operation, isMobile);
+  }
 
   async getIsSyncCapacityFull() {
     const { maxConcurrentSessions } = this.constructor.config.sync;
@@ -292,7 +490,7 @@ export class CentralSyncManager {
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
     
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
-    const timing = createTimingLogger('startSession', sessionId, isMobile, this.store);
+    const timing = this.createOperationTiming(sessionId, 'startSession', isMobile);
     timing.log('generateSessionId');
     
     const startTime = new Date();
@@ -336,7 +534,7 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    const timing = createTimingLogger('prepareSession', syncSession.id, syncSession.parameters?.isMobile, this.store);
+    const timing = this.createOperationTiming(syncSession.id, 'prepareSession', syncSession.parameters?.isMobile);
     
     try {
       // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
@@ -414,6 +612,14 @@ export class CentralSyncManager {
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
     await completeSyncSession(this.store, sessionId);
+    
+    // Finalize and save the complete session benchmark
+    const sessionAggregator = this.sessionTimingAggregators.get(sessionId);
+    if (sessionAggregator) {
+      await sessionAggregator.finalizeSession();
+      this.sessionTimingAggregators.delete(sessionId);
+    }
+    
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
@@ -452,7 +658,7 @@ export class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
-    const timing = createTimingLogger('initiatePull', sessionId, params?.isMobile, this.store);
+    const timing = this.createOperationTiming(sessionId, 'initiatePull', params?.isMobile);
     
     try {
       await this.connectToSession(sessionId);
@@ -573,7 +779,7 @@ export class CentralSyncManager {
   }
 
   async waitForPendingEdits(tick, sessionId) {
-    const timing = createTimingLogger('waitForPendingEdits', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'waitForPendingEdits', true); // Assume mobile for performance tracking
     
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
@@ -597,7 +803,7 @@ export class CentralSyncManager {
     { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
-    const timing = createTimingLogger('setupSnapshotForPull', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'setupSnapshotForPull', true); // Assume mobile for performance tracking
     let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
@@ -846,7 +1052,7 @@ export class CentralSyncManager {
   }
 
   async fetchPullMetadata(sessionId) {
-    const timing = createTimingLogger('fetchPullMetadata', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'fetchPullMetadata', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
@@ -871,7 +1077,7 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    const timing = createTimingLogger('getOutgoingChanges', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'getOutgoingChanges', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
@@ -910,7 +1116,7 @@ export class CentralSyncManager {
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
-    const timing = createTimingLogger('persistIncomingChanges', sessionId, isMobile, this.store);
+    const timing = this.createOperationTiming(sessionId, 'persistIncomingChanges', isMobile);
     const { sequelize, models } = this.store;
     
     const totalPushed = await countSyncSnapshotRecords(
@@ -1009,7 +1215,7 @@ export class CentralSyncManager {
   }
 
   async addIncomingChanges(sessionId, changes) {
-    const timing = createTimingLogger('addIncomingChanges', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'addIncomingChanges', true); // Assume mobile for performance tracking
     try {
       const { sequelize } = this.store;
       
@@ -1041,7 +1247,7 @@ export class CentralSyncManager {
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    const timing = createTimingLogger('completePush', sessionId, true, this.store); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'completePush', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
