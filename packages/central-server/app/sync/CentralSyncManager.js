@@ -51,12 +51,11 @@ const createSessionTimingAggregator = (sessionId, store) => {
       const operationStartTime = Date.now();
       const timing = createTimingLogger(operation, sessionId, isMobile, store);
       
-      // Override the saveTimingsToDebugInfo to aggregate into session-wide benchmark
-      const originalSaveTimings = timing.saveTimingsToDebugInfo;
+      // Override the saveTimingsToDebugInfo to only aggregate into session-wide benchmark
       timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
         const benchmarkData = this.getBenchmarkData();
         
-        // Store this operation's benchmark data
+        // Store this operation's benchmark data for final session benchmark
         operations.set(operation, {
           operation,
           isMobile,
@@ -66,71 +65,10 @@ const createSessionTimingAggregator = (sessionId, store) => {
           ...additionalData,
         });
         
-        // Also save individual operation timing (for backward compatibility)
-        await originalSaveTimings.call(this, additionalData);
-        
-        // Save aggregated session benchmark
-        await this.saveSessionBenchmark();
+        // Don't save individual operation benchmarks - only collect for final session benchmark
       };
       
-      // Add method to save complete session benchmark
-      timing.saveSessionBenchmark = async () => {
-        if (!store || !sessionId) return;
-        
-        const sessionEndTime = Date.now();
-        const sessionTotalDuration = sessionEndTime - sessionStartTime;
-        
-        // Aggregate all operations
-        const allOperations = [];
-        let totalActionCount = 0;
-        let totalActionCalls = 0;
-        
-        operations.forEach((opData) => {
-          allOperations.push({
-            name: opData.operation,
-            startTime: new Date(opData.startTime).toISOString(),
-            endTime: new Date(opData.endTime).toISOString(),
-            totalDurationMs: opData.grandTotal.totalDurationMs,
-            actionCount: opData.grandTotal.actionCount,
-            totalActionCalls: opData.grandTotal.totalActionCalls,
-            actions: opData.actions,
-            timeline: opData.timeline,
-          });
-          
-          totalActionCount += opData.grandTotal.actionCount;
-          totalActionCalls += opData.grandTotal.totalActionCalls;
-        });
-        
-        const sessionBenchmark = {
-          sessionId,
-          sessionStartTime: new Date(sessionStartTime).toISOString(),
-          sessionEndTime: new Date(sessionEndTime).toISOString(),
-          sessionTotalDurationMs: sessionTotalDuration,
-          grandTotal: {
-            totalDurationMs: sessionTotalDuration,
-            operationCount: allOperations.length,
-            actionCount: totalActionCount,
-            totalActionCalls: totalActionCalls,
-          },
-          operations: allOperations,
-        };
-        
-        try {
-          await store.models.SyncSession.addDebugInfo(sessionId, {
-            sessionBenchmark,
-          });
-          log.debug('CentralSyncManager.sessionBenchmark.saved', {
-            sessionId,
-            totalDurationMs: sessionTotalDuration,
-            operationCount: allOperations.length,
-          });
-        } catch (error) {
-          log.error('CentralSyncManager.sessionBenchmark.error', {
-            sessionId,
-            error: error.message,
-          });
-        }
-      };
+      // Remove intermediate session benchmark saving - only save final benchmark
       
       return timing;
     },
@@ -147,23 +85,22 @@ const createSessionTimingAggregator = (sessionId, store) => {
       let totalActionCount = 0;
       let totalActionCalls = 0;
       
-      operations.forEach((opData) => {
-        allOperations.push({
-          name: opData.operation,
-          startTime: new Date(opData.startTime).toISOString(),
-          endTime: new Date(opData.endTime).toISOString(),
-          totalDurationMs: opData.grandTotal.totalDurationMs,
-          actionCount: opData.grandTotal.actionCount,
-          totalActionCalls: opData.grandTotal.totalActionCalls,
-          actions: opData.actions,
-          timeline: opData.timeline,
+              operations.forEach((opData) => {
+          allOperations.push({
+            name: opData.operation,
+            startTime: new Date(opData.startTime).toISOString(),
+            endTime: new Date(opData.endTime).toISOString(),
+            totalDurationMs: opData.grandTotal.totalDurationMs,
+            actionCount: opData.grandTotal.actionCount,
+            totalActionCalls: opData.grandTotal.totalActionCalls,
+            actions: opData.actions,
+          });
+          
+          totalActionCount += opData.grandTotal.actionCount;
+          totalActionCalls += opData.grandTotal.totalActionCalls;
         });
-        
-        totalActionCount += opData.grandTotal.actionCount;
-        totalActionCalls += opData.grandTotal.totalActionCalls;
-      });
       
-      const finalSessionBenchmark = {
+      const benchmark = {
         sessionId,
         sessionStartTime: new Date(sessionStartTime).toISOString(),
         sessionEndTime: new Date(sessionEndTime).toISOString(),
@@ -179,15 +116,15 @@ const createSessionTimingAggregator = (sessionId, store) => {
       
       try {
         await store.models.SyncSession.addDebugInfo(sessionId, {
-          finalSessionBenchmark,
+          benchmark,
         });
-        log.info('CentralSyncManager.finalSessionBenchmark.saved', {
+        log.info('CentralSyncManager.benchmark.saved', {
           sessionId,
           totalDurationMs: sessionTotalDuration,
           operationCount: allOperations.length,
         });
       } catch (error) {
-        log.error('CentralSyncManager.finalSessionBenchmark.error', {
+        log.error('CentralSyncManager.benchmark.error', {
           sessionId,
           error: error.message,
         });
@@ -201,7 +138,7 @@ const createSessionTimingAggregator = (sessionId, store) => {
 // - grandTotal: overall statistics for the entire operation
 // - actions: array of main actions with their timing data and nested subActions
 // - timeline: chronological log of all actions and sub-actions
-const createTimingLogger = (operation, sessionId, isMobile = false, store = null) => {
+const createTimingLogger = (operation, sessionId, isMobile = false) => {
   const startTime = Date.now();
   const startDate = new Date(startTime);
   const actions = new Map(); // Track actions and their subactions
@@ -356,7 +293,6 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
           totalActionCalls: actionsArray.reduce((sum, action) => sum + action.callCount, 0),
         },
         actions: actionsArray,
-        timeline: actionLogs,
         sessionStartTime: startDate.toISOString(),
         sessionEndTime: new Date().toISOString(),
       };
@@ -374,39 +310,9 @@ const createTimingLogger = (operation, sessionId, isMobile = false, store = null
       });
     },
     
-    saveTimingsToDebugInfo: async function(additionalData = {}) {
-      if (!store || !sessionId) {
-        log.warn('CentralSyncManager.timing.saveTimingsToDebugInfo', {
-          message: 'Cannot save timings - missing store or sessionId',
-          hasStore: !!store,
-          hasSessionId: !!sessionId,
-        });
-        return;
-      }
-      
-      const benchmarkData = this.getBenchmarkData();
-      
-      try {
-        await store.models.SyncSession.addDebugInfo(sessionId, {
-          benchmark: {
-            operation,
-            isMobile,
-            ...benchmarkData,
-            ...additionalData,
-          },
-        });
-        log.debug('CentralSyncManager.timing.savedToDebugInfo', {
-          operation,
-          sessionId,
-          totalDurationMs: benchmarkData.grandTotal.totalDurationMs,
-        });
-      } catch (error) {
-        log.error('CentralSyncManager.timing.saveTimingsToDebugInfo.error', {
-          operation,
-          sessionId,
-          error: error.message,
-        });
-      }
+    saveTimingsToDebugInfo: async function() {
+      // Individual operation benchmarks are no longer saved - only collected for final session benchmark
+      // This method is kept for compatibility but does nothing
     }
   };
 };
@@ -490,14 +396,14 @@ export class CentralSyncManager {
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
     
     const sessionId = await this.store.models.SyncSession.generateDbUuid();
-    const timing = this.createOperationTiming(sessionId, 'startSession', isMobile);
-    timing.log('generateSessionId');
+    const timing = this.createOperationTiming(sessionId, 'Start Session', isMobile);
+          timing.log('Generate Session ID');
     
     const startTime = new Date();
     const parameters = { deviceId, facilityIds, isMobile };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    timing.log('markSessionAsProcessing');
+    timing.log('Mark Session as Processing');
     
     const syncSession = await this.store.models.SyncSession.create({
       id: sessionId,
@@ -506,7 +412,7 @@ export class CentralSyncManager {
       debugInfo,
       parameters,
     });
-    timing.log('createSyncSession');
+    timing.log('Create Sync Session');
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
@@ -534,7 +440,7 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    const timing = this.createOperationTiming(syncSession.id, 'prepareSession', syncSession.parameters?.isMobile);
+    const timing = this.createOperationTiming(syncSession.id, 'Prepare Session', syncSession.parameters?.isMobile);
     
     try {
       // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
@@ -658,7 +564,7 @@ export class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
-    const timing = this.createOperationTiming(sessionId, 'initiatePull', params?.isMobile);
+    const timing = this.createOperationTiming(sessionId, 'Initiate Pull', params?.isMobile);
     
     try {
       await this.connectToSession(sessionId);
@@ -779,7 +685,7 @@ export class CentralSyncManager {
   }
 
   async waitForPendingEdits(tick, sessionId) {
-    const timing = this.createOperationTiming(sessionId, 'waitForPendingEdits', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Wait for Pending Edits', true); // Assume mobile for performance tracking
     
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
@@ -803,7 +709,7 @@ export class CentralSyncManager {
     { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
-    const timing = this.createOperationTiming(sessionId, 'setupSnapshotForPull', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Setup Snapshot for Pull', true); // Assume mobile for performance tracking
     let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
@@ -1052,7 +958,7 @@ export class CentralSyncManager {
   }
 
   async fetchPullMetadata(sessionId) {
-    const timing = this.createOperationTiming(sessionId, 'fetchPullMetadata', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Fetch Pull Metadata', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
@@ -1077,7 +983,7 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    const timing = this.createOperationTiming(sessionId, 'getOutgoingChanges', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Get Outgoing Changes', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
@@ -1116,7 +1022,7 @@ export class CentralSyncManager {
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
-    const timing = this.createOperationTiming(sessionId, 'persistIncomingChanges', isMobile);
+    const timing = this.createOperationTiming(sessionId, 'Persist Incoming Changes', isMobile);
     const { sequelize, models } = this.store;
     
     const totalPushed = await countSyncSnapshotRecords(
@@ -1215,7 +1121,7 @@ export class CentralSyncManager {
   }
 
   async addIncomingChanges(sessionId, changes) {
-    const timing = this.createOperationTiming(sessionId, 'addIncomingChanges', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Add Incoming Changes', true); // Assume mobile for performance tracking
     try {
       const { sequelize } = this.store;
       
@@ -1247,7 +1153,7 @@ export class CentralSyncManager {
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    const timing = this.createOperationTiming(sessionId, 'completePush', true); // Assume mobile for performance tracking
+    const timing = this.createOperationTiming(sessionId, 'Complete Push', true); // Assume mobile for performance tracking
     try {
       const session = await this.connectToSession(sessionId);
       timing.log('connectToSession');
