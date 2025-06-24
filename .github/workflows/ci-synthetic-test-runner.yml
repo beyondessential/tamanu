@@ -80,8 +80,10 @@ jobs:
               pull_number: prNumber
             });
 
-            const isStillChecked = pr.body?.includes('[x] **Synthetic Test Environment** <!-- #synthetic-test -->');
-            if (!isStillChecked) {
+            const syntheticTestMatch = pr.body?.match(/\[x\]\s+.*?<!-- #synthetic-test -->/);
+            const shouldRun = !!syntheticTestMatch;
+
+            if (!shouldRun) {
               core.setFailed('Checkbox is no longer checked – skipping test.');
             }
 

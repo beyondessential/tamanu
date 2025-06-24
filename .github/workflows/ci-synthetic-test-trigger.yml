@@ -25,8 +25,8 @@ jobs:
               pull_number: prNumber
             });
 
-            const syntheticTestMatch = pr.body?.match(/\[(?<checked>[ x])\]\s+\*\*Synthetic Test Environment\*\* <!-- #synthetic-test -->/);
-            const shouldRun = syntheticTestMatch?.groups.checked === 'x';
+            const syntheticTestMatch = pr.body?.match(/\[x\]\s+.*?<!-- #synthetic-test -->/);
+            const shouldRun = !!syntheticTestMatch;
 
             const targetUrlMatch = pr.body?.match(/\*\*Target URL:\*\*\s*(https?:\/\/[^\s\n]+)/i);
             const targetUrl = targetUrlMatch?.[1] 
