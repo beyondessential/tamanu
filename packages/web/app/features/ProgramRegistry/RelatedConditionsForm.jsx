@@ -115,6 +115,7 @@ const getGroupedData = rows => {
         conditionCategoryId: programRegistryConditionCategory.id,
         conditionCategoryCode: programRegistryConditionCategory.code,
         conditionCategoryName: programRegistryConditionCategory.name,
+        programRegistryId: programRegistryConditionCategory.programRegistryId,
         history,
       });
     }

@@ -65,7 +65,7 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
     },
   ];
 
-  const { history = [] } = condition;
+  const { history = [], programRegistryId = '' } = condition;
 
   return (
     <Modal
@@ -76,7 +76,7 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
     >
       <StyledFormTable columns={columns} data={[condition]} />
       <Divider />
-      <ConditionHistoryTable historyData={history} />
+      <ConditionHistoryTable historyData={history} programRegistryId={programRegistryId} />
       <ModalGenericButtonRow>
         <Button onClick={onClose} data-testid="conditionHistoryCloseButton">
           Close

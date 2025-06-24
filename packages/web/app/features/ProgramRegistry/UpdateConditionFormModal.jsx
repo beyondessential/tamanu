@@ -65,12 +65,13 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
     programRegistryCondition,
     programRegistryConditionCategory,
   } = condition;
+  const programRegistryId = programRegistryCondition?.programRegistryId;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
   );
   const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
-    programRegistryCondition?.programRegistryId,
+    programRegistryId,
   );
 
   const areAuditChangesEnabled = getSetting('audit.changes.enabled');
@@ -146,7 +147,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="programRegistryConditionCategoryId"
-                  programRegistryId={programRegistryCondition?.programRegistryId}
+                  programRegistryId={programRegistryId}
                   disabled={!programRegistryCondition?.id}
                   disabledTooltipText={getTranslation(
                     'programRegistry.relatedConditionsCategory.tooltip',
@@ -185,7 +186,10 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               {areAuditChangesEnabled && (
                 <>
                   <Divider />
-                  <ConditionHistoryTable historyData={condition?.history} />
+                  <ConditionHistoryTable
+                    historyData={condition?.history}
+                    programRegistryId={programRegistryId}
+                  />
                 </>
               )}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
