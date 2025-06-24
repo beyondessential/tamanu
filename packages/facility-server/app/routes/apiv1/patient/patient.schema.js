@@ -13,13 +13,12 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
-
-export const foreignKeySchema = z.string().describe('__foreignKey__');
+import { foreignKey } from '@tamanu/shared/schemas/types';
 
 export const createPatientSchema = z.object({
   // Required fields for patient creation
   patientRegistryType: z.enum(Object.values(PATIENT_REGISTRY_TYPES)),
-  facilityId: foreignKeySchema,
+  facilityId: foreignKey,
 
   // Primary Details (from GenericPrimaryDetailsLayout)
   displayId: z.string().optional(),
@@ -30,13 +29,13 @@ export const createPatientSchema = z.object({
   email: z.string().email().optional(),
   dateOfBirth: datetimeCustomValidation.optional(),
   sex: z.enum([SEX_VALUES.MALE, SEX_VALUES.FEMALE, SEX_VALUES.OTHER]),
-  villageId: foreignKeySchema.optional(),
+  villageId: foreignKey.optional(),
 
   // Identification Information (from GenericIdentificationFields)
   birthCertificate: z.string().optional(),
   drivingLicense: z.string().optional(),
   passport: z.string().optional(),
-  insurerId: foreignKeySchema.optional(),
+  insurerId: foreignKey.optional(),
   insurerPolicyNumber: z.string().optional(),
 
   // Contact Information (from GenericContactFields)
@@ -52,32 +51,32 @@ export const createPatientSchema = z.object({
   maritalStatus: z.enum(Object.values(MARTIAL_STATUS_VALUES)).optional(),
   bloodType: z.enum(Object.values(BLOOD_TYPES)).optional(),
   placeOfBirth: z.string().optional(),
-  countryOfBirthId: foreignKeySchema.optional(),
-  nationalityId: foreignKeySchema.optional(),
-  ethnicityId: foreignKeySchema.optional(),
-  religionId: foreignKeySchema.optional(),
+  countryOfBirthId: foreignKey.optional(),
+  nationalityId: foreignKey.optional(),
+  ethnicityId: foreignKey.optional(),
+  religionId: foreignKey.optional(),
   educationalLevel: z.enum(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)).optional(),
-  occupationId: foreignKeySchema.optional(),
+  occupationId: foreignKey.optional(),
   socialMedia: z.enum(Object.values(SOCIAL_MEDIA_TYPES)).optional(),
-  patientBillingTypeId: foreignKeySchema.optional(),
-  motherId: foreignKeySchema.optional(),
-  fatherId: foreignKeySchema.optional(),
+  patientBillingTypeId: foreignKey.optional(),
+  motherId: foreignKey.optional(),
+  fatherId: foreignKey.optional(),
 
   // Location Information (from GenericLocationFields)
   cityTown: z.string().optional(),
   streetVillage: z.string().optional(),
-  countryId: foreignKeySchema.optional(),
-  divisionId: foreignKeySchema.optional(),
-  subdivisionId: foreignKeySchema.optional(),
-  settlementId: foreignKeySchema.optional(),
-  medicalAreaId: foreignKeySchema.optional(),
-  nursingZoneId: foreignKeySchema.optional(),
+  countryId: foreignKey.optional(),
+  divisionId: foreignKey.optional(),
+  subdivisionId: foreignKey.optional(),
+  settlementId: foreignKey.optional(),
+  medicalAreaId: foreignKey.optional(),
+  nursingZoneId: foreignKey.optional(),
 
   // Birth Details (from GenericBirthFields - only when patientRegistryType is 'birth_registry')
   timeOfBirth: datetimeCustomValidation.optional(),
   gestationalAgeEstimate: z.number().min(1).max(45).optional(),
   registeredBirthPlace: z.enum(Object.values(PLACE_OF_BIRTH_TYPES)).optional(),
-  birthFacilityId: foreignKeySchema.nullable().optional(),
+  birthFacilityId: foreignKey.optional(),
   attendantAtBirth: z.enum(Object.values(ATTENDANT_OF_BIRTH_TYPES)).optional(),
   nameOfAttendantAtBirth: z.string().optional(),
   birthDeliveryType: z.enum(Object.values(BIRTH_DELIVERY_TYPES)).optional(),
@@ -92,7 +91,7 @@ export const createPatientSchema = z.object({
   patientFields: z.record(z.string(), z.string()).optional(),
 
   // Backend-added fields (not from frontend form)
-  registeredById: foreignKeySchema,
+  registeredById: foreignKey,
 });
 
 export const updatePatientSchema = createPatientSchema.partial().omit({

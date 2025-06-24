@@ -19,7 +19,6 @@ export const fakeCreatePatientRequestBody = (options: CreatePatientOptions) => {
 
   const mock = generateMock(createPatientSchema, {
     stringMap: {
-      NHN: () => generateId(),
       displayId: () => generateId(),
     },
   });

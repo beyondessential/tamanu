@@ -1,12 +1,20 @@
+import jwt from 'jsonwebtoken';
+
 function extractUserIdFromJwt(token: string): string {
-  const tokenParts = token.split('.');
-  if (tokenParts.length === 3) {
-    const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-    return payload.userId;
+  try {
+    const decoded = jwt.decode(token) as any;
+    if (!decoded || !decoded.userId) {
+      throw new Error('JWT token does not contain userId');
+    }
+    return decoded.userId;
+  } catch (error) {
+    throw new Error(`Failed to decode JWT token: ${error.message}`);
   }
-  throw new Error('Invalid JWT token format');
 }
 
+/**
+ * Authenticates the user and stores the token, facility ID, and user ID in context.vars.
+ */
 export async function authenticate(context: any, _events: any): Promise<void> {
   const { email = 'admin@tamanu.io', password = 'admin' } = context.vars;
 

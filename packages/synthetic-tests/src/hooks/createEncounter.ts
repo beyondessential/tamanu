@@ -4,35 +4,8 @@ import { getRandomLocation } from '../utils/getRandomLocation';
 import { getRandomDepartment } from '../utils/getRandomDepartment';
 
 /**
- * Generates a payload for creating an encounter by:
- * 1. Retrieving a random patient from the backend API
- * 2. Creating an encounter payload with required fields using fake data
- * 3. Storing the payload and selected patient in the context
- *
- * @param context - The test context containing variables and state
- * @param _events - Unused events parameter
- * @returns Promise that resolves when the payload is generated
- *
- * Required context variables:
- * - baseUrl: Base URL of the facility server
- * - token: Authentication token
- * - userId: ID of the user creating the encounter
- * - facilityId: Facility ID for filtering patients
- *
- * Optional context variables:
- * - locationId: Specific location ID (falls back to patient's location)
- * - departmentId: Specific department ID (falls back to patient's department)
- *
- * Outputs:
- * - encounterPayload: Generated encounter payload for Artillery to use
- * - selectedPatient: The randomly selected patient
- *
- * @example
- * ```typescript
- * await generateEncounterPayload(context, events);
- * console.log('Encounter payload:', context.vars.encounterPayload);
- * console.log('Selected patient:', context.vars.selectedPatient);
- * ```
+ * Generates an encounter payload with a random patient, location, and department.
+ * Stores the payload and selected patient in context.vars.
  */
 export async function generateEncounterPayload(context: any, _events: any): Promise<void> {
   const { target, token, facilityId } = context.vars;

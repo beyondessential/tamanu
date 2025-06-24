@@ -18,6 +18,7 @@ export const processMock = <T extends z.ZodObject<any>>({
     const schemaEntry = shape[key];
     const desc = schemaEntry.description;
 
+    // For now we rely on custom field descriptions to determine how to fake the data
     if (typeof desc === 'string') {
       if (desc.includes('__foreignKey__')) {
         mock[key] = undefined;
