@@ -34,13 +34,8 @@ jobs:
       - name: Verify checkbox is still checked
         uses: actions/github-script@v7
         with:
-          script: |
-            console.log('PR_NUMBER from env:', process.env.PR_NUMBER);
-            console.log('PR_NUMBER type:', typeof process.env.PR_NUMBER);
-            
+          script: |    
             const prNumber = parseInt(process.env.PR_NUMBER);
-            console.log('Parsed PR number:', prNumber);
-            console.log('Is NaN:', isNaN(prNumber));
             
             if (isNaN(prNumber)) {
               core.setFailed(`Invalid PR number: ${process.env.PR_NUMBER}`);
