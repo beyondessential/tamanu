@@ -76,7 +76,7 @@ const createSessionTimingAggregator = (sessionId, store) => {
         // Convert route actions to operations format
         routeEntry.routeOperations = benchmarkData.actions.map(action => ({
           name: action.name,
-          totalDurationMs: action.durationMs,
+          totalDurationMs: action.durationMs, // durationMs contains the totalDurationMs value
           ...(action.callCount > 1 && { 
             callCount: action.callCount,
             averageDurationMs: action.averageDurationMs 
@@ -210,7 +210,7 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
   return {
     log: (action, additionalData = {}) => {
       const currentTime = Date.now();
-      const actionDuration = currentTime - lastActionTime;
+      const actionDuration = Math.max(1, currentTime - lastActionTime); // Minimum 1ms to avoid zeros
       
       // Create or update action entry
       if (!actions.has(action)) {
@@ -602,14 +602,6 @@ export class CentralSyncManager {
       await completeSyncSession(this.store, sessionId);
       if (timing) timing.log('completeSyncSession');
       
-      // Finalize and save the complete session benchmark
-      const sessionAggregator = this.sessionTimingAggregators.get(sessionId);
-      if (sessionAggregator) {
-        await sessionAggregator.finalizeSession();
-        this.sessionTimingAggregators.delete(sessionId);
-      }
-      if (timing) timing.log('finalizeSessionBenchmark');
-      
       log.info('CentralSyncManager.completedSession', {
         sessionId,
         durationMs,
@@ -619,7 +611,17 @@ export class CentralSyncManager {
       
       if (timing) timing.log('endSessionComplete');
     } finally {
+      // Save the endSession operation timing
       if (timing) await timing.saveTimingsToDebugInfo();
+    }
+  }
+  
+  // Separate method to finalize session benchmarks - called from route after all timings are saved
+  async finalizeSessionBenchmark(sessionId) {
+    const sessionAggregator = this.sessionTimingAggregators.get(sessionId);
+    if (sessionAggregator) {
+      await sessionAggregator.finalizeSession();
+      this.sessionTimingAggregators.delete(sessionId);
     }
   }
 
@@ -774,23 +776,27 @@ export class CentralSyncManager {
   }
 
   async waitForPendingEdits(tick, sessionId) {
-    const timing = this.createOperationTiming(sessionId, 'Wait for Pending Edits', true); // Assume mobile for performance tracking
+    const timing = sessionId && this.createOperationTiming(sessionId, 'Wait for Pending Edits', true); // Assume mobile for performance tracking
     
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
       (t) => t < tick,
     );
+    if (timing) {
     timing.log('getSyncTicksOfPendingEdits', { 
-      pendingSyncTicksCount: pendingSyncTicks.length,
-      tick 
-    });
+        pendingSyncTicksCount: pendingSyncTicks.length,
+        tick 
+      });
+    }
 
     // wait for any in-flight transactions of pending edits
     // that we don't miss any changes that are in progress
     await Promise.all(
       pendingSyncTicks.map((t) => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
     );
-    timing.log('waitForPendingEditsComplete');
+    if (timing) { 
+      timing.log('waitForPendingEditsComplete');
+    }
   }
 
   async setupSnapshotForPull(

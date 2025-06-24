@@ -276,11 +276,18 @@ export const buildSyncRoutes = ctx => {
       const { params } = req;
       const { sessionId } = params;
       const routeTiming = syncManager.createRouteTiming(sessionId, 'endSession');
+      if (routeTiming) routeTiming.log('parseParams');
       
       await syncManager.endSession(sessionId, 'endSession');
+      if (routeTiming) routeTiming.log('endSessionComplete');
+      
+      // Save route timing before finalizing session benchmark
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
+      
+      // Now finalize and save the complete session benchmark
+      await syncManager.finalizeSessionBenchmark(sessionId);
       
       res.json({});
-      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
