@@ -64,7 +64,7 @@ const tablesWithoutTrigger = (
       { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
-       rows
+      rows
         .map((row) => ({
           schema: (row as any).schema as string,
           table: (row as any).table as string,
@@ -134,7 +134,7 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
   // and SYNC_TICK_FLAGS.UPDATED_ELSEWHERE (not marked for sync) on facility
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
-  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0
+  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0;
   for (const { schema, table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${schema}.${table}`);
     await sequelize.query(`
@@ -153,7 +153,20 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       })
       .then((rows) => (rows?.[0] as any)?.count > 0);
 
-  // add trigger: before insert or update, set updated_at (overriding any that is passed in)
+  // add trigger: before update, update updated_at when the data in the row changed
+  if (await functionExists('set_updated_at')) {
+    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at')) {
+      log.info(`Adding updated_at trigger to ${schema}.${table}`);
+      await sequelize.query(`
+      CREATE TRIGGER set_${table}_updated_at
+      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION public.set_updated_at();
+    `);
+    }
+  }
+
+  // add trigger: before insert or update, set updated_at_sync_tick (overriding any that is passed in)
   if (await functionExists('set_updated_at_sync_tick')) {
     for (const { schema, table } of await tablesWithoutTrigger(
       sequelize,
