@@ -4,6 +4,8 @@
 #
 config:
   target: http://localhost:4000
+  plugins:
+    expect: {}
   processor: hooks/index.ts
   phases:
     - name: Warmup

@@ -1,35 +1,37 @@
 import { z } from 'zod';
+import { faker } from '@faker-js/faker';
 
-export const overrideForeignKeys = (schemaShape: z.ZodRawShape, mock: Record<string, any>) => {
-  for (const key in schemaShape) {
-    const schema = schemaShape[key];
-    if (typeof schema.description === 'string' && schema.description.includes('__foreignKey__')) {
-      mock[key] = undefined;
+type MockInput<T extends z.ZodTypeAny> = {
+  schema: z.ZodObject<any>;
+  mock: Record<string, any>;
+  excludedFields?: (keyof z.infer<T>)[];
+};
+
+export const processMock = <T extends z.ZodObject<any>>({
+  schema,
+  mock,
+  excludedFields = [],
+}: MockInput<T>) => {
+  const shape = schema.shape;
+
+  for (const key in shape) {
+    const schemaEntry = shape[key];
+    const desc = schemaEntry.description;
+
+    if (typeof desc === 'string') {
+      if (desc.includes('__foreignKey__')) {
+        mock[key] = undefined;
+      } else if (desc.includes('__dateCustomValidation__')) {
+        mock[key] = faker.date.recent().toISOString().split('T')[0];
+      } else if (desc.includes('__datetimeCustomValidation__')) {
+        mock[key] = faker.date.recent().toISOString();
+      }
     }
   }
-  return mock;
-};
 
-export const removeExcludedFields = <T extends z.ZodTypeAny>(
-  mock: Record<string, any>,
-  excludedFields: (keyof z.infer<T>)[],
-) => {
-  for (const key of excludedFields) {
-    delete mock[key as string];
+  for (const field of excludedFields) {
+    delete mock[field as string];
   }
-  return mock;
-};
-
-export const processMock = <T extends z.ZodObject<any>>(
-  schema: T,
-  mock: Record<string, any>,
-  excludedFields: (keyof z.infer<T>)[] = [],
-) => {
-  // First override foreign keys
-  overrideForeignKeys(schema.shape, mock);
-
-  // Then remove excluded fields
-  removeExcludedFields(mock, excludedFields);
 
   return mock;
 };

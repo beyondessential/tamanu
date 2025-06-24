@@ -1,5 +1,7 @@
 import { getRandomPatient } from '../utils/getRandomPatient';
 import { fakeCreateEncounterRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createEncounter';
+import { getRandomLocation } from '../utils/getRandomLocation';
+import { getRandomDepartment } from '../utils/getRandomDepartment';
 
 /**
  * Generates a payload for creating an encounter by:
@@ -37,13 +39,16 @@ export async function generateEncounterPayload(context: any, _events: any): Prom
   // Get a random patient
   const randomPatient = await getRandomPatient(target, token, facilityId);
 
+  const randomLocation = await getRandomLocation(target, token, facilityId);
+  const randomDepartment = await getRandomDepartment(target, token, facilityId);
+
   // Create encounter payload using fake data
   const encounterPayload = fakeCreateEncounterRequestBody({
     required: {
       patientId: randomPatient.id,
       examinerId: context.vars.userId,
-      locationId: context.vars.locationId || randomPatient.locationId,
-      departmentId: context.vars.departmentId || randomPatient.departmentId,
+      locationId: context.vars.locationId || randomLocation.id,
+      departmentId: context.vars.departmentId || randomDepartment.id,
     },
     overrides: {
       reasonForEncounter: 'Synthetic test encounter',
