@@ -76,7 +76,7 @@ describe('Merging Patient Program Registrations', () => {
     });
     const newMergePatientRegistrations = await PatientProgramRegistration.findAll({
       where: { patientId: merge.id },
-      paranoid: false, // include any soft deleted conditions
+      paranoid: false, // include any soft deleted registrations
       raw: true,
     });
 
