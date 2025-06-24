@@ -15,6 +15,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 import { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface FieldValue {
   label: string;
@@ -248,7 +249,10 @@ export const PatientProgramRegistrationConditionsField = ({
         programRegistry: programRegistryId,
       },
     },
-    filter: ({ id }) => !conditions.map((value) => value?.condition?.value).includes(id), // hide previously selected conditions
+    filter: ({ entity_id }) => {
+      // hide previously selected conditions
+      return !conditions.map((value) => value?.condition?.value).includes(entity_id);
+    },
   });
 
   const addItem = (newValue: ConditionAndCategory) => {
