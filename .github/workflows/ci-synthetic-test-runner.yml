@@ -151,7 +151,7 @@ jobs:
     name: retrigger-synthetic-test-${{ inputs.attempt }}-${{ inputs.pr_number }}-${{ github.run_id }}
     runs-on: ubuntu-latest
     needs: validate-and-run
-    if: success() && ${{ inputs.attempt }} < ${{ inputs.max_attempts }}
+    if: needs.validate-and-run.result == 'success' && inputs.attempt < inputs.max_attempts
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -161,7 +161,7 @@ jobs:
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
             --ref "${{ inputs.pr_ref }}" \
-            --field attempt="${{ NEXT_ATTEMPT }}" \
+            --field attempt="$NEXT_ATTEMPT" \
             --field max_attempts="${{ inputs.max_attempts }}"
             --field target_url="${{ inputs.target_url }}" \
             --field pr_number="${{ inputs.pr_number }}" \
