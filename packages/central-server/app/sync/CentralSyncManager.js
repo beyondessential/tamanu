@@ -41,9 +41,10 @@ const errorMessageFromSession = (session) =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // Timing helper for sync performance metrics
-const createTimingLogger = (operation, sessionId, isMobile = false) => {
+const createTimingLogger = (operation, sessionId, isMobile = false, store = null) => {
   const startTime = Date.now();
   const operationTotals = new Map(); // Track total time per sub-operation
+  const subOperationLogs = []; // Track individual sub-operation logs
   
   return {
     log: (subOperation, additionalData = {}) => {
@@ -52,6 +53,17 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
       // Track total time for this sub-operation across all calls
       const currentTotal = operationTotals.get(subOperation) || 0;
       operationTotals.set(subOperation, currentTotal + duration);
+      
+      // Store individual log entry
+      const logEntry = {
+        subOperation,
+        timestamp: new Date().toISOString(),
+        durationMs: duration,
+        totalDurationMs: Date.now() - startTime,
+        subOperationTotalMs: currentTotal + duration,
+        ...additionalData,
+      };
+      subOperationLogs.push(logEntry);
       
       log.debug('CentralSyncManager.timing', {
         operation,
@@ -72,6 +84,7 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
       });
       return totals;
     },
+    getSubOperationLogs: () => subOperationLogs,
     logFinal: (additionalData = {}) => {
       const totalDuration = Date.now() - startTime;
       const operationTotalsObj = {};
@@ -87,6 +100,48 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
         operationTotals: operationTotalsObj,
         ...additionalData,
       });
+    },
+    saveTimingsToDebugInfo: async (additionalData = {}) => {
+      if (!store || !sessionId) {
+        log.warn('CentralSyncManager.timing.saveTimingsToDebugInfo', {
+          message: 'Cannot save timings - missing store or sessionId',
+          hasStore: !!store,
+          hasSessionId: !!sessionId,
+        });
+        return;
+      }
+      
+      const totalDuration = Date.now() - startTime;
+      const operationTotalsObj = {};
+      operationTotals.forEach((total, subOperation) => {
+        operationTotalsObj[subOperation] = total;
+      });
+      
+      const timingData = {
+        operation,
+        isMobile,
+        totalDurationMs: totalDuration,
+        operationTotals: operationTotalsObj,
+        subOperationLogs,
+        ...additionalData,
+      };
+      
+      try {
+        await store.models.SyncSession.addDebugInfo(sessionId, {
+          [`timing_${operation}`]: timingData,
+        });
+        log.debug('CentralSyncManager.timing.savedToDebugInfo', {
+          operation,
+          sessionId,
+          totalDurationMs: totalDuration,
+        });
+      } catch (error) {
+        log.error('CentralSyncManager.timing.saveTimingsToDebugInfo.error', {
+          operation,
+          sessionId,
+          error: error.message,
+        });
+      }
     }
   };
 };
@@ -140,7 +195,7 @@ export class CentralSyncManager {
   }
 
   async startSession({ deviceId, facilityIds, isMobile, ...debugInfo } = {}) {
-    const timing = createTimingLogger('startSession', null, isMobile);
+    const timing = createTimingLogger('startSession', null, isMobile, this.store);
     
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
@@ -177,6 +232,9 @@ export class CentralSyncManager {
 
     timing.log('sessionStartComplete', { sessionId: syncSession.id });
 
+    // Save timing data to debug_info
+    await timing.saveTimingsToDebugInfo({ sessionId: syncSession.id });
+
     log.info('CentralSyncManager.startSession', {
       sessionId: syncSession.id,
       ...parameters,
@@ -187,7 +245,7 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    const timing = createTimingLogger('prepareSession', syncSession.id, syncSession.parameters?.isMobile);
+    const timing = createTimingLogger('prepareSession', syncSession.id, syncSession.parameters?.isMobile, this.store);
     
     try {
       // if the sync_lookup table is enabled, don't allow syncs until it has finished its first update run
@@ -220,6 +278,9 @@ export class CentralSyncManager {
       timing.log('prepareSessionError', { error: error.message });
       log.error('CentralSyncManager.prepareSession encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(syncSession.id, error.message);
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
     }
   }
 
@@ -300,7 +361,7 @@ export class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
-    const timing = createTimingLogger('initiatePull', sessionId, params?.isMobile);
+    const timing = createTimingLogger('initiatePull', sessionId, params?.isMobile, this.store);
     
     try {
       await this.connectToSession(sessionId);
@@ -324,6 +385,9 @@ export class CentralSyncManager {
       timing.log('initiatePullError', { error: error.message });
       log.error('CentralSyncManager.initiatePull encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
     }
   }
 
@@ -418,7 +482,7 @@ export class CentralSyncManager {
   }
 
   async waitForPendingEdits(tick) {
-    const timing = createTimingLogger('waitForPendingEdits', null, true); // Assume mobile for performance tracking
+    const timing = createTimingLogger('waitForPendingEdits', null, true, this.store); // Assume mobile for performance tracking
     
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
@@ -442,7 +506,7 @@ export class CentralSyncManager {
     { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
     unmarkSessionAsProcessing,
   ) {
-    const timing = createTimingLogger('setupSnapshotForPull', sessionId, true); // Assume mobile for performance tracking
+    const timing = createTimingLogger('setupSnapshotForPull', sessionId, true, this.store); // Assume mobile for performance tracking
     let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
@@ -551,7 +615,7 @@ export class CentralSyncManager {
       // as the snapshot only contains read queries plus writes to the specific sync snapshot table
       // that it controls, there should be no concurrent update issues :)
       await repeatableReadTransaction(this.store.sequelize, async () => {
-        const transactionTiming = createTimingLogger('setupSnapshotForPull_transaction', sessionId, true);
+        const transactionTiming = createTimingLogger('setupSnapshotForPull_transaction', sessionId, true, this.store);
         
         const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
         if (snapshotTransactionTimeoutMs) {
@@ -639,6 +703,8 @@ export class CentralSyncManager {
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSessionAsProcessing();
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
     }
   }
 
@@ -691,61 +757,71 @@ export class CentralSyncManager {
   }
 
   async fetchPullMetadata(sessionId) {
-    const timing = createTimingLogger('fetchPullMetadata', sessionId, true); // Assume mobile for performance tracking
-    const session = await this.connectToSession(sessionId);
-    timing.log('connectToSession');
-    
-    const totalToPull = await countSyncSnapshotRecords(
-      this.store.sequelize,
-      sessionId,
-      SYNC_SESSION_DIRECTION.OUTGOING,
-    );
-    timing.log('countSyncSnapshotRecords', { totalToPull });
-    
-    await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
-    timing.log('addDebugInfo');
-    
-    const { pullUntil } = session;
-    timing.log('fetchPullMetadataComplete', { totalToPull, pullUntil });
-    return { totalToPull, pullUntil };
+    const timing = createTimingLogger('fetchPullMetadata', sessionId, true, this.store); // Assume mobile for performance tracking
+    try {
+      const session = await this.connectToSession(sessionId);
+      timing.log('connectToSession');
+      
+      const totalToPull = await countSyncSnapshotRecords(
+        this.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      timing.log('countSyncSnapshotRecords', { totalToPull });
+      
+      await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
+      timing.log('addDebugInfo');
+      
+      const { pullUntil } = session;
+      timing.log('fetchPullMetadataComplete', { totalToPull, pullUntil });
+      return { totalToPull, pullUntil };
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
+    }
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
-    const timing = createTimingLogger('getOutgoingChanges', sessionId, true); // Assume mobile for performance tracking
-    const session = await this.connectToSession(sessionId);
-    timing.log('connectToSession');
-    
-    const snapshotRecords = await findSyncSnapshotRecords(
-      this.store.sequelize,
-      sessionId,
-      SYNC_SESSION_DIRECTION.OUTGOING,
-      fromId,
-      limit,
-    );
-    timing.log('findSyncSnapshotRecords', { 
-      recordsCount: snapshotRecords.length, 
-      fromId, 
-      limit 
-    });
-    
-    const { minSourceTick, maxSourceTick } = session.parameters;
-    if (!minSourceTick || !maxSourceTick) {
-      timing.log('getOutgoingChangesComplete_noChangelog');
-      return snapshotRecords;
-    }
+    const timing = createTimingLogger('getOutgoingChanges', sessionId, true, this.store); // Assume mobile for performance tracking
+    try {
+      const session = await this.connectToSession(sessionId);
+      timing.log('connectToSession');
+      
+      const snapshotRecords = await findSyncSnapshotRecords(
+        this.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+        fromId,
+        limit,
+      );
+      timing.log('findSyncSnapshotRecords', { 
+        recordsCount: snapshotRecords.length, 
+        fromId, 
+        limit 
+      });
+      
+      const { minSourceTick, maxSourceTick } = session.parameters;
+      if (!minSourceTick || !maxSourceTick) {
+        timing.log('getOutgoingChangesComplete_noChangelog');
+        return snapshotRecords;
+      }
 
-    const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
-      minSourceTick,
-      maxSourceTick,
-    });
-    timing.log('attachChangelogToSnapshotRecords');
-    
-    timing.log('getOutgoingChangesComplete_withChangelog');
-    return recordsForPull;
+      const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
+        minSourceTick,
+        maxSourceTick,
+      });
+      timing.log('attachChangelogToSnapshotRecords');
+      
+      timing.log('getOutgoingChangesComplete_withChangelog');
+      return recordsForPull;
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
+    }
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
-    const timing = createTimingLogger('persistIncomingChanges', sessionId, isMobile);
+    const timing = createTimingLogger('persistIncomingChanges', sessionId, isMobile, this.store);
     const { sequelize, models } = this.store;
     
     const totalPushed = await countSyncSnapshotRecords(
@@ -765,7 +841,7 @@ export class CentralSyncManager {
     try {
       // commit the changes to the db
       const persistedAtSyncTick = await sequelize.transaction(async () => {
-        const transactionTiming = createTimingLogger('persistIncomingChanges_transaction', sessionId, isMobile);
+        const transactionTiming = createTimingLogger('persistIncomingChanges_transaction', sessionId, isMobile, this.store);
         
         // currently we do not create audit logs on mobile devices
         // so we rely on sync process to create audit logs
@@ -839,55 +915,68 @@ export class CentralSyncManager {
       timing.log('persistIncomingChangesError', { error: error.message });
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
       await models.SyncSession.markSessionErrored(sessionId, error.message);
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
     }
   }
 
   async addIncomingChanges(sessionId, changes) {
-    const timing = createTimingLogger('addIncomingChanges', sessionId, true); // Assume mobile for performance tracking
-    const { sequelize } = this.store;
-    
-    await this.connectToSession(sessionId);
-    timing.log('connectToSession');
-    
-    const incomingSnapshotRecords = changes.map((c) => ({
-      ...c,
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-      updatedAtByFieldSum: c.data.updatedAtByField
-        ? Object.values(c.data.updatedAtByField).reduce((s, v) => s + v)
-        : null,
-    }));
-    timing.log('mapIncomingSnapshotRecords', { changesCount: changes.length });
+    const timing = createTimingLogger('addIncomingChanges', sessionId, true, this.store); // Assume mobile for performance tracking
+    try {
+      const { sequelize } = this.store;
+      
+      await this.connectToSession(sessionId);
+      timing.log('connectToSession');
+      
+      const incomingSnapshotRecords = changes.map((c) => ({
+        ...c,
+        direction: SYNC_SESSION_DIRECTION.INCOMING,
+        updatedAtByFieldSum: c.data.updatedAtByField
+          ? Object.values(c.data.updatedAtByField).reduce((s, v) => s + v)
+          : null,
+      }));
+      timing.log('mapIncomingSnapshotRecords', { changesCount: changes.length });
 
-    log.debug('CentralSyncManager.addIncomingChanges', {
-      incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
-      sessionId,
-    });
+      log.debug('CentralSyncManager.addIncomingChanges', {
+        incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
+        sessionId,
+      });
 
-    await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
-    timing.log('insertSnapshotRecords');
-    
-    timing.log('addIncomingChangesComplete');
+      await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+      timing.log('insertSnapshotRecords');
+      
+      timing.log('addIncomingChangesComplete');
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
+    }
   }
 
   async completePush(sessionId, deviceId, tablesToInclude) {
-    const timing = createTimingLogger('completePush', sessionId, true); // Assume mobile for performance tracking
-    const session = await this.connectToSession(sessionId);
-    timing.log('connectToSession');
+    const timing = createTimingLogger('completePush', sessionId, true, this.store); // Assume mobile for performance tracking
+    try {
+      const session = await this.connectToSession(sessionId);
+      timing.log('connectToSession');
 
-    // don't await persisting, the client should asynchronously poll as it may take longer than
-    // the http request timeout
-    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    timing.log('markSessionAsProcessing');
-    
-    this.persistIncomingChanges(
-      sessionId,
-      deviceId,
-      tablesToInclude,
-      session.parameters.isMobile,
-    ).finally(unmarkSessionAsProcessing);
-    timing.log('persistIncomingChangesStarted');
-    
-    timing.log('completePushComplete');
+      // don't await persisting, the client should asynchronously poll as it may take longer than
+      // the http request timeout
+      const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
+      timing.log('markSessionAsProcessing');
+      
+      this.persistIncomingChanges(
+        sessionId,
+        deviceId,
+        tablesToInclude,
+        session.parameters.isMobile,
+      ).finally(unmarkSessionAsProcessing);
+      timing.log('persistIncomingChangesStarted');
+      
+      timing.log('completePushComplete');
+    } finally {
+      // Save timing data to debug_info
+      await timing.saveTimingsToDebugInfo();
+    }
   }
 
   async checkPushComplete(sessionId) {
