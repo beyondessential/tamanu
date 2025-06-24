@@ -32,7 +32,7 @@ export async function getRandomPatient(
   );
 
   if (!response.ok) {
-    console.error('Failed to fetch patients', response);
+    console.error('Failed to fetch patients', response.status, response.statusText);
     throw new Error(`Failed to fetch patients: ${response.statusText}`);
   }
 
