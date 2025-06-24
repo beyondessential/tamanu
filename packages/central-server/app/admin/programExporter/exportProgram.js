@@ -182,14 +182,15 @@ export async function exportProgram(context, programId) {
     sheets.push(registrySheet);
   }
 
-  const registryConditionsSheet = {
-    name: 'Registry Conditions',
-    data: [['code', 'name', 'visibilityStatus']],
-  };
   if (programRegistry) {
     const programRegistryConditions = await models.ProgramRegistryCondition.findAll({
       where: { programRegistryId: programRegistry.id },
     });
+
+    const registryConditionsSheet = {
+      name: 'Registry Conditions',
+      data: [['code', 'name', 'visibilityStatus']],
+    };
 
     registryConditionsSheet.data.push(
       ...programRegistryConditions.map(condition => [
