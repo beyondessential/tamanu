@@ -48,9 +48,9 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     run: |
-          echo "Cancelling in-progress synthetic test runs for PR #${{ steps.check.outputs.pr_number }}"
+          echo "Cancelling in-progress synthetic test runs for PR #${{ needs.check-and-output.outputs.pr_number }}"
           
-          PR_BRANCH="${{ steps.check.outputs.pr_ref }}"
+          PR_BRANCH="${{ needs.check-and-output.outputs.pr_ref }}"
           RUN_IDS=$(gh run list --repo ${{ github.repository }} --json databaseId,status,headBranch,workflowName --limit 1000 \
             | jq -r --arg branch "$PR_BRANCH" --arg workflow "ci-synthetic-test-runner.yml" '.[] | select(.status == "in_progress" and .headBranch == $branch and .workflowName == "Synthetic Test Runner") | .databaseId')
 
