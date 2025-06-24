@@ -105,16 +105,18 @@ export const buildSyncRoutes = ctx => {
   // fetch if the session is ready to start syncing
   syncRoutes.get(
     '/:sessionId/ready',
-    asyncHandler(async (req, res) => {
-      const { params } = req;
-      const { sessionId } = params;
-      const routeTiming = syncManager.createRouteTiming(sessionId, 'checkReady');
-      
-      const ready = await syncManager.checkSessionReady(sessionId, 'checkReady');
-      
-      res.json(ready);
-      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
-    }),
+          asyncHandler(async (req, res) => {
+        console.time('checkReady');
+        const { params } = req;
+        const { sessionId } = params;
+        const routeTiming = syncManager.createRouteTiming(sessionId, 'checkReady');
+        
+        const ready = await syncManager.checkSessionReady(sessionId, 'checkReady');
+        
+        res.json(ready);
+        if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
+        console.timeEnd('checkReady');
+      }),
   );
 
   // fetch sync metadata

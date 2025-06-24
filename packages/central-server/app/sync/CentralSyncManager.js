@@ -45,28 +45,38 @@ const errorMessageFromSession = (session) =>
 const createSessionTimingAggregator = (sessionId, store) => {
   const sessionStartTime = Date.now();
   const routes = new Map(); // Track all routes in this session (top level)
+  const routeCallCounts = new Map(); // Track how many times each route has been called
   
   return {
     createRouteTimer: (routeName, isMobile = false) => {
       const routeStartTime = Date.now();
-      const timing = createTimingLogger(routeName, sessionId, isMobile, routeStartTime);
       
-      // Initialize route entry if it doesn't exist
-      if (!routes.has(routeName)) {
-        routes.set(routeName, {
-          routeName,
-          isMobile,
-          startTime: routeStartTime,
-          endTime: null,
-          benchmarkData: null,
-          operations: new Map(), // Operations nested under this route
-        });
-      }
+      // Track call count for this route name
+      const currentCallCount = (routeCallCounts.get(routeName) || 0) + 1;
+      routeCallCounts.set(routeName, currentCallCount);
+      
+      // Create unique route key with call index if multiple calls
+      const routeKey = currentCallCount > 1 ? `${routeName}_${currentCallCount}` : routeName;
+      const displayName = currentCallCount > 1 ? `${routeName} (#${currentCallCount})` : routeName;
+      
+      const timing = createTimingLogger(displayName, sessionId, isMobile, routeStartTime);
+      
+      // Initialize route entry with unique key
+      routes.set(routeKey, {
+        routeName: displayName,
+        originalRouteName: routeName,
+        callIndex: currentCallCount,
+        isMobile,
+        startTime: routeStartTime,
+        endTime: null,
+        benchmarkData: null,
+        operations: new Map(), // Operations nested under this route
+      });
       
       // Override the saveTimingsToDebugInfo to only aggregate into session-wide benchmark
       timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
         const benchmarkData = this.getBenchmarkData();
-        const routeEntry = routes.get(routeName);
+        const routeEntry = routes.get(routeKey);
         
         // Update route with final timing data
         routeEntry.endTime = Date.now();
@@ -107,17 +117,31 @@ const createSessionTimingAggregator = (sessionId, store) => {
       timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
         const benchmarkData = this.getBenchmarkData();
         
-        if (routeName && routes.has(routeName)) {
-          // Nest this operation under the specified route
-          const routeEntry = routes.get(routeName);
-          routeEntry.operations.set(operation, {
-            operation,
-            isMobile,
-            startTime: operationStartTime,
-            endTime: Date.now(),
-            ...benchmarkData,
-            ...additionalData,
-          });
+        if (routeName) {
+          // Find the most recent route entry for this route name
+          let targetRouteKey = null;
+          let latestStartTime = 0;
+          
+          // Look for the most recently started route with this name
+          for (const [key, entry] of routes.entries()) {
+            if (entry.originalRouteName === routeName && entry.startTime > latestStartTime) {
+              targetRouteKey = key;
+              latestStartTime = entry.startTime;
+            }
+          }
+          
+          if (targetRouteKey && routes.has(targetRouteKey)) {
+            // Nest this operation under the specified route
+            const routeEntry = routes.get(targetRouteKey);
+            routeEntry.operations.set(operation, {
+              operation,
+              isMobile,
+              startTime: operationStartTime,
+              endTime: Date.now(),
+              ...benchmarkData,
+              ...additionalData,
+            });
+          }
         }
         
         // Don't save individual operation benchmarks - only collect for final session benchmark
