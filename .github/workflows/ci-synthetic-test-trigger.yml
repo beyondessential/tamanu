@@ -43,6 +43,7 @@ jobs:
 
   cancel-synthetic-test-runs:
     name: Cancel Synthetic Test Runs
+    runs-on: ubuntu-latest
     needs: check-and-output
     if: needs.check-and-output.outputs.should_run != 'true'
     env:
