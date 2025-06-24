@@ -49,7 +49,7 @@ const createSessionTimingAggregator = (sessionId, store) => {
   return {
     createRouteTimer: (routeName, isMobile = false) => {
       const routeStartTime = Date.now();
-      const timing = createTimingLogger(routeName, sessionId, isMobile, store);
+      const timing = createTimingLogger(routeName, sessionId, isMobile, routeStartTime);
       
       // Initialize route entry if it doesn't exist
       if (!routes.has(routeName)) {
@@ -101,7 +101,7 @@ const createSessionTimingAggregator = (sessionId, store) => {
     
     createOperationTimer: (operation, isMobile = false, routeName = null) => {
       const operationStartTime = Date.now();
-      const timing = createTimingLogger(operation, sessionId, isMobile, store);
+      const timing = createTimingLogger(operation, sessionId, isMobile, operationStartTime);
       
       // Override the saveTimingsToDebugInfo to only aggregate into session-wide benchmark
       timing.saveTimingsToDebugInfo = async function(additionalData = {}) {
@@ -200,8 +200,8 @@ const createSessionTimingAggregator = (sessionId, store) => {
 // Creates a hierarchical benchmark structure similar to Final Fantasy XIV's performance tracking:
 // - grandTotal: overall statistics for the entire operation
 // - actions: array of main actions with their timing data and nested subActions
-const createTimingLogger = (operation, sessionId, isMobile = false) => {
-  const startTime = Date.now();
+const createTimingLogger = (operation, sessionId, isMobile = false, customStartTime = null) => {
+  const startTime = customStartTime || Date.now();
   const startDate = new Date(startTime);
   const actions = new Map(); // Track actions and their subactions
   const actionLogs = []; // Track individual action logs with timestamps
