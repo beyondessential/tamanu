@@ -1,4 +1,4 @@
-import { camelCase, isArray, isObject, isString } from 'lodash';
+import { camelCase, isArray, isObject, isString, uniqBy } from 'lodash';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -31,7 +31,7 @@ export function normaliseOptions(options) {
 
   if (isArray(parsedOptions)) return parsedOptions;
   if (isObject(parsedOptions)) return Object.values(parsedOptions);
-  if (isString(parsedOptions)) return parsedOptions.split(/\s*,\s*/).filter((x) => x);
+  if (isString(parsedOptions)) return parsedOptions.split(/\s*,\s*/).filter(x => x);
 
   throw new Error('Invalid options format for translations');
 }
@@ -80,9 +80,8 @@ export async function bulkUpsertTranslationDefaults(models, translationData) {
   if (translationData.length === 0) return;
 
   // throw out duplicate stringIds from invalid configuration to prevent confusing errors
-  const filteredTranslationData = translationData.filter(
-    (item, index, self) => self.findIndex((t) => t[0] === item[0]) === index,
-  );
+  // item[0] is the stringId so we can use uniqBy to filter out duplicates
+  const filteredTranslationData = uniqBy(translationData, item => item[0]);
 
   await models.TranslatedString.sequelize.query(
     `
