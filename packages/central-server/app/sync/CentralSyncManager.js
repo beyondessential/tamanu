@@ -82,7 +82,6 @@ const createSessionTimingAggregator = (sessionId, store) => {
       
       // Create final aggregated benchmark
             const allOperations = [];
-      let totalActionCalls = 0;
       
               operations.forEach((opData) => {
         allOperations.push({
@@ -90,22 +89,12 @@ const createSessionTimingAggregator = (sessionId, store) => {
           startTime: new Date(opData.startTime).toISOString(),
           endTime: new Date(opData.endTime).toISOString(),
           totalDurationMs: opData.grandTotal.totalDurationMs,
-          totalActionCalls: opData.grandTotal.totalActionCalls,
           actions: opData.actions,
         });
-        
-        totalActionCalls += opData.grandTotal.totalActionCalls;
       });
       
       const benchmark = {
-        sessionId,
-        sessionStartTime: new Date(sessionStartTime).toISOString(),
-        sessionEndTime: new Date(sessionEndTime).toISOString(),
-        sessionTotalDurationMs: sessionTotalDuration,
-        grandTotal: {
-          totalDurationMs: sessionTotalDuration,
-          totalActionCalls: totalActionCalls,
-        },
+        totalDurationMs: sessionTotalDuration,
         operations: allOperations,
       };
       
@@ -132,17 +121,17 @@ const createSessionTimingAggregator = (sessionId, store) => {
 // Creates a hierarchical benchmark structure similar to Final Fantasy XIV's performance tracking:
 // - grandTotal: overall statistics for the entire operation
 // - actions: array of main actions with their timing data and nested subActions
-// - timeline: chronological log of all actions and sub-actions
 const createTimingLogger = (operation, sessionId, isMobile = false) => {
   const startTime = Date.now();
   const startDate = new Date(startTime);
   const actions = new Map(); // Track actions and their subactions
   const actionLogs = []; // Track individual action logs with timestamps
+  let lastActionTime = startTime; // Track time for individual action durations
   
   return {
     log: (action, additionalData = {}) => {
       const currentTime = Date.now();
-      const duration = currentTime - startTime;
+      const actionDuration = currentTime - lastActionTime;
       
       // Create or update action entry
       if (!actions.has(action)) {
@@ -151,21 +140,19 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
           totalDurationMs: 0,
           callCount: 0,
           subActions: [],
-          firstCallAt: currentTime,
-          lastCallAt: currentTime,
         });
       }
       
       const actionEntry = actions.get(action);
-      actionEntry.totalDurationMs += duration;
+      actionEntry.totalDurationMs += actionDuration;
       actionEntry.callCount += 1;
-      actionEntry.lastCallAt = currentTime;
+      lastActionTime = currentTime;
       
       // Store individual log entry
       const logEntry = {
         action,
         timestamp: new Date(currentTime).toISOString(),
-        durationMs: duration,
+        durationMs: actionDuration,
         totalDurationMs: currentTime - startTime,
         ...additionalData,
       };
@@ -176,7 +163,7 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
         action,
         sessionId,
         isMobile,
-        durationMs: duration,
+        durationMs: actionDuration,
         totalDurationMs: currentTime - startTime,
         ...additionalData,
       });
@@ -263,22 +250,30 @@ const createTimingLogger = (operation, sessionId, isMobile = false) => {
       const actionsArray = [];
       
       actions.forEach((actionData, actionName) => {
-        actionsArray.push({
+        const actionInfo = {
           name: actionName,
-          totalDurationMs: actionData.totalDurationMs,
-          callCount: actionData.callCount,
-          averageDurationMs: actionData.totalDurationMs / actionData.callCount,
-          firstCallAt: new Date(actionData.firstCallAt).toISOString(),
-          lastCallAt: new Date(actionData.lastCallAt).toISOString(),
-          subActions: actionData.subActions.map(sa => ({
+          durationMs: actionData.totalDurationMs,
+        };
+        
+        // Only include callCount if it's more than 1
+        if (actionData.callCount > 1) {
+          actionInfo.callCount = actionData.callCount;
+          actionInfo.averageDurationMs = actionData.totalDurationMs / actionData.callCount;
+        }
+        
+        // Only include subActions if they exist
+        if (actionData.subActions.length > 0) {
+          actionInfo.subActions = actionData.subActions.map(sa => ({
             name: sa.name,
-            totalDurationMs: sa.totalDurationMs,
-            callCount: sa.callCount,
-            averageDurationMs: sa.totalDurationMs / sa.callCount,
-            firstCallAt: new Date(sa.firstCallAt).toISOString(),
-            lastCallAt: new Date(sa.lastCallAt).toISOString(),
-          })),
-        });
+            durationMs: sa.totalDurationMs,
+            ...(sa.callCount > 1 && { 
+              callCount: sa.callCount,
+              averageDurationMs: sa.totalDurationMs / sa.callCount 
+            }),
+          }));
+        }
+        
+        actionsArray.push(actionInfo);
       });
       
       return {
