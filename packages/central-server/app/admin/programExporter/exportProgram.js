@@ -186,6 +186,9 @@ export async function exportProgram(context, programId) {
     const programRegistryConditions = await models.ProgramRegistryCondition.findAll({
       where: { programRegistryId: programRegistry.id },
     });
+    const programRegistryConditionCategories = await models.ProgramRegistryConditionCategory.findAll({
+      where: { programRegistryId: programRegistry.id },
+    });
 
     const registryConditionsSheet = {
       name: 'Registry Conditions',
@@ -198,7 +201,21 @@ export async function exportProgram(context, programId) {
         ]),
       ],
     };
+
+    const registryConditionCategoriesSheet = {
+      name: 'Registry Condition Categories',
+      data: [
+        ['code', 'name', 'visibilityStatus'],
+        ...programRegistryConditionCategories.map(category => [
+          category.code,
+          category.name,
+          category.visibilityStatus,
+        ]),
+      ],
+    };
+
     sheets.push(registryConditionsSheet);
+    sheets.push(registryConditionCategoriesSheet);
   }
 
   const exportedFileName = writeExcelFile(sheets);
