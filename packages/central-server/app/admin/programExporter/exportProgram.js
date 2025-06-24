@@ -189,16 +189,15 @@ export async function exportProgram(context, programId) {
 
     const registryConditionsSheet = {
       name: 'Registry Conditions',
-      data: [['code', 'name', 'visibilityStatus']],
+      data: [
+        ['code', 'name', 'visibilityStatus'],
+        ...programRegistryConditions.map(condition => [
+          condition.code,
+          condition.name,
+          condition.visibilityStatus,
+        ]),
+      ],
     };
-
-    registryConditionsSheet.data.push(
-      ...programRegistryConditions.map(condition => [
-        condition.code,
-        condition.name,
-        condition.visibilityStatus,
-      ]),
-    );
     sheets.push(registryConditionsSheet);
   }
 
