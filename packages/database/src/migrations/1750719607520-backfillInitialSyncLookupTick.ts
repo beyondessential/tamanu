@@ -53,7 +53,7 @@ export async function up(query: QueryInterface): Promise<void> {
           SELECT MAX(updated_at_sync_tick) 
           FROM sync_lookup
         )
-      );
+      )
   `);
 }
 
