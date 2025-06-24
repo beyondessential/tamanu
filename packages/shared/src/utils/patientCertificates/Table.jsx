@@ -15,7 +15,7 @@ const tableStyles = StyleSheet.create({
   th: {
     flex: 1,
     fontSize: 10,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     padding: 3,
     borderRight: basicBorder,
     margin: 0,

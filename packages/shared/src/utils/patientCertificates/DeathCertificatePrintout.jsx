@@ -64,19 +64,17 @@ const infoBoxStyles = StyleSheet.create({
   },
   boldText: {
     fontSize: 12,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   infoText: {
     fontSize: 12,
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
   },
   italicBoldText: {
     fontSize: 12,
-    fontFamily: 'Rubik-BoldItalic',
   },
   italicText: {
     fontSize: 12,
-    fontFamily: 'Rubik-Italic',
   },
   underlinedText: {
     borderBottom: borderStyle,
@@ -100,7 +98,7 @@ const signStyles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     lineHeight: 1,
   },
   line: {

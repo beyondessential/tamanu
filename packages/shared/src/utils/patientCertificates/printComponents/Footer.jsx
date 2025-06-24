@@ -29,12 +29,12 @@ const styles = StyleSheet.create({
 
   labelText: {
     fontSize: 8,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
 
   valueText: {
     fontSize: 8,
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
   },
 });
 

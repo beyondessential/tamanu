@@ -37,10 +37,10 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   tableColumnHeader: {
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     fontSize: 10,
   },
   tableCellContent: {
@@ -51,12 +51,12 @@ const textStyles = StyleSheet.create({
   },
   headerLabel: {
     fontSize: 8,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
     color: '#888888',
   },
 });
@@ -88,7 +88,7 @@ const tableStyles = StyleSheet.create({
   },
   p: {
     fontSize: 10,
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
   },
   notesCell: {
     width: '100%',
@@ -167,7 +167,7 @@ const DataTableHeading = ({ columns, title, width }) => {
                 key={key}
                 style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
               >
-                <P style={{ fontFamily: 'Rubik-Bold' }}>{title[0]}</P>
+                <P style={{ fontFamily: 'NotoKufiArabic-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>
             );

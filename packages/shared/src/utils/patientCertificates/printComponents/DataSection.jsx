@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
 });
 

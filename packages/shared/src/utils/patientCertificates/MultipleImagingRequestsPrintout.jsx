@@ -32,7 +32,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontSize: 11,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     marginVertical: 3,
   },
 });

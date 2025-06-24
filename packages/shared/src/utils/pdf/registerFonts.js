@@ -5,23 +5,14 @@ const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
 
 export const registerFonts = () => {
+  if (Font.getRegisteredFonts()['NotoKufiArabic-Regular']) return;
   Font.register({
-    family: 'Rubik',
+    family: 'NotoKufiArabic-Regular',
     src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
   });
 
   Font.register({
-    family: 'Rubik-Italic',
-    src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
-  });
-
-  Font.register({
-    family: 'Rubik-Bold',
-    src: path.join(baseDir, 'NotoKufiArabic-Bold.ttf'),
-  });
-
-  Font.register({
-    family: 'Rubik-BoldItalic',
+    family: 'NotoKufiArabic-Bold',
     src: path.join(baseDir, 'NotoKufiArabic-Bold.ttf'),
   });
 };

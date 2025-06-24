@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#444444',
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
     lineHeight: 1.2,
   },
   barcodeContainer: {

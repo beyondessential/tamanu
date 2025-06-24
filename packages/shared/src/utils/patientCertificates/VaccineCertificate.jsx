@@ -74,12 +74,12 @@ const vaccineCertificateStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 8,
-    fontFamily: 'Rubik-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
     color: '#888888',
   },
   valueText: {
     fontSize: 8,
-    fontFamily: 'Rubik',
+    fontFamily: 'NotoKufiArabic-Regular',
     color: '#888888',
   },
   documentHeaderContent: {
