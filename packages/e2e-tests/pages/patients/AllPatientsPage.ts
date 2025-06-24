@@ -14,12 +14,6 @@ export class AllPatientsPage extends BasePage {
   readonly NewPatientFemaleChk: Locator;
   readonly NewPatientNHN: Locator;
   readonly NewPatientConfirmBtn: Locator;
-  readonly nhnSearchInput: Locator;
-  readonly patientSearchButton: Locator;
-  readonly patientListingsHeader: Locator;
-  readonly searchResultsPagination: Locator;
-  readonly searchResultsPaginationOneOfOne: Locator;
-  readonly newPatientVillageSearchBox: Locator;
   _patientData?: {
     id: string;
     firstName: string;
@@ -29,7 +23,13 @@ export class AllPatientsPage extends BasePage {
     nhn: string;
     village: string,
     culturalName: string
-  };
+    };
+  readonly nhnSearchInput: Locator;
+  readonly patientSearchButton: Locator;
+  readonly patientListingsHeader: Locator;
+  readonly searchResultsPagination: Locator;
+  readonly searchResultsPaginationOneOfOne: Locator;
+  readonly newPatientVillageSearchBox: Locator;
 
   constructor(page: Page) {
     super(page, routes.patients.all);
@@ -70,12 +70,6 @@ export class AllPatientsPage extends BasePage {
     return this._patientData;
   }
 
-  async navigateToPatientDetailsPage(nhn: string) {
-    await this.goto();
-    await expect(this.patientListingsHeader).toBeVisible();
-    await this.searchForAndSelectPatientByNHN(nhn);
-  }
-
   async fillNewPatientDetails(firstName: string, lastName: string, dob: string, gender: string) {
     await this.NewPatientFirstName.fill(firstName);
     await this.NewPatientLastName.fill(lastName);
@@ -88,6 +82,12 @@ export class AllPatientsPage extends BasePage {
     } else {
       await this.NewPatientMaleChk.check();
     }
+  }
+ 
+  async navigateToPatientDetailsPage(nhn: string) {
+    await this.goto();
+    await expect(this.patientListingsHeader).toBeVisible();
+    await this.searchForAndSelectPatientByNHN(nhn);
   }
 
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
