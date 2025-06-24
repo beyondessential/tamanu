@@ -12,6 +12,10 @@ on:
         required: false
         type: number
         default: 5
+      ref:
+        description: 'Ref'
+        required: true
+        type: string
       target_url:
         description: 'Target URL for synthetic tests'
         required: true
@@ -151,10 +155,11 @@ jobs:
     name: retrigger-synthetic-test-${{ inputs.attempt }}-${{ inputs.pr_number }}-${{ github.run_id }}
     needs: validate-and-run
     if: success() && inputs.attempt < ${{ inputs.max_attempts }}
-    uses: ${{ github.repository }}/.github/workflows/synthetic-test-runner.yml@${{ github.sha }}
+    uses: ${{ github.repository }}/.github/workflows/ci-synthetic-test-runner.yml@${{ inputs.ref }}
     with:
       attempt: ${{ inputs.attempt + 1 }}
       max_attempts: ${{ inputs.max_attempts }}
+      ref: ${{ inputs.ref }}
       target_url: ${{ inputs.target_url }}
       pr_number: ${{ inputs.pr_number }}
       pr_ref: ${{ inputs.pr_ref }}
