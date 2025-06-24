@@ -25,7 +25,7 @@ describe('Merging Patient Program Registrations', () => {
     await ctx.close();
   });
 
-  it('hard deletes all unwanted registrations', async () => {
+  it('hard deletes all duplicate unwanted registrations', async () => {
     const { PatientProgramRegistration } = models;
     const [keep, merge] = await makeTwoPatients(models);
 
@@ -80,11 +80,22 @@ describe('Merging Patient Program Registrations', () => {
       raw: true,
     });
 
-    expect(newKeepPatientRegistrations.length).toEqual(1);
+    expect(newKeepPatientRegistrations.length).toEqual(2);
     expect(newMergePatientRegistrations.length).toEqual(0);
 
-    const afterMergeKeepRegistration = newKeepPatientRegistrations[0];
-    expect(afterMergeKeepRegistration.id).toBe(keepRegistration.id);
-    expect(afterMergeKeepRegistration.deletedAt).toBeNull();
+    const firstRegistration = newKeepPatientRegistrations.find(
+      r => r.programRegistryId === programRegistry.id,
+    );
+    const secondRegistration = newKeepPatientRegistrations.find(
+      r => r.programRegistryId === secondProgramRegistry.id,
+    );
+
+    expect(firstRegistration.id).toBe(keepRegistration.id);
+    expect(firstRegistration.deletedAt).toBeNull();
+
+    const expectedId = `${keep.id};${secondProgramRegistry.id}`;
+    expect(secondRegistration.id).toBe(expectedId);
+    expect(secondRegistration.patientId).toBe(keep.id);
+    expect(secondRegistration.deletedAt).toBeNull();
   });
 });

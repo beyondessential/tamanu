@@ -217,7 +217,7 @@ export async function mergePatientDeathData(models, keepPatientId, unwantedPatie
   return results;
 }
 
-export async function mergePatientProgramRegistrations(models, unwantedPatientId) {
+export async function mergePatientProgramRegistrations(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedRegistrations = await models.PatientProgramRegistration.findAll({
     where: { patientId: unwantedPatientId },
   });
@@ -226,10 +226,28 @@ export async function mergePatientProgramRegistrations(models, unwantedPatientId
     return [];
   }
 
+  const existingKeepRegistrations = await models.PatientProgramRegistration.findAll({
+    where: { patientId: keepPatientId },
+  });
+  const keepRegistrationMap = new Map(existingKeepRegistrations.map(r => [r.programRegistryId, r]));
+
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    await unwantedRegistration.destroy({ force: true });
+    // Destroy duplicate unwanted registration and keep others missing from keep patient
+    if (keepRegistrationMap.has(unwantedRegistration.programRegistryId)) {
+      await unwantedRegistration.destroy({ force: true });
+    } else {
+      // Static update method needed because we're updating primary key
+      await models.PatientProgramRegistration.update({
+        patientId: keepPatientId,
+      }, {
+        where: {
+          id: unwantedRegistration.id,
+        },
+      });
+    }
+    // Include all in results to report modified records
     results.push(unwantedRegistration);
   }
 
@@ -400,6 +418,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     const patientProgramRegistrationUpdates = await mergePatientProgramRegistrations(
       models,
+      keepPatientId,
       unwantedPatientId,
     );
     if (patientProgramRegistrationUpdates.length > 0) {
