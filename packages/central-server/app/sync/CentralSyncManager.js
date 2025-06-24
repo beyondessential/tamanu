@@ -86,21 +86,22 @@ const createSessionTimingAggregator = (sessionId, store) => {
         // Convert route actions to operations format
         routeEntry.routeOperations = benchmarkData.actions.map(action => ({
           name: action.name,
+          startTime: new Date(routeEntry.startTime).toISOString(),
+          endTime: new Date(routeEntry.endTime).toISOString(),
           totalDurationMs: action.durationMs, // durationMs contains the totalDurationMs value
-          ...(action.callCount > 1 && { 
-            callCount: action.callCount,
-            averageDurationMs: action.averageDurationMs 
-          }),
-          ...(action.subActions && action.subActions.length > 0 && {
-            actions: action.subActions.map(sa => ({
+          actions: (action.subActions && action.subActions.length > 0) ? 
+            action.subActions.map(sa => ({
               name: sa.name,
               durationMs: sa.durationMs,
               ...(sa.callCount > 1 && { 
                 callCount: sa.callCount,
                 averageDurationMs: sa.averageDurationMs 
               }),
-            }))
-          })
+            })) : [], // Always include actions array, even if empty
+          ...(action.callCount > 1 && { 
+            callCount: action.callCount,
+            averageDurationMs: action.averageDurationMs 
+          }),
         }));
         
         // Don't save individual route benchmarks - only collect for final session benchmark
