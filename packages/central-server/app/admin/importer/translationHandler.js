@@ -80,7 +80,7 @@ export async function bulkUpsertTranslationDefaults(models, translationData) {
   if (translationData.length === 0) return;
 
   // throw out duplicate stringIds from invalid configuration to prevent confusing errors
-  // item[0] is the stringId so we can use uniqBy to filter out duplicates
+  // item[0] is the stringId
   const filteredTranslationData = uniqBy(translationData, item => item[0]);
 
   await models.TranslatedString.sequelize.query(
