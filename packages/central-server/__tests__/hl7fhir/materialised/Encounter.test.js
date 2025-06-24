@@ -9,6 +9,7 @@ import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
+import { fakeResourcesOfFhirEncounter } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -24,47 +25,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
 
-    const {
-      Department,
-      Facility,
-      Location,
-      LocationGroup,
-      Patient,
-      User,
-      FhirPatient,
-      FhirOrganization,
-    } = ctx.store.models;
-    const [practitioner, patient, facility] = await Promise.all([
-      User.create(fake(User)),
-      Patient.create(fake(Patient)),
-      Facility.create(fake(Facility)),
-    ]);
-
-    const locationGroup = await LocationGroup.create(
-      fake(LocationGroup, { facilityId: facility.id }),
-    );
-
-    const [location, matPatient] = await Promise.all([
-      Location.create(
-        fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
-      ),
-      FhirPatient.materialiseFromUpstream(patient.id),
-      FhirOrganization.materialiseFromUpstream(facility.id),
-    ]);
-
-    const department = await Department.create(
-      fake(Department, { facilityId: facility.id, locationId: location.id }),
-    );
-
-    resources = {
-      department,
-      practitioner,
-      patient,
-      facility,
-      location,
-      locationGroup,
-      matPatient,
-    };
+    resources = await fakeResourcesOfFhirEncounter(ctx.store.models);
   });
   afterAll(() => ctx.close());
 
@@ -156,7 +117,7 @@ describe(`Materialised FHIR - Encounter`, () => {
           },
         ],
         subject: {
-          reference: `Patient/${resources.matPatient.id}`,
+          reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
@@ -244,7 +205,7 @@ describe(`Materialised FHIR - Encounter`, () => {
           },
         ],
         subject: {
-          reference: `Patient/${resources.matPatient.id}`,
+          reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },

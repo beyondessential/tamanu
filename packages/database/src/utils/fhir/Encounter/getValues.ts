@@ -55,20 +55,14 @@ function status(encounter: Encounter) {
 
 function classification(encounter: Encounter) {
   const code = classificationCode(encounter);
-  if (!code) return [];
+  if (!code) return undefined;
 
-  return [
-    new FhirCodeableConcept({
-      coding: [
-        new FhirCoding({
-          system: config.hl7.dataDictionaries.encounterClass,
-          code,
-          display:
-            FHIR_ENCOUNTER_CLASS_DISPLAY[code as keyof typeof FHIR_ENCOUNTER_CLASS_DISPLAY] ?? null,
-        }),
-      ],
-    }),
-  ];
+  return new FhirCoding({
+    system: config.hl7.dataDictionaries.encounterClass,
+    code,
+    display:
+      FHIR_ENCOUNTER_CLASS_DISPLAY[code as keyof typeof FHIR_ENCOUNTER_CLASS_DISPLAY] ?? null,
+  });
 }
 
 function classificationCode({ encounterType }: Encounter) {

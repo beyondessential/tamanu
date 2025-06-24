@@ -1,9 +1,7 @@
 import { DataTypes, type InitOptions } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import {
-  FhirReference,
-} from '@tamanu/shared/services/fhirTypes';
+import { FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -98,9 +96,13 @@ export class FhirPatient extends FhirResource {
     // materialised into the FHIR data, but are referred to by the patient links.
     // Although that should not really happen, but it's better to be safe and not
     // expose the upstream link data.
-    resource.link = resource.link.filter(
-      (link: Record<string, any>) => link.other.type !== FhirReference.unresolvedReferenceType(FhirPatient),
-    );
+    if (resource.link) {
+      resource.link = resource.link.filter(
+        (link: Record<string, any>) =>
+          link.other.type !== FhirReference.unresolvedReferenceType(FhirPatient),
+      );
+    }
+
     return resource;
   }
 
