@@ -71,12 +71,12 @@ describe('Merging Patient Program Registrations', () => {
 
     const newKeepPatientRegistrations = await PatientProgramRegistration.findAll({
       where: { patientId: keep.id },
-      paranoid: false, // include the soft deleted registrations
+      paranoid: false, // include any soft deleted registrations
       raw: true,
     });
     const newMergePatientRegistrations = await PatientProgramRegistration.findAll({
       where: { patientId: merge.id },
-      paranoid: false, // include the soft deleted conditions
+      paranoid: false, // include any soft deleted conditions
       raw: true,
     });
 
