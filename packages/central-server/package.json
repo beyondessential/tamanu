@@ -52,6 +52,7 @@
     "@socket.io/postgres-adapter": "^0.3.1",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
+    "@tamanu/upgrade": "*",
     "@tamanu/utils": "*",
     "asn1js": "^2.2.0",
     "base45-js": "^1.0.2",
