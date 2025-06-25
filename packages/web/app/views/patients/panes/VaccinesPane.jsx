@@ -164,19 +164,19 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           </ButtonWithPermissionCheck>
         </TableButtonRow>
         <TableWrapper data-testid="tablewrapper-rbs7">
-        {hideUpcomingVaccines ? (
-            <Button onClick={handleShowUpcomingVaccines}>
-              <TranslatedText
-                stringId="vaccine.action.showUpcomingVaccines"
-                fallback="Show upcoming vaccines"
+          {hideUpcomingVaccines ? (
+              <Button onClick={handleShowUpcomingVaccines}>
+                <TranslatedText
+                  stringId="vaccine.action.showUpcomingVaccines"
+                  fallback="Show upcoming vaccines"
+                />
+              </Button>
+            ) : (
+              <ImmunisationScheduleTable
+                patient={patient}
+                onItemEdit={id => handleOpenRecordModal(id)}
+                data-testid="immunisationscheduletable-8nat"
               />
-            </Button>
-          ) : (
-            <ImmunisationScheduleTable
-              patient={patient}
-              onItemEdit={id => handleOpenRecordModal(id)}
-                          data-testid="immunisationscheduletable-8nat"
-            />
           )}
         </TableWrapper>
         <ImmunisationsTable
