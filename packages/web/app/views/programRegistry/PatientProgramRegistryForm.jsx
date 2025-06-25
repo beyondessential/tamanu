@@ -250,6 +250,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                         />
                         <ProgramRegistryConditionCategoryField
                           name={`${fieldName}.conditionCategoryId`}
+                          isInitialRegistration={!editedObject?.id}
                           programRegistryId={selectedProgramRegistryId}
                           disabled={!conditionValue?.conditionId}
                           disabledTooltipText={getTranslation(
