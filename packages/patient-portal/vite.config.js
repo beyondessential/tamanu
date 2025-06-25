@@ -25,6 +25,8 @@ export default async () =>
     resolve: {
       alias: {
         '@utils': path.resolve(__dirname, 'src/utils'),
+        '@auth': path.resolve(__dirname, 'src/auth'),
+        '@routes': path.resolve(__dirname, 'src/routes'),
       },
     },
   });

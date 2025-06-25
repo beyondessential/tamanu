@@ -7,12 +7,15 @@ import CssBaseline from '@mui/material/CssBaseline';
 import './fonts.css';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme/theme';
+import { AuthProvider } from './auth/AuthProvider';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RoutingApp />
+      <AuthProvider>
+        <RoutingApp />
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>,
 );
