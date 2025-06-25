@@ -9,6 +9,7 @@ import {
 } from '../../components';
 import { Colors } from '../../constants';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 
 const StyledBaseSelectField = styled(BaseSelectField)`
   .Mui-disabled {
@@ -18,6 +19,7 @@ const StyledBaseSelectField = styled(BaseSelectField)`
 
 export const ProgramRegistryConditionCategoryField = ({
   name,
+  isInitialRegistration,
   programRegistryId,
   label,
   disabled,
@@ -29,20 +31,23 @@ export const ProgramRegistryConditionCategoryField = ({
   const { data: conditionCategories = [] } = useProgramRegistryConditionCategoriesQuery(
     programRegistryId,
   );
-  const options = conditionCategories.map(conditionCategory => ({
-    label: (
-      <TranslatedReferenceData
-        fallback={conditionCategory.name}
-        value={conditionCategory.id}
-        category="programRegistryConditionCategory"
-      />
-    ),
-    value: conditionCategory.id,
-    searchString: getTranslation(
-      getReferenceDataStringId(conditionCategory.id, 'programRegistryConditionCategory'),
-      conditionCategory.name,
-    ),
-  }));
+  const options = conditionCategories
+    .filter(conditionCategory => isInitialRegistration
+      ? conditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR : true)
+    .map(conditionCategory => ({
+      label: (
+        <TranslatedReferenceData
+          fallback={conditionCategory.name}
+          value={conditionCategory.id}
+          category="programRegistryConditionCategory"
+        />
+      ),
+      value: conditionCategory.id,
+      searchString: getTranslation(
+        getReferenceDataStringId(conditionCategory.id, 'programRegistryConditionCategory'),
+        conditionCategory.name,
+      ),
+    }));
 
   return (
     <FieldWithTooltip
