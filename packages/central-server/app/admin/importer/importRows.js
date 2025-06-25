@@ -43,9 +43,6 @@ const existingRecordLoaders = {
     TTD.findOne({ where: { taskTemplateId, designationId } }, { paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
     UD.findOne({ where: { userId, designationId } }, { paranoid: false }),
-  // ProcedureTypeSurvey model has a composite PK that uses procedureTypeId & surveyId
-  ProcedureTypeSurvey: (PTS, { procedureTypeId, surveyId }) =>
-    PTS.findOne({ where: { procedureTypeId, surveyId } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {

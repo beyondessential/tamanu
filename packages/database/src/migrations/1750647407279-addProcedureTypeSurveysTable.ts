@@ -3,8 +3,10 @@ import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('procedure_type_surveys', {
     id: {
-      type: `TEXT GENERATED ALWAYS AS (REPLACE("procedure_type_id", ';', ':') || ';' || REPLACE("survey_id", ';', ':')) STORED`,
+      type: DataTypes.UUID,
+      allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     procedure_type_id: {
       type: DataTypes.STRING,
