@@ -123,11 +123,13 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               ),
               width: 220,
               accessor: ({ programRegistryCondition }) => (
-                <TranslatedReferenceData
-                  value={programRegistryCondition?.id}
-                  fallback={programRegistryCondition?.name}
-                  category="programRegistryCondition"
-                />
+                <span>
+                  <TranslatedReferenceData
+                    value={programRegistryCondition?.id}
+                    fallback={programRegistryCondition?.name}
+                    category="programRegistryCondition"
+                  />
+                </span>
               ),
             },
             {
