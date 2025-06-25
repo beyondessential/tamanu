@@ -10,7 +10,7 @@ function createCategoryRowFromSpreadsheet(spreadsheetCategory, registryId) {
     sheetRow: spreadsheetCategory.__rowNum__ - 1,
     values: {
       ...spreadsheetCategory,
-      id: `program-registry-condition-category-${spreadsheetCategory.code}`,
+      id: `program-registry-condition-category-${registryId}-${spreadsheetCategory.code}`,
       programRegistryId: registryId,
     },
   };
@@ -21,7 +21,7 @@ function createCategoryRowFromHardcoded(code, registryId) {
     model: 'ProgramRegistryConditionCategory',
     sheetRow: -1, // Indicates this is a hardcoded category
     values: {
-      id: `program-registry-condition-category-${code}`,
+      id: `program-registry-condition-category-${registryId}-${code}`,
       programRegistryId: registryId,
       code: code,
       name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code],
