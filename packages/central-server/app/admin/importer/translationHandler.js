@@ -1,4 +1,4 @@
-import { camelCase, isArray, isObject, isString, uniqBy } from 'lodash';
+import { camelCase, isArray, isObject, isString } from 'lodash';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
