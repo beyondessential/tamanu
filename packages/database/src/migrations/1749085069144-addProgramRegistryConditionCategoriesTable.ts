@@ -97,7 +97,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     INSERT INTO program_registry_condition_categories (id, code, name, visibility_status, program_registry_id, created_at, updated_at)
     SELECT
-      CONCAT('${ID_PREFIX}', pr.code, '-', category.code),
+      CONCAT('${ID_PREFIX}', '-', pr.id, '-', category.code),
       category.code,
       category.name,
       '${VISIBILITY_STATUSES.CURRENT}',
