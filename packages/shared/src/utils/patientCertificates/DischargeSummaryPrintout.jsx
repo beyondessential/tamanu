@@ -257,7 +257,7 @@ const DischargeSummaryPrintoutComponent = ({
               <ProceduresTable procedures={procedures} getSetting={getSetting} />
             </TableContainer>
           )}
-          {medications.length > 0 && (
+          {visibleMedications.length > 0 && (
             <TableContainer>
               <Table
                 data={visibleMedications}
