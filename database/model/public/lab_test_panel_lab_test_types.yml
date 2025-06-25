@@ -6,8 +6,9 @@ sources:
     tables:
       - name: lab_test_panel_lab_test_types
         description: '{{ doc("table__lab_test_panel_lab_test_types") }}'
-        tags:
-          - reference
+        config:
+          tags:
+            - reference
         columns:
           - name: created_at
             data_type: timestamp with time zone

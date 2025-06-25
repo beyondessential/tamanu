@@ -6,8 +6,9 @@ sources:
     tables:
       - name: roles
         description: '{{ doc("table__roles") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)

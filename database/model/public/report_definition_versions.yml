@@ -6,8 +6,9 @@ sources:
     tables:
       - name: report_definition_versions
         description: '{{ doc("table__report_definition_versions") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)

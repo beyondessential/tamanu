@@ -5,8 +5,9 @@ sources:
     tables:
       - name: administered_vaccines
         description: '{{ doc("table__administered_vaccines") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: invoices
         description: '{{ doc("table__invoices") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: invoice_discounts
         description: '{{ doc("table__invoice_discounts") }}'
-        tags:
-          - administration
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

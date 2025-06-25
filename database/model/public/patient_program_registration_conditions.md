@@ -22,10 +22,6 @@ Used to store the category of the condition.
 Optional field for recording the reason for changing the condition.
 {% enddocs %}
 
-{% docs patient_program_registration_conditions__condition %}
-
-{% enddocs %}
-
 {% docs patient_program_registration_conditions__patient_program_registration_id %}
-TODO
+Reference to the [Patient Program Registration](#!/source/source.tamanu.tamanu.patient_program_registrations).
 {% enddocs %}
