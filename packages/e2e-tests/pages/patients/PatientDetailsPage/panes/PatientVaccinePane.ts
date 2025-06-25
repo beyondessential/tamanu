@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
-
+import { convertDateFormat } from '../../../../utils/testHelper';
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
   readonly recordedVaccinesTable: Locator;
@@ -55,15 +55,29 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
-  async assertRecordedVaccineDetails( vaccineName: string, scheduleOption: string, count: number) {
+  async assertRecordedVaccineDetails( vaccineName: string, scheduleOption: string, date: string, count: number, givenBy?: string) {
+    //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
+    const formattedDate = convertDateFormat(date);
+
     const correctVaccineFound = await this.searchRecordVaccineTableForMatch(vaccineName, 'vaccineDisplayName', count);
     const correctScheduleOptionFound = await this.searchRecordVaccineTableForMatch(scheduleOption, 'schedule', count);
+    const correctDateFound = await this.searchRecordVaccineTableForMatch(formattedDate, 'date', count);
 
     if (!correctVaccineFound) {
       throw new Error(`Vaccine "${vaccineName}" not found in the recorded vaccines table`);
     }
     if (!correctScheduleOptionFound) {
       throw new Error(`Schedule option "${scheduleOption}" not found in the recorded vaccines table`);
+    }
+    if (!correctDateFound) {
+      throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
+    }
+
+    if (givenBy) {
+      const correctGivenByFound = await this.searchRecordVaccineTableForMatch(givenBy, 'givenBy', count);
+      if (!correctGivenByFound) {
+        throw new Error(`Given by "${givenBy}" not found in the recorded vaccines table`);
+      }
     }
   }
 

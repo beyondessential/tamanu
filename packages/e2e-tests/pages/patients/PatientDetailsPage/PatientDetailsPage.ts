@@ -336,10 +336,17 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async getCurrentBrowserDateISOFormat() {
-    const currentDate = new Date();
-    return currentDate.toISOString().split('T')[0];
-  }
+/**
+  * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+  */
+async getCurrentBrowserDateISOFormat() {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
 
   // Helper methods for handling multiple buttons with the same test ID
   getSubmitEditsButton() {

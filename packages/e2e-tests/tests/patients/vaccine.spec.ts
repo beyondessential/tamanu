@@ -10,6 +10,9 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: test case for all fields
 //TODO: test case for followup vaccine
 //TODO: in recorded vaccines table toggle on "include vaccines not given" and confirm it shows not given vaccines
+//TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
+//TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
+//TODO: in the assertRecordedVaccineDetails maybe its necessary to match using different date formats? e.g try both MM/DD/YYYY and DD/MM etc etc
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -22,19 +25,22 @@ test.describe('Vaccines', () => {
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
     count: number = 1,
     specificVaccine?: string,
+    givenBy?: string,
   ) {
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine);
+    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine, givenBy);
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
 
     if (given) {
-      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineDetails(vaccine!.vaccineName!, vaccine!.scheduleOption!, count);
+      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineDetails(vaccine!.vaccineName!, vaccine!.scheduleOption!, currentBrowserDate, count, vaccine!.givenBy);
     }
   }
 
@@ -84,5 +90,10 @@ test.describe('Vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1, 'HPV');
     await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2, 'COVID-19 AZ');
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
+  });
+
+  //TODO: rename this
+  test('IN PROGRESS, RENAME THIS TEST. CURRENTLY THIS CHECKS GIVEN BY', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV', 'Test Doctor');
   });
 });

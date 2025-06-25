@@ -11,6 +11,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly confirmButton: Locator;
   readonly givenTab: Locator;
   readonly notGivenTab: Locator;
+  readonly givenByField: Locator;
   readonly categoryRoutineRadio: Locator;
   readonly categoryCatchupRadio: Locator;
   readonly categoryCampaignRadio: Locator;
@@ -20,6 +21,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly locationField: Locator;
   readonly departmentField: Locator;
   readonly vaccineNameField: Locator;
+
 
   constructor(page: Page) {
     super(page);
@@ -31,6 +33,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.confirmButton = this.page.getByTestId('formsubmitcancelrow-vv8q-confirmButton');
     this.givenTab = this.page.getByTestId('styledtab-gibh-GIVEN');
     this.notGivenTab = this.page.getByTestId('styledtab-gibh-NOT_GIVEN');
+    this.givenByField = this.page.getByTestId('field-xycc-input');
     this.categoryRoutineRadio = this.page.getByTestId('controllabel-kkx2-Routine');
     this.categoryCatchupRadio = this.page.getByTestId('controllabel-kkx2-Catchup');
     this.categoryCampaignRadio = this.page.getByTestId('controllabel-kkx2-Campaign');
@@ -98,7 +101,7 @@ export class RecordVaccineModal extends BasePatientModal {
   }
   
   // TODO: Refactor to use VACCINE_CATEGORIES when importing is working
-  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string) {
+  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string, givenBy?: string) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
@@ -110,6 +113,7 @@ export class RecordVaccineModal extends BasePatientModal {
       scheduleOption = await this.selectScheduleOption();
     } else {
       vaccineName = 'Test Vaccine';
+      scheduleOption = 'N/A';
       await this.vaccineNameField.fill(vaccineName);
     }
 
@@ -119,10 +123,14 @@ export class RecordVaccineModal extends BasePatientModal {
       await this.consentCheckbox.check();
     }
 
+    if (givenBy) {
+      await this.givenByField.fill(givenBy);
+    }
+
     await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
 
-    return { vaccineName, scheduleOption, ...locationGroup };
+    return { vaccineName, scheduleOption, givenBy, ...locationGroup };
   }
 
   async waitForModalToClose() {
