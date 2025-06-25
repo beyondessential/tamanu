@@ -53,7 +53,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
     setHideUpcomingVaccines(false);
   }, []);
 
-  const handleOpenDeleteModal = useCallback(async row => {
+  const handleOpenDeleteModal = useCallback(async (row) => {
     setIsDeleteAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
