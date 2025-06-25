@@ -5,14 +5,14 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import './fonts.css';
-import { App } from './App';
+import { RoutingApp } from './RoutingApp';
 import { theme } from './theme/theme';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <RoutingApp />
     </ThemeProvider>
   </StrictMode>,
 );
