@@ -9,6 +9,9 @@ import {
   TranslatedText,
 } from '../../components';
 import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
+import {
+  useProgramRegistryConditionCategoriesQuery,
+} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const HistorySection = styled.section`
   display: flex;
@@ -49,12 +52,15 @@ const SmallText = styled.div`
   }
 `;
 
-const ConditionCategoryDisplay = ({ data }) => {
-  if (data?.programRegistryConditionCategory?.id) {
+const ConditionCategoryDisplay = ({ data, conditionCategories }) => {
+  if (data?.programRegistryConditionCategoryId) {
+    const conditionCategory = conditionCategories.find(
+      category => category.id === data.programRegistryConditionCategoryId,
+    );
     return (
       <TranslatedReferenceData
-        value={data.programRegistryConditionCategory.id}
-        fallback={data.programRegistryConditionCategory.name}
+        value={data.programRegistryConditionCategoryId}
+        fallback={conditionCategory?.name}
         category="programRegistryConditionCategory"
       />
     );
@@ -69,7 +75,10 @@ const ConditionCategoryDisplay = ({ data }) => {
   );
 };
 
-export const ConditionHistoryTable = ({ historyData = [] }) => {
+export const ConditionHistoryTable = ({ historyData = [], programRegistryId = '' }) => {
+  const { data: conditionCategories = [] } = useProgramRegistryConditionCategoriesQuery(
+    programRegistryId,
+  );
   return (
     <>
       <Heading5 mb={1} mt={1}>
@@ -89,7 +98,10 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
                 />
               </HistoryItemLabel>
               <HistoryItemValue>
-                <ConditionCategoryDisplay data={entry.data} />
+                <ConditionCategoryDisplay
+                  data={entry.data}
+                  conditionCategories={conditionCategories}
+                />
               </HistoryItemValue>
             </HistoryItemRow>
             {entry.data.reasonForChange && (

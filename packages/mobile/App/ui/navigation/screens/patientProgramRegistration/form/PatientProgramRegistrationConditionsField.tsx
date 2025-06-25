@@ -15,6 +15,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 import { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface FieldValue {
   label: string;
@@ -38,7 +39,10 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   conditionCategoryOptions: FieldValue[];
 }
 
-const getConditionCategoryOptions = (conditionCategories: IProgramRegistryConditionCategory[]) => {
+const getConditionCategoryOptions = (
+  conditionCategories: IProgramRegistryConditionCategory[],
+  getTranslation: (stringId: string, fallback: string) => string,
+) => {
   if (!conditionCategories) return [];
 
   return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
@@ -46,7 +50,10 @@ const getConditionCategoryOptions = (conditionCategories: IProgramRegistryCondit
   )
   .map((category: IProgramRegistryConditionCategory) => ({
     value: category.id,
-    label: category.name,
+    label: getTranslation(
+      getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
+      category.name,
+    ),
   }));
 }
 
@@ -232,13 +239,17 @@ export const PatientProgramRegistrationConditionsField = ({
     models.ProgramRegistryConditionCategory.find({
       where: {
         programRegistry: { id: programRegistryId },
+        visibilityStatus: VisibilityStatus.Current,
       },
     }),
     [programRegistryId],
   );
 
   // Filter out recorded in error category and map to options
-  const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories);
+  const conditionCategoryOptions = getConditionCategoryOptions(
+    conditionCategories,
+    getTranslation,
+  );
 
   const conditionSuggester = new Suggester({
     model: models.ProgramRegistryCondition,
@@ -247,7 +258,10 @@ export const PatientProgramRegistrationConditionsField = ({
         programRegistry: programRegistryId,
       },
     },
-    filter: ({ id }) => !conditions.map((value) => value?.condition?.value).includes(id), // hide previously selected conditions
+    filter: ({ entity_id }) => {
+      // hide previously selected conditions
+      return !conditions.map((value) => value?.condition?.value).includes(entity_id);
+    },
   });
 
   const addItem = (newValue: ConditionAndCategory) => {

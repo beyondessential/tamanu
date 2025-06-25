@@ -11,6 +11,7 @@ import {
   TranslatedText,
   DateDisplay,
   ModalFormActionRow,
+  TranslatedReferenceData,
 } from '../../components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
@@ -65,12 +66,13 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
     programRegistryCondition,
     programRegistryConditionCategory,
   } = condition;
+  const programRegistryId = programRegistryCondition?.programRegistryId;
   const { mutateAsync: submit, isLoading: isSubmitting } = useUpdateConditionMutation(
     patientProgramRegistrationId,
     conditionId,
   );
   const { data: conditionCategories } = useProgramRegistryConditionCategoriesQuery(
-    programRegistryCondition?.programRegistryId,
+    programRegistryId,
   );
 
   const areAuditChangesEnabled = getSetting('audit.changes.enabled');
@@ -120,7 +122,15 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                 />
               ),
               width: 220,
-              accessor: ({ programRegistryCondition }) => programRegistryCondition?.name,
+              accessor: ({ programRegistryCondition }) => (
+                <span>
+                  <TranslatedReferenceData
+                    value={programRegistryCondition?.id}
+                    fallback={programRegistryCondition?.name}
+                    category="programRegistryCondition"
+                  />
+                </span>
+              ),
             },
             {
               title: (
@@ -146,7 +156,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               accessor: ({ programRegistryCondition }) => (
                 <ProgramRegistryConditionCategoryField
                   name="programRegistryConditionCategoryId"
-                  programRegistryId={programRegistryCondition?.programRegistryId}
+                  programRegistryId={programRegistryId}
                   disabled={!programRegistryCondition?.id}
                   disabledTooltipText={getTranslation(
                     'programRegistry.relatedConditionsCategory.tooltip',
@@ -185,7 +195,10 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
               {areAuditChangesEnabled && (
                 <>
                   <Divider />
-                  <ConditionHistoryTable historyData={condition?.history} />
+                  <ConditionHistoryTable
+                    historyData={condition?.history}
+                    programRegistryId={programRegistryId}
+                  />
                 </>
               )}
               <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />

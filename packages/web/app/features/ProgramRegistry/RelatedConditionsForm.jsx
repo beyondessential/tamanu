@@ -113,8 +113,8 @@ const getGroupedData = rows => {
         name: programRegistryCondition.name,
         date,
         conditionCategoryId: programRegistryConditionCategory.id,
-        conditionCategoryCode: programRegistryConditionCategory.code,
         conditionCategoryName: programRegistryConditionCategory.name,
+        programRegistryId: programRegistryConditionCategory.programRegistryId,
         history,
       });
     }
@@ -125,17 +125,19 @@ const getGroupedData = rows => {
   return groupedData;
 };
 
+// Because of importing validation we can guarantee the ID contains this code
+const isRecordedInError = conditionCategoryId =>
+  conditionCategoryId?.includes(PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR);
+
 const getIsNewRecordedInError = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
-    ({ conditionCategoryCode }) =>
-      conditionCategoryCode === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
   );
 };
 
 const getNewRecordedInErrorList = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
-    ({ conditionCategoryCode }) =>
-      conditionCategoryCode === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
   );
 };
 
@@ -231,13 +233,13 @@ export const RelatedConditionsForm = ({
                 />
               </span>
             ),
-            accessor: ({ name, conditionCategoryCode, conditionId }, groupName, index) => {
+            accessor: ({ name, conditionCategoryId, conditionId }, groupName, index) => {
               if (name) {
                 return (
                   <span
                     style={{
                       textDecoration:
-                        conditionCategoryCode === 'recordedInError' ? 'line-through' : 'none',
+                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
                     }}
                   >
                     <TranslatedReferenceData
@@ -309,7 +311,7 @@ export const RelatedConditionsForm = ({
                 <span style={{ color: Colors.alert }}> *</span>
               </span>
             ),
-            accessor: ({ date, conditionCategoryCode }, groupName, index) => {
+            accessor: ({ date, conditionCategoryId }, groupName, index) => {
               const initialValue = initialValues.conditions[groupName][index]?.date;
               if (initialValue) {
                 return (
@@ -317,7 +319,7 @@ export const RelatedConditionsForm = ({
                     date={date}
                     style={{
                       textDecoration:
-                        conditionCategoryCode === 'recordedInError' ? 'line-through' : 'none',
+                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
                     }}
                   />
                 );
