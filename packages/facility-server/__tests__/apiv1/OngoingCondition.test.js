@@ -73,7 +73,7 @@ describe('Ongoing conditions', () => {
     // Then delete it
     const deleteResult = await app.delete(`/api/ongoingCondition/${conditionId}`);
     expect(deleteResult).toHaveSucceeded();
-    expect(deleteResult.body.success).toBe(true);
+    expect(deleteResult.body.message).toBe('Ongoing condition deleted successfully');
 
     // Verify it's soft deleted (should not be found in normal queries)
     const getResult = await app.get(`/api/ongoingCondition/${conditionId}`);
