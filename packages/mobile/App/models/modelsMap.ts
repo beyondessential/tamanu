@@ -48,6 +48,7 @@ import { VitalLog } from './VitalLog';
 import { UserFacility } from './UserFacility';
 import { EncounterPrescription } from './EncounterPrescription';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { SyncBenchmark } from './SyncBenchmark';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -99,7 +100,8 @@ export const MODELS_MAP = {
   PatientFacility,
   Setting,
   Note,
-  UserFacility
+  UserFacility,
+  SyncBenchmark
 };
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;
