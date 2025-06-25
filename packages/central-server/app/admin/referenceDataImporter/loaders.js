@@ -204,8 +204,11 @@ async function validateObjectId(item, models, pushError) {
       ...GENERIC_SURVEY_EXPORT_REPORT_ID,
       ...REPORT_DEFINITIONS.map(({ id }) => id),
     ];
-    if (!allowedReportIds.includes(objectId)) {
-      pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+    const objectIds = objectId.split('/');
+    for (const objectId of objectIds) {
+      if (!allowedReportIds.includes(objectId)) {
+        pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+      }
     }
     return;
   }
