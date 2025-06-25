@@ -83,6 +83,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
+  //TODO: merge this with searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
   async searchRecordVaccineTableForMatch(valueToMatch: string, locatorSuffix: string, count: number) {
     for (let i = 0; i < count; i++) {
       const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${i}-${locatorSuffix}`);
@@ -94,8 +95,35 @@ export class PatientVaccinePane extends BasePatientPane {
     return false;
   }
 
-  async confirmNotGivenLabelIsVisible() {
-    const notGivenLabelFound = await this.searchRecordVaccineTableForMatch('Not given', 'givenBy', 1);
+  async searchSpecificTableRowForMatch(valueToMatch: string, locatorSuffix: string, count: number, vaccine: string) {
+    let row: number | undefined;
+    const timesToRun = count > 1 ? count : 1;
+
+    //Find the row that contains the vaccine name and save the row number
+    for (let i = 0; i < timesToRun; i++) {
+      const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${i}-vaccineDisplayName`);
+      const text = await locator.innerText();
+      if (text.includes(vaccine)) {
+        row = i;
+        break;
+      }
+    }
+
+    if (row === undefined) {
+      throw new Error(`Vaccine "${vaccine}" not found in the table`);
+    }
+
+    //Search the specific row in the table for the value to match
+    const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${row}-${locatorSuffix}`);
+    const text = await locator.innerText();
+    if (text.includes(valueToMatch)) {
+      return true;
+    }
+    return false;
+  }
+
+  async confirmNotGivenLabelIsVisible(count: number, vaccine: string) {
+   const notGivenLabelFound = await this.searchSpecificTableRowForMatch('Not given', 'givenBy', count, vaccine);
     if (!notGivenLabelFound) {
       throw new Error('Not given label not found in the recorded vaccines table');
     }

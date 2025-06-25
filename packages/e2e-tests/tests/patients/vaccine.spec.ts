@@ -13,6 +13,9 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
 //TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
 //TODO: in the assertRecordedVaccineDetails maybe its necessary to match using different date formats? e.g try both MM/DD/YYYY and DD/MM etc etc
+//TODO: merge searchRecordVaccineTableForMatch and searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
+//TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
+//TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -41,6 +44,11 @@ test.describe('Vaccines', () => {
 
     if (given) {
       await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineDetails(vaccine!.vaccineName!, vaccine!.scheduleOption!, currentBrowserDate, count, vaccine!.givenBy);
+    }
+
+    if (!given) {
+      await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+      await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(count, vaccine!.vaccineName!);
     }
   }
 
@@ -71,26 +79,18 @@ test.describe('Vaccines', () => {
 
   test('Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0);
-    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0);
-    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Campaign', 0);
-    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0);
-    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
