@@ -592,6 +592,7 @@ export async function procedureTypeLoader(item, { models, pushError }) {
     }
   }
 
+  // Remove existing relationships that are no longer in the formLink
   const existingProcedureType = await models.ReferenceData.findByPk(id, {
     include: [{ model: models.Survey, as: 'surveys' }],
   });
@@ -601,16 +602,14 @@ export async function procedureTypeLoader(item, { models, pushError }) {
       .map((s) => s.id)
       .filter((surveyId) => !surveyIdList.includes(surveyId));
 
-    idsToBeDeleted.forEach((surveyId) => {
-      rows.push({
-        model: 'ProcedureTypeSurvey',
-        values: {
+    if (idsToBeDeleted.length > 0) {
+      await models.ProcedureTypeSurvey.destroy({
+        where: {
           procedureTypeId: id,
-          surveyId: surveyId,
-          deletedAt: new Date(),
+          surveyId: { [Op.in]: idsToBeDeleted },
         },
       });
-    });
+    }
   }
 
   surveyIdList.forEach((surveyId) => {
