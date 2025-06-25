@@ -240,6 +240,222 @@ async finalizeSessionBenchmark(sessionId) {
 - Don't call `finalizeSessionBenchmark()` before saving all route timings - this will result in incomplete benchmark data
 - Don't forget to clean up session aggregators from memory after finalisation - this prevents memory leaks in long-running processes
 
+## 10. Create Mobile TypeORM Implementation
+
+For mobile devices using TypeORM (SQLite), create separate sync benchmark storage since `sync_sessions` don't sync from central to mobile:
+
+### TypeORM Entity (`packages/mobile/App/models/SyncBenchmark.ts`):
+```typescript
+import { Column, Entity } from 'typeorm';
+import { BaseModel } from './BaseModel';
+import { SYNC_DIRECTIONS } from './types';
+
+@Entity('sync_benchmarks')
+export class SyncBenchmark extends BaseModel {
+  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC; // Keep mobile-only
+
+  @Column({ nullable: false })
+  sessionId: string;
+
+  @Column({ type: 'text', nullable: false })
+  benchmark: string; // JSON stored as text (SQLite limitation)
+
+  // Helper methods for JSON handling
+  setBenchmarkData(data: object): void {
+    this.benchmark = JSON.stringify(data);
+  }
+
+  getBenchmarkData(): object {
+    try {
+      return JSON.parse(this.benchmark);
+    } catch (error) {
+      console.error('Failed to parse benchmark JSON:', error);
+      return {};
+    }
+  }
+
+  static createWithData(sessionId: string, benchmarkData: object): SyncBenchmark {
+    const benchmark = new SyncBenchmark();
+    benchmark.sessionId = sessionId;
+    benchmark.setBenchmarkData(benchmarkData);
+    return benchmark;
+  }
+}
+```
+
+### TypeORM Migration (`packages/mobile/App/migrations/[timestamp]-createSyncBenchmarksTable.ts`):
+```typescript
+import { MigrationInterface, QueryRunner, Table, TableColumn, TableIndex } from 'typeorm';
+
+const TABLE_NAME = 'sync_benchmarks';
+
+const BaseColumns = [
+  new TableColumn({ name: 'id', type: 'varchar', isPrimary: true }),
+  new TableColumn({ name: 'createdAt', type: 'datetime', default: "datetime('now')" }),
+  new TableColumn({ name: 'updatedAt', type: 'datetime', default: "datetime('now')" }),
+  new TableColumn({ name: 'updatedAtSyncTick', type: 'bigint', isNullable: false, default: -999 }),
+  new TableColumn({ name: 'deletedAt', isNullable: true, type: 'date', default: null }),
+];
+
+const SyncBenchmarksTable = new Table({
+  name: TABLE_NAME,
+  columns: [
+    ...BaseColumns,
+    new TableColumn({ name: 'sessionId', type: 'varchar', isNullable: false }),
+    new TableColumn({ name: 'benchmark', type: 'text', isNullable: false }),
+  ],
+  indices: [
+    new TableIndex({ name: 'idx_sync_benchmarks_session_id', columnNames: ['sessionId'] }),
+    new TableIndex({ name: 'idx_sync_benchmarks_created_at', columnNames: ['createdAt'] }),
+    new TableIndex({ name: 'idx_sync_benchmarks_updated_at_sync_tick', columnNames: ['updatedAtSyncTick'] }),
+  ],
+});
+
+export class createSyncBenchmarksTable[timestamp] implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(SyncBenchmarksTable, true);
+  }
+
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable(TABLE_NAME, true);
+  }
+}
+```
+
+### Register Model and Migration:
+- Add to `packages/mobile/App/models/modelsMap.ts` in both import and MODELS_MAP object
+- Add to `packages/mobile/App/migrations/index.ts` in both import and migrationList array
+- Use `DO_NOT_SYNC` direction to keep benchmark data mobile-only (prevents syncing to central server)
+
+### Usage Pattern:
+```typescript
+// Save mobile benchmark
+const benchmark = SyncBenchmark.createWithData(sessionId, benchmarkData);
+await benchmark.save();
+
+// Query mobile benchmarks
+const benchmarks = await SyncBenchmark.find({ where: { sessionId } });
+const data = benchmarks[0].getBenchmarkData();
+```
+
 # Notes
 
 Use Australian/NZ English spelling and terminology throughout (e.g., "finalise" not "finalize", "behaviour" not "behavior"). The session totalDurationMs represents complete wall-clock time from first route to last route, which includes client polling intervals and network delays, while individual route durations represent only server processing time. This difference is expected and valuable for understanding both server performance and client behaviour patterns.
+
+For mobile implementations, use `DO_NOT_SYNC` direction to prevent benchmark data from syncing to central server, keeping mobile performance data local to the device.
+
+## 11. Implement Mobile Sync Benchmarking
+
+For mobile sync using MobileSyncManager, implement comprehensive timing following the same hierarchical structure:
+
+### Mobile Timing Utilities:
+```typescript
+// Add to MobileSyncManager.ts
+const createTimingLogger = (operation: string, sessionId: string, customStartTime: number = null) => {
+  const startTime = customStartTime || Date.now();
+  const actions = [];
+  let lastActionTime = startTime;
+
+  return {
+    logAction: (actionName: string, additionalData = {}) => {
+      const now = Date.now();
+      const durationMs = now - lastActionTime;
+      
+      actions.push({
+        name: actionName,
+        durationMs,
+        ...additionalData,
+      });
+      
+      lastActionTime = now;
+    },
+
+    getBenchmarkData: () => ({
+      operation,
+      sessionId,
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date().toISOString(),
+      totalDurationMs: Date.now() - startTime,
+      actions,
+    }),
+  };
+};
+```
+
+### Mobile Session Aggregator:
+```typescript
+const createMobileSyncSessionAggregator = (sessionId: string) => {
+  const sessionStartTime = Date.now();
+  const operations = new Map();
+
+  return {
+    createOperationTimer: (operationName: string, customStartTime: number = null) => {
+      const timing = createTimingLogger(operationName, sessionId, customStartTime);
+      operations.set(operationName, { operationName, startTime: customStartTime || Date.now(), timing });
+      return timing;
+    },
+
+    async finalizeSession() {
+      const sessionBenchmark = {
+        sessionId,
+        totalDurationMs: Date.now() - sessionStartTime,
+        startTime: new Date(sessionStartTime).toISOString(),
+        endTime: new Date().toISOString(),
+        operations: Array.from(operations.values()).map(op => ({
+          name: op.operationName,
+          ...op.timing.getBenchmarkData(),
+        })),
+      };
+
+      // Save to mobile database using SyncBenchmark model
+      const { SyncBenchmark } = Database.models;
+      const benchmark = SyncBenchmark.createWithData(sessionId, sessionBenchmark);
+      await benchmark.save();
+      
+      return sessionBenchmark;
+    },
+  };
+};
+```
+
+### Integration Points:
+1. **MobileSyncManager.runSync()**: Initialize session aggregator after getting sessionId
+2. **syncOutgoingChanges()**: Create operation timer and log key actions (getSyncTick, snapshotChanges, pushChanges)
+3. **syncIncomingChanges()**: Create operation timer and log actions (pullChanges, saveChanges)
+4. **CentralServerConnection methods**: Accept optional timing parameter and log API calls:
+   - `startSyncSession()`: Log session start, queue status, polling waits
+   - `initiatePull()`: Log pull initiation, polling waits, metadata retrieval
+   - `completePush()`: Log push completion, polling waits
+5. **Utility functions**: Update `pullIncomingChanges`, `pushOutgoingChanges`, and `saveIncomingChanges` to accept and use timing for granular performance tracking
+
+### Mobile Benchmark Structure:
+```json
+{
+  "sessionId": "uuid",
+  "totalDurationMs": 15420,
+  "startTime": "2025-01-25T10:30:00.000Z",
+  "endTime": "2025-01-25T10:30:15.420Z",
+  "operations": [
+    {
+      "name": "Sync Outgoing Changes",
+      "totalDurationMs": 3200,
+      "actions": [
+        { "name": "setSyncStage", "durationMs": 1, "stage": 1 },
+        { "name": "getCurrentSyncTick", "durationMs": 15, "currentSyncTick": 12345 },
+        { "name": "snapshotOutgoingChanges", "durationMs": 850, "changesCount": 45 },
+        { "name": "pushOutgoingChanges", "durationMs": 2300, "changesCount": 45, "successful": true }
+      ]
+    },
+    {
+      "name": "Sync Incoming Changes", 
+      "totalDurationMs": 12100,
+      "actions": [
+        { "name": "initiatePull", "durationMs": 2500, "tableCount": 15 },
+        { "name": "waitForPullReady", "durationMs": 5200 },
+        { "name": "pullIncomingChanges", "durationMs": 3800, "totalPulled": 1250 },
+        { "name": "saveIncomingChanges", "durationMs": 600, "savedSuccessfully": true }
+      ]
+    }
+  ]
+}
+```

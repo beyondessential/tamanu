@@ -151,7 +151,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession({ urgent, lastSyncedTick }) {
+  async startSyncSession({ urgent, lastSyncedTick }, timing = null) {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
@@ -166,9 +166,11 @@ export class CentralServerConnection {
         isMobile: true,
       },
     );
+    timing?.logAction('startSyncSession', { sessionId: sessionId || 'queued', status, urgent });
 
     if (!sessionId) {
       // we're waiting in a queue
+      timing?.logAction('syncQueued', { status });
       return { status };
     }
 
@@ -176,9 +178,11 @@ export class CentralServerConnection {
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persist records from another client
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    timing?.logAction('waitForSessionReady', { sessionId });
 
     // finally, fetch the new tick from starting the session
     const { startedAtTick } = await this.get(`sync/${sessionId}/metadata`, {});
+    timing?.logAction('getSessionMetadata', { sessionId, startedAtTick });
 
     return { sessionId, startedAtTick };
   }
@@ -192,6 +196,7 @@ export class CentralServerConnection {
     since: number,
     tableNames: string[],
     tablesForFullResync: string[],
+    timing = null,
   ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
     const body = {
@@ -202,13 +207,27 @@ export class CentralServerConnection {
       deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
+    timing?.logAction('initiatePull', { 
+      sessionId, 
+      since, 
+      tableCount: tableNames.length,
+      fullResyncTableCount: tablesForFullResync?.length || 0 
+    });
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    timing?.logAction('waitForPullReady', { sessionId });
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get(`sync/${sessionId}/pull/metadata`, {});
+    const metadata = await this.get(`sync/${sessionId}/pull/metadata`, {});
+    timing?.logAction('getPullMetadata', { 
+      sessionId, 
+      totalToPull: metadata.totalToPull, 
+      pullUntil: metadata.pullUntil 
+    });
+    
+    return metadata;
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
@@ -227,13 +246,14 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionId}/push`, {}, { changes });
   }
 
-  async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
+  async completePush(sessionId: string, tablesToInclude: string[], timing = null): Promise<void> {
     // first off, mark the push as complete on central
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
       { tablesToInclude, deviceId: this.deviceId },
     );
+    timing?.logAction('markPushComplete', { sessionId, tableCount: tablesToInclude.length });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
@@ -242,10 +262,12 @@ export class CentralServerConnection {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const isComplete = await this.get(`sync/${sessionId}/push/complete`, {});
       if (isComplete) {
+        timing?.logAction('waitForPushComplete', { sessionId, attempts: attempt });
         return;
       }
       await sleepAsync(waitTime);
     }
+    timing?.logAction('pushCompleteTimeout', { sessionId, maxAttempts });
     throw new Error(`Could not fetch if push has been completed after ${maxAttempts} attempts`);
   }
 

@@ -18,6 +18,96 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 
+// Mobile sync timing utilities
+const createTimingLogger = (operation: string, sessionId: string, customStartTime: number = null) => {
+  const startTime = customStartTime || Date.now();
+  const actions = [];
+  let lastActionTime = startTime;
+
+  return {
+    logAction: (actionName: string, additionalData = {}) => {
+      const now = Date.now();
+      const durationMs = now - lastActionTime;
+      
+      actions.push({
+        name: actionName,
+        durationMs,
+        ...additionalData,
+      });
+      
+      lastActionTime = now;
+    },
+
+    getBenchmarkData: () => ({
+      operation,
+      sessionId,
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date().toISOString(),
+      totalDurationMs: Date.now() - startTime,
+      actions,
+    }),
+  };
+};
+
+const createMobileSyncSessionAggregator = (sessionId: string) => {
+  const sessionStartTime = Date.now();
+  const operations = new Map();
+
+  return {
+    createOperationTimer: (operationName: string, customStartTime: number = null) => {
+      const timing = createTimingLogger(operationName, sessionId, customStartTime);
+      
+      // Store operation for later aggregation
+      operations.set(operationName, {
+        operationName,
+        startTime: customStartTime || Date.now(),
+        timing,
+      });
+      
+      return timing;
+    },
+
+    async finalizeSession() {
+      const sessionEndTime = Date.now();
+      const sessionTotalDuration = sessionEndTime - sessionStartTime;
+
+      // Collect all operation benchmarks
+      const operationBenchmarks = [];
+      for (const [operationName, operationData] of operations.entries()) {
+        const benchmarkData = operationData.timing.getBenchmarkData();
+        operationBenchmarks.push({
+          name: operationName,
+          startTime: benchmarkData.startTime,
+          endTime: benchmarkData.endTime,
+          totalDurationMs: benchmarkData.totalDurationMs,
+          actions: benchmarkData.actions,
+        });
+      }
+
+      // Create final session benchmark
+      const sessionBenchmark = {
+        sessionId,
+        totalDurationMs: sessionTotalDuration,
+        startTime: new Date(sessionStartTime).toISOString(),
+        endTime: new Date(sessionEndTime).toISOString(),
+        operations: operationBenchmarks,
+      };
+
+      // Save to mobile database
+      try {
+        const { SyncBenchmark } = Database.models;
+        const benchmark = SyncBenchmark.createWithData(sessionId, sessionBenchmark);
+        await benchmark.save();
+        console.log(`Mobile sync benchmark saved for session ${sessionId}: ${sessionTotalDuration}ms total`);
+      } catch (error) {
+        console.error('Failed to save mobile sync benchmark:', error);
+      }
+
+      return sessionBenchmark;
+    },
+  };
+};
+
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
@@ -56,6 +146,9 @@ export class MobileSyncManager {
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
+  
+  // Session timing aggregator
+  private sessionAggregator = null;
 
   constructor(centralServer: CentralServerConnection) {
     this.centralServer = centralServer;
@@ -191,6 +284,9 @@ export class MobileSyncManager {
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
 
+    // Create timing for session start
+    const sessionStartTiming = createTimingLogger('Start Sync Session', 'temp-session');
+    
     // the first step of sync is to start a session and retrieve the session id
     const {
       sessionId,
@@ -199,7 +295,7 @@ export class MobileSyncManager {
     } = await this.centralServer.startSyncSession({
       urgent,
       lastSyncedTick: pullSince,
-    });
+    }, sessionStartTiming);
 
     if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
@@ -213,6 +309,9 @@ export class MobileSyncManager {
     this.isSyncing = true;
     this.isQueuing = false;
 
+    // Initialize session timing aggregator
+    this.sessionAggregator = createMobileSyncSessionAggregator(sessionId);
+
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     console.log('MobileSyncManager.runSync(): Sync started');
@@ -221,6 +320,12 @@ export class MobileSyncManager {
     await this.syncIncomingChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
+
+    // Finalize and save session benchmark
+    if (this.sessionAggregator) {
+      await this.sessionAggregator.finalizeSession();
+      this.sessionAggregator = null;
+    }
 
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
@@ -236,21 +341,32 @@ export class MobileSyncManager {
   async syncOutgoingChanges(sessionId: string, newSyncClockTime: number): Promise<void> {
     this.setSyncStage(1);
 
+    // Create timing for this operation
+    const timing = this.sessionAggregator?.createOperationTimer('Sync Outgoing Changes');
+    timing?.logAction('setSyncStage', { stage: 1 });
+
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncTick = await getSyncTick(this.models, CURRENT_SYNC_TIME);
+    timing?.logAction('getCurrentSyncTick', { currentSyncTick });
 
     // use the new unique tick for any changes from now on so that any records that are created or
     // updated even mid way through this sync, are marked using the new tick and will be captured in
     // the next push
     await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
+    timing?.logAction('setNewSyncTick', { newSyncClockTime });
 
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
+    timing?.logAction('getPushSince', { pushSince });
+    
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
     );
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+    timing?.logAction('getModelsToPush', { modelCount: Object.keys(modelsToPush).length });
+
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
+    timing?.logAction('snapshotOutgoingChanges', { changesCount: outgoingChanges.length });
 
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
@@ -264,12 +380,23 @@ export class MobileSyncManager {
         outgoingChanges,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
+        timing,
       );
+      timing?.logAction('pushOutgoingChanges', { 
+        changesCount: outgoingChanges.length,
+        successful: true 
+      });
+    } else {
+      timing?.logAction('pushOutgoingChanges', { 
+        changesCount: 0,
+        skipped: true 
+      });
     }
 
     this.lastSyncPushedRecordsCount = outgoingChanges.length;
 
     await setSyncTick(this.models, LAST_SUCCESSFUL_PUSH, currentSyncTick);
+    timing?.logAction('updateLastSuccessfulPush', { currentSyncTick });
 
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
@@ -286,7 +413,13 @@ export class MobileSyncManager {
   async syncIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
 
+    // Create timing for this operation
+    const timing = this.sessionAggregator?.createOperationTimer('Sync Incoming Changes');
+    timing?.logAction('setSyncStage', { stage: 2 });
+
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+    timing?.logAction('getPullSince', { pullSince });
+    
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
@@ -298,11 +431,18 @@ export class MobileSyncManager {
       STAGE_MAX_PROGRESS[this.syncStage - 1],
       'Pausing at 33% while server prepares for pull, please wait...',
     );
+    timing?.logAction('setInitialProgress', { progress: STAGE_MAX_PROGRESS[this.syncStage - 1] });
+
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
+    timing?.logAction('checkTablesForFullResync', { 
+      hasTablesForFullResync: !!tablesForFullResync,
+      tables: tablesForFullResync?.value 
+    });
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    timing?.logAction('getIncomingModels', { modelCount: Object.keys(incomingModels).length });
 
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
@@ -312,17 +452,20 @@ export class MobileSyncManager {
       tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
+      timing,
     );
+    timing?.logAction('pullIncomingChanges', { totalPulled, pullUntil });
 
     console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalPulled} changes`);
 
     this.setSyncStage(3);
+    timing?.logAction('setSyncStage', { stage: 3 });
 
     // Save all incoming changes in 1 transaction so that the whole sync session save
     // either fail 100% or succeed 100%, no partial save.
     await Database.client.transaction(async () => {
       if (totalPulled > 0) {
-        await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress);
+        await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress, timing);
       }
 
       if (tablesForFullResync) {
@@ -334,6 +477,11 @@ export class MobileSyncManager {
       // so that we don't end up detecting them as needing a sync up
       // to the central server when we attempt to resync from the same old cursor
       await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
+    });
+    timing?.logAction('saveIncomingChanges', { 
+      totalPulled,
+      savedSuccessfully: true,
+      clearedFullResyncTables: !!tablesForFullResync 
     });
 
     this.lastSyncPulledRecordsCount = totalPulled;
