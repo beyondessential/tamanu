@@ -29,7 +29,13 @@ export const selectOptionFromPopper = async (
   let selectedOption: Locator | undefined;
 
   if (optionToSelect) {
-    selectedOption = options.find(async (option) => (await option.innerText()) === optionToSelect);
+    for (const option of options) {
+      const optionText = await option.innerText();
+      if (optionText === optionToSelect) {
+        selectedOption = option;
+        break;
+      }
+    }
 
     if (!selectedOption) {
       throw new Error(`Option "${optionToSelect}" not found in popper`);
@@ -61,7 +67,8 @@ export const selectFieldOption = async (
     selectFirst = false,
     optionToSelect = null,
     stripTag = true,
-  }: { selectFirst?: boolean; optionToSelect?: string | null; stripTag?: boolean } = {},
+    returnOptionText = false,
+  }: { selectFirst?: boolean; optionToSelect?: string | null; stripTag?: boolean; returnOptionText?: boolean } = {},
 ) => {
   await expect(field).toBeEnabled();
   await field.click();
@@ -76,6 +83,10 @@ export const selectFieldOption = async (
   await expect(field.locator(`text="${selectedOptionText}"`).first()).toBeVisible({
     timeout: 1000,
   });
+
+  if (returnOptionText) {
+    return selectedOptionText;
+  }
 };
 
 /**
@@ -93,10 +104,12 @@ export const selectAutocompleteFieldOption = async (
     selectFirst = false,
     optionToSelect = null,
     stripTag = true,
+    returnOptionText = false,
   }: {
     selectFirst?: boolean;
     optionToSelect?: string | null;
     stripTag?: boolean;
+    returnOptionText?: boolean;
   } = {},
 ) => {
   await expect(field).toBeEnabled();
@@ -111,4 +124,8 @@ export const selectAutocompleteFieldOption = async (
   });
 
   await expect(input).toHaveValue(selectedOptionText, { timeout: 1000 });
+
+  if (returnOptionText) {
+    return selectedOptionText;
+  }
 };

@@ -67,37 +67,53 @@ export class RecordVaccineModal extends BasePatientModal {
     }
   }
 
-  async selectVaccine() {
-    await selectFieldOption(this.page, this.vaccineSelectField);
+  //TODO: should this always return vaccine name or should it sometimes not?
+  async selectVaccine(specificVaccine?: string) {
+    const vaccineName = await selectFieldOption(this.page, this.vaccineSelectField, { optionToSelect: specificVaccine, returnOptionText: true });
+    return vaccineName;
   }
 
   async selectLocationGroup() {
-    await selectAutocompleteFieldOption(this.page, this.areaField);
-    await selectAutocompleteFieldOption(this.page, this.locationField);
-    await selectAutocompleteFieldOption(this.page, this.departmentField);
+    const area = await selectAutocompleteFieldOption(this.page, this.areaField, { returnOptionText: true });
+    const location = await selectAutocompleteFieldOption(this.page, this.locationField, { returnOptionText: true });
+    const department = await selectAutocompleteFieldOption(this.page, this.departmentField, { returnOptionText: true });
+    return { area, location, department };
   }
 
+  //TODO: find some way to get the text of the selected option
   async selectScheduleOption(option?: string) {
-    const scheduleOption = option
-      ? this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false })
-      : this.scheduleRadioGroup.getByRole('radio', { disabled: false }).first();
+    let scheduleOption: string | undefined;
 
-    await scheduleOption.click();
+    if (option) {
+      scheduleOption = option;
+      const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false });
+      await scheduleOptionLocator.click();
+    } else {
+        const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
+        scheduleOption = await firstRadioOption.locator('span.MuiFormControlLabel-label').innerText();
+        await firstRadioOption.click();
+      }
+
+      return scheduleOption;
   }
-
+  
   // TODO: Refactor to use VACCINE_CATEGORIES when importing is working
-  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
+    let vaccineName: string | undefined;
+    let scheduleOption: string | undefined;
+
     if (category !== 'Other') {
-      await this.selectVaccine();
-      await this.selectScheduleOption();
+      vaccineName = await this.selectVaccine(specificVaccine);
+      scheduleOption = await this.selectScheduleOption();
     } else {
-      await this.vaccineNameField.fill('Test Vaccine');
+      vaccineName = 'Test Vaccine';
+      await this.vaccineNameField.fill(vaccineName);
     }
 
-    await this.selectLocationGroup();
+    const locationGroup = await this.selectLocationGroup();
 
     if (given) {
       await this.consentCheckbox.check();
@@ -105,6 +121,8 @@ export class RecordVaccineModal extends BasePatientModal {
 
     await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
+
+    return { vaccineName, scheduleOption, ...locationGroup };
   }
 
   async waitForModalToClose() {

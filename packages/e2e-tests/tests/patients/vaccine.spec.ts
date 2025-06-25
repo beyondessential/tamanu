@@ -1,6 +1,15 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
+
+//TODO: add tests to confirm that when you click view vaccine record all the details match
+//TODO: check todos above specific tests, some still to do
+//TODO: make changes to other fieldhelpers to match the changes i made?
+//TODO: assert date is correct
+//TODO: test case for given elsewhere checkbox
+//TODO: test case for all fields
+//TODO: test case for followup vaccine
+//TODO: in recorded vaccines table toggle on "include vaccines not given" and confirm it shows not given vaccines
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -12,16 +21,21 @@ test.describe('Vaccines', () => {
     given: boolean,
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
     count: number = 1,
+    specificVaccine?: string,
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category);
+    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine);
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
+
+    if (given) {
+      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineDetails(vaccine!.vaccineName!, vaccine!.scheduleOption!, count);
+    }
   }
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
@@ -43,9 +57,9 @@ test.describe('Vaccines', () => {
   test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
     test.setTimeout(45000);
 
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
-    await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 2);
-    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3);
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'MMR');
+    await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 2, 'Rotavirus');
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3, 'COVID-19 AZ');
     await addVaccineAndAssert(patientDetailsPage, true, 'Other', 4);
   });
 
@@ -66,9 +80,9 @@ test.describe('Vaccines', () => {
   });
 
   test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
-    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1);
-    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
+    await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1, 'HPV');
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2, 'COVID-19 AZ');
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
   });
 });
