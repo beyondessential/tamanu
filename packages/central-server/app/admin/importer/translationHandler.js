@@ -79,18 +79,14 @@ export function generateTranslationsForData(model, sheetName, values) {
 export async function bulkUpsertTranslationDefaults(models, translationData) {
   if (translationData.length === 0) return;
 
-  // throw out duplicate stringIds from invalid configuration to prevent confusing errors
-  // item[0] is the stringId
-  const filteredTranslationData = uniqBy(translationData, item => item[0]);
-
   await models.TranslatedString.sequelize.query(
     `
       INSERT INTO translated_strings (string_id, text, language)
-      VALUES ${filteredTranslationData.map(() => '(?)').join(',')}
+      VALUES ${translationData.map(() => '(?)').join(',')}
         ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
     `,
     {
-      replacements: filteredTranslationData,
+      replacements: translationData,
       type: models.TranslatedString.sequelize.QueryTypes.INSERT,
     },
   );

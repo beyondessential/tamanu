@@ -243,7 +243,9 @@ export async function importRows(
     }
   }
 
-  await bulkUpsertTranslationDefaults(models, translationData);
+  if (errors.length === 0) {
+    await bulkUpsertTranslationDefaults(models, translationData);
+  }
 
   log.debug('Done with these rows');
   return stats;
