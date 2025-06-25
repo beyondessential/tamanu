@@ -71,18 +71,26 @@ test.describe('Vaccines', () => {
 
   test('Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0);
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0);
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Campaign', 0);
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0);
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+    await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible();
   });
 
   test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
@@ -92,8 +100,8 @@ test.describe('Vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
   });
 
-  //TODO: rename this
-  test('IN PROGRESS, RENAME THIS TEST. CURRENTLY THIS CHECKS GIVEN BY', async ({ patientDetailsPage }) => {
+  test('Add vaccine and record who it was given by', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV', 'Test Doctor');
   });
+
 });

@@ -9,6 +9,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTablePaginator: Locator;
   recordVaccineModal?: RecordVaccineModal;
   readonly recordedVaccinesTableBody: Locator;
+  readonly vaccineNotGivenCheckbox: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,6 +23,7 @@ export class PatientVaccinePane extends BasePatientPane {
     });
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
     this.recordedVaccinesTableBody = this.page.getByTestId('styledtablebody-a0jz');
+    this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -90,5 +92,12 @@ export class PatientVaccinePane extends BasePatientPane {
       }
     }
     return false;
+  }
+
+  async confirmNotGivenLabelIsVisible() {
+    const notGivenLabelFound = await this.searchRecordVaccineTableForMatch('Not given', 'givenBy', 1);
+    if (!notGivenLabelFound) {
+      throw new Error('Not given label not found in the recorded vaccines table');
+    }
   }
 }

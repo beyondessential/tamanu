@@ -58,6 +58,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
+
   constructor(page: Page) {
     super(page);
 
