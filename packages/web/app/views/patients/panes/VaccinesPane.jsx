@@ -159,7 +159,6 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             <ImmunisationScheduleTable
               patient={patient}
               onItemEdit={id => handleOpenRecordModal(id)}
-              data-testid="immunisationscheduletable-8nat"
             />
           )}
         </TableWrapper>
@@ -168,7 +167,6 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
           onItemDeleteClick={id => handleOpenDeleteModal(id)}
-          data-testid="immunisationstable-q9jd"
         />
       </ContentPane>
       <CovidVaccineCertificateModal
