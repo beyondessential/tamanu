@@ -1,4 +1,4 @@
-import { Colors, MUI_SPACING_UNIT } from '@tamanu/shared/ui';
+import { Colors, MUI_SPACING_UNIT } from '@tamanu/shared/ui/theme';
 
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
