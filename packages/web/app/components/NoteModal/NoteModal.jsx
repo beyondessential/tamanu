@@ -15,6 +15,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
+import { useMediaQuery } from '@material-ui/core';
 
 const StyledMuiDialog = styled(MuiDialog)`
   /* Make the form take up full height */
@@ -61,6 +62,13 @@ const getMinConstraints = (noteFormMode, note) => {
   return [400, 450];
 };
 
+const getMaxConstraints = isHeightBreakpoint => {
+  if (isHeightBreakpoint) {
+    return [500, 775];
+  }
+  return [500, 500];
+};
+
 const MemoizedNoteModalContents = React.memo(
   ({
     open,
@@ -73,14 +81,16 @@ const MemoizedNoteModalContents = React.memo(
     cancelText,
     handleCreateOrEditNewNote,
   }) => {
+    const isHeightBreakpoint = useMediaQuery('(min-height: 850px)');
+
     return (
       <FloatingMuiDialog
         open={open}
         onClose={onClose}
         baseWidth={500}
-        baseHeight={775}
+        baseHeight={isHeightBreakpoint ? 775 : 500}
         minConstraints={getMinConstraints(noteFormMode, note)}
-        maxConstraints={[500, 775]}
+        maxConstraints={getMaxConstraints(isHeightBreakpoint)}
       >
         <NoteModalDialogTitle title={title} onClose={onClose} />
         <NoteForm
