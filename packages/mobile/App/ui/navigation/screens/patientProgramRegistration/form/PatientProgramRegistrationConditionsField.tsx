@@ -39,7 +39,10 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   conditionCategoryOptions: FieldValue[];
 }
 
-const getConditionCategoryOptions = (conditionCategories: IProgramRegistryConditionCategory[]) => {
+const getConditionCategoryOptions = (
+  conditionCategories: IProgramRegistryConditionCategory[],
+  getTranslation: (stringId: string, fallback: string) => string,
+) => {
   if (!conditionCategories) return [];
 
   return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
@@ -47,7 +50,10 @@ const getConditionCategoryOptions = (conditionCategories: IProgramRegistryCondit
   )
   .map((category: IProgramRegistryConditionCategory) => ({
     value: category.id,
-    label: category.name,
+    label: getTranslation(
+      getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
+      category.name,
+    ),
   }));
 }
 
@@ -240,7 +246,10 @@ export const PatientProgramRegistrationConditionsField = ({
   );
 
   // Filter out recorded in error category and map to options
-  const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories);
+  const conditionCategoryOptions = getConditionCategoryOptions(
+    conditionCategories,
+    getTranslation,
+  );
 
   const conditionSuggester = new Suggester({
     model: models.ProgramRegistryCondition,
