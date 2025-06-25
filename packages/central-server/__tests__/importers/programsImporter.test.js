@@ -677,7 +677,7 @@ describe('Programs import', () => {
           model: 'ProgramRegistryConditionCategory',
           sheetRow: 1, // __rowNum__ - 1
           values: {
-            id: `program-registry-condition-category-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            id: `program-registry-condition-category-${registryId}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
             programRegistryId: registryId,
             code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
             name: 'Custom Unknown',
@@ -719,7 +719,7 @@ describe('Programs import', () => {
           model: 'ProgramRegistryConditionCategory',
           sheetRow: -1, // Indicates hardcoded
           values: {
-            id: `program-registry-condition-category-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            id: `program-registry-condition-category-${registryId}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
             programRegistryId: registryId,
             code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
             visibilityStatus: 'current',
@@ -801,7 +801,7 @@ describe('Programs import', () => {
           model: 'ProgramRegistryConditionCategory',
           sheetRow: 1, // __rowNum__ - 1
           values: {
-            id: 'program-registry-condition-category-custom-category',
+            id: `program-registry-condition-category-${registryId}-custom-category`,
             programRegistryId: registryId,
             code: 'custom-category',
             name: 'Custom Category',
