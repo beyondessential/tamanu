@@ -133,7 +133,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
         id, code, name, visibilityStatus, programRegistryId, createdAt, updatedAt
       )
       SELECT
-        '${ID_PREFIX}' || pr.code || '-' || category.code,
+        '${ID_PREFIX}' || '-' || pr.id || '-' || category.code,
         category.code,
         category.name,
         'current',
