@@ -1,6 +1,6 @@
 # Context
 
-This rule covers the process of converting hardcoded English text strings in React components to use the TranslatedText internationalization system. This is a common task for making the Tamanu healthcare application accessible to international users.
+Convert hardcoded English text strings in React components to use the TranslatedText internationalization system. This is a common task for making the Tamanu healthcare application accessible to international users.
 
 # Process
 
@@ -77,21 +77,3 @@ This rule covers the process of converting hardcoded English text strings in Rea
 - Common actions like "Save", "Cancel", "Add" should use `general.action.*` IDs for maximum reusability
 - Simple variable replacements (like `:count`, `:name`, `:timeoutHours`) are preferred over splitting messages
 - Only split messages when you need to insert complex styled JSX that can't be handled by replacements
-
-# Recent Updates
-
----
-
-# 🔴 CRITICAL REMINDER: UPDATE THIS RULE AFTER USE
-
-**After completing any translation task using this rule, you MUST update this file with:**
-
-1. **New patterns** discovered during the session
-2. **Gotchas or anti-patterns** encountered
-3. **Better approaches** that improve existing steps
-4. **Edge cases** not previously covered
-5. **Corrections** to existing guidance that proved incorrect
-
-**Add an entry in the "Recent Updates" section above with the session date and learnings.**
-
-**This step is MANDATORY and cannot be skipped!**

@@ -205,7 +205,6 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async goToPatient(patient: Patient) {
-    console.log('going to');
     await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
   }
 
@@ -247,6 +246,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
     await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 

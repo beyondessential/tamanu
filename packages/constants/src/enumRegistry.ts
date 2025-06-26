@@ -53,7 +53,7 @@ import {
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
 import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  DEPRECATED_PRCC_LABELS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
 } from './programRegistry';
 
@@ -97,7 +97,7 @@ export const registeredEnums = {
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  DEPRECATED_PRCC_LABELS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPEAT_FREQUENCY_LABELS,
@@ -154,7 +154,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS: 'programRegistry.property.conditionCategory',
+  DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',

@@ -4,6 +4,7 @@ import { request, Page, APIRequestContext } from '@playwright/test';
 import { constructFacilityUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
+import { generateNHN } from './generateNewPatient';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
   const token = await getItemFromLocalStorage(page, 'apiToken');
@@ -31,7 +32,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
   const patientData = {
     birthFacilityId: null,
     dateOfBirth: faker.date.birthdate(),
-    displayId: faker.string.uuid(),
+    displayId: generateNHN(),
     facilityId,
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
