@@ -36,6 +36,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
   const api = useApi();
   const queryClient = useQueryClient();
   const patient = useSelector((state) => state.patient);
+  
   const onSubmit = useCallback(
     async (data) => {
       if (data.id) {
@@ -49,6 +50,14 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
       onClose();
     },
     [api, endpoint, onClose, patient.id, id, queryClient],
+  );
+
+  const onDelete = useCallback(
+    async () => {
+      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient.id]);
+      onClose();
+    },
+    [queryClient, id, patient.id, onClose],
   );
 
   const suggesters = useMemo(
@@ -68,6 +77,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
         onCancel={onClose}
         editedObject={item}
         onSubmit={onSubmit}
+        onDelete={onDelete}
         {...suggesters}
         data-testid="form-d074"
       />
