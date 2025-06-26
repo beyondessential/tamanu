@@ -17,7 +17,7 @@ on:
       - labeled
 
   push:
-    # Release tags build the server/web packages only
+    # Release tags build the server/web/patient-portal packages only
     tags: ['v*.*.*']
     # All branches can potentially be controlled by special issues
     branches: ['**']
