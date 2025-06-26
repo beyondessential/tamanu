@@ -46,7 +46,7 @@ export const displayId = {
       data-testid="translatedtext-4fdl"
     />
   ),
-  minWidth: 90,
+  minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };
 

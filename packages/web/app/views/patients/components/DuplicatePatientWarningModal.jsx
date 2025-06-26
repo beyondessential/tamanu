@@ -28,6 +28,17 @@ const LeftAlignedButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
+// Styled wrapper to enforce consistent table layout
+const StyledTable = styled(Table)`
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+  border-radius: 0;
+  border-bottom: none;
+  overflow: hidden;
+`;
+
 const COLUMNS = [displayId, firstName, lastName, culturalName, dateOfBirth, sex, village];
 const UNSORTABLE_COLUMNS = COLUMNS.map(column => ({ ...column, sortable: false }));
 
@@ -84,9 +95,10 @@ export const DuplicatePatientWarningModal = ({
             data-testid="translatedtext-existing-heading"
           />
         </Heading4>
-        <Table
+        <StyledTable
           columns={UNSORTABLE_COLUMNS}
           data={potentialDuplicates}
+          elevated={false}
           onRowClick={row => {
             dispatch(reloadPatient(row.id));
             navigateToPatient(row.id);
@@ -99,7 +111,7 @@ export const DuplicatePatientWarningModal = ({
             data-testid="translatedtext-proposed-heading"
           />
         </Heading4>
-        <Table columns={UNSORTABLE_COLUMNS} data={[proposedPatient]} />
+        <StyledTable columns={UNSORTABLE_COLUMNS} data={[proposedPatient]} elevated={false} />
         <ConfirmRowDivider data-testid="confirmrowdivider-f8hm" />
         <ButtonRow data-testid="buttonrow-5x0v">
           <LeftAlignedButton data-testid="outlinedbutton-p957" onClick={() => handleClose(false)}>
