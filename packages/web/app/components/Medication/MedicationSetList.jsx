@@ -196,7 +196,7 @@ export const MedicationSetMedicationsList = ({
               <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
                 <TranslatedText
                   stringId="medication.warning.existingDrug"
-                  fallback="This medication is already in use. Please check the medication list to ensure you are not creating a duplicate."
+                  fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
                 />
               </SmallBodyText>
             )}
