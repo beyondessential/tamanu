@@ -1,4 +1,9 @@
-import { FACT_CURRENT_SYNC_TICK, NOTE_RECORD_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
+  NOTE_RECORD_TYPES,
+  LAB_REQUEST_STATUSES,
+} from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 
 import { makeTwoPatients } from '../admin/patientMerge/makeTwoPatients';
@@ -26,7 +31,9 @@ describe('Sync Patient Merge', () => {
     const { Encounter, Facility, Department, Location, User, PatientFacility, LocalSystemFact } =
       models;
     const OLD_SYNC_TICK = '2';
+    const LOOKUP_UP_TO_TICK = '1';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+    await LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, LOOKUP_UP_TO_TICK);
 
     [keep, merge] = await makeTwoPatients(models);
 
@@ -99,6 +106,7 @@ describe('Sync Patient Merge', () => {
     await models.Location.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
     await models.SyncLookup.truncate({ cascade: true, force: true });
+    await models.SyncLookupTick.truncate({ cascade: true, force: true });
   });
 
   it('pulls child records (notes and lab requests) of merged encounters after merging patients', async () => {
@@ -130,7 +138,7 @@ describe('Sync Patient Merge', () => {
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -186,7 +194,7 @@ describe('Sync Patient Merge', () => {
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -236,7 +244,7 @@ describe('Sync Patient Merge', () => {
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -285,7 +293,7 @@ describe('Sync Patient Merge', () => {
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id, false);
