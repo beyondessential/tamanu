@@ -182,7 +182,7 @@ encounterRelations.get(
       include: Discharge.getFullReferenceAssociations(),
     });
     if (!discharge) throw new NotFoundError();
-    await req.audit.access({
+    await req.audit?.access?.({
       recordId: discharge.id,
       params,
       model: Discharge,
