@@ -125,10 +125,11 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
-    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
+
+    const { sessionId } = await centralSyncManager.startSession();
 
     const NEW_SYNC_TICK = '4';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
@@ -181,10 +182,11 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
-    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
+
+    const { sessionId } = await centralSyncManager.startSession();
 
     const NEW_SYNC_TICK = '4';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
@@ -231,10 +233,11 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
-    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
+
+    const { sessionId } = await centralSyncManager.startSession();
 
     const NEW_SYNC_TICK = '4';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
@@ -280,10 +283,11 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
-    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
+    
+    const { sessionId } = await centralSyncManager.startSession();
 
     const NEW_SYNC_TICK = '4';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
