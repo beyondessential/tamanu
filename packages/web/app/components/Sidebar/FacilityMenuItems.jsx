@@ -98,7 +98,7 @@ export const FACILITY_MENU_ITEMS = [
     label: (
       <TranslatedText
         stringId="sidebar.scheduling"
-        fallback="Scheduling"
+        fallback="Appointments"
         data-testid="translatedtext-46ib"
       />
     ),
