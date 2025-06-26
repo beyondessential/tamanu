@@ -26,18 +26,18 @@ describe('Merging Patient Program Registration Conditions', () => {
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
     const programRegistry = await setupProgramRegistry(models);
-    const pr1Condition1 = await models.ProgramRegistryCondition.create(
+    const prCondition1 = await models.ProgramRegistryCondition.create(
       fake(models.ProgramRegistryCondition, {
         programRegistryId: programRegistry.id,
       }),
     );
-    const pr1Condition2 = await models.ProgramRegistryCondition.create(
+    const prCondition2 = await models.ProgramRegistryCondition.create(
       fake(models.ProgramRegistryCondition, {
         programRegistryId: programRegistry.id,
       }),
     );
     const categoryCode = 'unknown';
-    const pr1ConditionCategory = await models.ProgramRegistryConditionCategory.create(
+    const prConditionCategory = await models.ProgramRegistryConditionCategory.create(
       fake(models.ProgramRegistryConditionCategory, {
         id: `program-registry-condition-category-${programRegistry.id}-${categoryCode}`,
         code: categoryCode,
@@ -68,8 +68,8 @@ describe('Merging Patient Program Registration Conditions', () => {
     const keepCondition = await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: keepRegistration.id,
-        programRegistryConditionId: pr1Condition1.id,
-        programRegistryConditionCategoryId: pr1ConditionCategory.id,
+        programRegistryConditionId: prCondition1.id,
+        programRegistryConditionCategoryId: prConditionCategory.id,
       }),
     );
 
@@ -77,15 +77,15 @@ describe('Merging Patient Program Registration Conditions', () => {
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
-        programRegistryConditionId: pr1Condition1.id,
-        programRegistryConditionCategoryId: pr1ConditionCategory.id,
+        programRegistryConditionId: prCondition1.id,
+        programRegistryConditionCategoryId: prConditionCategory.id,
       }),
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
-        programRegistryConditionId: pr1Condition2.id,
-        programRegistryConditionCategoryId: pr1ConditionCategory.id,
+        programRegistryConditionId: prCondition2.id,
+        programRegistryConditionCategoryId: prConditionCategory.id,
       }),
     );
 
