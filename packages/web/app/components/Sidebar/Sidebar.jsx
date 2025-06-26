@@ -372,19 +372,21 @@ export const Sidebar = React.memo(({ items }) => {
                 />{' '}
                 {api.agentVersion}
               </Version>
-              <LogoutButton
-                type="button"
-                onClick={onLogout}
-                id="logout"
-                data-test-id="siderbar-logout-item"
-                data-testid="logoutbutton-4zn4"
-              >
-                <TranslatedText
-                  stringId="auth.action.logout"
-                  fallback="Log out"
-                  data-testid="translatedtext-sasg"
-                />
-              </LogoutButton>
+              <NoteModalActionBlocker isNavigationBlock>
+                <LogoutButton
+                  type="button"
+                  onClick={onLogout}
+                  id="logout"
+                  data-test-id="siderbar-logout-item"
+                  data-testid="logoutbutton-4zn4"
+                >
+                  <TranslatedText
+                    stringId="auth.action.logout"
+                    fallback="Log out"
+                    data-testid="translatedtext-sasg"
+                  />
+                </LogoutButton>
+              </NoteModalActionBlocker>
             </StyledMetadataBox>
           </>
         )}
