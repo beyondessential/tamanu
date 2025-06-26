@@ -1,0 +1,77 @@
+name: Synthetic Test Trigger
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-and-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.check.outputs.pr_number }}
+      pr_ref: ${{ steps.check.outputs.pr_ref }}
+      pr_sha: ${{ steps.check.outputs.pr_sha }}
+      target_url: ${{ steps.check.outputs.target_url }}
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/github-script@v7
+        id: check
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number || parseInt(core.getInput('pr_number'));
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const syntheticTestMatch = pr.body?.match(/\[x\]\s+.*?<!-- #synthetic-test -->/);
+            const shouldRun = !!syntheticTestMatch;
+
+            const targetUrlMatch = pr.body?.match(/\*\*Target URL:\*\*\s*(https?:\/\/[^\s\n]+)/i);
+            const targetUrl = targetUrlMatch?.[1] 
+
+            if (!targetUrl && shouldRun) {
+              core.setFailed('No target URL found in PR body, please add a target URL to the PR body');
+            }
+
+            core.setOutput('target_url', targetUrl);
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('pr_ref', pr.head.ref); 
+            core.setOutput('pr_sha', pr.head.sha);
+            core.setOutput('should_run', shouldRun);
+
+      - name: Trigger Synthetic Test Runner
+        if: steps.check.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering ci-synthetic-test-runner.yml on ref ${{ steps.check.outputs.pr_ref }}"
+          gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
+            --ref "${{ steps.check.outputs.pr_ref }}" \
+            --field attempt=1 \
+            --field target_url="${{ steps.check.outputs.target_url }}" \
+            --field pr_number="${{ steps.check.outputs.pr_number }}" \
+            --field pr_ref="${{ steps.check.outputs.pr_ref }}" \
+            --field pr_sha="${{ steps.check.outputs.pr_sha }}" \
+            --field max_attempts=5
+
+      - name: Cancel Synthetic Test Runs
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.check.outputs.should_run != 'true'
+        run: |
+          echo "Cancelling in-progress synthetic test runs for PR #${{ steps.check.outputs.pr_number }}"
+          
+          PR_BRANCH="${{ steps.check.outputs.pr_ref }}"
+          RUN_IDS=$(gh run list --repo ${{ github.repository }} --json databaseId,status,headBranch,workflowName --limit 1000 \
+            | jq -r --arg branch "$PR_BRANCH" --arg workflow "ci-synthetic-test-runner.yml" '.[] | select(.status == "in_progress" and .headBranch == $branch and .workflowName == "Synthetic Test Runner") | .databaseId')
+
+          if [ -n "$RUN_IDS" ]; then
+            echo "$RUN_IDS" | while read run_id; do
+              echo "Cancelling run $run_id (branch: $PR_BRANCH)"
+              gh run cancel --repo ${{ github.repository }} "$run_id"
+            done
+          else
+            echo "No in-progress runs found for branch $PR_BRANCH"
+          fi
