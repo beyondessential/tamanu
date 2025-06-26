@@ -4,6 +4,11 @@ import android.content.Context;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import org.jetbrains.annotations.Nullable;
 
 public class MainActivity extends ReactActivity {
   /**
@@ -13,6 +18,15 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "tamanuapp";
+  }
+
+  @Override
+  public Intent registerReceiver(@Nullable BroadcastReceiver receiver, IntentFilter filter) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+          return super.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+      } else {
+          return super.registerReceiver(receiver, filter);
+      }
   }
 
   /**
