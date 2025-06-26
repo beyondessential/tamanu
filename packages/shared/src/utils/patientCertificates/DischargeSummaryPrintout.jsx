@@ -202,7 +202,7 @@ const MedicationsTable = ({ medications }) => {
   );
 };
 
-const DischargeSummaryPrintoutComponent = async ({
+const DischargeSummaryPrintoutComponent = ({
   patientData,
   encounter,
   discharge,
@@ -223,7 +223,7 @@ const DischargeSummaryPrintoutComponent = async ({
     name: facilityName,
     address: facilityAddress,
     town: facilityTown,
-  } = await discharge.address();
+  } = discharge.address;
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {
