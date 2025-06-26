@@ -6,6 +6,7 @@ import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSync
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 import { Facility } from './Facility';
+import { log } from '@tamanu/shared/services/logging';
 
 export interface Address {
   name?: string;
@@ -59,8 +60,8 @@ export class Discharge extends Model {
   }
 
   async address(): Promise<Address> {
-    const encounterFacility = (
-      await this.sequelize.query(
+    const encounterFacility = await this.sequelize
+      .query(
         `
           SELECT f.* FROM facilities f
           JOIN encounters e ON f.id = e.facilityId
@@ -75,7 +76,13 @@ export class Discharge extends Model {
           },
         },
       )
-    )?.[0];
+      .then(
+        (res: Facility[]) => res?.[0],
+        (err: Error) => {
+          log.warn('Failed to fetch encounter facility', err);
+          return null;
+        },
+      );
 
     return {
       name: encounterFacility?.name ?? this.facilityName,
