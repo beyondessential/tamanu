@@ -60,7 +60,7 @@ export const DuplicatePatientWarningModal = ({
           />
         }
         open={open}
-        onClose={() => handleClose(false)}
+        onClose={showCancelNewPatientModal}
         data-testid="modal-dgog"
       >
         <Heading4>
