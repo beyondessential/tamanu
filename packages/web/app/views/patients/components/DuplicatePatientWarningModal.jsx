@@ -28,7 +28,8 @@ const LeftAlignedButton = styled(OutlinedButton)`
   margin-right: auto;
 `;
 
-// Styled wrapper to enforce consistent table layout
+// We need both tables to have the same column widths so we need to
+// disable the dynamic column sizing
 const StyledTable = styled(Table)`
   table {
     table-layout: fixed;
