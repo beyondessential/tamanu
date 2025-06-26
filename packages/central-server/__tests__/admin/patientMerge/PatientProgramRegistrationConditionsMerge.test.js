@@ -1,3 +1,4 @@
+import { capitalize } from 'lodash';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
@@ -10,13 +11,11 @@ describe('Merging Patient Program Registration Conditions', () => {
   let ctx;
   let models;
   let clinician;
-  let programRegistry;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     clinician = await models.User.create(fake(models.User));
-    programRegistry = await setupProgramRegistry(models);
   });
 
   afterAll(async () => {
@@ -26,6 +25,26 @@ describe('Merging Patient Program Registration Conditions', () => {
   it('hard deletes all conditions from duplicate registrations', async () => {
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
+    const programRegistry = await setupProgramRegistry(models);
+    const pr1Condition1 = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, {
+        programRegistryId: programRegistry.id,
+      }),
+    );
+    const pr1Condition2 = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, {
+        programRegistryId: programRegistry.id,
+      }),
+    );
+    const categoryCode = 'unknown';
+    const pr1ConditionCategory = await models.ProgramRegistryConditionCategory.create(
+      fake(models.ProgramRegistryConditionCategory, {
+        id: `program-registry-condition-category-${programRegistry.id}-${categoryCode}`,
+        code: categoryCode,
+        name: capitalize(categoryCode),
+        programRegistryId: programRegistry.id,
+      }),
+    );
 
     const keepRegistration = await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
@@ -49,6 +68,8 @@ describe('Merging Patient Program Registration Conditions', () => {
     const keepCondition = await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: keepRegistration.id,
+        programRegistryConditionId: pr1Condition1.id,
+        programRegistryConditionCategoryId: pr1ConditionCategory.id,
       }),
     );
 
@@ -56,11 +77,15 @@ describe('Merging Patient Program Registration Conditions', () => {
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
+        programRegistryConditionId: pr1Condition1.id,
+        programRegistryConditionCategoryId: pr1ConditionCategory.id,
       }),
     );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: unwantedRegistration.id,
+        programRegistryConditionId: pr1Condition2.id,
+        programRegistryConditionCategoryId: pr1ConditionCategory.id,
       }),
     );
 
@@ -92,7 +117,35 @@ describe('Merging Patient Program Registration Conditions', () => {
   it('keeps all conditions from non-duplicate registrations', async () => {
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
+    const programRegistry = await setupProgramRegistry(models);
+    const pr1Condition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, {
+        programRegistryId: programRegistry.id,
+      }),
+    );
+    const categoryCode = 'unknown';
+    const pr1ConditionCategory = await models.ProgramRegistryConditionCategory.create(
+      fake(models.ProgramRegistryConditionCategory, {
+        id: `program-registry-condition-category-${programRegistry.id}-${categoryCode}`,
+        code: categoryCode,
+        name: capitalize(categoryCode),
+        programRegistryId: programRegistry.id,
+      }),
+    );
     const programRegistry2 = await setupProgramRegistry(models);
+    const pr2Condition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, {
+        programRegistryId: programRegistry2.id,
+      }),
+    );
+    const pr2ConditionCategory = await models.ProgramRegistryConditionCategory.create(
+      fake(models.ProgramRegistryConditionCategory, {
+        id: `program-registry-condition-category-${programRegistry2.id}-${categoryCode}`,
+        code: categoryCode,
+        name: capitalize(categoryCode),
+        programRegistryId: programRegistry2.id,
+      }),
+    );
 
     const keepRegistration = await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
@@ -115,12 +168,16 @@ describe('Merging Patient Program Registration Conditions', () => {
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: keepRegistration.id,
+        programRegistryConditionId: pr1Condition.id,
+        programRegistryConditionCategoryId: pr1ConditionCategory.id,
       }),
     );
 
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: mergeRegistration.id,
+        programRegistryConditionId: pr2Condition.id,
+        programRegistryConditionCategoryId: pr2ConditionCategory.id,
       }),
     );
 
