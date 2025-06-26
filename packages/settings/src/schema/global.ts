@@ -105,6 +105,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
+        hideUpcomingVaccines: {
+          description: 'Hide upcoming vaccines behind a button from the patient details page',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         enablePatientDeaths: {
           description: 'Enable death module',
           type: yup.boolean(),
