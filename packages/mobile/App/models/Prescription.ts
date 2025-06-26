@@ -78,7 +78,6 @@ export class Prescription extends BaseModel {
 
   @Column({ nullable: true })
   displayPharmacyNotesInMar?: boolean;
-  te;
 
   @OneToMany(
     () => EncounterPrescription,
