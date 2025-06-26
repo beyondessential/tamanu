@@ -80,6 +80,23 @@ COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
 COPY --from=build-frontend /app/packages/web/dist/ .
 
 
+## Build the patient portal
+FROM build-base AS build-patient-portal
+RUN apk add zstd brotli
+COPY packages/ packages/
+RUN scripts/docker-build.sh patient-portal
+
+
+## Minimal image to serve the patient portal
+FROM alpine AS patient-portal
+WORKDIR /app
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
+COPY packages/patient-portal/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-patient-portal /app/packages/patient-portal/dist/ .
+
+
 ## Toolbox image
 FROM rust AS build-bestool
 RUN cargo install bestool --no-default-features \
