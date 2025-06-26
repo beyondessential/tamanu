@@ -17,4 +17,3 @@ export * from './getLabTestsFromLabRequests';
 export * from './numeralTranslation';
 export * from './enumRegistry';
 export * from './invoice';
-export * from './refreshChildRecordsForSync';
