@@ -32,30 +32,31 @@ import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
 
+// TEMPORARY COMMENTS FOR TESTING ERRORS
 patientRoute.get(
   '/:id',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Patient },
-      params,
-      query: { facilityId },
-    } = req;
+  asyncHandler(async (req) => {
+    // const {
+    //   // models: { Patient },
+    //   // params,
+    //   // query: { facilityId },
+    // } = req;
     req.checkPermission('read', 'Patient');
 
     throw new Error('TEST ERROR');
 
-    const patient = await Patient.findByPk(params.id, {
-      include: Patient.getFullReferenceAssociations(),
-    });
-    if (!patient) throw new NotFoundError();
+    // const patient = await Patient.findByPk(params.id, {
+    //   include: Patient.getFullReferenceAssociations(),
+    // });
+    // if (!patient) throw new NotFoundError();
 
-    await req.audit.access({
-      recordId: params.id,
-      params,
-      model: Patient,
-    });
+    // await req.audit.access({
+    //   recordId: params.id,
+    //   params,
+    //   model: Patient,
+    // });
 
-    res.send(dbRecordToResponse(patient, facilityId));
+    // res.send(dbRecordToResponse(patient, facilityId));
   }),
 );
 

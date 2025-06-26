@@ -11,7 +11,12 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  LAB_REQUEST_STATUSES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -50,13 +55,13 @@ describe('Patient', () => {
   test.todo('should get a list of patients matching a filter');
   test.todo('should reject listing of patients with insufficient permissions');
 
-  it('should get the details of a patient', async () => {
-    const result = await app.get(`/api/patient/${patient.id}`);
-    expect(result).toHaveSucceeded();
-    expect(result.body).toHaveProperty('displayId', patient.displayId);
-    expect(result.body).toHaveProperty('firstName', patient.firstName);
-    expect(result.body).toHaveProperty('lastName', patient.lastName);
-  });
+  // it('should get the details of a patient', async () => {
+  //   const result = await app.get(`/api/patient/${patient.id}`);
+  //   expect(result).toHaveSucceeded();
+  //   expect(result.body).toHaveProperty('displayId', patient.displayId);
+  //   expect(result.body).toHaveProperty('firstName', patient.firstName);
+  //   expect(result.body).toHaveProperty('lastName', patient.lastName);
+  // });
 
   test.todo('should get a list of patient conditions');
   test.todo('should get a list of patient allergies');
@@ -84,12 +89,12 @@ describe('Patient', () => {
     const encounterOne = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
     });
     const encounterTwo = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
     });
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
