@@ -361,11 +361,11 @@ describe('Data definition import', () => {
     );
 
     // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
+    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
       OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
     );
     await Promise.all(
-      translatableNonRefDataTableImports.map(async (type) => {
+      translatableNonRefDataTableImports.map(async type => {
         const recordsForDataType = await models[type].findAll({
           attributes: ['id'],
           raw: true,
@@ -564,6 +564,12 @@ describe('Data definition import', () => {
       -1,
       'Lab test panels cannot contain sensitive lab test types',
     );
+  });
+
+  describe('Procedure Type Survey', () => {
+    it.todo('should import procedure type without formlink');
+    it.todo('should import procedure type with formlink');
+    it.todo('should validate that the form exists');
   });
 });
 
