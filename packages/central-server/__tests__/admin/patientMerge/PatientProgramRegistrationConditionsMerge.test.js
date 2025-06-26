@@ -23,7 +23,7 @@ describe('Merging Patient Program Registration Conditions', () => {
     await ctx.close();
   });
 
-  it('hard deletes all conditions', async () => {
+  it('hard deletes all conditions from duplicate registrations', async () => {
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
 
@@ -87,5 +87,71 @@ describe('Merging Patient Program Registration Conditions', () => {
     const afterMergeKeepCondition = newKeepPatientConditions[0];
     expect(afterMergeKeepCondition.id).toBe(keepCondition.id);
     expect(afterMergeKeepCondition.deletedAt).toBeNull();
+  });
+
+  it('keeps all conditions from non-duplicate registrations', async () => {
+    const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
+    const [keep, merge] = await makeTwoPatients(models);
+    const programRegistry2 = await setupProgramRegistry(models);
+
+    const keepRegistration = await PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        programRegistryId: programRegistry.id,
+        patientId: keep.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        clinicianId: clinician.id,
+      }),
+    );
+
+    const mergeRegistration = await PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        programRegistryId: programRegistry2.id,
+        patientId: merge.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        clinicianId: clinician.id,
+      }),
+    );
+
+    await PatientProgramRegistrationCondition.create(
+      fake(PatientProgramRegistrationCondition, {
+        patientProgramRegistrationId: keepRegistration.id,
+      }),
+    );
+
+    await PatientProgramRegistrationCondition.create(
+      fake(PatientProgramRegistrationCondition, {
+        patientProgramRegistrationId: mergeRegistration.id,
+      }),
+    );
+
+    const { updates } = await mergePatient(models, keep.id, merge.id);
+    expect(updates).toEqual({
+      Patient: 2,
+      PatientProgramRegistration: 1,
+    });
+
+    const registryOneConditions = await PatientProgramRegistrationCondition.findAll({
+      where: { patientProgramRegistrationId: keepRegistration.id },
+      paranoid: false, // include any soft deleted conditions
+      raw: true,
+    });
+    const newRegistrationId = `${keep.id};${programRegistry2.id}`;
+    const registryTwoConditions = await PatientProgramRegistrationCondition.findAll({
+      where: { patientProgramRegistrationId: newRegistrationId },
+      paranoid: false, // include any soft deleted conditions
+      raw: true,
+    });
+    const oldRegistryConditions = await PatientProgramRegistrationCondition.findAll({
+      where: { patientProgramRegistrationId: mergeRegistration.id },
+      paranoid: false, // include any soft deleted conditions
+      raw: true,
+    });
+
+    expect(registryOneConditions.length).toEqual(1);
+    expect(registryTwoConditions.length).toEqual(1);
+    expect(oldRegistryConditions.length).toEqual(0);
+
+    expect(registryOneConditions[0].deletedAt).toBeNull();
+    expect(registryTwoConditions[0].deletedAt).toBeNull();
   });
 });
