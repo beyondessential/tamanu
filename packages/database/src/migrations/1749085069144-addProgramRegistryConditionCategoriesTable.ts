@@ -87,7 +87,7 @@ export async function up(query: QueryInterface): Promise<void> {
     fields: ['program_registry_id', 'code'],
   });
 
-  const ID_PREFIX = 'program-registry-condition-category-';
+  const ID_PREFIX = 'program-registry-condition-category';
 
   const valuesClause = Object.values(OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES)
     .map((code) => `('${code}', '${OLD_PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[code]}')`)
