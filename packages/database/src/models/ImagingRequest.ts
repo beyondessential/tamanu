@@ -102,7 +102,7 @@ export class ImagingRequest extends Model {
           },
         },
         hooks: {
-          afterUpdate: async (imagingRequest: ImagingRequest) => {
+          afterUpdate: async (imagingRequest: ImagingRequest, options) => {
             const shouldPushNotification = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED].includes(
               imagingRequest.status,
             );
@@ -114,6 +114,7 @@ export class ImagingRequest extends Model {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.IMAGING_REQUEST,
                 imagingRequest.dataValues,
+                { transaction: options.transaction },
               );
             }
 
@@ -132,6 +133,7 @@ export class ImagingRequest extends Model {
                     id: imagingRequest.id,
                   },
                 },
+                transaction: options.transaction,
               });
             }
           },

@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { useSettings } from '../../contexts/Settings';
+import { useTranslation } from '../../contexts/Translation';
 
 const JoinedFieldStyles = css`
   position: relative;
@@ -131,9 +132,21 @@ export const TextInput = ({
   );
 };
 
-export const LimitedTextField = ({ limit = 255, ...props }) => (
-  <TextField {...props} inputProps={{ maxLength: limit }} />
-);
+export const LimitedTextField = ({ limit = 255, helperText, inputProps, ...props }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <TextField
+      {...props}
+      inputProps={{ maxLength: limit, ...inputProps }}
+      helperText={
+        helperText ||
+        getTranslation('field.limitedTextField.helperText', 'Max :limit characters', {
+          replacements: { limit },
+        })
+      }
+    />
+  );
+};
 
 export const TextField = ({ field, ...props }) => (
   <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />

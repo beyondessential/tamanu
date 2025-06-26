@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom';
+import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -25,7 +25,11 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
+import { MarView } from '../views/patients/medication/MarView';
+import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
+import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -57,6 +61,8 @@ export const usePatientRoutes = () => {
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
+  const { ability } = useAuth();
+  const canAccessMar = ability.can('read', 'MedicationAdministration');
 
   return [
     {
@@ -91,6 +97,35 @@ export const usePatientRoutes = () => {
                 />
               ),
             },
+            ...(canAccessMar
+              ? [
+                  {
+                    path: `${PATIENT_PATHS.MAR}/view`,
+                    component: MarView,
+                    title: (
+                      <TranslatedText
+                        stringId="encounter.mar.title"
+                        fallback="Medication Admin Record"
+                      />
+                    ),
+                    subPaths: [
+                      {
+                        path: `${PATIENT_PATHS.ENCOUNTER}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+                        title: (
+                          <TranslatedText
+                            stringId="encounter.medication.title"
+                            fallback="Medication"
+                          />
+                        ),
+                        navigateTo: () =>
+                          navigateToEncounter(encounter.id, {
+                            tab: ENCOUNTER_TAB_NAMES.MEDICATION,
+                          }),
+                      },
+                    ],
+                  },
+                ]
+              : []),
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
@@ -139,6 +174,7 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 
 const PatientPane = styled.div`
   overflow: auto;
+  background-color: ${p => p.$backgroundColor};
 `;
 
 const PATIENT_PANE_WIDTH = '650px';
@@ -150,6 +186,8 @@ const PatientPaneInner = styled.div`
 
 const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
+  const location = useLocation();
+  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
@@ -158,7 +196,7 @@ const PatientRoutesContent = () => {
         <PatientInfoPane />
         {/* Using contain:size along with overflow: auto here allows sticky navigation section
     to have correct scrollable behavior in relation to the patient info pane and switch components */}
-        <PatientPane>
+        <PatientPane $backgroundColor={backgroundColor}>
           <PatientPaneInner>
             {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
          that they have access to the programRegistryId url param */}

@@ -32,8 +32,9 @@ describe('SyncQueuedDevice', () => {
   };
 
   beforeAll(async () => {
-    ({ baseApp, ...ctx } = await createTestContext());
-    ({ models } = ctx.store);
+    ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.store.models;
     app = await baseApp.asRole('admin');
 
     await Promise.all(
@@ -47,8 +48,14 @@ describe('SyncQueuedDevice', () => {
       sync: {
         awaitPreparation: true,
         maxConcurrentSessions: 1,
+        maxRecordsPerSnapshotChunk: 1000000000,
+        lookupTable: {
+          enabled: true,
+        },
       },
     });
+
+    await new CentralSyncManager(ctx).updateLookupTable();
   });
 
   beforeEach(async () => {
