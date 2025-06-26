@@ -567,14 +567,16 @@ export async function procedureTypeLoader(item, { models, pushError }) {
 
   const surveyIdList = formLink ? formLink.split(',').map(s => s.trim()) : [];
 
-  rows.push({
-    model: 'ReferenceData',
-    values: {
-      id,
-      type: 'procedureType',
-      ...otherFields,
-    },
-  });
+  if (!rows.find(row => row.values.id === id)) {
+    rows.push({
+      model: 'ReferenceData',
+      values: {
+        id,
+        type: 'procedureType',
+        ...otherFields,
+      },
+    });
+  }
 
   // Validate that all surveys exist before creating relationships
   if (surveyIdList.length > 0) {
