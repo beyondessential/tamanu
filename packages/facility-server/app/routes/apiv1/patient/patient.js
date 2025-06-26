@@ -41,6 +41,9 @@ patientRoute.get(
       query: { facilityId },
     } = req;
     req.checkPermission('read', 'Patient');
+
+    throw new Error('TEST ERROR');
+
     const patient = await Patient.findByPk(params.id, {
       include: Patient.getFullReferenceAssociations(),
     });
