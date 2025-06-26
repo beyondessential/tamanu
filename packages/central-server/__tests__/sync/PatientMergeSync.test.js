@@ -106,6 +106,7 @@ describe('Sync Patient Merge', () => {
     await models.Location.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
     await models.SyncLookup.truncate({ cascade: true, force: true });
+    await models.SyncLookupTick.truncate({ cascade: true, force: true });
   });
 
   it('pulls child records (notes and lab requests) of merged encounters after merging patients', async () => {
@@ -132,13 +133,12 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
+    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const { sessionId } = await centralSyncManager.startSession();
-
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -158,11 +158,11 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter(c => c.recordType === 'notes');
+    const notes = changes.filter((c) => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
-    expect(notes.map(n => n.recordId).sort()).toEqual([note.id, note2.id].sort());
+    expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
 
-    const labRequests = changes.filter(c => c.recordType === 'lab_requests');
+    const labRequests = changes.filter((c) => c.recordType === 'lab_requests');
     expect(labRequests).toHaveLength(1);
     expect(labRequests[0].recordId).toEqual(labRequest.id);
   });
@@ -189,13 +189,12 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
+    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const { sessionId } = await centralSyncManager.startSession();
-
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -215,9 +214,9 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter(c => c.recordType === 'notes');
+    const notes = changes.filter((c) => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
-    expect(notes.map(n => n.recordId).sort()).toEqual([note.id, note2.id].sort());
+    expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
   });
 
   it('pulls child records (contributing_death_causes) of merged patient_death_data after merging patients', async () => {
@@ -240,13 +239,12 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
+    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const { sessionId } = await centralSyncManager.startSession();
-
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id);
@@ -267,7 +265,7 @@ describe('Sync Patient Merge', () => {
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const contributingDeathCauses = changes.filter(
-      c => c.recordType === 'contributing_death_causes',
+      (c) => c.recordType === 'contributing_death_causes',
     );
     expect(contributingDeathCauses).toHaveLength(1);
     expect(contributingDeathCauses[0].recordId).toEqual(contributingDeathCause.id);
@@ -290,13 +288,12 @@ describe('Sync Patient Merge', () => {
     });
 
     const centralSyncManager = new CentralSyncManager(ctx);
+    const { sessionId } = await centralSyncManager.startSession();
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
 
-    const { sessionId } = await centralSyncManager.startSession();
-
-    const NEW_SYNC_TICK = '4';
+    const NEW_SYNC_TICK = '10';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     await mergePatient(models, keep.id, merge.id, false);
@@ -316,7 +313,7 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter(c => c.recordType === 'notes');
+    const notes = changes.filter((c) => c.recordType === 'notes');
 
     expect(notes).toHaveLength(0);
   });
