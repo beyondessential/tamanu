@@ -1,8 +1,13 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { REFERENCE_DATA_TRANSLATION_PREFIX, SURVEY_TYPES } from '@tamanu/constants';
+import {
+  SURVEY_TYPES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
+import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
@@ -30,6 +35,7 @@ describe('Programs import', () => {
       PatientProgramRegistration,
       ProgramRegistryClinicalStatus,
       ProgramRegistryCondition,
+      ProgramRegistryConditionCategory,
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
@@ -38,6 +44,7 @@ describe('Programs import', () => {
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
     await ProgramRegistryCondition.destroy({ where: {}, force: true });
+    await ProgramRegistryConditionCategory.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
@@ -389,7 +396,7 @@ describe('Programs import', () => {
     it('Should import a valid vitals survey and delete visualisationConfig', async () => {
       const { ProgramDataElement } = ctx.store.models;
 
-      const validateVisualisationConfig = async (expectValue) => {
+      const validateVisualisationConfig = async expectValue => {
         const { visualisationConfig } = await ProgramDataElement.findOne({
           where: {
             code: 'PatientVitalsHeartRate',
@@ -646,6 +653,169 @@ describe('Programs import', () => {
           ProgramRegistry: { created: 1, updated: 0, errored: 0 },
           ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
           ProgramRegistryCondition: { created: 0, updated: 0, errored: 2 },
+        });
+      });
+    });
+
+    describe('condition categories', () => {
+      it('should create category rows from spreadsheet when they match hardcoded categories', async () => {
+        // Create a mock context with models
+        const context = { models: ctx.store.models };
+
+        // Create test data that matches hardcoded categories
+        const spreadsheetCategories = [
+          {
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            name: 'Custom Unknown',
+            visibilityStatus: 'current',
+            __rowNum__: 2,
+          },
+        ];
+
+        const registryId = 'test-registry-id';
+
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+        );
+
+        // Verify the result
+        expect(result).toHaveLength(4);
+        expect(result[0]).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: 1, // __rowNum__ - 1
+          values: {
+            id: `program-registry-condition-category-${registryId}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            programRegistryId: registryId,
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            name: 'Custom Unknown',
+            visibilityStatus: 'current',
+          },
+        });
+      });
+
+      it('should create category rows from hardcoded values when not in spreadsheet', async () => {
+        // Create a mock context with models
+        const context = {
+          models: {
+            ...ctx.store.models,
+            ProgramRegistryConditionCategory: {
+              findOne: jest.fn().mockResolvedValue(null),
+            },
+          },
+        };
+
+        // Empty spreadsheet categories
+        const spreadsheetCategories = [];
+
+        const registryId = 'test-registry-id';
+
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+        );
+
+        // Verify the result - should have one entry for each hardcoded category
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length);
+
+        // Check one of the entries
+        const unknownCategory = result.find(
+          row => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        );
+        expect(unknownCategory).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: -1, // Indicates hardcoded
+          values: {
+            id: `program-registry-condition-category-${registryId}-${PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN}`,
+            programRegistryId: registryId,
+            code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+            visibilityStatus: 'current',
+          },
+        });
+      });
+
+      it('should not create category rows for existing database entries', async () => {
+        // Create a mock context with models that returns existing entries
+        const existingCategory = {
+          id: 'existing-category',
+          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+          programRegistryId: 'test-registry-id',
+        };
+
+        const context = {
+          models: {
+            ...ctx.store.models,
+            ProgramRegistryConditionCategory: {
+              findOne: jest.fn().mockImplementation(async ({ where }) => {
+                if (where.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN) {
+                  return existingCategory;
+                }
+                return null;
+              }),
+            },
+          },
+        };
+
+        // Empty spreadsheet categories
+        const spreadsheetCategories = [];
+
+        const registryId = 'test-registry-id';
+
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+        );
+
+        // Verify the result - should have entries for all hardcoded categories except UNKNOWN
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length - 1);
+
+        // Make sure the UNKNOWN category is not in the result
+        const unknownCategory = result.find(
+          row => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        );
+        expect(unknownCategory).toBeUndefined();
+      });
+
+      it('should include additional categories from spreadsheet', async () => {
+        // Create a mock context with models
+        const context = { models: ctx.store.models };
+
+        // Create test data with an additional category not in hardcoded list
+        const spreadsheetCategories = [
+          {
+            code: 'custom-category',
+            name: 'Custom Category',
+            visibilityStatus: 'current',
+            __rowNum__: 2,
+          },
+        ];
+
+        const registryId = 'test-registry-id';
+
+        const result = await autoFillConditionCategoryImport(
+          context,
+          spreadsheetCategories,
+          registryId,
+        );
+
+        // Verify the result - should have entries for all hardcoded categories plus the custom one
+        expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length + 1);
+
+        // Check the custom category
+        const customCategory = result.find(row => row.values.code === 'custom-category');
+        expect(customCategory).toMatchObject({
+          model: 'ProgramRegistryConditionCategory',
+          sheetRow: 1, // __rowNum__ - 1
+          values: {
+            id: `program-registry-condition-category-${registryId}-custom-category`,
+            programRegistryId: registryId,
+            code: 'custom-category',
+            name: 'Custom Category',
+            visibilityStatus: 'current',
+          },
         });
       });
     });
@@ -918,7 +1088,7 @@ describe('Programs import', () => {
       });
 
       const translations = await models.TranslatedString.findAll();
-      const generatedStringIds = translations.map((translation) => translation.stringId);
+      const generatedStringIds = translations.map(translation => translation.stringId);
 
       const programStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.program.program-testvitals`;
       const surveyStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.survey.program-testvitals-vitalsgood`;
@@ -929,7 +1099,7 @@ describe('Programs import', () => {
 
       // Check each data element has an appropriate string id
       const dataElements = await models.ProgramDataElement.findAll();
-      dataElements.forEach((dataElement) => {
+      dataElements.forEach(dataElement => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${dataElement.id}`;
         expect(generatedStringIds).toContain(stringId);
       });
@@ -956,10 +1126,10 @@ describe('Programs import', () => {
       const translations = await models.TranslatedString.findAll({
         where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
       });
-      const stringIds = translations.map((translation) => translation.stringId);
+      const stringIds = translations.map(translation => translation.stringId);
 
       const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
-        (option) =>
+        option =>
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${programDataElement.id}.option.${camelCase(option)}`,
       );
 
@@ -974,7 +1144,7 @@ describe('Programs import', () => {
 
       const surveyScreenComponents = await models.SurveyScreenComponent.findAll();
       let expectedStringIds = [];
-      surveyScreenComponents.forEach((surveyScreenComponent) => {
+      surveyScreenComponents.forEach(surveyScreenComponent => {
         if (surveyScreenComponent.text) {
           expectedStringIds.push(
             `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.text.${surveyScreenComponent.id}`,
@@ -991,7 +1161,7 @@ describe('Programs import', () => {
         where: { stringId: { [Op.like]: 'refData.surveyScreenComponent%' } },
       });
 
-      const generatedStringIds = translatedStrings.map((translation) => translation.stringId);
+      const generatedStringIds = translatedStrings.map(translation => translation.stringId);
 
       expect(generatedStringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });

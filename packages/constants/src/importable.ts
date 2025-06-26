@@ -75,8 +75,6 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
   PROGRAM_REGISTRY: 'programRegistry',
-  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
-  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
   PROGRAM: 'program',
   PROGRAM_DATA_ELEMENT: 'programDataElement',
   SURVEY: 'survey',
@@ -85,9 +83,19 @@ export const OTHER_REFERENCE_TYPES = {
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 
+// Reference data stored in its own table but are not general importable types
+export const PROGRAM_REGISTRY_REFERENCE_TYPES = {
+  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION_CATEGORY: 'programRegistryConditionCategory',
+  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
+};
+
+const PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES = Object.values(PROGRAM_REGISTRY_REFERENCE_TYPES);
+
 export const TRANSLATABLE_REFERENCE_TYPES = [
   ...REFERENCE_TYPE_VALUES,
   ...OTHER_REFERENCE_TYPE_VALUES,
+  ...PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES,
 ];
 
 // Data types created through tamanu
@@ -108,9 +116,7 @@ const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
   ...REFERENCE_TYPE_VALUES,
-  ...OTHER_REFERENCE_TYPE_VALUES.filter(
-    (x) => x !== OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS,
-  ),
+  ...OTHER_REFERENCE_TYPE_VALUES,
   ...CLINICAL_DATA_TYPES_VALUES,
   ...SYSTEM_DATA_TYPES_VALUES,
 ].sort();
