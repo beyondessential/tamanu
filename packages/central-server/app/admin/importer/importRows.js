@@ -219,7 +219,14 @@ export async function importRows(
       if (existing) {
         await existing.update(values);
         if (values.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
+          if (
+            ![
+              'Permission',
+              'SurveyScreenComponent',
+              'UserFacility',
+              'ProcedureSurveyType',
+            ].includes(model)
+          ) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           await existing.destroy();
