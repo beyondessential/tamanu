@@ -43,6 +43,32 @@ describe('PatientProgramRegistration', () => {
     );
   };
 
+  // Short for Patient Program Registration Condition
+  const createPPRCondition = async ({
+    programRegistryId,
+    patientProgramRegistrationId,
+    categoryCode,
+    ...rest
+  } = {}) => {
+    const programRegistryCondition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, { programRegistryId }),
+    );
+    const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
+      fake(models.ProgramRegistryConditionCategory, {
+        programRegistryId,
+        code: categoryCode ||PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+      }),
+    );
+    return models.PatientProgramRegistrationCondition.create(
+      fake(models.PatientProgramRegistrationCondition, {
+        ...rest,
+        patientProgramRegistrationId,
+        programRegistryConditionId: programRegistryCondition.id,
+        programRegistryConditionCategoryId: unknownConditionCategory.id,
+      }),
+    );
+  };
+
   describe('Creating and retrieving registrations', () => {
     it('fetches most recent registration for each program', async () => {
       const clinician = await models.User.create(fake(models.User));
@@ -128,6 +154,12 @@ describe('PatientProgramRegistration', () => {
       const programRegistryCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
       );
+      const conditionCategory = await models.ProgramRegistryConditionCategory.create(
+        fake(models.ProgramRegistryConditionCategory, {
+          programRegistryId: programRegistry1.id,
+          code: 'confirmed',
+        }),
+      );
       const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
         programRegistryId: programRegistry1.id,
         clinicianId: clinician.id,
@@ -136,7 +168,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             conditionId: programRegistryCondition.id,
-            category: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            conditionCategoryId: conditionCategory.id,
           },
         ],
         registeringFacilityId: facilityId,
@@ -171,6 +203,7 @@ describe('PatientProgramRegistration', () => {
     let registry;
     let condition1;
     let status1;
+    let conditionCategory;
 
     beforeEach(async () => {
       const clinician = await models.User.create(fake(models.User));
@@ -178,9 +211,6 @@ describe('PatientProgramRegistration', () => {
       const program = await models.Program.create(fake(models.Program));
       registry = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: program.id }),
-      );
-      const programRegistryCondition = await models.ProgramRegistryCondition.create(
-        fake(models.ProgramRegistryCondition, { programRegistryId: registry.id }),
       );
       status1 = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
@@ -197,10 +227,14 @@ describe('PatientProgramRegistration', () => {
           date: '2023-09-02 08:00:00',
         }),
       );
-      condition1 = await models.PatientProgramRegistrationCondition.create(
-        fake(models.PatientProgramRegistrationCondition, {
-          patientProgramRegistrationId: registration.id,
-          programRegistryConditionId: programRegistryCondition.id,
+      condition1 = await createPPRCondition({
+        programRegistryId: registry.id,
+        patientProgramRegistrationId: registration.id,
+      });
+      conditionCategory = await models.ProgramRegistryConditionCategory.create(
+        fake(models.ProgramRegistryConditionCategory, {
+          programRegistryId: registry.id,
+          code: 'suspected',
         }),
       );
     });
@@ -246,7 +280,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition1.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
+            conditionCategoryId: conditionCategory.id,
           },
         ],
       });
@@ -255,9 +289,7 @@ describe('PatientProgramRegistration', () => {
       const updatedCondition = await models.PatientProgramRegistrationCondition.findByPk(
         condition1.id,
       );
-      expect(updatedCondition.conditionCategory).toBe(
-        PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
-      );
+      expect(updatedCondition.programRegistryConditionCategoryId).toBe(conditionCategory.id);
     });
 
     // Check that a condition can be added to a registration
@@ -270,7 +302,7 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition2.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            conditionCategoryId: conditionCategory.id,
           },
         ],
       });
@@ -299,11 +331,11 @@ describe('PatientProgramRegistration', () => {
         conditions: [
           {
             id: condition1.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
+            conditionCategoryId: conditionCategory.id,
           },
           {
             id: condition2.id,
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            conditionCategoryId: conditionCategory.id,
           },
         ],
       });
@@ -484,18 +516,15 @@ describe('PatientProgramRegistration', () => {
     describe('PUT patient/programRegistration/condition/:id', () => {
       let patient;
       let programRegistry;
-      let programRegistryCondition;
       let patientProgramRegistrationCondition;
       let registration;
+      let conditionCategory;
 
       beforeEach(async () => {
         patient = await models.Patient.create(fake(models.Patient));
         const program1 = await models.Program.create(fake(models.Program));
         programRegistry = await models.ProgramRegistry.create(
           fake(models.ProgramRegistry, { programId: program1.id }),
-        );
-        programRegistryCondition = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
         );
 
         // Create registration first
@@ -508,13 +537,17 @@ describe('PatientProgramRegistration', () => {
           }),
         );
 
-        patientProgramRegistrationCondition =
-          await models.PatientProgramRegistrationCondition.create(
-            fake(models.PatientProgramRegistrationCondition, {
-              patientProgramRegistrationId: registration.id,
-              programRegistryConditionId: programRegistryCondition.id,
-            }),
-          );
+        patientProgramRegistrationCondition = await createPPRCondition({
+          programRegistryId: programRegistry.id,
+          patientProgramRegistrationId: registration.id,
+        });
+
+        conditionCategory = await models.ProgramRegistryConditionCategory.create(
+          fake(models.ProgramRegistryConditionCategory, {
+            programRegistryId: programRegistry.id,
+            code: 'suspected',
+          }),
+        );
       });
 
       afterEach(async () => {
@@ -531,18 +564,18 @@ describe('PatientProgramRegistration', () => {
             `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}`,
           )
           .send({
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            programRegistryConditionCategoryId: conditionCategory.id,
             reasonForChange: 'Test reason',
             patientProgramRegistrationId: registration.id,
           });
 
         expect(result).toHaveSucceeded();
 
-        const { conditionCategory, reasonForChange } =
+        const { programRegistryConditionCategoryId, reasonForChange } =
           await models.PatientProgramRegistrationCondition.findByPk(result.body.id);
 
-        expect({ conditionCategory, reasonForChange }).toMatchObject({
-          conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+        expect({ programRegistryConditionCategoryId, reasonForChange }).toMatchObject({
+          programRegistryConditionCategoryId: conditionCategory.id,
           reasonForChange: 'Test reason',
         });
       });
@@ -553,7 +586,7 @@ describe('PatientProgramRegistration', () => {
             `/api/patient/programRegistration/condition/${patientProgramRegistrationCondition.id}/50e7046b-81c3-4c16-90e9-111111111111`,
           )
           .send({
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            programRegistryConditionCategoryId: conditionCategory.id,
             reasonForChange: 'Test reason',
           });
 
@@ -577,28 +610,16 @@ describe('PatientProgramRegistration', () => {
         });
 
         // Create some conditions for this registration
-        const condition1 = await models.PatientProgramRegistrationCondition.create({
+        const condition1 = await createPPRCondition({
+          programRegistryId: programRegistry.id,
           patientProgramRegistrationId: registration.id,
-          programRegistryConditionId: (
-            await models.ProgramRegistryCondition.create({
-              programRegistryId: programRegistry.id,
-              name: 'Test Condition 1',
-              code: 'test-condition-1',
-            })
-          ).id,
-          date: new Date(),
+          categoryCode: 'test-condition-1',
         });
 
-        const condition2 = await models.PatientProgramRegistrationCondition.create({
+        const condition2 = await createPPRCondition({
+          programRegistryId: programRegistry.id,
           patientProgramRegistrationId: registration.id,
-          programRegistryConditionId: (
-            await models.ProgramRegistryCondition.create({
-              programRegistryId: programRegistry.id,
-              name: 'Test Condition 2',
-              code: 'test-condition-2',
-            })
-          ).id,
-          date: new Date(),
+          categoryCode: 'test-condition-2',
         });
 
         // Delete the registration
@@ -660,12 +681,6 @@ describe('PatientProgramRegistration', () => {
         programRegistry = await models.ProgramRegistry.create(
           fake(models.ProgramRegistry, { programId: program.id }),
         );
-        const programRegistryCondition1 = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
-        );
-        const programRegistryCondition2 = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
-        );
 
         registration = await models.PatientProgramRegistration.create(
           fake(models.PatientProgramRegistration, {
@@ -676,21 +691,19 @@ describe('PatientProgramRegistration', () => {
           }),
         );
 
-        condition1 = await models.PatientProgramRegistrationCondition.create(
-          fake(models.PatientProgramRegistrationCondition, {
-            patientProgramRegistrationId: registration.id,
-            programRegistryConditionId: programRegistryCondition1.id,
-            date: TEST_DATE_EARLY,
-          }),
-        );
+        condition1 = await createPPRCondition({
+          programRegistryId: programRegistry.id,
+          patientProgramRegistrationId: registration.id,
+          categoryCode: 'test-condition-1',
+          date: TEST_DATE_EARLY,
+        });
 
-        condition2 = await models.PatientProgramRegistrationCondition.create(
-          fake(models.PatientProgramRegistrationCondition, {
-            patientProgramRegistrationId: registration.id,
-            programRegistryConditionId: programRegistryCondition2.id,
-            date: TEST_DATE_LATE,
-          }),
-        );
+        condition2 = await createPPRCondition({
+          programRegistryId: programRegistry.id,
+          patientProgramRegistrationId: registration.id,
+          categoryCode: 'test-condition-2',
+          date: TEST_DATE_LATE,
+        });
       });
 
       afterEach(async () => {
@@ -732,11 +745,17 @@ describe('PatientProgramRegistration', () => {
       });
 
       it('should include condition history with clinician information', async () => {
+        const conditionCategory = await models.ProgramRegistryConditionCategory.create(
+          fake(models.ProgramRegistryConditionCategory, {
+            programRegistryId: programRegistry.id,
+            code: 'confirmed',
+          }),
+        );
         // Update condition1 using the PUT endpoint to create history
         const updateResult = await app
           .put(`/api/patient/programRegistration/condition/${condition1.id}`)
           .send({
-            conditionCategory: PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+            programRegistryConditionCategoryId: conditionCategory.id,
             reasonForChange: 'Test reason',
             patientProgramRegistrationId: registration.id,
           });
@@ -757,8 +776,8 @@ describe('PatientProgramRegistration', () => {
         expect(historyEntry).toHaveProperty('date');
         expect(historyEntry).toHaveProperty('data');
         expect(historyEntry.data).toHaveProperty(
-          'conditionCategory',
-          PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+          'programRegistryConditionCategoryId',
+          conditionCategory.id,
         );
         expect(historyEntry.data).toHaveProperty('reasonForChange', 'Test reason');
         expect(historyEntry).toHaveProperty('clinician');
@@ -1010,15 +1029,10 @@ describe('PatientProgramRegistration', () => {
             date: TEST_DATE_EARLY,
           }),
         );
-        const programRegistryCondition = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
-        );
-        await models.PatientProgramRegistrationCondition.create(
-          fake(models.PatientProgramRegistrationCondition, {
-            patientProgramRegistrationId: registration.id,
-            programRegistryConditionId: programRegistryCondition.id,
-          }),
-        );
+        await createPPRCondition({
+          programRegistryId: programRegistry.id,
+          patientProgramRegistrationId: registration.id,
+        });
 
         const permissions = [
           ['read', 'ProgramRegistry', 'different-object-id'],
@@ -1043,15 +1057,10 @@ describe('PatientProgramRegistration', () => {
             date: TEST_DATE_EARLY,
           }),
         );
-        const programRegistryCondition = await models.ProgramRegistryCondition.create(
-          fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
-        );
-        await models.PatientProgramRegistrationCondition.create(
-          fake(models.PatientProgramRegistrationCondition, {
-            patientProgramRegistrationId: registration.id,
-            programRegistryConditionId: programRegistryCondition.id,
-          }),
-        );
+        await createPPRCondition({
+          programRegistryId: programRegistry.id,
+          patientProgramRegistrationId: registration.id,
+        });
 
         const permissions = [
           ['read', 'ProgramRegistry', programRegistry.id],
