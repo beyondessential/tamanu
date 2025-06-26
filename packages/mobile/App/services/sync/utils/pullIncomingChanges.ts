@@ -40,21 +40,29 @@ export const pullIncomingChanges = async (
   tableNames: string[],
   tablesForFullResync: string[],
   progressCallback: (total: number, progressCount: number) => void,
+  timing = null,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
     sessionId,
     since,
     tableNames,
     tablesForFullResync,
+    timing,
   );
 
   if (!totalToPull) {
+    timing?.logAction('nothingToPull', { totalToPull: 0 });
     return { totalPulled: 0, pullUntil };
   }
 
+  const directoryStartTime = Date.now();
   await Promise.all(
     tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
   );
+  timing?.logAction('createDirectories', { 
+    tableCount: tableNames.length,
+    durationMs: Date.now() - directoryStartTime 
+  });
 
   let fromId;
   let limit = calculatePageLimit();
@@ -63,15 +71,20 @@ export const pullIncomingChanges = async (
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
-    const startTime = Date.now();
+    const batchStartTime = Date.now();
+    
+    const pullStartTime = Date.now();
     const records = await centralServer.pull(sessionId, limit, fromId);
-    const pullTime = Date.now() - startTime;
+    const pullTime = Date.now() - pullStartTime;
+    
+    const processStartTime = Date.now();
     const recordsToSave = records.map(r => ({
       ...r,
       // mark as never updated, so we don't push it back to the central server until the next update
       data: { ...r.data, updated_at_sync_tick: -1 },
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
+    const processTime = Date.now() - processStartTime;
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -80,15 +93,37 @@ export const pullIncomingChanges = async (
     // So store the data in sync_session_records table instead and will persist it to
     //  the actual tables later
 
+    const persistStartTime = Date.now();
     await persistBatch(sessionId, currentBatchIndex, recordsToSave);
-    currentBatchIndex++;
+    const persistTime = Date.now() - persistStartTime;
+    
+    const totalBatchTime = Date.now() - batchStartTime;
+    
+    timing?.logAction('pullBatch', {
+      batchIndex: currentBatchIndex,
+      batchSize: recordsToSave.length,
+      fromId: fromId || 'start',
+      limit,
+      pullDurationMs: pullTime,
+      processDurationMs: processTime,
+      persistDurationMs: persistTime,
+      totalBatchDurationMs: totalBatchTime,
+      progress: `${totalPulled + recordsToSave.length}/${totalToPull}`,
+    });
 
+    currentBatchIndex++;
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
     limit = calculatePageLimit(limit, pullTime);
 
     progressCallback(totalToPull, totalPulled);
   }
+  
+  timing?.logAction('pullIncomingChangesComplete', {
+    totalBatches: currentBatchIndex,
+    totalPulled,
+    finalLimit: limit,
+  });
 
   return { totalPulled: totalToPull, pullUntil };
 };

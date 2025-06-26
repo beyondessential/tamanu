@@ -105,12 +105,18 @@ export const buildSyncRoutes = ctx => {
   // fetch if the session is ready to start syncing
   syncRoutes.get(
     '/:sessionId/ready',
-    asyncHandler(async (req, res) => {
-      const { params } = req;
-      const { sessionId } = params;
-      const ready = await syncManager.checkSessionReady(sessionId);
-      res.json(ready);
-    }),
+          asyncHandler(async (req, res) => {
+        console.time('checkReady');
+        const { params } = req;
+        const { sessionId } = params;
+        const routeTiming = syncManager.createRouteTiming(sessionId, 'checkReady');
+        
+        const ready = await syncManager.checkSessionReady(sessionId, 'checkReady');
+        
+        res.json(ready);
+        if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
+        console.timeEnd('checkReady');
+      }),
   );
 
   // fetch sync metadata
@@ -118,8 +124,13 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/metadata',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const { startedAtTick } = await syncManager.fetchSyncMetadata(params.sessionId);
+      const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'getMetadata');
+      
+      const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId, 'getMetadata');
+      
       res.json({ startedAtTick });
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -128,6 +139,9 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
       const { params, body } = req;
+      const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'initiate');
+      
       const {
         since: sinceString,
         facilityIds,
@@ -135,18 +149,23 @@ export const buildSyncRoutes = ctx => {
         tablesForFullResync,
         deviceId,
       } = body;
+      
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      await syncManager.initiatePull(params.sessionId, {
+      if (routeTiming) routeTiming.log('validateSince');
+      
+      await syncManager.initiatePull(sessionId, {
         since,
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
         deviceId,
-      });
+      }, 'initiate');
+      
       res.json({});
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -157,8 +176,12 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params } = req;
       const { sessionId } = params;
-      const ready = await syncManager.checkPullReady(sessionId);
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'checkPullReady');
+      
+      const ready = await syncManager.checkPullReady(sessionId, 'checkPullReady');
+      
       res.json(ready);
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -167,8 +190,13 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/pull/metadata',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(params.sessionId);
+      const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'getPullMetadata');
+      
+      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId, 'getPullMetadata');
+      
       res.json({ totalToPull, pullUntil });
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -178,13 +206,18 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { query, params } = req;
       const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'pullChanges');
+      
       const { fromId, limit = '100' } = query;
+      
       const changes = await syncManager.getOutgoingChanges(sessionId, {
         fromId,
         limit: parseInt(limit, 10),
-      });
+      }, 'pullChanges');
+      
       log.info(`GET /pull : returned ${changes.length} changes`);
       res.json(changes);
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -194,10 +227,15 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'pushChanges');
+      
       const { changes } = body;
-      await syncManager.addIncomingChanges(sessionId, changes);
+      
+      await syncManager.addIncomingChanges(sessionId, changes, 'pushChanges');
+      
       log.info(`POST to ${sessionId} : ${changes.length} records`);
       res.json({});
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -207,9 +245,14 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const { sessionId } = params;
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'completePush');
+      
       const { tablesToInclude, deviceId } = body;
-      await syncManager.completePush(sessionId, deviceId, tablesToInclude);
+      
+      await syncManager.completePush(sessionId, deviceId, tablesToInclude, 'completePush');
+      
       res.json({});
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -219,8 +262,12 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params } = req;
       const { sessionId } = params;
-      const isComplete = await syncManager.checkPushComplete(sessionId);
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'checkPushComplete');
+      
+      const isComplete = await syncManager.checkPushComplete(sessionId, 'checkPushComplete');
+      
       res.json(isComplete);
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
     }),
   );
 
@@ -230,7 +277,16 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params } = req;
       const { sessionId } = params;
-      await syncManager.endSession(sessionId);
+      const routeTiming = syncManager.createRouteTiming(sessionId, 'endSession');
+      
+      await syncManager.endSession(sessionId, 'endSession');
+
+      // Save route timing before finalizing session benchmark
+      if (routeTiming) await routeTiming.saveTimingsToDebugInfo();
+      
+      // Now finalize and save the complete session benchmark
+      await syncManager.finalizeSessionBenchmark(sessionId);
+      
       res.json({});
     }),
   );

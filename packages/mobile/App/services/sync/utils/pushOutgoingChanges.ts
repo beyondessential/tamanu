@@ -17,6 +17,7 @@ export const pushOutgoingChanges = async (
   sessionId: string,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
+  timing = null,
 ): Promise<void> => {
   let startOfPage = 0;
   let limit = calculatePageLimit();
@@ -35,8 +36,14 @@ export const pushOutgoingChanges = async (
 
     progressCallback(changes.length, pushedRecordsCount);
   }
+  timing?.logAction('pushBatches', { 
+    totalChanges: changes.length,
+    batchCount: Math.ceil(changes.length / calculatePageLimit()) 
+  });
+
   await centralServer.completePush(
     sessionId,
     Object.values(outgoingModels).map(m => m.getTableName()),
+    timing,
   );
 };

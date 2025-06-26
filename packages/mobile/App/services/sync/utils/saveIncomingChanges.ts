@@ -92,6 +92,7 @@ export const saveChangesForModel = async (
  * @param incomingChangesCount
  * @param incomingModels
  * @param progressCallback
+ * @param timing
  * @returns
  */
 export const saveIncomingChanges = async (
@@ -99,32 +100,69 @@ export const saveIncomingChanges = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+  timing = null,
 ): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(incomingModels);
+  timing?.logAction('sortInDependencyOrder', { modelCount: sortedModels.length });
 
   let savedRecordsCount = 0;
 
   for (const model of sortedModels) {
     const recordType = model.getTableName();
+    const modelStartTime = Date.now();
+    
     const files = await RNFS.readDir(
       `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
     );
+    timing?.logAction('readModelDirectory', { 
+      recordType, 
+      fileCount: files.length,
+      durationMs: Date.now() - modelStartTime 
+    });
 
     for (const { path } of files) {
+      const batchStartTime = Date.now();
+      
       const base64 = await readFileInDocuments(path);
       const batchString = Buffer.from(base64, 'base64').toString();
-
       const batch = JSON.parse(batchString);
+      
+      const readDuration = Date.now() - batchStartTime;
+      
       const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
       const sanitizedBatch = hasSanitizeMethod
         ? model.sanitizePulledRecordData(batch)
         : batch;
 
+      const persistStartTime = Date.now();
       await saveChangesForModel(model, sanitizedBatch);
+      const persistDuration = Date.now() - persistStartTime;
+      
+      const totalBatchDuration = Date.now() - batchStartTime;
+
+      timing?.logAction('saveBatch', {
+        recordType,
+        batchSize: sanitizedBatch.length,
+        readDurationMs: readDuration,
+        persistDurationMs: persistDuration,
+        totalBatchDurationMs: totalBatchDuration,
+        fileName: path.split('/').pop(),
+      });
 
       savedRecordsCount += sanitizedBatch.length;
       const progressMessage = `Saving ${incomingChangesCount} records...`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
+    
+    timing?.logAction('completeModel', {
+      recordType,
+      modelDurationMs: Date.now() - modelStartTime,
+      fileCount: files.length,
+    });
   }
+  
+  timing?.logAction('saveIncomingChangesComplete', {
+    totalSavedRecords: savedRecordsCount,
+    modelCount: sortedModels.length,
+  });
 };
