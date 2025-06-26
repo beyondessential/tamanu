@@ -113,7 +113,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(ProgramRegistryConditionCategory, true);
 
-    const ID_PREFIX = 'program-registry-condition-category-';
+    const ID_PREFIX = 'program-registry-condition-category';
 
     const selectStatements = Object.entries(OLD_PROGRAM_REGISTRY_CONDITION_CATEGORIES).map(
       ([_, code]) => {
