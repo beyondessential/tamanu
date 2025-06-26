@@ -16,6 +16,7 @@ import {
   TranslatedText,
 } from '../../../components/Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -240,18 +241,20 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           />
         </NoVisitTitle>
         <ButtonRow data-testid="buttonrow-qss7">
-          <ButtonWithPermissionCheck
-            onClick={openCheckin}
-            verb="create"
-            noun="Encounter"
-            data-testid="buttonwithpermissioncheck-o4ea"
-          >
-            <TranslatedText
-              stringId="patient.encounterSummary.adminOrCheckIn"
-              fallback="Admit or check-in"
-              data-testid="translatedtext-rs08"
-            />
-          </ButtonWithPermissionCheck>
+          <NoteModalActionBlocker>
+            <ButtonWithPermissionCheck
+              onClick={openCheckin}
+              verb="create"
+              noun="Encounter"
+              data-testid="buttonwithpermissioncheck-o4ea"
+            >
+              <TranslatedText
+                stringId="patient.encounterSummary.adminOrCheckIn"
+                fallback="Admit or check-in"
+                data-testid="translatedtext-rs08"
+              />
+            </ButtonWithPermissionCheck>
+          </NoteModalActionBlocker>
         </ButtonRow>
       </NoVisitContainer>
     );
