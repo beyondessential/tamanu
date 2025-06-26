@@ -9,19 +9,26 @@ const persistBatch = async (
   sessionId: string,
   batchIndex: number,
   rows: Record<string, any>[],
-): Promise<void> => {
+): Promise<{ totalBytes: number }> => {
   const rowsByRecordType = groupBy(rows, 'recordType');
+  let totalBytes = 0;
 
   await Promise.all(
     Object.entries(rowsByRecordType).map(async ([recordType, rowsForRecordType]) => {
       const filePath = getFilePath(sessionId, recordType, batchIndex);
-
+      const jsonString = JSON.stringify(rowsForRecordType);
+      const buffer = Buffer.from(jsonString, 'utf-8');
+      
+      totalBytes += buffer.length;
+      
       await saveFileInDocuments(
-        Buffer.from(JSON.stringify(rowsForRecordType), 'utf-8').toString('base64'),
+        buffer.toString('base64'),
         filePath,
       );
     }),
   );
+  
+  return { totalBytes };
 };
 
 /**
@@ -68,6 +75,7 @@ export const pullIncomingChanges = async (
   let limit = calculatePageLimit();
   let currentBatchIndex = 0;
   let totalPulled = 0;
+  let totalBytesProcessed = 0;
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
@@ -77,6 +85,9 @@ export const pullIncomingChanges = async (
     const records = await centralServer.pull(sessionId, limit, fromId);
     const pullTime = Date.now() - pullStartTime;
     
+    // Calculate raw records byte size
+    const rawRecordsBytes = Buffer.from(JSON.stringify(records), 'utf-8').length;
+    
     const processStartTime = Date.now();
     const recordsToSave = records.map(r => ({
       ...r,
@@ -85,6 +96,9 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
     const processTime = Date.now() - processStartTime;
+    
+    // Calculate processed records byte size
+    const processedRecordsBytes = Buffer.from(JSON.stringify(recordsToSave), 'utf-8').length;
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -94,7 +108,7 @@ export const pullIncomingChanges = async (
     //  the actual tables later
 
     const persistStartTime = Date.now();
-    await persistBatch(sessionId, currentBatchIndex, recordsToSave);
+    const { totalBytes: persistedBytes } = await persistBatch(sessionId, currentBatchIndex, recordsToSave);
     const persistTime = Date.now() - persistStartTime;
     
     const totalBatchTime = Date.now() - batchStartTime;
@@ -108,12 +122,18 @@ export const pullIncomingChanges = async (
       processDurationMs: processTime,
       persistDurationMs: persistTime,
       totalBatchDurationMs: totalBatchTime,
+      rawRecordsBytes,
+      processedRecordsBytes,
+      persistedBytes,
+      bytesPerRecord: Math.round(rawRecordsBytes / recordsToSave.length),
+      throughputBytesPerSecond: Math.round(rawRecordsBytes / (totalBatchTime / 1000)),
       progress: `${totalPulled + recordsToSave.length}/${totalToPull}`,
     });
 
     currentBatchIndex++;
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
+    totalBytesProcessed += rawRecordsBytes;
     limit = calculatePageLimit(limit, pullTime);
 
     progressCallback(totalToPull, totalPulled);
@@ -122,6 +142,8 @@ export const pullIncomingChanges = async (
   timing?.logAction('pullIncomingChangesComplete', {
     totalBatches: currentBatchIndex,
     totalPulled,
+    totalBytesProcessed,
+    averageBytesPerRecord: Math.round(totalBytesProcessed / totalPulled),
     finalLimit: limit,
   });
 

@@ -22,7 +22,7 @@ const fetchAndParse = async (
   url: string,
   config: FetchOptions,
   isLogin: boolean,
-): Promise<Record<string, unknown>> => {
+): Promise<{ data: Record<string, unknown>; responseBytes?: number }> => {
   const response = await fetchWithTimeout(url, config);
   if (response.status === 401) {
     throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
@@ -48,7 +48,11 @@ const fetchAndParse = async (
     throw new RemoteError(generalErrorMessage, error, response.status);
   }
 
-  return response.json();
+  const responseText = await response.text();
+  const responseBytes = new TextEncoder().encode(responseText).length;
+  const data = JSON.parse(responseText);
+  
+  return { data, responseBytes };
 };
 
 export class CentralServerConnection {
