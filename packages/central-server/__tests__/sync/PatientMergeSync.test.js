@@ -1,4 +1,9 @@
-import { FACT_CURRENT_SYNC_TICK, NOTE_RECORD_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
+  NOTE_RECORD_TYPES,
+  LAB_REQUEST_STATUSES,
+} from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 
 import { makeTwoPatients } from '../admin/patientMerge/makeTwoPatients';
@@ -26,7 +31,9 @@ describe('Sync Patient Merge', () => {
     const { Encounter, Facility, Department, Location, User, PatientFacility, LocalSystemFact } =
       models;
     const OLD_SYNC_TICK = '2';
+    const LOOKUP_UP_TO_TICK = '1';
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+    await LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, LOOKUP_UP_TO_TICK);
 
     [keep, merge] = await makeTwoPatients(models);
 
@@ -151,11 +158,11 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter((c) => c.recordType === 'notes');
+    const notes = changes.filter(c => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
-    expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
+    expect(notes.map(n => n.recordId).sort()).toEqual([note.id, note2.id].sort());
 
-    const labRequests = changes.filter((c) => c.recordType === 'lab_requests');
+    const labRequests = changes.filter(c => c.recordType === 'lab_requests');
     expect(labRequests).toHaveLength(1);
     expect(labRequests[0].recordId).toEqual(labRequest.id);
   });
@@ -208,9 +215,9 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter((c) => c.recordType === 'notes');
+    const notes = changes.filter(c => c.recordType === 'notes');
     expect(notes).toHaveLength(2);
-    expect(notes.map((n) => n.recordId).sort()).toEqual([note.id, note2.id].sort());
+    expect(notes.map(n => n.recordId).sort()).toEqual([note.id, note2.id].sort());
   });
 
   it('pulls child records (contributing_death_causes) of merged patient_death_data after merging patients', async () => {
@@ -260,7 +267,7 @@ describe('Sync Patient Merge', () => {
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const contributingDeathCauses = changes.filter(
-      (c) => c.recordType === 'contributing_death_causes',
+      c => c.recordType === 'contributing_death_causes',
     );
     expect(contributingDeathCauses).toHaveLength(1);
     expect(contributingDeathCauses[0].recordId).toEqual(contributingDeathCause.id);
@@ -286,7 +293,7 @@ describe('Sync Patient Merge', () => {
 
     // update lookup table for pre-merge data
     await centralSyncManager.updateLookupTable();
-    
+
     const { sessionId } = await centralSyncManager.startSession();
 
     const NEW_SYNC_TICK = '4';
@@ -309,7 +316,7 @@ describe('Sync Patient Merge', () => {
     );
 
     const changes = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = changes.filter((c) => c.recordType === 'notes');
+    const notes = changes.filter(c => c.recordType === 'notes');
 
     expect(notes).toHaveLength(0);
   });
