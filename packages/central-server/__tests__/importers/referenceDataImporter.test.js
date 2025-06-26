@@ -361,11 +361,11 @@ describe('Data definition import', () => {
     );
 
     // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
+    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
       OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
     );
     await Promise.all(
-      translatableNonRefDataTableImports.map(async (type) => {
+      translatableNonRefDataTableImports.map(async type => {
         const recordsForDataType = await models[type].findAll({
           attributes: ['id'],
           raw: true,
@@ -567,16 +567,6 @@ describe('Data definition import', () => {
   });
 
   describe('Procedure Type Survey', () => {
-    beforeAll(async () => {
-      await models.ProcedureType.destroy({ where: {}, force: true });
-      await models.Survey.destroy({ where: {}, force: true });
-      await models.ProcedureTypeSurvey.destroy({ where: {}, force: true });
-    });
-
-    afterAll(async () => {
-      await ctx.close();
-    });
-
     it.todo('should import procedure type without formlink');
     it.todo('should import procedure type with formlink');
     it.todo('should validate that the form exists');
