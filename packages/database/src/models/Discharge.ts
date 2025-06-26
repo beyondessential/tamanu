@@ -63,9 +63,10 @@ export class Discharge extends Model {
     const encounterFacility = await this.sequelize
       .query(
         `
-          SELECT f.* FROM facilities f
-          JOIN encounters e ON f.id = e.facilityId
-          WHERE e.id = $encounterId
+        SELECT f.* FROM encounters e
+        JOIN locations l on l.id = e.location_id
+        JOIN facilities f on f.id = l.facility_id
+        WHERE e.id = $encounterId
         `,
         {
           type: QueryTypes.SELECT,
