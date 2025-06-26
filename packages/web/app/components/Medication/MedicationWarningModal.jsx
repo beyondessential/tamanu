@@ -175,7 +175,7 @@ export const MedicationWarningModal = ({
           {isCreatingMedicationSet ? (
             <TranslatedText
               stringId="medication.warningModal.medicationSet.description1"
-              fallback="Some medications in this medication set are active ongoing medications. By prescribing this medication set, the existing ongoing medication will be discontinued."
+              fallback="Some medications in this medication set are active ongoing medications. By prescribing this medication set, the existing ongoing medications will be discontinued."
             />
           ) : (
             <TranslatedText
@@ -193,7 +193,7 @@ export const MedicationWarningModal = ({
           ) : (
             <TranslatedText
               stringId="medication.warningModal.singleMedication.description2"
-              fallback="Would you like to continue prescribing this medication which will cause the existing ongoing medication to be discontinued on finalisation or would you like to cancel creating the prescription?"
+              fallback="Would you like to continue prescribing this medication set which will cause the existing ongoing medications to be discontinued on finalisation or would you like to cancel creating the prescription?"
             />
           )}
         </Description>
@@ -207,7 +207,7 @@ export const MedicationWarningModal = ({
             </TableTitle>
             <Box display={'flex'} flexWrap={'wrap'} gap={2}>
               {warningMedications.map((medication, index) => (
-                <StyledMedicationSummary key={index} medication={medication} />
+                <StyledMedicationSummary key={index} medication={medication} showTitle={false} />
               ))}
             </Box>
           </Box>
@@ -216,8 +216,8 @@ export const MedicationWarningModal = ({
           {isCreatingMedicationSet && (
             <TableTitle>
               <TranslatedText
-                stringId="medication.warningModal.existingOngoingMedication"
-                fallback="Existing ongoing medication"
+                stringId="medication.warningModal.existingOngoingMedications"
+                fallback="Existing ongoing medications"
               />
             </TableTitle>
           )}

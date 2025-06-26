@@ -633,8 +633,12 @@ export const MedicationForm = ({
       prescription =>
         prescription.medication.id === referenceDrug.referenceDataId && !prescription.discontinued,
     );
-    setShowWarningModal(!!existingOngoingPrescriptions?.length);
-    setExistingOngoingPrescriptions(existingOngoingPrescriptions);
+
+    // This is a workaround to avoid the warning modal from being shown before the select menu closed
+    setTimeout(() => {
+      setShowWarningModal(!!existingOngoingPrescriptions?.length);
+      setExistingOngoingPrescriptions(existingOngoingPrescriptions);
+    }, 300);
   };
 
   const handleCloseWarningModal = () => {
@@ -1008,6 +1012,20 @@ export const MedicationForm = ({
                 </FormSubmitButton>
               </Box>
             </ButtonRow>
+            {showWarningModal && (
+              <MedicationWarningModal
+                onClose={() => {
+                  handleCloseWarningModal();
+                  setValues({ ...values, medicationId: null });
+                }}
+                onContinueCreating={handleCloseWarningModal}
+                onCancelCreating={() => {
+                  handleCloseWarningModal();
+                  onCancel();
+                }}
+                existingOngoingPrescriptions={existingOngoingPrescriptions}
+              />
+            )}
           </StyledFormGrid>
         )}
       />
@@ -1053,17 +1071,6 @@ export const MedicationForm = ({
               fallback="Back to prescription"
             />
           }
-        />
-      )}
-      {showWarningModal && (
-        <MedicationWarningModal
-          onClose={handleCloseWarningModal}
-          onContinueCreating={handleCloseWarningModal}
-          onCancelCreating={() => {
-            handleCloseWarningModal();
-            onCancel();
-          }}
-          existingOngoingPrescriptions={existingOngoingPrescriptions}
         />
       )}
     </>

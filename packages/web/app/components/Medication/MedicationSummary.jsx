@@ -24,7 +24,7 @@ const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
 `;
 
-export const MedicationSummary = ({ medication, className }) => {
+export const MedicationSummary = ({ medication, showTitle = true, className }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
 
   return (
@@ -40,9 +40,11 @@ export const MedicationSummary = ({ medication, className }) => {
       className={className}
     >
       <Box display={'flex'} flexDirection={'column'} gap={0.5}>
-        <MidText>
-          <TranslatedText stringId="medication.details.medication" fallback="Medication" />
-        </MidText>
+        {showTitle && (
+          <MidText>
+            <TranslatedText stringId="medication.details.medication" fallback="Medication" />
+          </MidText>
+        )}
         <DarkestText fontWeight={500}>
           <TranslatedReferenceData
             fallback={medication.medication.name}
