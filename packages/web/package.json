@@ -17,7 +17,6 @@
     "start-dev": "vite",
     "admin-start-dev": "TAMANU_VITE_TARGET=http://localhost:3000 DISABLE_SINGLE_TAB=true npm run start-dev",
     "client-start-dev": "TAMANU_VITE_TARGET=http://localhost:4000 DISABLE_SINGLE_TAB=true npm run start-dev",
-    "patient-portal-start-dev": "PATIENT_PORTAL=true npm run start-dev",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
     "storybook": "storybook dev",

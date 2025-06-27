@@ -3,14 +3,10 @@ import { getDeviceId } from '@utils/getDeviceId';
 
 export class TamanuApi extends BaseTamanuApi {
   constructor(appVersion) {
-    const endpoint = import.meta.env.VITE_API_TARGET;
-
-    if (!endpoint) {
-      throw new Error('VITE_API_TARGET is not set');
-    }
+    const url = new URL(location);
 
     super({
-      endpoint,
+      endpoint: url.origin,
       agentName: 'patient-portal',
       agentVersion: appVersion,
       deviceId: getDeviceId(),
