@@ -365,9 +365,9 @@ export class MobileSyncManager {
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
     timing?.logAction('getModelsToPush', { modelCount: Object.keys(modelsToPush).length });
 
-    const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
-    timing?.logAction('snapshotOutgoingChanges', { changesCount: outgoingChanges.length });
-
+     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
+      timing?.logAction('snapshotOutgoingChanges', { changesCount: outgoingChanges.length });
+  
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
     );
@@ -460,24 +460,24 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
     timing?.logAction('setSyncStage', { stage: 3 });
+    
+      // Save all incoming changes in 1 transaction so that the whole sync session save
+      // either fail 100% or succeed 100%, no partial save.
+      await Database.client.transaction(async () => {
+        if (totalPulled > 0) {
+          await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress, timing);
+        }
 
-    // Save all incoming changes in 1 transaction so that the whole sync session save
-    // either fail 100% or succeed 100%, no partial save.
-    await Database.client.transaction(async () => {
-      if (totalPulled > 0) {
-        await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress, timing);
-      }
+        if (tablesForFullResync) {
+          await tablesForFullResync.remove();
+        }
 
-      if (tablesForFullResync) {
-        await tablesForFullResync.remove();
-      }
-
-      // update the last successful sync in the same save transaction,
-      // if updating the cursor fails, we want to roll back the rest of the saves
-      // so that we don't end up detecting them as needing a sync up
-      // to the central server when we attempt to resync from the same old cursor
-      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
-    });
+        // update the last successful sync in the same save transaction,
+        // if updating the cursor fails, we want to roll back the rest of the saves
+        // so that we don't end up detecting them as needing a sync up
+        // to the central server when we attempt to resync from the same old cursor
+        await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
+      });
     timing?.logAction('saveIncomingChanges', { 
       totalPulled,
       savedSuccessfully: true,

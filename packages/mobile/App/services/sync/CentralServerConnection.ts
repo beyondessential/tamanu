@@ -22,7 +22,7 @@ const fetchAndParse = async (
   url: string,
   config: FetchOptions,
   isLogin: boolean,
-): Promise<{ data: Record<string, unknown>; responseBytes?: number }> => {
+): Promise<Record<string, unknown>> => {
   const response = await fetchWithTimeout(url, config);
   if (response.status === 401) {
     throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
@@ -48,11 +48,7 @@ const fetchAndParse = async (
     throw new RemoteError(generalErrorMessage, error, response.status);
   }
 
-  const responseText = await response.text();
-  const responseBytes = new TextEncoder().encode(responseText).length;
-  const data = JSON.parse(responseText);
-  
-  return { data, responseBytes };
+  return response.json();
 };
 
 export class CentralServerConnection {
@@ -91,6 +87,7 @@ export class CentralServerConnection {
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Accept: 'application/json',
+      'Accept-Encoding': 'gzip, deflate',
       'X-Tamanu-Client': 'Tamanu Mobile',
       'X-Version': version,
       ...extraHeaders,

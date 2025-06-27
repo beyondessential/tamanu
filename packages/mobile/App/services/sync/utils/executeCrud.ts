@@ -43,12 +43,13 @@ export const executeInserts = async (
           try {
             await model.insert(row);
           } catch (error) {
-            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+            throw new Error(`Insert failed with '${e.message}'`);
           }
         }),
       );
     }
   }
+  
 
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
