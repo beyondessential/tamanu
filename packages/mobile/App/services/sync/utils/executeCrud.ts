@@ -4,6 +4,7 @@ import { In } from 'typeorm';
 import { DataToPersist } from '../types';
 import { chunkRows } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
+import { SEQUELIZE_MAX_PARAMETERS } from '~/infra/db/helpers';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -87,7 +88,7 @@ export const executeDeletes = async (
   const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, 999)) {
     try {
-      const entities = await model.find({ where: { id: In(batchOfIds) } });
+      const entities = await model.find({ where: { id: In(SEQUELIZE_MAX_PARAMETERS) } });
       await model.softRemove(entities);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
@@ -114,7 +115,7 @@ export const executeRestores = async (
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
 
-  for (const batchOfIds of chunk(rowIds, 999)) {
+  for (const batchOfIds of chunk(rowIds, SEQUELIZE_MAX_PARAMETERS)) {
     await Promise.all(
       batchOfIds.map(async id => {
         try {

@@ -10,6 +10,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
 import { getDirPath } from './getFilePath';
+import { SEQUELIZE_MAX_PARAMETERS } from '~/infra/db/helpers';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -32,7 +33,7 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  for (const incomingRecords of chunk(recordsForUpsert, 999)) {
+  for (const incomingRecords of chunk(recordsForUpsert, SEQUELIZE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
