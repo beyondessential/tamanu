@@ -11,23 +11,23 @@ const persistBatch = async (
   rows: Record<string, any>[],
 ): Promise<{ totalBytes: number }> => {
   const rowsByRecordType = groupBy(rows, 'recordType');
-  let totalBytes = 0;
 
-  await Promise.all(
+  const results = await Promise.all(
     Object.entries(rowsByRecordType).map(async ([recordType, rowsForRecordType]) => {
       const filePath = getFilePath(sessionId, recordType, batchIndex);
       const jsonString = JSON.stringify(rowsForRecordType);
       const buffer = Buffer.from(jsonString, 'utf-8');
       
-      totalBytes += buffer.length;
-      
       await saveFileInDocuments(
         buffer.toString('base64'),
         filePath,
       );
+      
+      return buffer.length;
     }),
   );
   
+  const totalBytes = results.reduce((sum, bytes) => sum + bytes, 0);
   return { totalBytes };
 };
 

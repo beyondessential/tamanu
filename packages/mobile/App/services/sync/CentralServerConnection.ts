@@ -12,9 +12,10 @@ import {
   RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
+import { axiosInstance } from './utils/axiosInstance';
 
 const API_PREFIX = 'api';
 
@@ -23,32 +24,56 @@ const fetchAndParse = async (
   config: FetchOptions,
   isLogin: boolean,
 ): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
-  }
+  try {
+    const axiosConfig = {
+      url,
+      method: config.method || 'GET',
+      headers: config.headers || {},
+      data: config.body,
+      metadata: {
+        timeout: config.timeout,
+      },
+    };
 
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
+    const response = await axiosInstance.request(axiosConfig);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      if (status === 401) {
+        throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+      }
+
+      if (status === 400) {
+        const errorData = data?.error || data;
+        if (errorData?.name === 'InvalidClientVersion') {
+          throw new OutdatedVersionError(errorData.updateUrl);
+        }
+      }
+
+      if (status === 422) {
+        const errorData = data?.error || data;
+        throw new RemoteError(errorData?.message, errorData, status);
+      }
+
+      if (status >= 400) {
+        const errorData = data?.error || data;
+        // User will be shown a generic error message;
+        // log it out here to help with debugging
+        console.error('Response had non-OK value', { url, status, data });
+        throw new RemoteError(generalErrorMessage, errorData, status);
+      }
     }
-  }
 
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
+    // Handle network errors or timeouts
+    if (error.name === 'TimeoutError' || error.code === 'ECONNABORTED') {
+      throw new Error('Network request timed out');
+    }
 
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
+    // Re-throw other errors
+    throw error;
   }
-
-  return response.json();
 };
 
 export class CentralServerConnection {
