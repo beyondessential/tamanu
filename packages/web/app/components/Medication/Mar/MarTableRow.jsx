@@ -43,7 +43,12 @@ const MarRowContainer = styled.div`
   }
 `;
 
-export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopperAnchorElChange }) => {
+export const MarTableRow = ({
+  medication,
+  selectedDate,
+  popperAnchorEl,
+  onPopperAnchorElChange,
+}) => {
   const {
     medication: medicationRef,
     frequency,
