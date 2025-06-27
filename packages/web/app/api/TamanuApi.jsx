@@ -205,7 +205,7 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        const language = config?.headers?.['language'];
+        const language = localStorage.getItem(LANGUAGE);
         notifyError([
           <b key="general.api.notification.requestFailed">
             <TranslatedText
