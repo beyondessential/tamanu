@@ -63,24 +63,18 @@ const infoBoxStyles = StyleSheet.create({
     paddingBottom: 30,
   },
   boldText: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 12,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 12,
-    fontWeight: 400,
+    fontFamily: 'NotoKufiArabic-Regular',
   },
   italicBoldText: {
-    fontFamily: 'Helvetica-BoldOblique',
     fontSize: 12,
-    fontWeight: 500,
   },
   italicText: {
-    fontFamily: 'Helvetica-Oblique',
     fontSize: 12,
-    fontWeight: 500,
   },
   underlinedText: {
     borderBottom: borderStyle,
@@ -103,9 +97,8 @@ const signStyles = StyleSheet.create({
     marginVertical: 30,
   },
   text: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 12,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
     lineHeight: 1,
   },
   line: {
