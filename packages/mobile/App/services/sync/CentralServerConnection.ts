@@ -87,6 +87,7 @@ export class CentralServerConnection {
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Accept: 'application/json',
+      'Accept-Encoding': 'gzip, deflate',
       'X-Tamanu-Client': 'Tamanu Mobile',
       'X-Version': version,
       ...extraHeaders,
