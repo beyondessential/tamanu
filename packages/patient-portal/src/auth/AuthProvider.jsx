@@ -1,16 +1,9 @@
 import { useState } from 'react';
-import { TamanuApi } from '@tamanu/api-client';
-import { getDeviceId } from '@utils/getDeviceId';
 import { AuthContext } from './AuthContext';
-
-const api = new TamanuApi({
-  endpoint: import.meta.env.VITE_API_TARGET,
-  agentName: 'patient-portal',
-  agentVersion: import.meta.env.VITE_APP_VERSION,
-  deviceId: getDeviceId(),
-});
+import { useApi } from '../api/useApi';
 
 export const AuthProvider = ({ children }) => {
+  const api = useApi();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 

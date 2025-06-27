@@ -33,7 +33,7 @@ export default async () =>
       host: 'localhost',
       proxy: {
         '/api': {
-          target: import.meta.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
+          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
           changeOrigin: true,
         },
       },
