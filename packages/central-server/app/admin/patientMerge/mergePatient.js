@@ -236,16 +236,38 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
     return [];
   }
 
+  const existingKeepRegistrations = await models.PatientProgramRegistration.findAll({
+    where: { patientId: keepPatientId },
+  });
+  const keepRegistrationMap = new Map(existingKeepRegistrations.map(r => [r.programRegistryId, r]));
+
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    // Move to keep patient
-    await unwantedRegistration.update({
-      patientId: keepPatientId,
-    });
+    // This isn't a duplicate, so we should keep this record
+    if (keepRegistrationMap.has(unwantedRegistration.programRegistryId) === false) {
+      // Create a new patient program registration and keep all previous metadata, this is
+      // needed because patient program registration conditions can be referencing the record
+      // so we cannot perform a simple update
+      const newRegistration = await models.PatientProgramRegistration.create({
+        ...unwantedRegistration.dataValues,
+        patientId: keepPatientId,
+      });
 
-    // Soft delete the registration
-    await unwantedRegistration.destroy();
+      // Move conditions to the new patient program registration
+      await models.PatientProgramRegistrationCondition.update({
+        patientProgramRegistrationId: newRegistration.id,
+      }, {
+        where: {
+          patientProgramRegistrationId: unwantedRegistration.id,
+        },
+      });
+    }
+
+    // Always destroy the unwanted registration
+    await unwantedRegistration.destroy({ force: true });
+
+    // Include all in results to report modified records
     results.push(unwantedRegistration);
   }
 

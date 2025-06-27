@@ -473,13 +473,14 @@ describe('CentralSyncManager', () => {
         ...fake(models.ProgramRegistry),
         programId: program.id,
       });
-      const patientProgramRegistration = await models.PatientProgramRegistration.create({
-        ...fake(models.PatientProgramRegistration),
-        programRegistryId: programRegistry.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        facilityId: facility.id,
-      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: programRegistry.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          facilityId: facility.id,
+        }),
+      );
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
@@ -545,13 +546,14 @@ describe('CentralSyncManager', () => {
         ...fake(models.ProgramRegistry),
         programId: program.id,
       });
-      const patientProgramRegistration = await models.PatientProgramRegistration.create({
-        ...fake(models.PatientProgramRegistration),
-        programRegistryId: programRegistry.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        facilityId: facility.id,
-      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: programRegistry.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          facilityId: facility.id,
+        }),
+      );
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
@@ -658,13 +660,14 @@ describe('CentralSyncManager', () => {
         ...fake(models.ProgramRegistry),
         programId: program.id,
       });
-      const patientProgramRegistration = await models.PatientProgramRegistration.create({
-        ...fake(models.PatientProgramRegistration),
-        programRegistryId: programRegistry.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        facilityId: facility.id,
-      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: programRegistry.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          facilityId: facility.id,
+        }),
+      );
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
@@ -744,13 +747,14 @@ describe('CentralSyncManager', () => {
         ...fake(models.ProgramRegistry),
         programId: program.id,
       });
-      const patientProgramRegistration = await models.PatientProgramRegistration.create({
-        ...fake(models.PatientProgramRegistration),
-        programRegistryId: programRegistry.id,
-        clinicianId: clinician.id,
-        patientId: patient.id,
-        facilityId: facility.id,
-      });
+      const patientProgramRegistration = await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: programRegistry.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          facilityId: facility.id,
+        }),
+      );
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: patient.id,
@@ -2162,19 +2166,18 @@ describe('CentralSyncManager', () => {
         programId: program.id,
       });
 
-      const patientProgramRegistrationData = {
-        ...fake(models.PatientProgramRegistration),
+      const patientProgramRegistrationData = fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         clinicianId: clinician.id,
         patientId: patient.id,
         facilityId: facility.id,
-      };
+      });
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'patient_program_registrations',
-          recordId: crypto.randomUUID(),
+          recordId: patientProgramRegistrationData.id,
           data: patientProgramRegistrationData,
         },
       ];
@@ -2232,19 +2235,18 @@ describe('CentralSyncManager', () => {
         programId: program.id,
       });
 
-      const patientProgramRegistrationData = {
-        ...fake(models.PatientProgramRegistration),
+      const patientProgramRegistrationData = fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         clinicianId: clinician.id,
         patientId: patient.id,
         facilityId: facility.id,
-      };
+      });
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'patient_program_registrations',
-          recordId: crypto.randomUUID(),
+          recordId: patientProgramRegistrationData.id,
           data: patientProgramRegistrationData,
         },
       ];
