@@ -3,6 +3,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
 
 //TODO: add tests to confirm that when you click view vaccine record all the details match
+//TODO: not given vaccines seem to have different details when you click view
 //TODO: check todos above specific tests, some still to do
 //TODO: make changes to other fieldhelpers to match the changes i made?
 //TODO: assert date is correct
@@ -16,6 +17,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: merge searchRecordVaccineTableForMatch and searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
 //TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
 //TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
+//TODO: Add helper comment with params documentation to any complex functions?
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);

@@ -124,7 +124,7 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     if (givenBy) {
-      await this.givenByField.fill(givenBy);
+      await this.recordOptionalVaccineFields(givenBy);
     }
 
     await this.page.waitForTimeout(2000);
@@ -135,5 +135,11 @@ export class RecordVaccineModal extends BasePatientModal {
 
   async waitForModalToClose() {
     await this.modal.waitFor({ state: 'detached' });
+  }
+
+  async recordOptionalVaccineFields(givenBy?: string) {
+    if (givenBy) {
+      await this.givenByField.fill(givenBy);
+    }
   }
 }
