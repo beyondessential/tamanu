@@ -4,7 +4,6 @@ import { In } from 'typeorm';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
-import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
@@ -33,7 +32,7 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
+  for (const incomingRecords of chunk(recordsForUpsert, 999)) {
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync

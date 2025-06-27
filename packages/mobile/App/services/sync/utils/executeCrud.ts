@@ -2,7 +2,7 @@ import { chunk, cloneDeep } from 'lodash';
 import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
+import { chunkRows } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
 
 function strippedIsDeleted(row) {
@@ -85,7 +85,7 @@ export const executeDeletes = async (
   recordsForDelete: DataToPersist[],
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
-  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+  for (const batchOfIds of chunk(rowIds, 999)) {
     try {
       const entities = await model.find({ where: { id: In(batchOfIds) } });
       await model.softRemove(entities);
@@ -114,7 +114,7 @@ export const executeRestores = async (
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
 
-  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+  for (const batchOfIds of chunk(rowIds, 999)) {
     await Promise.all(
       batchOfIds.map(async id => {
         try {
