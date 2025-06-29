@@ -15,12 +15,12 @@ export class PharmacyOrder extends Model {
       {
         id: primaryKey,
         orderingClinicianId: {
-          type: DataTypes.UUID,
+          type: DataTypes.TEXT,
           allowNull: false,
           field: 'ordering_clinician_id',
         },
         encounterId: {
-          type: DataTypes.UUID,
+          type: DataTypes.TEXT,
           allowNull: false,
           field: 'encounter_id',
         },

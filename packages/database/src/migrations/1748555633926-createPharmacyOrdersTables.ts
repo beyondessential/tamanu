@@ -69,7 +69,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     quantity: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
     },
     repeats: {
       type: DataTypes.INTEGER,
