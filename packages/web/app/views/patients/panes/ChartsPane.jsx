@@ -100,7 +100,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
     return (
       <TranslatedText
         stringId="chart.table.complex.noChart"
-        fallback="This patient has no chart information to display. Click '+ Add' to add information to add information to this chart."
+        fallback="This patient has no chart information to display. Click '+ Add' to add information to this chart."
         data-testid="translatedtext-1n1o"
       />
     );
@@ -111,6 +111,26 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
       stringId="chart.table.noData"
       fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
       data-testid="translatedtext-jwyi"
+    />
+  );
+};
+
+const getTooltipMessage = (selectedSurveyId) => {
+  if (!selectedSurveyId) {
+    return (
+      <TranslatedText
+        stringId="chart.action.record.disabledTooltip.noChartType"
+        fallback="Please select a chart type to record an entry"
+        data-testid="translatedtext-arpn"
+      />
+    );
+  }
+  
+  return (
+    <TranslatedText
+      stringId="chart.action.record.disabledTooltip"
+      fallback="'Add' an item first to record against"
+      data-testid="translatedtext-zbwx"
     />
   );
 };
@@ -362,13 +382,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             <ConditionalTooltip
               visible={!recordButtonEnabled}
               maxWidth="8rem"
-              title={
-                <TranslatedText
-                  stringId="chart.action.record.disabledTooltip"
-                  fallback="'Add' an item first to record against"
-                  data-testid="translatedtext-zbwx"
-                />
-              }
+              title={getTooltipMessage(selectedChartTypeId)}
               data-testid="conditionaltooltip-uafz"
             >
               <StyledButtonWithPermissionCheck
