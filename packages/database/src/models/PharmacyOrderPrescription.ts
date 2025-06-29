@@ -25,13 +25,13 @@ export class PharmacyOrderPrescription extends Model {
           field: 'pharmacy_order_id',
         },
         prescriptionId: {
-          type: DataTypes.UUID,
+          type: DataTypes.TEXT,
           allowNull: false,
           field: 'prescription_id',
         },
         quantity: {
           type: DataTypes.INTEGER,
-          allowNull: true,
+          allowNull: false,
         },
         repeats: {
           type: DataTypes.INTEGER,
