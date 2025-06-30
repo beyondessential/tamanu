@@ -37,7 +37,7 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
 
-const errorMessageFromSession = (session) =>
+const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
@@ -150,6 +150,14 @@ export class CentralSyncManager {
       log.error('CentralSyncManager.prepareSession encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(syncSession.id, error.message);
     }
+  }
+
+  async sessionExists(sessionId) {
+    const session = await this.store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId },
+    });
+
+    return Boolean(session);
   }
 
   async connectToSession(sessionId) {
@@ -272,7 +280,7 @@ export class CentralSyncManager {
 
       const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
 
-      await repeatableReadTransaction(store.sequelize, async (transaction) => {
+      await repeatableReadTransaction(store.sequelize, async transaction => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
         if (isInitialBuildOfLookupTable) {
@@ -340,13 +348,13 @@ export class CentralSyncManager {
   async waitForPendingEdits(tick) {
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
-      (t) => t < tick,
+      t => t < tick,
     );
 
     // wait for any in-flight transactions of pending edits
     // that we don't miss any changes that are in progress
     await Promise.all(
-      pendingSyncTicks.map((t) => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
     );
   }
 
@@ -683,7 +691,7 @@ export class CentralSyncManager {
   async addIncomingChanges(sessionId, changes) {
     const { sequelize } = this.store;
     await this.connectToSession(sessionId);
-    const incomingSnapshotRecords = changes.map((c) => ({
+    const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       updatedAtByFieldSum: c.data.updatedAtByField
