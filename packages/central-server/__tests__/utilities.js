@@ -16,16 +16,14 @@ import { initReporting } from '../app/database';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init({ createMockReportingSchema = false } = {}) {
+  async init() {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
-    // try without this for now for performance of tests
-    if (createMockReportingSchema) {
-      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
-      this.reportSchemaStores = await initReporting();
-    }
+    await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+    this.reportSchemaStores = await initReporting();
+  
 
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
