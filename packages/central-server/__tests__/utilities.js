@@ -2,7 +2,7 @@ import config from 'config';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { seedSettings } from '@tamanu/database/demoData';
+import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
@@ -16,13 +16,13 @@ import { initReporting } from '../app/database';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init({ createMockReportingSchemaAndRoles = false }) {
+  async init({ createMockReportingSchema = false }) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
     // try without this for now for performance of tests
-    if (createMockReportingSchemaAndRoles) {
+    if (createMockReportingSchema) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reportSchemaStores = await initReporting();
     }
