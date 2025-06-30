@@ -374,20 +374,11 @@ jobs:
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
 
-  package-frontend:
+  package-frontends:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Frontend ${{ github.ref_name }}
+    name: Package Frontends (web and patient portal) ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
-    secrets:
-      META_CERT: ${{ secrets.META_CERT }}
-      META_KEY: ${{ secrets.META_KEY }}
-
-  package-patient-portal:
-    needs: images
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Patient Portal ${{ github.ref_name }}
-    uses: ./.github/workflows/cd-package-patient-portal.yml
     secrets:
       META_CERT: ${{ secrets.META_CERT }}
       META_KEY: ${{ secrets.META_KEY }}
