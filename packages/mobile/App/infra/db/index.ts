@@ -118,6 +118,73 @@ class DatabaseHelper {
       }
     }
   }
+
+  async setDefaultPragmaSettings(): Promise<void> {
+    if (!this.client) {
+      console.log('❌ No database connection available');
+      return;
+    }
+
+    console.log('🔧 Setting DEFAULT pragma settings...');
+    try {
+      await this.client.query(`PRAGMA journal_mode = DELETE;`);
+      await this.client.query(`PRAGMA synchronous = FULL;`);
+      await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
+      await this.client.query(`PRAGMA locking_mode = NORMAL;`);
+      await this.client.query(`PRAGMA temp_store = DEFAULT;`);
+      console.log('✅ Default pragma settings applied');
+    } catch (error) {
+      console.error('Error applying default pragma settings:', error);
+    }
+  }
+
+  async setUnsafePragmaSettings(): Promise<void> {
+    if (!this.client) {
+      console.log('❌ No database connection available');
+      return;
+    }
+
+    console.log('⚡ Setting UNSAFE pragma settings...');
+    try {
+      await this.client.query(`PRAGMA journal_mode = OFF;`);      // Disables journaling entirely - fastest but no crash recovery
+      await this.client.query(`PRAGMA synchronous = 0;`);         // No sync to disk after each write - fastest but data corruption possible
+      await this.client.query(`PRAGMA cache_size = 1000000;`);    // Sets page cache to ~1GB (1M pages) - uses more memory
+      await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); // Locks database exclusively - prevents other connections
+      await this.client.query(`PRAGMA temp_store = MEMORY;`);     // Stores temporary tables/indices in RAM - faster temp operations
+      console.log('✅ Unsafe pragma settings applied');
+    } catch (error) {
+      console.error('❌ Error applying unsafe pragma settings:', error);
+    }
+  }
+
+  async logPragmaSettings(): Promise<void> {
+    if (!this.client) {
+      console.log('❌ No database connection available');
+      return;
+    }
+
+    console.log('📊 Current SQLite pragma settings:');
+    try {
+      const pragmas = [
+        'journal_mode',
+        'synchronous', 
+        'cache_size',
+        'locking_mode',
+        'temp_store',
+        'page_size',
+        'auto_vacuum',
+        'foreign_keys'
+      ];
+
+      for (const pragma of pragmas) {
+        const result = await this.client.query(`PRAGMA ${pragma};`);
+        const value = result?.[0]?.[pragma] || result?.[0] || 'N/A';
+        console.log(`  ${pragma}: ${value}`);
+      }
+    } catch (error) {
+      console.error('❌ Error reading pragma settings:', error);
+    }
+  }
 }
 
 export const Database = new DatabaseHelper();
