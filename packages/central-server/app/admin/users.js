@@ -10,7 +10,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User },
+        models: { User, UserDesignation, ReferenceData, Role },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page },
     } = req;
@@ -18,20 +18,41 @@ usersRouter.get(
     req.checkPermission('list', 'User');
 
     const users = await User.findAll({
-      include: 'facilities',
+      include: [
+        'facilities',
+        {
+          model: UserDesignation,
+          as: 'designations',
+          include: {
+            model: ReferenceData,
+            as: 'referenceData',
+          },
+        },
+      ],
       order: [[orderBy, order.toUpperCase()]],
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
+
+    // Get role names for each user
+    const roleIds = [...new Set(users.map(user => user.role))];
+    const roles = await Role.findAll({
+      where: { id: roleIds },
+    });
+    const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
     res.send({
       data: await Promise.all(
         users.map(async user => {
           const allowedFacilities = await user.allowedFacilityIds();
           const obj = user.get({ plain: true });
+          const designations = user.designations?.map(d => d.referenceData?.name).filter(Boolean) || [];
+          const roleName = roleMap.get(user.role) || null;
           return {
-            ...pick(obj, ['id', 'displayName', 'email', 'phoneNumber', 'role']),
+            ...pick(obj, ['id', 'displayName', 'displayId', 'email', 'phoneNumber', 'role', 'visibilityStatus']),
+            roleName,
             allowedFacilities,
+            designations,
           };
         }),
       ),
