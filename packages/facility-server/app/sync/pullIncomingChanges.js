@@ -111,7 +111,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
     handler: switch (kind) {
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(data);
-        totalPulled += data.length;
+        totalPulled += 1;
         fromId = data.id;
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
