@@ -23,8 +23,8 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
-const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
+const TableContainer = (props) => <View style={generalStyles.tableContainer} {...props} />;
+const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -52,9 +52,9 @@ const infoBoxStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
-const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
-const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const medicationsTableStyles = StyleSheet.create({
   row: {
@@ -82,10 +82,10 @@ const medicationsTableStyles = StyleSheet.create({
   },
 });
 
-const MedicationsTableBorder = props => (
+const MedicationsTableBorder = (props) => (
   <View style={[medicationsTableStyles.tableBorder, medicationsTableStyles.row]} {...props} />
 );
-const MedicationsTableTitleCol = props => (
+const MedicationsTableTitleCol = (props) => (
   <View style={medicationsTableStyles.titleCol} {...props} />
 );
 
@@ -103,24 +103,24 @@ const notesSectionStyles = StyleSheet.create({
   },
 });
 
-const extractOngoingConditions = patientConditions =>
-  patientConditions.map(item => item?.diagnosis?.name);
+const extractOngoingConditions = (patientConditions) =>
+  patientConditions.map((item) => item?.diagnosis?.name);
 
 const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
   const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
-    return diagnoses.map(item => item?.diagnosis?.name);
+    return diagnoses.map((item) => item?.diagnosis?.name);
   } else {
-    return diagnoses.map(item => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
+    return diagnoses.map((item) => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
   }
 };
 
 const extractProceduresInfo = ({ procedures, getSetting }) => {
   const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
-    return procedures.map(item => item?.procedureType?.name);
+    return procedures.map((item) => item?.procedureType?.name);
   } else {
-    return procedures.map(item => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
+    return procedures.map((item) => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
   }
 };
 
@@ -178,8 +178,8 @@ const MedicationsTableInfoBox = ({ label, info, hasBottomBorder = false }) => (
 );
 
 const MedicationsTable = ({ medications }) => {
-  const currentMedications = medications.filter(m => !m.discontinued);
-  const discontinuedMedications = medications.filter(m => m.discontinued);
+  const currentMedications = medications.filter((m) => !m.discontinued);
+  const discontinuedMedications = medications.filter((m) => m.discontinued);
 
   return (
     <MedicationsTableBorder>
@@ -189,12 +189,12 @@ const MedicationsTable = ({ medications }) => {
       <View style={{ flexDirection: 'column', flex: 1 }}>
         <MedicationsTableInfoBox
           label="Current"
-          info={currentMedications.map(item => item?.medication?.name)}
+          info={currentMedications.map((item) => item?.medication?.name)}
           hasBottomBorder={true}
         />
         <MedicationsTableInfoBox
           label="Discontinued"
-          info={discontinuedMedications.map(item => item?.medication?.name)}
+          info={discontinuedMedications.map((item) => item?.medication?.name)}
           hasBottomBorder={false}
         />
       </View>
@@ -216,14 +216,14 @@ const DischargeSummaryPrintoutComponent = ({
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
-  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
+  const primaryDiagnoses = visibleDiagnoses.filter((d) => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter((d) => !d.isPrimary);
   const notes = discharge?.note;
   const {
     name: facilityName,
     address: facilityAddress,
     town: facilityTown,
-  } = discharge.address;
+  } = discharge?.address || {};
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {

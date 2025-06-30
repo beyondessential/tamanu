@@ -81,7 +81,7 @@ export class Discharge extends Model {
         (res: Facility[]) => res?.[0],
         (err: Error) => {
           log.warn('Failed to fetch encounter facility', err);
-          return null;
+          return;
         },
       );
 
