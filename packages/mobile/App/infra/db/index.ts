@@ -125,7 +125,6 @@ class DatabaseHelper {
       return;
     }
 
-    console.log('🔧 Setting DEFAULT pragma settings...');
     try {
       await this.client.query(`PRAGMA journal_mode = DELETE;`);
       await this.client.query(`PRAGMA synchronous = FULL;`);
@@ -144,7 +143,6 @@ class DatabaseHelper {
       return;
     }
 
-    console.log('⚡ Setting UNSAFE pragma settings...');
     try {
       await this.client.query(`PRAGMA journal_mode = OFF;`);      // Disables journaling entirely - fastest but no crash recovery
       await this.client.query(`PRAGMA synchronous = 0;`);         // No sync to disk after each write - fastest but data corruption possible
@@ -171,9 +169,6 @@ class DatabaseHelper {
         'cache_size',
         'locking_mode',
         'temp_store',
-        'page_size',
-        'auto_vacuum',
-        'foreign_keys'
       ];
 
       for (const pragma of pragmas) {
