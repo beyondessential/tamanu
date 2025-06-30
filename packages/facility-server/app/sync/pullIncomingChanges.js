@@ -117,6 +117,10 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
     }
   }
 
+  if (records.length > 0) {
+    writes.push(writeBatch(records));
+  }
+
   await Promise.all(writes);
 
   return { totalPulled, totalToPull, pullUntil };
