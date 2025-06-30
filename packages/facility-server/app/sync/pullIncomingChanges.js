@@ -1,6 +1,7 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
+import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import {
   insertSnapshotRecords,
   SYNC_SESSION_DIRECTION,
@@ -108,12 +109,12 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
     }
 
     handler: switch (kind) {
-      case 'PULL_CHANGE':
+      case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(data);
         totalPulled += data.length;
         fromId = data.id;
         break handler;
-      case 'END':
+      case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);
         break stream;
       default:

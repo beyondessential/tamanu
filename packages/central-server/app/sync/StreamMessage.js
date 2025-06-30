@@ -1,11 +1,4 @@
-export const StreamMessageKind = {
-  SESSION_WAITING: 'SESSION_WAITING',
-  SESSION_READY: 'SESSION_READY',
-  PULL_WAITING: 'PULL_WAITING',
-  PULL_READY: 'PULL_READY',
-  PULL_CHANGE: 'PULL_CHANGE',
-  END: 'END',
-};
+import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 
 function shape(kind, data) {
   return (
@@ -18,15 +11,15 @@ function shape(kind, data) {
 
 export const StreamMessage = {
   sessionWaiting() {
-    return shape(StreamMessageKind.SESSION_WAITING, {});
+    return shape(SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING, {});
   },
   pullWaiting() {
-    return shape(StreamMessageKind.PULL_WAITING, {});
+    return shape(SYNC_STREAM_MESSAGE_KIND.PULL_WAITING, {});
   },
   pullChange(data) {
-    return shape(StreamMessageKind.PULL_CHANGE, data);
+    return shape(SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE, data);
   },
   end(data = {}) {
-    return shape(StreamMessageKind.END, data);
+    return shape(SYNC_STREAM_MESSAGE_KIND.END, data);
   },
 };

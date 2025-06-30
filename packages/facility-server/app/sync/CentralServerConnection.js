@@ -7,7 +7,11 @@ import {
   RemoteCallFailedError,
   RemoteTimeoutError,
 } from '@tamanu/shared/errors';
-import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  VERSION_COMPATIBILITY_ERRORS,
+} from '@tamanu/constants';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
@@ -174,10 +178,11 @@ export class CentralServerConnection {
   }
 
   async *stream(endpointFn) {
+    let endpoint = endpointFn();
     const waitTime = 10000; // retry once per 10 seconds
     const maxAttempts = 6 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.fetch(endpointFn(), { method: 'GET', rawResponse: true });
+      const response = await this.fetch(endpoint, { method: 'GET', rawResponse: true });
       const reader = response.body.getReader();
 
       let partial = Buffer.alloc(0);
@@ -197,7 +202,7 @@ export class CentralServerConnection {
           partial = partial.subarray(newline + 1);
           const message = JSON.parse(line);
           yield message;
-          if (message?.kind === 'END') {
+          if (message?.kind === SYNC_STREAM_MESSAGE_KIND.END) {
             return; // skip retry logic
           }
         }
@@ -206,7 +211,7 @@ export class CentralServerConnection {
           try {
             const message = JSON.parse(partial);
             yield message;
-            if (message?.kind === 'END') {
+            if (message?.kind === SYNC_STREAM_MESSAGE_KIND.END) {
               return; // skip retry logic
             }
           } catch (error) {
@@ -217,6 +222,7 @@ export class CentralServerConnection {
         }
       }
       await sleepAsync(waitTime);
+      endpoint = endpointFn();
     }
     throw new Error(
       `Did not get proper END of stream after ${maxAttempts} attempts for ${endpoint}`,
@@ -293,10 +299,10 @@ export class CentralServerConnection {
     if (this.streaming) {
       for await (const { kind, data } of this.stream(() => `sync/${sessionId}/ready/stream`)) {
         handler: switch (kind) {
-          case 'SESSION_WAITING':
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
             // still waiting
             break handler;
-          case 'END':
+          case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the new tick from starting the session
             return { sessionId, ...data };
           default:
@@ -330,10 +336,10 @@ export class CentralServerConnection {
     if (this.streaming) {
       for await (const { kind, data } of this.stream(() => `sync/${sessionId}/ready/stream`)) {
         handler: switch (kind) {
-          case 'PULL_WAITING':
+          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
             // still waiting
             break handler;
-          case 'END':
+          case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the metadata for the changes we're about to pull
             return { sessionId, ...data };
           default:
