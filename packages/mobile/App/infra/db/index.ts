@@ -117,6 +117,7 @@ class DatabaseHelper {
         console.error(error);
       }
     }
+    await this.setDefaultPragmaSettings();
   }
 
   async setDefaultPragmaSettings(): Promise<void> {
@@ -135,11 +136,11 @@ class DatabaseHelper {
   async setUnsafePragmaSettings(): Promise<void> {
 
     try {
-      await this.client.query(`PRAGMA journal_mode = OFF;`);      // Disables journaling entirely - fastest but no crash recovery
-      await this.client.query(`PRAGMA synchronous = 0;`);         // No sync to disk after each write - fastest but data corruption possible
-      await this.client.query(`PRAGMA cache_size = 1000000;`);    // Sets page cache to ~1GB (1M pages) - uses more memory
+      await this.client.query(`PRAGMA journal_mode = OFF;`); // Disables journaling entirely - fastest but no crash recovery
+      await this.client.query(`PRAGMA synchronous = 0;`); // No sync to disk after each write - fastest but data corruption possible
+      await this.client.query(`PRAGMA cache_size = 1000000;`); // Sets page cache to ~1GB (1M pages) - uses more memory
       await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); // Locks database exclusively - prevents other connections
-      await this.client.query(`PRAGMA temp_store = MEMORY;`);     // Stores temporary tables/indices in RAM - faster temp operations
+      await this.client.query(`PRAGMA temp_store = MEMORY;`); // Stores temporary tables/indices in RAM - faster temp operations
       console.log('Applied unsafe pragma settings');
     } catch (error) {
       console.error('Error applying unsafe pragma settings:', error);
