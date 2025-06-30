@@ -147,7 +147,27 @@ export class CentralServerConnection extends TamanuApi {
     // then, wait until the sync session is ready
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client
+
+    if (this.streaming) {
+      for await (const { kind, data } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case 'SESSION_WAITING':
+            // still waiting
+            break handler;
+          case 'END':
+            // includes the new tick from starting the session
+            return { sessionId, ...data };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    // when polling, we need to separately fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
     return { sessionId, startedAtTick };
   }
@@ -165,7 +185,27 @@ export class CentralServerConnection extends TamanuApi {
 
     // then, wait for the pull/ready endpoint until we get a valid response;
     // it takes a while for pull/initiate to finish populating the snapshot of changes
+
+    if (this.streaming) {
+      for await (const { kind, data } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case 'PULL_WAITING':
+            // still waiting
+            break handler;
+          case 'END':
+            // includes the metadata for the changes we're about to pull
+            return { sessionId, ...data };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    // when polling, we need to separately fetch the metadata for the changes we're about to pull
     return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 
