@@ -110,7 +110,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   const context = await new ApplicationContext().init({ databaseOverrides });
   // create mock reporting schema + roles if test requires it
   // init reporting instances for these roles
-  if (enableReportInstances) {
+  if (createMockReportingSchemaAndRoles) {
     await createMockReportingSchemaAndRoles(context);
     context.reportSchemaStores = await initReporting();
   }

@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
@@ -25,7 +24,6 @@ reportsRouter.get(
     req.checkPermission('read', 'ReportDefinitionVersion');
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
-    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
 
     const result = await store.sequelize.query(
       `SELECT rd.id,
@@ -36,11 +34,7 @@ reportsRouter.get(
         max(rdv.version_number) AS "versionCount"
     FROM report_definitions rd
         LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
-    ${
-      isReportingSchemaEnabled && !canEditSchema
-        ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
-        : ''
-    }
+    ${!canEditSchema ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'` : ''}
     GROUP BY rd.id
     HAVING max(rdv.version_number) > 0
     ORDER BY rd.name
@@ -105,13 +99,7 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinitionVersion');
 
     const { store, body, user, reportSchemaStores } = req;
-    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
-    const defaultReportingSchema = isReportingSchemaEnabled
-      ? REPORT_DB_SCHEMAS.REPORTING
-      : REPORT_DB_SCHEMAS.RAW;
-
-    const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
-
+    const transformedBody = !body.dbSchema ? { ...body, dbSchema: REPORT_DB_SCHEMAS.REPORTING } : body;
     const version = await createReportDefinitionVersion(
       { store, reportSchemaStores },
       null,
@@ -200,7 +188,6 @@ reportsRouter.post(
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
-    const { reportSchemas } = config.db;
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
@@ -211,7 +198,7 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
+    if (!canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
       throw new InvalidOperationError(
         'You do not have permission to import reports using the raw schema',
       );
@@ -240,7 +227,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema: reportSchemas.enabled ? versionData.dbSchema : REPORT_DB_SCHEMAS.RAW,
+              dbSchema: versionData.dbSchema
             },
             include: [
               {
@@ -323,7 +310,6 @@ reportsRouter.get(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
 
-    if (!config.db.reportSchemas.enabled) return res.send([]);
     const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
       label: capitalize(value),
       value,

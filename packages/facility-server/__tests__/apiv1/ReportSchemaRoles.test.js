@@ -19,7 +19,7 @@ describe('ReportSchemaRoles', () => {
 
   beforeAll(async () => {
     const { connections } = config.db.reportSchemas;
-    ctx = await createTestContext({ enableReportInstances: true });
+    ctx = await createTestContext({ createMockReportingSchemaAndRoles: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
     raw = ctx.reportSchemaStores.raw.sequelize;

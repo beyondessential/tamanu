@@ -71,9 +71,8 @@ export class ApplicationContext {
 
     this.emailService = new EmailService();
 
-    if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting();
-    }
+    this.reportSchemaStores = await initReporting();
+    
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
