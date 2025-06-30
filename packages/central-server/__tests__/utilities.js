@@ -9,21 +9,24 @@ import { asNewRole } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
-import { closeDatabase, initDatabase, initReporting } from '../dist/database';
+import { closeDatabase, initDatabase } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
+import { initReporting } from '../app/database';
 
 class MockApplicationContext {
   closeHooks = [];
 
-  async init() {
+  async init({ createMockReportingSchema = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
-    if (config.db.reportSchemas?.enabled) {
+    // try without this for now for performance of tests
+    if (createMockReportingSchema) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reportSchemaStores = await initReporting();
     }
+
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -55,7 +58,7 @@ export async function createTestContext() {
   const baseApp = supertest.agent(appServer);
   baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
 
-  baseApp.asUser = async (user) => {
+  baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
     const token = await buildToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
@@ -68,7 +71,7 @@ export async function createTestContext() {
     return agent;
   };
 
-  baseApp.asRole = async (role) => {
+  baseApp.asRole = async role => {
     const newUser = await models.User.create(fake(models.User, { role }));
 
     return baseApp.asUser(newUser);
@@ -80,7 +83,7 @@ export async function createTestContext() {
 
   ctx.onClose(
     () =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         appServer.close(resolve);
       }),
   );
