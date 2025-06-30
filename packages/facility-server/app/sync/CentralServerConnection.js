@@ -190,7 +190,7 @@ export class CentralServerConnection {
         const { done, chunk } = await reader.read();
 
         if (chunk) {
-          chunk.copy(partial, partial.length);
+          partial = Buffer.concat([partial, chunk]);
         }
 
         decoder: while (true) {
