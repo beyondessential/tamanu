@@ -264,7 +264,7 @@ export const buildSyncRoutes = ctx => {
         'Transfer-Encoding': 'chunked',
       });
 
-      let startId = fromId || 0;
+      let startId = fromId ? parseInt(fromId, 10) : 0;
       // eslint-disable-next-line no-constant-condition
       while (true) {
         // TODO: change this to a cursor
