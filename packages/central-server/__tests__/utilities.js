@@ -16,7 +16,7 @@ import { initReporting } from '../app/database';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init({ createMockReportingSchema = false }) {
+  async init({ createMockReportingSchema = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
