@@ -287,6 +287,7 @@ export class MobileSyncManager {
     this.setSyncStage(2);
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+    const isInitialSync = pullSince === -1;
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
@@ -321,6 +322,10 @@ export class MobileSyncManager {
     // Save all incoming changes in 1 transaction so that the whole sync session save
     // either fail 100% or succeed 100%, no partial save.
     await Database.client.transaction(async () => {
+      if (isInitialSync) {
+        console.log('isInitialSync')
+        await Database.setUnsafePragmaSettings();
+      }
       if (totalPulled > 0) {
         await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress);
       }
@@ -335,6 +340,10 @@ export class MobileSyncManager {
       // to the central server when we attempt to resync from the same old cursor
       await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
     });
+
+    if (isInitialSync) {
+      await Database.setDefaultPragmaSettings();
+    }
 
     this.lastSyncPulledRecordsCount = totalPulled;
 
