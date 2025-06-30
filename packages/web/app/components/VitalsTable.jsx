@@ -8,6 +8,10 @@ import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
+import { TranslatedReferenceData } from './Translation';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from './Translation/TranslatedReferenceData';
+import { useTranslation } from '../contexts/Translation';
 
 const StyledDynamicColumnTable = styled(DynamicColumnTable)`
   overflow-y: scroll;
@@ -16,6 +20,7 @@ const StyledDynamicColumnTable = styled(DynamicColumnTable)`
 
 export const VitalsTable = React.memo(() => {
   const patient = useSelector((state) => state.patient);
+  const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitalsQuery(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -33,6 +38,37 @@ export const VitalsTable = React.memo(() => {
 
   const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
+  const translatedData = data.map((record) => {
+
+    // First translate the element heading
+    const processedRecord = { 
+      ...record, 
+      value: <TranslatedReferenceData
+        category="programDataElement"
+        value={record.dataElementId}
+        fallback={record.value}
+      />
+    };
+
+    // Then translate any select options
+    recordedDates.forEach((date) => {
+      if (record[date]?.component.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
+        processedRecord[date] = {
+          ...record[date],
+          value: getTranslation(
+            getReferenceDataOptionStringId(
+              record[date].component.dataElementId, 
+              'programDataElement', 
+              record[date].value
+            ),
+          'programDataElement'),
+        };
+      }
+    });
+    return processedRecord;
+  });
+
+
   return (
     <>
       <EditVitalCellModal
@@ -45,7 +81,7 @@ export const VitalsTable = React.memo(() => {
       />
       <StyledDynamicColumnTable
         columns={columns}
-        data={data}
+        data={translatedData}
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}
