@@ -148,8 +148,7 @@ export const buildSyncRoutes = ctx => {
       }
 
       const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
-      res.write(StreamMessage.sessionReady({ startedAtTick }));
-      res.write(StreamMessage.end());
+      res.write(StreamMessage.end({ startedAtTick }));
       res.end();
     }),
   );
@@ -216,8 +215,7 @@ export const buildSyncRoutes = ctx => {
       }
 
       const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId);
-      res.write(StreamMessage.pullReady({ totalToPull, pullUntil }));
-      res.write(StreamMessage.end());
+      res.write(StreamMessage.end({ totalToPull, pullUntil }));
       res.end();
     }),
   );
