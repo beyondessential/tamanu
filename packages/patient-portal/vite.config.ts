@@ -12,16 +12,12 @@ export default async () =>
   defineConfig({
     define: {
       __VERSION__: JSON.stringify(
-        await readFile('package.json')
+        await readFile('package.json', 'utf8')
           .then(JSON.parse)
           .then(({ version }) => version),
       ),
     },
-    plugins: [
-      react({
-        jsxRuntime: 'automatic',
-      }),
-    ],
+    plugins: [react()],
     resolve: {
       alias: {
         '@utils': path.resolve(__dirname, 'src/utils'),

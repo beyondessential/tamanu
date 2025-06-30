@@ -1,5 +1,3 @@
-/* global __VERSION__ */
-
 import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -13,7 +11,7 @@ import { AuthProvider } from './auth/AuthProvider';
 import { ApiContext } from './api/ApiContext';
 import { TamanuApi } from './api/TamanuApi';
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ApiContext.Provider value={new TamanuApi(__VERSION__)}>
       <ThemeProvider theme={theme}>
