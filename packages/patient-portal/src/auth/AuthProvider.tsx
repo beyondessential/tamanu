@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!api) throw new Error('API not available');
     setLoading(true);
     try {
-      // @ts-ignore - JS API method
       const response = await api.login(email, password);
       setUser(response.user);
     } finally {
