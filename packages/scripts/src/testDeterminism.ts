@@ -143,10 +143,13 @@ async function areMigrationsAvailable(dbConfig: any): Promise<boolean> {
 async function migrate(dbConfig: any): Promise<void> {
   const script = `
     (async () => {
+      const { version } = require('../package.json');
       const { initDatabase } = require('@tamanu/database/services/database');
-      const db = await initDatabase(${JSON.stringify(dbConfig)});
-      await db.sequelize.migrate('up');
-      await db.sequelize.close();
+      const { upgrade } = require('@tamanu/upgrade');
+
+      const { models, sequelize } = await initDatabase(${JSON.stringify(dbConfig)});
+      await upgrade({ models, sequelize, serverType: 'facility', toVersion: version });
+      await sequelize.close();
     })().catch(err => {
       console.error(err);
       process.exit(1);
