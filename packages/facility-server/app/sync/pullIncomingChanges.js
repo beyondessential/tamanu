@@ -74,25 +74,19 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
-  const WRITE_BATCH_SIZE = Math.min(1000, totalToPull);
+  const WRITE_BATCH_SIZE = Math.min(persistedCacheBatchSize, totalToPull);
 
   const writeBatch = async records => {
-    const recordsToSave = records.map(r => ({
-      ...r,
-      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    }));
-
-    // This is an attempt to avoid storing all the pulled data
-    // in the memory because we might run into memory issue when:
-    // 1. During the first sync when there is a lot of data to load
-    // 2. When a huge number of data is imported to sync and the facility syncs it down
-    // So store the data in a sync snapshot table instead and will persist it to the actual tables later
-    for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
-      await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
-
-      await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
-    }
+    await insertSnapshotRecords(
+      sequelize,
+      sessionId,
+      records.map(r => ({
+        ...r,
+        // mark as never updated, so we don't push it back to the central server until the next local update
+        data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER },
+        direction: SYNC_SESSION_DIRECTION.INCOMING,
+      })),
+    );
   };
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
@@ -104,6 +98,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   const endpoint = () => `sync/${sessionId}/pull${fromId ? `?fromId=${fromId}` : ''}`;
   stream: for await (const { kind, data } of centralServer.stream(endpoint)) {
     if (records.length >= WRITE_BATCH_SIZE) {
+      // do writes in the background while we're continuing to stream data
       writes.push(writeBatch(records));
       records = [];
     }
