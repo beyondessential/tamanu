@@ -11,7 +11,7 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -144,10 +144,10 @@ export class CentralServerConnection extends TamanuApi {
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
         handler: switch (kind) {
-          case 'SESSION_WAITING':
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
             // still waiting
             break handler;
-          case 'END':
+          case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the new tick from starting the session
             return { sessionId, ...data };
           default:
@@ -182,10 +182,10 @@ export class CentralServerConnection extends TamanuApi {
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
         handler: switch (kind) {
-          case 'PULL_WAITING':
+          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
             // still waiting
             break handler;
-          case 'END':
+          case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the metadata for the changes we're about to pull
             return { sessionId, ...data };
           default:
