@@ -60,14 +60,13 @@ export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
 ): Promise<void> => {
-  for (const batchOfRows of chunkRows(rows)) {
     try {
-      await Promise.all(batchOfRows.map(async row => model.update({ id: row.id }, row)));
+      await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
-        batchOfRows.map(async row => {
+        rows.map(async row => {
           try {
             await model.save(row);
           } catch (error) {
@@ -76,7 +75,7 @@ export const executeUpdates = async (
         }),
       );
     }
-  }
+
 };
 
 export const executeDeletes = async (
