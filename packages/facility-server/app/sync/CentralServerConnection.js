@@ -334,7 +334,7 @@ export class CentralServerConnection {
     // it takes a while for pull/initiate to finish populating the snapshot of changes
 
     if (this.streaming) {
-      for await (const { kind, data } of this.stream(() => `sync/${sessionId}/ready/stream`)) {
+      for await (const { kind, data } of this.stream(() => `sync/${sessionId}/pull/ready/stream`)) {
         handler: switch (kind) {
           case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
             // still waiting
