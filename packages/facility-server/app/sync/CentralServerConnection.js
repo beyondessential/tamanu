@@ -188,7 +188,7 @@ export class CentralServerConnection extends TamanuApi {
 
     if (this.streaming) {
       for await (const { kind, data } of this.stream(() => ({
-        endpoint: `sync/${sessionId}/ready/stream`,
+        endpoint: `sync/${sessionId}/pull/ready/stream`,
       }))) {
         handler: switch (kind) {
           case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
