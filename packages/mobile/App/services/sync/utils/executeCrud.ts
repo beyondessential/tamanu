@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash';
 import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { chunkRows } from '../../../infra/db/helpers';
+import { chunkRowsForInsert } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
 
 function strippedIsDeleted(row) {
@@ -30,7 +30,7 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunkRows(deduplicated)) {
+  for (const batchOfRows of chunkRowsForInsert(deduplicated)) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
