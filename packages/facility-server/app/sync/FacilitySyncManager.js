@@ -17,7 +17,7 @@ import {
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
-import { pullIncomingChanges } from './pullIncomingChanges';
+import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
@@ -228,12 +228,9 @@ export class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const { totalPulled, pullUntil } = await pullIncomingChanges(
-      this.centralServer,
-      this.sequelize,
-      sessionId,
-      pullSince,
-    );
+    const { totalPulled, pullUntil } = await (
+      this.centralServer.streaming ? streamIncomingChanges : pullIncomingChanges
+    )(this.centralServer, this.sequelize, sessionId, pullSince);
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(

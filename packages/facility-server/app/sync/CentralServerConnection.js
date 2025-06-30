@@ -7,7 +7,11 @@ import {
   RemoteCallFailedError,
   RemoteTimeoutError,
 } from '@tamanu/shared/errors';
-import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  VERSION_COMPATIBILITY_ERRORS,
+} from '@tamanu/constants';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
@@ -47,6 +51,7 @@ export class CentralServerConnection {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
+    this.streaming = config.sync.streaming;
     this.deviceId = deviceId;
   }
 
@@ -58,6 +63,7 @@ export class CentralServerConnection {
       retryAuth = true,
       awaitConnection = true,
       backoff,
+      rawResponse = false,
       ...otherParams
     } = params;
 
@@ -141,6 +147,10 @@ export class CentralServerConnection {
           throw err;
         }
 
+        if (rawResponse) {
+          return response;
+        }
+
         return await response.json();
       } catch (e) {
         // TODO: import AbortError from node-fetch once we're on v3.0
@@ -165,6 +175,58 @@ export class CentralServerConnection {
       await sleepAsync(waitTime);
     }
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
+  }
+
+  async *stream(endpointFn) {
+    let endpoint = endpointFn();
+    const waitTime = 10000; // retry once per 10 seconds
+    const maxAttempts = 6 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const response = await this.fetch(endpoint, { method: 'GET', rawResponse: true });
+      const reader = response.body.getReader();
+
+      let partial = Buffer.alloc(0);
+      reader: while (true) {
+        const { done, chunk } = await reader.read();
+
+        if (chunk) {
+          partial = Buffer.concat([partial, chunk]);
+        }
+
+        decoder: while (true) {
+          const NL = '\n'.charCodeAt(0);
+          const newline = partial.findIndex(byte => byte === NL);
+          if (newline === -1) break decoder;
+
+          const line = partial.subarray(0, newline);
+          partial = partial.subarray(newline + 1);
+          const message = JSON.parse(line);
+          yield message;
+          if (message?.kind === SYNC_STREAM_MESSAGE_KIND.END) {
+            return; // skip retry logic
+          }
+        }
+
+        if (done) {
+          try {
+            const message = JSON.parse(partial);
+            yield message;
+            if (message?.kind === SYNC_STREAM_MESSAGE_KIND.END) {
+              return; // skip retry logic
+            }
+          } catch (error) {
+            log.error(`Error parsing trailing JSON from stream: ${error.message}`);
+          }
+
+          break reader;
+        }
+      }
+      await sleepAsync(waitTime);
+      endpoint = endpointFn();
+    }
+    throw new Error(
+      `Did not get proper END of stream after ${maxAttempts} attempts for ${endpoint}`,
+    );
   }
 
   async connect(backoff, timeout = this.timeout) {
@@ -230,12 +292,28 @@ export class CentralServerConnection {
       return { status };
     }
 
-    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
+    // then, wait until the sync session is ready
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
-    // and take a while if the central server is concurrently persist records from another client
-    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    // and take a while if the central server is concurrently persisting records from another client
 
-    // finally, fetch the new tick from starting the session
+    if (this.streaming) {
+      for await (const { kind, data } of this.stream(() => `sync/${sessionId}/ready/stream`)) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the new tick from starting the session
+            return { sessionId, ...data };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
+    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    // when polling, we need to separately fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
 
     return { sessionId, startedAtTick };
@@ -246,17 +324,33 @@ export class CentralServerConnection {
   }
 
   async initiatePull(sessionId, since) {
-    // first, set the pull filter on the central server, which will kick of a snapshot of changes
-    // to pull
+    // first, set the pull filter on the central server,
+    // which will kick off a snapshot of changes to pull
     const facilityIds = selectFacilityIds(config);
     const body = { since, facilityIds, deviceId: this.deviceId };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
-    // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
-    // pull/initiate to finish populating the snapshot of changes
-    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    // then, wait for the pull/ready endpoint until we get a valid response;
+    // it takes a while for pull/initiate to finish populating the snapshot of changes
 
-    // finally, fetch the metadata for the changes we're about to pull
+    if (this.streaming) {
+      for await (const { kind, data } of this.stream(() => `sync/${sessionId}/pull/ready/stream`)) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the metadata for the changes we're about to pull
+            return { sessionId, ...data };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
+    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    // when polling, we need to separately fetch the metadata for the changes we're about to pull
     return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 
