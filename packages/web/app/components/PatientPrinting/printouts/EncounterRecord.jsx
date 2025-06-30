@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
 
-import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  NOTE_TYPES,
+  NOTE_TYPE_LABELS,
+  DRUG_ROUTE_LABELS,
+  ENCOUNTER_TYPE_LABELS,
+} from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -11,7 +16,6 @@ import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../Translation';
@@ -104,7 +108,9 @@ const COLUMNS = {
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ newEncounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[newEncounterType].label,
+      accessor: ({ newEncounterType }) => (
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+      ),
       style: { width: '70%' },
     },
     {
@@ -305,7 +311,8 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} /> || '',
+      accessor: ({ route }) =>
+        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} /> || '',
       style: { width: '10%' },
     },
     {
