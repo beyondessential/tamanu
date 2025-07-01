@@ -7,3 +7,4 @@ export * from './invalidatePatientDataQueries';
 export { getBrandName, getBrandId } from './brandMode.js';
 export { sanitizeFileName } from './sanitizeFileName';
 export { yupAttemptTransformToNumber } from './validation.js';
+export * from './passwordValidation';

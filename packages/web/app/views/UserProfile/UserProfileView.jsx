@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Box, Typography, Button, Card, CardContent } from '@material-ui/core';
-import { Person, Lock } from '@material-ui/icons';
+import { Box, Typography, Button, Card, CardContent, CircularProgress } from '@material-ui/core';
+import { Person, Lock, Error } from '@material-ui/icons';
 
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { TopBar } from '../../components/TopBar';
@@ -62,17 +63,117 @@ const ActionButton = styled(Button)`
   text-transform: none;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: ${Colors.alert};
+`;
+
 export const UserProfileView = () => {
   const { currentUser } = useAuth();
+  const api = useApi();
   const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!currentUser) {
-    return null;
-  }
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('user/me');
+        setUserDetails(response);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load user details');
+        console.error('Error fetching user details:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchUserDetails();
+    } else {
+      setIsLoading(false);
+    }
+  }, [api, currentUser]);
 
   const handleChangePassword = () => {
     setChangePasswordModalOpen(true);
   };
+
+  const handlePasswordChangeSuccess = () => {
+    setChangePasswordModalOpen(false);
+  };
+
+  if (!currentUser) {
+    return (
+      <ErrorContainer data-testid="error-no-user">
+        <Error />
+        <Typography variant="h6" data-testid="error-message">
+          <TranslatedText
+            stringId="userProfile.error.notLoggedIn"
+            fallback="You must be logged in to view your profile"
+            data-testid="translatedtext-not-logged-in"
+          />
+        </Typography>
+      </ErrorContainer>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <>
+        <TopBar
+          title={
+            <TranslatedText
+              stringId="userProfile.title"
+              fallback="User Profile"
+              data-testid="translatedtext-profile-title"
+            />
+          }
+        />
+        <LoadingContainer data-testid="loading-container">
+          <CircularProgress data-testid="loading-spinner" />
+        </LoadingContainer>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <TopBar
+          title={
+            <TranslatedText
+              stringId="userProfile.title"
+              fallback="User Profile"
+              data-testid="translatedtext-profile-title"
+            />
+          }
+        />
+        <ErrorContainer data-testid="error-container">
+          <Error />
+          <Typography variant="h6" data-testid="error-message">
+            {error}
+          </Typography>
+        </ErrorContainer>
+      </>
+    );
+  }
+
+  const displayUser = userDetails || currentUser;
 
   return (
     <>
@@ -92,10 +193,10 @@ export const UserProfileView = () => {
               <ProfileIcon data-testid="profileicon-person" />
               <Box data-testid="box-profile-info">
                 <Typography variant="h4" data-testid="typography-display-name">
-                  {currentUser.displayName}
+                  {displayUser.displayName}
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary" data-testid="typography-role">
-                  {currentUser.role}
+                  {displayUser.role}
                 </Typography>
               </Box>
             </ProfileHeader>
@@ -110,7 +211,7 @@ export const UserProfileView = () => {
                 :
               </InfoLabel>
               <InfoValue data-testid="infovalue-email">
-                {currentUser.email}
+                {displayUser.email}
               </InfoValue>
             </InfoRow>
 
@@ -124,11 +225,11 @@ export const UserProfileView = () => {
                 :
               </InfoLabel>
               <InfoValue data-testid="infovalue-role">
-                {currentUser.role}
+                {displayUser.role}
               </InfoValue>
             </InfoRow>
 
-            {currentUser.displayId && (
+            {displayUser.displayId && (
               <InfoRow data-testid="inforow-display-id">
                 <InfoLabel data-testid="infolabel-display-id">
                   <TranslatedText
@@ -139,12 +240,12 @@ export const UserProfileView = () => {
                   :
                 </InfoLabel>
                 <InfoValue data-testid="infovalue-display-id">
-                  {currentUser.displayId}
+                  {displayUser.displayId}
                 </InfoValue>
               </InfoRow>
             )}
 
-            {currentUser.phoneNumber && (
+            {displayUser.phoneNumber && (
               <InfoRow data-testid="inforow-phone">
                 <InfoLabel data-testid="infolabel-phone">
                   <TranslatedText
@@ -155,7 +256,7 @@ export const UserProfileView = () => {
                   :
                 </InfoLabel>
                 <InfoValue data-testid="infovalue-phone">
-                  {currentUser.phoneNumber}
+                  {displayUser.phoneNumber}
                 </InfoValue>
               </InfoRow>
             )}
@@ -182,6 +283,7 @@ export const UserProfileView = () => {
       <ChangePasswordModal
         open={isChangePasswordModalOpen}
         onClose={() => setChangePasswordModalOpen(false)}
+        onSuccess={handlePasswordChangeSuccess}
         data-testid="changepasswordmodal-main"
       />
     </>

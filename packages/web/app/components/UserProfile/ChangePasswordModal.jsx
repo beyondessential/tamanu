@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, Button, Typography } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { useApi } from '../../api';
@@ -9,7 +9,8 @@ import { Form, Field, TextField } from '../Field';
 import { FormGrid } from '../FormGrid';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { notifySuccess, notifyError } from '../../utils';
-import { Colors } from '../../constants';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+import { validatePasswordStrength } from '../../utils/passwordValidation';
 
 const passwordSchema = yup.object().shape({
   currentPassword: yup
@@ -18,35 +19,19 @@ const passwordSchema = yup.object().shape({
   newPassword: yup
     .string()
     .min(8, 'Password must be at least 8 characters')
-    .required('New password is required'),
+    .required('New password is required')
+    .test('password-strength', 'Password does not meet security requirements', function(value) {
+      if (!value) return false;
+      const validation = validatePasswordStrength(value);
+      return validation.isValid;
+    }),
   confirmPassword: yup
     .string()
     .required('Password confirmation is required')
     .oneOf([yup.ref('newPassword')], 'Passwords must match'),
 });
 
-const PasswordStrengthIndicator = styled.div`
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  background-color: ${props => {
-    switch (props.strength) {
-      case 'weak': return '#ffebee';
-      case 'medium': return '#fff3e0';
-      case 'strong': return '#e8f5e8';
-      default: return 'transparent';
-    }
-  }};
-  color: ${props => {
-    switch (props.strength) {
-      case 'weak': return '#c62828';
-      case 'medium': return '#ef6c00';
-      case 'strong': return '#2e7d32';
-      default: return Colors.text;
-    }
-  }};
-  font-size: 0.875rem;
-`;
+
 
 const ActionButtons = styled.div`
   display: flex;
@@ -55,42 +40,23 @@ const ActionButtons = styled.div`
   margin-top: 2rem;
 `;
 
-const getPasswordStrength = (password) => {
-  if (!password) return null;
-  
-  const hasLower = /[a-z]/.test(password);
-  const hasUpper = /[A-Z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  const isLongEnough = password.length >= 8;
-  
-  const criteriaCount = [hasLower, hasUpper, hasNumber, hasSpecial, isLongEnough].filter(Boolean).length;
-  
-  if (criteriaCount < 3) return 'weak';
-  if (criteriaCount < 5) return 'medium';
-  return 'strong';
-};
 
-const getPasswordStrengthText = (strength) => {
-  switch (strength) {
-    case 'weak': return 'Weak password';
-    case 'medium': return 'Medium strength password';
-    case 'strong': return 'Strong password';
-    default: return '';
-  }
-};
 
-export const ChangePasswordModal = ({ open, onClose }) => {
+export const ChangePasswordModal = ({ open, onClose, onSuccess }) => {
   const api = useApi();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
 
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
       await api.changePasswordAuthenticated(values);
       notifySuccess('Password changed successfully');
-      onClose();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        onClose();
+      }
     } catch (error) {
       const message = error.message || 'Failed to change password. Please try again.';
       notifyError(message);
@@ -100,7 +66,7 @@ export const ChangePasswordModal = ({ open, onClose }) => {
   };
 
   const handlePasswordChange = (value) => {
-    setPasswordStrength(getPasswordStrength(value));
+    setNewPassword(value);
   };
 
   return (
@@ -159,14 +125,12 @@ export const ChangePasswordModal = ({ open, onClose }) => {
             data-testid="field-new-password"
           />
           
-          {passwordStrength && (
-            <PasswordStrengthIndicator strength={passwordStrength} data-testid="password-strength-indicator">
-              <TranslatedText
-                stringId={`userProfile.changePassword.strength.${passwordStrength}`}
-                fallback={getPasswordStrengthText(passwordStrength)}
-                data-testid="translatedtext-password-strength"
-              />
-            </PasswordStrengthIndicator>
+          {newPassword && (
+            <PasswordStrengthIndicator 
+              password={newPassword} 
+              showRequirements={true}
+              data-testid="password-strength-indicator"
+            />
           )}
           
           <Field
@@ -185,22 +149,7 @@ export const ChangePasswordModal = ({ open, onClose }) => {
           />
         </FormGrid>
 
-        <Box mt={2} data-testid="box-password-requirements">
-          <Typography variant="body2" color="textSecondary" data-testid="typography-requirements-title">
-            <TranslatedText
-              stringId="userProfile.changePassword.requirements.title"
-              fallback="Password Requirements:"
-              data-testid="translatedtext-requirements-title"
-            />
-          </Typography>
-          <Typography variant="body2" color="textSecondary" data-testid="typography-requirements-list">
-            <TranslatedText
-              stringId="userProfile.changePassword.requirements.list"
-              fallback="• At least 8 characters long • Include uppercase and lowercase letters • Include at least one number • Include at least one special character"
-              data-testid="translatedtext-requirements-list"
-            />
-          </Typography>
-        </Box>
+
 
         <ActionButtons data-testid="action-buttons">
           <Button

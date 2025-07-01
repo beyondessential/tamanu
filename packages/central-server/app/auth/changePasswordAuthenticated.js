@@ -7,6 +7,18 @@ import { log } from '@tamanu/shared/services/logging';
 
 export const changePasswordAuthenticated = express.Router();
 
+const validatePasswordStrength = (password) => {
+  if (!password) return false;
+  
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const isLongEnough = password.length >= 8;
+  
+  return hasLower && hasUpper && hasNumber && hasSpecial && isLongEnough;
+};
+
 const schema = yup.object({
   currentPassword: yup
     .string()
@@ -14,7 +26,8 @@ const schema = yup.object({
   newPassword: yup
     .string()
     .min(8, 'Password must be at least 8 characters')
-    .required('New password is required'),
+    .required('New password is required')
+    .test('password-strength', 'Password must contain uppercase, lowercase, number, and special character', validatePasswordStrength),
   confirmPassword: yup
     .string()
     .required('Password confirmation is required')
