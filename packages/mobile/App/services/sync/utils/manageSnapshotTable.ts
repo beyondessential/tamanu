@@ -28,10 +28,18 @@ export const createSnapshotTable = async (queryRunner: QueryRunner, sessionId: s
       data TEXT NOT NULL,
     );
   `);
-  
-  await queryRunner.query(`
-    CREATE INDEX ${tableName}_direction_index ON ${tableName}(direction);
-  `);
+};
+
+export const createSnapshotTableBatchVersion = async (queryRunner: QueryRunner, sessionId: string) => {
+    const tableName = getSnapshotTableName(sessionId);
+    
+    // Just save the batches in this version;
+    await queryRunner.query(`
+      CREATE TABLE ${tableName} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        data TEXT NOT NULL,
+      );
+    `);
 };
 
 export const dropSnapshotTable = async (queryRunner: QueryRunner, sessionId: string) => {
