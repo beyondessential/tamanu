@@ -18,6 +18,7 @@ import {
 } from '../../../components/PatientPrinting';
 import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
 import { useAdministeredVaccinesQuery } from '../../../api/queries';
+import { useSettings } from '../../../contexts/Settings';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -37,6 +38,10 @@ const TableWrapper = styled.div`
 `;
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {
+  const { getSetting } = useSettings();
+  const [hideUpcomingVaccines, setHideUpcomingVaccines] = useState(
+    getSetting('features.hideUpcomingVaccines'),
+  );
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
@@ -44,6 +49,10 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
+
+  const handleShowUpcomingVaccines = useCallback(() => {
+    setHideUpcomingVaccines(false);
+  }, []);
 
   const handleOpenDeleteModal = useCallback(async row => {
     setIsDeleteAdministeredModalOpen(true);
@@ -158,11 +167,20 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           </NoteModalActionBlocker>
         </TableButtonRow>
         <TableWrapper data-testid="tablewrapper-rbs7">
-          <ImmunisationScheduleTable
-            patient={patient}
-            onItemEdit={id => handleOpenRecordModal(id)}
-            data-testid="immunisationscheduletable-8nat"
-          />
+          {hideUpcomingVaccines ? (
+              <Button onClick={handleShowUpcomingVaccines}>
+                <TranslatedText
+                  stringId="vaccine.action.showUpcomingVaccines"
+                  fallback="Show upcoming vaccines"
+                />
+              </Button>
+            ) : (
+              <ImmunisationScheduleTable
+                patient={patient}
+                onItemEdit={id => handleOpenRecordModal(id)}
+                data-testid="immunisationscheduletable-8nat"
+              />
+          )}
         </TableWrapper>
         <ImmunisationsTable
           patient={patient}

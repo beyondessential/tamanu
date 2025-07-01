@@ -66,10 +66,6 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ examiner }) => examiner)
   examinerId: string;
 
-  // TODO: Is this a model, referenceData or just string?
-  @Column({ nullable: true })
-  medication?: string;
-
   @Column({ nullable: true })
   deviceId?: string;
 
