@@ -16,6 +16,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedOption } from '../components/Translation/TranslatedOptions';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -79,10 +80,18 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   const { date, newValue, reasonForChange, userDisplayName } = logData;
   const reasonForChangeOption = vitalEditReasons.find((option) => option.value === reasonForChange);
   const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
+
+  const translatedOption = newValue ? <TranslatedOption 
+    value={newValue} 
+    referenceDataId={vitalLabel?.props.value} 
+    referenceDataCategory="programDataElement" 
+  /> : <TranslatedText stringId="vitals.logEntry.deleted" fallback="Entry deleted" />;
+  
   return (
     <LogContainer data-testid="logcontainer-7d64">
       <LogText data-testid="logtext-bgs3">
-        {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
+        {/* TODO: maybe this : should be part of translation */}
+        {vitalLabel}: {translatedOption}
       </LogText>
       {reasonForChange && (
         <LogText data-testid="logtext-kd9w">
