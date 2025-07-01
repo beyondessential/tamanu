@@ -3,7 +3,6 @@ import { Database } from '~/infra/db';
 
 export const clearPersistedSyncSessionRecords = async (sessionId?: string): Promise<void> => {
   const queryRunner = Database.client.createQueryRunner();
-  
   if (sessionId) {
     // Drop specific session snapshot table
     await dropSnapshotTable(queryRunner, sessionId);

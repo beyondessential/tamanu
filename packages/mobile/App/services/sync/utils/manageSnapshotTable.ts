@@ -1,4 +1,5 @@
 import { QueryRunner } from 'typeorm';
+import { chunk } from 'lodash';
 
 const assertIfSessionIdIsSafe = (sessionId: string) => {
   const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -22,10 +23,12 @@ export const insertSnapshotRecords = async (
   records: Record<string, any>[],
 ) => {
   const tableName = getSnapshotTableName(sessionId);
-  await queryRunner.query(
-    `INSERT INTO ${tableName} (data) VALUES (?)`,
-    [JSON.stringify(records)]
-  );
+  for (const batch of chunk(records, 1000)) {
+    await queryRunner.query(
+      `INSERT INTO ${tableName} (data) VALUES (?)`,
+      [JSON.stringify(batch)]
+    );
+  }
 };
 
 export const getSnapshotBatchIds = async (

@@ -1,5 +1,5 @@
 import { In } from 'typeorm';
-import { groupBy } from 'lodash';
+import { groupBy, chunk } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -34,25 +34,26 @@ export const saveChangesForModel = async (
   const batchOfIds = recordsForUpsert.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-  const batchOfExisting = await model.find({
-    where: { id: In(batchOfIds) },
-    select: ['id', 'deletedAt'],
-    withDeleted: true,
-  });
 
-  batchOfExisting.forEach(existing => {
-    // compares incoming and existing records by id
-    const incoming = idToIncomingRecord[existing.id];
-    idsForUpdate.add(existing.id);
-    if (existing.deletedAt && !incoming.isDeleted) {
-      idsForRestore.add(existing.id);
-    }
-    if (!existing.deletedAt && incoming.isDeleted) {
-      idsForDelete.add(existing.id);
-    }
-  });
+  for (const batch of chunk(batchOfIds, 32700)) {
+    const batchOfExisting = await model.find({
+      where: { id: In(batch) },
+      select: ['id', 'deletedAt'],
+      withDeleted: true,
+    });
 
-
+    batchOfExisting.forEach(existing => {
+      // compares incoming and existing records by id
+      const incoming = idToIncomingRecord[existing.id];
+      idsForUpdate.add(existing.id);
+      if (existing.deletedAt && !incoming.isDeleted) {
+        idsForRestore.add(existing.id);
+      }
+      if (!existing.deletedAt && incoming.isDeleted) {
+        idsForDelete.add(existing.id);
+      }
+    });
+  }
   const recordsForCreate = changes
     .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
     .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
@@ -100,20 +101,20 @@ export const saveIncomingChanges = async (
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const queryRunner = Database.client.createQueryRunner();
-  
+
   // Get all batch IDs (uses auto-incrementing IDs for efficient access)
   const batchIds = await getSnapshotBatchIds(queryRunner, sessionId);
-  
+
   // Group records by model type during single iteration through batches
   const recordsByType: Record<string, SyncRecord[]> = {};
-  
+
   // Iterate through all batches once and group by recordType
   for (const batchId of batchIds) {
     const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
-    
+
     // Group this batch's records by type
     const batchRecordsByType = groupBy(batchRecords, 'recordType');
-    
+
     // Accumulate records for each type
     for (const [recordType, records] of Object.entries(batchRecordsByType)) {
       if (!recordsByType[recordType]) {
@@ -122,7 +123,7 @@ export const saveIncomingChanges = async (
       recordsByType[recordType].push(...records);
     }
   }
-  
+
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;
