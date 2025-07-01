@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
+import { toast } from 'react-toastify';
 import { Colors } from '../../constants';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -110,6 +111,19 @@ export const FileChooserInput = ({
   const selectFile = (event) => {
     const file = event.target.files[0];
     if (!file) return;
+
+    const fileSize = file.size;
+    const maxFileSize = 10 * 1000 * 1000; // 10MB
+    if (fileSize > maxFileSize) {
+      toast.error(
+        <TranslatedText
+          stringId="chooseFile.alert.max10Mb"
+          fallback="Selected file size exceeds the maximum allowed size of 10MB"
+          data-testid="translatedtext-10mb"
+        />,
+      );
+      return;
+    }
 
     onChange({ target: { name, value: file } });
   };
