@@ -2,14 +2,18 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
+import { ViewVaccineRecordModal } from '../modals/viewVaccineRecordModal';
+
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
   readonly recordedVaccinesTable: Locator;
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
   recordVaccineModal?: RecordVaccineModal;
+  viewVaccineRecordModal?: ViewVaccineRecordModal;
   readonly recordedVaccinesTableBody: Locator;
   readonly vaccineNotGivenCheckbox: Locator;
+  readonly tableRowPrefix: string;
 
   constructor(page: Page) {
     super(page);
@@ -24,6 +28,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
     this.recordedVaccinesTableBody = this.page.getByTestId('styledtablebody-a0jz');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
+    this.tableRowPrefix = `styledtablecell-2gyy-`;
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -57,7 +62,7 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
-  async assertRecordedVaccineDetails( vaccineName: string, scheduleOption: string, date: string, count: number, givenBy?: string) {
+  async assertRecordedVaccineTable( vaccineName: string, scheduleOption: string, date: string, count: number, givenBy?: string) {
     //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
     const formattedDate = convertDateFormat(date);
 
@@ -86,7 +91,7 @@ export class PatientVaccinePane extends BasePatientPane {
   //TODO: merge this with searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
   async searchRecordVaccineTableForMatch(valueToMatch: string, locatorSuffix: string, count: number) {
     for (let i = 0; i < count; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${i}-${locatorSuffix}`);
+      const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-${locatorSuffix}`);
       const text = await locator.innerText();
       if (text.includes(valueToMatch)) {
         return true;
@@ -96,12 +101,24 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async searchSpecificTableRowForMatch(valueToMatch: string, locatorSuffix: string, count: number, vaccine: string) {
+    const row = await this.findRowNumberForVaccine(vaccine, count);
+
+    //Search the specific row in the table for the value to match
+    const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${row}-${locatorSuffix}`);
+    const text = await locator.innerText();
+    if (text.includes(valueToMatch)) {
+      return true;
+    }
+    return false;
+  }
+
+  async findRowNumberForVaccine(vaccine: string, count: number) {
     let row: number | undefined;
     const timesToRun = count > 1 ? count : 1;
 
     //Find the row that contains the vaccine name and save the row number
     for (let i = 0; i < timesToRun; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${i}-vaccineDisplayName`);
+      const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-vaccineDisplayName`);
       const text = await locator.innerText();
       if (text.includes(vaccine)) {
         row = i;
@@ -113,13 +130,7 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error(`Vaccine "${vaccine}" not found in the table`);
     }
 
-    //Search the specific row in the table for the value to match
-    const locator = this.recordedVaccinesTableBody.getByTestId(`styledtablecell-2gyy-${row}-${locatorSuffix}`);
-    const text = await locator.innerText();
-    if (text.includes(valueToMatch)) {
-      return true;
-    }
-    return false;
+    return row;
   }
 
   async confirmNotGivenLabelIsVisible(count: number, vaccine: string) {
@@ -127,5 +138,63 @@ export class PatientVaccinePane extends BasePatientPane {
     if (!notGivenLabelFound) {
       throw new Error('Not given label not found in the recorded vaccines table');
     }
+  }
+
+  //TODO: is it possible to simplify this? conditional logic may be difficult to read
+  async viewVaccineRecordAndAssert(
+    vaccineName: string,
+    date: string,
+    area: string,
+    location: string,
+    department: string,
+    given: boolean,
+    count: number,
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+    batch?: string,
+    schedule?: string,
+    injectionSite?: string,
+    givenBy?: string,
+    brand?: string,
+    disease?: string,
+    notGivenClinician?: string,
+    notGivenReason?: string,) {
+   const row = await this.findRowNumberForVaccine(vaccineName, count);
+   const viewButton = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${row}-action`).getByRole('button', { name: 'View' });
+   await viewButton.click();
+
+   if (!this.viewVaccineRecordModal) {
+    this.viewVaccineRecordModal = new ViewVaccineRecordModal(this.page);
+   }  
+
+  await expect(this.viewVaccineRecordModal.area).toContainText(area);
+  await expect(this.viewVaccineRecordModal.location).toContainText(location);
+  await expect(this.viewVaccineRecordModal.department).toContainText(department);
+
+  if (category === 'Other') {
+    await expect(this.viewVaccineRecordModal.vaccineNameOther).toContainText(vaccineName);
+    await expect(this.viewVaccineRecordModal.otherDisease).toContainText(disease!);
+  }
+  else {
+    await expect(this.viewVaccineRecordModal.givenVaccineName).toContainText(vaccineName);
+  }
+
+  if (given) {
+    await expect(this.viewVaccineRecordModal.givenStatus).toContainText('Given');
+    await expect(this.viewVaccineRecordModal.dateGiven).toContainText(convertDateFormat(date));
+    await expect(this.viewVaccineRecordModal.vaccineBatch).toContainText(batch!);
+    await expect(this.viewVaccineRecordModal.givenBy).toContainText(givenBy!);
+    await expect(this.viewVaccineRecordModal.injectionSite).toContainText(injectionSite!);
+    if (category !== 'Other') {
+      await expect(this.viewVaccineRecordModal.scheduleOption).toContainText(schedule!);
+    }
+    if (category === 'Other') {
+      await expect(this.viewVaccineRecordModal.otherBrand).toContainText(brand!);
+    }
+  } else {
+    await expect(this.viewVaccineRecordModal.givenStatus).toContainText('Not given');
+    await expect(this.viewVaccineRecordModal.notGivenReason).toContainText(notGivenReason!);
+    await expect(this.viewVaccineRecordModal.notGivenSupervisingClinician).toContainText(notGivenClinician!);
+    await expect(this.viewVaccineRecordModal.dateNotGiven).toContainText(convertDateFormat(date));
+  }
   }
 }

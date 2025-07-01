@@ -7,6 +7,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: check todos above specific tests, some still to do
 //TODO: make changes to other fieldhelpers to match the changes i made?
 //TODO: assert date is correct
+//TODO: do test with custom date?
 //TODO: test case for given elsewhere checkbox
 //TODO: test case for all fields
 //TODO: test case for followup vaccine
@@ -18,6 +19,10 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
 //TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
 //TODO: Add helper comment with params documentation to any complex functions?
+//TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
+//TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
+//TODO: test asserting table for multiple vaccines, multiple doses of same vaccines etc
+//TODO: check regression test doc
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -30,27 +35,46 @@ test.describe('Vaccines', () => {
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
     count: number = 1,
     specificVaccine?: string,
-    givenBy?: string,
+    fillOptionalFields?: boolean,
+    viewVaccineRecord?: boolean
   ) {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
-
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine, givenBy);
+    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine, fillOptionalFields);
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
 
     if (given) {
-      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineDetails(vaccine!.vaccineName!, vaccine!.scheduleOption!, currentBrowserDate, count, vaccine!.givenBy);
+      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine!.vaccineName!, vaccine!.scheduleOption!, vaccine!.date!, count, vaccine!.givenBy);
     }
 
     if (!given) {
       await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
       await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(count, vaccine!.vaccineName!);
+    }
+
+    if (viewVaccineRecord) {
+      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(
+        vaccine!.vaccineName!,
+        vaccine!.date!,
+        vaccine!.area!,
+        vaccine!.location!,
+        vaccine!.department!,
+        given,
+        count,
+        category,
+        vaccine!.vaccineBatch!,
+        vaccine!.scheduleOption!,
+        vaccine!.injectionSite!,
+        vaccine!.givenBy!,
+        vaccine!.brand!,
+        vaccine!.disease!,
+        vaccine!.notGivenClinician!,
+        vaccine!.notGivenReason!);
     }
   }
 
@@ -102,8 +126,55 @@ test.describe('Vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
   });
 
-  test('Add vaccine and record who it was given by', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV', 'Test Doctor');
+  test('Add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
+    //TODO:
   });
+
+  test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
+    //TODO:
+  });
+
+  //TODO: is it is possible to merge this and the next test case for other?
+  test('Add vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+    const fillOptionalFields = true;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'Hep B', fillOptionalFields, viewVaccineRecord);
+  });
+
+  test('Add other vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+    const fillOptionalFields = true;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, 'Test Vaccine', fillOptionalFields, viewVaccineRecord);
+  });
+
+  //TODO: is it possible to merge this and the next test case for non-other?
+  test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+    const fillOptionalFields = true;
+    const viewVaccineRecord = true;
+    //TODO: this test case needs to handle reason once the reference data is added
+    await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, 'Test Vaccine', fillOptionalFields, viewVaccineRecord);
+  });
+
+  //TODO: run this test case manually, confirm "reason" field is filled out once reference data is added
+  test('Select not given, add vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+    const fillOptionalFields = true;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, 'Hep B', fillOptionalFields, viewVaccineRecord);
+  });
+
+  test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
+    //TODO:
+    //  const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+  });
+
+  test('Add vaccine with custom date', async ({ patientDetailsPage }) => {
+    //TODO:
+  });
+
 
 });

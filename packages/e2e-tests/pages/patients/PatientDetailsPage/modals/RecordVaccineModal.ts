@@ -21,7 +21,14 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly locationField: Locator;
   readonly departmentField: Locator;
   readonly vaccineNameField: Locator;
-
+  readonly vaccineBatchField: Locator;
+  readonly injectionSiteField: Locator;
+  readonly consentGivenByField: Locator;
+  readonly dateField: Locator;
+  readonly notGivenReasonField: Locator;
+  readonly notGivenClinicianField: Locator;
+  readonly otherVaccineBrand: Locator;
+  readonly otherVaccineDisease: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -43,6 +50,16 @@ export class RecordVaccineModal extends BasePatientModal {
     this.locationField = this.page.getByTestId('field-zrlv-location-input');
     this.departmentField = this.page.getByTestId('field-5sfc-input');
     this.vaccineNameField = this.page.getByTestId('field-vaccineName-input');
+    this.vaccineBatchField = this.page.getByTestId('field-865y-input');
+    //TODO: delete below if refactor with field works
+ //   this.injectionSiteExpandButton = this.page.getByTestId('field-jz48-expandmoreicon-h115');
+    this.injectionSiteField = this.page.getByTestId('field-jz48-select');
+    this.consentGivenByField = this.page.getByTestId('field-inc8-input');
+    this.dateField = this.page.getByTestId('field-8sou-input').getByRole('textbox');
+    this.notGivenReasonField = this.page.getByTestId('selectinput-phtg-select');
+    this.notGivenClinicianField = this.page.getByTestId('field-xycc-input');
+    this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');
+    this.otherVaccineDisease = this.page.getByTestId('field-gcfk-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -76,6 +93,16 @@ export class RecordVaccineModal extends BasePatientModal {
     return vaccineName;
   }
 
+  async selectNotGivenReason() {
+    const notGivenReason = await selectFieldOption(this.page, this.notGivenReasonField, { returnOptionText: true });
+    return notGivenReason;
+  }
+
+  async selectInjectionSite() {
+    const injectionSite = await selectFieldOption(this.page, this.injectionSiteField, { returnOptionText: true });
+    return injectionSite;
+  }
+
   async selectLocationGroup() {
     const area = await selectAutocompleteFieldOption(this.page, this.areaField, { returnOptionText: true });
     const location = await selectAutocompleteFieldOption(this.page, this.locationField, { returnOptionText: true });
@@ -101,12 +128,24 @@ export class RecordVaccineModal extends BasePatientModal {
   }
   
   // TODO: Refactor to use VACCINE_CATEGORIES when importing is working
-  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string, givenBy?: string) {
+  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string, fillOptionalFields?: boolean) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
     let vaccineName: string | undefined;
     let scheduleOption: string | undefined;
+    let optionalFields: {
+      givenBy?: string;
+      vaccineBatch?: string;
+      injectionSite?: string
+      consentGivenBy?: string;
+      brand?: string;
+      disease?: string;
+      notGivenReason?: string;
+      notGivenClinician?: string;
+    } | undefined;
+
+    const date = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
 
     if (category !== 'Other') {
       vaccineName = await this.selectVaccine(specificVaccine);
@@ -123,23 +162,59 @@ export class RecordVaccineModal extends BasePatientModal {
       await this.consentCheckbox.check();
     }
 
-    if (givenBy) {
-      await this.recordOptionalVaccineFields(givenBy);
+    if (fillOptionalFields) {
+      optionalFields = given ? await this.recordOptionalVaccineFieldsGiven(category) : await this.recordOptionalVaccineFieldsNotGiven(category);
     }
 
     await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
 
-    return { vaccineName, scheduleOption, givenBy, ...locationGroup };
+    return { vaccineName, scheduleOption, date, ...optionalFields, ...locationGroup };
   }
 
   async waitForModalToClose() {
     await this.modal.waitFor({ state: 'detached' });
   }
 
-  async recordOptionalVaccineFields(givenBy?: string) {
-    if (givenBy) {
-      await this.givenByField.fill(givenBy);
+  async recordOptionalVaccineFieldsGiven(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+    const givenBy = 'Test Doctor';
+    const vaccineBatch = 'A12B3C';
+    const consentGivenBy = 'Recipient';
+
+    let brand: string | undefined;
+    let disease: string | undefined;
+
+    await this.givenByField.fill(givenBy);
+    await this.vaccineBatchField.fill(vaccineBatch);
+    //Note: due to the nature of this field it is not possible to use fieldHelper.ts to select an option
+   // await this.injectionSiteExpandButton.click();
+   // await this.page.getByText(injectionSite).click();
+    const injectionSite = await this.selectInjectionSite();
+    await this.consentGivenByField.fill(consentGivenBy);
+
+    if (category === 'Other') {
+      brand = 'Test Brand'
+      await this.otherVaccineBrand.fill(brand);
+      disease = 'Test Disease';
+      await this.otherVaccineDisease.fill(disease);
     }
+
+    return { givenBy, vaccineBatch, injectionSite, consentGivenBy, brand, disease };    
+  }
+
+  async recordOptionalVaccineFieldsNotGiven(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+    let disease: string | undefined;
+    const notGivenClinician = 'Test Clinician';
+
+    const notGivenReason = await this.selectNotGivenReason();
+
+    await this.notGivenClinicianField.fill(notGivenClinician);
+
+    if (category === 'Other') {
+      disease = 'Test disease'
+      await this.otherVaccineDisease.fill(disease);
+    }
+
+   return { notGivenReason, notGivenClinician, disease };
   }
 }
