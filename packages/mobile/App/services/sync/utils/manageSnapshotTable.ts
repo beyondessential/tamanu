@@ -17,26 +17,10 @@ export const getSnapshotTableName = (sessionId: string) => {
 };
 
 export const createSnapshotTable = async (queryRunner: QueryRunner, sessionId: string) => {
-  const tableName = getSnapshotTableName(sessionId);
-  
-  // No snapshotting on push
-  // Remove a lot of columns on shared package version  
-  await queryRunner.query(`
-    CREATE TABLE ${tableName} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      recordType VARCHAR(255) NOT NULL,
-      recordId VARCHAR(255) NOT NULL,
-      isDeleted INTEGER NOT NULL,
-      data TEXT NOT NULL,
-    );
-  `);
-};
-
-export const createSnapshotTableBatchVersion = async (queryRunner: QueryRunner, sessionId: string) => {
     const tableName = getSnapshotTableName(sessionId);
     
-    // Just save the batches in this version straight from the stream
-    // Will have to check in re stream strategy what would be most optimal
+    // Just save the batches straight from the stream
+    // No outgoing changes snapshotting on push
     await queryRunner.query(`
       CREATE TABLE ${tableName} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
