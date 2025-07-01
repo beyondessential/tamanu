@@ -215,7 +215,8 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
-    console.log('MobileSyncManager.runSync(): Sync started');
+    console.log('MobileSyncManager.runSync(): Sync started')
+    await Database.setUnsafePragma();
 
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
     await this.syncIncomingChanges(sessionId);
@@ -302,7 +303,6 @@ export class MobileSyncManager {
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
-
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     const { totalPulled, pullUntil } = await pullIncomingChanges(
