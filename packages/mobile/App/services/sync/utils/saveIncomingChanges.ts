@@ -1,5 +1,5 @@
-import RNFS from 'react-native-fs';
 import { In } from 'typeorm';
+import { groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -7,8 +7,8 @@ import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
-import { readFileInDocuments } from '../../../ui/helpers/file';
-import { getDirPath } from './getFilePath';
+import { getSnapshotBatchIds, getSnapshotBatchById } from './manageSnapshotTable';
+import { Database } from '~/infra/db';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -86,7 +86,8 @@ export const saveChangesForModel = async (
 
 /**
  * Save all the incoming changes in the right order of dependency,
- * using the data stored in sync_session_records previously
+ * efficiently grouping by model during single batch iteration
+ * @param sessionId
  * @param incomingChangesCount
  * @param incomingModels
  * @param progressCallback
@@ -98,29 +99,48 @@ export const saveIncomingChanges = async (
   incomingModels: Partial<typeof MODELS_MAP>,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
+  const queryRunner = Database.client.createQueryRunner();
+  
+  // Get all batch IDs (uses auto-incrementing IDs for efficient access)
+  const batchIds = await getSnapshotBatchIds(queryRunner, sessionId);
+  
+  // Group records by model type during single iteration through batches
+  const recordsByType: Record<string, SyncRecord[]> = {};
+  
+  // Iterate through all batches once and group by recordType
+  for (const batchId of batchIds) {
+    const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
+    
+    // Group this batch's records by type
+    const batchRecordsByType = groupBy(batchRecords, 'recordType');
+    
+    // Accumulate records for each type
+    for (const [recordType, records] of Object.entries(batchRecordsByType)) {
+      if (!recordsByType[recordType]) {
+        recordsByType[recordType] = [];
+      }
+      recordsByType[recordType].push(...records);
+    }
+  }
+  
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;
 
+  // Process each model in dependency order (now with pre-grouped data)
   for (const model of sortedModels) {
     const recordType = model.getTableName();
-    const files = await RNFS.readDir(
-      `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
-    );
+    const recordsForModel = recordsByType[recordType] || [];
 
-    for (const { path } of files) {
-      const base64 = await readFileInDocuments(path);
-      const batchString = Buffer.from(base64, 'base64').toString();
-
-      const batch = JSON.parse(batchString);
+    if (recordsForModel.length > 0) {
       const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
-      const sanitizedBatch = hasSanitizeMethod
-        ? model.sanitizePulledRecordData(batch)
-        : batch;
+      const sanitizedRecords = hasSanitizeMethod
+        ? model.sanitizePulledRecordData(recordsForModel)
+        : recordsForModel;
 
-      await saveChangesForModel(model, sanitizedBatch);
+      await saveChangesForModel(model, sanitizedRecords);
 
-      savedRecordsCount += sanitizedBatch.length;
+      savedRecordsCount += sanitizedRecords.length;
       const progressMessage = `Saving ${incomingChangesCount} records...`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }

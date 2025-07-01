@@ -223,7 +223,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from last session
-    await clearPersistedSyncSessionRecords();
+    await clearPersistedSyncSessionRecords(sessionId);
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
