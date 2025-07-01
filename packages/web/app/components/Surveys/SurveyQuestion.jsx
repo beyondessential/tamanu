@@ -103,7 +103,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
 
   const text = componentText ? (
     <TranslatedReferenceData
-      category="surveyScreenComponent"
+      category="surveyScreenComponent.text"
       value={componentId}
       fallback={componentText}
     />
@@ -112,7 +112,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   );
   const helperText = (
     <TranslatedReferenceData
-      category="surveyScreenComponent"
+      category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
