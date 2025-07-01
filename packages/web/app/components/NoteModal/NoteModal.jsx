@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useHistory, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
@@ -15,6 +15,25 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
+import { useMediaQuery } from '@material-ui/core';
+
+const NOTE_MODAL_DIMENSIONS = {
+  BREAKPOINTS: {
+    HEIGHT: 850, // px
+  },
+  WIDTH: {
+    BASE: 500,
+    MIN: 400,
+    MAX: 500,
+  },
+  HEIGHT: {
+    BASE: 500,
+    MIN_DEFAULT: 450,
+    MIN_TREATMENT_PLAN: 500,
+    MAX_DEFAULT: 500,
+    MAX_TALL: 775,
+  },
+};
 
 const StyledMuiDialog = styled(MuiDialog)`
   /* Make the form take up full height */
@@ -54,13 +73,6 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
     : undefined;
 };
 
-const getMinConstraints = (noteFormMode, note) => {
-  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
-    return [400, 500];
-  }
-  return [400, 450];
-};
-
 const MemoizedNoteModalContents = React.memo(
   ({
     open,
@@ -73,14 +85,32 @@ const MemoizedNoteModalContents = React.memo(
     cancelText,
     handleCreateOrEditNewNote,
   }) => {
+    const { BREAKPOINTS, WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
+
+    const isHeightBreakpoint = useMediaQuery(`(min-height: ${BREAKPOINTS.HEIGHT}px)`);
+    const isTreatmentPlanEdit =
+      noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN;
+
+    const minConstraints = useMemo(() => {
+      if (isTreatmentPlanEdit) {
+        return [WIDTH.MIN, HEIGHT.MIN_TREATMENT_PLAN];
+      }
+      return [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
+    }, [isTreatmentPlanEdit, WIDTH, HEIGHT]);
+
+    const maxConstraints = useMemo(() => {
+      const height = isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.MAX_DEFAULT;
+      return [WIDTH.MAX, height];
+    }, [isHeightBreakpoint, WIDTH, HEIGHT]);
+
     return (
       <FloatingMuiDialog
         open={open}
         onClose={onClose}
-        baseWidth={500}
-        baseHeight={775}
-        minConstraints={getMinConstraints(noteFormMode, note)}
-        maxConstraints={[500, 775]}
+        baseWidth={WIDTH.BASE}
+        baseHeight={isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.BASE}
+        minConstraints={minConstraints}
+        maxConstraints={maxConstraints}
       >
         <NoteModalDialogTitle title={title} onClose={onClose} />
         <NoteForm
