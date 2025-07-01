@@ -321,7 +321,7 @@ export class MobileSyncManager {
 
     if (isInitialSync) {
       console.log('isInitialSync');
-      await Database.setUnsafePragmaSettings();
+      await Database.setUnsafePragma();
     }
     try {
       // Save all incoming changes in 1 transaction so that the whole sync session save
@@ -343,13 +343,12 @@ export class MobileSyncManager {
       });
     } catch (error) {
       if (isInitialSync) {
-        await Database.setDefaultPragmaSettings();
+        await Database.setDefaultPragma();
       }
-      console.error('Error saving incoming changes', error);
-      throw error;
+      throw error;  
     } finally {
       if (isInitialSync) {
-        await Database.setDefaultPragmaSettings();
+        await Database.setDefaultPragma();
       }
     }
 

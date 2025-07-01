@@ -47,7 +47,7 @@ class DatabaseHelper {
   syncError = null;
 
   constructor() {
-    MODELS_ARRAY.forEach((m) => m.injectAllModels(this.models));
+    MODELS_ARRAY.forEach(m => m.injectAllModels(this.models));
   }
 
   async forceSync(): Promise<any> {
@@ -108,7 +108,7 @@ class DatabaseHelper {
 
       // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
       // our tests because we're using a mix of typeorm and typeorm/browser
-      MODELS_ARRAY.forEach((m) => m.useConnection(<any>this.client));
+      MODELS_ARRAY.forEach(m => m.useConnection(<any>this.client));
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
         const existentConn = getConnectionManager().get('default');
@@ -117,34 +117,25 @@ class DatabaseHelper {
         console.error(error);
       }
     }
-    await this.setDefaultPragmaSettings();
+    await this.setDefaultPragma();
   }
 
-  async setDefaultPragmaSettings(): Promise<void> {
-    try {
-      await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
-      await this.client.query(`PRAGMA synchronous = 2;`);
-      await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
-      await this.client.query(`PRAGMA locking_mode = NORMAL;`);
-      await this.client.query(`PRAGMA temp_store = 0;`);
-      console.log('Applied default pragma settings');
-    } catch (error) {
-      console.error('Error applying default pragma settings:', error);
-    }
+  async setDefaultPragma(): Promise<void> {
+    await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
+    await this.client.query(`PRAGMA synchronous = 2;`);
+    await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
+    await this.client.query(`PRAGMA locking_mode = NORMAL;`);
+    await this.client.query(`PRAGMA temp_store = 0;`);
+    console.log('Applied default pragma settings');
   }
 
-  async setUnsafePragmaSettings(): Promise<void> {
-
-    try {
-      await this.client.query(`PRAGMA journal_mode = OFF;`); // Disables journaling entirely - fastest but no crash recovery
-      await this.client.query(`PRAGMA synchronous = 0;`); // No sync to disk after each write - fastest but data corruption possible
-      await this.client.query(`PRAGMA cache_size = 1000000;`); // Sets page cache to ~1GB (1M pages) - uses more memory
-      await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); // Locks database exclusively - prevents other connections
-      await this.client.query(`PRAGMA temp_store = MEMORY;`); // Stores temporary tables/indices in RAM - faster temp operations
-      console.log('Applied unsafe pragma settings');
-    } catch (error) {
-      console.error('Error applying unsafe pragma settings:', error);
-    }
+  async setUnsafePragma(): Promise<void> {
+    await this.client.query(`PRAGMA journal_mode = OFF;`); // Disables journaling entirely - fastest but no crash recovery
+    await this.client.query(`PRAGMA synchronous = 0;`); // No sync to disk after each write - fastest but data corruption possible
+    await this.client.query(`PRAGMA cache_size = 1000000;`); // Sets page cache to ~1GB (1M pages) - uses more memory
+    await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); // Locks database exclusively - prevents other connections
+    await this.client.query(`PRAGMA temp_store = MEMORY;`); // Stores temporary tables/indices in RAM - faster temp operations
+    console.log('Applied unsafe pragma settings');
   }
 }
 
