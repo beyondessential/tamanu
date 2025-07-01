@@ -342,10 +342,8 @@ export class MobileSyncManager {
         await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
       });
     } catch (error) {
-      if (isInitialSync) {
-        await Database.setDefaultPragma();
-      }
-      throw error;  
+      console.error('Error saving incoming changes', error);
+      throw error;
     } finally {
       if (isInitialSync) {
         await Database.setDefaultPragma();
