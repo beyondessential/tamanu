@@ -7,6 +7,7 @@ import { getPermissions } from '@tamanu/shared/permissions/middleware';
 
 import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
+import { changePasswordAuthenticated } from './changePasswordAuthenticated';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
 import { refresh } from './refresh';
@@ -30,6 +31,7 @@ authModule.post(
 
 authModule.use(userMiddleware({ secret: DEFAULT_JWT_SECRET }));
 authModule.get('/user/me', userInfo);
+authModule.use('/user/change-password', changePasswordAuthenticated);
 
 authModule.get('/permissions', asyncHandler(getPermissions));
 authModule.get(

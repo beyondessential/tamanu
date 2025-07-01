@@ -100,6 +100,10 @@ export class TamanuApi {
     return this.post('changePassword', args);
   }
 
+  async changePasswordAuthenticated(args) {
+    return this.post('user/change-password', args);
+  }
+
   async refreshToken() {
     try {
       const response = await this.post('refresh');

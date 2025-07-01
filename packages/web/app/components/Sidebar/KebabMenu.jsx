@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { keyBy, mapValues } from 'lodash';
 import { IconButton, Menu } from '@material-ui/core';
 import { Launch, MoreVert } from '@material-ui/icons';
+import { useHistory } from 'react-router-dom';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
@@ -53,6 +54,7 @@ export const KebabMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isChangingLanguage, setChangingLanguage] = useState(false);
   const open = Boolean(anchorEl);
+  const history = useHistory();
   const { data = {} } = useTranslationLanguagesQuery();
   const { getLocalisation } = useLocalisation();
   const { languageNames = [], languagesInDb = [] } = data;
@@ -78,6 +80,11 @@ export const KebabMenu = () => {
     handleCloseKebabMenu();
   };
 
+  const handleOpenProfile = () => {
+    history.push('/user/profile');
+    handleCloseKebabMenu();
+  };
+
   const supportUrl = getLocalisation('supportDeskUrl');
 
   return (
@@ -99,6 +106,13 @@ export const KebabMenu = () => {
         }}
         data-testid="styledmenu-6dkz"
       >
+        <KebabMenuItem onClick={handleOpenProfile} data-testid="kebabmenuitem-profile">
+          <TranslatedText
+            stringId="userProfile.menu.item"
+            fallback="User Profile"
+            data-testid="translatedtext-profile"
+          />
+        </KebabMenuItem>
         {/* If multiple languages not implemented, no need for the modal to show */}
         {languageOptions.length > 1 && (
           <KebabMenuItem onClick={handleChangingLanguage} data-testid="kebabmenuitem-vwvy">

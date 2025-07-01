@@ -1,6 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op, Sequelize } from 'sequelize';
+import bcrypt from 'bcrypt';
+import * as yup from 'yup';
+import { ValidationError } from 'yup';
 
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
@@ -20,8 +23,23 @@ import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
+import { log } from '@tamanu/shared/services/logging';
 
 export const user = express.Router();
+
+const changePasswordSchema = yup.object({
+  currentPassword: yup
+    .string()
+    .required('Current password is required'),
+  newPassword: yup
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('New password is required'),
+  confirmPassword: yup
+    .string()
+    .required('Password confirmation is required')
+    .oneOf([yup.ref('newPassword')], 'Passwords must match'),
+});
 
 user.get(
   '/me',
@@ -31,6 +49,47 @@ user.get(
     }
     req.checkPermission('read', req.user);
     res.send(req.user);
+  }),
+);
+
+user.post(
+  '/change-password',
+  asyncHandler(async (req, res) => {
+    const { models, body, user: currentUser } = req;
+
+    if (!currentUser) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    req.checkPermission('write', currentUser);
+
+    await changePasswordSchema.validate(body);
+
+    const { currentPassword, newPassword } = body;
+
+    // Get user with password to verify current password
+    const userWithPassword = await models.User.scope('withPassword').findByPk(currentUser.id);
+    
+    if (!userWithPassword) {
+      throw new ValidationError('User not found');
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, userWithPassword.password);
+    
+    if (!isCurrentPasswordValid) {
+      log.warn('changePasswordAuthenticated.invalidCurrentPassword', { userId: currentUser.id });
+      throw new ValidationError('Current password is incorrect');
+    }
+
+    // Update password (User model will handle hashing via beforeUpdate hook)
+    await models.User.update(
+      { password: newPassword },
+      { where: { id: currentUser.id } }
+    );
+
+    log.info('changePasswordAuthenticated.success', { userId: currentUser.id });
+    res.send({ success: true });
   }),
 );
 

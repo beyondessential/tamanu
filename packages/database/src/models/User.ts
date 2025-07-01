@@ -135,7 +135,7 @@ export class User extends Model {
           },
         },
         indexes: [{ fields: ['email'] }],
-        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           async beforeUpdate(user: User) {
             if (user.changed('password')) {

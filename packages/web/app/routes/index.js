@@ -10,3 +10,4 @@ export { ProgramRegistryRoutes } from './ProgramRegistryRoutes';
 export { ImmunisationRoutes } from './ImmunisationRoutes';
 export { FacilityAdminRoutes } from './FacilityAdminRoutes';
 export { ReportAdminRoutes } from './ReportAdminRoutes';
+export { UserRoutes } from './UserRoutes';
