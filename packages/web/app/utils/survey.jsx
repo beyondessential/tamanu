@@ -3,12 +3,14 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
+import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
+import { convertToBase64 } from '@tamanu/utils/encodings';
 
 import {
   DateField,
@@ -296,16 +298,24 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-export const getAnswersFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, val]) => {
-    if (
-      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
-    ) {
+export const getAnswersFromData = async (data, survey) =>
+  Object.entries(data).reduce(async (accPromise, [key, val]) => {
+    const acc = await accPromise;
+    const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
+    const currentDataElementType = currentComponent?.dataElement?.type;
+    if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
+      try {
+        const filename = val.name;
+        const base64Data = await convertToBase64(val);
+        acc[key] = { filename, base64Data };
+      } catch (e) {
+        toast.error(e.message);
+      }
+    } else if (currentDataElementType !== 'PatientIssue') {
       acc[key] = val;
     }
     return acc;
-  }, {});
+  }, Promise.resolve({}));
 
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
