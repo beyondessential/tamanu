@@ -19,7 +19,7 @@ const StyledDynamicColumnTable = styled(DynamicColumnTable)`
 `;
 
 export const VitalsTable = React.memo(() => {
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitalsQuery(encounter.id);
@@ -27,47 +27,57 @@ export const VitalsTable = React.memo(() => {
   const [selectedCell, setSelectedCell] = useState(null);
   const { getSetting } = useSettings();
   const isVitalEditEnabled = getSetting('features.enableVitalEdit');
-  const showFooterLegend = data.some((entry) =>
-    recordedDates.some((date) => entry[date].historyLogs.length > 1),
+  const showFooterLegend = data.some(entry =>
+    recordedDates.some(date => entry[date].historyLogs.length > 1),
   );
 
-  const onCellClick = (clickedCell) => {
+  const onCellClick = clickedCell => {
     setOpenEditModal(true);
     setSelectedCell(clickedCell);
   };
 
   const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
-  const translatedData = data.map((record) => {
-
+  const translatedData = data.map(record => {
     // First translate the element heading
-    const processedRecord = { 
-      ...record, 
-      value: <TranslatedReferenceData
-        category="programDataElement"
-        value={record.dataElementId}
-        fallback={record.value}
-      />
+    const processedRecord = {
+      ...record,
+      value: (
+        <TranslatedReferenceData
+          category="programDataElement"
+          value={record.dataElementId}
+          fallback={record.value}
+        />
+      ),
     };
 
     // Then translate any select options
-    recordedDates.forEach((date) => {
-      if (record[date]?.component.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
+    recordedDates.forEach(date => {
+      const { component, value } = record[date];
+      const { dataElement, dataElementId } = component;
+      const { type } = dataElement;
+
+      const isTranslatableOption = [
+        PROGRAM_DATA_ELEMENT_TYPES.SELECT,
+        PROGRAM_DATA_ELEMENT_TYPES.RADIO,
+        PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
+      ].includes(type);
+
+      if (isTranslatableOption) {
+        const optionStringId = getReferenceDataOptionStringId(
+          dataElementId,
+          'programDataElement',
+          value,
+        );
+
         processedRecord[date] = {
           ...record[date],
-          value: getTranslation(
-            getReferenceDataOptionStringId(
-              record[date].component.dataElementId, 
-              'programDataElement', 
-              record[date].value
-            ),
-          'programDataElement'),
+          value: getTranslation(optionStringId, 'programDataElement'),
         };
       }
     });
     return processedRecord;
   });
-
 
   return (
     <>
