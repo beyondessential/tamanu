@@ -305,9 +305,9 @@ export const getAnswersFromData = async (data, survey) =>
     const currentDataElementType = currentComponent?.dataElement?.type;
     if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
       try {
-        const filename = val.name;
+        const size = val.size;
         const base64Data = await convertToBase64(val);
-        acc[key] = { filename, base64Data };
+        acc[key] = { size, data: base64Data };
       } catch (e) {
         toast.error(e.message);
       }

@@ -388,10 +388,23 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = getStringValue(dataElement.type, value);
+      let body = getStringValue(dataElement.type, value);
       // Don't create null answers
       if (body === null) {
         continue;
+      }
+
+      if (dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+        const { size, data } = value as unknown as { size: number; data: string };
+        const { id: attachmentId } = await models.Attachment.create(
+          models.Attachment.sanitizeForDatabase({
+            type: 'image/jpeg',
+            size,
+            data,
+          }),
+        );
+        // Store the attachment ID in the answer body
+        body = attachmentId;
       }
 
       const answer = await models.SurveyResponseAnswer.create({
