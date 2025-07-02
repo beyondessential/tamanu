@@ -245,8 +245,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     }
 
     await api.post('surveyResponse', responseData);
+    queryClient.invalidateQueries(['encounterCharts', encounter.id, survey.id]);
     handleCloseModal();
-    await loadEncounter(encounter.id);
   };
 
   const handleDeleteChart = useCallback(async () => {
