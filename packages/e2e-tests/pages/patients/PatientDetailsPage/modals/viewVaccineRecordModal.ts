@@ -55,7 +55,7 @@ export class ViewVaccineRecordModal extends BasePatientModal {
   }
 
   async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
-    const { vaccineName, date, area, location, department, given, category } = requiredParams;
+    const { vaccineName, date, area, location, department, given, category, schedule } = requiredParams;
 
     await expect(this.area).toContainText(area);
     await expect(this.location).toContainText(location);
@@ -65,6 +65,7 @@ export class ViewVaccineRecordModal extends BasePatientModal {
       await expect(this.vaccineNameOther).toContainText(vaccineName);
     } else {
       await expect(this.givenVaccineName).toContainText(vaccineName);
+      await expect(this.scheduleOption).toContainText(schedule!);
     }
 
     if (given) {
@@ -80,13 +81,10 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     requiredParams: RequiredVaccineModalAssertionParams,
     optionalParams: OptionalVaccineModalAssertionParams,
   ) {
-    await this.assertVaccineModalRequiredFields(requiredParams);
-
     const { given, category } = requiredParams;
 
     const {
       batch,
-      schedule,
       injectionSite,
       givenBy,
       brand,
@@ -97,9 +95,8 @@ export class ViewVaccineRecordModal extends BasePatientModal {
 
     if (category === 'Other') {
       await expect(this.otherDisease).toContainText(disease!);
-    } else {
-      await expect(this.scheduleOption).toContainText(schedule!);
     }
+    
     if (given) {
       await expect(this.vaccineBatch).toContainText(batch!);
       await expect(this.givenBy).toContainText(givenBy!);

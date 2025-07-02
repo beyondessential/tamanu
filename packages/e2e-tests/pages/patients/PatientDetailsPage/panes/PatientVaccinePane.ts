@@ -200,12 +200,14 @@ export class PatientVaccinePane extends BasePatientPane {
       .getByRole('button', { name: 'View' });
     const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
 
-    fillOptionalFields
-      ? await viewVaccineRecordModal.assertVaccineModalOptionalFields(
-          requiredParams,
-          optionalParams,
-        )
-      : await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
+    await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
+
+    if (fillOptionalFields) {
+      await viewVaccineRecordModal.assertVaccineModalOptionalFields(
+        requiredParams,
+        optionalParams,
+      );
+    }
   }
 
   async viewVaccineModal(viewButton: Locator) {

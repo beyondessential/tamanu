@@ -8,11 +8,11 @@ export interface RequiredVaccineModalAssertionParams {
   count: number;
   category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
   fillOptionalFields: boolean;
+  schedule?: string;
 }
 
 export interface OptionalVaccineModalAssertionParams {
   batch?: string;
-  schedule?: string;
   injectionSite?: string;
   givenBy?: string;
   brand?: string;

@@ -9,6 +9,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: test case for given elsewhere checkbox
 //TODO: test case for all fields
 //TODO: test case for followup vaccine
+//TODO: make sure for all test cases im asserting all the relevant details in table are correct
 //TODO: in recorded vaccines table toggle on "include vaccines not given" and confirm it shows not given vaccines
 //TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
 //TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
@@ -17,6 +18,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
 //TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
 //TODO: Add helper comment with params documentation to any complex functions?
+//TODO: add tests for facility-1 asserts in table and modal?
 //TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
 //TODO: test asserting table for multiple vaccines, multiple doses of same vaccines etc
@@ -80,12 +82,12 @@ test.describe('Vaccines', () => {
         given,
         count,
         category,
-        fillOptionalFields,
+        fillOptionalFields: fillOptionalFields ?? false, // default to false if undefined
+        schedule: vaccine!.scheduleOption!,
       };
 
       const optionalParams = {
         batch: vaccine!.vaccineBatch!,
-        schedule: vaccine!.scheduleOption!,
         injectionSite: vaccine!.injectionSite!,
         givenBy: vaccine!.givenBy!,
         brand: vaccine!.brand!,
@@ -169,8 +171,18 @@ test.describe('Vaccines', () => {
   test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({
     patientDetailsPage,
   }) => {
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
-    //TODO:
+    const fillOptionalFields = false;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Routine',
+      0,
+      'IPV',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
   //TODO: is it is possible to merge this and the next test case for other?
@@ -214,7 +226,7 @@ test.describe('Vaccines', () => {
   }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;
-    //TODO: this test case needs to handle reason once the reference data is added
+
     await addVaccineAndAssert(
       patientDetailsPage,
       false,
@@ -241,6 +253,49 @@ test.describe('Vaccines', () => {
       fillOptionalFields,
       viewVaccineRecord,
     );
+  });
+
+  test('Add multiple different vaccines and view each of their vaccine records', async ({ patientDetailsPage }) => {
+    const fillOptionalFields = true;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      true,
+      'Other',
+      1,
+      'Test Vaccine',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
+    
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Routine',
+      1,
+      'Hep B',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
+
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      true,
+      'Routine',
+      2,
+      'bOPV',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
+  });
+
+  test('Add multiple doses of the same vaccine and view each of their vaccine records', async ({ patientDetailsPage }) => {
+    //TODO:
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
