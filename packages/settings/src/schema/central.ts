@@ -31,6 +31,17 @@ export const centralSettings = {
         },
       },
     },
+    mobileSync: {
+      description: 'Settings related to mobile sync',
+      properties: {
+        insertBatchSize: {
+          name: 'Insert batch size',
+          description: 'The number of records to insert in a single batch',
+          type: yup.number().positive().integer(),
+          defaultValue: 500,
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
