@@ -1,7 +1,6 @@
 import React from 'react';
 import shortid from 'shortid';
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import '@fortawesome/fontawesome-free/css/all.css';
 import MuiDialog from '@material-ui/core/Dialog';
 import Box from '@material-ui/core/Box';
@@ -24,6 +23,13 @@ import {
 import { IdInput } from '../../app/components/Field/IdField';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+export default {
+  title: 'Form Fields',
+  parameters: {
+    layout: 'centered',
+  },
+};
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -57,7 +63,7 @@ class StoryControlWrapper extends React.PureComponent {
     }
   }
 
-  onChange = (e) => {
+  onChange = e => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     action('change')(value);
     this.setState({ value });
@@ -80,36 +86,59 @@ class StoryControlWrapper extends React.PureComponent {
   }
 }
 
-// Helper function to add a bunch of standard variants for a given control.
-// Returns the chain so additional variants can be added easily when necessary.
-function addStories(name, Component, note) {
-  return storiesOf(`Form Fields/${name}`, module)
-    .addParameters({ note })
-    .add('Default', () => <Component />)
-    .add('Required', () => <Component required />)
-    .add('Disabled', () => <Component disabled />)
-    .add('With help text', () => <Component helperText="Here is some help text" />)
-    .add('With error', () => <Component error helperText="Here is an error message" />)
-    .add('Clearable', () => <Component clearButton />);
+// Helper function to create field stories using modern CSF args pattern
+export function createFieldStories(Component, extraArgs = {}) {
+  return {
+    Default: { args: {} },
+    Required: { args: { required: true } },
+    Disabled: { args: { disabled: true } },
+    WithHelpText: { args: { helperText: 'Here is some help text' } },
+    WithError: { args: { error: true, helperText: 'Here is an error message' } },
+    Clearable: { args: { clearButton: true } },
+    ...extraArgs,
+  };
 }
 
-addStories(
-  'TextInput',
-  (props) => <StoryControlWrapper Component={TextInput} label="Label Name" {...props} />,
-  'Free text input.',
-).add('Multiline', () => (
+export const Multiline = () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
-));
+);
 
-addStories('TimeWithUnitInput', (props) => (
+// TimeWithUnitInput stories
+const TimeWithUnitInputTemplate = args => (
   <StoryControlWrapper
     Component={TimeWithUnitInput}
     label="Time between onset"
     name="onsetMinutes"
     min={0}
-    {...props}
+    {...args}
   />
-));
+);
+
+const timeWithUnitInputStories = createFieldStories();
+export const TimeWithUnitInputDefault = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.Default,
+};
+export const TimeWithUnitInputRequired = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.Required,
+};
+export const TimeWithUnitInputDisabled = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.Disabled,
+};
+export const TimeWithUnitInputWithHelpText = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.WithHelpText,
+};
+export const TimeWithUnitInputWithError = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.WithError,
+};
+export const TimeWithUnitInputClearable = {
+  render: TimeWithUnitInputTemplate,
+  ...timeWithUnitInputStories.Clearable,
+};
 
 const TAGS = {
   primary: {
@@ -141,184 +170,338 @@ const TAGGED_FRUITS = [
 ];
 
 const dummyTaggedSuggester = {
-  fetchSuggestions: async (search) => {
-    await new Promise((resolve) => {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return TAGGED_FRUITS.filter((x) => x.label.toLowerCase().includes(search.toLowerCase()));
+    return TAGGED_FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
-  fetchCurrentOption: async (value) => {
-    await new Promise((resolve) => {
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return TAGGED_FRUITS.find((x) => x.value === value);
+    return TAGGED_FRUITS.find(x => x.value === value);
   },
 };
 
-addStories('Dropdown with tags', (props) => {
+// Dropdown with tags stories
+const DropdownWithTagsTemplate = args => {
   return (
     <Container>
       <StoryControlWrapper
         Component={SelectInput}
         label="Simple Select"
         options={TAGGED_FRUITS}
-        {...props}
+        {...args}
       />
       <StoryControlWrapper
         Component={AutocompleteInput}
         label="Autocomplete"
         options={TAGGED_FRUITS}
-        {...props}
+        {...args}
       />
       <StoryControlWrapper
         Component={AutocompleteInput}
         label="Async Autocomplete"
         options={TAGGED_FRUITS}
         suggester={dummyTaggedSuggester}
-        {...props}
+        {...args}
       />
     </Container>
   );
-});
+};
 
-addStories('NullableBooleanInput', (props) => (
-  <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...props} />
-));
+const dropdownWithTagsStories = createFieldStories();
+export const DropdownWithTagsDefault = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.Default,
+};
+export const DropdownWithTagsRequired = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.Required,
+};
+export const DropdownWithTagsDisabled = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.Disabled,
+};
+export const DropdownWithTagsWithHelpText = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.WithHelpText,
+};
+export const DropdownWithTagsWithError = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.WithError,
+};
+export const DropdownWithTagsClearable = {
+  render: DropdownWithTagsTemplate,
+  ...dropdownWithTagsStories.Clearable,
+};
 
-addStories('DateInput', (props) => (
-  <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
-)).add('With prefilled date', (props) => (
-  <StoryControlWrapper
-    Component={DateInput}
-    label="Prefilled"
-    value="2019-10-04T08:30:56.200Z"
-    {...props}
-  />
-));
+// NullableBooleanInput stories
+const NullableBooleanInputTemplate = args => (
+  <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...args} />
+);
 
-addStories('DateInput', (props) => (
-  <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
-)).add('With arrows', (props) => (
-  <StoryControlWrapper Component={DateInput} value="2019-10-04T08:30:56.200Z" arrows {...props} />
-));
+const nullableBooleanInputStories = createFieldStories();
+export const NullableBooleanInputDefault = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.Default,
+};
+export const NullableBooleanInputRequired = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.Required,
+};
+export const NullableBooleanInputDisabled = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.Disabled,
+};
+export const NullableBooleanInputWithHelpText = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.WithHelpText,
+};
+export const NullableBooleanInputWithError = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.WithError,
+};
+export const NullableBooleanInputClearable = {
+  render: NullableBooleanInputTemplate,
+  ...nullableBooleanInputStories.Clearable,
+};
 
-addStories('DateTimeInput', (props) => (
-  <StoryControlWrapper Component={DateTimeInput} label="Sample taken" {...props} />
-)).add('With prefilled date', (props) => (
-  <StoryControlWrapper
-    Component={DateTimeInput}
-    label="Prefilled"
-    value="2019-10-04T08:30:56.200Z"
-    {...props}
-  />
-));
+export const WithPrefilledDate = {
+  render: args => (
+    <StoryControlWrapper
+      Component={DateInput}
+      label="Prefilled"
+      value="2019-10-04T08:30:56.200Z"
+      {...args}
+    />
+  ),
+  name: 'With prefilled date',
+};
 
-addStories('TimeInput', (props) => (
-  <StoryControlWrapper Component={TimeInput} label="Time" {...props} />
-)).add('With prefilled time', (props) => (
-  <StoryControlWrapper
-    Component={TimeInput}
-    label="Prefilled"
-    value="2019-10-04T08:30:56.200Z"
-    {...props}
-  />
-));
+export const WithArrows = {
+  render: args => (
+    <StoryControlWrapper Component={DateInput} value="2019-10-04T08:30:56.200Z" arrows {...args} />
+  ),
+  name: 'With arrows',
+};
 
-addStories('NumberInput', (props) => (
-  <StoryControlWrapper Component={NumberInput} label="Amount" {...props} />
-)).add('With limited range', () => (
-  <StoryControlWrapper
-    Component={NumberInput}
-    label="How many fingers am I holding up?"
-    min={0}
-    max={10}
-  />
-));
+export const _WithPrefilledDate = {
+  render: args => (
+    <StoryControlWrapper
+      Component={DateTimeInput}
+      label="Prefilled"
+      value="2019-10-04T08:30:56.200Z"
+      {...args}
+    />
+  ),
+  name: 'With prefilled date',
+};
 
-addStories('SelectInput', (props) => (
-  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-)).add('Small', () => (
-  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
-));
+export const WithPrefilledTime = {
+  render: args => (
+    <StoryControlWrapper
+      Component={TimeInput}
+      label="Prefilled"
+      value="2019-10-04T08:30:56.200Z"
+      {...args}
+    />
+  ),
+  name: 'With prefilled time',
+};
 
-addStories('MultiselectInput', (props) => (
-  <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
-));
+export const WithLimitedRange = {
+  render: () => (
+    <StoryControlWrapper
+      Component={NumberInput}
+      label="How many fingers am I holding up?"
+      min={0}
+      max={10}
+    />
+  ),
+  name: 'With limited range',
+};
+
+export const Small = {
+  render: () => (
+    <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
+  ),
+};
+
+// MultiselectInput stories
+const MultiselectInputTemplate = args => (
+  <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...args} />
+);
+
+const multiselectInputStories = createFieldStories();
+export const MultiselectInputDefault = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.Default,
+};
+export const MultiselectInputRequired = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.Required,
+};
+export const MultiselectInputDisabled = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.Disabled,
+};
+export const MultiselectInputWithHelpText = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.WithHelpText,
+};
+export const MultiselectInputWithError = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.WithError,
+};
+export const MultiselectInputClearable = {
+  render: MultiselectInputTemplate,
+  ...multiselectInputStories.Clearable,
+};
 
 const dummySuggester = {
-  fetchSuggestions: async (search) => {
-    await new Promise((resolve) => {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return FRUITS.filter((x) => x.label.toLowerCase().includes(search.toLowerCase()));
+    return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
-  fetchCurrentOption: async (value) => {
-    await new Promise((resolve) => {
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return FRUITS.find((x) => x.value === value);
+    return FRUITS.find(x => x.value === value);
   },
 };
 
-addStories('Autocomplete', (props) => (
-  <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
-))
-  .add('Small', () => (
-    <StoryControlWrapper
-      Component={AutocompleteInput}
-      value="pomegranates"
-      label="Fruit"
-      size="small"
-      suggester={dummySuggester}
-    />
-  ))
-  .add('Asynchronous options', () => (
-    <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
-  ))
-  .add('Async with existing value', () => (
-    <StoryControlWrapper
-      Component={AutocompleteInput}
-      value="pomegranates"
-      label="Fruit"
-      suggester={dummySuggester}
-    />
-  ))
-  .add('Inside a Modal', (props) => (
-    <MuiDialog width="md" open title="Autocomplete">
-      <Box p={5}>
-        <AutocompleteInput label="Fruit" options={FRUITS} {...props} />
-      </Box>
-    </MuiDialog>
-  ))
+export const _Small = () => (
+  <StoryControlWrapper
+    Component={AutocompleteInput}
+    value="pomegranates"
+    label="Fruit"
+    size="small"
+    suggester={dummySuggester}
+  />
+);
 
-  .add(
-    'Async with invalid existing value',
-    () => (
-      <StoryControlWrapper
-        Component={AutocompleteInput}
-        value="not a fruit"
-        label="Fruit"
-        suggester={dummySuggester}
-      />
-    ),
-    {
-      note: `
-    When the server responds informing the control that it's current value
-    is invalid, it will dispatch an onChange event setting its value to null.
-  `,
-    },
-  );
+export const AsynchronousOptions = () => (
+  <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
+);
 
-addStories('IdInput', (props) => (
-  <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
-));
+AsynchronousOptions.story = {
+  name: 'Asynchronous options',
+};
 
-addStories('CalendarInput', (props) => (
+export const AsyncWithExistingValue = () => (
+  <StoryControlWrapper
+    Component={AutocompleteInput}
+    value="pomegranates"
+    label="Fruit"
+    suggester={dummySuggester}
+  />
+);
+
+AsyncWithExistingValue.story = {
+  name: 'Async with existing value',
+};
+
+export const InsideAModal = props => (
+  <MuiDialog width="md" open title="Autocomplete">
+    <Box p={5}>
+      <AutocompleteInput label="Fruit" options={FRUITS} {...props} />
+    </Box>
+  </MuiDialog>
+);
+
+InsideAModal.story = {
+  name: 'Inside a Modal',
+};
+
+export const AsyncWithInvalidExistingValue = () => (
+  <StoryControlWrapper
+    Component={AutocompleteInput}
+    value="not a fruit"
+    label="Fruit"
+    suggester={dummySuggester}
+  />
+);
+
+AsyncWithInvalidExistingValue.story = {
+  name: 'Async with invalid existing value',
+
+  parameters: {
+    note: `
+  When the server responds informing the control that it's current value
+  is invalid, it will dispatch an onChange event setting its value to null.
+`,
+  },
+};
+
+// IdInput stories
+const IdInputTemplate = args => (
+  <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...args} />
+);
+
+const idInputStories = createFieldStories();
+export const IdInputDefault = { render: IdInputTemplate, ...idInputStories.Default };
+export const IdInputRequired = { render: IdInputTemplate, ...idInputStories.Required };
+export const IdInputDisabled = { render: IdInputTemplate, ...idInputStories.Disabled };
+export const IdInputWithHelpText = { render: IdInputTemplate, ...idInputStories.WithHelpText };
+export const IdInputWithError = { render: IdInputTemplate, ...idInputStories.WithError };
+export const IdInputClearable = { render: IdInputTemplate, ...idInputStories.Clearable };
+
+// CalendarInput stories
+const CalendarInputTemplate = args => (
   <LocalizationProvider dateAdapter={AdapterDateFns}>
-    <StoryControlWrapper Component={MonthPicker} label="Date" {...props} />
+    <StoryControlWrapper Component={MonthPicker} label="Date" {...args} />
   </LocalizationProvider>
-));
+);
 
-addStories('SwitchField', (props) => (
-  <StoryControlWrapper Component={SwitchInput} label="Enable" {...props} />
-));
+const calendarInputStories = createFieldStories();
+export const CalendarInputDefault = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.Default,
+};
+export const CalendarInputRequired = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.Required,
+};
+export const CalendarInputDisabled = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.Disabled,
+};
+export const CalendarInputWithHelpText = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.WithHelpText,
+};
+export const CalendarInputWithError = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.WithError,
+};
+export const CalendarInputClearable = {
+  render: CalendarInputTemplate,
+  ...calendarInputStories.Clearable,
+};
+
+// SwitchField stories
+const SwitchFieldTemplate = args => (
+  <StoryControlWrapper Component={SwitchInput} label="Enable" {...args} />
+);
+
+const switchFieldStories = createFieldStories();
+export const SwitchFieldDefault = { render: SwitchFieldTemplate, ...switchFieldStories.Default };
+export const SwitchFieldRequired = { render: SwitchFieldTemplate, ...switchFieldStories.Required };
+export const SwitchFieldDisabled = { render: SwitchFieldTemplate, ...switchFieldStories.Disabled };
+export const SwitchFieldWithHelpText = {
+  render: SwitchFieldTemplate,
+  ...switchFieldStories.WithHelpText,
+};
+export const SwitchFieldWithError = {
+  render: SwitchFieldTemplate,
+  ...switchFieldStories.WithError,
+};
+export const SwitchFieldClearable = {
+  render: SwitchFieldTemplate,
+  ...switchFieldStories.Clearable,
+};

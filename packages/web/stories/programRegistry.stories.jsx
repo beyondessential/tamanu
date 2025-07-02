@@ -1,5 +1,5 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { PatientProgramRegistryUpdateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateModal.jsx';
 import { ApiContext } from '../app/api';

@@ -1,4 +1,4 @@
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import React from 'react';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Box } from '@material-ui/core';

@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
@@ -46,10 +45,16 @@ const Container = styled.div`
   width: 100%;
 `;
 
-storiesOf('PatientHistory', module)
-  .addDecorator(story => (
-    <Container>
-      <MockedApi endpoints={endpoints}>{story()}</MockedApi>
-    </Container>
-  ))
-  .add('Basic Example', () => <PatientHistory patient={patient} onItemClick={console.log} />);
+export default {
+  title: 'PatientHistory',
+
+  decorators: [
+    story => (
+      <Container>
+        <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      </Container>
+    ),
+  ],
+};
+
+export const BasicExample = () => <PatientHistory patient={patient} onItemClick={console.log} />;
