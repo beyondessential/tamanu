@@ -33,6 +33,7 @@ export const centralSettings = {
     },
     mobileSync: {
       description: 'Settings related to mobile sync',
+      highRisk: true,
       properties: {
         insertBatchSize: {
           name: 'Insert batch size',
