@@ -1,9 +1,9 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, chunk } from 'lodash';
 import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { chunkRowsForInsert } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
+import { SQLITE_MAX_PARAMETERS, MAX_BATCH_SIZE_FOR_BULK_INSERT } from '~/infra/db/helpers';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -30,7 +30,7 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunkRowsForInsert(deduplicated)) {
+  for (const batchOfRows of chunk(deduplicated, MAX_BATCH_SIZE_FOR_BULK_INSERT)) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
@@ -60,22 +60,21 @@ export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
 ): Promise<void> => {
-    try {
-      await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
-    } catch (e) {
-      // try records individually, some may succeed and we want to capture the
-      // specific one with the error
-      await Promise.all(
-        rows.map(async row => {
-          try {
-            await model.save(row);
-          } catch (error) {
-            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
-          }
-        }),
-      );
-    }
-
+  try {
+    await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
+  } catch (e) {
+    // try records individually, some may succeed and we want to capture the
+    // specific one with the error
+    await Promise.all(
+      rows.map(async row => {
+        try {
+          await model.save(row);
+        } catch (error) {
+          throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
+        }
+      }),
+    );
+  }
 };
 
 export const executeDeletes = async (
@@ -84,8 +83,11 @@ export const executeDeletes = async (
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
   try {
-    const entities = await model.find({ where: { id: In(rowIds) } });
-    await model.softRemove(entities);
+    // TODO: test this limit
+    for (const batchOfRowIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+      const entities = await model.find({ where: { id: In(batchOfRowIds) } });
+      await model.softRemove(entities);
+    }
   } catch (e) {
     // try records individually, some may succeed and we want to capture the
     // specific one with the error
