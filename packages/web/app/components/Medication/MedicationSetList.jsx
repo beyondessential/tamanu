@@ -135,7 +135,9 @@ export const MedicationSetMedicationsList = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounter?.id);
-  const existingDrugIds = medications.map(({ medication }) => medication?.id);
+  const existingDrugIds = medications
+    .filter(({ discontinued }) => !discontinued)
+    .map(({ medication }) => medication?.id);
 
   return (
     <ListContainer width="420px">

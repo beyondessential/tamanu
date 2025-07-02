@@ -525,7 +525,9 @@ export const MedicationForm = ({
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
-  const existingDrugIds = medications.map(({ medication }) => medication?.id);
+  const existingDrugIds = medications
+    .filter(({ discontinued }) => !discontinued)
+    .map(({ medication }) => medication?.id);
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
