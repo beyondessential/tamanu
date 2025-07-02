@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
-
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
 //TODO: make changes to other fieldhelpers to match the changes i made?
@@ -36,25 +35,39 @@ test.describe('Vaccines', () => {
     count: number = 1,
     specificVaccine?: string,
     fillOptionalFields?: boolean,
-    viewVaccineRecord?: boolean
+    viewVaccineRecord?: boolean,
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(given, category, specificVaccine, fillOptionalFields);
+    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
+      given,
+      category,
+      specificVaccine,
+      fillOptionalFields,
+    );
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
 
     if (given) {
-      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine!.vaccineName!, vaccine!.scheduleOption!, vaccine!.date!, count, vaccine!.givenBy);
+      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
+        vaccine!.vaccineName!,
+        vaccine!.scheduleOption!,
+        vaccine!.date!,
+        count,
+        vaccine!.givenBy,
+      );
     }
 
     if (!given) {
       await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-      await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(count, vaccine!.vaccineName!);
+      await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(
+        count,
+        vaccine!.vaccineName!,
+      );
     }
 
     if (viewVaccineRecord) {
@@ -67,8 +80,8 @@ test.describe('Vaccines', () => {
         given,
         count,
         category,
-        fillOptionalFields
-      }
+        fillOptionalFields,
+      };
 
       const optionalParams = {
         batch: vaccine!.vaccineBatch!,
@@ -78,12 +91,15 @@ test.describe('Vaccines', () => {
         brand: vaccine!.brand!,
         disease: vaccine!.disease!,
         notGivenClinician: vaccine!.notGivenClinician!,
-        notGivenReason: vaccine!.notGivenReason!
-      }
+        notGivenReason: vaccine!.notGivenReason!,
+      };
 
-      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
+      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(
+        requiredParams,
+        optionalParams,
+      );
+    }
   }
-}
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
@@ -99,7 +115,7 @@ test.describe('Vaccines', () => {
 
   test('Add an other vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other');
-  });;
+  });
 
   test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
     test.setTimeout(45000);
@@ -133,46 +149,98 @@ test.describe('Vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 2);
   });
 
-  test('Add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
+  test('Add vaccine and view vaccine record with just required fields filled', async ({
+    patientDetailsPage,
+  }) => {
     const fillOptionalFields = false;
     const viewVaccineRecord = true;
 
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV', fillOptionalFields, viewVaccineRecord);
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      true,
+      'Routine',
+      1,
+      'IPV',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
-  test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
+  test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({
+    patientDetailsPage,
+  }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
     //TODO:
   });
 
   //TODO: is it is possible to merge this and the next test case for other?
-  test('Add vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+  test('Add vaccine and view vaccine record with optional fields filled', async ({
+    patientDetailsPage,
+  }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;
 
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'Hep B', fillOptionalFields, viewVaccineRecord);
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      true,
+      'Routine',
+      1,
+      'Hep B',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
-  test('Add other vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+  test('Add other vaccine and view vaccine record with optional fields filled', async ({
+    patientDetailsPage,
+  }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;
 
-    await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, 'Test Vaccine', fillOptionalFields, viewVaccineRecord);
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      true,
+      'Other',
+      1,
+      'Test Vaccine',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
   //TODO: is it possible to merge this and the next test case for non-other?
-  test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+  test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({
+    patientDetailsPage,
+  }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;
     //TODO: this test case needs to handle reason once the reference data is added
-    await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, 'Test Vaccine', fillOptionalFields, viewVaccineRecord);
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Other',
+      0,
+      'Test Vaccine',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
-  test('Select not given, add vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
+  test('Select not given, add vaccine and view vaccine record with optional fields filled', async ({
+    patientDetailsPage,
+  }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;
 
-    await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, 'Hep B', fillOptionalFields, viewVaccineRecord);
+    await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Routine',
+      0,
+      'Hep B',
+      fillOptionalFields,
+      viewVaccineRecord,
+    );
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
@@ -183,6 +251,4 @@ test.describe('Vaccines', () => {
   test('Add vaccine with custom date', async ({ patientDetailsPage }) => {
     //TODO:
   });
-
-
 });

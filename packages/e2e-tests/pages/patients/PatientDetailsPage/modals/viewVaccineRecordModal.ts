@@ -1,27 +1,30 @@
 import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
-import { RequiredVaccineModalAssertionParams, OptionalVaccineModalAssertionParams } from '../../../../types/vaccine/ViewVaccineModalAssertions';
+import {
+  RequiredVaccineModalAssertionParams,
+  OptionalVaccineModalAssertionParams,
+} from '../../../../types/vaccine/ViewVaccineModalAssertions';
 import { convertDateFormat } from '../../../../utils/testHelper';
 
 export class ViewVaccineRecordModal extends BasePatientModal {
-    readonly modalTitle: Locator;
-    readonly givenVaccineName: Locator;
-    readonly vaccineNameOther: Locator;
-    readonly vaccineBatch: Locator;
-    readonly scheduleOption: Locator;
-    readonly givenStatus: Locator;
-    readonly givenBy: Locator;
-    readonly dateGiven: Locator;
-    readonly injectionSite: Locator;
-    readonly area: Locator;
-    readonly location: Locator;
-    readonly department: Locator;
-    readonly notGivenReason: Locator;
-    readonly dateNotGiven: Locator;
-    readonly otherDisease: Locator;
-    readonly notGivenSupervisingClinician: Locator;
-    readonly otherBrand: Locator;
+  readonly modalTitle: Locator;
+  readonly givenVaccineName: Locator;
+  readonly vaccineNameOther: Locator;
+  readonly vaccineBatch: Locator;
+  readonly scheduleOption: Locator;
+  readonly givenStatus: Locator;
+  readonly givenBy: Locator;
+  readonly dateGiven: Locator;
+  readonly injectionSite: Locator;
+  readonly area: Locator;
+  readonly location: Locator;
+  readonly department: Locator;
+  readonly notGivenReason: Locator;
+  readonly dateNotGiven: Locator;
+  readonly otherDisease: Locator;
+  readonly notGivenSupervisingClinician: Locator;
+  readonly otherBrand: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -40,7 +43,9 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     this.department = this.page.getByTestId('displayfield-jkpx-location-translatedtext-n704');
     this.notGivenReason = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-ewjz');
     this.otherDisease = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-h50a');
-    this.notGivenSupervisingClinician = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-qoi6');
+    this.notGivenSupervisingClinician = this.page.getByTestId(
+      'displayfield-jkpx-recorded-translatedtext-qoi6',
+    );
     this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
   }
 
@@ -49,16 +54,8 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     await expect(this.area).toBeVisible();
   }
 
-async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
-    const {
-      vaccineName,
-      date,
-      area,
-      location,
-      department,
-      given,
-      category,
-    } = requiredParams;
+  async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
+    const { vaccineName, date, area, location, department, given, category } = requiredParams;
 
     await expect(this.area).toContainText(area);
     await expect(this.location).toContainText(location);
@@ -66,11 +63,10 @@ async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAsser
 
     if (category === 'Other') {
       await expect(this.vaccineNameOther).toContainText(vaccineName);
-    }
-    else {
+    } else {
       await expect(this.givenVaccineName).toContainText(vaccineName);
     }
-  
+
     if (given) {
       await expect(this.givenStatus).toContainText('Given');
       await expect(this.dateGiven).toContainText(convertDateFormat(date));
@@ -80,13 +76,13 @@ async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAsser
     }
   }
 
-  async assertVaccineModalOptionalFields(requiredParams: RequiredVaccineModalAssertionParams, optionalParams: OptionalVaccineModalAssertionParams) {
+  async assertVaccineModalOptionalFields(
+    requiredParams: RequiredVaccineModalAssertionParams,
+    optionalParams: OptionalVaccineModalAssertionParams,
+  ) {
     await this.assertVaccineModalRequiredFields(requiredParams);
 
-    const {
-      given,
-      category,
-    } = requiredParams;
+    const { given, category } = requiredParams;
 
     const {
       batch,
@@ -96,13 +92,12 @@ async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAsser
       brand,
       disease,
       notGivenClinician,
-      notGivenReason
+      notGivenReason,
     } = optionalParams;
-    
+
     if (category === 'Other') {
       await expect(this.otherDisease).toContainText(disease!);
-    }
-    else {
+    } else {
       await expect(this.scheduleOption).toContainText(schedule!);
     }
     if (given) {
@@ -110,12 +105,11 @@ async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAsser
       await expect(this.givenBy).toContainText(givenBy!);
       await expect(this.injectionSite).toContainText(injectionSite!);
       if (category === 'Other') {
-       await expect(this.otherBrand).toContainText(brand!);
+        await expect(this.otherBrand).toContainText(brand!);
       }
     } else {
       await expect(this.notGivenReason).toContainText(notGivenReason!);
       await expect(this.notGivenSupervisingClinician).toContainText(notGivenClinician!);
     }
-    
   }
 }

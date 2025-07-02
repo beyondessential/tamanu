@@ -3,7 +3,10 @@ import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
 import { ViewVaccineRecordModal } from '../modals/viewVaccineRecordModal';
-import { RequiredVaccineModalAssertionParams, OptionalVaccineModalAssertionParams } from '../../../../types/vaccine/ViewVaccineModalAssertions';
+import {
+  RequiredVaccineModalAssertionParams,
+  OptionalVaccineModalAssertionParams,
+} from '../../../../types/vaccine/ViewVaccineModalAssertions';
 
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
@@ -63,26 +66,50 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
-  async assertRecordedVaccineTable( vaccineName: string, scheduleOption: string, date: string, count: number, givenBy?: string) {
+  async assertRecordedVaccineTable(
+    vaccineName: string,
+    scheduleOption: string,
+    date: string,
+    count: number,
+    givenBy?: string,
+  ) {
     //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
     const formattedDate = convertDateFormat(date);
 
-    const correctVaccineFound = await this.searchRecordVaccineTableForMatch(vaccineName, 'vaccineDisplayName', count);
-    const correctScheduleOptionFound = await this.searchRecordVaccineTableForMatch(scheduleOption, 'schedule', count);
-    const correctDateFound = await this.searchRecordVaccineTableForMatch(formattedDate, 'date', count);
+    const correctVaccineFound = await this.searchRecordVaccineTableForMatch(
+      vaccineName,
+      'vaccineDisplayName',
+      count,
+    );
+    const correctScheduleOptionFound = await this.searchRecordVaccineTableForMatch(
+      scheduleOption,
+      'schedule',
+      count,
+    );
+    const correctDateFound = await this.searchRecordVaccineTableForMatch(
+      formattedDate,
+      'date',
+      count,
+    );
 
     if (!correctVaccineFound) {
       throw new Error(`Vaccine "${vaccineName}" not found in the recorded vaccines table`);
     }
     if (!correctScheduleOptionFound) {
-      throw new Error(`Schedule option "${scheduleOption}" not found in the recorded vaccines table`);
+      throw new Error(
+        `Schedule option "${scheduleOption}" not found in the recorded vaccines table`,
+      );
     }
     if (!correctDateFound) {
       throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
     }
 
     if (givenBy) {
-      const correctGivenByFound = await this.searchRecordVaccineTableForMatch(givenBy, 'givenBy', count);
+      const correctGivenByFound = await this.searchRecordVaccineTableForMatch(
+        givenBy,
+        'givenBy',
+        count,
+      );
       if (!correctGivenByFound) {
         throw new Error(`Given by "${givenBy}" not found in the recorded vaccines table`);
       }
@@ -90,9 +117,15 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   //TODO: merge this with searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
-  async searchRecordVaccineTableForMatch(valueToMatch: string, locatorSuffix: string, count: number) {
+  async searchRecordVaccineTableForMatch(
+    valueToMatch: string,
+    locatorSuffix: string,
+    count: number,
+  ) {
     for (let i = 0; i < count; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-${locatorSuffix}`);
+      const locator = this.recordedVaccinesTableBody.getByTestId(
+        `${this.tableRowPrefix}${i}-${locatorSuffix}`,
+      );
       const text = await locator.innerText();
       if (text.includes(valueToMatch)) {
         return true;
@@ -101,11 +134,18 @@ export class PatientVaccinePane extends BasePatientPane {
     return false;
   }
 
-  async searchSpecificTableRowForMatch(valueToMatch: string, locatorSuffix: string, count: number, vaccine: string) {
+  async searchSpecificTableRowForMatch(
+    valueToMatch: string,
+    locatorSuffix: string,
+    count: number,
+    vaccine: string,
+  ) {
     const row = await this.findRowNumberForVaccine(vaccine, count);
 
     //Search the specific row in the table for the value to match
-    const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${row}-${locatorSuffix}`);
+    const locator = this.recordedVaccinesTableBody.getByTestId(
+      `${this.tableRowPrefix}${row}-${locatorSuffix}`,
+    );
     const text = await locator.innerText();
     if (text.includes(valueToMatch)) {
       return true;
@@ -119,7 +159,9 @@ export class PatientVaccinePane extends BasePatientPane {
 
     //Find the row that contains the vaccine name and save the row number
     for (let i = 0; i < timesToRun; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-vaccineDisplayName`);
+      const locator = this.recordedVaccinesTableBody.getByTestId(
+        `${this.tableRowPrefix}${i}-vaccineDisplayName`,
+      );
       const text = await locator.innerText();
       if (text.includes(vaccine)) {
         row = i;
@@ -135,39 +177,43 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async confirmNotGivenLabelIsVisible(count: number, vaccine: string) {
-   const notGivenLabelFound = await this.searchSpecificTableRowForMatch('Not given', 'givenBy', count, vaccine);
+    const notGivenLabelFound = await this.searchSpecificTableRowForMatch(
+      'Not given',
+      'givenBy',
+      count,
+      vaccine,
+    );
     if (!notGivenLabelFound) {
       throw new Error('Not given label not found in the recorded vaccines table');
     }
   }
 
+  async viewVaccineRecordAndAssert(
+    requiredParams: RequiredVaccineModalAssertionParams,
+    optionalParams: OptionalVaccineModalAssertionParams,
+  ) {
+    const { vaccineName, count, fillOptionalFields } = requiredParams;
 
-  async viewVaccineRecordAndAssert(requiredParams: RequiredVaccineModalAssertionParams, optionalParams: OptionalVaccineModalAssertionParams) {
-    const {
-      vaccineName,
-      count,
-      fillOptionalFields
-    } = requiredParams;
+    const row = await this.findRowNumberForVaccine(vaccineName, count);
+    const viewButton = this.recordedVaccinesTableBody
+      .getByTestId(`${this.tableRowPrefix}${row}-action`)
+      .getByRole('button', { name: 'View' });
+    const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
 
-
-   const row = await this.findRowNumberForVaccine(vaccineName, count);
-   const viewButton = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${row}-action`).getByRole('button', { name: 'View' });
-   const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
-
-   fillOptionalFields
-     ? await viewVaccineRecordModal.assertVaccineModalOptionalFields(requiredParams, optionalParams)
-     : await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
-
+    fillOptionalFields
+      ? await viewVaccineRecordModal.assertVaccineModalOptionalFields(
+          requiredParams,
+          optionalParams,
+        )
+      : await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
   }
 
-async viewVaccineModal(viewButton: Locator) {
-  await viewButton.click();
-  if (!this.viewVaccineRecordModal) {
-    this.viewVaccineRecordModal = new ViewVaccineRecordModal(this.page);
-   }
-   await this.viewVaccineRecordModal.waitForModalToOpen();
-   return this.viewVaccineRecordModal;
+  async viewVaccineModal(viewButton: Locator) {
+    await viewButton.click();
+    if (!this.viewVaccineRecordModal) {
+      this.viewVaccineRecordModal = new ViewVaccineRecordModal(this.page);
+    }
+    await this.viewVaccineRecordModal.waitForModalToOpen();
+    return this.viewVaccineRecordModal;
+  }
 }
-
-}
-

@@ -52,7 +52,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.vaccineNameField = this.page.getByTestId('field-vaccineName-input');
     this.vaccineBatchField = this.page.getByTestId('field-865y-input');
     //TODO: delete below if refactor with field works
- //   this.injectionSiteExpandButton = this.page.getByTestId('field-jz48-expandmoreicon-h115');
+    //   this.injectionSiteExpandButton = this.page.getByTestId('field-jz48-expandmoreicon-h115');
     this.injectionSiteField = this.page.getByTestId('field-jz48-select');
     this.consentGivenByField = this.page.getByTestId('field-inc8-input');
     this.dateField = this.page.getByTestId('field-8sou-input').getByRole('textbox');
@@ -89,24 +89,37 @@ export class RecordVaccineModal extends BasePatientModal {
 
   //TODO: should this always return vaccine name or should it sometimes not?
   async selectVaccine(specificVaccine?: string) {
-    const vaccineName = await selectFieldOption(this.page, this.vaccineSelectField, { optionToSelect: specificVaccine, returnOptionText: true });
+    const vaccineName = await selectFieldOption(this.page, this.vaccineSelectField, {
+      optionToSelect: specificVaccine,
+      returnOptionText: true,
+    });
     return vaccineName;
   }
 
   async selectNotGivenReason() {
-    const notGivenReason = await selectFieldOption(this.page, this.notGivenReasonField, { returnOptionText: true });
+    const notGivenReason = await selectFieldOption(this.page, this.notGivenReasonField, {
+      returnOptionText: true,
+    });
     return notGivenReason;
   }
 
   async selectInjectionSite() {
-    const injectionSite = await selectFieldOption(this.page, this.injectionSiteField, { returnOptionText: true });
+    const injectionSite = await selectFieldOption(this.page, this.injectionSiteField, {
+      returnOptionText: true,
+    });
     return injectionSite;
   }
 
   async selectLocationGroup() {
-    const area = await selectAutocompleteFieldOption(this.page, this.areaField, { returnOptionText: true });
-    const location = await selectAutocompleteFieldOption(this.page, this.locationField, { returnOptionText: true });
-    const department = await selectAutocompleteFieldOption(this.page, this.departmentField, { returnOptionText: true });
+    const area = await selectAutocompleteFieldOption(this.page, this.areaField, {
+      returnOptionText: true,
+    });
+    const location = await selectAutocompleteFieldOption(this.page, this.locationField, {
+      returnOptionText: true,
+    });
+    const department = await selectAutocompleteFieldOption(this.page, this.departmentField, {
+      returnOptionText: true,
+    });
     return { area, location, department };
   }
 
@@ -116,34 +129,44 @@ export class RecordVaccineModal extends BasePatientModal {
 
     if (option) {
       scheduleOption = option;
-      const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', { name: option, disabled: false });
+      const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', {
+        name: option,
+        disabled: false,
+      });
       await scheduleOptionLocator.click();
     } else {
-        const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
-        scheduleOption = await firstRadioOption.locator('span.MuiFormControlLabel-label').innerText();
-        await firstRadioOption.click();
-      }
+      const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
+      scheduleOption = await firstRadioOption.locator('span.MuiFormControlLabel-label').innerText();
+      await firstRadioOption.click();
+    }
 
-      return scheduleOption;
+    return scheduleOption;
   }
-  
+
   // TODO: Refactor to use VACCINE_CATEGORIES when importing is working
-  async recordVaccine(given: boolean, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', specificVaccine?: string, fillOptionalFields?: boolean) {
+  async recordVaccine(
+    given: boolean,
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+    specificVaccine?: string,
+    fillOptionalFields?: boolean,
+  ) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
     let vaccineName: string | undefined;
     let scheduleOption: string | undefined;
-    let optionalFields: {
-      givenBy?: string;
-      vaccineBatch?: string;
-      injectionSite?: string
-      consentGivenBy?: string;
-      brand?: string;
-      disease?: string;
-      notGivenReason?: string;
-      notGivenClinician?: string;
-    } | undefined;
+    let optionalFields:
+      | {
+          givenBy?: string;
+          vaccineBatch?: string;
+          injectionSite?: string;
+          consentGivenBy?: string;
+          brand?: string;
+          disease?: string;
+          notGivenReason?: string;
+          notGivenClinician?: string;
+        }
+      | undefined;
 
     const date = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
 
@@ -163,7 +186,9 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     if (fillOptionalFields) {
-      optionalFields = given ? await this.recordOptionalVaccineFieldsGiven(category) : await this.recordOptionalVaccineFieldsNotGiven(category);
+      optionalFields = given
+        ? await this.recordOptionalVaccineFieldsGiven(category)
+        : await this.recordOptionalVaccineFieldsNotGiven(category);
     }
 
     await this.page.waitForTimeout(2000);
@@ -187,22 +212,24 @@ export class RecordVaccineModal extends BasePatientModal {
     await this.givenByField.fill(givenBy);
     await this.vaccineBatchField.fill(vaccineBatch);
     //Note: due to the nature of this field it is not possible to use fieldHelper.ts to select an option
-   // await this.injectionSiteExpandButton.click();
-   // await this.page.getByText(injectionSite).click();
+    // await this.injectionSiteExpandButton.click();
+    // await this.page.getByText(injectionSite).click();
     const injectionSite = await this.selectInjectionSite();
     await this.consentGivenByField.fill(consentGivenBy);
 
     if (category === 'Other') {
-      brand = 'Test Brand'
+      brand = 'Test Brand';
       await this.otherVaccineBrand.fill(brand);
       disease = 'Test Disease';
       await this.otherVaccineDisease.fill(disease);
     }
 
-    return { givenBy, vaccineBatch, injectionSite, consentGivenBy, brand, disease };    
+    return { givenBy, vaccineBatch, injectionSite, consentGivenBy, brand, disease };
   }
 
-  async recordOptionalVaccineFieldsNotGiven(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+  async recordOptionalVaccineFieldsNotGiven(
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+  ) {
     let disease: string | undefined;
     const notGivenClinician = 'Test Clinician';
 
@@ -211,10 +238,10 @@ export class RecordVaccineModal extends BasePatientModal {
     await this.notGivenClinicianField.fill(notGivenClinician);
 
     if (category === 'Other') {
-      disease = 'Test disease'
+      disease = 'Test disease';
       await this.otherVaccineDisease.fill(disease);
     }
 
-   return { notGivenReason, notGivenClinician, disease };
+    return { notGivenReason, notGivenClinician, disease };
   }
 }

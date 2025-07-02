@@ -68,7 +68,12 @@ export const selectFieldOption = async (
     optionToSelect = null,
     stripTag = true,
     returnOptionText = false,
-  }: { selectFirst?: boolean; optionToSelect?: string | null; stripTag?: boolean; returnOptionText?: boolean } = {},
+  }: {
+    selectFirst?: boolean;
+    optionToSelect?: string | null;
+    stripTag?: boolean;
+    returnOptionText?: boolean;
+  } = {},
 ) => {
   await expect(field).toBeEnabled();
   await field.click();
