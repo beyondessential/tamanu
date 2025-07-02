@@ -3,7 +3,7 @@ import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
-import { SQLITE_MAX_PARAMETERS, MAX_BATCH_SIZE_FOR_BULK_INSERT } from '~/infra/db/limits';
+import { SQLITE_MAX_PARAMETERS, MAX_RECORDS_IN_BULK_INSERT } from '~/infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -30,7 +30,7 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunk(deduplicated, MAX_BATCH_SIZE_FOR_BULK_INSERT)) {
+  for (const batchOfRows of chunk(deduplicated, MAX_RECORDS_IN_BULK_INSERT)) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
@@ -83,7 +83,6 @@ export const executeDeletes = async (
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
   try {
-    // TODO: test this limit
     for (const batchOfRowIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
       const entities = await model.find({ where: { id: In(batchOfRowIds) } });
       await model.softRemove(entities);
