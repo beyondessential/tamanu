@@ -2,8 +2,7 @@ import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
 
-//TODO: add tests to confirm that when you click view vaccine record all the details match
-//TODO: not given vaccines seem to have different details when you click view
+//TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
 //TODO: make changes to other fieldhelpers to match the changes i made?
 //TODO: assert date is correct
@@ -22,6 +21,7 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
 //TODO: test asserting table for multiple vaccines, multiple doses of same vaccines etc
+//TODO: search TODO in general, there are some TODOs in other files
 //TODO: check regression test doc
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -58,25 +58,32 @@ test.describe('Vaccines', () => {
     }
 
     if (viewVaccineRecord) {
-      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(
-        vaccine!.vaccineName!,
-        vaccine!.date!,
-        vaccine!.area!,
-        vaccine!.location!,
-        vaccine!.department!,
+      const requiredParams = {
+        vaccineName: vaccine!.vaccineName!,
+        date: vaccine!.date!,
+        area: vaccine!.area!,
+        location: vaccine!.location!,
+        department: vaccine!.department!,
         given,
         count,
         category,
-        vaccine!.vaccineBatch!,
-        vaccine!.scheduleOption!,
-        vaccine!.injectionSite!,
-        vaccine!.givenBy!,
-        vaccine!.brand!,
-        vaccine!.disease!,
-        vaccine!.notGivenClinician!,
-        vaccine!.notGivenReason!);
-    }
+        fillOptionalFields
+      }
+
+      const optionalParams = {
+        batch: vaccine!.vaccineBatch!,
+        schedule: vaccine!.scheduleOption!,
+        injectionSite: vaccine!.injectionSite!,
+        givenBy: vaccine!.givenBy!,
+        brand: vaccine!.brand!,
+        disease: vaccine!.disease!,
+        notGivenClinician: vaccine!.notGivenClinician!,
+        notGivenReason: vaccine!.notGivenReason!
+      }
+
+      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
   }
+}
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
@@ -92,7 +99,7 @@ test.describe('Vaccines', () => {
 
   test('Add an other vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other');
-  });
+  });;
 
   test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
     test.setTimeout(45000);
@@ -127,8 +134,10 @@ test.describe('Vaccines', () => {
   });
 
   test('Add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV');
-    //TODO:
+    const fillOptionalFields = false;
+    const viewVaccineRecord = true;
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, 'IPV', fillOptionalFields, viewVaccineRecord);
   });
 
   test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({ patientDetailsPage }) => {
@@ -159,7 +168,6 @@ test.describe('Vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, 'Test Vaccine', fillOptionalFields, viewVaccineRecord);
   });
 
-  //TODO: run this test case manually, confirm "reason" field is filled out once reference data is added
   test('Select not given, add vaccine and view vaccine record with optional fields filled', async ({ patientDetailsPage }) => {
     const fillOptionalFields = true;
     const viewVaccineRecord = true;

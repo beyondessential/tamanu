@@ -3,6 +3,7 @@ import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
 import { ViewVaccineRecordModal } from '../modals/viewVaccineRecordModal';
+import { RequiredVaccineModalAssertionParams, OptionalVaccineModalAssertionParams } from '../../../../types/vaccine/ViewVaccineModalAssertions';
 
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
@@ -140,61 +141,33 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
-  //TODO: is it possible to simplify this? conditional logic may be difficult to read
-  async viewVaccineRecordAndAssert(
-    vaccineName: string,
-    date: string,
-    area: string,
-    location: string,
-    department: string,
-    given: boolean,
-    count: number,
-    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
-    batch?: string,
-    schedule?: string,
-    injectionSite?: string,
-    givenBy?: string,
-    brand?: string,
-    disease?: string,
-    notGivenClinician?: string,
-    notGivenReason?: string,) {
+
+  async viewVaccineRecordAndAssert(requiredParams: RequiredVaccineModalAssertionParams, optionalParams: OptionalVaccineModalAssertionParams) {
+    const {
+      vaccineName,
+      count,
+      fillOptionalFields
+    } = requiredParams;
+
+
    const row = await this.findRowNumberForVaccine(vaccineName, count);
    const viewButton = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${row}-action`).getByRole('button', { name: 'View' });
-   await viewButton.click();
+   const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
 
-   if (!this.viewVaccineRecordModal) {
+   fillOptionalFields
+     ? await viewVaccineRecordModal.assertVaccineModalOptionalFields(requiredParams, optionalParams)
+     : await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
+
+  }
+
+async viewVaccineModal(viewButton: Locator) {
+  await viewButton.click();
+  if (!this.viewVaccineRecordModal) {
     this.viewVaccineRecordModal = new ViewVaccineRecordModal(this.page);
-   }  
-
-  await expect(this.viewVaccineRecordModal.area).toContainText(area);
-  await expect(this.viewVaccineRecordModal.location).toContainText(location);
-  await expect(this.viewVaccineRecordModal.department).toContainText(department);
-
-  if (category === 'Other') {
-    await expect(this.viewVaccineRecordModal.vaccineNameOther).toContainText(vaccineName);
-    await expect(this.viewVaccineRecordModal.otherDisease).toContainText(disease!);
-  }
-  else {
-    await expect(this.viewVaccineRecordModal.givenVaccineName).toContainText(vaccineName);
-  }
-
-  if (given) {
-    await expect(this.viewVaccineRecordModal.givenStatus).toContainText('Given');
-    await expect(this.viewVaccineRecordModal.dateGiven).toContainText(convertDateFormat(date));
-    await expect(this.viewVaccineRecordModal.vaccineBatch).toContainText(batch!);
-    await expect(this.viewVaccineRecordModal.givenBy).toContainText(givenBy!);
-    await expect(this.viewVaccineRecordModal.injectionSite).toContainText(injectionSite!);
-    if (category !== 'Other') {
-      await expect(this.viewVaccineRecordModal.scheduleOption).toContainText(schedule!);
-    }
-    if (category === 'Other') {
-      await expect(this.viewVaccineRecordModal.otherBrand).toContainText(brand!);
-    }
-  } else {
-    await expect(this.viewVaccineRecordModal.givenStatus).toContainText('Not given');
-    await expect(this.viewVaccineRecordModal.notGivenReason).toContainText(notGivenReason!);
-    await expect(this.viewVaccineRecordModal.notGivenSupervisingClinician).toContainText(notGivenClinician!);
-    await expect(this.viewVaccineRecordModal.dateNotGiven).toContainText(convertDateFormat(date));
-  }
-  }
+   }
+   await this.viewVaccineRecordModal.waitForModalToOpen();
+   return this.viewVaccineRecordModal;
 }
+
+}
+

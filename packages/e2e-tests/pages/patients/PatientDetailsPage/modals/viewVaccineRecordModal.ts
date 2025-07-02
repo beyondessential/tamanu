@@ -1,8 +1,11 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
+import { RequiredVaccineModalAssertionParams, OptionalVaccineModalAssertionParams } from '../../../../types/vaccine/ViewVaccineModalAssertions';
+import { convertDateFormat } from '../../../../utils/testHelper';
 
 export class ViewVaccineRecordModal extends BasePatientModal {
+    readonly modalTitle: Locator;
     readonly givenVaccineName: Locator;
     readonly vaccineNameOther: Locator;
     readonly vaccineBatch: Locator;
@@ -22,6 +25,7 @@ export class ViewVaccineRecordModal extends BasePatientModal {
 
   constructor(page: Page) {
     super(page);
+    this.modalTitle = this.page.getByTestId('modaltitle-ojhf');
     this.givenVaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-igtk');
     this.vaccineNameOther = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-jbi4');
     this.vaccineBatch = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-j02w');
@@ -40,4 +44,78 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
   }
 
+  async waitForModalToOpen() {
+    // Wait for modal content to load before progressing
+    await expect(this.area).toBeVisible();
+  }
+
+async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
+    const {
+      vaccineName,
+      date,
+      area,
+      location,
+      department,
+      given,
+      category,
+    } = requiredParams;
+
+    await expect(this.area).toContainText(area);
+    await expect(this.location).toContainText(location);
+    await expect(this.department).toContainText(department);
+
+    if (category === 'Other') {
+      await expect(this.vaccineNameOther).toContainText(vaccineName);
+    }
+    else {
+      await expect(this.givenVaccineName).toContainText(vaccineName);
+    }
+  
+    if (given) {
+      await expect(this.givenStatus).toContainText('Given');
+      await expect(this.dateGiven).toContainText(convertDateFormat(date));
+    } else {
+      await expect(this.givenStatus).toContainText('Not given');
+      await expect(this.dateNotGiven).toContainText(convertDateFormat(date));
+    }
+  }
+
+  async assertVaccineModalOptionalFields(requiredParams: RequiredVaccineModalAssertionParams, optionalParams: OptionalVaccineModalAssertionParams) {
+    await this.assertVaccineModalRequiredFields(requiredParams);
+
+    const {
+      given,
+      category,
+    } = requiredParams;
+
+    const {
+      batch,
+      schedule,
+      injectionSite,
+      givenBy,
+      brand,
+      disease,
+      notGivenClinician,
+      notGivenReason
+    } = optionalParams;
+    
+    if (category === 'Other') {
+      await expect(this.otherDisease).toContainText(disease!);
+    }
+    else {
+      await expect(this.scheduleOption).toContainText(schedule!);
+    }
+    if (given) {
+      await expect(this.vaccineBatch).toContainText(batch!);
+      await expect(this.givenBy).toContainText(givenBy!);
+      await expect(this.injectionSite).toContainText(injectionSite!);
+      if (category === 'Other') {
+       await expect(this.otherBrand).toContainText(brand!);
+      }
+    } else {
+      await expect(this.notGivenReason).toContainText(notGivenReason!);
+      await expect(this.notGivenSupervisingClinician).toContainText(notGivenClinician!);
+    }
+    
+  }
 }
