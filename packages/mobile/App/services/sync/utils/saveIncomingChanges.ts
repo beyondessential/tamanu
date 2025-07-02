@@ -1,4 +1,5 @@
 import RNFS from 'react-native-fs';
+import { chunk } from 'lodash';
 import { In } from 'typeorm';
 
 import { SyncRecord } from '../types';
@@ -9,6 +10,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
 import { getDirPath } from './getFilePath';
+import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -31,27 +33,29 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  const batchOfIds = recordsForUpsert.map(r => r.id);
-  // add all records that already exist in the db to the list to be updated
-  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-  const batchOfExisting = await model.find({
-    where: { id: In(batchOfIds) },
-    select: ['id', 'deletedAt'],
-    withDeleted: true,
-  });
+  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
+    const batchOfIds = incomingRecords.map(r => r.id);
 
-  batchOfExisting.forEach(existing => {
-    // compares incoming and existing records by id
-    const incoming = idToIncomingRecord[existing.id];
-    idsForUpdate.add(existing.id);
-    if (existing.deletedAt && !incoming.isDeleted) {
-      idsForRestore.add(existing.id);
-    }
-    if (!existing.deletedAt && incoming.isDeleted) {
-      idsForDelete.add(existing.id);
-    }
-  });
+    // add all records that already exist in the db to the list to be updated
+    // even if they are being deleted or restored, we should also run an update query to keep the data in sync
+    const batchOfExisting = await model.find({
+      where: { id: In(batchOfIds) },
+      select: ['id', 'deletedAt'],
+      withDeleted: true,
+    });
 
+    batchOfExisting.forEach(existing => {
+      // compares incoming and existing records by id
+      const incoming = idToIncomingRecord[existing.id];
+      idsForUpdate.add(existing.id);
+      if (existing.deletedAt && !incoming.isDeleted) {
+        idsForRestore.add(existing.id);
+      }
+      if (!existing.deletedAt && incoming.isDeleted) {
+        idsForDelete.add(existing.id);
+      }
+    });
+  }
 
   const recordsForCreate = changes
     .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
@@ -114,9 +118,7 @@ export const saveIncomingChanges = async (
 
       const batch = JSON.parse(batchString);
       const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
-      const sanitizedBatch = hasSanitizeMethod
-        ? model.sanitizePulledRecordData(batch)
-        : batch;
+      const sanitizedBatch = hasSanitizeMethod ? model.sanitizePulledRecordData(batch) : batch;
 
       await saveChangesForModel(model, sanitizedBatch);
 
