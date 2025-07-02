@@ -1,12 +1,19 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import { convertDateFormat, SelectingFromSearchBox } from '../../utils/testHelper';
+import { routes } from '../../config/routes';
+import { Patient } from '../../types/Patient';
+
+type PatientTableRow = Locator & {
+  getPatientInfo(): Promise<Patient>;
+};
 
 export class PatientTable {
   readonly page: Page;
   readonly table: Locator;
   readonly loadingCell: Locator;
   readonly rows: Locator;
+  readonly _rows: Locator;
   readonly nhnResultCell: Locator;
   readonly secondNHNResultCell: Locator;
   readonly villageSuggestionList: Locator;
@@ -41,7 +48,8 @@ export class PatientTable {
     this.page = page;
     this.table = page.getByRole('table');
     this.loadingCell = page.getByTestId('statustablecell-rwkq').filter({ hasText: 'Loading' });
-    this.rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this._rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.rows = this._rows;
     this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
     this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
     this.villageSuggestionList = page
@@ -114,12 +122,12 @@ export class PatientTable {
   async clickOnFirstRow() {
     await this.waitForTableToLoad();
     await this.table.locator('tbody tr').first().click();
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
   }
 
   async clickOnSearchResult(nhn: string) {
     await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
   }
 
   async validateAtLeastOneSearchResult() {
@@ -311,6 +319,45 @@ export class PatientTable {
     }
   }
 
+  async getTotalRowCount(): Promise<number> {
+    await this.waitForTableToLoad();
+    return await this.rows.count();
+  }
+
+  getRow(index: number): PatientTableRow {
+    const rowLocator = this._rows.nth(index);
+    return Object.assign(rowLocator, {
+      async getPatientInfo(): Promise<Patient> {
+        const firstName = await rowLocator.locator('[data-testid*="-firstName"]').textContent() || '';
+        const lastName = await rowLocator.locator('[data-testid*="-lastName"]').textContent() || '';
+        const nhn = await rowLocator.locator('[data-testid*="-displayId"]').textContent() || '';
+        const sex = await rowLocator.locator('[data-testid*="-sex"]').textContent() || '';
+        const dateOfBirth = await rowLocator.locator('[data-testid*="-dateOfBirth"]').textContent() || '';
+        
+        return {
+          firstName,
+          lastName,
+          nhn,
+          sex,
+          dateOfBirth
+        };
+      }
+    }) as PatientTableRow;
+  }
+
+  async getAllPatientInfo(): Promise<Patient[]> {
+    const rowCount = await this.getTotalRowCount();
+    const patients: Patient[] = [];
+    
+    for (let i = 0; i < rowCount; i++) {
+      const row = this.getRow(i);
+      const patientInfo = await row.getPatientInfo();
+      patients.push(patientInfo);
+    }
+    
+    return patients;
+  }
+
   async clickOnRow(rowIndex: number) {
     try {
       await this.waitForTableToLoad();
@@ -325,7 +372,7 @@ export class PatientTable {
       await targetRow.click();
       
       // Wait for navigation to patient details page
-      await this.page.waitForURL('**/#/patients/all/*');
+      await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
       
     } catch (error) {
       throw new Error(`Failed to click on row ${rowIndex}: ${error.message}`);

@@ -74,8 +74,6 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     ...overrides,
   };
 
-  console.log('Creating hospital admission encounter with data:', encounterData);
-
   const response = await api.post(encounterUrl, {
     data: encounterData,
   });
@@ -121,8 +119,6 @@ export const createTriageEncounterViaApi = async (
     ...overrides,
   };
 
-  console.log('Creating triage encounter with data:', triageData);
-
   const response = await api.post(triageUrl, {
     data: triageData,
   });
@@ -159,8 +155,6 @@ export const createClinicEncounterViaApi = async (
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
   };
-
-  console.log('Creating clinic encounter with data:', encounterData);
 
   const response = await api.post(encounterUrl, {
     data: encounterData,
