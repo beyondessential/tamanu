@@ -3,7 +3,7 @@ import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
-import { SQLITE_MAX_PARAMETERS, MAX_BATCH_SIZE_FOR_BULK_INSERT } from '~/infra/db/helpers';
+import { SQLITE_MAX_PARAMETERS, MAX_BATCH_SIZE_FOR_BULK_INSERT } from '~/infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
