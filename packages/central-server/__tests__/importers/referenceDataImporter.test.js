@@ -567,9 +567,55 @@ describe('Data definition import', () => {
   });
 
   describe('Procedure Type Survey', () => {
-    it.todo('should import procedure type without formlink');
-    it.todo('should import procedure type with formlink');
-    it.todo('should validate that the form exists');
+    let testSurvey1;
+    let testSurvey2;
+
+    beforeEach(async () => {
+      await models.ProcedureTypeSurvey.destroy({ where: {}, force: true });
+      await models.ReferenceData.destroy({ where: { type: 'procedureType' }, force: true });
+      await models.Survey.destroy({ where: {}, force: true });
+
+      testSurvey1 = await models.Survey.create({
+        ...fake(models.Survey),
+        id: 'test-survey-1', // id from the xlsx file
+      });
+      testSurvey2 = await models.Survey.create({
+        ...fake(models.Survey),
+        id: 'test-survey-2', // id from the xlsx file
+      });
+    });
+
+    it('should import procedure type with formLink survey', async () => {
+      const { errors } = await doImport({ file: 'procedure-type-form-link-add' });
+      expect(errors).toBeEmpty();
+
+      const procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(2);
+      expect(procedureTypeSurveys[0].surveyId).toEqual(testSurvey1.id);
+      expect(procedureTypeSurveys[1].surveyId).toEqual(testSurvey2.id);
+    });
+
+    it('should be able to delete a formLink survey', async () => {
+      const { errors } = await doImport({ file: 'procedure-type-form-link-delete' });
+      expect(errors).toBeEmpty();
+
+      const procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(1);
+      expect(procedureTypeSurveys[0].surveyId).toEqual(testSurvey1.id);
+    });
+
+    it('should validate if the survey does not exist', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'procedure-type-form-link-invalid',
+        dryRun: true,
+      });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError(
+        'procedureType',
+        2,
+        'Linked survey "test-survey-3" for procedure type "procedure-34830" not found.',
+      );
+    });
   });
 });
 
