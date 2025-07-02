@@ -9,8 +9,11 @@ export const SYNC_DIRECTIONS = {
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
 export const SYNC_STREAM_MESSAGE_KIND = {
-  SESSION_WAITING: 'SESSION_WAITING',
-  PULL_WAITING: 'PULL_WAITING',
-  PULL_CHANGE: 'PULL_CHANGE',
-  END: 'END',
+  // Control messages start with 0xf
+  END: 0xf001,
+
+  // Application messages start with 0x0
+  SESSION_WAITING: 0x0001,
+  PULL_WAITING: 0x0002,
+  PULL_CHANGE: 0x0003,
 };
