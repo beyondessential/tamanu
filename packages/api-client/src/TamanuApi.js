@@ -51,6 +51,10 @@ export class TamanuApi {
     }
   }
 
+  get host() {
+    return this.#host;
+  }
+
   getHost() {
     return this.#host;
   }
