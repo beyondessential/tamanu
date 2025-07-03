@@ -62,7 +62,7 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email, password) {
+  async login(email, password, config = {}) {
     if (this.#ongoingAuth) {
       await this.#ongoingAuth;
     }
@@ -75,7 +75,7 @@ export class TamanuApi {
           password,
           deviceId: this.deviceId,
         },
-        { returnResponse: true, useAuthToken: false, waitForAuth: false },
+        { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       );
       const serverType = response.headers.get('X-Tamanu-Server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
