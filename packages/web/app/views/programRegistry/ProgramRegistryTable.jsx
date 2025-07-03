@@ -40,6 +40,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'registrationStatus',
         title: '',
+        exportOverrides: {
+          accessor: data => data.registrationStatus,
+        },
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
@@ -104,6 +107,10 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: ConditionsCell,
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
+        exportOverrides: {
+          accessor: row => row.conditions?.map(condition => condition.name).join(', '),
+        },
+       
       },
       {
         key: 'registeringFacility',
@@ -138,11 +145,15 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
+        exportOverrides: {
+          accessor: row => row.clinicalStatus?.name,
+        },
         maxWidth: 200,
       },
       {
         key: 'actions',
         title: '',
+        isExportable: false,
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
