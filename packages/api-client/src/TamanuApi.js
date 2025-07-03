@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-import { SERVER_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -392,5 +392,97 @@ export class TamanuApi {
     }
 
     throw new Error(`Poll of ${args[0]} did not succeed after ${maxAttempts} attempts`);
+  }
+
+  async *stream(endpointFn, { decodeMessage = true } = {}) {
+    let { endpoint, query, options } = endpointFn();
+    const waitTime = 10000; // retry once per 10 seconds
+    const maxAttempts = 6 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      this.logger.debug(`Stream: attempt ${attempt} of ${maxAttempts} for ${endpoint}`);
+      const response = await this.fetch(endpoint, query, {
+        ...options,
+        returnResponse: true,
+      });
+      const reader = response.body.getReader();
+
+      let partial = Buffer.alloc(0);
+      reader: while (true) {
+        const { done, chunk } = await reader.read();
+
+        if (chunk) {
+          partial = Buffer.concat([partial, chunk]);
+        }
+
+        decoder: while (true) {
+          // +---------+---------+----------------+
+          // |   kind  |  length |     data...    |
+          // +---------+---------+----------------+
+          // | 4 bytes | 4 bytes | $length$ bytes |
+          // +---------+---------+----------------+
+          //
+          // This framing makes it cheap to verify that all the data is here,
+          // and also doesn't *require* us to parse any of the message data.
+
+          if (partial.length < 8) {
+            // not enough data
+            break decoder;
+          }
+
+          const kind = partial.readUInt32BE(0);
+          const length = partial.readUInt32BE(4);
+          const data = partial.subarray(8, 8 + length);
+
+          if (data.length < length) {
+            break decoder;
+          }
+
+          if (decodeMessage) {
+            const message = length > 0 ? JSON.parse(data) : undefined;
+            yield { kind, message };
+          } else {
+            yield { kind, message: data };
+          }
+
+          if (kind === SYNC_STREAM_MESSAGE_KIND.END) {
+            return; // stop retry logic
+          }
+        }
+
+        if (done) {
+          if (partial.length < 8) {
+            this.logger.warn('Stream ended with incomplete data, will retry');
+            break reader;
+          }
+
+          const kind = partial.readUInt32BE(0);
+          const length = partial.readUInt32BE(4);
+          const data = partial.subarray(8, 8 + length);
+
+          if (data.length === length) {
+            if (decodeMessage) {
+              const message = length > 0 ? JSON.parse(data) : undefined;
+              yield { kind, message };
+            } else {
+              yield { kind, message: data };
+            }
+
+            if (kind === SYNC_STREAM_MESSAGE_KIND.END) {
+              return; // stop retry logic
+            }
+          } else if (kind === SYNC_STREAM_MESSAGE_KIND.END) {
+            // if the data is not complete, don't interpret the END message as being truly the end
+            this.logger.warn('END message received but with partial data, will retry');
+          }
+
+          break reader;
+        }
+      }
+      await new Promise(resolve => {
+        setTimeout(resolve, waitTime);
+      });
+      ({ endpoint, query, options } = endpointFn());
+    }
+    throw new Error(`Stream: did not get proper END after ${maxAttempts} attempts for ${endpoint}`);
   }
 }
