@@ -88,7 +88,7 @@ describe('saveChangesForModel', () => {
           ...newRecord,
           isDeleted,
         }, // isDeleted flag for soft deleting record after creation
-      ]);
+      ], 500);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -121,7 +121,7 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.executeUpdates).toBeCalledWith(Model, [newRecord], 500);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
