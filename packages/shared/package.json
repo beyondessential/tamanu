@@ -78,6 +78,16 @@
       "require": "./dist/cjs/audit/*.js",
       "import": "./dist/esm/audit/*.js"
     },
+    "./dtos/*": {
+      "types": "./dist/types/dtos/*.d.ts",
+      "require": "./dist/cjs/dtos/*.js",
+      "import": "./dist/esm/dtos/*.js"
+    },
+    "./dtos/responses/*": {
+      "types": "./dist/types/dtos/responses/*.d.ts",
+      "require": "./dist/cjs/dtos/responses/*.js",
+      "import": "./dist/esm/dtos/responses/*.js"
+    },
     "./*": {
       "require": "./dist/cjs/*/index.js",
       "import": "./dist/esm/*/index.js"
@@ -140,6 +150,7 @@
     "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
-    "shortid": "^2.2.14"
+    "shortid": "^2.2.14",
+    "zod": "^3.25.69"
   }
 }
