@@ -265,8 +265,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     }
 
     await api.post('surveyResponse', responseData);
+    queryClient.invalidateQueries(['encounterCharts', encounter.id, survey.id]);
     handleCloseModal();
-    await loadEncounter(encounter.id);
   };
 
   const handleDeleteChart = useCallback(async () => {
@@ -412,6 +412,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
           <CoreComplexChartData
             handleDeleteChart={handleDeleteChart}
             selectedSurveyId={selectedChartTypeId}
+            currentInstanceId={currentComplexChartInstance?.chartInstanceId}
             date={currentComplexChartInstance.chartDate}
             type={currentComplexChartInstance.chartType}
             subtype={currentComplexChartInstance.chartSubtype}
@@ -422,6 +423,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
+          currentInstanceId={currentComplexChartInstance?.chartInstanceId}
           noDataMessage={getNoDataMessage(
             isComplexChart,
             complexChartInstances,
