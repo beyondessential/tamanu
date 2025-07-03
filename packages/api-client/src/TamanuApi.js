@@ -60,7 +60,7 @@ export class TamanuApi {
         password,
         deviceId: this.deviceId,
       },
-      { returnResponse: true },
+      { returnResponse: true, useAuthToken: false },
     );
     const serverType = response.headers.get('X-Tamanu-Server');
     if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
