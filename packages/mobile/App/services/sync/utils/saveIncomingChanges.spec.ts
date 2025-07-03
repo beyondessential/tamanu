@@ -51,7 +51,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
@@ -80,7 +80,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
@@ -117,7 +117,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -150,7 +150,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -178,7 +178,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -209,7 +209,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
