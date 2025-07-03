@@ -203,7 +203,7 @@ const DataTable = ({ data, columns, title, type }) => {
       {data.map((row) => (
         <Row key={row.id} wrap={false} width={width}>
           {columns.map(({ key, accessor, style }, index) => (
-            <Cell key={key} style={style} bold={index === 0}>
+            <Cell key={key} style={style} bold={type === 'vitals' && index === 0}>
               {accessor ? accessor(row) : row[key] || ''}
             </Cell>
           ))}
