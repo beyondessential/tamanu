@@ -218,15 +218,16 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
-    console.log('MobileSyncManager.runSync(): Sync started');
+    console.log('MobileSyncManager.runSync(): Sync started')
+    await Database.setUnsafePragma();
 
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
     await this.syncIncomingChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
 
-    // clear persisted cache from last session
-    await clearPersistedSyncSessionRecords();
+    // clear persisted cache from this session
+    await clearPersistedSyncSessionRecords(sessionId);
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
@@ -323,12 +324,6 @@ export class MobileSyncManager {
     this.setSyncStage(3);
 
     const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
-    // Save all incoming changes in 1 transaction so that the whole sync session save
-    // either fail 100% or succeed 100%, no partial save.
-    await Database.client.transaction(async () => {
-      if (totalPulled > 0) {
-        await saveIncomingChanges(sessionId, totalPulled, incomingModels, insertBatchSize, this.updateProgress);
-      }
 
     if (isInitialSync) {
       await Database.setUnsafePragma();
