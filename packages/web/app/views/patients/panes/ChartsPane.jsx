@@ -307,6 +307,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     chartSurveyId: chartSurveyIdToSubmit,
     onClose: handleCloseModal,
     onSubmit: handleSubmitChart,
+    patient,
   };
 
   if (isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
@@ -333,7 +334,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         {isComplexChart ? (
           <ComplexChartModal
             {...baseChartModalProps}
-            patient={patient}
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
