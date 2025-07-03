@@ -147,7 +147,7 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
-const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled) => {
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, firstColTitle) => {
   return (cells) => {
     const { value, config, validationCriteria, historyLogs, component } = cells[date];
     const isCalculatedQuestion =
@@ -160,7 +160,13 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled) => {
     const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
 
     if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
-      return <ViewPhotoLink imageId={value} data-testid="viewphotolink-chrt" />;
+      return (
+        <ViewPhotoLink
+          imageId={value}
+          data-testid="viewphotolink-chrt"
+          firstColTitle={firstColTitle}
+        />
+      );
     }
 
     return (
@@ -208,7 +214,7 @@ export const getChartsTableColumns = (
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: getRecordedDateAccessor(date, patient, onCellClick, isEditEnabled),
+        accessor: getRecordedDateAccessor(date, patient, onCellClick, isEditEnabled, firstColTitle),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },

@@ -3,8 +3,10 @@ import styled from 'styled-components';
 import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
 import { Modal } from './Modal';
-import { TextButton } from './Button';
+import { Button, OutlinedButton, TextButton } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
+import { ButtonRow } from './ButtonRow';
+import { Divider } from '@material-ui/core';
 
 const Image = styled.img`
   display: block;
@@ -12,7 +14,65 @@ const Image = styled.img`
   width: 400px;
 `;
 
-export const ViewPhotoLink = ({ imageId }) => {
+const ChartViewText = styled.span`
+  text-decoration: underline;
+  font-size: 14px;
+`;
+
+const SpaceBetweenButtonRow = styled(ButtonRow)`
+  justify-content: space-between;
+`;
+
+const TextDisplay = ({ isChartView }) => {
+  if (isChartView) {
+    return (
+      <ChartViewText>
+        <TranslatedText
+          stringId="program.modal.view.action.viewImage.label.short"
+          fallback="View"
+          data-testid="translatedtext-ta3g"
+        />
+      </ChartViewText>
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="program.modal.view.action.viewImage"
+      fallback="View Image"
+      data-testid="translatedtext-wagq"
+    />
+  );
+};
+
+const Footer = ({ hasError, onDelete, onClose }) => {
+  const RowComponent = hasError ? ButtonRow : SpaceBetweenButtonRow;
+  return (
+    <>
+      <Divider style={{ margin: '32px -32px 30px -32px' }} data-testid="divider-ib6q" />
+      <RowComponent>
+        {!hasError && (
+          <OutlinedButton onClick={onDelete} data-testid="outlinedbutton-y5xo">
+            <TranslatedText
+              stringId="general.action.delete"
+              fallback="Delete"
+              data-testid="translatedtext-ka8c"
+            />
+          </OutlinedButton>
+        )}
+        <Button onClick={onClose} data-testid="button-lsea">
+          <TranslatedText
+            stringId="general.action.close"
+            fallback="Close"
+            data-testid="translatedtext-9fgw"
+          />
+        </Button>
+      </RowComponent>
+    </>
+  );
+};
+
+export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
   const [showModal, setShowModal] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -38,18 +98,16 @@ export const ViewPhotoLink = ({ imageId }) => {
 
     setShowModal(true);
   }, [api, imageId]);
+  const isChartView = !!firstColTitle;
+  const title = isChartView ? `${firstColTitle} | View image` : 'Image';
 
   return (
     <>
       <TextButton color="blue" onClick={openModalCallback} data-testid="textbutton-p17p">
-        <TranslatedText
-          stringId="program.modal.view.action.viewImage"
-          fallback="View Image"
-          data-testid="translatedtext-wagq"
-        />
+        <TextDisplay isChartView={isChartView} />
       </TextButton>
       <Modal
-        title="Image"
+        title={title}
         open={showModal}
         onClose={() => setShowModal(false)}
         data-testid="modal-zpy7"
@@ -58,6 +116,13 @@ export const ViewPhotoLink = ({ imageId }) => {
           <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />
         ) : (
           <p>{errorMessage}</p>
+        )}
+        {isChartView && (
+          <Footer
+            hasError={!!errorMessage}
+            onDelete={() => {}}
+            onClose={() => setShowModal(false)}
+          />
         )}
       </Modal>
     </>
