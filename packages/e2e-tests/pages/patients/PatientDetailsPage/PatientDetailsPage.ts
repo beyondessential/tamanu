@@ -361,8 +361,8 @@ export class PatientDetailsPage extends BasePatientPage {
   getOngoingConditionEditSubmitButton() {
     return this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
-      .first();
+      .getByTestId('formgrid-lqds')
+      .getByRole('button', { name: 'Save' });
   }
 
   getAllergyEditSubmitButton() {
