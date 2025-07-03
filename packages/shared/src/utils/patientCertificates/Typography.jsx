@@ -4,46 +4,42 @@ import { Text } from '../pdf/Text';
 
 const styles = StyleSheet.create({
   h1: {
-    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
     fontSize: 15,
-    fontWeight: 700,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   h2: {
-    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   h3: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 20,
     fontSize: 14,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   p: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoKufiArabic-Regular',
     fontSize: 12,
-    fontWeight: 400,
     marginBottom: 15,
   },
   certificateAddress: {
-    fontFamily: 'Helvetica-Bold',
     textAlign: 'right',
     fontSize: 14,
     marginBottom: 13,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   certificateTitle: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 18,
     textAlign: 'right',
     marginBottom: 14,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   certificateSubtitle: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoKufiArabic-Regular',
     fontSize: 18,
     textAlign: 'right',
     marginTop: '-10px',

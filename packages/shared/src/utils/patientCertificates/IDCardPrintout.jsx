@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
   },
   detailsKey: {
     width: '18mm',
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   detailsValue: {
     maxWidth: '35mm',
     overflow: 'hidden',
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   barcodeRow: {
     height: '6.3mm',
