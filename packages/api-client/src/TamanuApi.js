@@ -349,4 +349,21 @@ export class TamanuApi {
   async delete(endpoint, query = {}, config = {}) {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
   }
+
+  async pollUntilOk(...args) {
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const response = await this.fetch(...args);
+      if (response) {
+        return response;
+      }
+
+      await new Promise(resolve => {
+        setTimeout(resolve, waitTime);
+      });
+    }
+
+    throw new Error(`Poll of ${args[0]} did not succeed after ${maxAttempts} attempts`);
+  }
 }
