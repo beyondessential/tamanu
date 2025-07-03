@@ -21,6 +21,7 @@ import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const getExportOverrideTitle = (date) => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
@@ -146,6 +147,36 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled) => {
+  return (cells) => {
+    const { value, config, validationCriteria, historyLogs, component } = cells[date];
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const handleCellClick = () => {
+      onCellClick(cells[date]);
+    };
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+      return <ViewPhotoLink imageId={value} data-testid="viewphotolink-chrt" />;
+    }
+
+    return (
+      <RangeValidatedCell
+        value={value}
+        config={config}
+        validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+        isEdited={historyLogs.length > 1}
+        onClick={shouldBeClickable ? handleCellClick : null}
+        ValueWrapper={VitalsLimitedLinesCell}
+        data-testid={`rangevalidatedcell-${date}`}
+      />
+    );
+  };
+};
+
 export const getChartsTableColumns = (
   firstColKey,
   firstColTitle,
@@ -177,28 +208,7 @@ export const getChartsTableColumns = (
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: (cells) => {
-          const { value, config, validationCriteria, historyLogs, component } = cells[date];
-          const isCalculatedQuestion =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-          const handleCellClick = () => {
-            onCellClick(cells[date]);
-          };
-          const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-          const isValid = isCurrent ? true : Boolean(value);
-          const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-          return (
-            <RangeValidatedCell
-              value={value}
-              config={config}
-              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
-              isEdited={historyLogs.length > 1}
-              onClick={shouldBeClickable ? handleCellClick : null}
-              ValueWrapper={VitalsLimitedLinesCell}
-              data-testid={`rangevalidatedcell-${date}`}
-            />
-          );
-        },
+        accessor: getRecordedDateAccessor(date, patient, onCellClick, isEditEnabled),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },
