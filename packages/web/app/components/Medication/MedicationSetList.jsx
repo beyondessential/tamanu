@@ -194,7 +194,7 @@ export const MedicationSetMedicationsList = ({
                 </>
               )}
             </MedicationListItem>
-            {existingDrugIds.includes(medicationRef.id) && (
+            {existingDrugIds.includes(medicationRef.id) && editable && (
               <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
                 <TranslatedText
                   stringId="medication.warning.existingDrug"
