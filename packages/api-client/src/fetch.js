@@ -23,13 +23,12 @@ export async function fetchOrThrowIfUnavailable(url, { timeout = false, ...confi
   }
 }
 
-export async function getResponseErrorSafely(response) {
+export async function getResponseErrorSafely(response, logger = console) {
   try {
     return await response.json();
   } catch (e) {
     // log json parsing errors, but still return a valid object
-    // eslint-disable-next-line no-console
-    console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
     return {
       error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` },
     };

@@ -32,7 +32,7 @@ export class TamanuApi {
   user = null;
   logger = console;
 
-  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {} }) {
+  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
@@ -45,6 +45,9 @@ export class TamanuApi {
       request: new InterceptorManager(),
       response: new InterceptorManager(),
     };
+    if (logger) {
+      this.logger = logger;
+    }
   }
 
   getHost() {
@@ -247,7 +250,7 @@ export class TamanuApi {
    * Generally only used internally.
    */
   async extractError(endpoint, response) {
-    const { error } = await getResponseErrorSafely(response);
+    const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
     // handle auth invalid
