@@ -22,6 +22,7 @@ export class TamanuApi {
   #onVersionIncompatible;
   #authToken;
   #refreshToken;
+  #ongoingAuth;
 
   lastRefreshed = null;
   user = null;
@@ -53,36 +54,44 @@ export class TamanuApi {
   }
 
   async login(email, password) {
-    const response = await this.post(
-      'login',
-      {
-        email,
-        password,
-        deviceId: this.deviceId,
-      },
-      { returnResponse: true, useAuthToken: false },
-    );
-    const serverType = response.headers.get('X-Tamanu-Server');
-    if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+    if (this.#ongoingAuth) {
+      await this.#ongoingAuth;
     }
 
-    const {
-      server = {},
-      centralHost,
-      serverType: responseServerType,
-      ...loginData
-    } = await response.json();
-    server.type = responseServerType ?? serverType;
-    server.centralHost = centralHost;
-    this.setToken(loginData.token, loginData.refreshToken);
+    return (this.#ongoingAuth = (async () => {
+      const response = await this.post(
+        'login',
+        {
+          email,
+          password,
+          deviceId: this.deviceId,
+        },
+        { returnResponse: true, useAuthToken: false, waitForAuth: false },
+      );
+      const serverType = response.headers.get('X-Tamanu-Server');
+      if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
+        throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+      }
 
-    const { user, ability } = await this.fetchUserData(loginData.permissions);
-    return { ...loginData, user, ability, server };
+      const {
+        server = {},
+        centralHost,
+        serverType: responseServerType,
+        ...loginData
+      } = await response.json();
+      server.type = responseServerType ?? serverType;
+      server.centralHost = centralHost;
+      this.setToken(loginData.token, loginData.refreshToken);
+
+      const { user, ability } = await this.fetchUserData(loginData.permissions, config);
+      return { ...loginData, user, ability, server };
+    })().finally(() => {
+      this.#ongoingAuth = null;
+    }));
   }
 
-  async fetchUserData(permissions) {
-    const user = await this.get('user/me');
+  async fetchUserData(permissions, config = {}) {
+    const user = await this.get('user/me', {}, { ...config, waitForAuth: false });
     this.lastRefreshed = Date.now();
     this.user = user;
 
@@ -100,7 +109,11 @@ export class TamanuApi {
 
   async refreshToken() {
     try {
-      const response = await this.post('refresh', {}, { useAuthToken: this.#refreshToken });
+      const response = await this.post(
+        'refresh',
+        {},
+        { useAuthToken: this.#authToken, waitForAuth: false },
+      );
       const { token, refreshToken } = response;
       this.setToken(token, refreshToken);
     } catch (e) {
@@ -114,14 +127,24 @@ export class TamanuApi {
     this.#refreshToken = refreshToken;
   }
 
-  async fetch(endpoint, query = {}, moreConfig = {}) {
+  async fetch(endpoint, query = {}, options = {}) {
+    let { useAuthToken = this.#authToken, ...moreConfig } = options;
     const {
       headers,
       returnResponse = false,
       throwResponse = false,
-      useAuthToken = this.#authToken,
+      waitForAuth = true,
       ...otherConfig
     } = moreConfig;
+
+    if (waitForAuth && this.#ongoingAuth) {
+      await this.#ongoingAuth;
+      if (useAuthToken !== false) {
+        // use the auth token from after the pending login
+        useAuthToken = this.#authToken;
+      }
+    }
+
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
