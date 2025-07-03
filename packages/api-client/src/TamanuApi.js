@@ -108,11 +108,13 @@ export class TamanuApi {
   }
 
   async refreshToken() {
+    if (!this.#refreshToken && !this.#authToken) return;
+
     try {
       const response = await this.post(
         'refresh',
         {},
-        { useAuthToken: this.#authToken, waitForAuth: false },
+        { useAuthToken: this.#refreshToken ?? this.#authToken, waitForAuth: false },
       );
       const { token, refreshToken } = response;
       this.setToken(token, refreshToken);
