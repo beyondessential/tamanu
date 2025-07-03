@@ -82,12 +82,11 @@ export const executeDeletes = async (
   recordsForDelete: DataToPersist[],
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
-  try {
-    for (const batchOfRowIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+  for (const batchOfRowIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+      try {
       const entities = await model.find({ where: { id: In(batchOfRowIds) } });
       await model.softRemove(entities);
-    }
-  } catch (e) {
+    } catch (e) {
     // try records individually, some may succeed and we want to capture the
     // specific one with the error
     await Promise.all(
@@ -101,6 +100,7 @@ export const executeDeletes = async (
       }),
     );
   }
+}
 
   await executeUpdates(model, recordsForDelete);
 };
