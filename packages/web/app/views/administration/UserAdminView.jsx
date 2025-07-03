@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
-import { DataFetchingTable, TranslatedText } from '../../components';
+import { DataFetchingTable, TranslatedText, UserSearchBar } from '../../components';
 import { USERS_ENDPOINT } from './constants';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../../components/Tooltip';
@@ -30,6 +30,10 @@ const TableContainer = styled.div`
   padding: 24px 30px;
   background-color: ${Colors.background};
   border-top: 1px solid ${Colors.outline};
+`;
+
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  box-shadow: none;
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -102,7 +106,7 @@ const COLUMNS = [
 ];
 
 const UserTable = React.memo(({ ...props }) => (
-  <DataFetchingTable
+  <StyledDataFetchingTable
     endpoint={USERS_ENDPOINT}
     columns={COLUMNS}
     noDataMessage={
@@ -116,10 +120,17 @@ const UserTable = React.memo(({ ...props }) => (
 ));
 
 export const UserAdminView = React.memo(() => {
+  const [searchParameters, setSearchParameters] = useState({});
+
   return (
     <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
       <TableContainer>
-        <UserTable fetchOptions={{}} data-testid="usertable-mpss" />
+      <UserSearchBar
+        onSearch={setSearchParameters}
+        searchParameters={searchParameters}
+        data-testid="usersearchbar-admin"
+      />
+        <UserTable fetchOptions={searchParameters} data-testid="usertable-mpss" />
       </TableContainer>
     </AdminViewContainer>
   );

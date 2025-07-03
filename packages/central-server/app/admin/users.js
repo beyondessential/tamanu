@@ -46,10 +46,19 @@ usersRouter.get(
         users.map(async user => {
           const allowedFacilities = await user.allowedFacilityIds();
           const obj = user.get({ plain: true });
-          const designations = user.designations?.map(d => d.referenceData?.name).filter(Boolean) || [];
+          const designations =
+            user.designations?.map(d => d.referenceData?.name).filter(Boolean) || [];
           const roleName = roleMap.get(user.role) || null;
           return {
-            ...pick(obj, ['id', 'displayName', 'displayId', 'email', 'phoneNumber', 'role', 'visibilityStatus']),
+            ...pick(obj, [
+              'id',
+              'displayName',
+              'displayId',
+              'email',
+              'phoneNumber',
+              'role',
+              'visibilityStatus',
+            ]),
             roleName,
             allowedFacilities,
             designations,
@@ -68,10 +77,7 @@ const VALIDATION = yup
     displayId: yup.string(),
     phoneNumber: yup.string(),
     password: yup.string().required(),
-    email: yup
-      .string()
-      .email()
-      .required(),
+    email: yup.string().email().required(),
   })
   .noUnknown();
 
