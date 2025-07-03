@@ -225,7 +225,20 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
 
-    // handle forbidden error and trigger catch all modal
+    // handle auth invalid
+    if (response.status === 401 && endpoint === 'login') {
+      const message =
+        (await response.json().then(
+          json => json.message,
+          () => null,
+        )) ?? 'Failed authentication';
+      if (this.#onAuthFailure) {
+        this.#onAuthFailure(message);
+      }
+      throw new AuthInvalidError(message, response);
+    }
+
+    // handle forbidden error
     if (response.status === 403 && error) {
       throw new ForbiddenError(message, response);
     }
