@@ -11,6 +11,7 @@ import android.os.Build;
 import org.jetbrains.annotations.Nullable;
 
 public class MainActivity extends ReactActivity {
+
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
@@ -22,12 +23,12 @@ public class MainActivity extends ReactActivity {
 
   @Override
   public Intent registerReceiver(@Nullable BroadcastReceiver receiver, IntentFilter filter) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    if (Build.VERSION.SDK_INT >= 34 && getApplicationInfo().targetSdkVersion >= 34) {
       return super.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
-  } else {
+    } else {
       return super.registerReceiver(receiver, filter);
+    }
   }
-}
   /**
    * Returns the instance of the {@link ReactActivityDelegate}. There the RootView is created and
    * you can specify the renderer you wish to use - the new renderer (Fabric) or the old renderer

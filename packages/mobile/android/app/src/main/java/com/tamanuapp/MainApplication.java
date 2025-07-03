@@ -2,11 +2,6 @@ package com.tamanuapp;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
-import org.jetbrains.annotations.Nullable;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -15,13 +10,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
-import org.jetbrains.annotations.Nullable;
-import android.database.CursorWindow;
-import java.lang.reflect.Field;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -53,26 +41,10 @@ public class MainApplication extends Application implements ReactApplication {
   }
 
   @Override
-  public Intent registerReceiver(@Nullable BroadcastReceiver receiver, IntentFilter filter) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      return super.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
-    } else {
-      return super.registerReceiver(receiver, filter);
-    }
-  }
-
-  @Override
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-    try {
-      Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
-      field.setAccessible(true);
-      field.set(null, 100 * 1024 * 1024); //the 100MB is the new size
-    } catch (Exception e) {
-    
-    }
   }
 
   /**
