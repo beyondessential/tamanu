@@ -5,6 +5,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
+import SvgIcon from '@mui/material/SvgIcon';
 
 type AccordionSectionTitle = string | React.ReactNode;
 
@@ -18,8 +19,10 @@ export const AccordionSection = ({ header, icon, children, ...props }: Accordion
     <Accordion {...props}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {icon}
-          {typeof header === 'string' ? <Typography>{header}</Typography> : header}
+          <SvgIcon color="primary" sx={{ width: 24, height: 24 }}>
+            {icon}
+          </SvgIcon>
+          {typeof header === 'string' ? <Typography variant="h4">{header}</Typography> : header}
         </Box>
       </AccordionSummary>
       <AccordionDetails>{children}</AccordionDetails>

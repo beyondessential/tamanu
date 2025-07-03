@@ -19,7 +19,8 @@
     "paths": {
       "@utils/*": ["src/utils/*"],
       "@auth/*": ["src/auth/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/routes/*"],
+      "react": ["./node_modules/@types/react"]
     }
   },
   "include": ["src"],
