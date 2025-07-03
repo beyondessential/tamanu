@@ -7,3 +7,14 @@ export const SYNC_DIRECTIONS = {
 };
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
+
+// 32-bit uint
+export const SYNC_STREAM_MESSAGE_KIND = {
+  // Control messages start with 0xf
+  END: 0xf0000001,
+
+  // Application messages start with 0x0
+  SESSION_WAITING: 0x00000001,
+  PULL_WAITING: 0x00000002,
+  PULL_CHANGE: 0x00000003,
+};
