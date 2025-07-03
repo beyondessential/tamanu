@@ -25,7 +25,12 @@ export async function fetchOrThrowIfUnavailable(url, { timeout = false, ...confi
 
 export async function getResponseErrorSafely(response, logger = console) {
   try {
-    return await response.json();
+    const data = await response.text();
+    if (data.length === 0) {
+      return {};
+    }
+
+    return JSON.parse(data);
   } catch (e) {
     // log json parsing errors, but still return a valid object
     logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
