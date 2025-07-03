@@ -18,7 +18,7 @@ const mockMedicationsData = {
       discontinued: false,
       medication: {
         id: 'drug-lisinopril',
-        name: 'Lisinopril',
+        name: 'Really long medication name that should wrap but is also called LISINOPRIL',
         code: 'lisinopril',
         type: 'drug',
       },

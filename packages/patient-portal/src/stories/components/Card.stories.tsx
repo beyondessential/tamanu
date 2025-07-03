@@ -16,12 +16,18 @@ const meta: Meta<typeof Card> = {
     docs: {
       description: {
         component:
-          'A generic card component with a subtle background designed for displaying structured information throughout the patient portal. Works well with LabelValueList and other content types.',
+          'A generic card component with a subtle background designed for displaying structured information throughout the patient portal. Works well with LabelValueList and other content types. Supports both default and outlined variants.',
       },
     },
   },
   tags: ['autodocs'],
   argTypes: {
+    variant: {
+      description:
+        'Card variant - default has background color, outlined has transparent background with border',
+      control: { type: 'select' },
+      options: [undefined, 'outlined'],
+    },
     children: {
       description: 'Content to display inside the card',
       control: false,
@@ -35,6 +41,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: <Typography>This is a basic card with simple text content.</Typography>,
+  },
+};
+
+export const Outlined: Story = {
+  args: {
+    variant: 'outlined',
+    children: <Typography>This is an outlined card with simple text content.</Typography>,
   },
 };
 
@@ -55,6 +68,29 @@ export const WithMedicationInfo: Story = {
     docs: {
       description: {
         story: 'Example showing a card with medication information using LabelValueList.',
+      },
+    },
+  },
+};
+
+export const WithMedicationInfoOutlined: Story = {
+  args: {
+    variant: 'outlined',
+    children: (
+      <LabelValueList>
+        <LabelValueList.ListItem label="Medication" value="Lisinopril" />
+        <LabelValueList.ListItem label="Dose" value="10 mg" />
+        <LabelValueList.ListItem label="Frequency" value="Twice Daily" />
+        <LabelValueList.ListItem label="Route" value="Oral" />
+        <LabelValueList.ListItem label="Date" value="15/01/2024" />
+        <LabelValueList.ListItem label="Prescriber" value="Dr. Sarah Wilson" />
+      </LabelValueList>
+    ),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Example showing an outlined card with medication information.',
       },
     },
   },
@@ -140,6 +176,46 @@ export const WithLabResults: Story = {
   },
 };
 
+export const VariantComparison: Story = {
+  render: () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Default Card
+        </Typography>
+        <Card>
+          <LabelValueList>
+            <LabelValueList.ListItem label="Medication" value="Lisinopril" />
+            <LabelValueList.ListItem label="Dose" value="10 mg" />
+            <LabelValueList.ListItem label="Frequency" value="Once Daily" />
+          </LabelValueList>
+        </Card>
+      </Box>
+
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Outlined Card
+        </Typography>
+        <Card variant="outlined">
+          <LabelValueList>
+            <LabelValueList.ListItem label="Medication" value="Lisinopril" />
+            <LabelValueList.ListItem label="Dose" value="10 mg" />
+            <LabelValueList.ListItem label="Frequency" value="Once Daily" />
+          </LabelValueList>
+        </Card>
+      </Box>
+    </Box>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Side-by-side comparison of default and outlined card variants showing their visual differences.',
+      },
+    },
+  },
+};
+
 export const MultipleCards: Story = {
   render: () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -151,7 +227,7 @@ export const MultipleCards: Story = {
         </LabelValueList>
       </Card>
 
-      <Card>
+      <Card variant="outlined">
         <LabelValueList>
           <LabelValueList.ListItem label="Appointment" value="March 15, 2024" />
           <LabelValueList.ListItem label="Provider" value="Dr. Sarah Wilson" />
@@ -172,7 +248,7 @@ export const MultipleCards: Story = {
     docs: {
       description: {
         story:
-          'Example showing multiple cards stacked together, demonstrating consistent spacing and versatile use cases.',
+          'Example showing multiple cards stacked together, mixing default and outlined variants to demonstrate consistent spacing and versatile use cases.',
       },
     },
   },

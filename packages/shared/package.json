@@ -65,12 +65,12 @@
       "import": "./dist/esm/utils/*.js"
     },
     "./ui/*": {
-      "types": "./dist/esm/ui/*.d.ts",
+      "types": "./dist/types/ui/*.d.ts",
       "require": "./dist/cjs/ui/*.js",
       "import": "./dist/esm/ui/*.js"
     },
     "./ui/theme": {
-      "types": "./dist/esm/ui/theme/index.d.ts",
+      "types": "./dist/types/ui/theme/index.d.ts",
       "require": "./dist/cjs/ui/theme/index.js",
       "import": "./dist/esm/ui/theme/index.js"
     },

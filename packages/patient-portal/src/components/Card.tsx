@@ -2,12 +2,24 @@ import React from 'react';
 import { Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const StyledCard = styled(Paper)(({ theme }) => ({
+type CardVariant = undefined | 'outlined';
+
+interface CardProps {
+  variant?: CardVariant;
+  children: React.ReactNode;
+}
+
+const StyledCard = styled(Paper)<{ variant?: CardVariant }>(({ theme, variant }) => ({
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: variant === 'outlined' ? 'transparent' : theme.palette.background.default,
   borderRadius: theme.shape.borderRadius,
+  border: variant === 'outlined' ? `1px solid ${theme.palette.divider}` : 'none',
 }));
 
-export const Card = ({ children }: { children: React.ReactNode }) => {
-  return <StyledCard elevation={0}>{children}</StyledCard>;
+export const Card = ({ variant, children }: CardProps) => {
+  return (
+    <StyledCard elevation={0} variant={variant}>
+      {children}
+    </StyledCard>
+  );
 };
