@@ -167,8 +167,10 @@ export class TamanuApi {
     const url = `${this.#prefix}/${path}`;
     const config = {
       headers: {
-        ...(useAuthToken ? { Authorization: `Bearer ${useAuthToken}` } : {}),
+        Accept: 'application/json',
+        'Content-Type': otherConfig.body ? 'application/json' : undefined,
         ...headers,
+        ...(useAuthToken ? { Authorization: `Bearer ${useAuthToken}` } : {}),
         'X-Tamanu-Client': this.agentName,
         'X-Version': this.agentVersion,
       },
