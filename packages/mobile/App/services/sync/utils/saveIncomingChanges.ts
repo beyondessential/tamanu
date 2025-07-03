@@ -10,7 +10,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
 import { getDirPath } from './getFilePath';
-import { MAX_RECORDS_IN_BULK_INSERT } from '~/infra/db/limits';
+import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -36,7 +36,7 @@ export const saveChangesForModel = async (
 
   for (const incomingRecords of chunk(
     recordsForUpsert,
-    Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT),
+    SQLITE_MAX_PARAMETERS
   )) {
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
@@ -77,7 +77,7 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate);
+    await executeInserts(model, recordsForCreate, insertBatchSize);
   }
   if (recordsForUpdate.length > 0) {
     await executeUpdates(model, recordsForUpdate);
