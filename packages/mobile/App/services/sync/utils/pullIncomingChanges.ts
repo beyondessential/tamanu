@@ -51,8 +51,6 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    // Store the data in snapshot tables instead of files to avoid memory issues
-    // during first sync or when large amounts of data need to be synced
     await insertSnapshotRecords(queryRunner, sessionId, recordsToSave);
 
     fromId = records[records.length - 1].id;
