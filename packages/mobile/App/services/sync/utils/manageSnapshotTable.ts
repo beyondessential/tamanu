@@ -23,7 +23,8 @@ export const insertSnapshotRecords = async (
   records: Record<string, any>[],
 ) => {
   const tableName = getSnapshotTableName(sessionId);
-  for (const batch of chunk(records, 5000)) {
+  const TEMPORARY_MAX_BATCH_SIZE = 1000; // Will be based on bytes
+  for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
     await queryRunner.query(
       `INSERT INTO ${tableName} (data) VALUES (?)`,
       [JSON.stringify(batch)]
