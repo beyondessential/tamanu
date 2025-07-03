@@ -42,11 +42,9 @@ it('simple', async () => {
   expect(order).toEqual([
     START,
     'upgrade/foo/0',
-    'upgrade/foo',
     MIGRATIONS_START,
     MIGRATIONS_END,
     'upgrade/bar/0',
-    'upgrade/bar',
     END,
   ]);
 });
@@ -95,9 +93,7 @@ it('multi step file with indexed step dep', async () => {
     'upgrade/foo/0',
     'upgrade/bar/0',
     'upgrade/foo/1',
-    'upgrade/foo',
     MIGRATIONS_START,
-    'upgrade/bar',
     MIGRATIONS_END,
     END,
   ]);
@@ -145,19 +141,16 @@ it('migration dependency', async () => {
   expect(order).toEqual([
     START,
     'upgrade/foo/0',
-    'upgrade/foo',
     MIGRATIONS_START,
     'migration/1744261686398-addEnabledCheckToAuditTrigger',
     'migration/1744602896344-addLookupTicksTable',
     'migration/1745987213057-OptimiseFhirJobGrabFunction',
     'upgrade/baz/0',
-    'upgrade/baz',
     'migration/1747862710346-removeColumnsFromChangelogs',
     'migration/1748216223615-separateSyncSessionParametersFromDebugInfo',
     'migration/1748555633925-fullyResyncPatientProgramRegistrations',
     MIGRATIONS_END,
     'upgrade/bar/0',
-    'upgrade/bar',
     END,
   ]);
 });
