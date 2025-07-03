@@ -215,11 +215,16 @@ export class PatientTable {
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      const dateA = new Date(a.split('/').reverse().join('-')).getTime();
-      const dateB = new Date(b.split('/').reverse().join('-')).getTime();
+      const [month, day, year] = a.split('/');
+      const dateA = new Date(`${year}-${month}-${day}`).getTime();
+      const [monthB, dayB, yearB] = b.split('/');
+      const dateB = new Date(`${yearB}-${monthB}-${dayB}`).getTime();
       return isAscending ? dateA - dateB : dateB - dateA;
     });
+    console.log('result', dateValues);
+    console.log('expected', sortedValues);
     expect(dateValues).toEqual(sortedValues);
+    
   }
 
   async searchTable(searchCriteria: {
