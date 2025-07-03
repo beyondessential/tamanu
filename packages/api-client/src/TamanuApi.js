@@ -32,7 +32,7 @@ export class TamanuApi {
   user = null;
   logger = console;
 
-  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {} }) {
+  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
@@ -45,6 +45,9 @@ export class TamanuApi {
       request: new InterceptorManager(),
       response: new InterceptorManager(),
     };
+    if (logger) {
+      this.logger = logger;
+    }
   }
 
   getHost() {
