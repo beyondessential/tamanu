@@ -20,6 +20,7 @@ import { InterceptorManager } from './InterceptorManager';
 export class TamanuApi {
   #host;
   #prefix;
+  #defaultRequestConfig = {};
 
   #onAuthFailure;
   #onVersionIncompatible;
@@ -31,10 +32,11 @@ export class TamanuApi {
   user = null;
   logger = console;
 
-  constructor({ endpoint, agentName, agentVersion, deviceId }) {
+  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {} }) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
+    this.#defaultRequestConfig = defaultRequestConfig;
 
     this.agentName = agentName;
     this.agentVersion = agentVersion;
@@ -137,7 +139,10 @@ export class TamanuApi {
   }
 
   async fetch(endpoint, query = {}, options = {}) {
-    let { useAuthToken = this.#authToken, ...moreConfig } = options;
+    let { useAuthToken = this.#authToken, ...moreConfig } = {
+      ...this.#defaultRequestConfig,
+      ...options,
+    };
     const {
       headers,
       returnResponse = false,
