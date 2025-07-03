@@ -1,11 +1,13 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
+  AuthInvalidError,
+  ForbiddenError,
+  NotFoundError,
   ResourceConflictError,
   ServerResponseError,
   VersionIncompatibleError,
@@ -70,7 +72,10 @@ export class TamanuApi {
       );
       const serverType = response.headers.get('X-Tamanu-Server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+        throw new ServerResponseError(
+          `Tamanu server type '${serverType}' is not supported.`,
+          response,
+        );
       }
 
       const {
@@ -222,18 +227,18 @@ export class TamanuApi {
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
-      throw new ForbiddenError(message);
+      throw new ForbiddenError(message, response);
     }
 
     if (response.status === 404) {
-      throw new NotFoundError(message);
+      throw new NotFoundError(message, response);
     }
 
     // handle auth expiring
     if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
-      throw new AuthExpiredError(message);
+      throw new AuthExpiredError(message, response);
     }
 
     // handle version incompatibility
@@ -243,16 +248,16 @@ export class TamanuApi {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
         }
-        throw new VersionIncompatibleError(versionIncompatibleMessage);
+        throw new VersionIncompatibleError(versionIncompatibleMessage, response);
       }
     }
 
     // Handle resource conflict
     if (response.status === 409) {
-      throw new ResourceConflictError(message);
+      throw new ResourceConflictError(message, response);
     }
 
-    throw new ServerResponseError(`Server error response: ${message}`);
+    throw new ServerResponseError(`Server error response: ${message}`, response);
   }
 
   async get(endpoint, query = {}, config = {}) {
