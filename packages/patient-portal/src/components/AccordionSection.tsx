@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import SvgIcon from '@mui/material/SvgIcon';
+import { styled } from '@mui/material/styles';
 
 type AccordionSectionTitle = string | React.ReactNode;
 
@@ -14,9 +15,17 @@ interface AccordionSectionProps extends AccordionProps {
   icon?: React.ReactNode;
 }
 
+const StyledAccordion = styled(Accordion)(({ theme }) => ({
+  border: '1px solid',
+  borderColor: theme.palette.divider,
+  '&:before': {
+    display: 'none',
+  },
+}));
+
 export const AccordionSection = ({ header, icon, children, ...props }: AccordionSectionProps) => {
   return (
-    <Accordion {...props}>
+    <StyledAccordion elevation={0} {...props}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <SvgIcon color="primary" sx={{ width: 24, height: 24 }}>
@@ -26,6 +35,6 @@ export const AccordionSection = ({ header, icon, children, ...props }: Accordion
         </Box>
       </AccordionSummary>
       <AccordionDetails>{children}</AccordionDetails>
-    </Accordion>
+    </StyledAccordion>
   );
 };
