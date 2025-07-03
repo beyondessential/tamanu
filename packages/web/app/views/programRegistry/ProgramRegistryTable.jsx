@@ -104,7 +104,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ({ conditions }) => <ConditionsCell conditions={conditions} getTranslation={getTranslation} />,
+        accessor: ({ conditions }) => (
+          <ConditionsCell conditions={conditions} getTranslation={getTranslation} />
+        ),
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
