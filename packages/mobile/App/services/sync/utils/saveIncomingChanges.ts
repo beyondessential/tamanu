@@ -106,21 +106,17 @@ export const saveIncomingChanges = async (
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const queryRunner = Database.client.createQueryRunner();
+  await queryRunner.connect();
 
-  // Get all batch IDs (uses auto-incrementing IDs for efficient access)
   const batchIds = await getSnapshotBatchIds(queryRunner, sessionId);
 
-  // Group records by model type during single iteration through batches
   const recordsByType: Record<string, SyncRecord[]> = {};
 
-  // Iterate through all batches once and group by recordType
   for (const batchId of batchIds) {
     const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
 
-    // Group this batch's records by type
     const batchRecordsByType = groupBy(batchRecords, 'recordType');
 
-    // Accumulate records for each type
     for (const [recordType, records] of Object.entries(batchRecordsByType)) {
       if (!recordsByType[recordType]) {
         recordsByType[recordType] = [];
@@ -133,7 +129,6 @@ export const saveIncomingChanges = async (
 
   let savedRecordsCount = 0;
 
-  // Process each model in dependency order (now with pre-grouped data)
   for (const model of sortedModels) {
     const recordType = model.getTableName();
     const recordsForModel = recordsByType[recordType] || [];
@@ -151,4 +146,5 @@ export const saveIncomingChanges = async (
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
   }
+  await queryRunner.release();
 };

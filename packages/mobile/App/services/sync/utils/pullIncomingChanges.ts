@@ -22,6 +22,7 @@ export const pullIncomingChanges = async (
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   const queryRunner = Database.client.createQueryRunner();
+  await queryRunner.connect()
   await createSnapshotTable(queryRunner, sessionId);
 
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
@@ -59,6 +60,7 @@ export const pullIncomingChanges = async (
 
     progressCallback(totalToPull, totalPulled);
   }
-
+  
+  await queryRunner.release();
   return { totalPulled: totalToPull, pullUntil };
 };
