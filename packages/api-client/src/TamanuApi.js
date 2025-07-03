@@ -182,6 +182,14 @@ export class TamanuApi {
       ...otherConfig,
     };
 
+    if (
+      config.body &&
+      config.headers['Content-Type']?.startsWith('application/json') &&
+      !(config.body instanceof Uint8Array) // also covers Buffer
+    ) {
+      config.body = JSON.stringify(config.body);
+    }
+
     const requestInterceptorChain = [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
