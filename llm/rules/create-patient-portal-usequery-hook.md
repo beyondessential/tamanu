@@ -53,6 +53,8 @@ Apply this rule when:
    - **Nullable fields**: Use `.nullable()` for fields that can be null in the database
    - **Array schemas**: Always create both singular and array versions
 
+   **Important**: After creating new schemas, run `npm run build-shared` from the project root to build the shared package and make the schemas available to other packages.
+
 3. **Create the hook file** in `packages/patient-portal/src/api/queries/`:
 
    - Name it `use[FeatureName]Query.ts` (e.g., `useOngoingConditionsQuery.ts`)
@@ -151,6 +153,7 @@ Apply this rule when:
 - Don't use conditional hook calls (like `if (USE_MOCK_DATA) return mockHook()`) - this violates React hooks rules
 - Don't assume existing endpoints can be used directly - patient portal needs new `/patient/me/` endpoints that filter data for the authenticated patient
 - Don't duplicate schemas - reuse existing ones like `ReferenceDataSchema` for nested objects
+- Don't forget to run `npm run build-shared` after creating new schemas - this will cause TypeScript compilation errors
 
 # Notes
 

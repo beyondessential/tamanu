@@ -1,9 +1,11 @@
 import React from 'react';
 import { AccordionSection } from '../AccordionSection';
-import { List, ListItem, ListItemText, Typography } from '@mui/material';
+import { ListItemText, Typography } from '@mui/material';
 import { Stethoscope } from 'lucide-react';
 
 import { useOngoingConditionsQuery } from '../../api/queries/useOngoingConditionsQuery';
+import { StyledList, StyledListItem } from '../StyledList';
+import { StyledCircularProgress } from '../StyledCircularProgress';
 
 export const OngoingConditionsSection = () => {
   const { data: conditions, isLoading } = useOngoingConditionsQuery();
@@ -11,17 +13,17 @@ export const OngoingConditionsSection = () => {
   return (
     <AccordionSection header="Ongoing Conditions" icon={<Stethoscope />}>
       {isLoading ? (
-        <Typography>Loading conditions...</Typography>
+        <StyledCircularProgress size={24} />
       ) : conditions && conditions.length > 0 ? (
-        <List>
+        <StyledList>
           {conditions.map(condition => (
-            <ListItem key={condition.id}>
+            <StyledListItem key={condition.id}>
               <ListItemText>
                 <Typography fontWeight="bold">{condition.condition?.name}</Typography>
               </ListItemText>
-            </ListItem>
+            </StyledListItem>
           ))}
-        </List>
+        </StyledList>
       ) : (
         <Typography color="text.secondary">No ongoing conditions recorded.</Typography>
       )}
