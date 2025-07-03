@@ -77,7 +77,8 @@ export class TamanuApi {
         },
         { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       );
-      const serverType = response.headers.get('X-Tamanu-Server');
+
+      const serverType = response.headers.get('x-tamanu-server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
         throw new ServerResponseError(
           `Tamanu server type '${serverType}' is not supported.`,
@@ -91,6 +92,7 @@ export class TamanuApi {
         serverType: responseServerType,
         ...loginData
       } = await response.json();
+
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
@@ -170,24 +172,34 @@ export class TamanuApi {
         fetchWithRetryBackoff(url, config, { ...backoffOptions, log: this.logger });
     }
 
+    const reqHeaders = new Headers({
+      accept: 'application/json',
+      'x-tamanu-client': this.agentName,
+      'x-version': this.agentVersion,
+    });
+    if (otherConfig.body) {
+      reqHeaders.set('content-type', 'application/json');
+    }
+    if (useAuthToken) {
+      reqHeaders.set('authorization', `Bearer ${useAuthToken}`);
+    }
+    for (const [key, value] of Object.entries(headers ?? {})) {
+      const name = key.toLowerCase();
+      if (['authorization', 'x-tamanu-client', 'x-version'].includes(name)) continue;
+      reqHeaders.set(name, value);
+    }
+
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': otherConfig.body ? 'application/json' : undefined,
-        ...headers,
-        ...(useAuthToken ? { Authorization: `Bearer ${useAuthToken}` } : {}),
-        'X-Tamanu-Client': this.agentName,
-        'X-Version': this.agentVersion,
-      },
+      headers: reqHeaders,
       ...otherConfig,
     };
 
     if (
       config.body &&
-      config.headers['Content-Type']?.startsWith('application/json') &&
+      config.headers.get('content-type')?.startsWith('application/json') &&
       !(config.body instanceof Uint8Array) // also covers Buffer
     ) {
       config.body = JSON.stringify(config.body);
@@ -328,6 +340,9 @@ export class TamanuApi {
     return this.fetch(endpoint, undefined, {
       method: 'POST',
       body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
       ...options,
     });
   }
@@ -337,7 +352,7 @@ export class TamanuApi {
       endpoint,
       {},
       {
-        body: body && JSON.stringify(body),
+        body,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -352,7 +367,7 @@ export class TamanuApi {
       endpoint,
       {},
       {
-        body: body && JSON.stringify(body),
+        body,
         headers: {
           'Content-Type': 'application/json',
         },
