@@ -39,7 +39,6 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   tablesForFullResync: string[],
-  insertBatchSize: number,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
