@@ -14,6 +14,7 @@ import {
   getVersionIncompatibleMessage,
 } from './errors';
 import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
 export class TamanuApi {
@@ -28,6 +29,7 @@ export class TamanuApi {
 
   lastRefreshed = null;
   user = null;
+  logger = console;
 
   constructor({ endpoint, agentName, agentVersion, deviceId }) {
     this.#prefix = endpoint;
@@ -141,6 +143,7 @@ export class TamanuApi {
       returnResponse = false,
       throwResponse = false,
       waitForAuth = true,
+      backoff = false,
       ...otherConfig
     } = moreConfig;
 
@@ -150,6 +153,13 @@ export class TamanuApi {
         // use the auth token from after the pending login
         useAuthToken = this.#authToken;
       }
+    }
+
+    let fetcher = fetchOrThrowIfUnavailable;
+    if (backoff) {
+      const backoffOptions = typeof backoff === 'object' ? backoff : {};
+      fetcher = (url, config) =>
+        fetchWithRetryBackoff(url, config, { ...backoffOptions, log: this.logger });
     }
 
     const queryString = qs.stringify(query || {});
@@ -180,7 +190,7 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetchOrThrowIfUnavailable(url, latestConfig);
+    const response = await fetcher(url, latestConfig);
 
     const responseInterceptorChain = [];
     // response: first in first out
