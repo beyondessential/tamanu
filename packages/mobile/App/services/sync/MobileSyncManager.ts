@@ -226,7 +226,7 @@ export class MobileSyncManager {
 
     await this.centralServer.endSyncSession(sessionId);
 
-    // clear persisted cache from last session
+    // clear persisted cache from this session
     await clearPersistedSyncSessionRecords(sessionId);
 
     this.lastSuccessfulSyncTime = new Date();
@@ -306,6 +306,7 @@ export class MobileSyncManager {
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
+
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     const { totalPulled, pullUntil } = await pullIncomingChanges(
