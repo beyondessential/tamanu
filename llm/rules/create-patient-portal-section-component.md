@@ -22,6 +22,7 @@ Apply this rule when:
      - Empty state handling
    - Determine what backend data model and endpoint will be needed
    - Follow the `create-patient-portal-usequery-hook.md` rule to create the data-fetching hook first
+   - **Schema Organization**: Create schemas in separate DTO files (e.g., `UserSchema.ts`, `LocationSchema.ts`) rather than inline definitions for better reusability
    - **Important**: After creating new schemas in the shared package, run `npm run build-shared` from the project root to make them available to other packages
 
 2. **Create a skeleton component file**:
@@ -50,7 +51,7 @@ Apply this rule when:
    - Follow this template structure:
 
      ```typescript
-     import type { Meta, StoryObj } from '@storybook/react';
+     import type { Meta, StoryObj } from '@storybook/react-vite';
      import { [FeatureName]Section } from '../../components/sections/[FeatureName]Section';
 
      const meta: Meta<typeof [FeatureName]Section> = {
@@ -83,13 +84,12 @@ Apply this rule when:
 
      ```typescript
      import React from 'react';
-     import { AccordionSection } from '../AccordionSection';
-     import { ListItemText, Typography } from '@mui/material';
+     import { Stack, Typography } from '@mui/material';
      import { [RelevantIcon] } from 'lucide-react';
 
-     import { use[FeatureName]Query } from '../../api/queries/use[FeatureName]Query';
-     import { StyledList, StyledListItem } from '../StyledList';
+     import { AccordionSection } from '../AccordionSection';
      import { StyledCircularProgress } from '../StyledCircularProgress';
+     import { use[FeatureName]Query } from '../../api/queries/use[FeatureName]Query';
 
      export const [FeatureName]Section = () => {
        const { data: items, isLoading } = use[FeatureName]Query();
@@ -99,7 +99,9 @@ Apply this rule when:
            {isLoading ? (
              <StyledCircularProgress size={24} />
            ) : items && items.length > 0 ? (
-             // Main content rendering
+             <Stack spacing={2}>
+               {/* Main content rendering */}
+             </Stack>
            ) : (
              <Typography color="text.secondary">No [feature] recorded.</Typography>
            )}
@@ -110,12 +112,14 @@ Apply this rule when:
 
 5. **Choose appropriate components for data display**:
 
+   - **For layout**: Use `Stack` with `spacing` prop instead of `Box` with flex and gap for consistent spacing
+   - **For subsection headers**: Use `Typography` with `variant="h4"` and `fontWeight="bold"`
    - **For simple lists**: Use `StyledList`, `StyledListItem`, `ListItemText` (custom styled components)
    - **For complex lists with actions**: Add `ListItemIcon`, `ListItemSecondaryAction` with `StyledListItem`
    - **For card-like layouts**: Use `Card`, `CardContent`, `CardHeader`
    - **For tabular data**: Use `Table`, `TableHead`, `TableBody`, `TableRow`, `TableCell`
    - **For key-value pairs**: Use `Typography` with consistent styling
-   - **For dates/timestamps**: Use consistent date formatting utilities
+   - **For dates/timestamps**: Use consistent date formatting utilities from `utils/format.ts`
    - **For loading states**: Use `StyledCircularProgress` with `size={24}` prop
    - Always use `Typography` with appropriate variants (`body1`, `body2`, `subtitle1`, etc.)
 
@@ -131,7 +135,18 @@ Apply this rule when:
    - Import only the specific icon needed
    - Examples: `Stethoscope` for conditions, `Pill` for medications, `Calendar` for appointments
 
-8. **Identify potential reusable components**:
+8. **Centralize formatting logic**:
+
+   - **All formatting functions** should be added to `packages/patient-portal/src/utils/format.ts`
+   - **Examples of formatting patterns**:
+     - Date formatting: `formatDate()`, `formatWeekOf()`
+     - Status formatting: `formatStatus()`, `getStatusColor()`
+     - Person formatting: `formatGivenBy()`, `formatPrescriber()`
+     - Location formatting: `formatFacilityOrCountry()`
+   - **Import and use** centralized formatters instead of creating inline formatting logic
+   - **Consistent fallbacks**: Use `'--'` for missing data instead of various "Unknown" strings
+
+9. **Identify potential reusable components**:
 
    - **Before implementing**, consider if any parts could be extracted into reusable components:
      - **Date display patterns**: If displaying dates/timestamps consistently
@@ -139,6 +154,7 @@ Apply this rule when:
      - **Action buttons**: If sections have similar action patterns
      - **Information cards**: If displaying structured information in card format
      - **List item patterns**: If multiple sections use similar list item layouts
+   - **Card components**: Create reusable card components that accept TypeScript interfaces and use centralized formatting
    - **Ask the user**: "I notice this section could benefit from [X reusable component]. Should I create a shared component for [specific pattern] that could be reused across other sections?"
    - **Examples of reusable patterns to look for**:
      - Medical condition display with severity indicators
@@ -146,20 +162,20 @@ Apply this rule when:
      - Appointment display with time and provider information
      - Document/attachment display with download actions
 
-9. **Keep the component simple and focused**:
+10. **Keep the component simple and focused**:
 
-   - Each section should have a single responsibility
-   - Avoid complex logic - delegate to custom hooks or utility functions
-   - Use direct destructuring from the query hook
-   - Minimise props - most patient portal sections won't need external configuration
+    - Each section should have a single responsibility
+    - Avoid complex logic - delegate to custom hooks or utility functions
+    - Use direct destructuring from the query hook
+    - Minimise props - most patient portal sections won't need external configuration
 
-10. **Add proper TypeScript types**:
+11. **Add proper TypeScript types**:
 
     - Import types from the corresponding schema: `import type { [FeatureName] } from '@tamanu/shared/dtos/responses/[FeatureName]Schema'`
     - Use proper typing for any props (though most sections won't have props)
     - Ensure the data transformation in the hook provides the exact type the component expects
 
-11. **Update the Storybook story with proper variants**:
+12. **Update the Storybook story with proper variants**:
 
     - Update the story to showcase the different component states using the MockedApi decorator
     - Follow this enhanced structure:
@@ -257,7 +273,16 @@ Apply this rule when:
     - Each story variant uses its own decorator to override the API response
     - Include a TODO comment about potentially using the fake data package for more realistic data
 
-12. **Test the component with different data states**:
+13. **Create stories for individual card components**:
+
+    - **If you created reusable card components**, create separate stories for them
+    - **Location**: `packages/patient-portal/src/stories/components/[feature]/[ComponentName].stories.tsx`
+    - **Organization**: Stories should be under `Components/[Feature]/[ComponentName]` structure
+    - **Comprehensive coverage**: Create stories for various data states (normal, edge cases, incomplete data)
+    - **Type safety in mock data**: Use `undefined` instead of `null` to match schema types
+    - **Real-world scenarios**: Include different statuses, locations, providers, etc.
+
+14. **Test the component with different data states**:
 
     - Verify the component renders correctly with mock data in Storybook
     - Test loading state using the LoadingState story
@@ -277,6 +302,11 @@ Apply this rule when:
 - Don't skip creating the story early - it's essential for iterative development and testing
 - Don't implement the full component before creating the skeleton and story - the early story enables faster iteration
 - Don't forget to run `npm run build-shared` after creating new schemas in the shared package - this will cause TypeScript compilation errors
+- Don't create inline formatting logic - use centralized formatting functions in `utils/format.ts`
+- Don't use Box with flex and gap - use Stack with spacing prop for consistent layout
+- Don't use h5 for subsection headers - use h4 with fontWeight="bold"
+- Don't use null in mock data - use undefined to match schema types
+- Don't skip creating stories for individual card components - they need comprehensive coverage
 
 # Notes
 
@@ -285,6 +315,12 @@ Use Australian/NZ English spelling and terminology throughout the code (e.g., "c
 Always follow the established pattern of using AccordionSection as the wrapper component, as this provides consistent styling and behaviour across all patient portal sections.
 
 **Styled Components**: Use the custom styled components (`StyledList`, `StyledListItem`, `StyledCircularProgress`) instead of basic MUI components. These provide consistent styling and spacing that matches the patient portal design system.
+
+**Layout Consistency**: Use MUI Stack with spacing prop instead of Box with flex and gap. This provides consistent spacing that automatically adapts to the theme spacing system.
+
+**Formatting Functions**: All formatting logic should be centralized in `utils/format.ts` with consistent fallbacks ('--' for missing data). This ensures consistent display patterns across all sections and makes formatting logic reusable.
+
+**Story Organization**: Create comprehensive stories for both section components and individual card components. Use the `Components/[Feature]/[ComponentName]` structure for card components and realistic mock data scenarios.
 
 The skeleton-first, story-early approach enables rapid iteration and design validation. Use Storybook as your primary development environment - it allows you to test different states, data scenarios, and responsive behaviour without needing the full application context.
 

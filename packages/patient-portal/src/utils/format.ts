@@ -1,5 +1,6 @@
 import { SEX_LABELS } from '@tamanu/constants';
 import { formatShort } from '@tamanu/utils/dateTime';
+import { format, startOfWeek, parseISO } from 'date-fns';
 
 export const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return '--/--/----';
@@ -48,4 +49,71 @@ export const formatRoute = (route: string | undefined) => {
 
 export const formatPrescriber = (prescriber: { displayName?: string } | null | undefined) => {
   return prescriber?.displayName || '--';
+};
+
+// Vaccination-specific formatting functions
+export const formatVaccineGivenBy = (vaccine: {
+  status: string;
+  givenElsewhere?: boolean | null;
+  givenBy?: string | null;
+  recorder?: { displayName?: string | null } | null;
+}) => {
+  if (vaccine.status === 'NOT_GIVEN') {
+    return 'Not given';
+  }
+  if (vaccine.givenElsewhere) {
+    return 'Given elsewhere';
+  }
+  return vaccine.givenBy || vaccine.recorder?.displayName || '--';
+};
+
+export const formatVaccineFacilityOrCountry = (vaccine: {
+  givenElsewhere?: boolean | null;
+  givenBy?: string | null;
+  location?: { name?: string } | null;
+}) => {
+  if (vaccine.givenElsewhere) {
+    return vaccine.givenBy || '--';
+  }
+  return vaccine.location?.name || '--';
+};
+
+export const formatVaccineStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    SCHEDULED: 'Scheduled',
+    UPCOMING: 'Upcoming',
+    DUE: 'Due',
+    OVERDUE: 'Overdue',
+    MISSED: 'Missed',
+    GIVEN: 'Given',
+    NOT_GIVEN: 'Not Given',
+  };
+  return statusMap[status] || status;
+};
+
+export const getVaccineStatusColor = (status: string) => {
+  switch (status) {
+    case 'SCHEDULED':
+      return 'primary';
+    case 'UPCOMING':
+      return 'info';
+    case 'DUE':
+      return 'success';
+    case 'OVERDUE':
+      return 'warning';
+    case 'MISSED':
+      return 'error';
+    default:
+      return 'default';
+  }
+};
+
+export const formatWeekOf = (dateString: string | null | undefined) => {
+  if (!dateString) return '--';
+  try {
+    const mondayDate = startOfWeek(parseISO(dateString), { weekStartsOn: 1 });
+    return `Week of ${format(mondayDate, 'dd/MM/yyyy')}`;
+  } catch {
+    return '--';
+  }
 };
