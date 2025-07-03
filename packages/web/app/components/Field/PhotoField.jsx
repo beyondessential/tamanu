@@ -6,6 +6,6 @@ export const PhotoField = ({ ...props }) => (
     {...props}
     filters={[FILTER_PHOTOS]}
     data-testid="field-ph0t"
-    useSmallDisplay
+    smallDisplay
   />
 );

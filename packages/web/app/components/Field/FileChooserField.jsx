@@ -45,8 +45,8 @@ const getSmallFileName = (value, maxLength) => {
   return value.slice(0, middlePoint) + '...' + value.slice(lastHalfIndex, value.length);
 };
 
-const ValueSection = ({ value, useSmallDisplay, showFileDialog, onClear }) => {
-  if (useSmallDisplay) {
+const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
+  if (smallDisplay) {
     const maxLength = 50;
     const needEllipsis = value.name.length > maxLength;
     const smallName = needEllipsis ? getSmallFileName(value.name, maxLength) : value.name;
@@ -96,7 +96,7 @@ export const FileChooserInput = ({
   name,
   filters,
   onChange,
-  useSmallDisplay = false,
+  smallDisplay = false,
   ...props
 }) => {
   // Convert the given filters into string format for the accept attribute of file input
@@ -147,7 +147,7 @@ export const FileChooserInput = ({
           {value ? (
             <ValueSection
               value={value}
-              useSmallDisplay={useSmallDisplay}
+              smallDisplay={smallDisplay}
               showFileDialog={showFileDialog}
               onClear={onClear}
             />
