@@ -20,7 +20,8 @@ export class TamanuApi {
 
   #onAuthFailure;
   #onVersionIncompatible;
-  #authHeader;
+  #authToken;
+  #refreshToken;
 
   lastRefreshed = null;
   user = null;
@@ -67,20 +68,17 @@ export class TamanuApi {
     }
 
     const {
-      token,
-      localisation,
       server = {},
-      availableFacilities,
-      permissions,
       centralHost,
-      role,
+      serverType: responseServerType,
+      ...loginData
     } = await response.json();
-    server.type = serverType;
+    server.type = responseServerType ?? serverType;
     server.centralHost = centralHost;
-    this.setToken(token);
+    this.setToken(loginData.token, loginData.refreshToken);
 
-    const { user, ability } = await this.fetchUserData(permissions);
-    return { user, token, localisation, server, availableFacilities, ability, role, permissions };
+    const { user, ability } = await this.fetchUserData(loginData.permissions);
+    return { ...loginData, user, ability, server };
   }
 
   async fetchUserData(permissions) {
@@ -102,27 +100,34 @@ export class TamanuApi {
 
   async refreshToken() {
     try {
-      const response = await this.post('refresh');
-      const { token } = response;
-      this.setToken(token);
+      const response = await this.post('refresh', {}, { useAuthToken: this.#refreshToken });
+      const { token, refreshToken } = response;
+      this.setToken(token, refreshToken);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
     }
   }
 
-  setToken(token) {
-    this.#authHeader = { authorization: `Bearer ${token}` };
+  setToken(token, refreshToken = null) {
+    this.#authToken = token;
+    this.#refreshToken = refreshToken;
   }
 
   async fetch(endpoint, query = {}, moreConfig = {}) {
-    const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = moreConfig;
+    const {
+      headers,
+      returnResponse = false,
+      throwResponse = false,
+      useAuthToken = this.#authToken,
+      ...otherConfig
+    } = moreConfig;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
       headers: {
-        ...this.#authHeader,
+        ...(useAuthToken ? { Authorization: `Bearer ${useAuthToken}` } : {}),
         ...headers,
         'X-Tamanu-Client': this.agentName,
         'X-Version': this.agentVersion,
