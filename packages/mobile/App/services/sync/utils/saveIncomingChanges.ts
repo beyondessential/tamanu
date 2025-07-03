@@ -1,3 +1,4 @@
+import { chunk } from 'lodash';
 import { In } from 'typeorm';
 import { groupBy, chunk } from 'lodash';
 
@@ -9,6 +10,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchById } from './manageSnapshotTable';
 import { Database } from '~/infra/db';
+import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -20,6 +22,7 @@ import { Database } from '~/infra/db';
 export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
+  insertBatchSize: number,
 ): Promise<void> => {
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
@@ -31,17 +34,18 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  const batchOfIds = recordsForUpsert.map(r => r.id);
-  // add all records that already exist in the db to the list to be updated
-  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-
-  for (const batch of chunk(batchOfIds, 32700)) {
+  for (const incomingRecords of chunk(
+    recordsForUpsert,
+    SQLITE_MAX_PARAMETERS
+  )) {
+    const batchOfIds = incomingRecords.map(r => r.id);
+    // add all records that already exist in the db to the list to be updated
+    // even if they are being deleted or restored, we should also run an update query to keep the data in sync
     const batchOfExisting = await model.find({
-      where: { id: In(batch) },
+      where: { id: In(batchOfIds) },
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
-
     batchOfExisting.forEach(existing => {
       // compares incoming and existing records by id
       const incoming = idToIncomingRecord[existing.id];
@@ -54,6 +58,7 @@ export const saveChangesForModel = async (
       }
     });
   }
+
   const recordsForCreate = changes
     .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
     .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
@@ -72,7 +77,7 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate);
+    await executeInserts(model, recordsForCreate, insertBatchSize);
   }
   if (recordsForUpdate.length > 0) {
     await executeUpdates(model, recordsForUpdate);
@@ -98,6 +103,7 @@ export const saveIncomingChanges = async (
   sessionId: string,
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
+  insertBatchSize: number,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const queryRunner = Database.client.createQueryRunner();
@@ -139,7 +145,7 @@ export const saveIncomingChanges = async (
         ? model.sanitizePulledRecordData(recordsForModel)
         : recordsForModel;
 
-      await saveChangesForModel(model, sanitizedRecords);
+      await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
 
       savedRecordsCount += sanitizedRecords.length;
       const progressMessage = `Saving ${incomingChangesCount} records...`;
