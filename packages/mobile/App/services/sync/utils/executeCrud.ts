@@ -1,9 +1,9 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, chunk } from 'lodash';
 import { In } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { chunkRowsForInsert } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
+import { SQLITE_MAX_PARAMETERS, MAX_RECORDS_IN_BULK_INSERT } from '~/infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -14,6 +14,7 @@ function strippedIsDeleted(row) {
 export const executeInserts = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
+  insertBatchSize: number,
 ): Promise<void> => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
@@ -30,7 +31,7 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunkRowsForInsert(deduplicated)) {
+  for (const batchOfRows of chunk(deduplicated, Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT))) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
@@ -60,22 +61,21 @@ export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
 ): Promise<void> => {
-    try {
-      await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
-    } catch (e) {
-      // try records individually, some may succeed and we want to capture the
-      // specific one with the error
-      await Promise.all(
-        rows.map(async row => {
-          try {
-            await model.save(row);
-          } catch (error) {
-            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
-          }
-        }),
-      );
-    }
-
+  try {
+    await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
+  } catch (e) {
+    // try records individually, some may succeed and we want to capture the
+    // specific one with the error
+    await Promise.all(
+      rows.map(async row => {
+        try {
+          await model.save(row);
+        } catch (error) {
+          throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
+        }
+      }),
+    );
+  }
 };
 
 export const executeDeletes = async (
@@ -83,24 +83,25 @@ export const executeDeletes = async (
   recordsForDelete: DataToPersist[],
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
-  try {
-    const entities = await model.find({ where: { id: In(rowIds) } });
-    await model.softRemove(entities);
-  } catch (e) {
-    // try records individually, some may succeed and we want to capture the
-    // specific one with the error
-    await Promise.all(
-      rowIds.map(async id => {
-        try {
-          const entity = await model.findOne({ where: { id } });
-          await entity.softRemove();
-        } catch (error) {
-          throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
-        }
-      }),
-    );
+  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+    try {
+      const entities = await model.find({ where: { id: In(batchOfIds) } });
+      await model.softRemove(entities);
+    } catch (e) {
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
+      await Promise.all(
+        batchOfIds.map(async id => {
+          try {
+            const entity = await model.findOne({ where: { id } });
+            await entity.softRemove();
+          } catch (error) {
+            throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
+          }
+        }),
+      );
+    }
   }
-
   await executeUpdates(model, recordsForDelete);
 };
 

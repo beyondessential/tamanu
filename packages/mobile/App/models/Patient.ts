@@ -8,7 +8,7 @@ import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
-import { formatDateForQuery } from '~/infra/db/helpers';
+import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
