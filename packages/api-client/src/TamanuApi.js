@@ -148,7 +148,7 @@ export class TamanuApi {
     const response = await fetchOrThrowIfUnavailable(url, latestConfig);
 
     const responseInterceptorChain = [];
-    // request: first in first out
+    // response: first in first out
     this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
