@@ -13,7 +13,6 @@ export class PatientTable {
   readonly table: Locator;
   readonly loadingCell: Locator;
   readonly rows: Locator;
-  readonly _rows: Locator;
   readonly nhnResultCell: Locator;
   readonly secondNHNResultCell: Locator;
   readonly villageSuggestionList: Locator;
@@ -48,8 +47,7 @@ export class PatientTable {
     this.page = page;
     this.table = page.getByRole('table');
     this.loadingCell = page.getByTestId('statustablecell-rwkq').filter({ hasText: 'Loading' });
-    this._rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.rows = this._rows;
+    this.rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
     this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
     this.villageSuggestionList = page
@@ -325,7 +323,7 @@ export class PatientTable {
   }
 
   getRow(index: number): PatientTableRow {
-    const rowLocator = this._rows.nth(index);
+    const rowLocator = this.rows.nth(index);
     return Object.assign(rowLocator, {
       async getPatientInfo(): Promise<Patient> {
         const firstName = await rowLocator.locator('[data-testid*="-firstName"]').textContent() || '';

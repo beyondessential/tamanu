@@ -48,6 +48,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
   return response.json();
 };
 
+// TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createHospitalAdmissionEncounterViaAPI = async (
   api: APIRequestContext,
   patientId: string,
@@ -86,7 +87,7 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 
   return response.json();
 };
-
+// TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createTriageEncounterViaApi = async (
   api: APIRequestContext,
   page: Page,
@@ -131,7 +132,7 @@ export const createTriageEncounterViaApi = async (
 
   return response.json();
 };
-
+// TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createClinicEncounterViaApi = async (
   api: APIRequestContext,
   patientId: string,
