@@ -122,7 +122,9 @@ export class TamanuApi {
   }
 
   async refreshToken() {
-    if (!this.#refreshToken && !this.#authToken) return;
+    if (!this.#refreshToken) {
+      throw new Error('No refresh token available');
+    }
 
     try {
       const response = await this.post(
