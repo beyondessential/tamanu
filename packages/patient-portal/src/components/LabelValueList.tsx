@@ -8,6 +8,7 @@ const ListGrid = styled(StyledList)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'max-content 1fr',
   gridColumnGap: theme.spacing(2.5),
+  gridRowGap: theme.spacing(0.75),
 }));
 
 const AlignedContentsWrapper = styled(Box)({
