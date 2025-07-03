@@ -129,8 +129,11 @@ export class TamanuApi {
     try {
       const response = await this.post(
         'refresh',
-        {},
-        { useAuthToken: this.#refreshToken ?? this.#authToken, waitForAuth: false },
+        {
+          deviceId: this.deviceId,
+          refreshToken: this.#refreshToken,
+        },
+        { useAuthToken: false, waitForAuth: false },
       );
       const { token, refreshToken } = response;
       this.setToken(token, refreshToken);
