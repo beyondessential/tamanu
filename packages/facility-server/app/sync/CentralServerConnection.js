@@ -185,24 +185,9 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async forwardRequest(req, endpoint) {
-    try {
-      const response = await this.fetch(endpoint, {
-        method: req.method,
-        body: req.body,
-      });
-
-      return response;
-    } catch (err) {
-      if (err.centralServerResponse) {
-        // pass central server response back
-        const centralServerErrorMsg = err.centralServerResponse.body.error?.message;
-        const passThroughError = new Error(centralServerErrorMsg ?? err);
-        passThroughError.status = err.centralServerResponse.status;
-        throw passThroughError;
-      } else {
-        // fallback
-        throw new Error(`Central server error: ${err}`);
-      }
-    }
+    return this.fetch(endpoint, {
+      method: req.method,
+      body: req.body,
+    });
   }
 }
