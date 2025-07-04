@@ -1,4 +1,4 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
@@ -14,7 +14,11 @@ const fakeResponse = (response, body, headers = {}) => {
     json: () => Promise.resolve(validBody),
     text: () => Promise.resolve(JSON.stringify(validBody)),
     headers: {
-      get: key => headers[key],
+      get: key =>
+        headers[key] ??
+        {
+          'x-tamanu-server': SERVER_TYPES.CENTRAL,
+        }[key],
     },
   });
 };
