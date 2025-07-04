@@ -1,6 +1,16 @@
 import config from 'config';
 
-import { TamanuApi, AuthError } from '@tamanu/api-client';
+import {
+  TamanuApi,
+  AuthError,
+  AuthInvalidError,
+  VersionIncompatibleError,
+} from '@tamanu/api-client';
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+  RemoteCallFailedError,
+} from '@tamanu/shared/errors';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
@@ -76,10 +86,31 @@ export class CentralServerConnection extends TamanuApi {
     const { email, password } = config.sync;
     log.info(`Logging in to ${this.host} as ${email}...`);
 
-    return this.login(email, password, {
-      backoff,
-      timeout,
-    });
+    try {
+      return await this.login(email, password, {
+        backoff,
+        timeout,
+      });
+    } catch (error) {
+      if (error instanceof AuthInvalidError) {
+        const newError = new BadAuthenticationError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      if (error instanceof VersionIncompatibleError) {
+        const newError = new FacilityAndSyncVersionIncompatibleError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      const newError = new RemoteCallFailedError(error.message);
+      newError.response = error.response;
+      newError.cause = error;
+      throw newError;
+    }
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
