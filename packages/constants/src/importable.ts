@@ -75,6 +75,10 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
   PROGRAM_REGISTRY: 'programRegistry',
+  PROGRAM: 'program',
+  PROGRAM_DATA_ELEMENT: 'programDataElement',
+  SURVEY: 'survey',
+  SURVEY_SCREEN_COMPONENT: 'surveyScreenComponent',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);

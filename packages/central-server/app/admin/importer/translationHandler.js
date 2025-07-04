@@ -1,4 +1,4 @@
-import { camelCase } from 'lodash';
+import { camelCase, isArray, isObject, isString } from 'lodash';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -6,12 +6,37 @@ import {
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
 
-function extractRecordName(values, dataType) {
+function extractTranslatableRecordText(values, dataType) {
   if (dataType === 'scheduledVaccine') return values.label;
+  if (dataType === 'surveyScreenComponent') return { text: values.text, detail: values.detail };
   return values.name;
 }
 
-export function collectTranslationData(model, sheetName, values) {
+function extractTranslatableOptions(values, dataType) {
+  if (dataType === 'programDataElement') {
+    return normaliseOptions(values.defaultOptions);
+  }
+  return normaliseOptions(values.options);
+}
+
+export function normaliseOptions(options) {
+  if (!options) return [];
+
+  let parsedOptions;
+  try {
+    parsedOptions = JSON.parse(options);
+  } catch (e) {
+    parsedOptions = options;
+  }
+
+  if (isArray(parsedOptions)) return parsedOptions;
+  if (isObject(parsedOptions)) return Object.values(parsedOptions);
+  if (isString(parsedOptions)) return parsedOptions.split(/\s*,\s*/).filter(x => x);
+
+  throw new Error('Invalid options format for translations');
+}
+
+export function generateTranslationsForData(model, sheetName, values) {
   const translationData = [];
 
   const dataType = normaliseSheetName(sheetName, model);
@@ -19,20 +44,26 @@ export function collectTranslationData(model, sheetName, values) {
   const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
   if (isTranslatable && isValidTable) {
-    translationData.push([
-      `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`,
-      extractRecordName(values, dataType) ?? '',
-      DEFAULT_LANGUAGE_CODE,
-    ]);
+    const recordText = extractTranslatableRecordText(values, dataType);
+    if (recordText && isString(recordText)) {
+      const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
+      translationData.push([stringId, recordText, DEFAULT_LANGUAGE_CODE]);
+    }
 
-    // Create translations for reference data record options if they exist
-    // This includes patient_field_definition options
-    if (values.options && values.options.length > 0) {
-      // Handle either an array or a comma-separated string of options
-      const optionArray = Array.isArray(values.options)
-        ? values.options
-        : values.options.split(/\s*,\s*/).filter((x) => x);
-      for (const option of optionArray) {
+    // Handle records with multiple translatable text fields by adding another layer of nesting
+    if (isObject(recordText)) {
+      Object.entries(recordText).forEach(([key, text]) => {
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
+        if (text) {
+          translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
+        }
+      });
+    }
+    const options = extractTranslatableOptions(values, dataType);
+    // // Create translations for reference data record options if they exist
+    // // This includes patient_field_definition options
+    if (options.length > 0) {
+      for (const option of options) {
         translationData.push([
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}.option.${camelCase(option)}`,
           option,
