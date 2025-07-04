@@ -23,7 +23,7 @@ const fakeFailure = (status, body = {}, headers = {}) =>
   fakeResponse({ status, ok: false }, body, headers);
 
 const fakeTimeout = message => (url, opts) =>
-  new Promise((resolve, reject) => {
+  new Promise((_resolve, reject) => {
     // TODO: import AbortError from node-fetch once we're on v3.0
     class AbortError extends Error {}
     opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
