@@ -5,22 +5,17 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: check todos above specific tests, some still to do
 //TODO: do test with custom date?
 //TODO: test case for given elsewhere checkbox
-//TODO: add util for finding current facility and asserting it displays correctly in recorded vaccine table and also modal
-//TODO: in recorded vaccines table toggle on "include vaccines not given" and confirm it shows not given vaccines
-//TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
-//TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
 //TODO: in the assertRecordedVaccineDetails maybe its necessary to match using different date formats? e.g try both MM/DD/YYYY and DD/MM etc etc
-//TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
-//TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
 //TODO: Add helper comment with params documentation to any complex functions?
-//TODO: add tests for facility-1 asserts in table and modal?
 //TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
-//TODO: test asserting table for multiple vaccines, multiple doses of same vaccines etc
+//TODO: are there any cases i havent added tests for in terms of given/not given / multiple doses of same vaccine etc etc?
 //TODO: search TODO in general, there are some TODOs in other files
+//TODO: is there any way to optimise table searching/matching function?
 //TODO: check regression test doc
 //TODO: delete all console logs that i added
 //TODO: add a test where each field uses a specified value when filling out the vaccine form (rather than relying on random selection like all the other test cases)? e.g specific location, area, department etc
+//TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -157,6 +152,7 @@ test.describe('Vaccines', () => {
   });
 
   test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
+    test.setTimeout(45000);
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, { specificVaccine: 'IPV' });
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1, { specificVaccine: 'HPV' });
     await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2, {

@@ -126,6 +126,17 @@ export class PatientVaccinePane extends BasePatientPane {
       const expectedValue = given ? givenBy || 'Unknown' : 'Not given';
       throw new Error(`Given by "${expectedValue}" not found in the recorded vaccines table`);
     }
+
+    const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+      'facility-1',
+      'displayLocation',
+      count,
+      vaccineName,
+      scheduleOption,
+    );
+    if (!correctDisplayLocationFound) {
+      throw new Error('Display location "facility-1" not found in the recorded vaccines table');
+    }
   }
 
   /**

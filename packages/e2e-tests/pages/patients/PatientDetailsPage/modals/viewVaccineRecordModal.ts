@@ -25,6 +25,8 @@ export class ViewVaccineRecordModal extends BasePatientModal {
   readonly otherDisease: Locator;
   readonly notGivenSupervisingClinician: Locator;
   readonly otherBrand: Locator;
+  readonly facilityLocation: Locator;
+  readonly recordedBy: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -47,6 +49,8 @@ export class ViewVaccineRecordModal extends BasePatientModal {
       'displayfield-jkpx-recorded-translatedtext-qoi6',
     );
     this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
+    this.facilityLocation = this.page.getByTestId('displayfield-jkpx-location-translatedtext-iukb');
+    this.recordedBy = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-e9ru');
   }
 
   async waitForModalToOpen() {
@@ -61,6 +65,8 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     await expect(this.area).toContainText(area);
     await expect(this.location).toContainText(location);
     await expect(this.department).toContainText(department);
+    await expect(this.facilityLocation).toContainText('facility-1');
+    await expect(this.recordedBy).toContainText('Initial Admin');
 
     if (category === 'Other') {
       await expect(this.vaccineNameOther).toContainText(vaccineName);
