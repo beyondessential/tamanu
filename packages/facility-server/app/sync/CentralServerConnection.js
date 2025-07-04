@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { TamanuApi, AuthInvalidError } from '@tamanu/api-client';
+import { TamanuApi, AuthError } from '@tamanu/api-client';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
@@ -30,7 +30,7 @@ export class CentralServerConnection extends TamanuApi {
     try {
       return await super.fetch(endpoint, query, options);
     } catch (error) {
-      if (retryAuth && error instanceof AuthInvalidError) {
+      if (retryAuth && error instanceof AuthError && !['login', 'refresh'].includes(endpoint)) {
         await this.connect();
         return await super.fetch(endpoint, query, options);
       }
