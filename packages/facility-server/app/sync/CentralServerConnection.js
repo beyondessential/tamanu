@@ -26,13 +26,30 @@ export class CentralServerConnection extends TamanuApi {
     });
   }
 
-  async fetch(endpoint, { retryAuth, query = {}, ...options } = {}) {
+  async fetch(endpoint, options = {}, upOptions = null) {
+    let retryAuth;
+    let query;
+    let config;
+    if (upOptions) {
+      // this is an api-client style 3-arity call
+      retryAuth = false;
+      query = options;
+      config = upOptions;
+    } else {
+      // this is a local style 2-arity call
+      retryAuth = options.retryAuth ?? true;
+      query = options.query ?? {};
+      delete options.retryAuth;
+      delete options.query;
+      config = options;
+    }
+
     try {
-      return await super.fetch(endpoint, query, options);
+      return await super.fetch(endpoint, query, config);
     } catch (error) {
       if (retryAuth && error instanceof AuthError && !['login', 'refresh'].includes(endpoint)) {
         await this.connect();
-        return await super.fetch(endpoint, query, options);
+        return await super.fetch(endpoint, query, config);
       }
 
       throw error;
