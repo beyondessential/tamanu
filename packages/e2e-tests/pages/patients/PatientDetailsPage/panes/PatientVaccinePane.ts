@@ -114,9 +114,8 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
     }
 
-    if (givenBy) {
       const correctGivenByFound = await this.searchSpecificTableRowForMatch(
-        givenBy,
+        givenBy || 'Unknown',
         'givenBy',
         count,
         vaccineName,
@@ -125,7 +124,7 @@ export class PatientVaccinePane extends BasePatientPane {
       if (!correctGivenByFound) {
         throw new Error(`Given by "${givenBy}" not found in the recorded vaccines table`);
       }
-    }
+    
   }
 
   /**

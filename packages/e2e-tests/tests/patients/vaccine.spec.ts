@@ -3,12 +3,9 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
-//TODO: assert date is correct
 //TODO: do test with custom date?
 //TODO: test case for given elsewhere checkbox
-//TODO: test case for all fields
-//TODO: test case for followup vaccine
-//TODO: make sure for all test cases im asserting all the relevant details in table are correct
+//TODO: add util for finding current facility and asserting it displays correctly in recorded vaccine table and also modal
 //TODO: in recorded vaccines table toggle on "include vaccines not given" and confirm it shows not given vaccines
 //TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
 //TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
@@ -280,6 +277,10 @@ test.describe('Vaccines', () => {
       specificScheduleOption: '10 weeks',
       viewVaccineRecord: true,
     });
+  });
+
+  test('Select not given when giving the second scheduled dose of a vaccine', async ({ patientDetailsPage }) => {
+    //TODO: probs similar to previous test case
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
