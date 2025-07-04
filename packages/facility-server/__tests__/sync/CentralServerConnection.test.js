@@ -12,6 +12,7 @@ const fakeResponse = (response, body, headers) => {
   return Promise.resolve({
     ...response,
     json: () => Promise.resolve(validBody),
+    text: () => Promise.resolve(JSON.stringify(validBody)),
     headers: {
       get: key => headers[key],
     },
