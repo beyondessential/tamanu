@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { MedicationSchema, type Medication } from '@tamanu/shared/dtos/responses/MedicationSchema';
+import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-interface MedicationsResponse {
-  data: unknown[];
-}
-
 const transformData = (response: unknown): Medication[] => {
-  const parsedResponse = response as MedicationsResponse;
-  return parsedResponse.data.map(item => MedicationSchema.parse(item));
+  const parsedResponse = ArrayResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+  return parsedResponse.data.map((item: unknown) => MedicationSchema.parse(item));
 };
 
 export const useMedicationsQuery = () => {

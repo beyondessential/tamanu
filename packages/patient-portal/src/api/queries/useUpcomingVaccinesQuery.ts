@@ -3,17 +3,17 @@ import {
   UpcomingVaccineSchema,
   type UpcomingVaccine,
 } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-interface UpcomingVaccinesResponse {
-  data: unknown[];
-}
-
 const transformData = (response: unknown): UpcomingVaccine[] => {
-  const parsedResponse = response as UpcomingVaccinesResponse;
-  return parsedResponse.data.map(item => UpcomingVaccineSchema.parse(item));
+  const parsedResponse = ArrayResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+  return parsedResponse.data.map((item: unknown) => UpcomingVaccineSchema.parse(item));
 };
 
 export const useUpcomingVaccinesQuery = () => {

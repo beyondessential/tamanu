@@ -3,16 +3,18 @@ import {
   OngoingConditionsArraySchema,
   type OngoingCondition,
 } from '@tamanu/shared/dtos/responses/OngoingConditionSchema';
+import { PaginatedResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-const transformData = (response: { data: unknown; count: number }): OngoingCondition[] => {
-  if (!response?.data) {
+const transformData = (response: unknown): OngoingCondition[] => {
+  const parsedResponse = PaginatedResponseSchema.parse(response);
+  if (!parsedResponse.data) {
     return [];
   }
 
-  const parsedData = OngoingConditionsArraySchema.parse(response.data);
+  const parsedData = OngoingConditionsArraySchema.parse(parsedResponse.data);
   return parsedData.filter((condition: OngoingCondition) => !condition.resolved);
 };
 
@@ -20,7 +22,7 @@ export const useOngoingConditionsQuery = () => {
   const api = useApi();
   const { user } = useAuth();
 
-  return useQuery<{ data: unknown; count: number }, Error, OngoingCondition[]>({
+  return useQuery<unknown, Error, OngoingCondition[]>({
     queryKey: ['ongoing-conditions', user?.id],
     queryFn: () => api.get('/patient/me/ongoing-conditions'),
     enabled: !!user?.id,

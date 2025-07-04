@@ -3,17 +3,17 @@ import {
   AdministeredVaccineSchema,
   type AdministeredVaccine,
 } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
+import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-interface AdministeredVaccinesResponse {
-  data: unknown[];
-}
-
 const transformData = (response: unknown): AdministeredVaccine[] => {
-  const parsedResponse = response as AdministeredVaccinesResponse;
-  return parsedResponse.data.map(item => AdministeredVaccineSchema.parse(item));
+  const parsedResponse = ArrayResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+  return parsedResponse.data.map((item: unknown) => AdministeredVaccineSchema.parse(item));
 };
 
 export const useAdministeredVaccinesQuery = () => {

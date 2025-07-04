@@ -117,3 +117,48 @@ export const formatWeekOf = (dateString: string | null | undefined) => {
     return '--';
   }
 };
+
+// Appointment-specific formatting functions
+export const formatAppointmentDateTime = (startTime: string | null | undefined) => {
+  if (!startTime) return '--';
+  try {
+    const date = parseISO(startTime);
+    return format(date, 'dd/MM/yy h:mmaa');
+  } catch {
+    return '--';
+  }
+};
+
+export const formatAppointmentClinician = (
+  clinician: { displayName?: string | null } | null | undefined,
+) => {
+  return clinician?.displayName || '--';
+};
+
+export const formatAppointmentFacility = (
+  location:
+    | {
+        name?: string;
+        locationGroup?: { name?: string; facility?: { name?: string } | null } | null;
+      }
+    | null
+    | undefined,
+  locationGroup: { name?: string; facility?: { name?: string } | null } | null | undefined,
+) => {
+  // Priority: location.locationGroup.facility.name > locationGroup.facility.name > location.name > locationGroup.name
+  const facilityName = location?.locationGroup?.facility?.name || locationGroup?.facility?.name;
+  if (facilityName) return facilityName;
+
+  return location?.name || locationGroup?.name || '--';
+};
+
+export const formatAppointmentArea = (
+  location: { name?: string; locationGroup?: { name?: string } | null } | null | undefined,
+  locationGroup: { name?: string } | null | undefined,
+) => {
+  return location?.locationGroup?.name || locationGroup?.name || '--';
+};
+
+export const formatAppointmentType = (appointmentType: { name?: string } | null | undefined) => {
+  return appointmentType?.name || '--';
+};

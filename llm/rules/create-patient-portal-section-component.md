@@ -23,6 +23,8 @@ Apply this rule when:
    - Determine what backend data model and endpoint will be needed
    - Follow the `create-patient-portal-usequery-hook.md` rule to create the data-fetching hook first
    - **Schema Organization**: Create schemas in separate DTO files (e.g., `UserSchema.ts`, `LocationSchema.ts`) rather than inline definitions for better reusability
+   - **Runtime Validation**: Always use `z.parse()` for API response validation instead of TypeScript casting (`as Type`)
+   - **Response Schema Pattern**: Use common response schemas from `@tamanu/shared/dtos/responses/CommonResponseSchemas` for consistent API response structures
    - **Important**: After creating new schemas in the shared package, run `npm run build-shared` from the project root to make them available to other packages
 
 2. **Create a skeleton component file**:
@@ -307,6 +309,46 @@ Apply this rule when:
 - Don't use h5 for subsection headers - use h4 with fontWeight="bold"
 - Don't use null in mock data - use undefined to match schema types
 - Don't skip creating stories for individual card components - they need comprehensive coverage
+- Don't use TypeScript casting (`as Type`) for API responses - always use `z.parse()` for runtime validation
+
+# Proper API Response Validation Pattern
+
+When creating query hooks, always use proper Zod validation instead of TypeScript casting:
+
+**❌ Wrong - TypeScript casting:**
+
+```typescript
+const transformData = (response: unknown): SomeType[] => {
+  const parsedResponse = response as { data: unknown[] };
+  return parsedResponse.data.map(item => SomeSchema.parse(item));
+};
+```
+
+**✅ Correct - Full Zod validation:**
+
+```typescript
+import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+
+const transformData = (response: unknown): SomeType[] => {
+  const parsedResponse = ArrayResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+  return parsedResponse.data.map((item: unknown) => SomeSchema.parse(item));
+};
+```
+
+**Benefits of using z.parse():**
+
+- **Runtime validation**: Catches mismatches between expected and actual API responses
+- **Better error messages**: Zod provides clear validation errors when API responses don't match expected structure
+- **Type safety**: Parsed results are properly typed without manual casting
+- **Data transformation**: Zod can transform/coerce data during parsing
+
+**Common Response Schemas:**
+
+- `ArrayResponseSchema` - for endpoints returning `{ data: unknown[], count?: number }`
+- `PaginatedResponseSchema` - for paginated endpoints with `{ data: unknown[], count: number }`
 
 # Notes
 
