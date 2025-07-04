@@ -1,3 +1,4 @@
+import config from 'config';
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface) {
@@ -49,6 +50,7 @@ export async function up(query: QueryInterface) {
     SELECT id from reference_data WHERE type = 'drug';
   `);
   if (drugsReferenceData[0].length) {
+    if (config.serverFacilityId || config.serverFacilityIds) return;
     await query.bulkInsert(
       'reference_drugs',
       drugsReferenceData[0].map((it: any) => ({ reference_data_id: it.id })),
