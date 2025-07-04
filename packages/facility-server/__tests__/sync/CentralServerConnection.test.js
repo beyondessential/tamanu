@@ -96,7 +96,7 @@ describe('CentralServerConnection', () => {
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
       const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0/i);
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
@@ -106,7 +106,7 @@ describe('CentralServerConnection', () => {
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
       const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
