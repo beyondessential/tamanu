@@ -1,4 +1,4 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
@@ -7,13 +7,18 @@ import {
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
-const fakeResponse = (response, body, headers) => {
+const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
   return Promise.resolve({
     ...response,
     json: () => Promise.resolve(validBody),
+    text: () => Promise.resolve(JSON.stringify(validBody)),
     headers: {
-      get: key => headers[key],
+      get: key =>
+        headers[key] ??
+        {
+          'x-tamanu-server': SERVER_TYPES.CENTRAL,
+        }[key],
     },
   });
 };
@@ -22,7 +27,7 @@ const fakeFailure = (status, body = {}, headers = {}) =>
   fakeResponse({ status, ok: false }, body, headers);
 
 const fakeTimeout = message => (url, opts) =>
-  new Promise((resolve, reject) => {
+  new Promise((_resolve, reject) => {
     // TODO: import AbortError from node-fetch once we're on v3.0
     class AbortError extends Error {}
     opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
@@ -91,7 +96,7 @@ describe('CentralServerConnection', () => {
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
       const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/is out of date/i);
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
@@ -101,7 +106,7 @@ describe('CentralServerConnection', () => {
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
       const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
