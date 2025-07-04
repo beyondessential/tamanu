@@ -3,6 +3,7 @@ import express from 'express';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+import { suggestions } from '@tamanu/shared/services/suggestions';
 
 import {
   authMiddleware,
@@ -45,7 +46,6 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { scheduledVaccine } from './scheduledVaccine';
-import { suggestions } from './suggestions';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
