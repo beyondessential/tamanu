@@ -1,14 +1,14 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
+const namespace = '934cc714-0344-4fc1-80c5-f7a600f07cbd';
+
 export async function up(query: QueryInterface) {
   await query.createTable('reference_drugs', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.literal(
-        "uuid_generate_v5('934cc714-0344-4fc1-80c5-f7a600f07cbd', reference_data_id)"
-      ),
+      defaultValue: Sequelize.fn('gen_random_uuid'),
     },
     reference_data_id: {
       type: DataTypes.STRING,
@@ -53,7 +53,12 @@ export async function up(query: QueryInterface) {
   if (drugsReferenceData[0].length) {
     await query.bulkInsert(
       'reference_drugs',
-      drugsReferenceData[0].map((it: any) => ({ reference_data_id: it.id })),
+      drugsReferenceData[0].map((it: any) => ({
+        id: Sequelize.literal(
+          `uuid_generate_v5('${namespace}', '${it.id}')`
+        ),
+        reference_data_id: it.id,
+      })),
     );
   }
 }
