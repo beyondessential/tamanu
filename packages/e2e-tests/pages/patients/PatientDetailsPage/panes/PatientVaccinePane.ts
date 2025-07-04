@@ -81,25 +81,29 @@ export class PatientVaccinePane extends BasePatientPane {
       'vaccineDisplayName',
       count,
     );
+
+    if (!correctVaccineFound) {
+      throw new Error(`Vaccine "${vaccineName}" not found in the recorded vaccines table`);
+    }
+
     const correctScheduleOptionFound = await this.searchRecordVaccineTableForMatch(
       scheduleOption,
       'schedule',
       count,
     );
+    
+    if (!correctScheduleOptionFound) {
+      throw new Error(
+        `Schedule option "${scheduleOption}" not found in the recorded vaccines table`,
+      );
+    }
+
     const correctDateFound = await this.searchRecordVaccineTableForMatch(
       formattedDate,
       'date',
       count,
     );
 
-    if (!correctVaccineFound) {
-      throw new Error(`Vaccine "${vaccineName}" not found in the recorded vaccines table`);
-    }
-    if (!correctScheduleOptionFound) {
-      throw new Error(
-        `Schedule option "${scheduleOption}" not found in the recorded vaccines table`,
-      );
-    }
     if (!correctDateFound) {
       throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
     }
