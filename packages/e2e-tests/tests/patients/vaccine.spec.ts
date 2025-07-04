@@ -65,24 +65,18 @@ test.describe('Vaccines', () => {
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
 
-    if (given) {
-      await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
-        vaccine!.vaccineName!,
-        vaccine!.scheduleOption!,
-        vaccine!.date!,
-        count,
-        vaccine!.givenBy,
-      );
-    }
-
     if (!given) {
       await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-      await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(
-        count,
-        vaccine!.vaccineName!,
-        vaccine!.scheduleOption!,
-      );
     }
+
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
+      vaccine!.vaccineName!,
+      vaccine!.scheduleOption!,
+      vaccine!.date!,
+      count,
+      given,
+      vaccine!.givenBy,
+    );
 
     if (viewVaccineRecord) {
       const requiredParams = {
@@ -279,7 +273,9 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Select not given when giving the second scheduled dose of a vaccine', async ({ patientDetailsPage }) => {
+  test('Select not given when giving the second scheduled dose of a vaccine', async ({
+    patientDetailsPage,
+  }) => {
     //TODO: probs similar to previous test case
   });
 

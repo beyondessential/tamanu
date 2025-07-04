@@ -71,6 +71,7 @@ export class PatientVaccinePane extends BasePatientPane {
     scheduleOption: string,
     date: string,
     count: number,
+    given: boolean,
     givenBy?: string,
   ) {
     //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
@@ -95,7 +96,7 @@ export class PatientVaccinePane extends BasePatientPane {
       vaccineName,
       scheduleOption,
     );
-    
+
     if (!correctScheduleOptionFound) {
       throw new Error(
         `Schedule option "${scheduleOption}" not found in the recorded vaccines table`,
@@ -114,17 +115,17 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
     }
 
-      const correctGivenByFound = await this.searchSpecificTableRowForMatch(
-        givenBy || 'Unknown',
-        'givenBy',
-        count,
-        vaccineName,
-        scheduleOption,
-      );
-      if (!correctGivenByFound) {
-        throw new Error(`Given by "${givenBy}" not found in the recorded vaccines table`);
-      }
-    
+    const correctGivenByFound = await this.searchSpecificTableRowForMatch(
+      given ? givenBy || 'Unknown' : 'Not given',
+      'givenBy',
+      count,
+      vaccineName,
+      scheduleOption,
+    );
+    if (!correctGivenByFound) {
+      const expectedValue = given ? givenBy || 'Unknown' : 'Not given';
+      throw new Error(`Given by "${expectedValue}" not found in the recorded vaccines table`);
+    }
   }
 
   /**
@@ -172,7 +173,10 @@ export class PatientVaccinePane extends BasePatientPane {
         `${this.tableRowPrefix}${i}-vaccineDisplayName`,
       );
       const text = await locator.innerText();
-      if (text.includes(vaccine) && (await this.rowScheduleOptionMatchesVaccine(scheduleOption, i))) {
+      if (
+        text.includes(vaccine) &&
+        (await this.rowScheduleOptionMatchesVaccine(scheduleOption, i))
+      ) {
         row = i;
         break;
       }
@@ -195,19 +199,6 @@ export class PatientVaccinePane extends BasePatientPane {
       return true;
     }
     return false;
-  }
-
-  async confirmNotGivenLabelIsVisible(count: number, vaccine: string, scheduleOption: string) {
-    const notGivenLabelFound = await this.searchSpecificTableRowForMatch(
-      'Not given',
-      'givenBy',
-      count,
-      vaccine,
-      scheduleOption,
-    );
-    if (!notGivenLabelFound) {
-      throw new Error('Not given label not found in the recorded vaccines table');
-    }
   }
 
   async viewVaccineRecordAndAssert(

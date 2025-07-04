@@ -121,7 +121,7 @@ export class RecordVaccineModal extends BasePatientModal {
     return { area, location, department };
   }
 
-  async selectScheduleOption(option?: string, isFollowUpVaccine?: boolean, ) {
+  async selectScheduleOption(option?: string, isFollowUpVaccine?: boolean) {
     const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
     let scheduleOption: string | undefined;
 
@@ -154,11 +154,11 @@ export class RecordVaccineModal extends BasePatientModal {
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
     }: {
-      specificVaccine?: string,
-      fillOptionalFields?: boolean,
-      isFollowUpVaccine?: boolean,
-      specificScheduleOption?: string,
-    } = {}
+      specificVaccine?: string;
+      fillOptionalFields?: boolean;
+      isFollowUpVaccine?: boolean;
+      specificScheduleOption?: string;
+    } = {},
   ) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
@@ -182,7 +182,7 @@ export class RecordVaccineModal extends BasePatientModal {
 
     if (category !== 'Other') {
       vaccineName = await this.selectVaccine(specificVaccine);
-      scheduleOption = await this.selectScheduleOption(specificScheduleOption,isFollowUpVaccine);
+      scheduleOption = await this.selectScheduleOption(specificScheduleOption, isFollowUpVaccine);
     } else {
       vaccineName = 'Test Vaccine';
       scheduleOption = 'N/A';
