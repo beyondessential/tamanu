@@ -43,7 +43,7 @@ export class CentralServerConnection extends TamanuApi {
     return this.pollUntilOk(endpoint);
   }
 
-  async connect(backoff, timeout = this.timeout) {
+  async connect(backoff = config.sync.backoff, timeout = this.timeout) {
     try {
       await this.refreshToken({
         retryAuth: false,
