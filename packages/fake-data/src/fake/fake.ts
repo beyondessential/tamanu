@@ -357,7 +357,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
       stillborn: chance.pickone(options),
     };
   },
-  PatientProgramRegistration: () => ({
+  PatientProgramRegistration: ({ patientId, programRegistryId }) => ({
+    id: `${patientId.replaceAll(';', ':')};${programRegistryId.replaceAll(';', ':')}`,
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
   }),
   User: () => ({
