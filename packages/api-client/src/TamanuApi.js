@@ -148,6 +148,10 @@ export class TamanuApi {
     this.#refreshToken = refreshToken;
   }
 
+  hasToken() {
+    return Boolean(this.#authToken);
+  }
+
   async fetch(endpoint, query = {}, options = {}) {
     let { useAuthToken = this.#authToken, ...moreConfig } = {
       ...this.#defaultRequestConfig,
