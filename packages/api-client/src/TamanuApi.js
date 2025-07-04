@@ -102,7 +102,7 @@ export class TamanuApi {
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
 
-      const { user, ability } = await this.fetchUserData(loginData.permissions, config);
+      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
       return { ...loginData, user, ability, server };
     })().finally(() => {
       this.#ongoingAuth = null;
