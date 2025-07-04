@@ -7,7 +7,7 @@ import {
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
-const fakeResponse = (response, body, headers) => {
+const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
   return Promise.resolve({
     ...response,
