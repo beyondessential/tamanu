@@ -44,6 +44,15 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async connect(backoff, timeout = this.timeout) {
+    try {
+      await this.refreshToken({
+        retryAuth: false,
+      });
+      return;
+    } catch (_) {
+      // ignore error
+    }
+
     const { email, password } = config.sync;
     log.info(`Logging in to ${this.host} as ${email}...`);
 
