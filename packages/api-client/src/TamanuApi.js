@@ -126,26 +126,21 @@ export class TamanuApi {
     return this.post('changePassword', args);
   }
 
-  async refreshToken() {
+  async refreshToken(config = {}) {
     if (!this.#refreshToken) {
       throw new Error('No refresh token available');
     }
 
-    try {
-      const response = await this.post(
-        'refresh',
-        {
-          deviceId: this.deviceId,
-          refreshToken: this.#refreshToken,
-        },
-        { useAuthToken: false, waitForAuth: false },
-      );
-      const { token, refreshToken } = response;
-      this.setToken(token, refreshToken);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
+    const response = await this.post(
+      'refresh',
+      {
+        deviceId: this.deviceId,
+        refreshToken: this.#refreshToken,
+      },
+      { ...config, useAuthToken: false, waitForAuth: false },
+    );
+    const { token, refreshToken } = response;
+    this.setToken(token, refreshToken);
   }
 
   setToken(token, refreshToken = null) {
