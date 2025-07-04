@@ -203,10 +203,7 @@ export class PatientVaccinePane extends BasePatientPane {
     await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
 
     if (fillOptionalFields) {
-      await viewVaccineRecordModal.assertVaccineModalOptionalFields(
-        requiredParams,
-        optionalParams,
-      );
+      await viewVaccineRecordModal.assertVaccineModalOptionalFields(requiredParams, optionalParams);
     }
   }
 

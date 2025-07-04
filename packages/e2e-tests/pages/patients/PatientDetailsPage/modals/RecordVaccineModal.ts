@@ -51,8 +51,6 @@ export class RecordVaccineModal extends BasePatientModal {
     this.departmentField = this.page.getByTestId('field-5sfc-input');
     this.vaccineNameField = this.page.getByTestId('field-vaccineName-input');
     this.vaccineBatchField = this.page.getByTestId('field-865y-input');
-    //TODO: delete below if refactor with field works
-    //   this.injectionSiteExpandButton = this.page.getByTestId('field-jz48-expandmoreicon-h115');
     this.injectionSiteField = this.page.getByTestId('field-jz48-select');
     this.consentGivenByField = this.page.getByTestId('field-inc8-input');
     this.dateField = this.page.getByTestId('field-8sou-input').getByRole('textbox');
@@ -211,9 +209,6 @@ export class RecordVaccineModal extends BasePatientModal {
 
     await this.givenByField.fill(givenBy);
     await this.vaccineBatchField.fill(vaccineBatch);
-    //Note: due to the nature of this field it is not possible to use fieldHelper.ts to select an option
-    // await this.injectionSiteExpandButton.click();
-    // await this.page.getByText(injectionSite).click();
     const injectionSite = await this.selectInjectionSite();
     await this.consentGivenByField.fill(consentGivenBy);
 
