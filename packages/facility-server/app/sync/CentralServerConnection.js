@@ -33,18 +33,18 @@ export class CentralServerConnection extends TamanuApi {
     let retryAuth;
     let query;
     let config;
-    if (upOptions) {
-      // this is an api-client style 3-arity call
-      retryAuth = false;
-      query = options;
-      config = upOptions;
-    } else {
+    if (!upOptions || options.query || options.retryAuth || options.method) {
       // this is a local style 2-arity call
       retryAuth = options.retryAuth ?? true;
       query = options.query ?? {};
       delete options.retryAuth;
       delete options.query;
       config = options;
+    } else {
+      // this is an api-client style 3-arity call
+      retryAuth = false;
+      query = options;
+      config = upOptions;
     }
 
     try {
