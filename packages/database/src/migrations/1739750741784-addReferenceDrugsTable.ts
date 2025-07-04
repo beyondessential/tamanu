@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface) {
@@ -7,7 +6,9 @@ export async function up(query: QueryInterface) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('gen_random_uuid'),
+      defaultValue: Sequelize.literal(
+        "uuid_generate_v5(934cc714-0344-4fc1-80c5-f7a600f07cbd', reference_data_id)"
+      ),
     },
     reference_data_id: {
       type: DataTypes.STRING,
@@ -50,7 +51,6 @@ export async function up(query: QueryInterface) {
     SELECT id from reference_data WHERE type = 'drug';
   `);
   if (drugsReferenceData[0].length) {
-    if (config.serverFacilityId || config.serverFacilityIds) return;
     await query.bulkInsert(
       'reference_drugs',
       drugsReferenceData[0].map((it: any) => ({ reference_data_id: it.id })),
