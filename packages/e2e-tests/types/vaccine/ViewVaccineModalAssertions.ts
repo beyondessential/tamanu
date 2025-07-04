@@ -8,7 +8,7 @@ export interface RequiredVaccineModalAssertionParams {
   count: number;
   category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
   fillOptionalFields: boolean;
-  schedule?: string;
+  schedule: string;
 }
 
 export interface OptionalVaccineModalAssertionParams {

@@ -121,7 +121,6 @@ export class RecordVaccineModal extends BasePatientModal {
     return { area, location, department };
   }
 
-  //TODO: find some way to get the text of the selected option
   async selectScheduleOption(option?: string, isFollowUpVaccine?: boolean, ) {
     const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
     let scheduleOption: string | undefined;

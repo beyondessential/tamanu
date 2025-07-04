@@ -76,20 +76,24 @@ export class PatientVaccinePane extends BasePatientPane {
     //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
     const formattedDate = convertDateFormat(date);
 
-    const correctVaccineFound = await this.searchRecordVaccineTableForMatch(
+    const correctVaccineFound = await this.searchSpecificTableRowForMatch(
       vaccineName,
       'vaccineDisplayName',
       count,
+      vaccineName,
+      scheduleOption,
     );
 
     if (!correctVaccineFound) {
       throw new Error(`Vaccine "${vaccineName}" not found in the recorded vaccines table`);
     }
 
-    const correctScheduleOptionFound = await this.searchRecordVaccineTableForMatch(
+    const correctScheduleOptionFound = await this.searchSpecificTableRowForMatch(
       scheduleOption,
       'schedule',
       count,
+      vaccineName,
+      scheduleOption,
     );
     
     if (!correctScheduleOptionFound) {
@@ -98,10 +102,12 @@ export class PatientVaccinePane extends BasePatientPane {
       );
     }
 
-    const correctDateFound = await this.searchRecordVaccineTableForMatch(
+    const correctDateFound = await this.searchSpecificTableRowForMatch(
       formattedDate,
       'date',
       count,
+      vaccineName,
+      scheduleOption,
     );
 
     if (!correctDateFound) {
@@ -109,10 +115,12 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     if (givenBy) {
-      const correctGivenByFound = await this.searchRecordVaccineTableForMatch(
+      const correctGivenByFound = await this.searchSpecificTableRowForMatch(
         givenBy,
         'givenBy',
         count,
+        vaccineName,
+        scheduleOption,
       );
       if (!correctGivenByFound) {
         throw new Error(`Given by "${givenBy}" not found in the recorded vaccines table`);
@@ -120,32 +128,23 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
-  //TODO: merge this with searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
-  async searchRecordVaccineTableForMatch(
-    valueToMatch: string,
-    locatorSuffix: string,
-    count: number,
-  ) {
-    for (let i = 0; i < count; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(
-        `${this.tableRowPrefix}${i}-${locatorSuffix}`,
-      );
-      const text = await locator.innerText();
-      if (text.includes(valueToMatch)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
+  /**
+   * Searches the recorded vaccine table and asserts the values for each vaccine are correct
+   * @param valueToMatch - The value to match in the table, e.g. asserting the correct date is displayed
+   * @param locatorSuffix - The suffix of the locator to use to find the value in the table
+   * @param count - The number of times to run the search
+   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
+   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @returns True if the value is found in the table, false otherwise
+   */
   async searchSpecificTableRowForMatch(
     valueToMatch: string,
     locatorSuffix: string,
     count: number,
     vaccine: string,
+    scheduleOption: string,
   ) {
-    const row = await this.findRowNumberForVaccine(vaccine, count);
-
+    const row = await this.findRowNumberForVaccine(vaccine, scheduleOption, count);
     //Search the specific row in the table for the value to match
     const locator = this.recordedVaccinesTableBody.getByTestId(
       `${this.tableRowPrefix}${row}-${locatorSuffix}`,
@@ -157,17 +156,24 @@ export class PatientVaccinePane extends BasePatientPane {
     return false;
   }
 
-  async findRowNumberForVaccine(vaccine: string, count: number) {
+  /**
+   * Uses the unique combination of a vaccine name and schedule option to find the unique row in the table to run assertions against
+   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
+   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param count - The number of times to run the search
+   * @returns The row number of the unique vaccine name / schedule combo
+   */
+  async findRowNumberForVaccine(vaccine: string, scheduleOption: string, count: number) {
     let row: number | undefined;
     const timesToRun = count > 1 ? count : 1;
 
-    //Find the row that contains the vaccine name and save the row number
+    //Find the row that contains the unique vaccine name / schedule combo and save the row number
     for (let i = 0; i < timesToRun; i++) {
       const locator = this.recordedVaccinesTableBody.getByTestId(
         `${this.tableRowPrefix}${i}-vaccineDisplayName`,
       );
       const text = await locator.innerText();
-      if (text.includes(vaccine)) {
+      if (text.includes(vaccine) && (await this.rowScheduleOptionMatchesVaccine(scheduleOption, i))) {
         row = i;
         break;
       }
@@ -180,12 +186,25 @@ export class PatientVaccinePane extends BasePatientPane {
     return row;
   }
 
-  async confirmNotGivenLabelIsVisible(count: number, vaccine: string) {
+  async rowScheduleOptionMatchesVaccine(scheduleOption: string, row: number) {
+    const locator = this.recordedVaccinesTableBody.getByTestId(
+      `${this.tableRowPrefix}${row}-schedule`,
+    );
+
+    const text = await locator.innerText();
+    if (text.includes(scheduleOption)) {
+      return true;
+    }
+    return false;
+  }
+
+  async confirmNotGivenLabelIsVisible(count: number, vaccine: string, scheduleOption: string) {
     const notGivenLabelFound = await this.searchSpecificTableRowForMatch(
       'Not given',
       'givenBy',
       count,
       vaccine,
+      scheduleOption,
     );
     if (!notGivenLabelFound) {
       throw new Error('Not given label not found in the recorded vaccines table');
@@ -196,9 +215,9 @@ export class PatientVaccinePane extends BasePatientPane {
     requiredParams: RequiredVaccineModalAssertionParams,
     optionalParams: OptionalVaccineModalAssertionParams,
   ) {
-    const { vaccineName, count, fillOptionalFields } = requiredParams;
+    const { vaccineName, count, fillOptionalFields, schedule } = requiredParams;
 
-    const row = await this.findRowNumberForVaccine(vaccineName, count);
+    const row = await this.findRowNumberForVaccine(vaccineName, schedule, count);
     const viewButton = this.recordedVaccinesTableBody
       .getByTestId(`${this.tableRowPrefix}${row}-action`)
       .getByRole('button', { name: 'View' });

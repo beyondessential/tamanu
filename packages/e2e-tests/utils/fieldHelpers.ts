@@ -59,6 +59,7 @@ export const selectOptionFromPopper = async (
  * @param selectFirst - Whether to select the first option.
  * @param optionToSelect - The optional option to select.
  * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -select) to get the base test id.
+ * @param returnOptionText - Whether to return the text of the selected option.
  */
 export const selectFieldOption = async (
   page: Page,
@@ -101,6 +102,7 @@ export const selectFieldOption = async (
  * @param selectFirst - Whether to select the first option.
  * @param optionToSelect - The optional option to select.
  * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -input) to get the base test id.
+ * @param returnOptionText - Whether to return the text of the selected option.
  */
 export const selectAutocompleteFieldOption = async (
   page: Page,

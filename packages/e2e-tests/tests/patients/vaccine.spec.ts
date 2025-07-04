@@ -3,7 +3,6 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
-//TODO: make changes to other fieldhelpers to match the changes i made?
 //TODO: assert date is correct
 //TODO: do test with custom date?
 //TODO: test case for given elsewhere checkbox
@@ -14,7 +13,6 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: if using a custom given by field when filling out the form, confirm it matches the value in the recorded vaccines table
 //TODO: after adding all optional parameters to recordVaccine potentially refactor to use parameter format of selectAutocompleteFieldOption
 //TODO: in the assertRecordedVaccineDetails maybe its necessary to match using different date formats? e.g try both MM/DD/YYYY and DD/MM etc etc
-//TODO: merge searchRecordVaccineTableForMatch and searchSpecificTableRowForMatch so all my assertions are checking specific rows instead of whole table?
 //TODO: when writing function that checks table for matching vaccination record make sure it can account for multiple doses of same vaccine
 //TODO: if there is no "given by" value then this is "Unknown" in the recorded vaccines table, does this change how my functions / asserts work? Currently I don't check for Unknown
 //TODO: Add helper comment with params documentation to any complex functions?
@@ -24,6 +22,8 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 //TODO: test asserting table for multiple vaccines, multiple doses of same vaccines etc
 //TODO: search TODO in general, there are some TODOs in other files
 //TODO: check regression test doc
+//TODO: delete all console logs that i added
+//TODO: add a test where each field uses a specified value when filling out the vaccine form (rather than relying on random selection like all the other test cases)? e.g specific location, area, department etc
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -83,6 +83,7 @@ test.describe('Vaccines', () => {
       await patientDetailsPage.patientVaccinePane?.confirmNotGivenLabelIsVisible(
         count,
         vaccine!.vaccineName!,
+        vaccine!.scheduleOption!,
       );
     }
 
@@ -266,17 +267,18 @@ test.describe('Vaccines', () => {
   test('Add multiple doses of the same vaccine and view each of their vaccine records', async ({
     patientDetailsPage,
   }) => {
-    //TODO:
-    //When giving the followup vaccine the first checkbox should already be checked with a tick
-    //TODO: refactor the function that asserts table data to account for schedule in all cases?
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
       specificVaccine: 'Pentavalent',
+      viewVaccineRecord: true,
     });
+
+    await patientDetailsPage.closeViewVaccineModalButton().click();
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
       specificVaccine: 'Pentavalent',
       isFollowUpVaccine: true,
       specificScheduleOption: '10 weeks',
+      viewVaccineRecord: true,
     });
   });
 
