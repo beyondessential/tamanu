@@ -1,6 +1,6 @@
 import { ServerUnavailableError } from './errors';
 
-export async function fetchOrThrowIfUnavailable(url, { timeout = false, ...config } = {}) {
+export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, ...config } = {}) {
   const abort = new AbortController();
   let timer;
   if (timeout && Number.isFinite(timeout) && !config.signal) {

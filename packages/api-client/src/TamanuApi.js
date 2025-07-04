@@ -31,6 +31,7 @@ export class TamanuApi {
   lastRefreshed = null;
   user = null;
   logger = console;
+  fetchImplementation = fetch;
 
   constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }) {
     this.#prefix = endpoint;
@@ -225,7 +226,7 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetcher(url, latestConfig);
+    const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
 
     const responseInterceptorChain = [];
     // response: first in first out
