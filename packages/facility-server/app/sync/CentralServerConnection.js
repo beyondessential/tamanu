@@ -12,9 +12,12 @@ export class CentralServerConnection extends TamanuApi {
   streaming = config.sync.streaming;
 
   constructor({ deviceId }) {
+    const url = new URL(config.sync.host.trim());
+    url.pathname = '/api';
+
     super({
       logger: log,
-      endpoint: config.sync.host.trim().replace(/\/*$/, ''),
+      endpoint: url.toString(),
       agentName: SERVER_TYPES.FACILITY,
       agentVersion: version,
       deviceId,
