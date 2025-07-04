@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
@@ -122,8 +122,13 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   //TODO: find some way to get the text of the selected option
-  async selectScheduleOption(option?: string) {
+  async selectScheduleOption(option?: string, isFollowUpVaccine?: boolean, ) {
+    const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
     let scheduleOption: string | undefined;
+
+    if (isFollowUpVaccine) {
+      expect(firstRadioOption).toBeDisabled();
+    }
 
     if (option) {
       scheduleOption = option;
@@ -133,7 +138,6 @@ export class RecordVaccineModal extends BasePatientModal {
       });
       await scheduleOptionLocator.click();
     } else {
-      const firstRadioOption = this.scheduleRadioGroup.locator('label').first();
       scheduleOption = await firstRadioOption.locator('span.MuiFormControlLabel-label').innerText();
       await firstRadioOption.click();
     }
@@ -145,8 +149,17 @@ export class RecordVaccineModal extends BasePatientModal {
   async recordVaccine(
     given: boolean,
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
-    specificVaccine?: string,
-    fillOptionalFields?: boolean,
+    {
+      specificVaccine = undefined,
+      fillOptionalFields = false,
+      isFollowUpVaccine = false,
+      specificScheduleOption = undefined,
+    }: {
+      specificVaccine?: string,
+      fillOptionalFields?: boolean,
+      isFollowUpVaccine?: boolean,
+      specificScheduleOption?: string,
+    } = {}
   ) {
     await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
@@ -170,7 +183,7 @@ export class RecordVaccineModal extends BasePatientModal {
 
     if (category !== 'Other') {
       vaccineName = await this.selectVaccine(specificVaccine);
-      scheduleOption = await this.selectScheduleOption();
+      scheduleOption = await this.selectScheduleOption(specificScheduleOption,isFollowUpVaccine);
     } else {
       vaccineName = 'Test Vaccine';
       scheduleOption = 'N/A';
@@ -187,6 +200,10 @@ export class RecordVaccineModal extends BasePatientModal {
       optionalFields = given
         ? await this.recordOptionalVaccineFieldsGiven(category)
         : await this.recordOptionalVaccineFieldsNotGiven(category);
+    }
+
+    if (isFollowUpVaccine) {
+      //TODO:
     }
 
     await this.page.waitForTimeout(2000);

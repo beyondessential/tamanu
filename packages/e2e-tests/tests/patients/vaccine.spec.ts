@@ -39,10 +39,14 @@ test.describe('Vaccines', () => {
       specificVaccine = null,
       fillOptionalFields = false,
       viewVaccineRecord = false,
+      isFollowUpVaccine = false,
+      specificScheduleOption = undefined,
     }: {
       specificVaccine?: string | null;
       fillOptionalFields?: boolean;
       viewVaccineRecord?: boolean;
+      isFollowUpVaccine?: boolean;
+      specificScheduleOption?: string;
     } = {},
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
@@ -52,8 +56,12 @@ test.describe('Vaccines', () => {
     const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
       given,
       category,
-      specificVaccine ?? undefined,
-      fillOptionalFields,
+      {
+        specificVaccine: specificVaccine ?? undefined,
+        fillOptionalFields,
+        isFollowUpVaccine,
+        specificScheduleOption,
+      },
     );
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
@@ -260,6 +268,16 @@ test.describe('Vaccines', () => {
   }) => {
     //TODO:
     //When giving the followup vaccine the first checkbox should already be checked with a tick
+    //TODO: refactor the function that asserts table data to account for schedule in all cases?
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      specificVaccine: 'Pentavalent',
+    });
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
+      specificVaccine: 'Pentavalent',
+      isFollowUpVaccine: true,
+      specificScheduleOption: '10 weeks',
+    });
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
