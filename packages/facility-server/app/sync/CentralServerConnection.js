@@ -37,8 +37,8 @@ export class CentralServerConnection extends TamanuApi {
       // this is a local style 2-arity call
       retryAuth = options.retryAuth ?? true;
       query = options.query ?? {};
-      delete options.retryAuth;
-      delete options.query;
+      options.retryAuth = undefined;
+      options.query = undefined;
       config = options;
     } else {
       // this is an api-client style 3-arity call
