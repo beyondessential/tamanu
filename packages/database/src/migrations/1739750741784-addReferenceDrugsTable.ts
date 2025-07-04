@@ -7,7 +7,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.literal(
-        "uuid_generate_v5(934cc714-0344-4fc1-80c5-f7a600f07cbd', reference_data_id)"
+        "uuid_generate_v5('934cc714-0344-4fc1-80c5-f7a600f07cbd', reference_data_id)"
       ),
     },
     reference_data_id: {
