@@ -18,8 +18,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { version } from '../serverInfo';
 
 export class CentralServerConnection extends TamanuApi {
-  batchSize = config.sync.channelBatchSize;
-  streaming = config.sync.streaming;
+  #settings;
 
   constructor({ deviceId }) {
     const url = new URL(config.sync.host.trim());
@@ -95,6 +94,9 @@ export class CentralServerConnection extends TamanuApi {
       return await this.login(email, password, {
         backoff,
         timeout,
+      }).then(loginData => {
+        this.#settings = loginData.settings;
+        return loginData;
       });
     } catch (error) {
       if (error instanceof AuthInvalidError) {
@@ -118,6 +120,14 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
 
+  async settings() {
+    if (!this.hasToken() || !this.#settings) {
+      await this.connect();
+    }
+
+    return this.#settings;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityIds = selectFacilityIds(config);
     const { sessionId, status } = await this.fetch('sync', {
@@ -139,7 +149,10 @@ export class CentralServerConnection extends TamanuApi {
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client
 
-    if (this.streaming) {
+    const {
+      sync: { streaming },
+    } = await this.settings();
+    if (streaming) {
       for await (const { kind, data } of this.stream(() => ({
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
@@ -177,7 +190,10 @@ export class CentralServerConnection extends TamanuApi {
     // then, wait for the pull/ready endpoint until we get a valid response;
     // it takes a while for pull/initiate to finish populating the snapshot of changes
 
-    if (this.streaming) {
+    const {
+      sync: { streaming },
+    } = await this.settings();
+    if (streaming) {
       for await (const { kind, data } of this.stream(() => ({
         endpoint: `sync/${sessionId}/pull/ready/stream`,
       }))) {

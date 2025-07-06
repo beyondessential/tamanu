@@ -31,6 +31,18 @@ export const centralSettings = {
         },
       },
     },
+    sync: {
+      description: 'Settings related to sync',
+      highRisk: true,
+      properties: {
+        streaming: {
+          name: 'Streaming',
+          description: 'Use streaming endpoints',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
@@ -56,10 +68,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },
