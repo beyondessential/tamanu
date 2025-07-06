@@ -2,7 +2,6 @@ import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { createSnapshotTable, insertSnapshotRecords } from './manageSnapshotTable';
-import { Database } from '~/infra/db';
 
 /**
  * Pull incoming changes in batches and save them in sync_session_records table,
@@ -21,9 +20,7 @@ export const pullIncomingChanges = async (
   tablesForFullResync: string[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
-  const queryRunner = Database.client.createQueryRunner();
-  await queryRunner.connect()
-  await createSnapshotTable(queryRunner, sessionId);
+  await createSnapshotTable(sessionId);
 
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
     sessionId,
@@ -52,7 +49,7 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    await insertSnapshotRecords(queryRunner, sessionId, recordsToSave);
+    await insertSnapshotRecords(sessionId, recordsToSave);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
@@ -61,6 +58,5 @@ export const pullIncomingChanges = async (
     progressCallback(totalToPull, totalPulled);
   }
   
-  await queryRunner.release();
   return { totalPulled: totalToPull, pullUntil };
 };

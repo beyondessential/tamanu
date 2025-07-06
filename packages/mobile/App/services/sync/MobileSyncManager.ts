@@ -60,6 +60,7 @@ export class MobileSyncManager {
   centralServer: CentralServerConnection;
   settings: SettingsService;
   client: Connection;
+  
   constructor(centralServer: CentralServerConnection, settings: SettingsService) {
     this.centralServer = centralServer;
     this.settings = settings;
