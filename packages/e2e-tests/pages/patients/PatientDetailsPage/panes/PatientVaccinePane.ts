@@ -68,6 +68,15 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
+ /**
+  * Asserts the values for a specific vaccine in the recorded vaccines table are correct
+  * @param vaccineName - The name of the vaccine to search for, e.g. "Pentavalent"
+  * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+  * @param date - The date of the vaccine to search for, e.g. "2024-11-27"
+  * @param count - The number of times to run the search
+  * @param given - Whether the vaccine was given, e.g. true
+  * @param givenBy - The name of the person who gave the vaccine, e.g. "John Doe"
+  */ 
   async assertRecordedVaccineTable(
     vaccineName: string,
     scheduleOption: string,
@@ -202,6 +211,12 @@ export class PatientVaccinePane extends BasePatientPane {
     return row;
   }
 
+  /**
+   * Checks if the schedule option for a specific row in the recorded vaccines table matches the schedule option given for a specific vaccine
+   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param row - The row number to search for, e.g. 0
+   * @returns True if the schedule option matches, false otherwise
+   */
   async rowScheduleOptionMatchesVaccine(scheduleOption: string, row: number) {
     const locator = this.recordedVaccinesTableBody.getByTestId(
       `${this.tableRowPrefix}${row}-schedule`,
@@ -214,6 +229,11 @@ export class PatientVaccinePane extends BasePatientPane {
     return false;
   }
 
+  /**
+   * Views a vaccine record and asserts the values are correct
+   * @param requiredParams - The required parameters when creating a vaccine record
+   * @param optionalParams - The optional parameters when creating a vaccine record
+   */
   async viewVaccineRecordAndAssert(
     requiredParams: RequiredVaccineModalAssertionParams,
     optionalParams: OptionalVaccineModalAssertionParams,

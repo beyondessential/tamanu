@@ -4,7 +4,6 @@ import { convertDateFormat } from '../../utils/testHelper';
 
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
-//TODO: Add helper comment with params documentation to any complex functions?
 //TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
 //TODO: are there any cases i havent added tests for in terms of given/not given / multiple doses of same vaccine etc etc?

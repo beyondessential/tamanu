@@ -58,6 +58,10 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     await expect(this.area).toBeVisible();
   }
 
+  /**
+   * Asserts the values for the required fields in the vaccine record modal match what was entered when creating the vaccine record
+   * @param requiredParams - The required parameters when creating a vaccine record
+   */
   async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
     const { vaccineName, date, area, location, department, given, category, schedule } =
       requiredParams;
@@ -84,6 +88,11 @@ export class ViewVaccineRecordModal extends BasePatientModal {
     }
   }
 
+  /**
+   * Asserts the values for the optional fields in the vaccine record modal match what was entered when creating the vaccine record
+   * @param requiredParams - The required parameters when creating a vaccine record
+   * @param optionalParams - The optional parameters when creating a vaccine record
+   */
   async assertVaccineModalOptionalFields(
     requiredParams: RequiredVaccineModalAssertionParams,
     optionalParams: OptionalVaccineModalAssertionParams,
