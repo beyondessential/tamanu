@@ -1,7 +1,7 @@
 import { Database } from '../../../infra/db';
 import { chunk } from 'lodash';
 
-const assertIfSessionIdIsSafe = (sessionId: string) => {
+export const assertIfSessionIdIsSafe = (sessionId: string) => {
   const safeIdRegex = /^[A-Za-z0-9-]+$/;
   if (!safeIdRegex.test(sessionId)) {
     throw new Error(
