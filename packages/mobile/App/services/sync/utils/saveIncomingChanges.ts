@@ -1,4 +1,4 @@
-import { Connection, In } from 'typeorm';
+import { In } from 'typeorm';
 import { chunk } from 'lodash';
 
 import { SyncRecord } from '../types';
@@ -9,7 +9,6 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchById } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
-import { Database } from '~/infra/db';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -90,14 +89,13 @@ export const saveChangesForModel = async (
 };
 
 const groupRecordsByType = async (
-  client: Connection,
   sessionId: string,
   batchIds: string[]
 ): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
   for (const batchId of batchIds) {
-    const batchRecords = await getSnapshotBatchById(client, sessionId, batchId);
+    const batchRecords = await getSnapshotBatchById(sessionId, batchId);
 
     for (const record of batchRecords) {
       const recordType = record.recordType;
@@ -127,9 +125,8 @@ export const saveIncomingChanges = async (
   insertBatchSize: number,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const client = Database.client;
-  const batchIds = await getSnapshotBatchIds(client, sessionId);
-  const recordsByType = await groupRecordsByType(client, sessionId, batchIds);
+  const batchIds = await getSnapshotBatchIds(sessionId);
+  const recordsByType = await groupRecordsByType(sessionId, batchIds);
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;

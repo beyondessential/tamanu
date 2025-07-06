@@ -1,5 +1,5 @@
+import { Database } from '~/infra/db';
 import { chunk } from 'lodash';
-import { Connection } from 'typeorm';
 
 const assertIfSessionIdIsSafe = (sessionId: string) => {
   const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -18,14 +18,13 @@ export const getSnapshotTableName = (sessionId: string) => {
 };
 
 export const insertSnapshotRecords = async (
-  client: Connection,
   sessionId: string,
   records: Record<string, any>[],
 ) => {
   const tableName = getSnapshotTableName(sessionId);
   const TEMPORARY_MAX_BATCH_SIZE = 1000; // Will be based on bytes
   for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
-    await client.query(
+    await Database.client.query(
       `INSERT INTO ${tableName} (data) VALUES (?)`,
       [JSON.stringify(batch)]
     );
@@ -33,21 +32,19 @@ export const insertSnapshotRecords = async (
 };
 
 export const getSnapshotBatchIds = async (
-  client: Connection,
   sessionId: string,
 ): Promise<number[]> => {
   const tableName = getSnapshotTableName(sessionId);
-  const result = await client.query(`SELECT id FROM ${tableName} ORDER BY id`);
+  const result = await Database.client.query(`SELECT id FROM ${tableName} ORDER BY id`);
   return result.map(row => row.id);
 };
 
 export const getSnapshotBatchById = async (
-  client: Connection,
   sessionId: string,
   batchId: number,
 ): Promise<Record<string, any>[]> => {
   const tableName = getSnapshotTableName(sessionId);
-  const rows = await client.query(
+  const rows = await Database.client.query(
     `SELECT data FROM ${tableName} WHERE id = ?`,
     [batchId]
   );
@@ -59,13 +56,13 @@ export const getSnapshotBatchById = async (
   return JSON.parse(rows[0].data);
 };
 
-export const createSnapshotTable = async (client: Connection, sessionId: string) => {
+export const createSnapshotTable = async (sessionId: string) => {
   const tableName = getSnapshotTableName(sessionId);
 
   // Just save the batches straight from the stream
   // No outgoing changes snapshotting on push
   try {
-  await client.query(`
+  await Database.client.query(`
       CREATE TABLE ${tableName} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         data TEXT NOT NULL
@@ -77,9 +74,9 @@ export const createSnapshotTable = async (client: Connection, sessionId: string)
   }
 };
 
-  export const dropSnapshotTable = async (client: Connection, sessionId: string) => {
+export const dropSnapshotTable = async (sessionId: string) => {
   const tableName = getSnapshotTableName(sessionId);
-  await client.query(`
+  await Database.client.query(`
     DROP TABLE IF EXISTS ${tableName};
   `);
 };
