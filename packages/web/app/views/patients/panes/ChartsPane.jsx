@@ -101,7 +101,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
     return (
       <TranslatedText
         stringId="chart.table.complex.noChart"
-        fallback="This patient has no chart information to display. Click '+ Add' to add information to add information to this chart."
+        fallback="This patient has no chart information to display. Click '+ Add' to add information to this chart."
         data-testid="translatedtext-1n1o"
       />
     );
@@ -112,6 +112,26 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
       stringId="chart.table.noData"
       fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
       data-testid="translatedtext-jwyi"
+    />
+  );
+};
+
+const getTooltipMessage = (selectedSurveyId) => {
+  if (!selectedSurveyId) {
+    return (
+      <TranslatedText
+        stringId="chart.action.record.disabledTooltip.noChartType"
+        fallback="Please select a chart type to record an entry"
+        data-testid="translatedtext-arpn"
+      />
+    );
+  }
+  
+  return (
+    <TranslatedText
+      stringId="chart.action.record.disabledTooltip"
+      fallback="'Add' an item first to record against"
+      data-testid="translatedtext-zbwx"
     />
   );
 };
@@ -245,8 +265,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     }
 
     await api.post('surveyResponse', responseData);
+    queryClient.invalidateQueries(['encounterCharts', encounter.id, survey.id]);
     handleCloseModal();
-    await loadEncounter(encounter.id);
   };
 
   const handleDeleteChart = useCallback(async () => {
@@ -287,6 +307,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     chartSurveyId: chartSurveyIdToSubmit,
     onClose: handleCloseModal,
     onSubmit: handleSubmitChart,
+    patient,
   };
 
   if (isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
@@ -313,7 +334,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         {isComplexChart ? (
           <ComplexChartModal
             {...baseChartModalProps}
-            patient={patient}
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
@@ -362,13 +382,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             <ConditionalTooltip
               visible={!recordButtonEnabled}
               maxWidth="8rem"
-              title={
-                <TranslatedText
-                  stringId="chart.action.record.disabledTooltip"
-                  fallback="'Add' an item first to record against"
-                  data-testid="translatedtext-zbwx"
-                />
-              }
+              title={getTooltipMessage(selectedChartTypeId)}
               data-testid="conditionaltooltip-uafz"
             >
               <NoteModalActionBlocker>
@@ -398,6 +412,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
           <CoreComplexChartData
             handleDeleteChart={handleDeleteChart}
             selectedSurveyId={selectedChartTypeId}
+            currentInstanceId={currentComplexChartInstance?.chartInstanceId}
             date={currentComplexChartInstance.chartDate}
             type={currentComplexChartInstance.chartType}
             subtype={currentComplexChartInstance.chartSubtype}
@@ -408,6 +423,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
+          currentInstanceId={currentComplexChartInstance?.chartInstanceId}
           noDataMessage={getNoDataMessage(
             isComplexChart,
             complexChartInstances,
