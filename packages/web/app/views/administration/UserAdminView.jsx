@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
-import { DataFetchingTable, TranslatedText } from '../../components';
+import { Box, Divider } from '@material-ui/core';
+import { DataFetchingTable, Heading1, TranslatedText } from '../../components';
 import { USERS_ENDPOINT } from './constants';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
+import { useAuth } from '../../contexts/Auth';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -30,6 +31,18 @@ const TableContainer = styled.div`
   padding: 24px 30px;
   background-color: ${Colors.background};
   border-top: 1px solid ${Colors.outline};
+`;
+
+const PermissionDeniedView = styled.div`
+  margin: 20px 20px 34px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -71,7 +84,7 @@ const COLUMNS = [
     key: 'displayId',
     title: <TranslatedText stringId="admin.users.displayId.column" fallback="ID" />,
     sortable: false,
-    accessor: ({ displayId }) => <Box minWidth='60px'>{displayFieldOrHyphen(displayId)}</Box>,
+    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrHyphen(displayId)}</Box>,
   },
   {
     key: 'roleName',
@@ -85,7 +98,7 @@ const COLUMNS = [
     sortable: true,
     accessor: ({ designations }) =>
       displayFieldOrHyphen(designations?.length > 0 ? designations.join(', ') : null),
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine maxWidth='150px' />,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
   },
   {
     key: 'email',
@@ -116,8 +129,41 @@ const UserTable = React.memo(({ ...props }) => (
 ));
 
 export const UserAdminView = React.memo(() => {
+  const { ability } = useAuth();
+  const hasPermission = ability.can('list', 'User');
+
+  const title = <TranslatedText stringId="adminSidebar.users" fallback="Users" />;
+
+  if (!hasPermission) {
+    return (
+      <AdminViewContainer title={title}>
+        <Divider color={Colors.outline} />
+        <PermissionDeniedView>
+          <Heading1 m={0}>
+            <TranslatedText
+              stringId="admin.users.noPermission.title"
+              fallback="Permission required"
+            />
+          </Heading1>
+          <span>
+            <TranslatedText
+              stringId="admin.users.noPermission.subtitle"
+              fallback="You do not have permission to use this feature"
+            />
+          </span>
+          <span fontSize="16px">
+            <TranslatedText
+              stringId="admin.users.noPermission.description"
+              fallback="Please speak to your System Administrator if you think this is incorrect."
+            />
+          </span>
+        </PermissionDeniedView>
+      </AdminViewContainer>
+    );
+  }
+
   return (
-    <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
+    <AdminViewContainer title={title}>
       <TableContainer>
         <UserTable fetchOptions={{}} data-testid="usertable-mpss" />
       </TableContainer>
