@@ -136,17 +136,17 @@ describe('CentralServerConnection', () => {
     it('retrieves user data', async () => {
       fetch
         .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(meSuccess);
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Not Real' });
     });
 
     it('retries if a token is invalid', async () => {
-      fetch
-        .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(authInvalid)
-        .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess); // first auth
+      fetch.mockReturnValueOnce(authInvalid); // first whoami call
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess); // second auth
+      fetch.mockReturnValueOnce(meSuccess); // second whoami call
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Not Real' });
     });
 
     it('times out requests', async () => {
