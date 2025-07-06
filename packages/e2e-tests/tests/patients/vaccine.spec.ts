@@ -2,14 +2,8 @@ import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { convertDateFormat } from '../../utils/testHelper';
 
-//TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
-//TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
-//TODO: are there any cases i havent added tests for in terms of given/not given / multiple doses of same vaccine etc etc?
-//TODO: search TODO in general, there are some TODOs in other files
-//TODO: is there any way to optimise table searching/matching function?
 //TODO: check regression test doc
-//TODO: delete all console logs that i added
-//TODO: add a test where each field uses a specified value when filling out the vaccine form (rather than relying on random selection like all the other test cases)? e.g specific location, area, department etc
+//TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -189,6 +183,25 @@ test.describe('Vaccines', () => {
     });
   });
 
+  test('Add other vaccine and view vaccine record with just required fields filled', async ({
+    patientDetailsPage,
+  }) => {
+    await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
+      specificVaccine: 'Test Vaccine',
+      fillOptionalFields: false,
+      viewVaccineRecord: true,
+    });
+  });
+
+  test('Select not given, add other vaccine and view vaccine record with just required fields filled', async ({
+    patientDetailsPage,
+  }) => {
+    await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, {
+      specificVaccine: 'Test Vaccine',
+      fillOptionalFields: false,
+      viewVaccineRecord: true,
+    });
+  });
 
   test('Add vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
