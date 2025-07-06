@@ -323,13 +323,7 @@ export class MobileSyncManager {
     this.setSyncStage(3);
 
     const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
-    // Save all incoming changes in 1 transaction so that the whole sync session save
-    // either fail 100% or succeed 100%, no partial save.
-    await Database.client.transaction(async () => {
-      if (totalPulled > 0) {
-        await saveIncomingChanges(sessionId, totalPulled, incomingModels, insertBatchSize, this.updateProgress);
-      }
-
+    
     if (isInitialSync) {
       await Database.setUnsafePragma();
     }
