@@ -1,11 +1,9 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
+import { convertDateFormat } from '../../utils/testHelper';
 
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
 //TODO: check todos above specific tests, some still to do
-//TODO: do test with custom date?
-//TODO: test case for given elsewhere checkbox
-//TODO: in the assertRecordedVaccineDetails maybe its necessary to match using different date formats? e.g try both MM/DD/YYYY and DD/MM etc etc
 //TODO: Add helper comment with params documentation to any complex functions?
 //TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
@@ -33,12 +31,14 @@ test.describe('Vaccines', () => {
       viewVaccineRecord = false,
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
+      specificDate = undefined,
     }: {
       specificVaccine?: string | null;
       fillOptionalFields?: boolean;
       viewVaccineRecord?: boolean;
       isFollowUpVaccine?: boolean;
       specificScheduleOption?: string;
+      specificDate?: string;
     } = {},
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
@@ -53,6 +53,7 @@ test.describe('Vaccines', () => {
         fillOptionalFields,
         isFollowUpVaccine,
         specificScheduleOption,
+        specificDate,
       },
     );
 
@@ -272,15 +273,47 @@ test.describe('Vaccines', () => {
   test('Select not given when giving the second scheduled dose of a vaccine', async ({
     patientDetailsPage,
   }) => {
-    //TODO: probs similar to previous test case
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      specificVaccine: 'bOPV',
+      viewVaccineRecord: true,
+    });
+
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+
+    await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 1, {
+      specificVaccine: 'bOPV',
+      isFollowUpVaccine: true,
+      specificScheduleOption: '10 weeks',
+      viewVaccineRecord: true,
+    });
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
-    //TODO:
-    //  const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
+
+    await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
+      convertDateFormat(currentBrowserDate),
+    );
   });
 
   test('Add vaccine with custom date', async ({ patientDetailsPage }) => {
-    //TODO:
+    const customDate = '2024-11-27';
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      specificDate: customDate,
+      viewVaccineRecord: true,
+    });
+
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+
+    await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
+      convertDateFormat(customDate),
+    );
+  });
+
+  test('Check given elsewhere checkbox', async () => {
+    //TODO: this feature is currently not working as per EPI-1019, if fixed then add test case
   });
 });

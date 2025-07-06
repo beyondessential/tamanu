@@ -153,11 +153,13 @@ export class RecordVaccineModal extends BasePatientModal {
       fillOptionalFields = false,
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
+      specificDate = undefined,
     }: {
       specificVaccine?: string;
       fillOptionalFields?: boolean;
       isFollowUpVaccine?: boolean;
       specificScheduleOption?: string;
+      specificDate?: string;
     } = {},
   ) {
     await this.selectIsVaccineGiven(given);
@@ -177,6 +179,10 @@ export class RecordVaccineModal extends BasePatientModal {
           notGivenClinician?: string;
         }
       | undefined;
+
+    if (specificDate) {
+      await this.dateField.fill(specificDate);
+    }
 
     const date = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
 
@@ -199,10 +205,6 @@ export class RecordVaccineModal extends BasePatientModal {
       optionalFields = given
         ? await this.recordOptionalVaccineFieldsGiven(category)
         : await this.recordOptionalVaccineFieldsNotGiven(category);
-    }
-
-    if (isFollowUpVaccine) {
-      //TODO:
     }
 
     await this.page.waitForTimeout(2000);

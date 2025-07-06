@@ -18,6 +18,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTableBody: Locator;
   readonly vaccineNotGivenCheckbox: Locator;
   readonly tableRowPrefix: string;
+  readonly dateFieldForSingleVaccine: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -33,6 +34,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.recordedVaccinesTableBody = this.page.getByTestId('styledtablebody-a0jz');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.tableRowPrefix = `styledtablecell-2gyy-`;
+    this.dateFieldForSingleVaccine = this.page.getByTestId('styledtablecell-2gyy-0-date');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
