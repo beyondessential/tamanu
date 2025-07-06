@@ -218,9 +218,6 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
-    console.log('MobileSyncManager.runSync(): Sync started')
-    await Database.setUnsafePragma();
-
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
     await this.syncIncomingChanges(sessionId);
 
@@ -324,7 +321,7 @@ export class MobileSyncManager {
     this.setSyncStage(3);
 
     const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
-    
+
     if (isInitialSync) {
       await Database.setUnsafePragma();
     }
