@@ -19,7 +19,7 @@ export const getSnapshotTableName = (sessionId: string) => {
 
 export const insertSnapshotRecords = async (sessionId: string, records: Record<string, any>[]) => {
   const tableName = getSnapshotTableName(sessionId);
-  const TEMPORARY_MAX_BATCH_SIZE = 1000; // Will be based on bytes
+  const TEMPORARY_MAX_BATCH_SIZE = 1000; // TODO: with streaming Will be based on bytes
   for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
     await Database.client.query(`INSERT INTO ${tableName} (data) VALUES (?)`, [
       JSON.stringify(batch),
