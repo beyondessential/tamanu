@@ -151,10 +151,10 @@ import {
           expect.stringContaining("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'sync_snapshots_%'")
         );
         expect(mockDatabase.client.query).toHaveBeenCalledWith(
-          'DROP TABLE IF EXISTS sync_snapshots_session1'
+          'DROP TABLE IF EXISTS sync_snapshots_session_1'
         );
         expect(mockDatabase.client.query).toHaveBeenCalledWith(
-          'DROP TABLE IF EXISTS sync_snapshots_session2'
+          'DROP TABLE IF EXISTS sync_snapshots_session_2'
         );
       });
     });
