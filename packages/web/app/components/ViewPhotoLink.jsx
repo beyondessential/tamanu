@@ -7,6 +7,8 @@ import { Button, OutlinedButton, TextButton } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
 import { Divider } from '@material-ui/core';
+import { LoadingIndicator } from './LoadingIndicator';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const Image = styled.img`
   display: block;
@@ -72,22 +74,34 @@ const Footer = ({ hasError, onDelete, onClose }) => {
   );
 };
 
+const ImageModalContent = ({ imageData, errorMessage }) => {
+  const isLoading = !imageData && !errorMessage;
+  if (isLoading) {
+    return <LoadingIndicator height="400px" data-testid="loadingindicator-5htv" />;
+  }
+  if (errorMessage) {
+    return <p>{errorMessage}</p>;
+  }
+  return <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />;
+};
+
 export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
   const [showModal, setShowModal] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useApi();
   const openModalCallback = useCallback(async () => {
+    setShowModal(true);
     if (!navigator.onLine) {
       setImageData(null);
       setErrorMessage(
         'You do not currently have an internet connection. Images require live internet for viewing.',
       );
-      setShowModal(true);
       return;
     }
 
     try {
+      await sleepAsync(2000);
       const { data } = await api.get(`attachment/${imageId}`, { base64: true });
       setImageData(data);
       setErrorMessage(null);
@@ -95,8 +109,6 @@ export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
       setImageData(null);
       setErrorMessage(`Error: ${error.message}`);
     }
-
-    setShowModal(true);
   }, [api, imageId]);
   const isChartView = !!firstColTitle;
   const title = isChartView ? `${firstColTitle} | View image` : 'Image';
@@ -112,11 +124,7 @@ export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
         onClose={() => setShowModal(false)}
         data-testid="modal-zpy7"
       >
-        {imageData && !errorMessage ? (
-          <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />
-        ) : (
-          <p>{errorMessage}</p>
-        )}
+        <ImageModalContent imageData={imageData} errorMessage={errorMessage} />
         {isChartView && (
           <Footer
             hasError={!!errorMessage}
