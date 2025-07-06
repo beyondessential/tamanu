@@ -18,7 +18,6 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
-import { Connection } from 'typeorm';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
