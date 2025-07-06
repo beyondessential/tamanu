@@ -19,12 +19,6 @@ describe('ProgramRegistry', () => {
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
-  afterEach(async () => {
-    await models.PatientProgramRegistration.truncate();
-    await models.ProgramRegistry.truncate();
-    await models.Program.truncate();
-    await models.Patient.truncate({ cascade: true });
-  });
 
   const createProgramRegistry = async ({ ...params } = {}) => {
     const program = await models.Program.create(fake(models.Program));
@@ -34,6 +28,13 @@ describe('ProgramRegistry', () => {
   };
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
     it('should fetch a program registry', async () => {
       const { id } = await createProgramRegistry({
         name: 'Hepatitis Registry',
@@ -70,6 +71,12 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
     it('should list available program registries', async () => {
       await createProgramRegistry();
       await createProgramRegistry({
@@ -194,6 +201,12 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
     it('should list available conditions', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
       await models.ProgramRegistryCondition.create(
