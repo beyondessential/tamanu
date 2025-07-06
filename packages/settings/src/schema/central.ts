@@ -31,6 +31,18 @@ export const centralSettings = {
         },
       },
     },
+    sync: {
+      description: 'Settings related to sync',
+      highRisk: true,
+      properties: {
+        streaming: {
+          name: 'Streaming',
+          description: 'Use streaming endpoints',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,

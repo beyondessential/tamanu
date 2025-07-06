@@ -34,6 +34,11 @@ describe('CentralServerConnection', () => {
       displayName: 'Not Real',
       email: 'notreal@example.com',
     },
+    settings: {
+      sync: {
+        streaming: false,
+      },
+    },
   });
   const meSuccess = fakeSuccess({
     id: 'not-real',

@@ -148,7 +148,7 @@ export class CentralServerConnection extends TamanuApi {
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client
 
-    if (this.streaming) {
+    if ((await this.loginData()).settings.sync.streaming) {
       for await (const { kind, data } of this.stream(() => ({
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
@@ -186,7 +186,7 @@ export class CentralServerConnection extends TamanuApi {
     // then, wait for the pull/ready endpoint until we get a valid response;
     // it takes a while for pull/initiate to finish populating the snapshot of changes
 
-    if (this.streaming) {
+    if ((await this.loginData()).settings.sync.streaming) {
       for await (const { kind, data } of this.stream(() => ({
         endpoint: `sync/${sessionId}/pull/ready/stream`,
       }))) {
