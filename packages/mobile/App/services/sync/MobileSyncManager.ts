@@ -324,11 +324,11 @@ export class MobileSyncManager {
     this.setSyncStage(3);
 
     const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
-
+    
     if (isInitialSync) {
       await Database.setUnsafePragma();
     }
-
+    
     try {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
