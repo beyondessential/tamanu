@@ -327,7 +327,7 @@ export class MobileSyncManager {
     if (isInitialSync) {
       await Database.setUnsafePragma();
     }
-
+    
     try {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
