@@ -17,23 +17,17 @@ export const getSnapshotTableName = (sessionId: string) => {
   return `sync_snapshots_${sessionId.replace(/[^a-zA-Z0-9]/g, '_')}`;
 };
 
-export const insertSnapshotRecords = async (
-  sessionId: string,
-  records: Record<string, any>[],
-) => {
+export const insertSnapshotRecords = async (sessionId: string, records: Record<string, any>[]) => {
   const tableName = getSnapshotTableName(sessionId);
   const TEMPORARY_MAX_BATCH_SIZE = 1000; // Will be based on bytes
   for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
-    await Database.client.query(
-      `INSERT INTO ${tableName} (data) VALUES (?)`,
-      [JSON.stringify(batch)]
-    );
+    await Database.client.query(`INSERT INTO ${tableName} (data) VALUES (?)`, [
+      JSON.stringify(batch),
+    ]);
   }
 };
 
-export const getSnapshotBatchIds = async (
-  sessionId: string,
-): Promise<number[]> => {
+export const getSnapshotBatchIds = async (sessionId: string): Promise<number[]> => {
   const tableName = getSnapshotTableName(sessionId);
   const result = await Database.client.query(`SELECT id FROM ${tableName} ORDER BY id`);
   return result.map(row => row.id);
@@ -44,15 +38,12 @@ export const getSnapshotBatchById = async (
   batchId: number,
 ): Promise<Record<string, any>[]> => {
   const tableName = getSnapshotTableName(sessionId);
-  const rows = await Database.client.query(
-    `SELECT data FROM ${tableName} WHERE id = ?`,
-    [batchId]
-  );
-  
+  const rows = await Database.client.query(`SELECT data FROM ${tableName} WHERE id = ?`, [batchId]);
+
   if (rows.length === 0) {
     return [];
   }
-  
+
   return JSON.parse(rows[0].data);
 };
 
@@ -62,7 +53,7 @@ export const createSnapshotTable = async (sessionId: string) => {
   // Just save the batches straight from the stream
   // No outgoing changes snapshotting on push
   try {
-  await Database.client.query(`
+    await Database.client.query(`
       CREATE TABLE ${tableName} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         data TEXT NOT NULL
@@ -76,10 +67,9 @@ export const createSnapshotTable = async (sessionId: string) => {
 
 export const dropSnapshotTable = async (sessionId?: string) => {
   if (!sessionId) {
-    const tables = await Database.client.query(`
-      SELECT name FROM sqlite_master 
-      WHERE type='table' AND name LIKE 'sync_snapshots_%'
-    `);
+    const tables = await Database.client.query(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'sync_snapshots_%'",
+    );
     for (const table of tables) {
       await Database.client.query(`DROP TABLE IF EXISTS ${table.name}`);
     }
