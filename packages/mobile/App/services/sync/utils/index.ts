@@ -1,5 +1,4 @@
 export { callWithBackoff } from './callWithBackoff';
-export { clearPersistedSyncSessionRecords } from './clearPersistedSyncSessionRecords';
 export { fetchWithTimeout } from './fetchWithTimeout';
 export { getModelsForDirection } from './getModelsForDirection';
 export { getResponseJsonSafely } from './getResponseJsonSafely';

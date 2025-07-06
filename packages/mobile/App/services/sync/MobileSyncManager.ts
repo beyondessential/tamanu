@@ -4,7 +4,6 @@ import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  clearPersistedSyncSessionRecords,
   getModelsForDirection,
   getSyncTick,
   pullIncomingChanges,
@@ -13,11 +12,13 @@ import {
   setSyncTick,
   snapshotOutgoingChanges,
 } from './utils';
+import { dropSnapshotTable } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
+import { Connection } from 'typeorm';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -58,11 +59,12 @@ export class MobileSyncManager {
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
   settings: SettingsService;
-
+  client: Connection;
   constructor(centralServer: CentralServerConnection, settings: SettingsService) {
     this.centralServer = centralServer;
     this.settings = settings;
     this.models = Database.models;
+    this.client = Database.client;
   }
 
   setSyncStage(syncStage: number): void {
@@ -186,11 +188,10 @@ export class MobileSyncManager {
     }
 
     console.log('MobileSyncManager.runSync(): Began sync run');
-
     this.isSyncing = true;
 
     // clear persisted cache from last session
-    await clearPersistedSyncSessionRecords();
+    await dropSnapshotTable(this.client);
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
 
@@ -224,7 +225,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from this session
-    await clearPersistedSyncSessionRecords(sessionId);
+    await dropSnapshotTable(this.client, sessionId);
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');

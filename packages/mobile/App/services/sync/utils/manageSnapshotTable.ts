@@ -1,4 +1,4 @@
-import { Database } from '~/infra/db';
+import { Database } from '../../../infra/db';
 import { chunk } from 'lodash';
 
 const assertIfSessionIdIsSafe = (sessionId: string) => {
@@ -74,9 +74,19 @@ export const createSnapshotTable = async (sessionId: string) => {
   }
 };
 
-export const dropSnapshotTable = async (sessionId: string) => {
-  const tableName = getSnapshotTableName(sessionId);
-  await Database.client.query(`
-    DROP TABLE IF EXISTS ${tableName};
-  `);
+export const dropSnapshotTable = async (sessionId?: string) => {
+  if (!sessionId) {
+    const tables = await Database.client.query(`
+      SELECT name FROM sqlite_master 
+      WHERE type='table' AND name LIKE 'sync_snapshots_%'
+    `);
+    for (const table of tables) {
+      await Database.client.query(`DROP TABLE IF EXISTS ${table.name}`);
+    }
+  } else {
+    const tableName = getSnapshotTableName(sessionId);
+    await Database.client.query(`
+      DROP TABLE IF EXISTS ${tableName};
+    `);
+  }
 };
