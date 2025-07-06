@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
+import { TranslatedText } from './Translation';
 
 // severity constants
 const ALERT = 'alert';
@@ -49,13 +50,27 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
   const { normalRange } = visibilityCriteria;
   if (normalRange && float < normalRange.min) {
     return {
-      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+      tooltip: (
+        <TranslatedText
+          stringId="observation.outsideNormalRange.less"
+          fallback={'Outside normal range\n <:min:unit'}
+          replacements={{ min: normalRange.min, unit }}
+          data-testid="translatedtext-outside-normal-range-less"
+        />
+      ),
       severity: ALERT,
     };
   }
   if (normalRange && float > normalRange.max) {
     return {
-      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+      tooltip: (
+        <TranslatedText
+          stringId="observation.outsideNormalRange.greater"
+          fallback={'Outside normal range\n >:max:unit'}
+          replacements={{ max: normalRange.max, unit }}
+          data-testid="translatedtext-outside-normal-range-greater"
+        />
+      ),
       severity: ALERT,
     };
   }

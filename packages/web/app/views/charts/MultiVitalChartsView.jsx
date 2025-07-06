@@ -5,6 +5,7 @@ import { Box, Divider as DividerBase } from '@material-ui/core';
 import { useVitalChartData } from '../../contexts/VitalChartData';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from '../../components/Charts/constants';
 import { getVitalChartComponent } from './getVitalChartComponent';
+import { TranslatedReferenceData } from '../../components';
 
 const Divider = styled(DividerBase)`
   margin-left: ${Y_AXIS_WIDTH}px;
@@ -33,7 +34,10 @@ export const MultiVitalChartsView = () => {
           <div key={chartKey}>
             <Divider style={{ marginRight: 0 }} data-testid={`divider-1j3f-${chartKey}`} />
             <TitleContainer data-testid={`titlecontainer-0v6s-${chartKey}`}>
-              <span>{visualisationConfigs.find((config) => config.key === chartKey)?.name}</span>
+              <TranslatedReferenceData 
+                category="programDataElement" 
+                value={chartKey}
+                fallback={visualisationConfig.name} />
             </TitleContainer>
             <VitalChartComponent
               chartKey={chartKey}

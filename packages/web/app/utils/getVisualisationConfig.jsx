@@ -1,6 +1,8 @@
+import React from 'react';
 import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../components/Charts/constants';
 import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from './survey';
+import { TranslatedText } from '../components';
 
 export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => {
   const { isSuccess } = restOfQuery;
@@ -38,7 +40,15 @@ export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => 
         return {
           chartType: isBloodPressureChart ? BLOOD_PRESSURE : LINE,
           key: dataElement.id,
-          name: isBloodPressureChart ? 'Blood pressure (mm Hg)' : dataElement.name,
+          name: isBloodPressureChart ? (
+            <TranslatedText
+              stringId="vitals.bloodPressure.label"
+              fallback="Blood pressure (mm Hg)"
+              data-testid="translatedtext-blood-pressure-label"
+            />
+          ) : (
+            dataElement.name
+          ),
           hasVitalChart,
           config: getConfigObject(id, config),
           ...visualisationConfig,
