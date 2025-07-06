@@ -4,6 +4,10 @@ import config from 'config';
 // Relatively unsafe as creates roles and schemas in the database
 export async function createMockReportingSchemaAndRoles({ sequelize }) {
   const { raw, reporting } = config.db.reportSchemas.connections;
+  const rolesExist = await sequelize.query(`SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname = '${reporting.username}')`);
+  if (rolesExist) {
+    return;
+  }
   await sequelize.query(`
     CREATE SCHEMA IF NOT EXISTS reporting;
     -- create roles if they don't exist this can happen on local dev when running tests
