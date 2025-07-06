@@ -26,21 +26,6 @@ const fakeSuccess = body => fakeResponse({ status: 200, ok: true }, body);
 const fakeFailure = (status, body = {}, headers = {}) =>
   fakeResponse({ status, ok: false }, body, headers);
 
-const fakeTimeout = message => (url, opts) =>
-  new Promise((_resolve, reject) => {
-    // TODO: import AbortError from node-fetch once we're on v3.0
-    class AbortError extends Error {}
-    opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
-  });
-
-const fetch = jest.fn();
-
-const createCentralServerConnection = () => {
-  const centralServer = new CentralServerConnection({ deviceId: 'test' });
-  centralServer.fetchImplementation = fetch;
-  return centralServer;
-};
-
 describe('CentralServerConnection', () => {
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
@@ -152,8 +137,15 @@ describe('CentralServerConnection', () => {
     it('times out requests', async () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
-      const centralServer = createCentralServerConnection();
-      fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
+      fetch.mockReturnValue(
+        Promise.reject(
+          new (class extends Error {
+            get name() {
+              return 'AbortError';
+            }
+          })('fake timeout'),
+        ),
+      );
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
