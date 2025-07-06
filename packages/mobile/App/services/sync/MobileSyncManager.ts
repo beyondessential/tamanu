@@ -109,7 +109,7 @@ export class MobileSyncManager {
    */
   async waitForCurrentSyncToEnd(): Promise<void> {
     if (this.isSyncing) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         const done = (): void => {
           resolve();
           this.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
@@ -290,6 +290,7 @@ export class MobileSyncManager {
     this.setSyncStage(2);
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+    const isInitialSync = pullSince === -1;
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
@@ -311,7 +312,7 @@ export class MobileSyncManager {
       this.centralServer,
       sessionId,
       pullSince,
-      Object.values(incomingModels).map((m) => m.getTableName()),
+      Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
@@ -322,23 +323,41 @@ export class MobileSyncManager {
     this.setSyncStage(3);
 
     const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
-    // Save all incoming changes in 1 transaction so that the whole sync session save
-    // either fail 100% or succeed 100%, no partial save.
-    await Database.client.transaction(async () => {
-      if (totalPulled > 0) {
-        await saveIncomingChanges(sessionId, totalPulled, incomingModels, insertBatchSize, this.updateProgress);
-      }
+    
+    if (isInitialSync) {
+      await Database.setUnsafePragma();
+    }
+    
+    try {
+      await Database.client.transaction(async () => {
+        if (totalPulled > 0) {
+          await saveIncomingChanges(
+            sessionId,
+            totalPulled,
+            incomingModels,
+            insertBatchSize,
+            this.updateProgress,
+          );
+        }
 
-      if (tablesForFullResync) {
-        await tablesForFullResync.remove();
-      }
+        if (tablesForFullResync) {
+          await tablesForFullResync.remove();
+        }
 
-      // update the last successful sync in the same save transaction,
-      // if updating the cursor fails, we want to roll back the rest of the saves
-      // so that we don't end up detecting them as needing a sync up
-      // to the central server when we attempt to resync from the same old cursor
-      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
-    });
+        // update the last successful sync in the same save transaction,
+        // if updating the cursor fails, we want to roll back the rest of the saves
+        // so that we don't end up detecting them as needing a sync up
+        // to the central server when we attempt to resync from the same old cursor
+        await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
+      });
+    } catch (error) {
+      console.error('Error saving incoming changes', error);
+      throw error;
+    } finally {
+      if (isInitialSync) {
+        await Database.setDefaultPragma();
+      }
+    }
 
     this.lastSyncPulledRecordsCount = totalPulled;
 
