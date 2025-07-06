@@ -4,6 +4,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
+  AuthError,
   AuthExpiredError,
   AuthInvalidError,
   ForbiddenError,
@@ -297,10 +298,20 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
+    if (response.status === 401 && endpoint !== 'login') {
       const message = 'Your session has expired. Please log in again.';
-      this.#onAuthFailure(message);
+      if (this.#onAuthFailure) {
+        this.#onAuthFailure(message);
+      }
       throw new AuthExpiredError(message, response);
+    }
+
+    // handle other auth errors
+    if (response.status === 401) {
+      if (this.#onAuthFailure) {
+        this.#onAuthFailure(message);
+      }
+      throw new AuthError(message, response);
     }
 
     // handle version incompatibility
