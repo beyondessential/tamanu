@@ -1,17 +1,17 @@
-import { Database } from '~/infra/db';
+import { Connection } from 'typeorm';
 import { dropSnapshotTable } from './manageSnapshotTable';
 
-export const clearPersistedSyncSessionRecords = async (sessionId?: string): Promise<void> => {
+export const clearPersistedSyncSessionRecords = async (client: Connection, sessionId?: string): Promise<void> => {
   if (sessionId) {
-    await dropSnapshotTable(sessionId);
+    await dropSnapshotTable(client, sessionId);
   } else {
-    const tables = await Database.client.query(`
+    const tables = await client.query(`
       SELECT name FROM sqlite_master 
       WHERE type='table' AND name LIKE 'sync_snapshots_%'
     `);
     
     for (const table of tables) {
-      await Database.client.query(`DROP TABLE IF EXISTS ${table.name}`);
+      await client.query(`DROP TABLE IF EXISTS ${table.name}`);
     }
   }
 };
