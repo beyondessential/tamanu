@@ -85,7 +85,7 @@ export class RecordVaccineModal extends BasePatientModal {
     }
   }
 
-  //TODO: should this always return vaccine name or should it sometimes not?
+
   async selectVaccine(specificVaccine?: string) {
     const vaccineName = await selectFieldOption(this.page, this.vaccineSelectField, {
       optionToSelect: specificVaccine,

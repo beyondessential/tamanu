@@ -3,8 +3,6 @@ import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { convertDateFormat } from '../../utils/testHelper';
 
 //TODO: run all the tests that open view vaccine modal in debug mode and confirm everything matches
-//TODO: check todos above specific tests, some still to do
-//TODO: figure out a way to get rid of all the ! in the addVaccineAndAssert function
 //TODO: other vaccine has custom disease fields for given/not given and brand for given, make sure these are covered in asserts
 //TODO: are there any cases i havent added tests for in terms of given/not given / multiple doses of same vaccine etc etc?
 //TODO: search TODO in general, there are some TODOs in other files
@@ -56,6 +54,14 @@ test.describe('Vaccines', () => {
       },
     );
 
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    if (!vaccine.vaccineName || !vaccine.scheduleOption || !vaccine.date || !vaccine.area || !vaccine.location || !vaccine.department) {
+      throw new Error('Vaccine record is missing required fields');
+    }
+
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
@@ -65,36 +71,36 @@ test.describe('Vaccines', () => {
     }
 
     await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
-      vaccine!.vaccineName!,
-      vaccine!.scheduleOption!,
-      vaccine!.date!,
+      vaccine.vaccineName,
+      vaccine.scheduleOption!,
+      vaccine.date!,
       count,
       given,
-      vaccine!.givenBy,
+      vaccine.givenBy,
     );
 
     if (viewVaccineRecord) {
       const requiredParams = {
-        vaccineName: vaccine!.vaccineName!,
-        date: vaccine!.date!,
-        area: vaccine!.area!,
-        location: vaccine!.location!,
-        department: vaccine!.department!,
+        vaccineName: vaccine.vaccineName,
+        date: vaccine.date,
+        area: vaccine.area,
+        location: vaccine.location,
+        department: vaccine.department,
         given,
         count,
         category,
         fillOptionalFields: fillOptionalFields ?? false, // default to false if undefined
-        schedule: vaccine!.scheduleOption!,
+        schedule: vaccine.scheduleOption,
       };
 
       const optionalParams = {
-        batch: vaccine!.vaccineBatch!,
-        injectionSite: vaccine!.injectionSite!,
-        givenBy: vaccine!.givenBy!,
-        brand: vaccine!.brand!,
-        disease: vaccine!.disease!,
-        notGivenClinician: vaccine!.notGivenClinician!,
-        notGivenReason: vaccine!.notGivenReason!,
+        batch: vaccine.vaccineBatch,
+        injectionSite: vaccine.injectionSite,
+        givenBy: vaccine.givenBy,
+        brand: vaccine.brand,
+        disease: vaccine.disease,
+        notGivenClinician: vaccine.notGivenClinician,
+        notGivenReason: vaccine.notGivenReason,
       };
 
       await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(
@@ -183,7 +189,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  //TODO: is it is possible to merge this and the next test case for other?
+
   test('Add vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
@@ -204,7 +210,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  //TODO: is it possible to merge this and the next test case for non-other?
+
   test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
