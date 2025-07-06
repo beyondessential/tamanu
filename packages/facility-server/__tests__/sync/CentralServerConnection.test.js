@@ -50,6 +50,11 @@ describe('CentralServerConnection', () => {
       email: 'notreal@example.com',
     },
   });
+  const meSuccess = fakeSuccess({
+    id: 'not-real',
+    displayName: 'Not Real',
+    email: 'notreal@example.com',
+  });
   const authInvalid = fakeFailure(401);
   const authFailure = fakeFailure(503);
   const clientVersionLow = fakeFailure(
@@ -80,21 +85,32 @@ describe('CentralServerConnection', () => {
   );
 
   describe('authentication', () => {
+    let fetch;
+    let centralServer;
+    beforeEach(() => {
+      fetch = jest.spyOn(global, 'fetch');
+      centralServer = new CentralServerConnection({ deviceId: 'test' });
+      centralServer.fetchImplementation = fetch;
+    });
+    afterEach(() => {
+      console.log(fetch.mock.calls);
+      fetch.mockReset();
+      fetch.mockRestore();
+    });
+
     it('authenticates against a central server', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(authSuccess);
-      await centralServer.connect();
-      expect(centralServer.token).toEqual('this-is-not-real');
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+      const { token, user } = await centralServer.connect();
+      expect(token).toEqual('this-is-not-real');
+      expect(user).toMatchObject({ id: 'not-real' });
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authInvalid);
       await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(centralServer.connect()).rejects.toThrow(/is out of date/i);
       fetch.mockReturnValueOnce(clientVersionLow);
@@ -104,7 +120,6 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
@@ -114,13 +129,11 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a RemoteCallFailedError if any other server error is returned', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authFailure);
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
     it('retrieves user data', async () => {
-      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
@@ -128,7 +141,6 @@ describe('CentralServerConnection', () => {
     });
 
     it('retries if a token is invalid', async () => {
-      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(authInvalid)
