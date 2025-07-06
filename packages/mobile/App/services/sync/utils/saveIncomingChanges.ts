@@ -89,6 +89,28 @@ export const saveChangesForModel = async (
   }
 };
 
+const groupRecordsByType = async (
+  queryRunner: any,
+  sessionId: string,
+  batchIds: string[]
+): Promise<Record<string, SyncRecord[]>> => {
+  const recordsByType: Record<string, SyncRecord[]> = {};
+
+  for (const batchId of batchIds) {
+    const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
+
+    for (const record of batchRecords) {
+      const recordType = record.recordType;
+      if (!recordsByType[recordType]) {
+        recordsByType[recordType] = [];
+      }
+      recordsByType[recordType].push(record);
+    }
+  }
+
+  return recordsByType;
+};
+
 /**
  * Save all the incoming changes in the right order of dependency,
  * efficiently grouping by model during single batch iteration
@@ -109,22 +131,7 @@ export const saveIncomingChanges = async (
   await queryRunner.connect();
 
   const batchIds = await getSnapshotBatchIds(queryRunner, sessionId);
-
-  const recordsByType: Record<string, SyncRecord[]> = {};
-
-  for (const batchId of batchIds) {
-    const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
-
-    const batchRecordsByType = groupBy(batchRecords, 'recordType');
-
-    for (const [recordType, records] of Object.entries(batchRecordsByType)) {
-      if (!recordsByType[recordType]) {
-        recordsByType[recordType] = [];
-      }
-      recordsByType[recordType].push(...records);
-    }
-  }
-
+  const recordsByType = await groupRecordsByType(queryRunner, sessionId, batchIds);
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;
