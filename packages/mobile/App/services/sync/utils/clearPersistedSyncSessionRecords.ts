@@ -1,18 +1,17 @@
-import { dropSnapshotTable } from './manageSnapshotTable';
 import { Database } from '~/infra/db';
+import { dropSnapshotTable } from './manageSnapshotTable';
 
 export const clearPersistedSyncSessionRecords = async (sessionId?: string): Promise<void> => {
-  const queryRunner = Database.client.createQueryRunner();
   if (sessionId) {
-    await dropSnapshotTable(queryRunner, sessionId);
+    await dropSnapshotTable(sessionId);
   } else {
-    const tables = await queryRunner.query(`
+    const tables = await Database.client.query(`
       SELECT name FROM sqlite_master 
       WHERE type='table' AND name LIKE 'sync_snapshots_%'
     `);
     
     for (const table of tables) {
-      await queryRunner.query(`DROP TABLE IF EXISTS ${table.name}`);
+      await Database.client.query(`DROP TABLE IF EXISTS ${table.name}`);
     }
   }
 };

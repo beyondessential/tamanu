@@ -1,5 +1,5 @@
 import { In } from 'typeorm';
-import { groupBy, chunk } from 'lodash';
+import { chunk } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -8,7 +8,6 @@ import { executeDeletes, executeInserts, executeRestores, executeUpdates } from 
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchById } from './manageSnapshotTable';
-import { Database } from '~/infra/db';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
 
 /**
@@ -90,14 +89,13 @@ export const saveChangesForModel = async (
 };
 
 const groupRecordsByType = async (
-  queryRunner: any,
   sessionId: string,
   batchIds: string[]
 ): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
   for (const batchId of batchIds) {
-    const batchRecords = await getSnapshotBatchById(queryRunner, sessionId, batchId);
+    const batchRecords = await getSnapshotBatchById(sessionId, batchId);
 
     for (const record of batchRecords) {
       const recordType = record.recordType;
@@ -127,11 +125,8 @@ export const saveIncomingChanges = async (
   insertBatchSize: number,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const queryRunner = Database.client.createQueryRunner();
-  await queryRunner.connect();
-
-  const batchIds = await getSnapshotBatchIds(queryRunner, sessionId);
-  const recordsByType = await groupRecordsByType(queryRunner, sessionId, batchIds);
+  const batchIds = await getSnapshotBatchIds(sessionId);
+  const recordsByType = await groupRecordsByType(sessionId, batchIds);
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;
@@ -153,5 +148,4 @@ export const saveIncomingChanges = async (
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
   }
-  await queryRunner.release();
 };
