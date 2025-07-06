@@ -121,6 +121,13 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "attachmentCleanup": {
+      "enabled": true,
+      // every 6 hours
+      "schedule": "0 */6 * * *",
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 50,
+    },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
