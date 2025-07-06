@@ -122,7 +122,8 @@ import {
       });
   
       it('should handle creation errors', async () => {
-        mockDatabase.client.query.mockRejectedValue(new Error('Table exists'));
+        mockDatabase.client.query.mockRejectedValueOnce(new Error('Table exists'));
+
         
         await expect(createSnapshotTable('test-session')).rejects.toThrow('Table exists');
       });
@@ -130,10 +131,10 @@ import {
   
     describe('dropSnapshotTable', () => {
       it('should drop specific table when sessionId provided', async () => {
-        await dropSnapshotTable('test-session');
+        await dropSnapshotTable('test-session-5');
         
         expect(mockDatabase.client.query).toHaveBeenCalledWith(
-          expect.stringContaining('DROP TABLE IF EXISTS sync_snapshots_test_session')
+          expect.stringContaining('DROP TABLE IF EXISTS sync_snapshots_test_session_5')
         );
       });
   
