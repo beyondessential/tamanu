@@ -90,8 +90,8 @@ describe('manageSnapshotTable', () => {
         { id: 2, name: 'test2' },
       ];
       mockDatabase.client.query.mockResolvedValue([
-        { data: JSON.stringify([testData[0]]) },
-        { data: JSON.stringify([testData[1]]) },
+        { data: JSON.stringify(testData[0]) },
+        { data: JSON.stringify(testData[1]) },
       ]);
 
       const result = await getSnapshotBatchesByIds('test-session', [1, 2]);
