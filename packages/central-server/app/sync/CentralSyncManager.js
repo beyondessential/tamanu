@@ -2,6 +2,8 @@ import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 import { isNil } from 'lodash';
+import { Readable, pipeline } from 'node:stream';
+import { promisify } from 'node:util';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
@@ -14,6 +16,7 @@ import {
   countSyncSnapshotRecords,
   createSnapshotTable,
   findSyncSnapshotRecords,
+  startSyncSnapshotCursor,
   getModelsForPull,
   getModelsForPush,
   getSyncTicksOfPendingEdits,
@@ -36,6 +39,9 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import { streamSnapshotCursor } from './streamSnapshotCursor';
+
+const asyncPipeline = promisify(pipeline);
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
@@ -613,6 +619,22 @@ export class CentralSyncManager {
       maxSourceTick,
     });
     return recordsForPull;
+  }
+
+  async streamOutgoingChanges(sessionId, res, { fromId }) {
+    const session = await this.connectToSession(sessionId);
+    await this.store.sequelize.transaction(async () => {
+      const cursorName = await startSyncSnapshotCursor(
+        this.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+        fromId,
+      );
+      await asyncPipeline(
+        Readable.from(streamSnapshotCursor(this.store, cursorName, session.parameters)),
+        res,
+      );
+    });
   }
 
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {

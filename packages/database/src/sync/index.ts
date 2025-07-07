@@ -9,6 +9,7 @@ export * from './buildSyncLookupSelect';
 export * from './buildEncounterLinkedSyncFilter';
 export * from './buildPatientLinkedLookupFilter';
 export * from './findSyncSnapshotRecords';
+export * from './startSyncSnapshotCursor';
 export * from './getModelsForDirection';
 export * from './getSyncSnapshotRecordIds';
 export * from './getSyncTicksOfPendingEdits';
