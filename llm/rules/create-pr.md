@@ -22,6 +22,7 @@ Use the project's PR template format from .github/pull_request_template.md.
 - Avoid corporate buzzwords and formal language that no one actually uses in conversation
 - Keep it concise - reviewers can refer to the card for full context if needed
 - Use present tense and focus on the changes made
+- Add agentic label to PR description: Include `{agentic: Claude 3.5 Sonnet}` or appropriate model name at the end of the description
 - Check for CLI tools and create PR automatically if available:
   - Test for `gh` first: `which gh > /dev/null 2>&1 && echo "gh available"`
   - If gh is available, use: `gh pr create --title "PR_TITLE" --body "PR_DESCRIPTION"`
@@ -62,6 +63,8 @@ doc: NASS-1712: restructure LLM system to capture institutional knowledge
 - ...add any **manual upgrade steps** to the Linear card
 - ...update the [config reference](https://beyond-essential.slab.com/posts/reference-config-file-0c70ukly), [settings reference](https://beyond-essential.slab.com/posts/reference-settings-0blw1x2q), or any [relevant runbook(s)](https://beyond-essential.slab.com/topics/runbooks-bs04ml6c)
 - ...call out additions or changes to **config files** for the deployment team to take note of
+
+{agentic: Claude 3.5 Sonnet}
 
 <!-- Thank you! -->
 
