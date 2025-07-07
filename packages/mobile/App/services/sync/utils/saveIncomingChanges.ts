@@ -121,14 +121,14 @@ export const saveIncomingChanges = async (
   maxBatchesInMemory: number | null,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
+  let savedRecordsCount = 0;
   const allBatchIds = await getSnapshotBatchIds(sessionId);
-  const batches = maxBatchesInMemory ? chunk(allBatchIds, maxBatchesInMemory) : [allBatchIds];
-
-  for (const batchIds of batches) {
+  const chunkedBatchIds = maxBatchesInMemory
+    ? chunk(allBatchIds, maxBatchesInMemory)
+    : [allBatchIds];
+  for (const batchIds of chunkedBatchIds) {
     const recordsByType = await groupRecordsByType(sessionId, batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
-
-    let savedRecordsCount = 0;
 
     for (const model of sortedModels) {
       const recordType = model.getTableName();
@@ -142,8 +142,11 @@ export const saveIncomingChanges = async (
 
         await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
         savedRecordsCount += sanitizedRecords.length;
-        const progressMessage = `Saving ${incomingChangesCount} records...`;
-        progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
+        progressCallback(
+          incomingChangesCount,
+          savedRecordsCount,
+          `Saving ${savedRecordsCount} records...`,
+        );
       }
     }
   }
