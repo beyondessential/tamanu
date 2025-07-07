@@ -229,7 +229,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from this session
-    await dropSnapshotTable(sessionId);
+    await dropSnapshotTable();
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
@@ -372,3 +372,4 @@ export class MobileSyncManager {
     );
   }
 }
+

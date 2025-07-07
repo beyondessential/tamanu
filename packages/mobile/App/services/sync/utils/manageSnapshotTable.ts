@@ -1,79 +1,43 @@
 import { Database } from '../../../infra/db';
 import { chunk } from 'lodash';
 
-export const assertIfSessionIdIsSafe = (sessionId: string) => {
-  const safeIdRegex = /^[A-Za-z0-9-]+$/;
-  if (!safeIdRegex.test(sessionId)) {
-    throw new Error(
-      `${sessionId} does not match the expected format of a session id - be careful of SQL injection!`,
-    );
-  }
-};
-
-export const getSnapshotTableName = (sessionId: string) => {
-  assertIfSessionIdIsSafe(sessionId);
-
-  // SQLite doesn't support schemas, so we namespace the table name
-  return `sync_snapshots_${sessionId.replace(/[^a-zA-Z0-9]/g, '_')}`;
-};
-
-export const insertSnapshotRecords = async (sessionId: string, records: Record<string, any>[]) => {
-  const tableName = getSnapshotTableName(sessionId);
+export const insertSnapshotRecords = async (records: Record<string, any>[]) => {
   const TEMPORARY_MAX_BATCH_SIZE = 1000; // TODO: with streaming Will be based on bytes
   for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
-    await Database.client.query(`INSERT INTO ${tableName} (data) VALUES (?)`, [
+    await Database.client.query(`INSERT INTO sync_snapshot (data) VALUES (?)`, [
       JSON.stringify(batch),
     ]);
   }
 };
 
-export const getSnapshotBatchIds = async (sessionId: string): Promise<number[]> => {
-  const tableName = getSnapshotTableName(sessionId);
-  const result = await Database.client.query(`SELECT id FROM ${tableName} ORDER BY id`);
+export const getSnapshotBatchIds = async (): Promise<number[]> => {
+  const result = await Database.client.query(`SELECT id FROM sync_snapshot ORDER BY id`);
   return result.map(row => row.id);
 };
 
 export const getSnapshotBatchesByIds = async (
-  sessionId: string,
   batchIds: number[],
 ): Promise<Record<string, any>[]> => {
-  const tableName = getSnapshotTableName(sessionId);
   const rows = await Database.client.query(
-    `SELECT data FROM ${tableName} WHERE id IN (${batchIds.map(id => `'${id}'`).join(',')})`,
+    `SELECT data FROM sync_snapshot WHERE id IN (${batchIds.map(id => `'${id}'`).join(',')})`,
   );
   return rows.flatMap(row => JSON.parse(row.data));
 };
 
-export const createSnapshotTable = async (sessionId: string) => {
-  const tableName = getSnapshotTableName(sessionId);
-
-  // Just save the batches straight from the stream
-  // No outgoing changes snapshotting on push
+export const createSnapshotTable = async () => {
   try {
     await Database.client.query(`
-      CREATE TABLE ${tableName} (
+      CREATE TABLE sync_snapshot (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         data TEXT NOT NULL
       );
     `);
   } catch (error) {
-    console.error(`Error creating snapshot table ${tableName}:`, error);
+    console.error('Error creating snapshot table', error);
     throw error;
   }
 };
 
-export const dropSnapshotTable = async (sessionId?: string) => {
-  if (!sessionId) {
-    const tables = await Database.client.query(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'sync_snapshots_%'",
-    );
-    for (const table of tables) {
-      await Database.client.query(`DROP TABLE IF EXISTS ${table.name}`);
-    }
-  } else {
-    const tableName = getSnapshotTableName(sessionId);
-    await Database.client.query(`
-      DROP TABLE IF EXISTS ${tableName};
-    `);
-  }
+export const dropSnapshotTable = async () => {
+  await Database.client.query(`DROP TABLE IF EXISTS sync_snapshot`);
 };

@@ -20,7 +20,7 @@ export const pullIncomingChanges = async (
   tablesForFullResync: string[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
-  await createSnapshotTable(sessionId);
+  await createSnapshotTable();
 
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
     sessionId,
@@ -49,7 +49,7 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    await insertSnapshotRecords(sessionId, recordsToSave);
+    await insertSnapshotRecords(recordsToSave);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;

@@ -88,12 +88,11 @@ export const saveChangesForModel = async (
 };
 
 const groupRecordsByType = async (
-  sessionId: string,
   batchIds: number[],
 ): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
-  const batchRecords = await getSnapshotBatchesByIds(sessionId, batchIds);
+  const batchRecords = await getSnapshotBatchesByIds(batchIds);
 
   for (const record of batchRecords) {
     const recordType = record.recordType;
@@ -124,13 +123,13 @@ export const saveIncomingChanges = async (
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;
-  const allBatchIds = await getSnapshotBatchIds(sessionId);
+  const allBatchIds = await getSnapshotBatchIds();
   const chunkedBatchIds = maxBatchesInMemory
     ? chunk(allBatchIds, maxBatchesInMemory)
     : [allBatchIds];
 
   for (const batchIds of chunkedBatchIds) {
-    const recordsByType = await groupRecordsByType(sessionId, batchIds);
+    const recordsByType = await groupRecordsByType(batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
 
     for (const model of sortedModels) {
