@@ -28,6 +28,7 @@ do
     local subtree = treeitem:add(proto, data)
 
     local offset = 0
+    local amount = 0
     while offset < data:len() do
       local kind = data(offset, 4)
       local len = data(offset + 4, 4)
@@ -38,6 +39,10 @@ do
       msg:add(F_msg_length, len, len:uint())
       if len:uint() > 0 then msg:add(F_msg_data, msg_data) end
       offset = offset + 8 + len:uint()
+      amount = amount + 1
+    end
+    if amount > 0 then
+      subtree:append_text(" (" .. amount .. " messages)")
     end
   end
 
