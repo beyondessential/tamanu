@@ -92,7 +92,7 @@ export const executeDeletes = async (
     try {
       const entities = await model.find({ where: { id: In(batchOfIds) } });
       await model.softRemove(entities);
-    } catch (e) {
+    } catch (e) { 
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(

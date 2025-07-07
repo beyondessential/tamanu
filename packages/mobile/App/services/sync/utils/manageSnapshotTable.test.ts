@@ -1,6 +1,4 @@
 import {
-  assertIfSessionIdIsSafe,
-  getSnapshotTableName,
   insertSnapshotRecords,
   getSnapshotBatchIds,
   getSnapshotBatchesByIds,
@@ -23,38 +21,11 @@ describe('manageSnapshotTable', () => {
     jest.clearAllMocks();
   });
 
-  describe('assertIfSessionIdIsSafe', () => {
-    it('should accept valid session IDs', () => {
-      expect(() => assertIfSessionIdIsSafe('abc123-def456')).not.toThrow();
-      expect(() => assertIfSessionIdIsSafe('SESSION-123')).not.toThrow();
-      expect(() => assertIfSessionIdIsSafe('test123')).not.toThrow();
-    });
-
-    it('should reject invalid session IDs', () => {
-      expect(() => assertIfSessionIdIsSafe('session@123')).toThrow();
-      expect(() => assertIfSessionIdIsSafe('session.123')).toThrow();
-      expect(() => assertIfSessionIdIsSafe('session/123')).toThrow();
-      expect(() => assertIfSessionIdIsSafe('session 123')).toThrow();
-    });
-  });
-
-  describe('getSnapshotTableName', () => {
-    it('should generate correct table name', () => {
-      const result = getSnapshotTableName('test-session-123');
-      expect(result).toBe('sync_snapshots_test_session_123');
-    });
-
-    it('should sanitize special characters', () => {
-      const result = getSnapshotTableName('test-session-123');
-      expect(result).toBe('sync_snapshots_test_session_123');
-    });
-  });
-
   describe('insertSnapshotRecords', () => {
     it('should insert records in batches', async () => {
       const records = Array.from({ length: 2500 }, (_, i) => ({ id: i, data: `record-${i}` }));
 
-      await insertSnapshotRecords('test-session', records);
+      await insertSnapshotRecords(records);
 
       expect(mockDatabase.client.query).toHaveBeenCalledTimes(3);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
@@ -64,7 +35,7 @@ describe('manageSnapshotTable', () => {
     });
 
     it('should handle empty records array', async () => {
-      await insertSnapshotRecords('test-session', []);
+      await insertSnapshotRecords([]);
 
       expect(mockDatabase.client.query).not.toHaveBeenCalled();
     });
@@ -74,7 +45,7 @@ describe('manageSnapshotTable', () => {
     it('should return batch IDs in order', async () => {
       mockDatabase.client.query.mockResolvedValue([{ id: 1 }, { id: 2 }, { id: 3 }]);
 
-      const result = await getSnapshotBatchIds('test-session');
+      const result = await getSnapshotBatchIds();
 
       expect(result).toEqual([1, 2, 3]);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
@@ -94,7 +65,7 @@ describe('manageSnapshotTable', () => {
         { data: JSON.stringify(testData[1]) },
       ]);
 
-      const result = await getSnapshotBatchesByIds('test-session', [1, 2]);
+      const result = await getSnapshotBatchesByIds([1, 2]);
 
       expect(result).toEqual(testData);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
@@ -106,7 +77,7 @@ describe('manageSnapshotTable', () => {
     it('should return empty array when no batch found', async () => {
       mockDatabase.client.query.mockResolvedValue([]);
 
-      const result = await getSnapshotBatchesByIds('test-session', [999]);
+      const result = await getSnapshotBatchesByIds([999]);
 
       expect(result).toEqual([]);
     });
@@ -114,7 +85,7 @@ describe('manageSnapshotTable', () => {
 
   describe('createSnapshotTable', () => {
     it('should create table with correct schema', async () => {
-      await createSnapshotTable('test-session');
+      await createSnapshotTable();
 
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
         expect.stringContaining('CREATE TABLE sync_snapshots_test_session'),
@@ -124,13 +95,13 @@ describe('manageSnapshotTable', () => {
     it('should handle creation errors', async () => {
       mockDatabase.client.query.mockRejectedValueOnce(new Error('Table exists'));
 
-      await expect(createSnapshotTable('test-session')).rejects.toThrow('Table exists');
+      await expect(createSnapshotTable()).rejects.toThrow('Table exists');
     });
   });
 
   describe('dropSnapshotTable', () => {
     it('should drop specific table when sessionId provided', async () => {
-      await dropSnapshotTable('test-session-5');
+      await dropSnapshotTable();
 
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
         expect.stringContaining('DROP TABLE IF EXISTS sync_snapshots_test_session_5'),
