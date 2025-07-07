@@ -36,18 +36,17 @@ export const centralSettings = {
       highRisk: true,
       properties: {
         insertBatchSize: {
-          name: 'Insert batch size',
           description: 'The number of records to insert in a single batch',
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
         // TODO: align with byte size of batches when streaming is implemented
         maxBatchesToKeepInMemory: {
-          name: 'Max batches of snapshot records to keep in memory',
+          name: 'Max snapshot batches to keep in memory',
           description:
-            'The maximum number of batches to keep in memory during saveChanges. If null, all batches will be kept in memory.',
-          type: yup.number().positive().integer().nullable(),
-          defaultValue: null,
+            'The maximum number of batches to keep in memory during saveChanges. this is currently equal to n * 1000 records',
+          type: yup.number().positive().integer(),
+          defaultValue: 3,
         },
         useUnsafePragmaSettingsForInitialSync: {
           name: 'Use unsafe pragma settings for initial sync',

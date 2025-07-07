@@ -34,7 +34,7 @@ type SyncOptions = {
 
 type MobileSyncSettings = {
   insertBatchSize: number;
-  maxBatchesInMemory: number | null;
+  maxBatchesInMemory: number;
   useUnsafeSchemaForInitialSync: boolean;
 };
 
