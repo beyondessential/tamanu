@@ -41,6 +41,7 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
+        // TODO: align with byte size of batches when streaming is implemented
         maxBatchesToKeepInMemory: {
           name: 'Max batches of snapshot records to keep in memory',
           description:
