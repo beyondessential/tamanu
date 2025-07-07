@@ -3,6 +3,13 @@ import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { createSnapshotTable, insertSnapshotRecords } from './manageSnapshotTable';
 
+type PullIncomingChangesContext = {
+  centralServer: CentralServerConnection;
+  sessionId: string;
+  totalToPull: number;
+  progressCallback: (total: number, progressCount: number) => void;
+};
+
 /**
  * Pull incoming changes in batches and save them in sync_session_records table,
  * which will be used to persist to actual tables later
@@ -20,6 +27,7 @@ export const pullIncomingChanges = async (
   tablesForFullResync: string[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
+  const isInitialSync = since === -1;
   await createSnapshotTable(sessionId);
 
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
@@ -33,6 +41,19 @@ export const pullIncomingChanges = async (
     return { totalPulled: 0, pullUntil };
   }
 
+    await pullRecordsInBatches(
+      { centralServer, sessionId, totalToPull, progressCallback },
+      // TODO: save from memory in initial sync
+      isInitialSync ? insertSnapshotRecords : insertSnapshotRecords,
+    );
+
+  return { totalPulled: totalToPull, pullUntil };
+};
+
+const pullRecordsInBatches = async (
+  { centralServer, sessionId, totalToPull, progressCallback }: PullIncomingChangesContext,
+  processRecords: (sessionId: string, records: any) => Promise<void>,
+) => {
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;
@@ -49,7 +70,7 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    await insertSnapshotRecords(sessionId, recordsToSave);
+    await processRecords(sessionId, recordsToSave);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
@@ -57,6 +78,5 @@ export const pullIncomingChanges = async (
 
     progressCallback(totalToPull, totalPulled);
   }
-  
-  return { totalPulled: totalToPull, pullUntil };
+  return totalPulled;
 };
