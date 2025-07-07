@@ -1,6 +1,13 @@
-import { forEach as _forEach } from 'lodash';
+// Using native forEach instead of lodash for better TypeScript compatibility
+
+interface Interceptor {
+  fulfilled: (value: any) => any | Promise<any>;
+  rejected?: (error: any) => any | Promise<any>;
+}
 
 export class InterceptorManager {
+  private handlers: (Interceptor | null)[] = [];
+
   constructor() {
     this.handlers = [];
   }
@@ -13,7 +20,7 @@ export class InterceptorManager {
    *
    * @return {Number} An ID used to remove interceptor later
    */
-  use(fulfilled, rejected) {
+  use(fulfilled: (value: any) => any | Promise<any>, rejected?: (error: any) => any | Promise<any>): number {
     this.handlers.push({
       fulfilled,
       rejected,
@@ -28,7 +35,7 @@ export class InterceptorManager {
    *
    * @returns {Boolean} `true` if the interceptor was removed, `false` otherwise
    */
-  eject(id) {
+  eject(id: number): void {
     if (this.handlers[id]) {
       this.handlers[id] = null;
     }
@@ -39,7 +46,7 @@ export class InterceptorManager {
    *
    * @returns {void}
    */
-  clear() {
+  clear(): void {
     if (this.handlers) {
       this.handlers = [];
     }
@@ -55,8 +62,8 @@ export class InterceptorManager {
    *
    * @returns {void}
    */
-  forEach(fn) {
-    _forEach(this.handlers, function forEachHandler(h) {
+  forEach(fn: (interceptor: Interceptor) => void): void {
+    this.handlers.forEach(function forEachHandler(h) {
       if (h !== null) {
         fn(h);
       }

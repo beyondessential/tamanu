@@ -1,117 +1,95 @@
-import mitt from 'mitt';
+import mitt, { Emitter } from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import { TamanuApi, AuthError } from '@tamanu/api-client';
+import { SERVER_TYPES } from '@tamanu/constants';
+
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
-import {
-  AuthenticationError,
-  forbiddenFacilityMessage,
-  generalErrorMessage,
-  invalidTokenMessage,
-  invalidUserCredentialsMessage,
-  OutdatedVersionError,
-  RemoteError,
-} from '../error';
+import { AuthenticationError, forbiddenFacilityMessage, generalErrorMessage } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
-const API_PREFIX = 'api';
-
-const fetchAndParse = async (
-  url: string,
-  config: FetchOptions,
-  isLogin: boolean,
-): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
-  }
-
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
-    }
-  }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
-};
-
 export class CentralServerConnection {
-  host: string;
+  #conn: Connection;
   deviceId: string;
-
-  token: string | null;
-  refreshToken: string | null;
-
   emitter = mitt();
 
-  async connect(host: string): void {
-    this.host = host;
+  async connect(host: string): Promise<void> {
     this.deviceId = await readConfig('deviceId');
 
     if (!this.deviceId) {
       this.deviceId = `mobile-${uuidv4()}`;
       await writeConfig('deviceId', this.deviceId);
     }
+
+    const url = new URL(host.trim());
+    url.pathname = '/api';
+    this.#conn = new Connection({
+      endpoint: url,
+      deviceId: this.deviceId,
+      agentName: SERVER_TYPES.MOBILE,
+      agentVersion: version,
+      emitter: this.emitter,
+    });
+  }
+}
+
+class Connection extends TamanuApi {
+  #emitter: Emitter;
+  #settings: { [key: string]: any };
+
+  constructor({ emitter, ...opts }) {
+    super(opts);
+    this.#emitter = emitter;
   }
 
   async fetch(
-    path: string,
+    endpoint: string,
     query: Record<string, string | number | boolean>,
-    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
+    { backoff = true, skipAttemptRefresh = false, ...config }: FetchOptions = {},
   ): Promise<any> {
-    if (!this.host) {
-      throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
+    if (!skipAttemptRefresh && !this.apiClient.hasToken()) {
+      await this.connect();
     }
 
-    const queryString = Object.entries(query)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('&');
-    const url = `${this.host}/${API_PREFIX}/${path}${queryString && `?${queryString}`}`;
-    const extraHeaders = config?.headers || {};
-    const headers = {
-      Authorization: `Bearer ${this.token}`,
-      Accept: 'application/json',
-      'X-Tamanu-Client': 'Tamanu Mobile',
-      'X-Version': version,
-      ...extraHeaders,
-    };
-    const isLogin = path.startsWith('login');
     try {
-      const response = await callWithBackoff(
-        async () => fetchAndParse(url, { ...config, headers }, isLogin),
-        backoff,
-      );
-      return response;
-    } catch (err) {
-      // Handle sync disconnection and attempt refresh if possible
-
-      if (err instanceof AuthenticationError && !isLogin) {
-        this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
-        if (this.refreshToken && !skipAttemptRefresh) {
-          await this.refresh();
-          // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig = { ...config, skipAttemptRefresh: true };
-          return this.fetch(path, query, updatedConfig);
+      return await super.fetch(endpoint, query, config);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        this.#emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
+        if (!skipAttemptRefresh) {
+          await this.connect();
+          return await super.fetch(endpoint, query, config);
         }
       }
-      throw err;
+
+      throw error;
     }
+  }
+
+  async connect(backoff = config.sync.backoff, timeout = this.timeout) {
+    try {
+      await this.refreshToken({
+        retryAuth: false,
+      });
+      this.#emitter.emit('statusChange', CentralConnectionStatus.Connected);
+      return;
+    } catch (_) {
+      // ignore error
+    }
+
+    const { email, password } = config.sync;
+
+    return await this.login(email, password, {
+      backoff,
+      timeout,
+    }).then(loginData => {
+      this.#emitter.emit('statusChange', CentralConnectionStatus.Connected);
+      this.#settings = loginData.settings;
+      return loginData;
+    });
   }
 
   async get(
