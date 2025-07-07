@@ -34,6 +34,7 @@ import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants
 import { getComplexChartFormMode } from '../../../utils/chart/chartUtils';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledButtonGroup = styled(ButtonGroup)`
   .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
@@ -150,6 +151,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
   } = useChartSurveysQuery();
+  const { getTranslation } = useTranslation();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentComplexChartTab, setCurrentComplexChartTab] = useState('');
@@ -294,9 +296,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
   const complexChartFormMode = getComplexChartFormMode(chartSurveyToSubmit);
   const selectedChartSurveyName = selectedChartSurvey?.name;
-  const chartModalTitle = `${selectedChartSurveyName} | ${
-    complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE ? 'Add' : 'Record'
-  }`;
+  const actionText = complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE
+    ? getTranslation('general.action.add', 'Add')
+    : getTranslation('general.action.record', 'Record');
+  const chartModalTitle = `${selectedChartSurveyName} | ${actionText}`;
   const recordButtonEnabled =
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
   const hasNoCharts = chartTypes.length === 0;
