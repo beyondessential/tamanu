@@ -159,11 +159,8 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     ...getMergedFieldsForUpdate(existingKeepPAD, existingUnwantedPAD),
     patientId: keepPatientId,
   };
-  await models.PatientAdditionalData.destroy({
-    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
-    force: true,
-  });
-  return models.PatientAdditionalData.create(mergedPAD);
+  await existingUnwantedPAD.destroy();
+  return existingKeepPAD.update(mergedPAD);
 }
 
 export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
@@ -181,12 +178,8 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
     patientId: keepPatientId,
   };
 
-  // hard delete the old patient birth data, we're going to create a new one
-  await models.PatientBirthData.destroy({
-    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
-    force: true,
-  });
-  return models.PatientBirthData.create(mergedPatientBirthData);
+  await existingUnwantedPatientBirthData.destroy();
+  return existingKeepPatientBirthData.update(mergedPatientBirthData);
 }
 
 export async function mergePatientDeathData(models, keepPatientId, unwantedPatientId) {
@@ -265,7 +258,7 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
     }
 
     // Always destroy the unwanted registration
-    await unwantedRegistration.destroy({ force: true });
+    await unwantedRegistration.destroy();
 
     // Include all in results to report modified records
     results.push(unwantedRegistration);
@@ -313,7 +306,6 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
 
   await models.PatientFieldValue.destroy({
     where: { patientId: unwantedPatientId },
-    force: true,
   });
   return records;
 }
@@ -332,7 +324,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   const existingPatientFacilityRecords = await models.PatientFacility.findAll({
     where,
   });
-  await models.PatientFacility.destroy({ where, force: true }); // hard delete
+  // This is the only place where hard deletion is allowed, as we will be creating
+  // new records to replace the all the old ones and then some.
+  await models.PatientFacility.destroy({ where, force: true });
 
   if (existingPatientFacilityRecords.length === 0) return [];
 
