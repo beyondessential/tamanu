@@ -6,6 +6,13 @@ import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 // | 4 bytes | 4 bytes | $length$ bytes |
 // +---------+---------+----------------+
 
+export function startStream(res) {
+  res.writeHead(200, {
+    'Content-Type': 'application/json+frame',
+    'Transfer-Encoding': 'chunked',
+  });
+}
+
 function shape(kind, data = undefined) {
   const dataBytes =
     data === undefined ? Buffer.alloc(0) : Buffer.from(JSON.stringify(data), 'utf8');
