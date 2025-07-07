@@ -83,6 +83,7 @@ export const VitalsTable = React.memo(() => {
     <>
       <EditVitalCellModal
         open={openEditModal}
+        isVital
         dataPoint={selectedCell}
         onClose={() => {
           setOpenEditModal(false);

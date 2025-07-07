@@ -47,10 +47,10 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   </Box>
 );
 
-const getEditVitalData = (vitalComponent, mandatoryVitalEditReason) => {
+const getEditVitalData = (vitalComponent, isReasonMandatory) => {
   const reasonForChangeMockComponent = {
     dataElement: { type: PROGRAM_DATA_ELEMENT_TYPES.SELECT },
-    validationCriteria: JSON.stringify({ mandatory: mandatoryVitalEditReason }),
+    validationCriteria: JSON.stringify({ mandatory: isReasonMandatory }),
     dataElementId: 'reasonForChange',
   };
   const editVitalData = [reasonForChangeMockComponent];
@@ -114,7 +114,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
+export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital }) => {
   const { getTranslation } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
@@ -123,13 +123,15 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const { facilityId } = useAuth();
 
   const { getSetting } = useSettings();
-  const mandatoryVitalEditReason = getSetting(SETTING_KEYS.FEATURES_MANDATORY_VITAL_EDIT_REASON);
+  const isReasonMandatory = isVital
+    ? getSetting(SETTING_KEYS.FEATURES_MANDATORY_VITAL_EDIT_REASON)
+    : getSetting(SETTING_KEYS.FEATURES_MANDATORY_CHARTING_EDIT_REASON);
   const vitalEditReasons = getSetting(SETTING_KEYS.VITAL_EDIT_REASONS);
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);
   const valueName = dataPoint.component.dataElement.id;
-  const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
+  const editVitalData = getEditVitalData(dataPoint.component, isReasonMandatory);
   const validationSchema = getValidationSchema(editVitalData, getTranslation, {
     encounterType: encounter.encounterType,
   });
@@ -197,7 +199,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
             />
           )}
           <Field
-            required={mandatoryVitalEditReason}
+            required={isReasonMandatory}
             component={BaseSelectField}
             label={
               <TranslatedText
