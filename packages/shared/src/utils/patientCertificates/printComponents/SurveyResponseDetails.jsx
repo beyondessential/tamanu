@@ -6,7 +6,7 @@ import { formatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
 
 export const SurveyResponseDetails = ({ surveyResponse }) => {
-  const { getTranslation } = useLanguageContext;
+  const { getTranslation } = useLanguageContext();
   return (
     <DataSection hideTopRule hideBottomRule>
       <Col>

@@ -1,19 +1,20 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '@tamanu/utils/dateTime';
+import { camelCase } from 'lodash';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -73,7 +74,7 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, sourceType, type }) => {
+const getAnswers = ({ answer, sourceType, type, getTranslation, dataElementId }) => {
   switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
@@ -88,29 +89,49 @@ const getAnswers = ({ answer, sourceType, type }) => {
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).join(', ');
+      return JSON.parse(answer).map(
+        option =>
+          getTranslation(
+            getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
+            option,
+          ),
+        answer,
+      );
     default:
-      return answer;
+      return getTranslation(
+        getReferenceDataOptionStringId(dataElementId, 'programDataElement', answer),
+        answer,
+      );
   }
 };
 
-const ResponseItem = ({ row }) => {
-  const { name, answer, type, sourceType } = row;
+export const getReferenceDataStringId = (value, category) => {
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
+};
+
+export const getReferenceDataOptionStringId = (value, category, option) => {
+  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
+};
+
+const ResponseItem = ({ row, getTranslation }) => {
+  const { name, answer, type, sourceType, dataElementId } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
-      <Text style={pageStyles.itemText}>{name}</Text>
+      <Text style={pageStyles.itemText}>
+        {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
+      </Text>
       <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-        {getAnswers({ answer, type, sourceType })}
+        {getAnswers({ answer, type, sourceType, getTranslation, dataElementId })}
       </Text>
     </View>
   );
 };
 
-const ResponsesGroup = ({ rows }) => {
+const ResponsesGroup = ({ rows, getTranslation }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem key={row.id} row={row} />
+        <ResponseItem getTranslation={getTranslation} key={row.id} row={row} />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -142,11 +163,6 @@ const SurveyResponsesPrintoutComponent = ({
   );
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
-
-  console.log({
-    surveyResponse,
-    groupedAnswerRows,
-  });
 
   return (
     <Document>
@@ -189,7 +205,7 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup key={index} rows={group} />
+          <ResponsesGroup getTranslation={getTranslation} key={index} rows={group} />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />

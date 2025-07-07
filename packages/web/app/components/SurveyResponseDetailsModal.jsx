@@ -40,7 +40,13 @@ const COLUMNS = [
   },
   {
     key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" data-testid="translatedtext-fah5" />,
+    title: (
+      <TranslatedText
+        stringId="surveyResponse.details.table.column.value"
+        fallback="Value"
+        data-testid="translatedtext-fah5"
+      />
+    ),
     accessor: ({ answer, sourceType, type, originalBody, componentConfig, dataElementId }) => (
       <SurveyAnswerResult
         answer={answer}
@@ -66,7 +72,6 @@ function shouldShow(component) {
 
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const { data: surveyDetails, isLoading, error } = useSurveyResponseQuery(surveyResponseId);
-  console.log('surveyDetails', surveyDetails)
   if (error) {
     return (
       <Modal
@@ -122,7 +127,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     .map(component => {
       const { dataElement, id, config } = component;
       const { type, name, id: dataElementId } = dataElement;
-      const answerObject = answers.find((a) => a.dataElementId === dataElement.id);
+      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       let answer = answerObject?.body;
       const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
@@ -133,12 +138,18 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
         type,
         answer,
         originalBody,
-        name: <TranslatedReferenceData category="programDataElement" value={dataElementId} fallback={name} />,
+        name: (
+          <TranslatedReferenceData
+            category="programDataElement"
+            value={dataElementId}
+            fallback={name}
+          />
+        ),
         sourceType,
         componentConfig: config,
       };
     })
-    .filter((r) => r.answer !== undefined);
+    .filter(r => r.answer !== undefined);
 
   return (
     <Modal

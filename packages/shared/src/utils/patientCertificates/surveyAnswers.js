@@ -27,6 +27,7 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
         name,
         screenIndex,
         sourceType,
+        dataElementId: dataElement.id,
       };
     })
     .filter(r => r.answer !== undefined);
