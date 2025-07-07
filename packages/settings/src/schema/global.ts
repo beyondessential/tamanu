@@ -31,9 +31,9 @@ import {
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
 
-const generateFrequencyProperties = (frequencies) => {
+const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
-    frequencies.map((frequency) => [
+    frequencies.map(frequency => [
       frequency,
       {
         description: frequency,
@@ -298,6 +298,11 @@ export const globalSettings = {
         },
         patientDetailsLocationHierarchy: {
           description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        globalPdfFont: {
+          description: 'Enable global PDF font',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1435,9 +1440,15 @@ export const globalSettings = {
         },
         defaultAdministrationTimes: {
           description: '-',
-          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
-            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
-          )),
+          properties: generateFrequencyProperties(
+            Object.values(ADMINISTRATION_FREQUENCIES).filter(
+              frequency =>
+                ![
+                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                ].includes(frequency),
+            ),
+          ),
         },
       },
     },
