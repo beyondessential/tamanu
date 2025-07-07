@@ -144,8 +144,9 @@ export const saveIncomingChanges = async (
       await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
 
       savedRecordsCount += sanitizedRecords.length;
-      const progressMessage = `Saving ${incomingChangesCount} records...`;
-      progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
+
+    const progressMessage = `Saving ${incomingChangesCount} records...`;
+    progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
   }
 };
