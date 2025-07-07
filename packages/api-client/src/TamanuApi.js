@@ -519,6 +519,9 @@ export class TamanuApi {
         setTimeout(resolve, waitTime);
       });
       ({ endpoint, query, options } = endpointFn());
+      if (!endpoint) {
+        throw new Error(`Stream: endpoint became undefined`);
+      }
     }
     throw new Error(`Stream: did not get proper END after ${maxAttempts} attempts for ${endpoint}`);
   }
