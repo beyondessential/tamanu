@@ -34,6 +34,6 @@ export const StreamMessage = {
     return shape(SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE, data);
   },
   end(data = {}) {
-    return shape(SYNC_STREAM_MESSAGE_KIND.END, data);
+    return shape(SYNC_STREAM_MESSAGE_KIND.END, Object.entries(data).length > 0 ? data : undefined);
   },
 };
