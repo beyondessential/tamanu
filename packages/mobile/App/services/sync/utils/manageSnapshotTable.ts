@@ -38,7 +38,10 @@ export const getSnapshotBatchesByIds = async (
   batchIds: number[],
 ): Promise<Record<string, any>[]> => {
   const tableName = getSnapshotTableName(sessionId);
-  const rows = await Database.client.query(`SELECT data FROM ${tableName} WHERE id IN (?)`, batchIds);
+  const rows = await Database.client.query(
+    `SELECT data FROM ${tableName} WHERE id IN (?)`,
+    batchIds,
+  );
 
   if (rows.length === 0) {
     return [];
