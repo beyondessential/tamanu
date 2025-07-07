@@ -118,16 +118,12 @@ export const saveIncomingChanges = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
   insertBatchSize: number,
-  maxBatchesInMemory: number | null,
+  maxBatchesInMemory: number,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;
   const allBatchIds = await getSnapshotBatchIds();
-  const chunkedBatchIds = maxBatchesInMemory
-    ? chunk(allBatchIds, maxBatchesInMemory)
-    : [allBatchIds];
-
-  for (const batchIds of chunkedBatchIds) {
+  for (const batchIds of chunk(allBatchIds, maxBatchesInMemory)) {
     const recordsByType = await groupRecordsByType(batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
 
