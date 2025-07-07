@@ -41,8 +41,9 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
-        maxBatchesInMemory: {
-          name: 'Max batches in memory',
+        // TODO: Incorporate with batches total byte size when introducing streaming
+        maxBatchesToKeepInMemory: {
+          name: 'Max batches of snapshot records to keep in memory during saveChanges',
           description: 'The maximum number of batches to keep in memory. If null, all batches will be kept in memory.',
           type: yup.number().positive().integer().nullable(),
           defaultValue: null,
