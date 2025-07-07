@@ -157,8 +157,6 @@ const TitleCell = React.memo(({ value }) => {
 });
 
 export const getChartsTableColumns = (
-  firstColKey,
-  firstColTitle,
   patient,
   recordedDates,
   onCellClick,
@@ -166,8 +164,12 @@ export const getChartsTableColumns = (
 ) => {
   return [
     {
-      key: firstColKey,
-      title: firstColTitle,
+      key: 'measure',
+      title: <TranslatedText
+        stringId="general.table.column.measure"
+        fallback="Measure"
+        data-testid="translatedtext-l9f5"
+      />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -221,12 +223,6 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
-    'measure',
-    <TranslatedText
-      stringId="encounter.vitals.table.column.measure"
-      fallback="Measure"
-      data-testid="translatedtext-l9f5"
-    />,
     patient,
     recordedDates,
     onCellClick,

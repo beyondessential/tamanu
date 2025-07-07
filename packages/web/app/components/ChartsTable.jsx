@@ -53,8 +53,6 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, curren
 
   // create a column for each reading
   const columns = getChartsTableColumns(
-    'painChart',
-    'Pain Chart',
     patient,
     recordedDates,
     onCellClick,
