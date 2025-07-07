@@ -27,7 +27,6 @@ import { SettingsProvider } from './contexts/Settings';
 import { CustomToastContainer } from './customToastContainer';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
-import { RegisterFontsIfEnabled } from '../../shared/src/utils/pdf/RegisterFontsIfEnabled';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -37,7 +36,6 @@ const StateContextProviders = ({ children, store }) => (
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
               <SettingsProvider>
-                <RegisterFontsIfEnabled />
                 <SyncStateProvider>
                   <TranslationProvider>
                     <LocalisationProvider store={store}>
