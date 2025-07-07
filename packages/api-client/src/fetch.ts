@@ -1,15 +1,20 @@
-import { ServerUnavailableError } from './errors';
+import { ServerUnavailableError } from './errors.js';
 
-export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, ...config } = {}) {
+interface FetchOptions extends RequestInit {
+  fetch?: typeof globalThis.fetch;
+  timeout?: number | false;
+}
+
+export async function fetchOrThrowIfUnavailable(url: string, { fetch = globalThis.fetch, timeout = false, ...config }: FetchOptions = {}): Promise<Response> {
   const abort = new AbortController();
-  let timer;
+  let timer: NodeJS.Timeout | undefined;
   if (timeout && Number.isFinite(timeout) && !config.signal) {
     timer = setTimeout(() => abort.abort(), timeout);
   }
 
   try {
     return await fetch(url, { signal: abort.signal, ...config }).finally(() => {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
@@ -23,7 +28,11 @@ export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, .
   }
 }
 
-export async function getResponseErrorSafely(response, logger = console) {
+interface Logger {
+  warn: (message: string) => void;
+}
+
+export async function getResponseErrorSafely(response: Response, logger: Logger = console): Promise<{ error?: { name: string; message: string } }> {
   try {
     const data = await response.text();
     if (data.length === 0) {

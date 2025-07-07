@@ -4,15 +4,18 @@
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
     },
     "./*": {
-      "import": "./dist/mjs/*.js",
-      "require": "./dist/cjs/*.js"
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js",
+      "types": "./dist/esm/*.d.ts"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -20,15 +23,20 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && dual-pkg dist/mjs dist/cjs",
-    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
-    "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
-    "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
-    "clean": "rimraf dist",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types:cjs",
+    "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:cjs -- --watch\"",
+    "build:cjs": "swc --copy-files --source-maps true --out-dir dist/cjs --config module.type=commonjs src",
+    "build:esm": "tsc",
+    "build:types:cjs": "tsc --emitDeclarationOnly --outDir dist/cjs",
+    "build-watch": "npm run build:dev:watch",
+    "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.14.6",
+    "@types/qs": "^6.9.7",
     "rimraf": "^6.0.1"
   },
   "dependencies": {

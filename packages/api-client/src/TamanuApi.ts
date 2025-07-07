@@ -4,7 +4,6 @@ import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
-  AuthError,
   AuthExpiredError,
   AuthInvalidError,
   ForbiddenError,
@@ -13,28 +12,83 @@ import {
   ServerResponseError,
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
-} from './errors';
-import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
-import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
-import { InterceptorManager } from './InterceptorManager';
+} from './errors.js';
+import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch.js';
+import { fetchWithRetryBackoff } from './fetchWithRetryBackoff.js';
+import { InterceptorManager } from './InterceptorManager.js';
+
+interface Logger {
+  debug: (message: string, data?: Record<string, unknown>) => void;
+  warn: (message: string, data?: Record<string, unknown>) => void;
+  error: (message: string, data?: Record<string, unknown>) => void;
+}
+
+interface TamanuApiConstructorOptions {
+  endpoint: string;
+  agentName: string;
+  agentVersion: string;
+  deviceId: string;
+  defaultRequestConfig?: RequestInit;
+  logger?: Logger;
+}
+
+interface LoginResponse {
+  token: string;
+  refreshToken: string;
+  user: any;
+  ability: any;
+  server: {
+    type: string;
+    centralHost?: string;
+  };
+  permissions?: string[];
+}
+
+interface FetchConfig extends RequestInit {
+  useAuthToken?: string | boolean;
+  returnResponse?: boolean;
+  throwResponse?: boolean;
+  waitForAuth?: boolean;
+  backoff?: boolean | Record<string, unknown>;
+}
+
+interface StreamMessage {
+  kind: number;
+  message: any;
+}
+
+interface StreamEndpointFunction {
+  (): {
+    endpoint: string;
+    query?: Record<string, any>;
+    options?: FetchConfig;
+  };
+}
 
 export class TamanuApi {
-  #host;
-  #prefix;
-  #defaultRequestConfig = {};
+  #host: string;
+  #prefix: string;
+  #defaultRequestConfig: RequestInit = {};
 
-  #onAuthFailure;
-  #onVersionIncompatible;
-  #authToken;
-  #refreshToken;
-  #ongoingAuth;
+  #onAuthFailure?: (message: string) => void;
+  #onVersionIncompatible?: (message: string) => void;
+  #authToken?: string;
+  #refreshToken?: string | null;
+  #ongoingAuth?: Promise<LoginResponse> | null;
 
-  lastRefreshed = null;
-  user = null;
-  logger = console;
-  fetchImplementation = fetch;
+  lastRefreshed: number | null = null;
+  user: any = null;
+  logger: Logger = console;
+  fetchImplementation: typeof fetch = fetch;
+  agentName: string;
+  agentVersion: string;
+  deviceId: string;
+  interceptors: {
+    request: InterceptorManager;
+    response: InterceptorManager;
+  };
 
-  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }) {
+  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }: TamanuApiConstructorOptions) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
@@ -56,15 +110,15 @@ export class TamanuApi {
     return this.#host;
   }
 
-  setAuthFailureHandler(handler) {
+  setAuthFailureHandler(handler: (message: string) => void): void {
     this.#onAuthFailure = handler;
   }
 
-  setVersionIncompatibleHandler(handler) {
+  setVersionIncompatibleHandler(handler: (message: string) => void): void {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email, password, config = {}) {
+  async login(email: string, password: string, config: FetchConfig = {}): Promise<LoginResponse> {
     if (this.#ongoingAuth) {
       await this.#ongoingAuth;
     }
@@ -103,10 +157,12 @@ export class TamanuApi {
       return { ...loginData, user, ability, server };
     })().finally(() => {
       this.#ongoingAuth = null;
-    }));
+    })).finally(() => {
+      this.#ongoingAuth = null;
+    });
   }
 
-  async fetchUserData(permissions, config = {}) {
+  async fetchUserData(permissions: string[], config: FetchConfig = {}): Promise<{ user: any; ability: any }> {
     const user = await this.get('user/me', {}, { ...config, waitForAuth: false });
     this.lastRefreshed = Date.now();
     this.user = user;
@@ -115,15 +171,15 @@ export class TamanuApi {
     return { user, ability };
   }
 
-  async requestPasswordReset(email) {
+  async requestPasswordReset(email: string): Promise<any> {
     return this.post('resetPassword', { email });
   }
 
-  async changePassword(args) {
+  async changePassword(args: Record<string, any>): Promise<any> {
     return this.post('changePassword', args);
   }
 
-  async refreshToken(config = {}) {
+  async refreshToken(config: FetchConfig = {}): Promise<void> {
     if (!this.#refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -140,16 +196,16 @@ export class TamanuApi {
     this.setToken(token, refreshToken);
   }
 
-  setToken(token, refreshToken = null) {
+  setToken(token: string, refreshToken?: string | null): void {
     this.#authToken = token;
-    this.#refreshToken = refreshToken;
+    this.#refreshToken = refreshToken ?? null;
   }
 
-  hasToken() {
+  hasToken(): boolean {
     return Boolean(this.#authToken);
   }
 
-  async fetch(endpoint, query = {}, options = {}) {
+  async fetch(endpoint: string, query: Record<string, any> = {}, options: FetchConfig = {}): Promise<any> {
     let { useAuthToken = this.#authToken, ...moreConfig } = {
       ...this.#defaultRequestConfig,
       ...options,
@@ -211,7 +267,7 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
-    const requestInterceptorChain = [];
+    const requestInterceptorChain: any[] = [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
@@ -228,7 +284,7 @@ export class TamanuApi {
 
     const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
 
-    const responseInterceptorChain = [];
+    const responseInterceptorChain: any[] = [];
     // response: first in first out
     this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
@@ -267,7 +323,7 @@ export class TamanuApi {
    *
    * Generally only used internally.
    */
-  async extractError(endpoint, response) {
+  async extractError(endpoint: string, response: Response): Promise<never> {
     const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
@@ -309,11 +365,11 @@ export class TamanuApi {
     throw new ServerResponseError(`Server error response: ${message}`, response);
   }
 
-  async get(endpoint, query = {}, config = {}) {
+  async get(endpoint: string, query: Record<string, any> = {}, config: FetchConfig = {}): Promise<any> {
     return this.fetch(endpoint, query, { ...config, method: 'GET' });
   }
 
-  async download(endpoint, query = {}) {
+  async download(endpoint: string, query: Record<string, any> = {}): Promise<Blob> {
     const response = await this.fetch(endpoint, query, {
       returnResponse: true,
     });
@@ -321,8 +377,8 @@ export class TamanuApi {
     return blob;
   }
 
-  async postWithFileUpload(endpoint, file, body, options = {}) {
-    const blob = new Blob([file]);
+  async postWithFileUpload(endpoint: string, file: ArrayBuffer | Uint8Array | Blob, body: Record<string, any>, options: FetchConfig = {}): Promise<any> {
+    const blob = file instanceof Blob ? file : new Blob([file as BlobPart]);
 
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
@@ -343,7 +399,7 @@ export class TamanuApi {
     });
   }
 
-  async post(endpoint, body = undefined, config = {}) {
+  async post(endpoint: string, body: any = undefined, config: FetchConfig = {}): Promise<any> {
     return this.fetch(
       endpoint,
       {},
@@ -358,7 +414,7 @@ export class TamanuApi {
     );
   }
 
-  async put(endpoint, body = undefined, config = {}) {
+  async put(endpoint: string, body: any = undefined, config: FetchConfig = {}): Promise<any> {
     return this.fetch(
       endpoint,
       {},
@@ -373,15 +429,15 @@ export class TamanuApi {
     );
   }
 
-  async delete(endpoint, query = {}, config = {}) {
+  async delete(endpoint: string, query: Record<string, any> = {}, config: FetchConfig = {}): Promise<any> {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
   }
 
-  async pollUntilOk(...args) {
+  async pollUntilOk(endpoint: string, query?: Record<string, any>, options?: FetchConfig): Promise<any> {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.fetch(...args);
+      const response = await this.fetch(endpoint, query, options);
       if (response) {
         return response;
       }
@@ -391,10 +447,10 @@ export class TamanuApi {
       });
     }
 
-    throw new Error(`Poll of ${args[0]} did not succeed after ${maxAttempts} attempts`);
+    throw new Error(`Poll of ${endpoint} did not succeed after ${maxAttempts} attempts`);
   }
 
-  async *stream(endpointFn, { decodeMessage = true } = {}) {
+  async *stream(endpointFn: StreamEndpointFunction, { decodeMessage = true }: { decodeMessage?: boolean } = {}): AsyncGenerator<StreamMessage, void, unknown> {
     // +---------+---------+----------------+
     // |   kind  |  length |     data...    |
     // +---------+---------+----------------+
@@ -403,7 +459,7 @@ export class TamanuApi {
     //
     // This framing makes it cheap to verify that all the data is here,
     // and also doesn't *require* us to parse any of the message data.
-    const decodeOne = buf => {
+    const decodeOne = (buf: Buffer): { buf: Buffer; kind?: number; length?: number; message?: any } => {
       if (buf.length < 8) {
         return { buf };
       }
@@ -421,13 +477,13 @@ export class TamanuApi {
 
       this.logger.debug('Stream: message', {
         kind:
-          Object.entries(SYNC_STREAM_MESSAGE_KIND).find(([, value]) => value === kind)[0] ??
+          Object.entries(SYNC_STREAM_MESSAGE_KIND).find(([, value]) => value === kind)?.[0] ??
           `0x${kind.toString(16)}`,
         length,
         data,
       });
       if (decodeMessage) {
-        const message = length > 0 ? JSON.parse(data) : undefined;
+        const message = length > 0 ? JSON.parse(data.toString()) : undefined;
         return { buf, length, kind, message };
       } else {
         return { buf, length, kind, message: data };
@@ -456,7 +512,7 @@ export class TamanuApi {
         decoder: while (true) {
           const { buf, length, kind, message } = decodeOne(partial);
           partial = buf;
-          if (length === undefined) {
+          if (length === undefined || kind === undefined) {
             // not enough data, wait for more
             break decoder;
           }

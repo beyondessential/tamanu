@@ -8,5 +8,5 @@ export {
   ForbiddenError,
   VersionIncompatibleError,
   ResourceConflictError,
-} from './errors';
-export { TamanuApi } from './TamanuApi';
+} from './errors.js';
+export { TamanuApi } from './TamanuApi.js';

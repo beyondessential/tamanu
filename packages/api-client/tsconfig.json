@@ -1,0 +1,23 @@
+{
+  "extends": "../../common.tsconfig.json",
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist/esm",
+    "rootDir": "./src",
+    "strict": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true
+  }
+}

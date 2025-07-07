@@ -6,8 +6,9 @@
   },
   "jsc": {
     "parser": {
-      "syntax": "ecmascript",
-      "jsx": true
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": false
     },
     "target": "esnext",
     "keepClassNames": true
