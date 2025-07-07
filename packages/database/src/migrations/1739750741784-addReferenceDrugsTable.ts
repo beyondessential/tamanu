@@ -1,7 +1,5 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-const namespace = '934cc714-0344-4fc1-80c5-f7a600f07cbd';
-
 export async function up(query: QueryInterface) {
   await query.createTable('reference_drugs', {
     id: {
