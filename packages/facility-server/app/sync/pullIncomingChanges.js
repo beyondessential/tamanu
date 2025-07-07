@@ -82,6 +82,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   const WRITE_BATCH_SIZE = Math.min(persistedCacheBatchSize, totalToPull);
 
   const writeBatch = async records => {
+    if (records.length === 0) return;
     await insertSnapshotRecords(
       sequelize,
       sessionId,
