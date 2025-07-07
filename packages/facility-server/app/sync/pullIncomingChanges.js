@@ -16,7 +16,7 @@ const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
-  log.info('FacilitySyncManager.pull.waitingForCentral');
+  log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'polling' });
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
@@ -72,7 +72,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 export const streamIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
-  log.info('FacilitySyncManager.pull.waitingForCentral');
+  log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'streaming' });
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
   const WRITE_BATCH_SIZE = Math.min(persistedCacheBatchSize, totalToPull);
 

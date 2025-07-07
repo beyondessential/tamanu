@@ -138,7 +138,7 @@ export const buildSyncRoutes = ctx => {
       }
 
       res.writeHead(200, {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json+frame',
         'Transfer-Encoding': 'chunked',
       });
 
@@ -205,7 +205,7 @@ export const buildSyncRoutes = ctx => {
       }
 
       res.writeHead(200, {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json+frame',
         'Transfer-Encoding': 'chunked',
       });
 
@@ -260,7 +260,7 @@ export const buildSyncRoutes = ctx => {
       }
 
       res.writeHead(200, {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json+frame',
         'Transfer-Encoding': 'chunked',
       });
 
