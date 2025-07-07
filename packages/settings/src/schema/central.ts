@@ -41,6 +41,12 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
+        maxBatchesInMemory: {
+          name: 'Max batches in memory',
+          description: 'The maximum number of batches to keep in memory. If null, all batches will be kept in memory.',
+          type: yup.number().positive().integer().nullable(),
+          defaultValue: null,
+        },
       },
     },
     questionCodeIds: {

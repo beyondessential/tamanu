@@ -33,18 +33,18 @@ export const getSnapshotBatchIds = async (sessionId: string): Promise<number[]> 
   return result.map(row => row.id);
 };
 
-export const getSnapshotBatchById = async (
+export const getSnapshotBatchesByIds = async (
   sessionId: string,
-  batchId: number,
+  batchIds: number[],
 ): Promise<Record<string, any>[]> => {
   const tableName = getSnapshotTableName(sessionId);
-  const rows = await Database.client.query(`SELECT data FROM ${tableName} WHERE id = ?`, [batchId]);
+  const rows = await Database.client.query(`SELECT data FROM ${tableName} WHERE id IN (?)`, [batchIds]);
 
   if (rows.length === 0) {
     return [];
   }
 
-  return JSON.parse(rows[0].data);
+  return rows.map(row => JSON.parse(row.data));
 };
 
 export const createSnapshotTable = async (sessionId: string) => {

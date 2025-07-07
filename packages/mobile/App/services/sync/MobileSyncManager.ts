@@ -319,7 +319,10 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const insertBatchSize = this.settings.getSetting<number>('mobileSync.insertBatchSize');
+    const { insertBatchSize, maxBatchesInMemory } = this.settings.getSetting<{
+      insertBatchSize: number;
+      maxBatchesInMemory: number | null;
+    }>('mobileSync');
 
     if (isInitialSync) {
       await Database.setUnsafePragma();
@@ -333,6 +336,7 @@ export class MobileSyncManager {
             totalPulled,
             incomingModels,
             insertBatchSize,
+            maxBatchesInMemory,
             this.updateProgress,
           );
         }

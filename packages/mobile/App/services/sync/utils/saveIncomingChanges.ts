@@ -7,7 +7,7 @@ import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
-import { getSnapshotBatchIds, getSnapshotBatchById } from './manageSnapshotTable';
+import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
 
 /**
@@ -32,10 +32,7 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  for (const incomingRecords of chunk(
-    recordsForUpsert,
-    SQLITE_MAX_PARAMETERS
-  )) {
+  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
@@ -90,20 +87,18 @@ export const saveChangesForModel = async (
 
 const groupRecordsByType = async (
   sessionId: string,
+  batchIds: Record<string, any>[],
 ): Promise<Record<string, SyncRecord[]>> => {
-  const batchIds = await getSnapshotBatchIds(sessionId);
   const recordsByType: Record<string, SyncRecord[]> = {};
 
-  for (const batchId of batchIds) {
-    const batchRecords = await getSnapshotBatchById(sessionId, batchId);
+  const batchRecords = await getSnapshotBatchesByIds(sessionId, batchIds);
 
-    for (const record of batchRecords) {
-      const recordType = record.recordType;
-      if (!recordsByType[recordType]) {
-        recordsByType[recordType] = [];
-      }
-      recordsByType[recordType].push(record);
+  for (const record of batchRecords) {
+    const recordType = record.recordType;
+    if (!recordsByType[recordType]) {
+      recordsByType[recordType] = [];
     }
+    recordsByType[recordType].push(record);
   }
 
   return recordsByType;
@@ -123,29 +118,33 @@ export const saveIncomingChanges = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
   insertBatchSize: number,
+  maxBatchesInMemory: number | null,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const recordsByType = await groupRecordsByType(sessionId);
-  const sortedModels = await sortInDependencyOrder(incomingModels);
+  const allBatchIds = await getSnapshotBatchIds(sessionId);
+  const batches = maxBatchesInMemory ? chunk(allBatchIds, maxBatchesInMemory) : [allBatchIds];
 
-  let savedRecordsCount = 0;
+  for (const batchIds of batches) {
+    const recordsByType = await groupRecordsByType(sessionId, batchIds);
+    const sortedModels = await sortInDependencyOrder(incomingModels);
 
-  for (const model of sortedModels) {
-    const recordType = model.getTableName();
-    const recordsForModel = recordsByType[recordType] || [];
+    let savedRecordsCount = 0;
 
-    if (recordsForModel.length > 0) {
-      const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
-      const sanitizedRecords = hasSanitizeMethod
-        ? model.sanitizePulledRecordData(recordsForModel)
-        : recordsForModel;
+    for (const model of sortedModels) {
+      const recordType = model.getTableName();
+      const recordsForModel = recordsByType[recordType] || [];
 
-      await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
+      if (recordsForModel.length > 0) {
+        const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
+        const sanitizedRecords = hasSanitizeMethod
+          ? model.sanitizePulledRecordData(recordsForModel)
+          : recordsForModel;
 
-      savedRecordsCount += sanitizedRecords.length;
+        await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
+        savedRecordsCount += sanitizedRecords.length;
+        const progressMessage = `Saving ${incomingChangesCount} records...`;
+        progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
+      }
     }
-
-    const progressMessage = `Saving ${incomingChangesCount} records...`;
-    progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
   }
 };
