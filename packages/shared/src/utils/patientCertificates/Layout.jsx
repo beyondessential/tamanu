@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
   },
   signatureText: {
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     width: 100,
   },
   line: {

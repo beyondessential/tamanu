@@ -28,6 +28,7 @@ const signingSectionStyles = StyleSheet.create({
     paddingRight: 32,
   },
   disclaimerText: {
+    fontStyle: 'italic',
     fontSize: 8,
   },
 });
@@ -46,6 +47,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   heading: {
     fontSize: 11,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     marginVertical: 3,
   },
 });

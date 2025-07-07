@@ -16,6 +16,7 @@ const tableStyles = StyleSheet.create({
     flex: 1,
     fontSize: 10,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     padding: 3,
     borderRight: basicBorder,
     margin: 0,

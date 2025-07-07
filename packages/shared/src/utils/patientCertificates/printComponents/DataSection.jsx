@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     fontSize: 11,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
 });
 

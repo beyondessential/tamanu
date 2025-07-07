@@ -41,6 +41,7 @@ const textStyles = StyleSheet.create({
   },
   tableColumnHeader: {
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     fontSize: 10,
   },
   tableCellContent: {
@@ -52,11 +53,13 @@ const textStyles = StyleSheet.create({
   headerLabel: {
     fontSize: 8,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
     fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 400,
     color: '#888888',
   },
 });
@@ -89,6 +92,7 @@ const tableStyles = StyleSheet.create({
   p: {
     fontSize: 10,
     fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 400,
   },
   notesCell: {
     width: '100%',
@@ -105,8 +109,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = (props) => <View style={tableStyles.table} {...props} />;
-const Row = (props) => (
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => (
   <View
     style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]}
     {...props}
@@ -167,7 +171,7 @@ const DataTableHeading = ({ columns, title, width }) => {
                 key={key}
                 style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
               >
-                <P style={{ fontFamily: 'NotoKufiArabic-Bold' }}>{title[0]}</P>
+                <P style={{ fontFamily: 'NotoKufiArabic-Bold', fontWeight: 700 }}>{title[0]}</P>
                 <P>{title[1]}</P>
               </View>
             );
@@ -192,7 +196,7 @@ const DataTable = ({ data, columns, title, type }) => {
   return (
     <Table>
       <DataTableHeading columns={columns} title={title} width={width} />
-      {data.map((row) => (
+      {data.map(row => (
         <Row key={row.id} wrap={false} width={width}>
           {columns.map(({ key, accessor, style }) => (
             <Cell key={key} style={style}>
@@ -260,7 +264,7 @@ const NotesSection = ({ notes }) => {
       <View>
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
-          {notes.map((note) => (
+          {notes.map(note => (
             <>
               <View minPresenceAhead={80} />
               <View style={tableStyles.notesRow} key={note.id}>
@@ -335,7 +339,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
@@ -355,7 +360,8 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) => (date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----'),
+        accessor: ({ date }) =>
+          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
         style: { width: '35%' },
       },
     ],
@@ -433,9 +439,9 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'areaToBeImaged',
         title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.areas?.length
-            ? imagingRequest?.areas.map((area) => area.name).join(', ')
+            ? imagingRequest?.areas.map(area => area.name).join(', ')
             : imagingRequest?.areaNote,
         style: { width: '25%' },
       },
@@ -455,7 +461,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.results[0]?.completedAt
             ? formatShort(imagingRequest?.results[0]?.completedAt)
             : '--/--/----',
@@ -472,7 +478,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dose',
         title: getTranslation('pdf.table.column.dose', 'Dose'),
-        accessor: (medication) => {
+        accessor: medication => {
           return (
             <Text>
               {getDose(medication, getTranslation, getEnumTranslation)}
@@ -601,7 +607,7 @@ const EncounterRecordPrintoutComponent = ({
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (
         <>
-          {[0, 12, 24, 36, 48].map((start) => {
+          {[0, 12, 24, 36, 48].map(start => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <MultiPageHeader

@@ -43,7 +43,7 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = (props) => (
+const TableContainer = props => (
   <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />
 );
 
@@ -69,12 +69,16 @@ const infoBoxStyles = StyleSheet.create({
   infoText: {
     fontSize: 12,
     fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 700,
   },
   italicBoldText: {
+    fontStyle: 'italic',
     fontSize: 12,
+    fontWeight: 700,
   },
   italicText: {
     fontSize: 12,
+    fontWeight: 400,
   },
   underlinedText: {
     borderBottom: borderStyle,
@@ -99,6 +103,7 @@ const signStyles = StyleSheet.create({
   text: {
     fontSize: 12,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     lineHeight: 1,
   },
   line: {
@@ -122,9 +127,9 @@ const signStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
 
-const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
 
 const UnderlinedText = ({ text, style, props }) => (
   <View style={{ ...infoBoxStyles.infoText, ...infoBoxStyles.underlinedText, ...style }} {...props}>
@@ -149,7 +154,7 @@ const CauseField = ({ cause, label, helperText, ...props }) => {
     </View>
   );
 };
-const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const AuthorisedAndSignSection = () => {
   const { getTranslation } = useLanguageContext();
@@ -188,9 +193,9 @@ const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
 };
 
-const getCauseName = (cause) => cause?.condition?.name;
+const getCauseName = cause => cause?.condition?.name;
 
-const getCauseInfo = (cause) => {
+const getCauseInfo = cause => {
   const name = cause?.condition?.name;
   const timeAfterOnset = cause?.timeAfterOnset;
   return { name, timeAfterOnset };
@@ -239,7 +244,7 @@ const PATIENT_DEATH_DETAILS = {
   ],
 };
 
-const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {

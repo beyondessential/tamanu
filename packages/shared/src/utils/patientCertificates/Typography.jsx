@@ -9,12 +9,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 15,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   h2: {
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   h3: {
     marginBottom: 20,
@@ -22,8 +24,9 @@ const styles = StyleSheet.create({
     fontFamily: 'NotoKufiArabic-Bold',
   },
   p: {
-    fontFamily: 'NotoKufiArabic-Regular',
     fontSize: 12,
+    fontWeight: 400,
+    fontFamily: 'NotoKufiArabic-Regular',
     marginBottom: 15,
   },
   certificateAddress: {
@@ -31,6 +34,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 13,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   certificateTitle: {
     fontSize: 18,
@@ -39,7 +43,7 @@ const styles = StyleSheet.create({
     fontFamily: 'NotoKufiArabic-Bold',
   },
   certificateSubtitle: {
-    fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 700,
     fontSize: 18,
     textAlign: 'right',
     marginTop: '-10px',

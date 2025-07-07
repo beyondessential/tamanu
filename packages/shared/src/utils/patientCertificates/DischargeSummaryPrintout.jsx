@@ -25,8 +25,8 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = (props) => <View style={generalStyles.tableContainer} {...props} />;
-const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
+const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -49,12 +49,13 @@ const infoBoxStyles = StyleSheet.create({
   infoText: {
     fontSize: 10,
     fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 700,
   },
 });
 
-const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
-const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
-const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
@@ -66,27 +67,28 @@ const notesSectionStyles = StyleSheet.create({
     marginBottom: 3,
     fontSize: 11,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
 });
 
-const extractOngoingConditions = (patientConditions) =>
-  patientConditions.map((item) => item?.diagnosis?.name);
+const extractOngoingConditions = patientConditions =>
+  patientConditions.map(item => item?.diagnosis?.name);
 
 const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
   const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
-    return diagnoses.map((item) => item?.diagnosis?.name);
+    return diagnoses.map(item => item?.diagnosis?.name);
   } else {
-    return diagnoses.map((item) => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
+    return diagnoses.map(item => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
   }
 };
 
 const extractProceduresInfo = ({ procedures, getSetting }) => {
   const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
-    return procedures.map((item) => item?.procedureType?.name);
+    return procedures.map(item => item?.procedureType?.name);
   } else {
-    return procedures.map((item) => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
+    return procedures.map(item => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
   }
 };
 
@@ -141,7 +143,7 @@ const columns = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: getTranslation('pdf.table.column.dose', 'Dose'),
-    accessor: (medication) => {
+    accessor: medication => {
       return (
         <Text>
           {getDose(medication, getTranslation, getEnumTranslation)}
@@ -187,13 +189,13 @@ const DischargeSummaryPrintoutComponent = ({
   const { diagnoses, procedures, medications } = encounter;
 
   const visibleMedications = medications
-    .filter((m) => m.encounterPrescription?.isSelectedForDischarge)
+    .filter(m => m.encounterPrescription?.isSelectedForDischarge)
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
-  const primaryDiagnoses = visibleDiagnoses.filter((d) => d.isPrimary);
-  const secondaryDiagnoses = visibleDiagnoses.filter((d) => !d.isPrimary);
+  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const notes = discharge?.note;
   const { facilityName, facilityAddress, facilityTown } = discharge;
 

@@ -56,11 +56,13 @@ const styles = StyleSheet.create({
   detailsKey: {
     width: '18mm',
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   detailsValue: {
     maxWidth: '35mm',
     overflow: 'hidden',
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   barcodeRow: {
     height: '6.3mm',

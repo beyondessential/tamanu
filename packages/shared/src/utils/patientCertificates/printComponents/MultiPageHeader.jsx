@@ -14,12 +14,14 @@ const styles = StyleSheet.create({
   labelText: {
     fontSize: 8,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     color: '#888888',
   },
 
   valueText: {
     fontSize: 8,
     fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 400,
     color: '#888888',
   },
 });

@@ -33,6 +33,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   heading: {
     fontSize: 11,
     fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     marginVertical: 3,
   },
 });
@@ -55,8 +56,10 @@ const MultipleImagingRequestSigningSection = () => {
   );
 };
 
-const getImagingRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown';
+const getImagingRequestType =
+  imagingTypes =>
+  ({ imagingType }) =>
+    imagingTypes[imagingType]?.label || 'Unknown';
 
 const getAreaNote = ({ areas, areaNote }) => {
   if (areas && areas.length > 0) {
