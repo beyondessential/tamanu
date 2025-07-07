@@ -78,7 +78,6 @@ describe('CentralServerConnection', () => {
       centralServer.fetchImplementation = fetch;
     });
     afterEach(() => {
-      // console.log(fetch.mock.calls);
       fetch.mockReset();
       fetch.mockRestore();
     });
