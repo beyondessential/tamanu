@@ -149,7 +149,7 @@ export class CentralServerConnection extends TamanuApi {
     // and take a while if the central server is concurrently persisting records from another client
 
     if ((await this.loginData()).settings.sync.streaming) {
-      for await (const { kind, data } of this.stream(() => ({
+      for await (const { kind, message } of this.stream(() => ({
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
         handler: switch (kind) {
@@ -158,7 +158,7 @@ export class CentralServerConnection extends TamanuApi {
             break handler;
           case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the new tick from starting the session
-            return { sessionId, ...data };
+            return { sessionId, ...message };
           default:
             log.warn(`Unexpected message kind: ${kind}`);
         }
@@ -187,7 +187,7 @@ export class CentralServerConnection extends TamanuApi {
     // it takes a while for pull/initiate to finish populating the snapshot of changes
 
     if ((await this.loginData()).settings.sync.streaming) {
-      for await (const { kind, data } of this.stream(() => ({
+      for await (const { kind, message } of this.stream(() => ({
         endpoint: `sync/${sessionId}/pull/ready/stream`,
       }))) {
         handler: switch (kind) {
@@ -196,7 +196,7 @@ export class CentralServerConnection extends TamanuApi {
             break handler;
           case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the metadata for the changes we're about to pull
-            return { sessionId, ...data };
+            return { sessionId, ...message };
           default:
             log.warn(`Unexpected message kind: ${kind}`);
         }
