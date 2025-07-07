@@ -32,6 +32,12 @@ type SyncOptions = {
   urgent: boolean;
 };
 
+type MobileSyncSettings = {
+  insertBatchSize: number;
+  maxBatchesInMemory: number | null;
+  useUnsafeSchemaForInitialSync: boolean;
+};
+
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export class MobileSyncManager {
@@ -319,15 +325,14 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const { insertBatchSize, maxBatchesInMemory } = this.settings.getSetting<{
-      insertBatchSize: number;
-      maxBatchesInMemory: number | null;
-    }>('mobileSync');
+    const { insertBatchSize, maxBatchesToKeepInMemory, useUnsafePragmaSettingsForInitialSync } =
+      this.settings.getSetting<MobileSyncSettings>('mobileSync');
+    const shouldUseUnsafeSchema = isInitialSync && useUnsafePragmaSettingsForInitialSync;
 
-    if (isInitialSync) {
+    if (shouldUseUnsafeSchema) {
       await Database.setUnsafePragma();
     }
-    
+
     try {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
@@ -336,7 +341,7 @@ export class MobileSyncManager {
             totalPulled,
             incomingModels,
             insertBatchSize,
-            maxBatchesInMemory,
+            maxBatchesToKeepInMemory,
             this.updateProgress,
           );
         }
@@ -355,7 +360,7 @@ export class MobileSyncManager {
       console.error('Error saving incoming changes', error);
       throw error;
     } finally {
-      if (isInitialSync) {
+      if (!shouldUseUnsafeSchema) {
         await Database.setDefaultPragma();
       }
     }

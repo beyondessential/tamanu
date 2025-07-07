@@ -41,12 +41,19 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
-        // TODO: Incorporate with batches total byte size when introducing streaming
         maxBatchesToKeepInMemory: {
-          name: 'Max batches of snapshot records to keep in memory during saveChanges',
-          description: 'The maximum number of batches to keep in memory. If null, all batches will be kept in memory.',
+          name: 'Max batches of snapshot records to keep in memory',
+          description:
+            'The maximum number of batches to keep in memory during saveChanges. If null, all batches will be kept in memory.',
           type: yup.number().positive().integer().nullable(),
           defaultValue: null,
+        },
+        useUnsafePragmaSettingsForInitialSync: {
+          name: 'Use unsafe pragma settings for initial sync',
+          description:
+            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
@@ -75,10 +82,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },
