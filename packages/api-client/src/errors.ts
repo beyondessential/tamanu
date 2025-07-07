@@ -2,7 +2,9 @@ import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 
 export class ServerUnavailableError extends Error {}
 export class ServerResponseError extends Error {
-  constructor(message, response) {
+  public response: Response;
+
+  constructor(message: string, response: Response) {
     super(message);
     this.response = response;
   }
@@ -15,7 +17,7 @@ export class ForbiddenError extends AuthError {}
 export class VersionIncompatibleError extends ServerResponseError {}
 export class ResourceConflictError extends ServerResponseError {}
 
-export function isRecoverable(error) {
+export function isRecoverable(error: unknown): boolean {
   if (error instanceof ServerUnavailableError) {
     return true;
   }
@@ -43,7 +45,7 @@ export function isRecoverable(error) {
   return true;
 }
 
-export function getVersionIncompatibleMessage(error, response) {
+export function getVersionIncompatibleMessage(error: Error, response: Response): string | null {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
@@ -51,7 +53,7 @@ export function getVersionIncompatibleMessage(error, response) {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
     const maxAppVersion = response.headers
       .get('X-Max-Client-Version')
-      .split('.', 3)
+      ?.split('.', 3)
       .slice(0, 2)
       .join('.');
     return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
