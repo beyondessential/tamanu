@@ -21,9 +21,11 @@ export const getSnapshotBatchesByIds = async (
   if (batchIds.length === 0) {
     return [];
   }
-  const rows = await Database.client.query(`SELECT data FROM sync_snapshot WHERE id IN (?)`, [
+  const placeholders = batchIds.map(() => '?').join(',');
+  const rows = await Database.client.query(
+    `SELECT data FROM sync_snapshot WHERE id IN (${placeholders})`,
     batchIds,
-  ]);
+  );
   return rows.flatMap(row => JSON.parse(row.data));
 };
 
