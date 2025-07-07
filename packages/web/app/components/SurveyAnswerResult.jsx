@@ -13,7 +13,7 @@ import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
 const getReferenceDataCategory = configString => {
   try {
     const config = JSON.parse(configString);
-    return camelCase(config.source);
+    return camelCase(config.source === 'ReferenceData' ? config.where.type : config.source);
   } catch (e) {
     return null;
   }
