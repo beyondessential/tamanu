@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
+  SETTING_KEYS,
   SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
@@ -87,7 +88,7 @@ surveyResponseAnswer.put(
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
 
-    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
+    const enableVitalEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_VITAL_EDIT);
     if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
@@ -153,7 +154,7 @@ surveyResponseAnswer.post(
 
     // Even though this wouldn't technically be editing a vital
     // we will not allow the creation of a single vital answer if its not enabled
-    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
+    const enableVitalEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_VITAL_EDIT);
     if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }

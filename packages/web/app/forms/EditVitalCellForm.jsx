@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
 import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
@@ -123,8 +123,8 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const { facilityId } = useAuth();
 
   const { getSetting } = useSettings();
-  const mandatoryVitalEditReason = getSetting('features.mandatoryVitalEditReason');
-  const vitalEditReasons = getSetting('vitalEditReasons');
+  const mandatoryVitalEditReason = getSetting(SETTING_KEYS.FEATURES_MANDATORY_VITAL_EDIT_REASON);
+  const vitalEditReasons = getSetting(SETTING_KEYS.VITAL_EDIT_REASONS);
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);
