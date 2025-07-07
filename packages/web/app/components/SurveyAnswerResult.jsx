@@ -29,7 +29,15 @@ const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
   return <TranslatedReferenceData fallback={answer} value={originalBody} category={category} />;
 };
 
-export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, componentConfig, dataElementId }) => {
+export const SurveyAnswerResult = ({
+  answer,
+  type,
+  sourceType,
+  originalBody,
+  componentConfig,
+  dataElementId,
+}) => {
+  console.log({ answer, type, sourceType, originalBody, componentConfig, dataElementId });
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
@@ -71,23 +79,26 @@ export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, com
       );
     case PROGRAM_DATA_ELEMENT_TYPES.RADIO:
     case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
-      return <TranslatedOption 
-        value={answer} 
-        referenceDataId={dataElementId} 
-        referenceDataCategory="programDataElement" 
-      />;
+      return (
+        <TranslatedOption
+          value={answer}
+          referenceDataId={dataElementId}
+          referenceDataCategory="programDataElement"
+        />
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return JSON.parse(answer).map(element => (
         <>
-          <TranslatedOption 
-            value={element} 
-            referenceDataId={dataElementId} 
-            referenceDataCategory="programDataElement" 
+          <TranslatedOption
+            value={element}
+            referenceDataId={dataElementId}
+            referenceDataCategory="programDataElement"
           />
           <br />
         </>
       ));
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return (
         <PatientDataCell
           answer={answer}
