@@ -7,7 +7,7 @@ import { ForbiddenError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from './CentralSyncManager';
-import { StreamMessage } from './StreamMessage';
+import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export const buildSyncRoutes = ctx => {
@@ -137,10 +137,7 @@ export const buildSyncRoutes = ctx => {
         throw new Error('Session not found');
       }
 
-      res.writeHead(200, {
-        'Content-Type': 'application/json+frame',
-        'Transfer-Encoding': 'chunked',
-      });
+      startStream(res);
 
       while (!(await syncManager.checkSessionReady(sessionId))) {
         res.write(StreamMessage.sessionWaiting());
@@ -204,10 +201,7 @@ export const buildSyncRoutes = ctx => {
         throw new Error('Session not found');
       }
 
-      res.writeHead(200, {
-        'Content-Type': 'application/json+frame',
-        'Transfer-Encoding': 'chunked',
-      });
+      startStream(res);
 
       while (!(await syncManager.checkPullReady(sessionId))) {
         res.write(StreamMessage.pullWaiting());
@@ -259,10 +253,7 @@ export const buildSyncRoutes = ctx => {
         throw new Error('Session not ready');
       }
 
-      res.writeHead(200, {
-        'Content-Type': 'application/json+frame',
-        'Transfer-Encoding': 'chunked',
-      });
+      startStream(res);
 
       let startId = fromId ? parseInt(fromId, 10) : 0;
       // eslint-disable-next-line no-constant-condition
