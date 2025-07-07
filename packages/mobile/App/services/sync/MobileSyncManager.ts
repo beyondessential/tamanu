@@ -358,7 +358,7 @@ export class MobileSyncManager {
       console.error('Error saving incoming changes', error);
       throw error;
     } finally {
-      if (!shouldUseUnsafeSchema) {
+      if (shouldUseUnsafeSchema) {
         await Database.setDefaultPragma();
       }
     }
