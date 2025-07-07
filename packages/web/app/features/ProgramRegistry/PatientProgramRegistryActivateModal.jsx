@@ -33,9 +33,6 @@ export const PatientProgramRegistryActivateModal = ({
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const patientProgramRegistryConditionSuggester = useSuggester('programRegistryCondition', {
-    baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
-  });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
