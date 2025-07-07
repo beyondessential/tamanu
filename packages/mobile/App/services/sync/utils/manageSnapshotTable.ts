@@ -10,16 +10,17 @@ export const insertSnapshotRecords = async (records: Record<string, any>[]) => {
   }
 };
 
-export const getSnapshotBatchIds = async (): Promise<number[]> => {
-  const result = await Database.client.query(`SELECT id FROM sync_snapshot ORDER BY id`);
-  return result.map(row => row.id);
+export const getSnapshotBatchCount = async (): Promise<number> => {
+  const result = await Database.client.query(`SELECT COUNT(*) FROM sync_snapshot`);
+  return result[0].count;
 };
 
-export const getSnapshotBatchesByIds = async (
-  batchIds: number[],
+export const getSnapshotBatches = async (
+  limit: number,
+  offset: number,
 ): Promise<Record<string, any>[]> => {
   const rows = await Database.client.query(
-    `SELECT data FROM sync_snapshot WHERE id IN (${batchIds.map(id => `'${id}'`).join(',')})`,
+    `SELECT id, data FROM sync_snapshot LIMIT ${limit} OFFSET ${offset}`,
   );
   return rows.flatMap(row => JSON.parse(row.data));
 };
