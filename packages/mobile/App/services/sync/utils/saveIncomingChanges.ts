@@ -89,7 +89,7 @@ export const saveChangesForModel = async (
 
 const groupRecordsByType = async (
   sessionId: string,
-  batchIds: Record<string, any>[],
+  batchIds: number[],
 ): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
