@@ -2,6 +2,8 @@ import waitForExpect from 'wait-for-expect';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
   REPORT_DB_SCHEMAS,
@@ -72,6 +74,7 @@ describe('Sync Lookup data', () => {
       ProgramRegistry,
       ProgramRegistryClinicalStatus,
       ProgramRegistryCondition,
+      ProgramRegistryConditionCategory,
       ReferenceData,
       ReferenceDataRelation,
       ReportDefinition,
@@ -457,11 +460,6 @@ describe('Sync Lookup data', () => {
         programId: program.id,
       }),
     );
-    await ProgramRegistryCondition.create(
-      fake(ProgramRegistryCondition, {
-        programRegistryId: programRegistry.id,
-      }),
-    );
     await ProgramRegistryClinicalStatus.create(
       fake(ProgramRegistryClinicalStatus, {
         programRegistryId: programRegistry.id,
@@ -474,9 +472,25 @@ describe('Sync Lookup data', () => {
         programRegistryId: programRegistry.id,
       }),
     );
+    const condition = await ProgramRegistryCondition.create(
+      fake(ProgramRegistryCondition, {
+        programRegistryId: programRegistry.id,
+      }),
+    );
+    const categoryCode = PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN;
+    const conditionCategory = await ProgramRegistryConditionCategory.create(
+      fake(ProgramRegistryConditionCategory, {
+        id: `program-registry-condition-category-${programRegistry.id}-${categoryCode}`,
+        code: categoryCode,
+        name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[categoryCode],
+        programRegistryId: programRegistry.id,
+      }),
+    );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: registration.id,
+        programRegistryConditionId: condition.id,
+        programRegistryConditionCategoryId: conditionCategory.id,
       }),
     );
     await PatientAllergy.create(
