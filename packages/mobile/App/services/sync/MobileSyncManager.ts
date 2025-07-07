@@ -189,7 +189,7 @@ export class MobileSyncManager {
     this.isSyncing = true;
 
     // clear persisted cache from last session
-    await dropSnapshotTable(this.client);
+    await dropSnapshotTable();
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
 
@@ -223,7 +223,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from this session
-    await dropSnapshotTable(this.client, sessionId);
+    await dropSnapshotTable(sessionId);
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
