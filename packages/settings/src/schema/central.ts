@@ -35,26 +35,33 @@ export const centralSettings = {
       description: 'Settings related to mobile sync',
       highRisk: true,
       properties: {
-        insertBatchSize: {
-          description: 'The number of records to insert in a single batch',
-          type: yup.number().positive().integer(),
-          defaultValue: 500,
+        saveIncomingChanges: {
+          description: 'Settings applied to saving changes step of sync',
+          // TODO: These two settings likely will be made redundant when streaming is implemented
+          // and we know the byte size of the batches
+          properties: {
+            maxBatchesToKeepInMemory: {
+              description: 'The number of batches to keep in memory during saveChanges',
+              type: yup.number().positive().integer(),
+              defaultValue: 5,
+            },
+            maxRecordsPerInsertBatch: {
+              description: 'The number of records to insert in a single batch',
+              type: yup.number().positive().integer(),
+              defaultValue: 500,
+            },
+          },
         },
-        // TODO: These two settings likely will be made redundant when streaming is implemented
-        // and we know the byte size of the batches
-        maxRecordsPerBatch: {
-          name: 'Max records per snapshot batch',
-          description: 'The number of records to store within a single row in the snapshot table',
-          type: yup.number().positive().integer(),
-          defaultValue: 1000,
-        },
-        // TODO: this too
-        maxBatchesInMemory: {
-          name: 'Max snapshot batches to keep in memory',
-          description:
-            'The maximum number of batches to keep in memory during saveChanges. this is currently equal to n * 1000 records',
-          type: yup.number().positive().integer(),
-          defaultValue: 5,
+        pullIncomingChanges: {
+          description: 'Settings applied to pulling incoming changes step of sync',
+          properties: {
+            maxRecordsPerSnapshotBatch: {
+              description:
+                'The number of records to store within a single row in the snapshot table',
+              type: yup.number().positive().integer(),
+              defaultValue: 1000,
+            },
+          },
         },
         useUnsafePragmaSettingsForInitialSync: {
           name: 'Use unsafe pragma settings for initial sync',

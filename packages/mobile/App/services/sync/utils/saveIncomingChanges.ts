@@ -88,9 +88,7 @@ export const saveChangesForModel = async (
   }
 };
 
-const groupRecordsByType = async (
-  batchIds: number[],
-): Promise<Record<string, SyncRecord[]>> => {
+const groupRecordsByType = async (batchIds: number[]): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
   const batchRecords = await getSnapshotBatchesByIds(batchIds);
@@ -118,12 +116,12 @@ const groupRecordsByType = async (
 export const saveIncomingChanges = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
-  {maxBatchesInMemory, insertBatchSize}: MobileSyncSettings,
+  { maxBatchesToKeepInMemory, maxRecordsPerInsertBatch }: MobileSyncSettings['saveIncomingChanges'],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;
   const allBatchIds = await getSnapshotBatchIds();
-  for (const batchIds of chunk(allBatchIds, maxBatchesInMemory)) {
+  for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
     const recordsByType = await groupRecordsByType(batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
 
@@ -137,7 +135,6 @@ export const saveIncomingChanges = async (
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
 
-
         const chunkProgressCallback = (processedCount: number) => {
           savedRecordsCount += processedCount;
           progressCallback(
@@ -147,7 +144,7 @@ export const saveIncomingChanges = async (
           );
         };
 
-        await saveChangesForModel(model, sanitizedRecords, insertBatchSize, chunkProgressCallback);
+        await saveChangesForModel(model, sanitizedRecords, maxRecordsPerInsertBatch, chunkProgressCallback);
       }
     }
   }

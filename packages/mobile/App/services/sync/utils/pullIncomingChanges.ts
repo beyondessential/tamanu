@@ -19,7 +19,7 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   tablesForFullResync: string[],
-  mobileSyncSettings: MobileSyncSettings,
+  { maxRecordsPerSnapshotBatch }: MobileSyncSettings['pullIncomingChanges'],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   await createSnapshotTable();
@@ -53,7 +53,7 @@ export const pullIncomingChanges = async (
 
     // Prevent storing all the data in memory, by inserting batches of records into
     // temporary snapshot table that will be used to persist to actual tables later
-    await insertSnapshotRecords(recordsToSave, mobileSyncSettings.maxRecordsPerBatch);
+    await insertSnapshotRecords(recordsToSave, maxRecordsPerSnapshotBatch);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;

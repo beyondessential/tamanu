@@ -33,9 +33,13 @@ type SyncOptions = {
 };
 
 export type MobileSyncSettings = {
-  insertBatchSize: number;
-  maxBatchesInMemory: number;
-  maxRecordsPerBatch: number;
+  saveIncomingChanges: {
+    maxBatchesToKeepInMemory: number;
+    maxRecordsPerInsertBatch: number;
+  }
+  pullIncomingChanges: {
+    maxRecordsPerSnapshotBatch: number;
+  }
   useUnsafeSchemaForInitialSync: boolean;
 };
 
@@ -321,7 +325,7 @@ export class MobileSyncManager {
       pullSince,
       Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
-      mobileSyncSettings,  
+      mobileSyncSettings.pullIncomingChanges,  
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -342,7 +346,7 @@ export class MobileSyncManager {
           await saveIncomingChanges(
             totalPulled,
             incomingModels,
-            mobileSyncSettings,
+            mobileSyncSettings.saveIncomingChanges,
             this.updateProgress,
           );
         }
