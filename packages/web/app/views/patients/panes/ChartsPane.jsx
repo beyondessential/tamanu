@@ -293,7 +293,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
   const complexChartFormMode = getComplexChartFormMode(chartSurveyToSubmit);
-  const chartModalTitle = `${selectedChartSurvey?.name} | ${
+  const selectedChartSurveyName = selectedChartSurvey?.name;
+  const chartModalTitle = `${selectedChartSurveyName} | ${
     complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE ? 'Add' : 'Record'
   }`;
   const recordButtonEnabled =
@@ -423,6 +424,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
+          selectedChartSurveyName={selectedChartSurveyName}
           currentInstanceId={currentComplexChartInstance?.chartInstanceId}
           noDataMessage={getNoDataMessage(
             isComplexChart,

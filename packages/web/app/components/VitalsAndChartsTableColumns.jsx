@@ -102,7 +102,7 @@ const MeasureCell = React.memo(({ value, data }) => {
   );
 });
 
-const TitleCell = React.memo(({ value }) => {
+const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   const {
     allGraphedChartKeys,
     setChartKeys,
@@ -143,7 +143,7 @@ const TitleCell = React.memo(({ value }) => {
           onClick={() => {
             setChartKeys(chartKeys);
             setIsInMultiChartsView(true);
-            setModalTitle('Vitals');
+            setModalTitle(selectedChartSurveyName);
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-u6iz"
@@ -157,6 +157,7 @@ const TitleCell = React.memo(({ value }) => {
 });
 
 export const getChartsTableColumns = (
+  selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
@@ -180,7 +181,9 @@ export const getChartsTableColumns = (
         />
       ),
       CellComponent: MeasureCell,
-      TitleCellComponent: TitleCell,
+      TitleCellComponent: ({ value }) => (
+        <TitleCell value={value} selectedChartSurveyName={selectedChartSurveyName} />
+      ),
     },
     // create a column for each reading
     ...recordedDates
@@ -223,6 +226,7 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
+    'Vitals',
     patient,
     recordedDates,
     onCellClick,
