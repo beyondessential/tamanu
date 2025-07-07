@@ -1,9 +1,9 @@
-import { dropSnapshotTable } from './manageSnapshotTable';
 import {
   insertSnapshotRecords,
   getSnapshotBatchIds,
   getSnapshotBatchesByIds,
   createSnapshotTable,
+  dropSnapshotTable
 } from './manageSnapshotTable';
 
 jest.mock('../../../infra/db', () => ({
