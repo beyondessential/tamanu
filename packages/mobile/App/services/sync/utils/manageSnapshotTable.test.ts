@@ -25,7 +25,7 @@ describe('manageSnapshotTable', () => {
     it('should insert records in batches', async () => {
       const records = Array.from({ length: 2500 }, (_, i) => ({ id: i, data: `record-${i}` }));
 
-      await insertSnapshotRecords(records);
+      await insertSnapshotRecords(records, 1000);
 
       expect(mockDatabase.client.query).toHaveBeenCalledTimes(3);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
@@ -35,7 +35,7 @@ describe('manageSnapshotTable', () => {
     });
 
     it('should handle empty records array', async () => {
-      await insertSnapshotRecords([]);
+      await insertSnapshotRecords([], 1000);
 
       expect(mockDatabase.client.query).not.toHaveBeenCalled();
     });
