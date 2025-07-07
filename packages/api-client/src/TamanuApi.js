@@ -271,7 +271,6 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
-    // handle forbidden error
     if (response.status === 403 && error) {
       throw new ForbiddenError(message, response);
     }
@@ -280,7 +279,6 @@ export class TamanuApi {
       throw new NotFoundError(message, response);
     }
 
-    // handle auth errors
     if (response.status === 401) {
       const errorMessage = error?.message || 'Failed authentication';
       if (this.#onAuthFailure) {
