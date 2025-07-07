@@ -14,6 +14,7 @@ import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
  * Save changes for a single model in batch because SQLite only support limited number of parameters
  * @param model
  * @param changes
+ * @param insertBatchSize
  * @param progressCallback
  * @returns
  */
@@ -21,6 +22,7 @@ export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
   insertBatchSize: number,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
@@ -72,16 +74,16 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate, insertBatchSize);
+    await executeInserts(model, recordsForCreate, insertBatchSize, progressCallback);
   }
   if (recordsForUpdate.length > 0) {
-    await executeUpdates(model, recordsForUpdate);
+    await executeUpdates(model, recordsForUpdate, progressCallback);
   }
   if (recordsForDelete.length > 0) {
-    await executeDeletes(model, recordsForDelete);
+    await executeDeletes(model, recordsForDelete, progressCallback);
   }
   if (recordsForRestore.length > 0) {
-    await executeRestores(model, recordsForRestore);
+    await executeRestores(model, recordsForRestore, progressCallback);
   }
 };
 
@@ -126,6 +128,7 @@ export const saveIncomingChanges = async (
   const chunkedBatchIds = maxBatchesInMemory
     ? chunk(allBatchIds, maxBatchesInMemory)
     : [allBatchIds];
+
   for (const batchIds of chunkedBatchIds) {
     const recordsByType = await groupRecordsByType(sessionId, batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
@@ -140,13 +143,17 @@ export const saveIncomingChanges = async (
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
 
-        await saveChangesForModel(model, sanitizedRecords, insertBatchSize);
-        savedRecordsCount += sanitizedRecords.length;
-        progressCallback(
-          incomingChangesCount,
-          savedRecordsCount,
-          `Saving ${savedRecordsCount} records...`,
-        );
+
+        const chunkProgressCallback = (processedCount: number) => {
+          savedRecordsCount += processedCount;
+          progressCallback(
+            incomingChangesCount,
+            savedRecordsCount,
+            `Saving ${savedRecordsCount} records...`,
+          );
+        };
+
+        await saveChangesForModel(model, sanitizedRecords, insertBatchSize, chunkProgressCallback);
       }
     }
   }

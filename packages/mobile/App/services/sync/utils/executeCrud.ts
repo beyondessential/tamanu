@@ -15,6 +15,7 @@ export const executeInserts = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
   insertBatchSize: number,
+  progressCallback: (processedCount: number) => void,
 ): Promise<void> => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
@@ -49,17 +50,19 @@ export const executeInserts = async (
         }),
       );
     }
+    progressCallback(batchOfRows.length);
   }
 
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
-    await executeDeletes(model, softDeleted);
+    await executeDeletes(model, softDeleted, progressCallback);
   }
 };
 
 export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
+  progressCallback: (processedCount: number) => void,
 ): Promise<void> => {
   try {
     await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
@@ -76,13 +79,15 @@ export const executeUpdates = async (
       }),
     );
   }
+  progressCallback(rows.length);
 };
 
 export const executeDeletes = async (
   model: typeof BaseModel,
   recordsForDelete: DataToPersist[],
+  progressCallback: (processedCount: number) => void,
 ): Promise<void> => {
-  const rowIds = recordsForDelete.map(({ id }) => id);
+  const rowIds = recordsForDelete.map(({ id }) => id);  
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       const entities = await model.find({ where: { id: In(batchOfIds) } });
@@ -101,13 +106,16 @@ export const executeDeletes = async (
         }),
       );
     }
+    progressCallback(batchOfIds.length);
   }
-  await executeUpdates(model, recordsForDelete);
+  
+  await executeUpdates(model, recordsForDelete, progressCallback);
 };
 
 export const executeRestores = async (
   model: typeof BaseModel,
   recordsForRestore: DataToPersist[],
+  progressCallback: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
   await Promise.all(
@@ -123,4 +131,5 @@ export const executeRestores = async (
       }
     }),
   );
+  progressCallback(rowIds.length);
 };
