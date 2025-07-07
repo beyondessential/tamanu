@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { camelCase } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
@@ -9,18 +8,10 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
-
-const getReferenceDataCategory = configString => {
-  try {
-    const config = JSON.parse(configString);
-    return camelCase(config.source === 'ReferenceData' ? config.where.type : config.source);
-  } catch (e) {
-    return null;
-  }
-};
+import { getReferenceDataCategoryFromRowConfig } from '../../../shared/src/utils/translation/getReferenceDataCategoryFromRowConfig.js';
 
 const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
-  const category = getReferenceDataCategory(componentConfig);
+  const category = getReferenceDataCategoryFromRowConfig(componentConfig);
 
   if (!category) {
     return answer;

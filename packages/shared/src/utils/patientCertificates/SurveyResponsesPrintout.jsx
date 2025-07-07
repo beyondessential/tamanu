@@ -14,16 +14,8 @@ import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '@tamanu/utils/dateTime';
+import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
 import { camelCase } from 'lodash';
-
-const getReferenceDataCategory = configString => {
-  try {
-    const config = JSON.parse(configString);
-    return camelCase(config.source === 'ReferenceData' ? config.where.type : config.source);
-  } catch (e) {
-    return null;
-  }
-};
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -116,7 +108,7 @@ const getAnswers = ({
       );
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return getTranslation(
-        getReferenceDataStringId(originalBody, getReferenceDataCategory(config)),
+        getReferenceDataStringId(originalBody, getReferenceDataCategoryFromRowConfig(config)),
         answer,
       );
     default:
