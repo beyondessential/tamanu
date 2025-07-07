@@ -3,7 +3,7 @@ import {
   getSnapshotBatchIds,
   getSnapshotBatchesByIds,
   createSnapshotTable,
-  dropSnapshotTable
+  dropSnapshotTable,
 } from './manageSnapshotTable';
 
 jest.mock('../../../infra/db', () => ({

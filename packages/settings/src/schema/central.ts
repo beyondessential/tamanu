@@ -40,8 +40,16 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 500,
         },
-        // TODO: align with byte size of batches when streaming is implemented
-        maxBatchesToKeepInMemory: {
+        // TODO: These two settings likely will be made redundant when streaming is implemented
+        // and we know the byte size of the batches
+        maxRecordsPerBatch: {
+          name: 'Max records per snapshot batch',
+          description: 'The number of records to store within a single row in the snapshot table',
+          type: yup.number().positive().integer(),
+          defaultValue: 1000,
+        },
+        // TODO: this too
+        maxBatchesInMemory: {
           name: 'Max snapshot batches to keep in memory',
           description:
             'The maximum number of batches to keep in memory during saveChanges. this is currently equal to n * 1000 records',
