@@ -1,9 +1,16 @@
 import { ServerUnavailableError } from './errors';
 
-export async function fetchOrThrowIfUnavailable(url, config = {}) {
+export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, ...config } = {}) {
+  const abort = new AbortController();
+  let timer;
+  if (timeout && Number.isFinite(timeout) && !config.signal) {
+    timer = setTimeout(() => abort.abort(), timeout);
+  }
+
   try {
-    const response = await fetch(url, config);
-    return response;
+    return await fetch(url, { signal: abort.signal, ...config }).finally(() => {
+      clearTimeout(timer);
+    });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available
@@ -16,13 +23,17 @@ export async function fetchOrThrowIfUnavailable(url, config = {}) {
   }
 }
 
-export async function getResponseErrorSafely(response) {
+export async function getResponseErrorSafely(response, logger = console) {
   try {
-    return await response.json();
+    const data = await response.text();
+    if (data.length === 0) {
+      return {};
+    }
+
+    return JSON.parse(data);
   } catch (e) {
     // log json parsing errors, but still return a valid object
-    // eslint-disable-next-line no-console
-    console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
     return {
       error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` },
     };
