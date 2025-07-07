@@ -5,54 +5,11 @@ import { SERVER_TYPES } from '@tamanu/constants';
 
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
-import {
-  AuthenticationError,
-  forbiddenFacilityMessage,
-  generalErrorMessage,
-  invalidTokenMessage,
-  invalidUserCredentialsMessage,
-  OutdatedVersionError,
-  RemoteError,
-} from '../error';
+import { AuthenticationError, forbiddenFacilityMessage, generalErrorMessage } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
-
-const API_PREFIX = 'api';
-
-const fetchAndParse = async (
-  url: string,
-  config: FetchOptions,
-  isLogin: boolean,
-): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
-  }
-
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
-    }
-  }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
-};
 
 export class CentralServerConnection {
   #conn: Connection;
