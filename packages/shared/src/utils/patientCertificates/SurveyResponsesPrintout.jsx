@@ -121,6 +121,7 @@ const SurveyResponsesPrintoutComponent = ({
   patientData,
   certificateData,
   getLocalisation,
+  getTranslation,
   surveyResponse,
   isReferral,
   facility,
@@ -142,12 +143,21 @@ const SurveyResponsesPrintoutComponent = ({
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
 
+  console.log({
+    surveyResponse,
+    groupedAnswerRows,
+  });
+
   return (
     <Document>
       <Page size="A4" style={pageStyles.body}>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={!isReferral ? 'Program form' : 'Referral'}
+          documentName={
+            !isReferral
+              ? getTranslation('pdf.surveyResponses.programForm', 'Program form')
+              : getTranslation('pdf.surveyResponses.referral', 'Referral')
+          }
           documentSubname={surveyResponse.title}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
@@ -156,7 +166,11 @@ const SurveyResponsesPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle={!isReferral ? 'Program form' : 'Referral'}
+            certificateTitle={
+              !isReferral
+                ? getTranslation('pdf.surveyResponses.programForm', 'Program form')
+                : getTranslation('pdf.surveyResponses.referral', 'Referral')
+            }
             certificateSubtitle={surveyResponse.title}
             letterheadConfig={certificateData}
           />
