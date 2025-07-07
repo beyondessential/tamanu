@@ -56,10 +56,6 @@ export class TamanuApi {
     return this.#host;
   }
 
-  getHost() {
-    return this.#host;
-  }
-
   setAuthFailureHandler(handler) {
     this.#onAuthFailure = handler;
   }
