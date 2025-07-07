@@ -29,6 +29,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly notGivenClinicianField: Locator;
   readonly otherVaccineBrand: Locator;
   readonly otherVaccineDisease: Locator;
+  readonly dateFieldIncludingError: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -58,6 +59,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.notGivenClinicianField = this.page.getByTestId('field-xycc-input');
     this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');
     this.otherVaccineDisease = this.page.getByTestId('field-gcfk-input');
+    this.dateFieldIncludingError = this.page.getByTestId('field-8sou');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -256,5 +258,14 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     return { notGivenReason, notGivenClinician, disease };
+  }
+
+  async selectErrorLocator(errorMessage: string) {
+    switch (errorMessage) {
+      case 'Date cannot be prior to patient date of birth':
+        return this.dateFieldIncludingError;
+      default:
+        throw new Error(`Error message not found: ${errorMessage}`);
+    }
   }
 }

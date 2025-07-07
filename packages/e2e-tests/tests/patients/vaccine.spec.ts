@@ -2,6 +2,7 @@ import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { convertDateFormat } from '../../utils/testHelper';
 
+//TOOD: add tests to confirm error messages if try to submit without required fields
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
@@ -23,6 +24,7 @@ test.describe('Vaccines', () => {
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
       specificDate = undefined,
+      errorMessage = undefined,
     }: {
       specificVaccine?: string | null;
       fillOptionalFields?: boolean;
@@ -30,6 +32,7 @@ test.describe('Vaccines', () => {
       isFollowUpVaccine?: boolean;
       specificScheduleOption?: string;
       specificDate?: string;
+      errorMessage?: string;
     } = {},
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
@@ -54,6 +57,12 @@ test.describe('Vaccines', () => {
 
     if (!vaccine.vaccineName || !vaccine.scheduleOption || !vaccine.date || !vaccine.area || !vaccine.location || !vaccine.department) {
       throw new Error('Vaccine record is missing required fields');
+    }
+
+    if (errorMessage) {
+     const errorLocator = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.selectErrorLocator(errorMessage);
+     await expect(errorLocator!).toContainText(errorMessage);
+     return;
     }
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
@@ -329,6 +338,19 @@ test.describe('Vaccines', () => {
     await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
       convertDateFormat(customDate),
     );
+  });
+
+  //TODO: extract patient dob and refactor to generate customDate below
+  //TODO: test case for future date
+  //TODO: test cases for errors on all mandatory fields
+  test('Date given cannot be before patient date of birth', async ({ patientDetailsPage }) => {
+    const customDate = '1901-11-27';
+    const dateErrorMessage = 'Date cannot be prior to patient date of birth';
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      specificDate: customDate,
+      errorMessage: dateErrorMessage,
+    });
   });
 
   test('Check given elsewhere checkbox', async () => {
