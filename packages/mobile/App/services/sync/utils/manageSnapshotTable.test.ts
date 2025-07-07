@@ -3,7 +3,7 @@ import {
   getSnapshotTableName,
   insertSnapshotRecords,
   getSnapshotBatchIds,
-  getSnapshotBatchById,
+  getSnapshotBatchesByIds,
   createSnapshotTable,
   dropSnapshotTable,
 } from './manageSnapshotTable';
@@ -83,24 +83,30 @@ describe('manageSnapshotTable', () => {
     });
   });
 
-  describe('getSnapshotBatchById', () => {
+  describe('getSnapshotBatchesByIds', () => {
     it('should return parsed batch data', async () => {
-      const testData = [{ id: 1, name: 'test' }];
-      mockDatabase.client.query.mockResolvedValue([{ data: JSON.stringify(testData) }]);
+      const testData = [
+        { id: 1, name: 'test' },
+        { id: 2, name: 'test2' },
+      ];
+      mockDatabase.client.query.mockResolvedValue([
+        { data: JSON.stringify([testData[0]]) },
+        { data: JSON.stringify([testData[1]]) },
+      ]);
 
-      const result = await getSnapshotBatchById('test-session', 1);
+      const result = await getSnapshotBatchesByIds('test-session', [1, 2]);
 
       expect(result).toEqual(testData);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT data FROM sync_snapshots_test_session WHERE id = ?',
-        [1],
+        'SELECT data FROM sync_snapshots_test_session WHERE id IN (?)',
+        [1, 2],
       );
     });
 
     it('should return empty array when no batch found', async () => {
       mockDatabase.client.query.mockResolvedValue([]);
 
-      const result = await getSnapshotBatchById('test-session', 999);
+      const result = await getSnapshotBatchesByIds('test-session', [999]);
 
       expect(result).toEqual([]);
     });
