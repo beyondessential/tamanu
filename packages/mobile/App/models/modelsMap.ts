@@ -17,7 +17,6 @@ import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { ProgramRegistryConditionCategory } from './ProgramRegistryConditionCategory';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -68,10 +67,9 @@ export const MODELS_MAP = {
   Program,
   ProgramRegistry,
   ProgramRegistryCondition,
-  ProgramRegistryClinicalStatus,
-  ProgramRegistryConditionCategory,
   PatientProgramRegistration,
   PatientProgramRegistrationCondition,
+  ProgramRegistryClinicalStatus,
   ReferenceDataRelation,
   ProgramDataElement,
   Survey,
@@ -101,7 +99,7 @@ export const MODELS_MAP = {
   PatientFacility,
   Setting,
   Note,
-  UserFacility,
+  UserFacility
 };
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;

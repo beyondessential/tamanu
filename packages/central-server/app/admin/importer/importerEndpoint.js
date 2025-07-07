@@ -5,7 +5,7 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { OTHER_REFERENCE_TYPES, PROGRAM_REGISTRY_REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -25,8 +25,7 @@ const normMapping = {
   // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
   // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
   registry: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY,
-  registryCondition: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
-  registryConditionCategories: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
+  registryCondition: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
 };
 
 export function normaliseSheetName(name, modelName) {
@@ -39,7 +38,7 @@ export function normaliseSheetName(name, modelName) {
 
   // Exception because ProgramRegistryClinicalStatus is imported in the registry sheet
   if (modelName === 'ProgramRegistryClinicalStatus') {
-    return PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+    return OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
   }
 
   return normMapping[norm] || norm;

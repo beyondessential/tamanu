@@ -20,7 +20,6 @@ import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -373,17 +372,15 @@ export const PatientMedicationPane = ({ patient }) => {
                 },
               }}
             >
-              <NoteModalActionBlocker>
-                <Button
-                  disabled={!!currentEncounter}
-                  onClick={() => setCreateMedicationModalOpen(true)}
-                >
-                  <TranslatedText
-                    stringId="patient.medication.ongoing.add"
-                    fallback="Add ongoing medication"
-                  />
-                </Button>
-              </NoteModalActionBlocker>
+              <Button
+                disabled={!!currentEncounter}
+                onClick={() => setCreateMedicationModalOpen(true)}
+              >
+                <TranslatedText
+                  stringId="patient.medication.ongoing.add"
+                  fallback="Add ongoing medication"
+                />
+              </Button>
             </StyledConditionalTooltip>
           )}
         </TableTitle>

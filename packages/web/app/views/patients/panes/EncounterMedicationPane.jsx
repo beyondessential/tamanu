@@ -184,29 +184,27 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   </StyledTextButton>
                 )}
                 {canPrintPrescription && (
-                  <NoteModalActionBlocker>
-                    <StyledTextButton
-                      onClick={() => setPrintMedicationModalOpen(true)}
-                      disabled={readonly}
-                      color="primary"
-                      data-testid="styledtextbutton-hbja"
-                    >
-                      <ThemedTooltip
-                        title={
-                          <Box width="60px" fontWeight={400}>
-                            <TranslatedText
-                              stringId="medication.action.printPrescription"
-                              fallback="Print prescription"
-                            />
-                          </Box>
-                        }
-                      >
-                        <Box display={'flex'}>
-                          <PrintIcon />
+                  <StyledTextButton
+                    onClick={() => setPrintMedicationModalOpen(true)}
+                    disabled={readonly}
+                    color="primary"
+                    data-testid="styledtextbutton-hbja"
+                  >
+                    <ThemedTooltip
+                      title={
+                        <Box width="60px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
                         </Box>
-                      </ThemedTooltip>
-                    </StyledTextButton>
-                  </NoteModalActionBlocker>
+                      }
+                    >
+                      <Box display={'flex'}>
+                        <PrintIcon />
+                      </Box>
+                    </ThemedTooltip>
+                  </StyledTextButton>
                 )}
               </>
             )}

@@ -4,19 +4,8 @@ import { constructFacilityUrl } from "./navigation";
 import { Locator } from '@playwright/test';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
-export const convertDateFormat = (dateInput: string | Date | undefined): string => {
-  if (!dateInput) return '';
-  
-  let dateString: string;
-  
-  if (dateInput instanceof Date) {
-    dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
-  } else {
-    dateString = dateInput;
-  }
-  
+export const convertDateFormat = (dateString: string): string => {
   if (!dateString) return '';
-  
   const [year, month, day] = dateString.split('-');
   return `${month}/${day}/${year}`;
 };

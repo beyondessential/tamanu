@@ -1,62 +1,33 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
 import { useTranslation } from '../../contexts/Translation';
-import {
-  BaseSelectField,
-  FieldWithTooltip,
-  TranslatedReferenceData,
-  getReferenceDataStringId,
-} from '../../components';
+import { TranslatedSelectField, FieldWithTooltip } from '../../components';
 import { Colors } from '../../constants';
-import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 
-const StyledBaseSelectField = styled(BaseSelectField)`
+const SelectField = styled(TranslatedSelectField)`
   .Mui-disabled {
     background-color: ${Colors.hoverGrey};
   }
 `;
 
 export const ProgramRegistryConditionCategoryField = ({
-  name,
-  isInitialRegistration,
-  programRegistryId,
   label,
+  name,
   disabled,
   disabledTooltipText,
   required = false,
   ariaLabelledby = null,
 }) => {
   const { getTranslation } = useTranslation();
-  const { data: conditionCategories = [] } = useProgramRegistryConditionCategoriesQuery(
-    programRegistryId,
-  );
-  const options = conditionCategories
-    .filter(conditionCategory => isInitialRegistration
-      ? conditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR : true)
-    .map(conditionCategory => ({
-      label: (
-        <TranslatedReferenceData
-          fallback={conditionCategory.name}
-          value={conditionCategory.id}
-          category="programRegistryConditionCategory"
-        />
-      ),
-      value: conditionCategory.id,
-      searchString: getTranslation(
-        getReferenceDataStringId(conditionCategory.id, 'programRegistryConditionCategory'),
-        conditionCategory.name,
-      ),
-    }));
-
   return (
     <FieldWithTooltip
       disabledTooltipText={disabled ? disabledTooltipText : ''}
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={StyledBaseSelectField}
-      options={options}
+      component={SelectField}
+      enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
       disabled={disabled}
       required={required}
       aria-labelledby={ariaLabelledby}

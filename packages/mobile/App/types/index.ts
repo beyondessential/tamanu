@@ -28,6 +28,7 @@ export * from './IVitalLog';
 export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
+export * from './IMedication';
 export * from './INote';
 export * from './IReferral';
 export * from './IPatientAdditionalData';

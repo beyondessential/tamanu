@@ -1,7 +1,10 @@
 import React from 'react';
 import { sortBy, groupBy } from 'lodash';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '~/constants/programRegistries';
 import {
   TranslatedReferenceData,
   getReferenceDataStringId,
@@ -14,6 +17,7 @@ import { useBackendEffect } from '~/ui/hooks';
 import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedEnum } from '~/ui/components/Translations/TranslatedEnum';
 
 const Row = styled(StyledView)`
   margin-left: 20px;
@@ -77,15 +81,15 @@ const HorizontalLine = ({ marginTop = 0, marginBottom = 0 }) => (
 const TranslatedCondition = ({ condition }) => (
   <RowValue marginBottom={10}>
     <TranslatedReferenceData
+      key={condition.programRegistryCondition.id}
       fallback={condition.programRegistryCondition.name}
       value={condition.programRegistryCondition.id}
       category="programRegistryCondition"
     />
     {` `}(
-    <TranslatedReferenceData
-      fallback={condition.programRegistryConditionCategory.name}
-      value={condition.programRegistryConditionCategory.id}
-      category="programRegistryConditionCategory"
+    <TranslatedEnum
+      value={condition.conditionCategory}
+      enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
     />
     )
   </RowValue>
@@ -97,24 +101,24 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const initConditions = Array.isArray(conditions) ? conditions : [];
   // We hide recorded in error conditions
   const filteredConditions = initConditions.filter(
-    ({ programRegistryConditionCategory }) =>
-      programRegistryConditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+    ({ conditionCategory }) =>
+      conditionCategory !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 
   // Sort alphabetically by condition name
   const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {
     const stringId = getReferenceDataStringId(
-      programRegistryCondition.id,
       'programRegistryCondition',
+      programRegistryCondition.id,
     );
     return getTranslation(stringId, programRegistryCondition.name);
   });
 
-  const groupedConditions = groupBy(sortedConditions, ({ programRegistryConditionCategory }) =>
+  const groupedConditions = groupBy(sortedConditions, ({ conditionCategory }) =>
     [
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
-    ].includes(programRegistryConditionCategory.code)
+    ].includes(conditionCategory)
       ? 'closed'
       : 'open',
   );

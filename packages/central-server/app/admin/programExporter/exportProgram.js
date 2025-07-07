@@ -182,40 +182,23 @@ export async function exportProgram(context, programId) {
     sheets.push(registrySheet);
   }
 
+  const registryConditionsSheet = {
+    name: 'Registry Conditions',
+    data: [['code', 'name', 'visibilityStatus']],
+  };
   if (programRegistry) {
     const programRegistryConditions = await models.ProgramRegistryCondition.findAll({
       where: { programRegistryId: programRegistry.id },
     });
-    const programRegistryConditionCategories = await models.ProgramRegistryConditionCategory.findAll({
-      where: { programRegistryId: programRegistry.id },
-    });
 
-    const registryConditionsSheet = {
-      name: 'Registry Conditions',
-      data: [
-        ['code', 'name', 'visibilityStatus'],
-        ...programRegistryConditions.map(condition => [
-          condition.code,
-          condition.name,
-          condition.visibilityStatus,
-        ]),
-      ],
-    };
-
-    const registryConditionCategoriesSheet = {
-      name: 'Registry Condition Categories',
-      data: [
-        ['code', 'name', 'visibilityStatus'],
-        ...programRegistryConditionCategories.map(category => [
-          category.code,
-          category.name,
-          category.visibilityStatus,
-        ]),
-      ],
-    };
-
+    registryConditionsSheet.data.push(
+      ...programRegistryConditions.map(condition => [
+        condition.code,
+        condition.name,
+        condition.visibilityStatus,
+      ]),
+    );
     sheets.push(registryConditionsSheet);
-    sheets.push(registryConditionCategoriesSheet);
   }
 
   const exportedFileName = writeExcelFile(sheets);

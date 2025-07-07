@@ -85,7 +85,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
           programRegistryCondition: condition.condition.value,
-          programRegistryConditionCategory: condition.category.value,
+          conditionCategory: condition.category.value,
           clinician: formData.clinicianId,
           patientProgramRegistration: newPpr.id,
         });

@@ -6,8 +6,8 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { DataImportError } from '../errors';
 import { importRows } from '../importer/importRows';
+
 import { readTwoModelTypeSheet } from './readMetadata';
-import { autoFillConditionCategoryImport } from './autoFillConditionCategoryImport';
 
 function readProgramRegistryData(workbook) {
   log.debug('Reading Registry data');
@@ -33,16 +33,6 @@ function readProgramRegistryConditionData(workbook) {
   const worksheet = workbook.Sheets['Registry Conditions'];
   if (!worksheet) {
     log.debug('No Registry Conditions sheet - skipping');
-    return [];
-  }
-  return utils.sheet_to_json(worksheet);
-}
-
-function readProgramRegistryConditionCategoriesData(workbook) {
-  log.debug('Reading Condition Categories');
-  const worksheet = workbook.Sheets['Registry Condition Categories'];
-  if (!worksheet) {
-    log.debug('No Registry Condition Categories sheet - will only import hardcoded categories');
     return [];
   }
   return utils.sheet_to_json(worksheet);
@@ -143,7 +133,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   const programRegistryConditions = readProgramRegistryConditionData(workbook);
 
   log.debug('Importing Patient Registry Conditions');
-  stats = await importRows(context, {
+  return importRows(context, {
     sheetName: 'Registry Conditions',
     rows: programRegistryConditions.map((row) => ({
       model: 'ProgramRegistryCondition',
@@ -158,21 +148,4 @@ export async function importProgramRegistry(context, workbook, programId) {
     })),
     stats,
   });
-
-  log.debug('Importing Patient Registry Condition Categories');
-  const programRegistryConditionCategories = readProgramRegistryConditionCategoriesData(workbook);
-
-  const categoryRows = await autoFillConditionCategoryImport(
-    context,
-    programRegistryConditionCategories,
-    registryId,
-  );
-
-  stats = await importRows(context, {
-    sheetName: 'Registry Condition Categories',
-    rows: categoryRows,
-    stats,
-  });
-
-  return stats;
 }

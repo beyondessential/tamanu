@@ -20,21 +20,19 @@ export const ChartDataProvider = ({ children }) => {
   const {
     data: [userPreferences, chartWithResponse],
     isLoading,
-    isFetching,
   } = combineQueries([userPreferencesQuery, chartWithResponseQuery]);
-  const shouldInit = !isLoading && !isInitiated && !isFetching;
 
   useEffect(() => {
-    if (!shouldInit) return;
-    // Only set initial type if encounter has chart responses
-    if (chartWithResponse?.data) {
-      // Prioritize user preference, chart with response is only a fallback
-      const initialChart =
-        userPreferences?.selectedChartTypeId ?? chartWithResponse?.data?.survey.id;
-      setSelectedChartTypeId(initialChart);
+    if (!isLoading && !isInitiated) {
+      // Only set initial type if encounter has chart responses
+      if (chartWithResponse) {
+        // Prioritize user preference, chart with response is only a fallback
+        const initialChart = userPreferences?.selectedChartTypeId ?? chartWithResponse.id;
+        setSelectedChartTypeId(initialChart);
+      }
+      setIsInitiated(true);
     }
-    setIsInitiated(true);
-  }, [userPreferences, chartWithResponse, shouldInit]);
+  }, [userPreferences, chartWithResponse, isInitiated, isLoading]);
 
   return (
     <ChartDataContext.Provider

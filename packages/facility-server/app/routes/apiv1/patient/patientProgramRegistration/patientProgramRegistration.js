@@ -74,7 +74,7 @@ patientProgramRegistration.post(
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
             programRegistryConditionId: condition.conditionId,
-            programRegistryConditionCategoryId: condition.conditionCategoryId,
+            conditionCategory: condition.category,
           })),
         { transaction },
       );
@@ -125,7 +125,7 @@ patientProgramRegistration.put(
       clinicianId: registrationData.clinicianId,
       date: condition.date,
       programRegistryConditionId: condition.conditionId,
-      programRegistryConditionCategoryId: condition.conditionCategoryId,
+      conditionCategory: condition.conditionCategory,
       reasonForChange: condition.reasonForChange,
     }));
 
@@ -146,7 +146,7 @@ patientProgramRegistration.put(
       return Promise.all([
         existingRegistration.update(updatedRegistrationData),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
-          updateOnDuplicate: ['date', 'programRegistryConditionCategoryId', 'reasonForChange'],
+          updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
         }),
       ]);
     });

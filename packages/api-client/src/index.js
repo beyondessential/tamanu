@@ -1,12 +1,7 @@
 export {
-  ServerUnavailableError,
-  ServerResponseError,
-  NotFoundError,
-  AuthError,
-  AuthInvalidError,
   AuthExpiredError,
-  ForbiddenError,
+  ServerResponseError,
+  ServerUnavailableError,
   VersionIncompatibleError,
-  ResourceConflictError,
 } from './errors';
 export { TamanuApi } from './TamanuApi';

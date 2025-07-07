@@ -33,7 +33,6 @@ import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
 import { getComplexChartFormMode } from '../../../utils/chart/chartUtils';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const StyledButtonGroup = styled(ButtonGroup)`
   .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
@@ -101,7 +100,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
     return (
       <TranslatedText
         stringId="chart.table.complex.noChart"
-        fallback="This patient has no chart information to display. Click '+ Add' to add information to this chart."
+        fallback="This patient has no chart information to display. Click '+ Add' to add information to add information to this chart."
         data-testid="translatedtext-1n1o"
       />
     );
@@ -112,26 +111,6 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
       stringId="chart.table.noData"
       fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
       data-testid="translatedtext-jwyi"
-    />
-  );
-};
-
-const getTooltipMessage = (selectedSurveyId) => {
-  if (!selectedSurveyId) {
-    return (
-      <TranslatedText
-        stringId="chart.action.record.disabledTooltip.noChartType"
-        fallback="Please select a chart type to record an entry"
-        data-testid="translatedtext-arpn"
-      />
-    );
-  }
-  
-  return (
-    <TranslatedText
-      stringId="chart.action.record.disabledTooltip"
-      fallback="'Add' an item first to record against"
-      data-testid="translatedtext-zbwx"
     />
   );
 };
@@ -161,7 +140,9 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const chartTypes = useMemo(
     () =>
       chartSurveys
-        .filter(s => [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(s.surveyType))
+        .filter((s) =>
+          [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(s.surveyType),
+        )
         .map(({ name, id }) => ({
           label: name,
           value: id,
@@ -170,40 +151,38 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   );
 
   // Full data of the selected chart from the dropdown
-  const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
-    chartSurveys,
-    selectedChartTypeId,
-  ]);
+  const selectedChartSurvey = useMemo(
+    () => findChartSurvey(chartSurveys, selectedChartTypeId),
+    [chartSurveys, selectedChartTypeId],
+  );
 
-  const chartSurveyToSubmit = useMemo(() => findChartSurvey(chartSurveys, chartSurveyIdToSubmit), [
-    chartSurveys,
-    chartSurveyIdToSubmit,
-  ]);
+  const chartSurveyToSubmit = useMemo(
+    () => findChartSurvey(chartSurveys, chartSurveyIdToSubmit),
+    [chartSurveys, chartSurveyIdToSubmit],
+  );
 
-  const coreComplexChartSurveyId = useMemo(() => complexToCoreSurveysMap[selectedChartTypeId], [
-    complexToCoreSurveysMap,
-    selectedChartTypeId,
-  ]);
+  const coreComplexChartSurveyId = useMemo(
+    () => complexToCoreSurveysMap[selectedChartTypeId],
+    [complexToCoreSurveysMap, selectedChartTypeId],
+  );
 
   const { data: fullChartSurvey } = useChartSurveyQuery(coreComplexChartSurveyId);
 
   const fieldVisibility = useMemo(
     () =>
       Object.fromEntries(
-        fullChartSurvey?.components.map(c => [c.dataElementId, c.visibilityStatus]) || [],
+        fullChartSurvey?.components.map((c) => [c.dataElementId, c.visibilityStatus]) || [],
       ),
     [fullChartSurvey?.components],
   );
 
   const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
-  const {
-    data: { data: complexChartInstances = [] } = {},
-    isLoading: isLoadingInstances,
-  } = useEncounterComplexChartInstancesQuery({
-    encounterId: encounter.id,
-    chartSurveyId: coreComplexChartSurveyId,
-    enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
-  });
+  const { data: { data: complexChartInstances = [] } = {}, isLoading: isLoadingInstances } =
+    useEncounterComplexChartInstancesQuery({
+      encounterId: encounter.id,
+      chartSurveyId: coreComplexChartSurveyId,
+      enabled: isInstancesQueryEnabled, // only run when coreComplexChartSurveyId is available
+    });
 
   // Create tabs for each chart instance
   const complexChartInstanceTabs = useMemo(
@@ -216,9 +195,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     [complexChartInstances],
   );
 
-  const complexChartInstancesById = useMemo(() => keyBy(complexChartInstances, 'chartInstanceId'), [
-    complexChartInstances,
-  ]);
+  const complexChartInstancesById = useMemo(
+    () => keyBy(complexChartInstances, 'chartInstanceId'),
+    [complexChartInstances],
+  );
 
   const currentComplexChartInstance = useMemo(
     () => complexChartInstancesById[currentComplexChartTab],
@@ -265,8 +245,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     }
 
     await api.post('surveyResponse', responseData);
-    queryClient.invalidateQueries(['encounterCharts', encounter.id, survey.id]);
     handleCloseModal();
+    await loadEncounter(encounter.id);
   };
 
   const handleDeleteChart = useCallback(async () => {
@@ -307,7 +287,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     chartSurveyId: chartSurveyIdToSubmit,
     onClose: handleCloseModal,
     onSubmit: handleSubmitChart,
-    patient,
   };
 
   if (isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
@@ -334,6 +313,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         {isComplexChart ? (
           <ComplexChartModal
             {...baseChartModalProps}
+            patient={patient}
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
@@ -374,7 +354,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
               <ComplexChartInstancesTab
                 tabs={complexChartInstanceTabs}
                 currentTab={currentComplexChartTab}
-                onTabSelect={tabKey => setCurrentComplexChartTab(tabKey)}
+                onTabSelect={(tabKey) => setCurrentComplexChartTab(tabKey)}
                 data-testid="complexchartinstancestab-vrf2"
               />
             ) : null}
@@ -382,28 +362,32 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             <ConditionalTooltip
               visible={!recordButtonEnabled}
               maxWidth="8rem"
-              title={getTooltipMessage(selectedChartTypeId)}
+              title={
+                <TranslatedText
+                  stringId="chart.action.record.disabledTooltip"
+                  fallback="'Add' an item first to record against"
+                  data-testid="translatedtext-zbwx"
+                />
+              }
               data-testid="conditionaltooltip-uafz"
             >
-              <NoteModalActionBlocker>
-                <StyledButtonWithPermissionCheck
-                  justifyContent="end"
-                  onClick={() => {
-                    setChartSurveyIdToSubmit(selectedChartTypeId);
-                    setModalOpen(true);
-                  }}
-                  disabled={!recordButtonEnabled}
-                  verb="submit"
-                  noun="SurveyResponse"
-                  data-testid="styledbuttonwithpermissioncheck-ruv4"
-                >
-                  <TranslatedText
-                    stringId="chart.action.record"
-                    fallback="Record"
-                    data-testid="translatedtext-r7vz"
-                  />
-                </StyledButtonWithPermissionCheck>
-              </NoteModalActionBlocker>
+              <StyledButtonWithPermissionCheck
+                justifyContent="end"
+                onClick={() => {
+                  setChartSurveyIdToSubmit(selectedChartTypeId);
+                  setModalOpen(true);
+                }}
+                disabled={!recordButtonEnabled}
+                verb="submit"
+                noun="SurveyResponse"
+                data-testid="styledbuttonwithpermissioncheck-ruv4"
+              >
+                <TranslatedText
+                  stringId="chart.action.record"
+                  fallback="Record"
+                  data-testid="translatedtext-r7vz"
+                />
+              </StyledButtonWithPermissionCheck>
             </ConditionalTooltip>
           </TableButtonRow>
         </TableButtonRowWrapper>
@@ -412,7 +396,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
           <CoreComplexChartData
             handleDeleteChart={handleDeleteChart}
             selectedSurveyId={selectedChartTypeId}
-            currentInstanceId={currentComplexChartInstance?.chartInstanceId}
             date={currentComplexChartInstance.chartDate}
             type={currentComplexChartInstance.chartType}
             subtype={currentComplexChartInstance.chartSubtype}
@@ -423,7 +406,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         <ChartsTable
           selectedSurveyId={selectedChartTypeId}
-          currentInstanceId={currentComplexChartInstance?.chartInstanceId}
           noDataMessage={getNoDataMessage(
             isComplexChart,
             complexChartInstances,

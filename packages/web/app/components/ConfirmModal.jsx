@@ -6,7 +6,6 @@ import { OutlinedButton } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ConfirmRowDivider } from './ConfirmRowDivider';
-import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const Content = styled.div`
   text-align: center;
@@ -38,7 +37,6 @@ export const ConfirmModal = ({
   ),
   className,
   customContent,
-  noteBlockConfirmButton = false,
 }) => (
   <Modal
     className={className}
@@ -59,17 +57,9 @@ export const ConfirmModal = ({
       <OutlinedButton onClick={onCancel} data-testid="outlinedbutton-p957">
         {cancelButtonText}
       </OutlinedButton>
-      {noteBlockConfirmButton ? (
-        <NoteModalActionBlocker>
-          <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
-            {confirmButtonText}
-          </ConfirmButton>
-        </NoteModalActionBlocker>
-      ) : (
-        <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
-          {confirmButtonText}
-        </ConfirmButton>
-      )}
+      <ConfirmButton variant="contained" onClick={onConfirm} data-testid="confirmbutton-y3tb">
+        {confirmButtonText}
+      </ConfirmButton>
     </ButtonRow>
   </Modal>
 );

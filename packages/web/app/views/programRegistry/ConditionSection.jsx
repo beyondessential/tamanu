@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+} from '@tamanu/constants';
 import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -56,8 +59,7 @@ const getGroupedConditions = conditions => {
   const closedConditions = [];
 
   conditions.forEach(condition => {
-    const categoryCode = condition.programRegistryConditionCategory.code;
-    if (categoryCode === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
+    if (condition.conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR) {
       return;
     }
 
@@ -65,7 +67,7 @@ const getGroupedConditions = conditions => {
       [
         PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
         PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
-      ].includes(categoryCode)
+      ].includes(condition.conditionCategory)
     ) {
       closedConditions.push(condition);
       return;
@@ -94,7 +96,7 @@ const ConditionComponent = ({ condition, onClick, isInactive = false }) => {
 };
 
 export const ConditionSection = ({ registrationId, isInactive }) => {
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedConditionId, setSelectedConditionId] = useState(null);
   const { data: conditions = [], isLoading } = usePatientProgramRegistryConditionsQuery(
     registrationId,
@@ -109,17 +111,16 @@ export const ConditionSection = ({ registrationId, isInactive }) => {
   };
 
   const translatedData = conditions.map(condition => {
-    const { programRegistryCondition, programRegistryConditionCategory } = condition;
+    const { programRegistryCondition, conditionCategory } = condition;
+    const { id, name } = programRegistryCondition;
     const translatedName = getTranslation(
-      getReferenceDataStringId(programRegistryCondition.id, 'programRegistryCondition'),
-      programRegistryCondition.name,
+      getReferenceDataStringId(id, 'programRegistryCondition'),
+      name,
     );
-    const translatedCategory = getTranslation(
-      getReferenceDataStringId(
-        programRegistryConditionCategory.id,
-        'programRegistryConditionCategory',
-      ),
-      programRegistryConditionCategory.name,
+
+    const translatedCategory = getEnumTranslation(
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+      conditionCategory,
     );
     return { ...condition, translatedName, translatedCategory };
   });

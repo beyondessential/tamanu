@@ -158,7 +158,7 @@ const PrescriptionPrintoutComponent = ({
             <PrescriptionSigningSection />
           </SectionContainer>
         </CertificateContent>
-        <Footer style={{ left: 30, right: 30 }} />
+        <Footer />
       </Page>
     </Document>
   );

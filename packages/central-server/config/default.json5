@@ -65,9 +65,6 @@
     // paste your bugsnag API key here
     apiKey: '',
   },
-  patientMerge:{
-    updateDependentRecordsForResyncEnabled: true
-  },
   "sync": {
     "maxConcurrentSessions": 4,
     "persistedCacheBatchSize": 20000,

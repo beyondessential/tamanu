@@ -31,21 +31,19 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         data-testid="printmultipleimagingrequestsselectionmodal-tm3j"
       />
       <TableButtonRow variant="small" data-testid="tablebuttonrow-4ald">
-        <NoteModalActionBlocker>
-          <Button
-            onClick={() => setPrintRequestsModalOpen(true)}
-            disabled={readonly}
-            variant="outlined"
-            color="primary"
-            data-testid="button-21bg"
-          >
-            <TranslatedText
-              stringId="general.action.print"
-              fallback="Print"
-              data-testid="translatedtext-iujx"
-            />
-          </Button>
-        </NoteModalActionBlocker>
+        <Button
+          onClick={() => setPrintRequestsModalOpen(true)}
+          disabled={readonly}
+          variant="outlined"
+          color="primary"
+          data-testid="button-21bg"
+        >
+          <TranslatedText
+            stringId="general.action.print"
+            fallback="Print"
+            data-testid="translatedtext-iujx"
+          />
+        </Button>
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}

@@ -9,7 +9,6 @@ Use this rule when you need to update an existing rule based on new learnings or
 - Update the relevant sections while maintaining the existing structure
 - Add new process steps or avoid items based on recent experience
 - Ensure the rule remains actionable and specific
-- Use "you" language to address the AI agent directly (not "the agent" or "the LLM")
 
 # Avoid
 

@@ -1,43 +1,34 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
+import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
-  AuthInvalidError,
-  ForbiddenError,
-  NotFoundError,
   ResourceConflictError,
   ServerResponseError,
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
 } from './errors';
 import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
-import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
 export class TamanuApi {
   #host;
   #prefix;
-  #defaultRequestConfig = {};
 
   #onAuthFailure;
   #onVersionIncompatible;
-  #authToken;
-  #refreshToken;
-  #ongoingAuth;
+  #authHeader;
 
   lastRefreshed = null;
   user = null;
-  logger = console;
-  fetchImplementation = fetch;
 
-  constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }) {
+  constructor({ endpoint, agentName, agentVersion, deviceId }) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
-    this.#defaultRequestConfig = defaultRequestConfig;
 
     this.agentName = agentName;
     this.agentVersion = agentVersion;
@@ -46,9 +37,6 @@ export class TamanuApi {
       request: new InterceptorManager(),
       response: new InterceptorManager(),
     };
-    if (logger) {
-      this.logger = logger;
-    }
   }
 
   getHost() {
@@ -63,50 +51,40 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email, password, config = {}) {
-    if (this.#ongoingAuth) {
-      await this.#ongoingAuth;
+  async login(email, password) {
+    const response = await this.post(
+      'login',
+      {
+        email,
+        password,
+        deviceId: this.deviceId,
+      },
+      { returnResponse: true },
+    );
+    const serverType = response.headers.get('X-Tamanu-Server');
+    if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
+      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
-    return (this.#ongoingAuth = (async () => {
-      const response = await this.post(
-        'login',
-        {
-          email,
-          password,
-          deviceId: this.deviceId,
-        },
-        { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
-      );
+    const {
+      token,
+      localisation,
+      server = {},
+      availableFacilities,
+      permissions,
+      centralHost,
+      role,
+    } = await response.json();
+    server.type = serverType;
+    server.centralHost = centralHost;
+    this.setToken(token);
 
-      const serverType = response.headers.get('x-tamanu-server');
-      if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new ServerResponseError(
-          `Tamanu server type '${serverType}' is not supported.`,
-          response,
-        );
-      }
-
-      const {
-        server = {},
-        centralHost,
-        serverType: responseServerType,
-        ...loginData
-      } = await response.json();
-
-      server.type = responseServerType ?? serverType;
-      server.centralHost = centralHost;
-      this.setToken(loginData.token, loginData.refreshToken);
-
-      const { user, ability } = await this.fetchUserData(loginData.permissions, config);
-      return { ...loginData, user, ability, server };
-    })().finally(() => {
-      this.#ongoingAuth = null;
-    }));
+    const { user, ability } = await this.fetchUserData(permissions);
+    return { user, token, localisation, server, availableFacilities, ability, role, permissions };
   }
 
-  async fetchUserData(permissions, config = {}) {
-    const user = await this.get('user/me', {}, { ...config, waitForAuth: false });
+  async fetchUserData(permissions) {
+    const user = await this.get('user/me');
     this.lastRefreshed = Date.now();
     this.user = user;
 
@@ -123,93 +101,34 @@ export class TamanuApi {
   }
 
   async refreshToken() {
-    if (!this.#refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
     try {
-      const response = await this.post(
-        'refresh',
-        {
-          deviceId: this.deviceId,
-          refreshToken: this.#refreshToken,
-        },
-        { useAuthToken: false, waitForAuth: false },
-      );
-      const { token, refreshToken } = response;
-      this.setToken(token, refreshToken);
+      const response = await this.post('refresh');
+      const { token } = response;
+      this.setToken(token);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
     }
   }
 
-  setToken(token, refreshToken = null) {
-    this.#authToken = token;
-    this.#refreshToken = refreshToken;
+  setToken(token) {
+    this.#authHeader = { authorization: `Bearer ${token}` };
   }
 
-  async fetch(endpoint, query = {}, options = {}) {
-    let { useAuthToken = this.#authToken, ...moreConfig } = {
-      ...this.#defaultRequestConfig,
-      ...options,
-    };
-    const {
-      headers,
-      returnResponse = false,
-      throwResponse = false,
-      waitForAuth = true,
-      backoff = false,
-      ...otherConfig
-    } = moreConfig;
-
-    if (waitForAuth && this.#ongoingAuth) {
-      await this.#ongoingAuth;
-      if (useAuthToken !== false) {
-        // use the auth token from after the pending login
-        useAuthToken = this.#authToken;
-      }
-    }
-
-    let fetcher = fetchOrThrowIfUnavailable;
-    if (backoff) {
-      const backoffOptions = typeof backoff === 'object' ? backoff : {};
-      fetcher = (url, config) =>
-        fetchWithRetryBackoff(url, config, { ...backoffOptions, log: this.logger });
-    }
-
-    const reqHeaders = new Headers({
-      accept: 'application/json',
-      'x-tamanu-client': this.agentName,
-      'x-version': this.agentVersion,
-    });
-    if (otherConfig.body) {
-      reqHeaders.set('content-type', 'application/json');
-    }
-    if (useAuthToken) {
-      reqHeaders.set('authorization', `Bearer ${useAuthToken}`);
-    }
-    for (const [key, value] of Object.entries(headers ?? {})) {
-      const name = key.toLowerCase();
-      if (['authorization', 'x-tamanu-client', 'x-version'].includes(name)) continue;
-      reqHeaders.set(name, value);
-    }
-
+  async fetch(endpoint, query = {}, moreConfig = {}) {
+    const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = moreConfig;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
-      headers: reqHeaders,
+      headers: {
+        ...this.#authHeader,
+        ...headers,
+        'X-Tamanu-Client': this.agentName,
+        'X-Version': this.agentVersion,
+      },
       ...otherConfig,
     };
-
-    if (
-      config.body &&
-      config.headers.get('content-type')?.startsWith('application/json') &&
-      !(config.body instanceof Uint8Array) // also covers Buffer
-    ) {
-      config.body = JSON.stringify(config.body);
-    }
 
     const requestInterceptorChain = [];
     // request: first in last out
@@ -226,10 +145,10 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
+    const response = await fetchOrThrowIfUnavailable(url, latestConfig);
 
     const responseInterceptorChain = [];
-    // response: first in first out
+    // request: first in first out
     this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
@@ -268,36 +187,23 @@ export class TamanuApi {
    * Generally only used internally.
    */
   async extractError(endpoint, response) {
-    const { error } = await getResponseErrorSafely(response, this.logger);
+    const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
 
-    // handle auth invalid
-    if (response.status === 401 && endpoint === 'login') {
-      const message =
-        (await response.json().then(
-          json => json.message,
-          () => null,
-        )) ?? 'Failed authentication';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(message);
-      }
-      throw new AuthInvalidError(message, response);
-    }
-
-    // handle forbidden error
+    // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
-      throw new ForbiddenError(message, response);
+      throw new ForbiddenError(message);
     }
 
     if (response.status === 404) {
-      throw new NotFoundError(message, response);
+      throw new NotFoundError(message);
     }
 
     // handle auth expiring
     if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
-      throw new AuthExpiredError(message, response);
+      throw new AuthExpiredError(message);
     }
 
     // handle version incompatibility
@@ -307,16 +213,16 @@ export class TamanuApi {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
         }
-        throw new VersionIncompatibleError(versionIncompatibleMessage, response);
+        throw new VersionIncompatibleError(versionIncompatibleMessage);
       }
     }
 
     // Handle resource conflict
     if (response.status === 409) {
-      throw new ResourceConflictError(message, response);
+      throw new ResourceConflictError(message);
     }
 
-    throw new ServerResponseError(`Server error response: ${message}`, response);
+    throw new ServerResponseError(`Server error response: ${message}`);
   }
 
   async get(endpoint, query = {}, config = {}) {
@@ -346,9 +252,6 @@ export class TamanuApi {
     return this.fetch(endpoint, undefined, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       ...options,
     });
   }
@@ -358,7 +261,7 @@ export class TamanuApi {
       endpoint,
       {},
       {
-        body,
+        body: body && JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -373,7 +276,7 @@ export class TamanuApi {
       endpoint,
       {},
       {
-        body,
+        body: body && JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -385,22 +288,5 @@ export class TamanuApi {
 
   async delete(endpoint, query = {}, config = {}) {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
-  }
-
-  async pollUntilOk(...args) {
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.fetch(...args);
-      if (response) {
-        return response;
-      }
-
-      await new Promise(resolve => {
-        setTimeout(resolve, waitTime);
-      });
-    }
-
-    throw new Error(`Poll of ${args[0]} did not succeed after ${maxAttempts} attempts`);
   }
 }

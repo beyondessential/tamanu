@@ -320,7 +320,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         key: 'measure',
         title: getTranslation('vitals.table.column.measure', 'Measure'),
         accessor: ({ value }) => value,
-        style: { width: 140, alignItems: 'flex-end' },
+        style: { width: 140 },
       },
       ...dateArray
         .sort((a, b) => b.localeCompare(a))
@@ -331,7 +331,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             const { value, config } = cells[date];
             return formatValue(value, config);
           },
-          style: { width: 60, },
+          style: { width: 60 },
         })),
     ];
   };

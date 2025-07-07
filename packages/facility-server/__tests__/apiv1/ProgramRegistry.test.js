@@ -1,8 +1,4 @@
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  REGISTRATION_STATUSES,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 
@@ -324,18 +320,6 @@ describe('ProgramRegistry', () => {
           programRegistryId,
         }),
       );
-      const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-        }),
-      );
-      const errorConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-          programRegistryId,
-        }),
-      );
 
       const baseRegistrationData = {
         programRegistryId,
@@ -357,14 +341,13 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
 
@@ -381,7 +364,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
 
@@ -413,18 +396,6 @@ describe('ProgramRegistry', () => {
       const decoyCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
-      const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-        }),
-      );
-      const errorConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-        }),
-      );
 
       const clinician = await models.User.create(fake(models.User, { displayName: 'Lucy' }));
 
@@ -436,7 +407,7 @@ describe('ProgramRegistry', () => {
       };
 
       // Patient 1: Should show
-      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '1-1' }));
+      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
       const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
@@ -450,14 +421,12 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
 
@@ -474,7 +443,6 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
         }),
       );
 
@@ -491,7 +459,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration3.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
 
@@ -507,9 +475,6 @@ describe('ProgramRegistry', () => {
       expect(body.data.length).toEqual(1);
       expect(body.data).toMatchObject([
         {
-          patient: {
-            displayId: '1-1',
-          },
           conditions: expect.arrayContaining([
             { name: decoyCondition.name, id: decoyCondition.id },
             { name: relevantCondition.name, id: relevantCondition.id },

@@ -71,7 +71,7 @@ const ViewHistoryButton = styled(TextButton)`
 const getConditionShape = getTranslation =>
   yup.object().shape({
     conditionId: yup.string().nullable(),
-    conditionCategoryId: yup
+    conditionCategory: yup
       .string()
       .nullable()
       .when('conditionId', {
@@ -90,7 +90,14 @@ const getConditionShape = getTranslation =>
 
 const getGroupedData = rows => {
   const groupMapping = {
-    // confirmedSection is for every other category
+    confirmedSection: [
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNDER_INVESTIGATION,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.IN_REMISSION,
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE,
+    ],
     resolvedSection: [
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN,
       PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED,
@@ -102,19 +109,17 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
+  rows.forEach(({ id, conditionCategory, date, programRegistryCondition, history }) => {
     const group = Object.entries(groupMapping).find(([, conditions]) =>
-      conditions.includes(programRegistryConditionCategory.code),
-    )?.[0] || 'confirmedSection';
+      conditions.includes(conditionCategory),
+    )?.[0];
     if (group) {
       groupedData[group].push({
         id,
         conditionId: programRegistryCondition.id,
         name: programRegistryCondition.name,
         date,
-        conditionCategoryId: programRegistryConditionCategory.id,
-        conditionCategoryName: programRegistryConditionCategory.name,
-        programRegistryId: programRegistryConditionCategory.programRegistryId,
+        conditionCategory,
         history,
       });
     }
@@ -125,19 +130,17 @@ const getGroupedData = rows => {
   return groupedData;
 };
 
-// Because of importing validation we can guarantee the ID contains this code
-const isRecordedInError = conditionCategoryId =>
-  conditionCategoryId?.includes(PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR);
-
 const getIsNewRecordedInError = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
-    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 };
 
 const getNewRecordedInErrorList = conditions => {
   return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
-    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
+    ({ conditionCategory }) =>
+      conditionCategory === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 };
 
@@ -173,10 +176,8 @@ export const RelatedConditionsForm = ({
         // Consider a condition updated if:
         // 1. It's a new condition (not in initial values)
         // 2. The category has changed
-        const initialCategory = initialCondition?.conditionCategoryId;
-        const newCategory = condition.conditionCategoryId;
         return (
-          !initialCondition || initialCategory !== newCategory
+          !initialCondition || initialCondition.conditionCategory !== condition.conditionCategory
         );
       });
 
@@ -233,13 +234,13 @@ export const RelatedConditionsForm = ({
                 />
               </span>
             ),
-            accessor: ({ name, conditionCategoryId, conditionId }, groupName, index) => {
+            accessor: ({ name, conditionCategory, conditionId }, groupName, index) => {
               if (name) {
                 return (
                   <span
                     style={{
                       textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                        conditionCategory === 'recordedInError' ? 'line-through' : 'none',
                     }}
                   >
                     <TranslatedReferenceData
@@ -311,7 +312,7 @@ export const RelatedConditionsForm = ({
                 <span style={{ color: Colors.alert }}> *</span>
               </span>
             ),
-            accessor: ({ date, conditionCategoryId }, groupName, index) => {
+            accessor: ({ date, conditionCategory }, groupName, index) => {
               const initialValue = initialValues.conditions[groupName][index]?.date;
               if (initialValue) {
                 return (
@@ -319,7 +320,7 @@ export const RelatedConditionsForm = ({
                     date={date}
                     style={{
                       textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                        conditionCategory === 'recordedInError' ? 'line-through' : 'none',
                     }}
                   />
                 );
@@ -348,8 +349,8 @@ export const RelatedConditionsForm = ({
             ),
             width: 180,
             accessor: ({ conditionId }, groupName, index) => {
-              const initialValue = initialValues.conditions[groupName][index]?.conditionCategoryId;
-              const fieldName = `conditions[${groupName}][${index}].conditionCategoryId`;
+              const initialValue = initialValues.conditions[groupName][index]?.conditionCategory;
+              const fieldName = `conditions[${groupName}][${index}].conditionCategory`;
               const ariaLabelledby = 'condition-category-label';
 
               // other values
@@ -361,7 +362,6 @@ export const RelatedConditionsForm = ({
                   return (
                     <ProgramRegistryConditionCategoryField
                       name={fieldName}
-                      programRegistryId={programRegistryId}
                       ariaLabelledby={ariaLabelledby}
                       disabled
                       disabledTooltipText={getTranslation(
@@ -377,7 +377,6 @@ export const RelatedConditionsForm = ({
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={fieldName}
-                    programRegistryId={programRegistryId}
                     ariaLabelledby={ariaLabelledby}
                     disabled
                     disabledTooltipText={getTranslation(
@@ -391,7 +390,6 @@ export const RelatedConditionsForm = ({
               return (
                 <ProgramRegistryConditionCategoryField
                   name={fieldName}
-                  programRegistryId={programRegistryId}
                   ariaLabelledby={ariaLabelledby}
                   disabled={!conditionId}
                   disabledTooltipText={
@@ -431,8 +429,8 @@ export const RelatedConditionsForm = ({
                   component={StyledTextField}
                   required
                   disabled={
-                    values.conditions[groupName][index].conditionCategoryId ===
-                    initialValues.conditions[groupName][index].conditionCategoryId
+                    values.conditions[groupName][index].conditionCategory ===
+                    initialValues.conditions[groupName][index].conditionCategory
                   }
                 />
               );
