@@ -95,8 +95,10 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   let records = [];
   let writes = [];
 
-  const endpoint = () => `sync/${sessionId}/pull${fromId ? `?fromId=${fromId}` : ''}`;
-  stream: for await (const { kind, data } of centralServer.stream(endpoint)) {
+  stream: for await (const { kind, data } of centralServer.stream(() => ({
+    endpoint: `sync/${sessionId}/pull/stream`,
+    query: { fromId },
+  }))) {
     if (records.length >= WRITE_BATCH_SIZE) {
       // do writes in the background while we're continuing to stream data
       writes.push(writeBatch(records));
