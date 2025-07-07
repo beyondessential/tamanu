@@ -49,6 +49,8 @@ export const pullIncomingChanges = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
+    // Prevent storing all the data in memory, by inserting batches of records into
+    // temporary snapshot table that will be used to persist to actual tables later
     await insertSnapshotRecords(recordsToSave);
 
     fromId = records[records.length - 1].id;
@@ -57,6 +59,6 @@ export const pullIncomingChanges = async (
 
     progressCallback(totalToPull, totalPulled);
   }
-  
+
   return { totalPulled: totalToPull, pullUntil };
 };

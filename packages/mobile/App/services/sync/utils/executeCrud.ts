@@ -32,7 +32,10 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunk(deduplicated, Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT))) {
+  for (const batchOfRows of chunk(
+    deduplicated,
+    Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT),
+  )) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
@@ -87,12 +90,12 @@ export const executeDeletes = async (
   recordsForDelete: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
-  const rowIds = recordsForDelete.map(({ id }) => id);  
+  const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       const entities = await model.find({ where: { id: In(batchOfIds) } });
       await model.softRemove(entities);
-    } catch (e) { 
+    } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
@@ -108,7 +111,7 @@ export const executeDeletes = async (
     }
     progressCallback?.(batchOfIds.length);
   }
-  
+
   await executeUpdates(model, recordsForDelete);
 };
 
