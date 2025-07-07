@@ -8,11 +8,11 @@ export const registerFonts = () => {
   if (Font.getRegisteredFonts()['NotoKufiArabic-Regular']) return;
   Font.register({
     family: 'NotoKufiArabic-Regular',
-    src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
+    src: path.join(baseDir, 'Vazirmatn-VariableFont_wght.ttf'),
   });
 
   Font.register({
     family: 'NotoKufiArabic-Bold',
-    src: path.join(baseDir, 'NotoKufiArabic-Bold.ttf'),
+    src: path.join(baseDir, 'Vazirmatn-VariableFont_wght.ttf'),
   });
 };
