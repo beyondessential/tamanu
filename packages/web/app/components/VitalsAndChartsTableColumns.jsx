@@ -226,7 +226,7 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
-    'Vitals',
+    <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,
     onCellClick,
