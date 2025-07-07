@@ -55,14 +55,14 @@ export const executeInserts = async (
 
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
-    await executeDeletes(model, softDeleted, progressCallback);
+    await executeDeletes(model, softDeleted);
   }
 };
 
 export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   try {
     await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
@@ -79,13 +79,13 @@ export const executeUpdates = async (
       }),
     );
   }
-  progressCallback(rows.length);
+  progressCallback?.(rows.length);
 };
 
 export const executeDeletes = async (
   model: typeof BaseModel,
   recordsForDelete: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);  
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
@@ -106,16 +106,16 @@ export const executeDeletes = async (
         }),
       );
     }
-    progressCallback(batchOfIds.length);
+    progressCallback?.(batchOfIds.length);
   }
   
-  await executeUpdates(model, recordsForDelete, progressCallback);
+  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
   model: typeof BaseModel,
   recordsForRestore: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
   await Promise.all(

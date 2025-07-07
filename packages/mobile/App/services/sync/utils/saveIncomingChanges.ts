@@ -149,7 +149,7 @@ export const saveIncomingChanges = async (
           progressCallback(
             incomingChangesCount,
             savedRecordsCount,
-            `Saving ${savedRecordsCount} records...`,
+            `Processed ${savedRecordsCount}/${incomingChangesCount} records...`,
           );
         };
 
