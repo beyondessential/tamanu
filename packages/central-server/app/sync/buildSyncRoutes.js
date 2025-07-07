@@ -255,26 +255,9 @@ export const buildSyncRoutes = ctx => {
 
       startStream(res);
 
-      let startId = fromId ? parseInt(fromId, 10) : 0;
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        // TODO: change this to a cursor
-        const changes = await syncManager.getOutgoingChanges(sessionId, {
-          fromId: startId,
-          limit: 100,
-        });
-        if (changes.length === 0) {
-          break;
-        }
-        startId = changes[changes.length - 1].id;
-
-        log.info(`STREAM /pull : returning ${changes.length} changes`);
-        for (const change of changes) {
-          res.write(StreamMessage.pullChange(change));
-        }
-      }
-
-      res.write(StreamMessage.end());
+      const startId = fromId ? parseInt(fromId, 10) : 0;
+      log.info('STREAM /pull : returning changes');
+      await syncManager.streamOutgoingChanges(sessionId, res, { fromId: startId });
       res.end();
     }),
   );
