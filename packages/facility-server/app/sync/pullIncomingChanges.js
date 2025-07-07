@@ -14,6 +14,8 @@ import { calculatePageLimit } from './calculatePageLimit';
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+  const start = Date.now();
+
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'polling' });
@@ -66,10 +68,13 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     limit = calculatePageLimit(limit, pullTime);
   }
 
+  log.info('FacilitySyncManager.pulled', { durationMs: Date.now() - start });
   return { totalPulled: totalToPull, pullUntil };
 };
 
 export const streamIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+  const start = Date.now();
+
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral', { mode: 'streaming' });
@@ -95,7 +100,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   let records = [];
   let writes = [];
 
-  stream: for await (const { kind, data } of centralServer.stream(() => ({
+  stream: for await (const { kind, message } of centralServer.stream(() => ({
     endpoint: `sync/${sessionId}/pull/stream`,
     query: { fromId },
   }))) {
@@ -107,9 +112,9 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
     handler: switch (kind) {
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
-        records.push(data);
+        records.push(message);
         totalPulled += 1;
-        fromId = data.id;
+        fromId = message.id;
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);
@@ -125,5 +130,6 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
 
   await Promise.all(writes);
 
+  log.info('FacilitySyncManager.pulled', { durationMs: Date.now() - start });
   return { totalPulled, totalToPull, pullUntil };
 };
