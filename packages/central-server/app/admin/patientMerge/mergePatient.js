@@ -148,15 +148,13 @@ async function mergeRecordsForModel(
 export async function mergePatientAdditionalData(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedPAD = await models.PatientAdditionalData.findOne({
     where: { patientId: unwantedPatientId },
-    raw: true,
   });
   if (!existingUnwantedPAD) return null;
   const existingKeepPAD = await models.PatientAdditionalData.findOne({
     where: { patientId: keepPatientId },
-    raw: true,
   });
   const mergedPAD = {
-    ...getMergedFieldsForUpdate(existingKeepPAD, existingUnwantedPAD),
+    ...getMergedFieldsForUpdate(existingKeepPAD.dataValues, existingUnwantedPAD.dataValues),
     patientId: keepPatientId,
   };
   await existingUnwantedPAD.destroy();
@@ -166,15 +164,16 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
 export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedPatientBirthData = await models.PatientBirthData.findOne({
     where: { patientId: unwantedPatientId },
-    raw: true,
   });
   if (!existingUnwantedPatientBirthData) return null;
   const existingKeepPatientBirthData = await models.PatientBirthData.findOne({
     where: { patientId: keepPatientId },
-    raw: true,
   });
   const mergedPatientBirthData = {
-    ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
+    ...getMergedFieldsForUpdate(
+      existingKeepPatientBirthData.dataValues,
+      existingUnwantedPatientBirthData.dataValues,
+    ),
     patientId: keepPatientId,
   };
 
