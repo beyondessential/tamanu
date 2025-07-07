@@ -102,7 +102,7 @@ const MeasureCell = React.memo(({ value, data }) => {
   );
 });
 
-const TitleCell = React.memo(({ value }) => {
+const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   const {
     allGraphedChartKeys,
     setChartKeys,
@@ -143,7 +143,7 @@ const TitleCell = React.memo(({ value }) => {
           onClick={() => {
             setChartKeys(chartKeys);
             setIsInMultiChartsView(true);
-            setModalTitle('Vitals');
+            setModalTitle(selectedChartSurveyName);
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-u6iz"
@@ -157,8 +157,7 @@ const TitleCell = React.memo(({ value }) => {
 });
 
 export const getChartsTableColumns = (
-  firstColKey,
-  firstColTitle,
+  selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
@@ -166,8 +165,12 @@ export const getChartsTableColumns = (
 ) => {
   return [
     {
-      key: firstColKey,
-      title: firstColTitle,
+      key: 'measure',
+      title: <TranslatedText
+        stringId="general.table.column.measure"
+        fallback="Measure"
+        data-testid="translatedtext-l9f5"
+      />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -178,7 +181,9 @@ export const getChartsTableColumns = (
         />
       ),
       CellComponent: MeasureCell,
-      TitleCellComponent: TitleCell,
+      TitleCellComponent: ({ value }) => (
+        <TitleCell value={value} selectedChartSurveyName={selectedChartSurveyName} />
+      ),
     },
     // create a column for each reading
     ...recordedDates
@@ -221,12 +226,7 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
-    'measure',
-    <TranslatedText
-      stringId="encounter.vitals.table.column.measure"
-      fallback="Measure"
-      data-testid="translatedtext-l9f5"
-    />,
+    <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,
     onCellClick,
