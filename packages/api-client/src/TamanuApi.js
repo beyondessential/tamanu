@@ -271,19 +271,6 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
-    // handle auth invalid
-    if (response.status === 401 && endpoint === 'login') {
-      const message =
-        (await response.json().then(
-          json => json.message,
-          () => null,
-        )) ?? 'Failed authentication';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(message);
-      }
-      throw new AuthInvalidError(message, response);
-    }
-
     // handle forbidden error
     if (response.status === 403 && error) {
       throw new ForbiddenError(message, response);
@@ -293,21 +280,16 @@ export class TamanuApi {
       throw new NotFoundError(message, response);
     }
 
-    // handle auth expiring
-    if (response.status === 401 && endpoint !== 'login') {
-      const message = 'Your session has expired. Please log in again.';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(message);
-      }
-      throw new AuthExpiredError(message, response);
-    }
-
-    // handle other auth errors
+    // handle auth errors
     if (response.status === 401) {
+      const errorMessage = error?.message || 'Failed authentication';
       if (this.#onAuthFailure) {
-        this.#onAuthFailure(message);
+        this.#onAuthFailure(errorMessage);
       }
-      throw new AuthError(message, response);
+      throw new (endpoint === 'login' ? AuthInvalidError : AuthExpiredError)(
+        errorMessage,
+        response,
+      );
     }
 
     // handle version incompatibility
