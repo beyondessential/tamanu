@@ -337,7 +337,6 @@ export class MobileSyncManager {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
           await saveIncomingChanges(
-            sessionId,
             totalPulled,
             incomingModels,
             insertBatchSize,
