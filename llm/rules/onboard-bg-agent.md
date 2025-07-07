@@ -20,9 +20,11 @@ Use this rule when you are being onboarded as a background agent to work on task
 
 - Loading too many rules upfront - focus on the most commonly needed ones
 - Forgetting to load task-specific rules when the user describes a specific type of work
+- Verbose summaries of actions taken and items achieved at the end of conversations
 
 # Notes
 
 - As a background agent, you are often used for copy changes, so be ready to load the copy update rule quickly
 - Always use Australian/NZ English spelling and terminology
 - Keep your onboarding efficient - you should be ready to work quickly on focused tasks
+- Remember and express outstanding actions that the user needs to perform or fix
