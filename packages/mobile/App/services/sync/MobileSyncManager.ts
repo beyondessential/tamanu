@@ -32,7 +32,7 @@ type SyncOptions = {
   urgent: boolean;
 };
 
-type MobileSyncSettings = {
+export type MobileSyncSettings = {
   insertBatchSize: number;
   maxBatchesInMemory: number;
   useUnsafeSchemaForInitialSync: boolean;
@@ -325,9 +325,9 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const { insertBatchSize, maxBatchesToKeepInMemory, useUnsafePragmaSettingsForInitialSync } =
+    const mobileSyncSettings =
       this.settings.getSetting<MobileSyncSettings>('mobileSync');
-    const shouldUseUnsafeSchema = isInitialSync && useUnsafePragmaSettingsForInitialSync;
+    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
 
     if (shouldUseUnsafeSchema) {
       await Database.setUnsafePragma();
@@ -339,8 +339,7 @@ export class MobileSyncManager {
           await saveIncomingChanges(
             totalPulled,
             incomingModels,
-            insertBatchSize,
-            maxBatchesToKeepInMemory,
+            mobileSyncSettings,
             this.updateProgress,
           );
         }

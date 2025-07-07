@@ -9,6 +9,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -117,8 +118,7 @@ const groupRecordsByType = async (
 export const saveIncomingChanges = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
-  insertBatchSize: number,
-  maxBatchesInMemory: number,
+  {maxBatchesInMemory, insertBatchSize}: MobileSyncSettings,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;

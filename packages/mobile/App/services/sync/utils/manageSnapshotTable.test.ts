@@ -69,8 +69,8 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual(testData);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT data FROM sync_snapshot WHERE id IN (?)',
-        [[1, 2]],
+        'SELECT data FROM sync_snapshot WHERE id IN (?,?)',
+        [1, 2],
       );
     });
 
@@ -82,7 +82,7 @@ describe('manageSnapshotTable', () => {
       expect(result).toEqual([]);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
         'SELECT data FROM sync_snapshot WHERE id IN (?)',
-        [[999]],
+        [999],
       );
     });
 
@@ -114,9 +114,7 @@ describe('manageSnapshotTable', () => {
     it('should drop the snapshot table', async () => {
       await dropSnapshotTable();
 
-      expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'DROP TABLE IF EXISTS sync_snapshot',
-      );
+      expect(mockDatabase.client.query).toHaveBeenCalledWith('DROP TABLE IF EXISTS sync_snapshot');
     });
   });
 });

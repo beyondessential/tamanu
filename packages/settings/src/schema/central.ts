@@ -46,7 +46,7 @@ export const centralSettings = {
           description:
             'The maximum number of batches to keep in memory during saveChanges. this is currently equal to n * 1000 records',
           type: yup.number().positive().integer(),
-          defaultValue: 3,
+          defaultValue: 5,
         },
         useUnsafePragmaSettingsForInitialSync: {
           name: 'Use unsafe pragma settings for initial sync',
