@@ -18,9 +18,12 @@ export const getSnapshotBatchIds = async (): Promise<number[]> => {
 export const getSnapshotBatchesByIds = async (
   batchIds: number[],
 ): Promise<Record<string, any>[]> => {
-  const rows = await Database.client.query(
-    `SELECT data FROM sync_snapshot WHERE id IN (${batchIds.map(id => `'${id}'`).join(',')})`,
-  );
+  if (batchIds.length === 0) {
+    return [];
+  }
+  const rows = await Database.client.query(`SELECT data FROM sync_snapshot WHERE id IN (?)`, [
+    batchIds,
+  ]);
   return rows.flatMap(row => JSON.parse(row.data));
 };
 

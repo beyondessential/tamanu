@@ -1,9 +1,9 @@
+import { dropSnapshotTable } from './manageSnapshotTable';
 import {
   insertSnapshotRecords,
   getSnapshotBatchIds,
   getSnapshotBatchesByIds,
   createSnapshotTable,
-  dropSnapshotTable,
 } from './manageSnapshotTable';
 
 jest.mock('../../../infra/db', () => ({
@@ -29,7 +29,7 @@ describe('manageSnapshotTable', () => {
 
       expect(mockDatabase.client.query).toHaveBeenCalledTimes(3);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'INSERT INTO sync_snapshots_test_session (data) VALUES (?)',
+        'INSERT INTO sync_snapshot (data) VALUES (?)',
         expect.any(Array),
       );
     });
@@ -49,7 +49,7 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual([1, 2, 3]);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT id FROM sync_snapshots_test_session ORDER BY id',
+        'SELECT id FROM sync_snapshot ORDER BY id',
       );
     });
   });
@@ -69,8 +69,8 @@ describe('manageSnapshotTable', () => {
 
       expect(result).toEqual(testData);
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'SELECT data FROM sync_snapshots_test_session WHERE id IN (?)',
-        [1, 2],
+        'SELECT data FROM sync_snapshot WHERE id IN (?)',
+        [[1, 2]],
       );
     });
 
@@ -80,6 +80,17 @@ describe('manageSnapshotTable', () => {
       const result = await getSnapshotBatchesByIds([999]);
 
       expect(result).toEqual([]);
+      expect(mockDatabase.client.query).toHaveBeenCalledWith(
+        'SELECT data FROM sync_snapshot WHERE id IN (?)',
+        [[999]],
+      );
+    });
+
+    it('should return empty array when batchIds is empty', async () => {
+      const result = await getSnapshotBatchesByIds([]);
+
+      expect(result).toEqual([]);
+      expect(mockDatabase.client.query).not.toHaveBeenCalled();
     });
   });
 
@@ -88,7 +99,7 @@ describe('manageSnapshotTable', () => {
       await createSnapshotTable();
 
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE sync_snapshots_test_session'),
+        expect.stringContaining('CREATE TABLE sync_snapshot'),
       );
     });
 
@@ -100,34 +111,11 @@ describe('manageSnapshotTable', () => {
   });
 
   describe('dropSnapshotTable', () => {
-    it('should drop specific table when sessionId provided', async () => {
+    it('should drop the snapshot table', async () => {
       await dropSnapshotTable();
 
       expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        expect.stringContaining('DROP TABLE IF EXISTS sync_snapshots_test_session_5'),
-      );
-    });
-
-    it('should drop all snapshot tables when no sessionId', async () => {
-      mockDatabase.client.query
-        .mockResolvedValueOnce([
-          { name: 'sync_snapshots_session_1' },
-          { name: 'sync_snapshots_session_2' },
-        ])
-        .mockResolvedValue(undefined);
-
-      await dropSnapshotTable();
-
-      expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'sync_snapshots_%'",
-        ),
-      );
-      expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'DROP TABLE IF EXISTS sync_snapshots_session_1',
-      );
-      expect(mockDatabase.client.query).toHaveBeenCalledWith(
-        'DROP TABLE IF EXISTS sync_snapshots_session_2',
+        'DROP TABLE IF EXISTS sync_snapshot',
       );
     });
   });
