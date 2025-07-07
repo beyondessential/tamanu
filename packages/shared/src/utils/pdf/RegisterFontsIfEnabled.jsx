@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useSettings } from '../contexts/Settings';
-import { registerFonts } from '@tamanu/shared/utils/pdf/registerFonts';
+import { useSettings } from 'packages/web/app/contexts/Settings.jsx';
+import { registerFonts } from './languageContext';
 
 export function RegisterFontsIfEnabled() {
   const { getSetting } = useSettings();
