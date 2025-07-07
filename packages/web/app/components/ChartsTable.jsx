@@ -32,7 +32,12 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   />
 );
 
-export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, currentInstanceId }) => {
+export const ChartsTable = React.memo(({
+  selectedSurveyId,
+  selectedChartSurveyName,
+  noDataMessage,
+  currentInstanceId,
+}) => {
   const patient = useSelector((state) => state.patient);
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
@@ -53,8 +58,7 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, curren
 
   // create a column for each reading
   const columns = getChartsTableColumns(
-    'painChart',
-    'Pain Chart',
+    selectedChartSurveyName,
     patient,
     recordedDates,
     onCellClick,
