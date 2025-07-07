@@ -1,9 +1,11 @@
 import { Database } from '../../../infra/db';
 import { chunk } from 'lodash';
 
-export const insertSnapshotRecords = async (records: Record<string, any>[]) => {
-  const TEMPORARY_MAX_BATCH_SIZE = 1000; // TODO: with streaming Will be based on bytes
-  for (const batch of chunk(records, TEMPORARY_MAX_BATCH_SIZE)) {
+export const insertSnapshotRecords = async (
+  records: Record<string, any>[],
+  maxRecordsPerBatch: number,
+) => {
+  for (const batch of chunk(records, maxRecordsPerBatch)) {
     await Database.client.query(`INSERT INTO sync_snapshot (data) VALUES (?)`, [
       JSON.stringify(batch),
     ]);

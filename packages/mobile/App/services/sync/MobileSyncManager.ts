@@ -35,6 +35,7 @@ type SyncOptions = {
 export type MobileSyncSettings = {
   insertBatchSize: number;
   maxBatchesInMemory: number;
+  maxRecordsPerBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
 };
 
@@ -292,6 +293,9 @@ export class MobileSyncManager {
   async syncIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
 
+    const mobileSyncSettings =
+      this.settings.getSetting<MobileSyncSettings>('mobileSync');
+
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
     console.log(
@@ -317,6 +321,7 @@ export class MobileSyncManager {
       pullSince,
       Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
+      mobileSyncSettings,  
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -325,8 +330,6 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const mobileSyncSettings =
-      this.settings.getSetting<MobileSyncSettings>('mobileSync');
     const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
 
     if (shouldUseUnsafeSchema) {

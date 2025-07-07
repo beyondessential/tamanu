@@ -2,6 +2,7 @@ import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { createSnapshotTable, insertSnapshotRecords } from './manageSnapshotTable';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
  * Pull incoming changes in batches and save them in sync_session_records table,
@@ -18,6 +19,7 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   tablesForFullResync: string[],
+  mobileSyncSettings: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   await createSnapshotTable();
@@ -51,7 +53,7 @@ export const pullIncomingChanges = async (
 
     // Prevent storing all the data in memory, by inserting batches of records into
     // temporary snapshot table that will be used to persist to actual tables later
-    await insertSnapshotRecords(recordsToSave);
+    await insertSnapshotRecords(recordsToSave, mobileSyncSettings.maxRecordsPerBatch);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
