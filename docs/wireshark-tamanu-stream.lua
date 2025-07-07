@@ -32,13 +32,13 @@ do
     while offset < data:len() do
       local kind = data(offset, 4)
       local len = data(offset + 4, 4)
-      local msg_data = data(offset + 8, len:uint())
-      local msg = subtree:add(F_msg, data(offset, len:uint() + 8))
+      local msg_len = len:uint()
+      local msg = subtree:add(F_msg, data(offset, msg_len + 8))
       msg:append_text(": " .. decode_kind(kind:uint()))
       msg:add(F_msg_kind, kind, kind:uint())
-      msg:add(F_msg_length, len, len:uint())
-      if len:uint() > 0 then msg:add(F_msg_data, msg_data) end
-      offset = offset + 8 + len:uint()
+      msg:add(F_msg_length, len, msg_len)
+      if msg_len > 0 then msg:add(F_msg_data, data(offset + 8, len:uint())) end
+      offset = offset + 8 + msg_len
       amount = amount + 1
     end
     if amount > 0 then
