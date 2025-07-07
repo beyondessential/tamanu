@@ -22,10 +22,15 @@ Use the project's PR template format from .github/pull_request_template.md.
 - Avoid corporate buzzwords and formal language that no one actually uses in conversation
 - Keep it concise - reviewers can refer to the card for full context if needed
 - Use present tense and focus on the changes made
-- Present both the PR title and description as separate code blocks for easy copy-pasting
+- Check for CLI tools and create PR automatically if available:
+  - Test for `gh` first: `which gh > /dev/null 2>&1 && echo "gh available"`
+  - If gh is available, use: `gh pr create --title "PR_TITLE" --body "PR_DESCRIPTION"`
+  - If gh is not available, test for `hub`: `which hub > /dev/null 2>&1 && echo "hub available"`
+  - If hub is available, use: `hub pull-request -m "PR_TITLE" -m "PR_DESCRIPTION"`
+  - If neither tool is available, present the PR title and description as separate code blocks for manual creation
 - If you've updated this rule during the process, commit those changes before generating the final PR
 
-Example format:
+Example format when CLI tools are not available:
 
 ```
 **PR Title:**
@@ -73,6 +78,8 @@ doc: NASS-1712: restructure LLM system to capture institutional knowledge
 - Only looking at recent changes instead of the full branch diff
 - Modifying the template structure or removing sections
 - Forgetting to commit rule updates before generating the final PR
+- Using CLI tools without first checking if they're available
+- Not properly escaping quotes in PR titles/descriptions when using CLI tools
 
 # Notes
 
