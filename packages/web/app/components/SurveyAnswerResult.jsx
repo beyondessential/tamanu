@@ -37,8 +37,6 @@ export const SurveyAnswerResult = ({
   componentConfig,
   dataElementId,
 }) => {
-  console.log({ answer, type, sourceType, originalBody, componentConfig, dataElementId });
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 

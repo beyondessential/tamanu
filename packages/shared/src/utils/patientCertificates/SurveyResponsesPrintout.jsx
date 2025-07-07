@@ -16,6 +16,15 @@ import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { camelCase } from 'lodash';
 
+const getReferenceDataCategory = configString => {
+  try {
+    const config = JSON.parse(configString);
+    return camelCase(config.source === 'ReferenceData' ? config.where.type : config.source);
+  } catch (e) {
+    return null;
+  }
+};
+
 const pageStyles = StyleSheet.create({
   body: {
     paddingHorizontal: 50,
@@ -74,7 +83,15 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, sourceType, type, getTranslation, dataElementId }) => {
+const getAnswers = ({
+  answer,
+  sourceType,
+  type,
+  getTranslation,
+  dataElementId,
+  config,
+  originalBody,
+}) => {
   switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
@@ -97,6 +114,11 @@ const getAnswers = ({ answer, sourceType, type, getTranslation, dataElementId })
           ),
         answer,
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+      return getTranslation(
+        getReferenceDataStringId(originalBody, getReferenceDataCategory(config)),
+        answer,
+      );
     default:
       return getTranslation(
         getReferenceDataOptionStringId(dataElementId, 'programDataElement', answer),
@@ -114,14 +136,22 @@ export const getReferenceDataOptionStringId = (value, category, option) => {
 };
 
 const ResponseItem = ({ row, getTranslation }) => {
-  const { name, answer, type, sourceType, dataElementId } = row;
+  const { name, answer, type, sourceType, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
       <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-        {getAnswers({ answer, type, sourceType, getTranslation, dataElementId })}
+        {getAnswers({
+          answer,
+          type,
+          sourceType,
+          getTranslation,
+          dataElementId,
+          config,
+          originalBody,
+        })}
       </Text>
     </View>
   );
