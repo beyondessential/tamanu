@@ -90,8 +90,8 @@ export const saveChangesForModel = async (
 
 const groupRecordsByType = async (
   sessionId: string,
-  batchIds: string[]
 ): Promise<Record<string, SyncRecord[]>> => {
+  const batchIds = await getSnapshotBatchIds(sessionId);
   const recordsByType: Record<string, SyncRecord[]> = {};
 
   for (const batchId of batchIds) {
@@ -125,8 +125,7 @@ export const saveIncomingChanges = async (
   insertBatchSize: number,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const batchIds = await getSnapshotBatchIds(sessionId);
-  const recordsByType = await groupRecordsByType(sessionId, batchIds);
+  const recordsByType = await groupRecordsByType(sessionId);
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let savedRecordsCount = 0;
