@@ -229,7 +229,7 @@ export class FacilitySyncManager {
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
     const { totalPulled, pullUntil } = await (
-      (await this.loginData()).settings.sync.streaming ? streamIncomingChanges : pullIncomingChanges
+      (await this.centralServer.streaming()) ? streamIncomingChanges : pullIncomingChanges
     )(this.centralServer, this.sequelize, sessionId, pullSince);
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
