@@ -5,9 +5,12 @@ import { expect } from '../../fixtures/baseFixture';
 import { SelectingFromSearchBox, convertDateFormat } from '../../utils/testHelper';
 
 import { PatientTable } from './PatientTable';
+import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
+import { Patient } from '../../types/Patient';
 
 export class AllPatientsPage extends BasePage {
   readonly patientTable: PatientTable;
+  readonly recentlyViewedPatientsList: RecentlyViewedPatientsList;
   readonly addNewPatientBtn: Locator;
   readonly NewPatientFirstName: Locator;
   readonly NewPatientLastName: Locator;
@@ -16,16 +19,7 @@ export class AllPatientsPage extends BasePage {
   readonly NewPatientFemaleChk: Locator;
   readonly NewPatientNHN: Locator;
   readonly NewPatientConfirmBtn: Locator;
-  _patientData?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    gender: string;
-    formattedDOB: string;
-    nhn: string;
-    village: string,
-    culturalName: string
-    };
+  _patientData?: Patient;
   readonly nhnSearchInput: Locator;
   readonly patientSearchButton: Locator;
   readonly patientListingsHeader: Locator;
@@ -61,9 +55,11 @@ export class AllPatientsPage extends BasePage {
   readonly culturalNameSortButton: Locator;
   readonly villageSortButton: Locator;
   readonly dobSortButton: Locator;
+
   constructor(page: Page) {
     super(page, routes.patients.all);
     this.patientTable = new PatientTable(page);
+    this.recentlyViewedPatientsList = new RecentlyViewedPatientsList(page);
     this.addNewPatientBtn = page.getByTestId('component-enxe');
     this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
     this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
@@ -110,16 +106,8 @@ export class AllPatientsPage extends BasePage {
     this.villageSortButton=page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton=page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
   }
-   setPatientData(data: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    gender: string;
-    formattedDOB: string;
-    nhn: string;
-    culturalName: string;
-    village: string;
-  }) {
+
+  setPatientData(data: Patient) {
     this._patientData = data;
   }
 
@@ -360,7 +348,6 @@ export class AllPatientsPage extends BasePage {
     });
     expect(dateValues).toEqual(sortedValues);
   }
-
 
   async searchForAndSelectPatientByNHN(nhn: string, maxAttempts = 100) {
     let attempts = 0;

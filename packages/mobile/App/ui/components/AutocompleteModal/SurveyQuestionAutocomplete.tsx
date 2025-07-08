@@ -4,7 +4,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { AutocompleteModalField } from './AutocompleteModalField';
 import { SurveyScreenConfig } from '~/types';
-import { getNameColumnForModel, getDisplayNameForModel } from '~/ui/helpers/fields';
+import { getNameColumnForModel } from '~/ui/helpers/fields';
 
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
@@ -50,10 +50,6 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
       where,
       column: getNameColumnForModel(source),
     },
-    formatter: (val) => ({
-      label: getDisplayNameForModel(source, val),
-      value: val.id,
-    }),
   });
 
   return (
