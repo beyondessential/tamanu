@@ -78,19 +78,22 @@ const LogTextSmall = styled(Typography)`
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   const { date, newValue, reasonForChange, userDisplayName } = logData;
-  const reasonForChangeOption = vitalEditReasons.find((option) => option.value === reasonForChange);
+  const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
   const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
 
-  const translatedOption = newValue ? <TranslatedOption 
-    value={newValue} 
-    referenceDataId={vitalLabel?.props.value} 
-    referenceDataCategory="programDataElement" 
-  /> : <TranslatedText stringId="vitals.logEntry.deleted" fallback="Entry deleted" />;
-  
+  const translatedOption = newValue ? (
+    <TranslatedOption
+      value={newValue}
+      referenceDataId={vitalLabel?.props.value}
+      referenceDataCategory="programDataElement"
+    />
+  ) : (
+    <TranslatedText stringId="vitals.logEntry.deleted" fallback="Entry deleted" />
+  );
+
   return (
     <LogContainer data-testid="logcontainer-7d64">
       <LogText data-testid="logtext-bgs3">
-        {/* TODO: maybe this : should be part of translation */}
         {vitalLabel}: {translatedOption}
       </LogText>
       {reasonForChange && (
@@ -131,13 +134,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     encounterType: encounter.encounterType,
   });
   const handleDeleteEntry = useCallback(
-    (setFieldValue) => {
+    setFieldValue => {
       setFieldValue(valueName, '');
       setIsDeleted(true);
     },
     [valueName],
   );
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     const newShapeData = {
       date: getCurrentDateTimeString(),
     };
@@ -164,7 +167,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
-  const validateFn = (values) => {
+  const validateFn = values => {
     const errors = {};
     if (values[valueName] === initialValue) {
       errors[valueName] = 'New value cannot be the same as previous value.';
