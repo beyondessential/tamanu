@@ -19,6 +19,7 @@ import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from '.
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { saveChangesFromSnapshot } from './utils/saveIncomingChanges';
+import { createSnapshotTable } from './utils/manageSnapshotTable';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -302,7 +303,7 @@ export class MobileSyncManager {
       this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-    const isInitialSync = pullSince === -1;
+    // const isInitialSync = pullSince === -1;
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
@@ -320,12 +321,6 @@ export class MobileSyncManager {
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
-    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
-
-    if (shouldUseUnsafeSchema) {
-      await Database.setUnsafePragma();
-    }
-
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
@@ -340,6 +335,8 @@ export class MobileSyncManager {
     console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalPulled} changes`);
 
     this.setSyncStage(3);
+
+    // All this down should be part of pullIncomingChanges with initial vs incremental branches
 
     try {
       await Database.client.transaction(async () => {
@@ -372,5 +369,34 @@ export class MobileSyncManager {
       `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${totalPulled}`,
     );
   }
+
+  async pullChanges(sessionId: string): Promise<void> {
+    console.log('MobileSyncManager.pullChanges', {
+      sessionId,
+    });    
+    const tablesForFullResync = await this.models.LocalSystemFact.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+    const isInitialSync = pullSince === -1;
+    
+    if (isInitialSync) {
+      await createSnapshotTable();
+    }
+
+    const { pullUntil, totalPulled } = await this.centralServer.initiatePull(
+      sessionId,
+      pullSince,
+      Object.values(incomingModels).map(m => m.getTableName()),
+      tablesForFullResync?.value.split(','),
+    );
+
+    if (isInitialSync) {
+      this.pullInitialSync(sessionId, pullUntil);
+    } else {
+      this.pullIncrementalSync(sessionId, pullUntil);
+    }
+   
 }
 
