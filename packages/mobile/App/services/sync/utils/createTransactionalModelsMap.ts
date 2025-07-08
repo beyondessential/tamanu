@@ -1,18 +1,13 @@
-import { EntityManager, Repository } from 'typeorm';
-import { MODELS_MAP } from '~/models/modelsMap';
+import { MODELS_ARRAY } from "~/models/modelsMap";
 
-type ModelsRepositoryMap = {
-  [K in keyof typeof MODELS_MAP]: Repository<InstanceType<typeof MODELS_MAP[K]>>
-};
+// Create a models repository map bound to a transactional entity manager
+export function createTransactionalModelsMap(entityManager: any) {
+  const transactionalModels = {};
 
-// Create a models map bound to a transactional entity manager
-export function createTransactionalModelsMap(entityManager: EntityManager): ModelsRepositoryMap {
-  const transactionalModels = {} as ModelsRepositoryMap;
-
-  for (const [modelName, ModelClass] of Object.entries(MODELS_MAP)) {
-    transactionalModels[modelName] = 
-      entityManager.getRepository(ModelClass) as Repository<InstanceType<typeof MODELS_MAP[typeof modelName]>>;
+  for (const model of MODELS_ARRAY) {
+    transactionalModels[model.getTableName()] = entityManager.getRepository(model);
   }
   
+  console.log(Object.keys(transactionalModels));
   return transactionalModels;
 }
