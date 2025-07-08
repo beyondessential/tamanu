@@ -143,10 +143,41 @@ const VaccineCertificateComponent = ({
   certificateData,
   healthFacility,
 }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, pdfFont } = useLanguageContext();
   const getLocalisation = key => get(localisation, key);
   const getSetting = key => get(settings, key);
   const countryName = getLocalisation('country.name');
+
+  const vaccineCertificateStyles = StyleSheet.create({
+    footerContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    footerLeft: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    footerRight: {
+      flex: 1,
+      textAlign: 'right',
+    },
+    labelText: {
+      fontSize: 8,
+      fontFamily: pdfFont,
+      fontWeight: 700,
+      color: '#888888',
+    },
+    valueText: {
+      fontSize: 8,
+      fontFamily: pdfFont,
+      fontWeight: 400,
+      color: '#888888',
+    },
+    documentHeaderContent: {
+      flexDirection: 'row',
+    },
+  });
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
