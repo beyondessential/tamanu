@@ -343,6 +343,18 @@ export class MobileSyncManager {
     mobileSettings: MobileSyncSettings,
     progressCallback: (incrementalPulled: number) => void,
   ): Promise<void> {
+    await Database.transaction(async (transactingModels) => {
+      const processStreamedDataFunction = async ({ models, records }: any) => {
+        // TODO: Implement processing logic here
+        // This will handle     incoming data in batches during initial sync
+      };
+
+      await pullIncomingChanges(transactingModels, );
+      
+      // All operations within this transaction block will be atomic
+      // If any operation fails, the entire transaction will be rolled back
+    });
+    
     /**
     *  await this.models.wrapInTransaction(async transactingModels => {
       const processStreamedDataFunction = async ({ models, records }: ProcessStreamDataParams) => {
@@ -369,7 +381,7 @@ export class MobileSyncManager {
   async pullIncrementalSync(
     sessionId: string,
     pullUntil: number,
-    mobileSettings: PullSettings,
+    mobileSettings: MobileSyncSettings,
     progressCallback: (incrementalPulled: number) => void,
   ): Promise<void> {
     /**
