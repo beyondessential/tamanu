@@ -9,6 +9,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -87,13 +88,10 @@ export const saveChangesForModel = async (
   }
 };
 
-const groupRecordsByType = async (
-  sessionId: string,
-  batchIds: Record<string, any>[],
-): Promise<Record<string, SyncRecord[]>> => {
+const groupRecordsByType = async (batchIds: number[]): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType: Record<string, SyncRecord[]> = {};
 
-  const batchRecords = await getSnapshotBatchesByIds(sessionId, batchIds);
+  const batchRecords = await getSnapshotBatchesByIds(batchIds);
 
   for (const record of batchRecords) {
     const recordType = record.recordType;
@@ -116,21 +114,15 @@ const groupRecordsByType = async (
  * @returns
  */
 export const saveIncomingChanges = async (
-  sessionId: string,
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
-  insertBatchSize: number,
-  maxBatchesInMemory: number | null,
+  { maxBatchesToKeepInMemory, maxRecordsPerInsertBatch }: MobileSyncSettings['saveIncomingChanges'],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;
-  const allBatchIds = await getSnapshotBatchIds(sessionId);
-  const chunkedBatchIds = maxBatchesInMemory
-    ? chunk(allBatchIds, maxBatchesInMemory)
-    : [allBatchIds];
-
-  for (const batchIds of chunkedBatchIds) {
-    const recordsByType = await groupRecordsByType(sessionId, batchIds);
+  const allBatchIds = await getSnapshotBatchIds();
+  for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
+    const recordsByType = await groupRecordsByType(batchIds);
     const sortedModels = await sortInDependencyOrder(incomingModels);
 
     for (const model of sortedModels) {
@@ -143,17 +135,16 @@ export const saveIncomingChanges = async (
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
 
-
         const chunkProgressCallback = (processedCount: number) => {
           savedRecordsCount += processedCount;
           progressCallback(
             incomingChangesCount,
             savedRecordsCount,
-            `Saving ${savedRecordsCount} records...`,
+            `Processed ${savedRecordsCount}/${incomingChangesCount} records...`,
           );
         };
 
-        await saveChangesForModel(model, sanitizedRecords, insertBatchSize, chunkProgressCallback);
+        await saveChangesForModel(model, sanitizedRecords, maxRecordsPerInsertBatch, chunkProgressCallback);
       }
     }
   }

@@ -2,11 +2,13 @@ import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { createSnapshotTable, insertSnapshotRecords } from './manageSnapshotTable';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 type PullIncomingChangesContext = {
   centralServer: CentralServerConnection;
   sessionId: string;
   totalToPull: number;
+  pullSettings: MobileSyncSettings['pullIncomingChanges'];
   progressCallback: (total: number, progressCount: number) => void;
 };
 
@@ -25,10 +27,11 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   tablesForFullResync: string[],
+  pullSettings: MobileSyncSettings['pullIncomingChanges'],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   const isInitialSync = since === -1;
-  await createSnapshotTable(sessionId);
+  await createSnapshotTable();
 
   const { totalToPull, pullUntil } = await centralServer.initiatePull(
     sessionId,
@@ -41,18 +44,27 @@ export const pullIncomingChanges = async (
     return { totalPulled: 0, pullUntil };
   }
 
-    await pullRecordsInBatches(
-      { centralServer, sessionId, totalToPull, progressCallback },
-      // TODO: save from memory in initial sync
-      isInitialSync ? insertSnapshotRecords : insertSnapshotRecords,
-    );
+  await pullRecordsInBatches(
+    { centralServer, sessionId, totalToPull, pullSettings, progressCallback },
+    // TODO: save from memory in initial sync
+    isInitialSync ? insertSnapshotRecords : insertSnapshotRecords,
+  );
 
   return { totalPulled: totalToPull, pullUntil };
 };
 
 const pullRecordsInBatches = async (
-  { centralServer, sessionId, totalToPull, progressCallback }: PullIncomingChangesContext,
-  processRecords: (sessionId: string, records: any) => Promise<void>,
+  {
+    centralServer,
+    sessionId,
+    totalToPull,
+    pullSettings,
+    progressCallback,
+  }: PullIncomingChangesContext,
+  processRecords: (
+    records: any,
+    pullSettings: MobileSyncSettings['pullIncomingChanges'],
+  ) => Promise<void>,
 ) => {
   let fromId;
   let limit = calculatePageLimit();
@@ -70,7 +82,7 @@ const pullRecordsInBatches = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    await processRecords(sessionId, recordsToSave);
+    await processRecords(recordsToSave, pullSettings);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
@@ -78,5 +90,4 @@ const pullRecordsInBatches = async (
 
     progressCallback(totalToPull, totalPulled);
   }
-  return totalPulled;
 };

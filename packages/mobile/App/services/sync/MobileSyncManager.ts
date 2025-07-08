@@ -32,9 +32,14 @@ type SyncOptions = {
   urgent: boolean;
 };
 
-type MobileSyncSettings = {
-  insertBatchSize: number;
-  maxBatchesInMemory: number | null;
+export type MobileSyncSettings = {
+  saveIncomingChanges: {
+    maxBatchesToKeepInMemory: number;
+    maxRecordsPerInsertBatch: number;
+  }
+  pullIncomingChanges: {
+    maxRecordsPerSnapshotBatch: number;
+  }
   useUnsafeSchemaForInitialSync: boolean;
 };
 
@@ -229,7 +234,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from this session
-    await dropSnapshotTable(sessionId);
+    await dropSnapshotTable();
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
@@ -292,6 +297,9 @@ export class MobileSyncManager {
   async syncIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
 
+    const mobileSyncSettings =
+      this.settings.getSetting<MobileSyncSettings>('mobileSync');
+
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
     console.log(
@@ -317,6 +325,7 @@ export class MobileSyncManager {
       pullSince,
       Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
+      mobileSyncSettings.pullIncomingChanges,  
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -325,9 +334,7 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const { insertBatchSize, maxBatchesToKeepInMemory, useUnsafePragmaSettingsForInitialSync } =
-      this.settings.getSetting<MobileSyncSettings>('mobileSync');
-    const shouldUseUnsafeSchema = isInitialSync && useUnsafePragmaSettingsForInitialSync;
+    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
 
     if (shouldUseUnsafeSchema) {
       await Database.setUnsafePragma();
@@ -337,11 +344,9 @@ export class MobileSyncManager {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
           await saveIncomingChanges(
-            sessionId,
             totalPulled,
             incomingModels,
-            insertBatchSize,
-            maxBatchesToKeepInMemory,
+            mobileSyncSettings.saveIncomingChanges,
             this.updateProgress,
           );
         }
@@ -360,7 +365,7 @@ export class MobileSyncManager {
       console.error('Error saving incoming changes', error);
       throw error;
     } finally {
-      if (!shouldUseUnsafeSchema) {
+      if (shouldUseUnsafeSchema) {
         await Database.setDefaultPragma();
       }
     }
@@ -372,3 +377,4 @@ export class MobileSyncManager {
     );
   }
 }
+

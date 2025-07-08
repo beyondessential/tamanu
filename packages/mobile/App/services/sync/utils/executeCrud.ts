@@ -24,7 +24,7 @@ export const executeInserts = async (
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
 
-  for (const row of rows) {
+  for (const row of rows ) {
     const { id } = row;
     if (!idsAdded.has(id)) {
       deduplicated.push({ ...strippedIsDeleted(row), id });
@@ -32,7 +32,10 @@ export const executeInserts = async (
     }
   }
 
-  for (const batchOfRows of chunk(deduplicated, Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT))) {
+  for (const batchOfRows of chunk(
+    deduplicated,
+    Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT),
+  )) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
@@ -55,14 +58,14 @@ export const executeInserts = async (
 
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
-    await executeDeletes(model, softDeleted, progressCallback);
+    await executeDeletes(model, softDeleted);
   }
 };
 
 export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   try {
     await Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
@@ -79,15 +82,15 @@ export const executeUpdates = async (
       }),
     );
   }
-  progressCallback(rows.length);
+  progressCallback?.(rows.length);
 };
 
 export const executeDeletes = async (
   model: typeof BaseModel,
   recordsForDelete: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
-  const rowIds = recordsForDelete.map(({ id }) => id);  
+  const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       const entities = await model.find({ where: { id: In(batchOfIds) } });
@@ -106,16 +109,16 @@ export const executeDeletes = async (
         }),
       );
     }
-    progressCallback(batchOfIds.length);
+    progressCallback?.(batchOfIds.length);
   }
-  
-  await executeUpdates(model, recordsForDelete, progressCallback);
+
+  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
   model: typeof BaseModel,
   recordsForRestore: DataToPersist[],
-  progressCallback: (processedCount: number) => void,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
   await Promise.all(

@@ -35,19 +35,34 @@ export const centralSettings = {
       description: 'Settings related to mobile sync',
       highRisk: true,
       properties: {
-        insertBatchSize: {
-          name: 'Insert batch size',
-          description: 'The number of records to insert in a single batch',
-          type: yup.number().positive().integer(),
-          defaultValue: 500,
+        saveIncomingChanges: {
+          description: 'Settings applied to saving changes step of sync',
+          // TODO: These two settings likely will be made redundant when streaming is implemented
+          // and we know the byte size of the batches
+          properties: {
+            maxBatchesToKeepInMemory: {
+              description:
+                'The number of batches to keep in memory during saveChanges, currently equal to n * pullIncomingChanges.maxRecordsPerSnapshotBatch',
+              type: yup.number().positive().integer(),
+              defaultValue: 5,
+            },
+            maxRecordsPerInsertBatch: {
+              description: 'The number of records to insert in a single batch',
+              type: yup.number().positive().integer(),
+              defaultValue: 500,
+            },
+          },
         },
-        // TODO: align with byte size of batches when streaming is implemented
-        maxBatchesToKeepInMemory: {
-          name: 'Max batches of snapshot records to keep in memory',
-          description:
-            'The maximum number of batches to keep in memory during saveChanges. If null, all batches will be kept in memory.',
-          type: yup.number().positive().integer().nullable(),
-          defaultValue: null,
+        pullIncomingChanges: {
+          description: 'Settings applied to pulling incoming changes step of sync',
+          properties: {
+            maxRecordsPerSnapshotBatch: {
+              description:
+                'The number of records to store within a single row in the snapshot table',
+              type: yup.number().positive().integer(),
+              defaultValue: 1000,
+            },
+          },
         },
         useUnsafePragmaSettingsForInitialSync: {
           name: 'Use unsafe pragma settings for initial sync',
