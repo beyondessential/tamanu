@@ -20,7 +20,7 @@ export const executeInserts = async (
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
-  const repository = model.getRepository();
+  const repository = model.getTransactionalRepository();
   const deduplicated = [];
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
@@ -69,7 +69,7 @@ export const executeUpdates = async (
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   try {
-    const repository = model.getRepository();
+    const repository = model.getTransactionalRepository();
     await Promise.all(rows.map(async row => repository.update({ id: row.id }, row)));
   } catch (e) {
     // try records individually, some may succeed and we want to capture the
@@ -95,7 +95,7 @@ export const executeDeletes = async (
   const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
-      const repository = model.getRepository();
+      const repository = model.getTransactionalRepository();
       const entities = await repository.find({ where: { id: In(batchOfIds) } });
       await repository.softRemove(entities);
     } catch (e) {
@@ -127,7 +127,7 @@ export const executeRestores = async (
   await Promise.all(
     rowIds.map(async id => {
       try {
-        const repository = model.getRepository();
+        const repository = model.getTransactionalRepository();
         const entity = await repository.findOne({
           where: { id },
           withDeleted: true,

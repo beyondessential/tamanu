@@ -22,7 +22,7 @@ export const getTransactionalModelsForDirection = (
   const transactionalModels = {};
   for (const [modelName, modelClass] of Object.entries(modelsForDirection)) {
     transactionalModels[modelName] = modelClass;
-    transactionalModels[modelName].getRepository = () => entityManager.getRepository(modelClass);
+    transactionalModels[modelName].getTransactionalRepository = () => entityManager.getRepository(modelClass);
   }
 
   return transactionalModels;
