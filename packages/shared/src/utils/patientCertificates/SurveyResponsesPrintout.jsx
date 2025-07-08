@@ -17,6 +17,14 @@ import { formatShort } from '@tamanu/utils/dateTime';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
 import { camelCase } from 'lodash';
 
+export const getReferenceDataStringId = (value, category) => {
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
+};
+
+export const getReferenceDataOptionStringId = (value, category, option) => {
+  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
+};
+
 const pageStyles = StyleSheet.create({
   body: {
     paddingHorizontal: 50,
@@ -84,6 +92,20 @@ const getAnswers = ({
   config,
   originalBody,
 }) => {
+  const translateOption = option => {
+    return getTranslation(
+      getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
+      option,
+    );
+  };
+
+  const translateReferenceData = a => {
+    return getTranslation(
+      getReferenceDataStringId(originalBody, getReferenceDataCategoryFromRowConfig(config)),
+      a,
+    );
+  };
+
   switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
@@ -98,33 +120,12 @@ const getAnswers = ({
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).map(
-        option =>
-          getTranslation(
-            getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
-            option,
-          ),
-        answer,
-      );
+      return JSON.parse(answer).map(translateOption);
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
-      return getTranslation(
-        getReferenceDataStringId(originalBody, getReferenceDataCategoryFromRowConfig(config)),
-        answer,
-      );
+      return translateReferenceData(answer);
     default:
-      return getTranslation(
-        getReferenceDataOptionStringId(dataElementId, 'programDataElement', answer),
-        answer,
-      );
+      return translateOption(answer);
   }
-};
-
-export const getReferenceDataStringId = (value, category) => {
-  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
-};
-
-export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
 };
 
 const ResponseItem = ({ row, getTranslation }) => {
