@@ -7,6 +7,7 @@ import { CarePlanModal } from './modals/CarePlanModal';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
+  readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
@@ -62,6 +63,7 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -205,7 +207,6 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async goToPatient(patient: Patient) {
-    console.log('going to');
     await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
   }
 
@@ -247,6 +248,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
     await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
@@ -336,10 +338,17 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async getCurrentBrowserDateISOFormat() {
-    const currentDate = new Date();
-    return currentDate.toISOString().split('T')[0];
-  }
+/**
+  * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+  */
+async getCurrentBrowserDateISOFormat() {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
   // Helper methods for handling multiple buttons with the same test ID
   getSubmitEditsButton() {
@@ -353,8 +362,8 @@ export class PatientDetailsPage extends BasePatientPage {
   getOngoingConditionEditSubmitButton() {
     return this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
-      .first();
+      .getByTestId('formgrid-lqds')
+      .getByRole('button', { name: 'Save' });
   }
 
   getAllergyEditSubmitButton() {

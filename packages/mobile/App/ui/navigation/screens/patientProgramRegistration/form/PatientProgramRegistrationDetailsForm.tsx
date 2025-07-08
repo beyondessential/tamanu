@@ -4,7 +4,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { DateField } from '~/ui/components/DateField/DateField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { FullView, StyledScrollView, StyledView } from '~/ui/styled/common';
@@ -36,7 +36,6 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const practitionerSuggester = new Suggester({
     model: models.User,
     options: { column: 'displayName' },
-    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
   });
   const facilitySuggester = new Suggester({
     model: models.Facility,
@@ -86,7 +85,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         await PatientProgramRegistrationCondition.createAndSaveOne({
           date: formData.date,
           programRegistryCondition: condition.condition.value,
-          conditionCategory: condition.category.value,
+          programRegistryConditionCategory: condition.category.value,
           clinician: formData.clinicianId,
           patientProgramRegistration: newPpr.id,
         });

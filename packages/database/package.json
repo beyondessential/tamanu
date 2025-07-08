@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.35.0",
+  "version": "2.36.0",
   "private": true,
   "description": "BES - Database",
   "main": "dist/cjs/index.js",
@@ -110,6 +110,7 @@
     "mushi": "^0.0.12",
     "sequelize": "^6.21.3",
     "tiny-async-pool": "^1.2.0",
+    "umzug": "^2.3.0",
     "uuid": "^11.0.3"
   }
 }
