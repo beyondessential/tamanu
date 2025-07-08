@@ -8,7 +8,7 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
-import { getReferenceDataCategoryFromRowConfig } from '../../../shared/src/utils/translation/getReferenceDataCategoryFromRowConfig.js';
+import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 
 const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
