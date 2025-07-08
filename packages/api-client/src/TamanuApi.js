@@ -4,7 +4,6 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
-  AuthError,
   AuthExpiredError,
   AuthInvalidError,
   ForbiddenError,
