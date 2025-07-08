@@ -184,27 +184,29 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   </StyledTextButton>
                 )}
                 {canPrintPrescription && (
-                  <StyledTextButton
-                    onClick={() => setPrintMedicationModalOpen(true)}
-                    disabled={readonly}
-                    color="primary"
-                    data-testid="styledtextbutton-hbja"
-                  >
-                    <ThemedTooltip
-                      title={
-                        <Box width="60px" fontWeight={400}>
-                          <TranslatedText
-                            stringId="medication.action.printPrescription"
-                            fallback="Print prescription"
-                          />
-                        </Box>
-                      }
+                  <NoteModalActionBlocker>
+                    <StyledTextButton
+                      onClick={() => setPrintMedicationModalOpen(true)}
+                      disabled={readonly}
+                      color="primary"
+                      data-testid="styledtextbutton-hbja"
                     >
-                      <Box display={'flex'}>
-                        <PrintIcon />
-                      </Box>
-                    </ThemedTooltip>
-                  </StyledTextButton>
+                      <ThemedTooltip
+                        title={
+                          <Box width="60px" fontWeight={400}>
+                            <TranslatedText
+                              stringId="medication.action.printPrescription"
+                              fallback="Print prescription"
+                            />
+                          </Box>
+                        }
+                      >
+                        <Box display={'flex'}>
+                          <PrintIcon />
+                        </Box>
+                      </ThemedTooltip>
+                    </StyledTextButton>
+                  </NoteModalActionBlocker>
                 )}
               </>
             )}
