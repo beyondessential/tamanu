@@ -52,7 +52,7 @@ async function ensureFacilityMatches(context) {
   }
 
   // ensure both arrays contain the same set of facility ids
-  const match = JSON.parse(lastFacilities).every((facilityId) =>
+  const match = JSON.parse(lastFacilities).every(facilityId =>
     configuredFacilities.includes(facilityId),
   );
   if (!match) {
@@ -66,16 +66,20 @@ async function ensureFacilityMatches(context) {
 async function performInitialIntegritySetup(context) {
   const centralServer = new CentralServerConnection(context);
   log.info(`Verifying sync connection to ${centralServer.host}...`);
+  await centralServer.connect();
 
-  const { token, serverFacilityIds } = await centralServer.connect();
-
-  if (!token) {
+  if (!centralServer.hasToken()) {
     throw new Error('Could not obtain valid token from central server.');
+  }
+
+  const ids = (await centralServer.loginData()).serverFacilityIds;
+  if (ids.length === 0) {
+    throw new Error('No facility IDs found in central server login data.');
   }
 
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
-  const facilityIdsString = JSON.stringify(serverFacilityIds);
+  const facilityIdsString = JSON.stringify(ids);
   await LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
 
   log.info(`Verified with central server as facilities ${facilityIdsString}`);
