@@ -65,6 +65,9 @@ const STATS_COLUMNS = [
     ),
     sortable: false,
   },
+  { key: 'skipped', title: 'Skipped', sortable: false },
+  { key: 'deleted', title: 'Deleted', sortable: false },
+  { key: 'restored', title: 'Restored', sortable: false },
 ];
 
 const ImportStatsDisplay = ({ stats }) => (
