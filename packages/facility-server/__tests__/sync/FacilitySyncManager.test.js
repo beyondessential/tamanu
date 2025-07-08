@@ -89,6 +89,7 @@ describe('FacilitySyncManager', () => {
           query: () => true,
         },
         centralServer: {
+          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
         },
@@ -128,7 +129,7 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: Promise.resolve(false),
+          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
@@ -169,7 +170,7 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: Promise.resolve(false),
+          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
@@ -228,7 +229,7 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: Promise.resolve(false),
+          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
@@ -268,7 +269,7 @@ describe('FacilitySyncManager', () => {
         models,
         sequelize: ctx.sequelize,
         centralServer: {
-          streaming: Promise.resolve(false),
+          streaming: () => false,
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),

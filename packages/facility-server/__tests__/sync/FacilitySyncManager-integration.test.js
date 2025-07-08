@@ -14,7 +14,6 @@ describe('FacilitySyncManager integration', () => {
   let sequelize;
   let syncManager;
 
-
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
@@ -25,6 +24,7 @@ describe('FacilitySyncManager integration', () => {
   afterAll(() => ctx.close());
 
   const mockCentralServer = {
+    streaming: () => false,
     startSyncSession: jest.fn().mockResolvedValue({
       sessionId: 'test-session-sync',
       startedAtTick: 200
@@ -157,6 +157,4 @@ describe('FacilitySyncManager integration', () => {
     );
     expect(syncAuditLogs).toHaveLength(0);
   });
-
-
 });
