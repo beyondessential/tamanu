@@ -12,13 +12,13 @@ import {
   setSyncTick,
   snapshotOutgoingChanges,
 } from './utils';
+import { createTransactionalModelsMap } from './utils/createTransactionalModelsMap';
 import { dropSnapshotTable } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
-import { getModelsForDirectionInTransaction } from './utils/getModelsForDirection';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -37,10 +37,10 @@ export type MobileSyncSettings = {
   saveIncomingChanges: {
     maxBatchesToKeepInMemory: number;
     maxRecordsPerInsertBatch: number;
-  }
+  };
   pullIncomingChanges: {
     maxRecordsPerSnapshotBatch: number;
-  }
+  };
   useUnsafeSchemaForInitialSync: boolean;
 };
 
@@ -298,8 +298,7 @@ export class MobileSyncManager {
   async syncIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
 
-    const mobileSyncSettings =
-      this.settings.getSetting<MobileSyncSettings>('mobileSync');
+    const mobileSyncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
@@ -318,7 +317,9 @@ export class MobileSyncManager {
       where: { key: 'tablesForFullResync' },
     });
 
-    const incomingModelNames = Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)).map(m => m.getTableName());
+    const incomingModelNames = Object.values(
+      getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+    ).map(m => m.getTableName());
 
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
@@ -326,7 +327,7 @@ export class MobileSyncManager {
       pullSince,
       incomingModelNames,
       tablesForFullResync?.value.split(','),
-      mobileSyncSettings.pullIncomingChanges,  
+      mobileSyncSettings.pullIncomingChanges,
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -340,11 +341,11 @@ export class MobileSyncManager {
     if (shouldUseUnsafeSchema) {
       await Database.setUnsafePragma();
     }
-    
 
     try {
-      await Database.client.transaction(async (transactionEntityManager) => {
-        const incomingModels = getModelsForDirectionInTransaction(transactionEntityManager, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+      await Database.client.transaction(async transactionEntityManager => {
+        const transactingModelMap = createTransactionalModelsMap(transactionEntityManager);
+        const incomingModels = getModelsForDirection(transactingModelMap, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
         if (totalPulled > 0) {
           await saveIncomingChanges(
             totalPulled,
@@ -380,4 +381,3 @@ export class MobileSyncManager {
     );
   }
 }
-
