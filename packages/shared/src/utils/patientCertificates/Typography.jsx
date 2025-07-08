@@ -1,46 +1,42 @@
 import React from 'react';
-import { StyleSheet } from '@react-pdf/renderer';
 import { Text } from '../pdf/Text';
+import { useLanguageContext } from '../pdf/languageContext';
 
-const styles = StyleSheet.create({
+const baseStyles = {
   h1: {
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
     fontSize: 15,
-    fontFamily: 'NotoKufiArabic-Bold',
     fontWeight: 700,
   },
   h2: {
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
-    fontFamily: 'NotoKufiArabic-Bold',
     fontWeight: 700,
   },
   h3: {
     marginBottom: 20,
     fontSize: 14,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   p: {
     fontSize: 12,
     fontWeight: 400,
-    fontFamily: 'NotoKufiArabic-Regular',
     marginBottom: 15,
   },
   certificateAddress: {
     textAlign: 'right',
     fontSize: 14,
     marginBottom: 13,
-    fontFamily: 'NotoKufiArabic-Bold',
     fontWeight: 700,
   },
   certificateTitle: {
     fontSize: 18,
     textAlign: 'right',
     marginBottom: 14,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   certificateSubtitle: {
     fontWeight: 700,
@@ -49,18 +45,60 @@ const styles = StyleSheet.create({
     marginTop: '-10px',
     height: 40,
   },
-});
+};
 
-export const H1 = ({ style, ...props }) => <Text style={{ ...styles.h1, ...style }} {...props} />;
-export const H2 = ({ style, ...props }) => <Text style={{ ...styles.h2, ...style }} {...props} />;
-export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style }} {...props} />;
-export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => (
-  <Text
-    {...props}
-    style={[styles.p, { marginTop: mt, marginBottom: mb, fontSize }, style]}
-    bold={bold}
-  />
-);
-export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;
-export const CertificateTitle = props => <Text style={styles.certificateTitle} {...props} />;
-export const CertificateSubtitle = props => <Text style={styles.certificateSubtitle} {...props} />;
+const useTypographyStyles = () => {
+  const { pdfFont } = useLanguageContext();
+  return React.useMemo(() => {
+    return {
+      h1: { ...baseStyles.h1, fontFamily: pdfFont },
+      h2: { ...baseStyles.h2, fontFamily: pdfFont },
+      h3: { ...baseStyles.h3, fontFamily: pdfFont },
+      p: { ...baseStyles.p, fontFamily: pdfFont },
+      certificateAddress: { ...baseStyles.certificateAddress, fontFamily: pdfFont },
+      certificateTitle: { ...baseStyles.certificateTitle, fontFamily: pdfFont },
+      certificateSubtitle: { ...baseStyles.certificateSubtitle, fontFamily: pdfFont },
+    };
+  }, [pdfFont]);
+};
+
+export const H1 = ({ style, ...props }) => {
+  const styles = useTypographyStyles();
+  return <Text style={{ ...styles.h1, ...style }} {...props} />;
+};
+export const H2 = ({ style, ...props }) => {
+  const styles = useTypographyStyles();
+  return <Text style={{ ...styles.h2, ...style }} {...props} />;
+};
+export const H3 = ({ style, ...props }) => {
+  const styles = useTypographyStyles();
+  return <Text style={{ ...styles.h3, ...style }} {...props} />;
+};
+export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => {
+  const styles = useTypographyStyles();
+  return (
+    <Text
+      {...props}
+      style={{
+        ...styles.p,
+        marginTop: mt,
+        marginBottom: mb !== undefined ? mb : styles.p.marginBottom,
+        fontSize,
+        ...style,
+      }}
+      bold={bold}
+    />
+  );
+};
+export const CertificateAddress = props => {
+  const styles = useTypographyStyles();
+  return <Text style={styles.certificateAddress} {...props} />;
+};
+export const CertificateTitle = props => {
+  const styles = useTypographyStyles();
+  return <Text style={styles.certificateTitle} {...props} />;
+};
+export const CertificateSubtitle = props => {
+  const styles = useTypographyStyles();
+  return <Text style={styles.certificateSubtitle} {...props} />;
+};

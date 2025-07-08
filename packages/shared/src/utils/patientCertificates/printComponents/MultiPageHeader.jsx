@@ -3,29 +3,6 @@ import React from 'react';
 import { flatten } from '../../pdf/flattenStyles';
 import { useLanguageContext } from '../../pdf/languageContext';
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    display: 'flex',
-    alignSelf: 'flex-end',
-    marginBottom: 20,
-  },
-
-  labelText: {
-    fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Bold',
-    fontWeight: 700,
-    color: '#888888',
-  },
-
-  valueText: {
-    fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Regular',
-    fontWeight: 400,
-    color: '#888888',
-  },
-});
-
 export const useTextStyles = styles => {
   const { makeIntlStyleSheet } = useLanguageContext();
   const mergedStyle = flatten(styles);
@@ -33,7 +10,31 @@ export const useTextStyles = styles => {
 };
 
 export const MultiPageHeader = ({ documentName, documentSubname, patientName, patientId }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, pdfFont } = useLanguageContext();
+
+  const styles = StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      display: 'flex',
+      alignSelf: 'flex-end',
+      marginBottom: 20,
+    },
+
+    labelText: {
+      fontSize: 8,
+      fontFamily: pdfFont,
+      fontWeight: 700,
+      color: '#888888',
+    },
+
+    valueText: {
+      fontSize: 8,
+      fontFamily: pdfFont,
+      fontWeight: 400,
+      color: '#888888',
+    },
+  });
+
   const valueStyles = useTextStyles(styles.valueText);
   const labelStyles = useTextStyles(styles.labelText);
 

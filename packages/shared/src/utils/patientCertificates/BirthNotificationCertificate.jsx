@@ -20,28 +20,30 @@ import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 
-const topStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-  },
-  cell: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  key: {
-    fontSize: 9,
-    fontFamily: 'NotoKufiArabic-Bold',
-    fontWeight: 700,
-    marginRight: 2,
-  },
-  value: {
-    fontSize: 9,
-  },
-});
-
 const TopSection = ({ facilityName, childDisplayId }) => {
+  const { pdfFont } = useLanguageContext();
+
+  const topStyles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 15,
+    },
+    cell: {
+      flexDirection: 'row',
+      marginBottom: 10,
+    },
+    key: {
+      fontSize: 9,
+      fontFamily: pdfFont,
+      fontWeight: 700,
+      marginRight: 2,
+    },
+    value: {
+      fontSize: 9,
+    },
+  });
+
   const date = getCurrentDateString();
   return (
     <View style={topStyles.container}>
@@ -297,41 +299,42 @@ const ParentSection = ({ parentType, data = {} }) => {
   );
 };
 
-const signatureStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  leftCell: {
-    flexDirection: 'row',
-    marginBottom: 15,
-    paddingRight: 10,
-  },
-  rightCell: {
-    flexDirection: 'row',
-    marginBottom: 15,
-    paddingLeft: 10,
-  },
-  leftText: {
-    width: 90,
-    marginRight: 10,
-    fontFamily: 'NotoKufiArabic-Bold',
-    fontWeight: 700,
-  },
-  rightText: {
-    width: 30,
-    marginRight: 10,
-    fontFamily: 'NotoKufiArabic-Bold',
-    fontWeight: 700,
-  },
-  line: {
-    flex: 1,
-    borderBottom: '1 solid black',
-  },
-});
-
 const SignatureSection = () => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, pdfFont } = useLanguageContext();
+
+  const signatureStyles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      marginTop: 10,
+    },
+    leftCell: {
+      flexDirection: 'row',
+      marginBottom: 15,
+      paddingRight: 10,
+    },
+    rightCell: {
+      flexDirection: 'row',
+      marginBottom: 15,
+      paddingLeft: 10,
+    },
+    leftText: {
+      width: 90,
+      marginRight: 10,
+      fontFamily: pdfFont,
+      fontWeight: 700,
+    },
+    rightText: {
+      width: 30,
+      marginRight: 10,
+      fontFamily: pdfFont,
+      fontWeight: 700,
+    },
+    line: {
+      flex: 1,
+      borderBottom: '1 solid black',
+    },
+  });
+
   return (
     <View style={signatureStyles.container}>
       <View style={{ flex: 1 }}>

@@ -3,8 +3,10 @@ import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
+import { useLanguageContext } from '../pdf/languageContext';
 
 export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroupName }) => {
+  const { pdfFont } = useLanguageContext();
   const { title, subTitle } = letterheadConfig;
   return (
     <>
@@ -20,7 +22,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
         <H3
           style={{
             textAlign: 'right',
-            fontFamily: 'NotoKufiArabic-Bold',
+            fontFamily: pdfFont,
             fontWeight: 700,
             marginBottom: 10,
           }}
@@ -30,7 +32,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
         <H3
           style={{
             textAlign: 'right',
-            fontFamily: 'NotoKufiArabic-Bold',
+            fontFamily: pdfFont,
             fontWeight: 'bold',
           }}
         >
