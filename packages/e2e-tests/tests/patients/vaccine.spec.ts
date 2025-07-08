@@ -1,8 +1,9 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
-import { convertDateFormat } from '../../utils/testHelper';
+import { convertDateFormat, offsetYear } from '../../utils/testHelper';
 
-//TOOD: add tests to confirm error messages if try to submit without required fields
+//TODO: add tests to confirm error messages if try to submit without required fields
+//TODO: make addvaccineandassert function less complex?
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
@@ -24,7 +25,6 @@ test.describe('Vaccines', () => {
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
       specificDate = undefined,
-      errorMessage = undefined,
     }: {
       specificVaccine?: string | null;
       fillOptionalFields?: boolean;
@@ -32,7 +32,6 @@ test.describe('Vaccines', () => {
       isFollowUpVaccine?: boolean;
       specificScheduleOption?: string;
       specificDate?: string;
-      errorMessage?: string;
     } = {},
   ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
@@ -57,12 +56,6 @@ test.describe('Vaccines', () => {
 
     if (!vaccine.vaccineName || !vaccine.scheduleOption || !vaccine.date || !vaccine.area || !vaccine.location || !vaccine.department) {
       throw new Error('Vaccine record is missing required fields');
-    }
-
-    if (errorMessage) {
-     const errorLocator = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.selectErrorLocator(errorMessage);
-     await expect(errorLocator!).toContainText(errorMessage);
-     return;
     }
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
@@ -111,6 +104,19 @@ test.describe('Vaccines', () => {
         optionalParams,
       );
     }
+  }
+
+  async function triggerDateError(patientDetailsPage: PatientDetailsPage, date: string, expectedErrorMessage: string) {
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+
+    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
+
+    //Attempt to submit a date that should trigger a validation error
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField.fill(date);
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
+
+    //Assert the validation error appears
+    await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!).toContainText(expectedErrorMessage);
   }
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
@@ -325,32 +331,65 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Add vaccine with custom date', async ({ patientDetailsPage }) => {
-    const customDate = '2024-11-27';
+  test('Add vaccine with custom date given', async ({ patientDetailsPage }) => {
+    //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const dateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
-      specificDate: customDate,
+      specificDate: dateGiven,
       viewVaccineRecord: true,
     });
 
     await patientDetailsPage.closeViewVaccineModalButton().click();
 
     await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
-      convertDateFormat(customDate),
+      convertDateFormat(dateGiven),
     );
   });
 
-  //TODO: extract patient dob and refactor to generate customDate below
-  //TODO: test case for future date
-  //TODO: test cases for errors on all mandatory fields
-  test('Date given cannot be before patient date of birth', async ({ patientDetailsPage }) => {
-    const customDate = '1901-11-27';
-    const dateErrorMessage = 'Date cannot be prior to patient date of birth';
+  test('Date given cannot be before patient date of birth', async ({ patientDetailsPage, newPatient }) => {
+    const dateBeforePatientDob = await offsetYear(newPatient.dateOfBirth!, 'decreaseByOneYear');
+    const expectedErrorMessage = 'Date cannot be prior to patient date of birth';
 
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
-      specificDate: customDate,
-      errorMessage: dateErrorMessage,
-    });
+    //Attempt to submit a date before the patient's date of birth and assert the expected error message appears
+    await triggerDateError(patientDetailsPage, dateBeforePatientDob, expectedErrorMessage);
+  });
+
+  test('Date given cannot be in the future', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const futureDateGiven = await offsetYear(currentBrowserDate, 'increaseByOneYear');
+    const expectedErrorMessage = 'Date cannot be in the future';
+
+    //Attempt to submit a future date and assert the expected error message appears
+    await triggerDateError(patientDetailsPage, futureDateGiven, expectedErrorMessage);
+  });
+
+  test('Mandatory fields must be filled', async ({ patientDetailsPage }) => {
+   const expectedAreaAndLocationError = 'locationId must be a `string` type, but the final value was: `null`';
+   const expectedDepartmentError = 'departmentId must be a `string` type, but the final value was: `null`';
+   const genericExpectedError = 'Required';
+
+   await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+
+   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
+
+   //Attempt to submit without filling any fields
+   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
+
+   //Assert the expected validation errors appear
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.areaFieldIncludingError!).toContainText(expectedAreaAndLocationError);
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.locationFieldIncludingError!).toContainText(expectedAreaAndLocationError);
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.departmentFieldIncludingError!).toContainText(expectedDepartmentError);
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRequiredError!).toContainText(genericExpectedError);
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.consentGivenRequiredError!).toContainText(genericExpectedError);
+
+   //Select a category to trigger validation on the vaccine field
+   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRoutineRadio.click();
+   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
+
+   //Assert the vaccine field validation error now appears
+   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.vaccineNameRequiredError!).toContainText(genericExpectedError);
   });
 
   test('Check given elsewhere checkbox', async () => {

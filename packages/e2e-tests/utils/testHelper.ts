@@ -83,3 +83,26 @@ export async function SelectingFromSearchBox(
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
 }
+/**
+ * Utility method to offset a date by one year
+ * @param dateToOffset - The date to offset
+ * @param offset - The offset to apply ('increaseByOneYear' or 'decreaseByOneYear')
+ * @returns The date with the offset applied
+ */
+export async function offsetYear(
+  dateToOffset: string, 
+  offset: 'increaseByOneYear' | 'decreaseByOneYear'
+): Promise<string> {
+  const [yearStr, month, day] = dateToOffset.split('-');
+  let year = Number(yearStr);
+  if (offset === 'increaseByOneYear') year++;
+  else if (offset === 'decreaseByOneYear') year--;
+  else throw new Error('Invalid offset');
+
+  // Handle Feb 29 for non-leap years
+  if (month === '02' && day === '29') {
+    const isLeap = (y: number) => y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
+    if (!isLeap(year)) return `${year}-02-28`;
+  }
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}

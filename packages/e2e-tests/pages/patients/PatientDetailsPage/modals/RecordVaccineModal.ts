@@ -30,6 +30,12 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly otherVaccineBrand: Locator;
   readonly otherVaccineDisease: Locator;
   readonly dateFieldIncludingError: Locator;
+  readonly areaFieldIncludingError: Locator;
+  readonly locationFieldIncludingError: Locator;
+  readonly departmentFieldIncludingError: Locator;
+  readonly categoryRequiredError: Locator;
+  readonly consentGivenRequiredError: Locator;
+  readonly vaccineNameRequiredError: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -60,6 +66,12 @@ export class RecordVaccineModal extends BasePatientModal {
     this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');
     this.otherVaccineDisease = this.page.getByTestId('field-gcfk-input');
     this.dateFieldIncludingError = this.page.getByTestId('field-8sou');
+    this.areaFieldIncludingError = this.page.getByTestId('field-zrlv-group-input-outerlabelfieldwrapper');
+    this.locationFieldIncludingError = this.page.getByTestId('field-zrlv-location-input-outerlabelfieldwrapper');
+    this.departmentFieldIncludingError = this.page.getByTestId('field-5sfc-input-outerlabelfieldwrapper');
+    this.categoryRequiredError = this.page.getByTestId('formhelpertext-sz5u');
+    this.consentGivenRequiredError = this.page.getByTestId('formhelpertext-2d0o');
+    this.vaccineNameRequiredError = this.page.getByTestId('field-npct-formhelptertext');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -258,14 +270,5 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     return { notGivenReason, notGivenClinician, disease };
-  }
-
-  async selectErrorLocator(errorMessage: string) {
-    switch (errorMessage) {
-      case 'Date cannot be prior to patient date of birth':
-        return this.dateFieldIncludingError;
-      default:
-        throw new Error(`Error message not found: ${errorMessage}`);
-    }
   }
 }
