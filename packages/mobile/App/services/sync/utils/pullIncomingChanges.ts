@@ -46,7 +46,6 @@ export const pullIncomingChanges = async (
 
   await pullRecordsInBatches(
     { centralServer, sessionId, totalToPull, pullSettings, progressCallback },
-    // TODO: save from memory in initial sync
     isInitialSync ? insertSnapshotRecords : insertSnapshotRecords,
   );
 

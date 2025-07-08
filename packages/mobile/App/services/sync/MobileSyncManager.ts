@@ -18,6 +18,7 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
+import { saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -319,6 +320,12 @@ export class MobileSyncManager {
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
+    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
+
+    if (shouldUseUnsafeSchema) {
+      await Database.setUnsafePragma();
+    }
+
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
@@ -334,16 +341,10 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
 
-    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
-
-    if (shouldUseUnsafeSchema) {
-      await Database.setUnsafePragma();
-    }
-
     try {
       await Database.client.transaction(async () => {
         if (totalPulled > 0) {
-          await saveIncomingChanges(
+          await saveChangesFromSnapshot(
             totalPulled,
             incomingModels,
             mobileSyncSettings.saveIncomingChanges,
@@ -364,12 +365,7 @@ export class MobileSyncManager {
     } catch (error) {
       console.error('Error saving incoming changes', error);
       throw error;
-    } finally {
-      if (shouldUseUnsafeSchema) {
-        await Database.setDefaultPragma();
-      }
-    }
-
+    } 
     this.lastSyncPulledRecordsCount = totalPulled;
 
     console.log(
