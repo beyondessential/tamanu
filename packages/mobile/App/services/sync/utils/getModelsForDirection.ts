@@ -17,11 +17,12 @@ export const getTransactionalModelsForDirection = (
   entityManager: any,
 ): Partial<typeof MODELS_MAP> => {
   const modelsForDirection = getModelsForDirection(models, direction);
-  
+
   // Create a models repository map bound to a transactional entity manager
   const transactionalModels = {};
   for (const [modelName, modelClass] of Object.entries(modelsForDirection)) {
-    transactionalModels[modelName] = entityManager.getRepository(modelClass);
+    transactionalModels[modelName] = modelClass;
+    transactionalModels[modelName].getRepository = () => entityManager.getRepository(modelClass);
   }
 
   return transactionalModels;
