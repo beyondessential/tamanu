@@ -18,8 +18,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { version } from '../serverInfo';
 
 export class CentralServerConnection extends TamanuApi {
-  batchSize = config.sync.channelBatchSize;
-  streaming = config.sync.streaming;
+  #loginData;
 
   constructor({ deviceId }) {
     const url = new URL(config.sync.host.trim());
@@ -95,6 +94,8 @@ export class CentralServerConnection extends TamanuApi {
       return await this.login(email, password, {
         backoff,
         timeout,
+      }).then(loginData => {
+        return (this.#loginData = loginData);
       });
     } catch (error) {
       if (error instanceof AuthInvalidError) {
@@ -116,6 +117,14 @@ export class CentralServerConnection extends TamanuApi {
       newError.cause = error;
       throw newError;
     }
+  }
+
+  async loginData() {
+    if (!this.hasToken() || !this.#loginData) {
+      await this.connect();
+    }
+
+    return this.#loginData;
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
