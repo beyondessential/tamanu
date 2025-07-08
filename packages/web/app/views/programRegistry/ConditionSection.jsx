@@ -133,7 +133,7 @@ export const ConditionSection = ({ registrationId, isInactive }) => {
     <Container>
       <Heading5 mt={0} mb={1}>
         <TranslatedText
-          stringId="programRegistry.relatedConditions.title"
+          stringId="programRegistry.relatedConditions.label"
           fallback="Related conditions"
           data-testid="translatedtext-tezx"
         />
