@@ -11,8 +11,8 @@ import {
   saveIncomingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
+  getTransactionalModelsForDirection
 } from './utils';
-import { createTransactionalModelsMap } from './utils/createTransactionalModelsMap';
 import { dropSnapshotTable } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
@@ -344,8 +344,7 @@ export class MobileSyncManager {
 
     try {
       await Database.client.transaction(async transactionEntityManager => {
-        const transactingModelMap = createTransactionalModelsMap(transactionEntityManager);
-        const incomingModels = getModelsForDirection(transactingModelMap, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+        const incomingModels = getTransactionalModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
         if (totalPulled > 0) {
           await saveIncomingChanges(
             totalPulled,

@@ -1,6 +1,6 @@
 export { callWithBackoff } from './callWithBackoff';
 export { fetchWithTimeout } from './fetchWithTimeout';
-export { getModelsForDirection } from './getModelsForDirection';
+export { getModelsForDirection, getTransactionalModelsForDirection } from './getModelsForDirection';
 export { getResponseJsonSafely } from './getResponseJsonSafely';
 export { getSyncTick } from './getSyncTick';
 export { pullIncomingChanges } from './pullIncomingChanges';
