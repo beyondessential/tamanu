@@ -72,8 +72,8 @@ async function performInitialIntegritySetup(context) {
     throw new Error('Could not obtain valid token from central server.');
   }
 
-  const ids = (await centralServer.loginData()).serverFacilityIds;
-  if (ids.length === 0) {
+  const ids = (await centralServer.loginData())?.serverFacilityIds;
+  if (!ids || ids.length === 0) {
     throw new Error('No facility IDs found in central server login data.');
   }
 
