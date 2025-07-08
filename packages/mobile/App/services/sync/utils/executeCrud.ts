@@ -20,6 +20,7 @@ export const executeInserts = async (
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
+  const repository = model.getRepository();
   const deduplicated = [];
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
@@ -37,7 +38,6 @@ export const executeInserts = async (
     Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT),
   )) {
     try {
-      const repository = model.getRepository();
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
       await repository.insert(batchOfRows, { listeners: false });
