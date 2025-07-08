@@ -4,12 +4,12 @@ import { useLanguageContext } from './languageContext';
 import { flatten } from './flattenStyles';
 
 export const Text = ({ style, bold, ...props }) => {
-  const { makeIntlStyleSheet } = useLanguageContext();
+  const { makeIntlStyleSheet, pdfFont } = useLanguageContext();
   const mergedStyle = flatten(style);
   const newStyles = makeIntlStyleSheet(
     {
       ...mergedStyle,
-      ...(bold && { fontFamily: 'NotoKufiArabic-Bold' }),
+      ...(bold && { fontFamily: pdfFont, fontWeight: 700 }),
     },
     bold,
   );

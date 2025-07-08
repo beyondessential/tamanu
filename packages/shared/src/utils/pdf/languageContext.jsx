@@ -18,6 +18,8 @@ export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
   const { translations, ...other } = props;
 
+  const pdfFont = 'Helvetica';
+
   const contextValue = useMemo(() => {
     return {
       makeIntlStyleSheet(style) {
@@ -36,6 +38,7 @@ export const withLanguageContext = Component => props => {
         const { value } = translationFunc(stringId, fallback);
         return value;
       },
+      pdfFont,
     };
   }, [translations]);
 
