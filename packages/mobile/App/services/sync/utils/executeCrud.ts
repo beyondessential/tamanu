@@ -25,7 +25,7 @@ export const executeInserts = async (
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
 
-  for (const row of rows ) {
+  for (const row of rows) {
     const { id } = row;
     if (!idsAdded.has(id)) {
       deduplicated.push({ ...strippedIsDeleted(row), id });
