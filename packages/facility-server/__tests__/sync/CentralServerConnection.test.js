@@ -122,6 +122,15 @@ describe('CentralServerConnection', () => {
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
+    it('retrieves server settings', async () => {
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+      expect((await centralServer.loginData()).settings).toMatchObject({
+        sync: {
+          streaming: false,
+        },
+      });
+    });
+
     it('retrieves user data', async () => {
       fetch
         .mockReturnValueOnce(authSuccess)
