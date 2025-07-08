@@ -41,7 +41,7 @@ export const centralSettings = {
           // and we know the byte size of the batches
           properties: {
             maxBatchesToKeepInMemory: {
-              description: 'The number of batches to keep in memory during saveChanges',
+              description: 'The number of batches to keep in memory during saveChanges, currently equal to n * pullIncomingChanges.maxRecordsPerSnapshotBatch',
               type: yup.number().positive().integer(),
               defaultValue: 5,
             },
