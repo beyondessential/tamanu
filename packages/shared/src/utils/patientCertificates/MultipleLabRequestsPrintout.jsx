@@ -46,7 +46,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontSize: 11,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     marginVertical: 3,
   },
@@ -101,7 +101,12 @@ const LabRequestDetailsView = ({ labRequests }) => {
   };
 
   const notesAccessor = ({ notes }) => {
-    return notes?.map(note => note?.content || '').filter(Boolean).join(',\n') || '';
+    return (
+      notes
+        ?.map(note => note?.content || '')
+        .filter(Boolean)
+        .join(',\n') || ''
+    );
   };
 
   return (
@@ -190,7 +195,6 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
         </Page>
       </Document>
     );
-    
   },
 );
 

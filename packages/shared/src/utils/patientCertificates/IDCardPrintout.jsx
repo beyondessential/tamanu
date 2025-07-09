@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
   },
   detailsKey: {
     width: '18mm',
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
   detailsValue: {
     maxWidth: '35mm',
     overflow: 'hidden',
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
   barcodeRow: {

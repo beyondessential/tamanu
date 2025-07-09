@@ -42,7 +42,7 @@ const pageStyles = StyleSheet.create({
     fontSize: 9,
   },
   boldText: {
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
   boldDivider: {

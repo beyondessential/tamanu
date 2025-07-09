@@ -37,10 +37,10 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
   },
   tableColumnHeader: {
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     fontSize: 10,
   },
@@ -52,13 +52,13 @@ const textStyles = StyleSheet.create({
   },
   headerLabel: {
     fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Regular',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 400,
     color: '#888888',
   },
@@ -91,7 +91,7 @@ const tableStyles = StyleSheet.create({
     fontSize: 8,
   },
   p: {
-    fontFamily: 'NotoKufiArabic-Regular',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 400,
     fontSize: 8,
   },
@@ -167,13 +167,17 @@ const DataTableHeading = ({ columns, title, width }) => {
       <Row wrap={false} width={width}>
         {columns.map(({ key, title, style }, index) => {
           if (Array.isArray(title)) {
-            const rotateStyle = index > 0 ? { transform: 'rotate(-90deg)', paddingBottom: 10, paddingTop: 10 } : {};
+            const rotateStyle =
+              index > 0 ? { transform: 'rotate(-90deg)', paddingBottom: 10, paddingTop: 10 } : {};
             return (
               <View key={key} style={[tableStyles.baseCell, style]}>
-                <View
-                  style={rotateStyle}
-                >
-                  <P bold style={{ letterSpacing: 0.3, fontFamily: 'NotoKufiArabic-Bold', fontWeight: 700 }}>{title[0]}</P>
+                <View style={rotateStyle}>
+                  <P
+                    bold
+                    style={{ letterSpacing: 0.3, fontFamily: 'GlobalPdfFont', fontWeight: 700 }}
+                  >
+                    {title[0]}
+                  </P>
                   <P>{title[1]}</P>
                 </View>
               </View>

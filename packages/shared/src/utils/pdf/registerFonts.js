@@ -5,14 +5,16 @@ const baseDir =
   typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
 
 export const registerFonts = () => {
-  if (Font.getRegisteredFonts()['NotoKufiArabic-Regular']) return;
+  if (Font.getRegisteredFonts()['GlobalPdfFont']) return;
   Font.register({
-    family: 'NotoKufiArabic-Regular',
-    src: path.join(baseDir, 'Vazirmatn-VariableFont_wght.ttf'),
+    family: 'GlobalPdfFont',
+    src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
+    fontWeight: 400,
   });
 
   Font.register({
-    family: 'NotoKufiArabic-Bold',
-    src: path.join(baseDir, 'Vazirmatn-VariableFont_wght.ttf'),
+    family: 'GlobalPdfFont',
+    src: path.join(baseDir, 'NotoKufiArabic-Bold.ttf'),
+    fontWeight: 700,
   });
 };

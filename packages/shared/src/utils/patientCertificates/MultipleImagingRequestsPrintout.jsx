@@ -32,7 +32,7 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontSize: 11,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     marginVertical: 3,
   },

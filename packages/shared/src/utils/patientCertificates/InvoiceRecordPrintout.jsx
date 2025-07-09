@@ -38,7 +38,7 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
 });
@@ -110,9 +110,7 @@ const HorizontalRule = ({ width = '1px' }) => {
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, children, isBold }) => (
-  <Text style={[tableStyles.p, isBold && { fontFamily: 'NotoKufiArabic-Bold' }, style]}>
-    {children}
-  </Text>
+  <Text style={[tableStyles.p, isBold && { fontFamily: 'GlobalPdfFont' }, style]}>{children}</Text>
 );
 
 const Cell = ({ children, style = {} }) => (
@@ -160,7 +158,7 @@ const getInvoiceItemDetails = item => {
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: 'NotoKufiArabic-Bold', fontWeight: 700 }}>{children}</P>
+    <P style={{ fontFamily: 'GlobalPdfFont', fontWeight: 700 }}>{children}</P>
   </View>
 );
 

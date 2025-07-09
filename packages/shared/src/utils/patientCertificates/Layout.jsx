@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     width: 100,
   },

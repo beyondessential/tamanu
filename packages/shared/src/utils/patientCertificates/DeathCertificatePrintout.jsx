@@ -64,11 +64,11 @@ const infoBoxStyles = StyleSheet.create({
   },
   boldText: {
     fontSize: 12,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
   },
   infoText: {
     fontSize: 12,
-    fontFamily: 'NotoKufiArabic-Regular',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
   italicBoldText: {
@@ -102,7 +102,7 @@ const signStyles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     lineHeight: 1,
   },

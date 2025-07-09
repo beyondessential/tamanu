@@ -18,7 +18,7 @@ export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
   const { translations, ...other } = props;
 
-  const pdfFont = 'Helvetica';
+  const pdfFont = 'GlobalPdfFont';
 
   const contextValue = useMemo(() => {
     return {

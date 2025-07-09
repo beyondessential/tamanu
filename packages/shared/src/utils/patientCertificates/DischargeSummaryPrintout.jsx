@@ -44,11 +44,11 @@ const infoBoxStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 10,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
   },
   infoText: {
     fontSize: 10,
-    fontFamily: 'NotoKufiArabic-Regular',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
 });
@@ -66,7 +66,7 @@ const notesSectionStyles = StyleSheet.create({
   title: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'NotoKufiArabic-Bold',
+    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
   },
 });
