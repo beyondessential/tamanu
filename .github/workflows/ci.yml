@@ -65,6 +65,7 @@ jobs:
           - { package: "@tamanu/database",                    postgres: 12 }
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
+          - { package: "@tamanu/database",                    postgres: 17 }
           - { package: "@tamanu/shared",                                   }
           - { package: "@tamanu/utils",                                    }
           - { package: "@tamanu/web-frontend" }
