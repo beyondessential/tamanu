@@ -9,6 +9,7 @@ import {
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
+  getTransactionalModelsForDirection
 } from './utils';
 import { dropSnapshotTable, createSnapshotTable } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -347,9 +348,19 @@ export class MobileSyncManager {
       const processStreamedDataFunction = async ({ models, records }: any) => {
         // TODO: Implement processing logic here
         // This will handle     incoming data in batches during initial sync
+        /**
+         *  await Database.client.transaction(async transactionEntityManager => {
+        const incomingModels = getTransactionalModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
+        if (totalPulled > 0) {
+          await saveIncomingChanges(
+            totalPulled,
+            incomingModels,
+            mobileSyncSettings.saveIncomingChanges,
+            this.updateProgress,
+          );
+        }
+         */
       };
-
-      await pullIncomingChanges(transactingModels, );
       
       // All operations within this transaction block will be atomic
       // If any operation fails, the entire transaction will be rolled back
