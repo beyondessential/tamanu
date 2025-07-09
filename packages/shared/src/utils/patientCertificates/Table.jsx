@@ -32,8 +32,8 @@ const tableStyles = StyleSheet.create({
 
 const TR = props => <View {...props} style={tableStyles.tr} />;
 const TH = ({ customStyles, ...props }) => {
-  const { pdfFont } = useLanguageContext();
-  return <Text {...props} style={[tableStyles.th, customStyles, { fontFamily: pdfFont }]} />;
+  const { pdfFontBold } = useLanguageContext();
+  return <Text {...props} style={[tableStyles.th, customStyles, { fontFamily: pdfFontBold }]} />;
 };
 const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />

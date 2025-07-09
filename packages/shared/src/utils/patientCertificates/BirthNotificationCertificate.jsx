@@ -21,7 +21,7 @@ import { Text } from '../pdf/Text';
 const borderStyle = '1 solid black';
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { pdfFont } = useLanguageContext();
+  const { pdfFontBold } = useLanguageContext();
 
   const topStyles = StyleSheet.create({
     container: {
@@ -35,7 +35,7 @@ const TopSection = ({ facilityName, childDisplayId }) => {
     },
     key: {
       fontSize: 9,
-      fontFamily: pdfFont,
+      fontFamily: pdfFontBold,
       fontWeight: 700,
       marginRight: 2,
     },

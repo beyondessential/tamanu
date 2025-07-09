@@ -12,12 +12,12 @@ export const DataSection = ({
   hideBottomRule = false,
   props,
 }) => {
-  const { pdfFont } = useLanguageContext();
+  const { pdfFontBold } = useLanguageContext();
   const styles = StyleSheet.create({
     title: {
       marginBottom: 3,
       fontSize: 11,
-      fontFamily: pdfFont,
+      fontFamily: pdfFontBold,
       fontWeight: 700,
     },
   });

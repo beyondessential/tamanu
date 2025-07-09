@@ -9,12 +9,10 @@ export const registerFonts = () => {
   Font.register({
     family: 'GlobalPdfFont',
     src: path.join(baseDir, 'NotoKufiArabic-Regular.ttf'),
-    fontWeight: 400,
   });
 
   Font.register({
-    family: 'GlobalPdfFont',
+    family: 'GlobalPdfFont-Bold',
     src: path.join(baseDir, 'NotoKufiArabic-Bold.ttf'),
-    fontWeight: 700,
   });
 };

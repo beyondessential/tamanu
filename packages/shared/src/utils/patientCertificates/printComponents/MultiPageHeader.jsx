@@ -10,7 +10,7 @@ export const useTextStyles = styles => {
 };
 
 export const MultiPageHeader = ({ documentName, documentSubname, patientName, patientId }) => {
-  const { getTranslation, pdfFont } = useLanguageContext();
+  const { getTranslation, pdfFontBold, pdfFont } = useLanguageContext();
 
   const styles = StyleSheet.create({
     header: {
@@ -22,7 +22,7 @@ export const MultiPageHeader = ({ documentName, documentSubname, patientName, pa
 
     labelText: {
       fontSize: 8,
-      fontFamily: pdfFont,
+      fontFamily: pdfFontBold,
       fontWeight: 700,
       color: '#888888',
     },

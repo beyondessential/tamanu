@@ -48,18 +48,18 @@ const baseStyles = {
 };
 
 const useTypographyStyles = () => {
-  const { pdfFont } = useLanguageContext();
+  const { pdfFont, pdfFontBold } = useLanguageContext();
   return React.useMemo(() => {
     return {
-      h1: { ...baseStyles.h1, fontFamily: pdfFont },
-      h2: { ...baseStyles.h2, fontFamily: pdfFont },
-      h3: { ...baseStyles.h3, fontFamily: pdfFont },
+      h1: { ...baseStyles.h1, fontFamily: pdfFontBold },
+      h2: { ...baseStyles.h2, fontFamily: pdfFontBold },
+      h3: { ...baseStyles.h3, fontFamily: pdfFontBold },
       p: { ...baseStyles.p, fontFamily: pdfFont },
       certificateAddress: { ...baseStyles.certificateAddress, fontFamily: pdfFont },
       certificateTitle: { ...baseStyles.certificateTitle, fontFamily: pdfFont },
       certificateSubtitle: { ...baseStyles.certificateSubtitle, fontFamily: pdfFont },
     };
-  }, [pdfFont]);
+  }, [pdfFont, pdfFontBold]);
 };
 
 export const H1 = ({ style, ...props }) => {

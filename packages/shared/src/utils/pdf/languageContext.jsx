@@ -21,7 +21,7 @@ export const withLanguageContext = Component => props => {
   const isGlobalFontEnabled = getSetting && getSetting('useGlobalPdfFont');
 
   const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
-  const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica-Bold';
+  const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont-Bold' : 'Helvetica-Bold';
 
   const contextValue = useMemo(() => {
     return {
