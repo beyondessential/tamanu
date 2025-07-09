@@ -368,8 +368,8 @@ export class MobileSyncManager {
     syncSettings,
     progressCallback,
   }: PullParams): Promise<void> {
+    await Database.client.transaction(async transactionEntityManager => {
     const processStreamedDataFunction = async (records: any) => {
-      await Database.client.transaction(async transactionEntityManager => {
         const incomingModels = getTransactionalModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -389,9 +389,12 @@ export class MobileSyncManager {
             ['key'],
           );
         }
-      });
-    };
-    await pullIncomingChanges(this.models, sessionId, processStreamedDataFunction);
+      };
+      await pullRecordsInBatches(
+        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+        processStreamedDataFunction,
+      );
+    });
   }
 
   async pullIncrementalSync({
@@ -402,15 +405,16 @@ export class MobileSyncManager {
     centralServer,
     progressCallback,
   }: PullParams): Promise<void> {
+    // Todo this isn't one big transaction
+    await Database.client.transaction(async transactionEntityManager => {
     const processStreamedDataFunction = async (records: any) => {
-      await Database.client.transaction(async transactionEntityManager => {
         await insertSnapshotRecords(transactionEntityManager, sessionId, records);
-      });
-    };
-    await createSnapshotTable();
-    await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback },
-      processStreamedDataFunction,
-    );
+      };
+      await createSnapshotTable();
+      await pullRecordsInBatches(
+        { centralServer, sessionId, recordTotal, progressCallback },
+        processStreamedDataFunction,
+      );
+    });
   }
 }
