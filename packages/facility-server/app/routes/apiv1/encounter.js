@@ -193,7 +193,30 @@ encounter.delete('/:id', deleteEncounter);
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get(
   '/:id/discharge',
-  simpleGetHasOne('Discharge', 'encounterId', { auditAccess: true }),
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Discharge },
+      params,
+    } = req;
+    req.checkPermission('read', 'Discharge');
+
+    const discharge = await Discharge.findOne({
+      where: {
+        encounterId: params.id,
+      },
+      include: Discharge.getFullReferenceAssociations(),
+    });
+    if (!discharge) throw new NotFoundError();
+    await req.audit?.access?.({
+      recordId: discharge.id,
+      params,
+      model: Discharge,
+    });
+
+    const plain = discharge.get({ plain: true });
+    plain.address = await discharge.address();
+    res.send(plain);
+  }),
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
