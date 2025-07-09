@@ -1,15 +1,15 @@
 import React from 'react';
 import { type Appointment } from '@tamanu/shared/dtos/responses/AppointmentSchema';
 
-import { LabelValueList } from './LabelValueList';
+import { LabelValueList } from '../../LabelValueList';
 import {
   formatAppointmentDateTime,
   formatAppointmentClinician,
   formatAppointmentFacility,
   formatAppointmentArea,
   formatAppointmentType,
-} from '../utils/format';
-import { Card } from './Card';
+} from '../../../utils/format';
+import { Card } from '../../Card';
 
 interface AppointmentCardProps {
   appointment: Appointment;

@@ -25,6 +25,8 @@ Apply this rule when:
    - **Schema Organization**: Create schemas in separate DTO files (e.g., `UserSchema.ts`, `LocationSchema.ts`) rather than inline definitions for better reusability
    - **Runtime Validation**: Always use `z.parse()` for API response validation instead of TypeScript casting (`as Type`)
    - **Response Schema Pattern**: Use common response schemas from `@tamanu/shared/dtos/responses/CommonResponseSchemas` for consistent API response structures
+   - **Optional vs Nullable Fields**: Use `z.optional()` for fields that can be `undefined`, not `z.nullable()` for fields that expect `null`. This prevents Zod validation errors when mock data uses `undefined` values.
+   - **Array Schema Pattern**: Always create separate array schemas (e.g., `UserArraySchema = z.array(UserSchema)`) and use `ArraySchema.parse(data)` instead of manually mapping over items
    - **Important**: After creating new schemas in the shared package, run `npm run build-shared` from the project root to make them available to other packages
 
 2. **Create a skeleton component file**:
@@ -194,6 +196,8 @@ Apply this rule when:
             id: 'item-1',
             // Add all fields matching your schema exactly
             // Use realistic data for the feature
+            // IMPORTANT: Use undefined for optional fields, not null
+            // This matches what TypeScript expects and prevents Zod validation errors
           },
           // Add more mock items
         ],
@@ -307,7 +311,10 @@ Apply this rule when:
 - Don't create inline formatting logic - use centralized formatting functions in `utils/format.ts`
 - Don't use Box with flex and gap - use Stack with spacing prop for consistent layout
 - Don't use h5 for subsection headers - use h4 with fontWeight="bold"
-- Don't use null in mock data - use undefined to match schema types
+- Don't use null in mock data - use undefined to match schema types (this causes Zod validation errors)
+- Don't use `z.nullable()` for fields that should be `undefined` - use `z.optional()` instead
+- Don't manually map over array items with individual parsing - use array schemas with `ArraySchema.parse()`
+- Don't rely on meta-level decorators for all story variants - each story should have its own decorator with specific mock data
 - Don't skip creating stories for individual card components - they need comprehensive coverage
 - Don't use TypeScript casting (`as Type`) for API responses - always use `z.parse()` for runtime validation
 
@@ -324,7 +331,7 @@ const transformData = (response: unknown): SomeType[] => {
 };
 ```
 
-**✅ Correct - Full Zod validation:**
+**❌ Wrong - Manual mapping with individual parsing:**
 
 ```typescript
 import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
@@ -335,6 +342,21 @@ const transformData = (response: unknown): SomeType[] => {
     return [];
   }
   return parsedResponse.data.map((item: unknown) => SomeSchema.parse(item));
+};
+```
+
+**✅ Correct - Array schema validation:**
+
+```typescript
+import { SomeArraySchema } from '@tamanu/shared/dtos/responses/SomeSchema';
+import { PaginatedResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+
+const transformData = (response: unknown): SomeType[] => {
+  const parsedResponse = PaginatedResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+  return SomeArraySchema.parse(parsedResponse.data);
 };
 ```
 
@@ -349,6 +371,24 @@ const transformData = (response: unknown): SomeType[] => {
 
 - `ArrayResponseSchema` - for endpoints returning `{ data: unknown[], count?: number }`
 - `PaginatedResponseSchema` - for paginated endpoints with `{ data: unknown[], count: number }`
+
+# Common Troubleshooting
+
+**Issue: Storybook stories show "no data" even with mock data**
+
+- **Cause**: Zod validation is failing because mock data doesn't match schema expectations
+- **Solution**: Check browser console for Zod validation errors, then fix mock data to match schema exactly
+- **Common problem**: Using `null` in mock data when schema expects `undefined` (use `z.optional()` not `z.nullable()`)
+
+**Issue: Default story variant not working**
+
+- **Cause**: Story decorator not properly configured or not applied at the right level
+- **Solution**: Ensure each story variant has its own decorator with endpoint-specific mock data, or use meta-level decorator for Default story only
+
+**Issue: Zod error "Required" for optional fields**
+
+- **Cause**: Schema uses `z.nullable()` but mock data provides `undefined`
+- **Solution**: Change schema to use `z.optional()` for fields that can be `undefined`
 
 # Notes
 

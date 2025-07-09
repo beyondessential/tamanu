@@ -2,11 +2,11 @@ import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { Calendar } from 'lucide-react';
 
-import { StyledCircularProgress } from '../StyledCircularProgress';
-import { AppointmentCard } from '../AppointmentCard';
-import { useUpcomingAppointmentsQuery } from '../../api/queries/useUpcomingAppointmentsQuery';
+import { StyledCircularProgress } from '../../StyledCircularProgress';
+import { AppointmentCard } from './AppointmentCard';
+import { useUpcomingAppointmentsQuery } from '../../../api/queries/useUpcomingAppointmentsQuery';
 import { TAMANU_COLORS } from '@tamanu/shared/ui/theme/colors';
-import { Card } from '../Card';
+import { Card } from '../../Card';
 
 export const UpcomingAppointmentsSection = () => {
   const { data: appointments, isLoading } = useUpcomingAppointmentsQuery();
@@ -26,7 +26,7 @@ export const UpcomingAppointmentsSection = () => {
               variant="h4"
               sx={{ textDecoration: 'underline', fontWeight: 'bold' }}
             >
-              {appointmentCount}
+              {appointmentCount || 'no'}
             </Typography>{' '}
             upcoming {appointmentCount === 1 ? 'appointment' : 'appointments'}
           </Typography>

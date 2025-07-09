@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { UpcomingAppointmentsSection } from '../../components/sections/UpcomingAppointmentsSection';
+import { UpcomingAppointmentsSection } from '../../components/sections/Appointments/UpcomingAppointmentsSection';
 import { MockedApi } from '../utils/mockedApi';
 
 // TODO - ideally this could use fake data package

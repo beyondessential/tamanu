@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AppointmentCard } from '../../components/AppointmentCard';
+import { AppointmentCard } from '../../components/sections/Appointments/AppointmentCard';
 
 const meta: Meta<typeof AppointmentCard> = {
   title: 'Components/AppointmentCard',
