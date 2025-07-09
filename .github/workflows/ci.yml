@@ -47,14 +47,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: "@tamanu/facility-server", shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 4/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 4/4, postgres: 14 }
+          - { package: "@tamanu/facility-server", shard: 1/4, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 2/4, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 3/4, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 4/4, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 1/5, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 2/5, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 3/5, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 4/5, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 4/5, postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 12 }
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
