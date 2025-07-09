@@ -1,12 +1,11 @@
 import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { Calendar } from 'lucide-react';
 
 import { StyledCircularProgress } from '../../StyledCircularProgress';
 import { AppointmentCard } from './AppointmentCard';
 import { useUpcomingAppointmentsQuery } from '../../../api/queries/useUpcomingAppointmentsQuery';
 import { TAMANU_COLORS } from '@tamanu/shared/ui/theme/colors';
-import { Card } from '../../Card';
 
 export const UpcomingAppointmentsSection = () => {
   const { data: appointments, isLoading } = useUpcomingAppointmentsQuery();
@@ -15,10 +14,9 @@ export const UpcomingAppointmentsSection = () => {
 
   return (
     <Card variant="outlined">
-      <Stack spacing={2}>
-        {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Calendar size={24} color={TAMANU_COLORS.purple} />
+      <CardHeader
+        avatar={<Calendar size={24} color={TAMANU_COLORS.purple} />}
+        title={
           <Typography variant="h4" fontWeight="normal">
             You have{' '}
             <Typography
@@ -30,9 +28,10 @@ export const UpcomingAppointmentsSection = () => {
             </Typography>{' '}
             upcoming {appointmentCount === 1 ? 'appointment' : 'appointments'}
           </Typography>
-        </Box>
+        }
+      />
 
-        {/* Content */}
+      <CardContent>
         {isLoading ? (
           <StyledCircularProgress size={24} />
         ) : appointments && appointments.length > 0 ? (
@@ -44,7 +43,7 @@ export const UpcomingAppointmentsSection = () => {
         ) : (
           <Typography color="text.secondary">No upcoming appointments scheduled.</Typography>
         )}
-      </Stack>
+      </CardContent>
     </Card>
   );
 };

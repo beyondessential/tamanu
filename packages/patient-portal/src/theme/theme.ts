@@ -1,5 +1,12 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme } from '@mui/material/styles';
 import { themeConfig } from '@tamanu/shared/ui/theme';
+
+// Augment the Material-UI theme to include custom Card variants
+declare module '@mui/material/Paper' {
+  interface PaperPropsVariantOverrides {
+    secondary: true;
+  }
+}
 
 // Override the typography for patient portal with clean Roboto fonts and proper sizes
 const patientPortalThemeConfig = {
@@ -52,6 +59,40 @@ const patientPortalThemeConfig = {
       fontSize: '0.75rem', // 12px
       fontWeight: 400,
       lineHeight: 1.4,
+    },
+  },
+  components: {
+    ...themeConfig.components,
+    MuiCard: {
+      defaultProps: {
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          backgroundColor: 'background.paper',
+        },
+      },
+      variants: [
+        {
+          props: { variant: 'secondary' as const },
+          style: {
+            backgroundColor: '#F9FAFB',
+          },
+        },
+        {
+          props: { variant: 'outlined' as const },
+          style: {
+            border: '1px solid divider',
+          },
+        },
+      ],
+    },
+    MuiCardHeader: {
+      styleOverrides: {
+        avatar: ({ theme }: { theme: Theme }) => ({
+          marginRight: theme.spacing(1),
+        }),
+      },
     },
   },
 };

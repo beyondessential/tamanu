@@ -1,11 +1,10 @@
 import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { CircleCheck, Clock } from 'lucide-react';
 
 import { StyledCircularProgress } from '../../StyledCircularProgress';
 import { FormCard } from './FormCard';
 import { useOutstandingFormsQuery } from '../../../api/queries/useOutstandingFormsQuery';
-import { Card } from '../../Card';
 import { Colors } from '@tamanu/shared/ui/theme/colors';
 
 export const OutstandingFormsSection = () => {
@@ -21,20 +20,22 @@ export const OutstandingFormsSection = () => {
 
   return (
     <Card variant="outlined">
-      <Stack spacing={2}>
-        {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {hasOutstandingForms ? (
+      <CardHeader
+        avatar={
+          hasOutstandingForms ? (
             <Clock size={24} color="#f44336" />
           ) : (
             <CircleCheck size={24} color={Colors.green} />
-          )}
+          )
+        }
+        title={
           <Typography variant="h4" fontWeight="normal">
             {headerText}
           </Typography>
-        </Box>
+        }
+      />
 
-        {/* Content */}
+      <CardContent>
         {isLoading ? (
           <StyledCircularProgress size={24} />
         ) : forms && forms.length > 0 ? (
@@ -51,7 +52,7 @@ export const OutstandingFormsSection = () => {
             ))}
           </Stack>
         ) : null}
-      </Stack>
+      </CardContent>
     </Card>
   );
 };

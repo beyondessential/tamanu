@@ -18,6 +18,7 @@ interface AccordionSectionProps extends AccordionProps {
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
   border: '1px solid',
   borderColor: theme.palette.divider,
+  borderRadius: theme.shape.borderRadius,
   '&:before': {
     display: 'none',
   },
@@ -25,7 +26,7 @@ const StyledAccordion = styled(Accordion)(({ theme }) => ({
 
 export const AccordionSection = ({ header, icon, children, ...props }: AccordionSectionProps) => {
   return (
-    <StyledAccordion elevation={0} {...props}>
+    <StyledAccordion elevation={0} {...props} disableGutters>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <SvgIcon color="primary" sx={{ width: 24, height: 24 }}>

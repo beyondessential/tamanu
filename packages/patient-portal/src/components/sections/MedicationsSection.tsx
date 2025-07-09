@@ -1,11 +1,10 @@
 import React from 'react';
 import { AccordionSection } from '../AccordionSection';
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography, Card, CardContent } from '@mui/material';
 import { Pill } from 'lucide-react';
 
 import { useMedicationsQuery } from '../../api/queries/useMedicationsQuery';
 import { LabelValueList } from '../LabelValueList';
-import { Card } from '../Card';
 import { StyledCircularProgress } from '../StyledCircularProgress';
 import {
   formatDate,
@@ -31,27 +30,29 @@ export const MedicationsSection = () => {
       ) : medications && medications.length > 0 ? (
         <MedicationContainer>
           {medications.map(medication => (
-            <Card key={medication.id}>
-              <LabelValueList>
-                <LabelValueList.ListItem
-                  label="Medication"
-                  value={medication.medication?.name || '--'}
-                />
-                <LabelValueList.ListItem
-                  label="Dose"
-                  value={formatDose(medication.doseAmount, medication.units)}
-                />
-                <LabelValueList.ListItem
-                  label="Frequency"
-                  value={formatFrequency(medication.frequency)}
-                />
-                <LabelValueList.ListItem label="Route" value={formatRoute(medication.route)} />
-                <LabelValueList.ListItem label="Date" value={formatDate(medication.date)} />
-                <LabelValueList.ListItem
-                  label="Prescriber"
-                  value={formatPrescriber(medication.prescriber)}
-                />
-              </LabelValueList>
+            <Card key={medication.id} variant="secondary">
+              <CardContent>
+                <LabelValueList>
+                  <LabelValueList.ListItem
+                    label="Medication"
+                    value={medication.medication?.name || '--'}
+                  />
+                  <LabelValueList.ListItem
+                    label="Dose"
+                    value={formatDose(medication.doseAmount, medication.units)}
+                  />
+                  <LabelValueList.ListItem
+                    label="Frequency"
+                    value={formatFrequency(medication.frequency)}
+                  />
+                  <LabelValueList.ListItem label="Route" value={formatRoute(medication.route)} />
+                  <LabelValueList.ListItem label="Date" value={formatDate(medication.date)} />
+                  <LabelValueList.ListItem
+                    label="Prescriber"
+                    value={formatPrescriber(medication.prescriber)}
+                  />
+                </LabelValueList>
+              </CardContent>
             </Card>
           ))}
         </MedicationContainer>

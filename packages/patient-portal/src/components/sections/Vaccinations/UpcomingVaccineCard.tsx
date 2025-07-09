@@ -1,7 +1,5 @@
 import React from 'react';
-import { Box, styled, Typography, Chip } from '@mui/material';
-
-import { Card } from '../../Card';
+import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
 import type { UpcomingVaccine } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
 import { formatWeekOf, getVaccineStatusColor } from '../../../utils/format';
 
@@ -19,17 +17,20 @@ interface UpcomingVaccineCardProps {
 export const UpcomingVaccineCard: React.FC<UpcomingVaccineCardProps> = ({ vaccine }) => {
   return (
     <Card variant="outlined">
-      <Typography variant="h4">{vaccine.scheduledVaccine?.label || 'Unknown vaccine'}</Typography>
-      <DetailsContainer>
-        <Typography variant="body1">
-          {vaccine.scheduledVaccine?.doseLabel || 'Unknown dose'} • {formatWeekOf(vaccine.dueDate)}
-        </Typography>
-        <Chip
-          label={vaccine.status || '--'}
-          color={getVaccineStatusColor(vaccine.status || '')}
-          size="small"
-        />
-      </DetailsContainer>
+      <CardContent>
+        <Typography variant="h4">{vaccine.scheduledVaccine?.label || 'Unknown vaccine'}</Typography>
+        <DetailsContainer>
+          <Typography variant="body1">
+            {vaccine.scheduledVaccine?.doseLabel || 'Unknown dose'} •{' '}
+            {formatWeekOf(vaccine.dueDate)}
+          </Typography>
+          <Chip
+            label={vaccine.status || '--'}
+            color={getVaccineStatusColor(vaccine.status || '')}
+            size="small"
+          />
+        </DetailsContainer>
+      </CardContent>
     </Card>
   );
 };
