@@ -50,6 +50,11 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
           // get the appropriate result info for this test
           const resultData = this.results[labTestType.id];
 
+          console.log('debugging issue');
+          console.log('results', this.results);
+          console.log('labTestType', labTestType);
+          console.log('resultData', resultData);
+
           // update test with result + method ID
           await test.update({
             labTestMethodId: resultData.labTestMethodId,
