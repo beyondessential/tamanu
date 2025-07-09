@@ -207,6 +207,7 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
+    needs: node_modules_cache
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
@@ -261,6 +262,7 @@ jobs:
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
   test-package-lock:
+    needs: node_modules_cache
     name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
@@ -271,6 +273,10 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: npm
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
       - run: npm i
       - run: git diff --exit-code
 
