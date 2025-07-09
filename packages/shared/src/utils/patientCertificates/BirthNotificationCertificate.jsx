@@ -300,7 +300,7 @@ const ParentSection = ({ parentType, data = {} }) => {
 };
 
 const SignatureSection = () => {
-  const { getTranslation, pdfFont } = useLanguageContext();
+  const { getTranslation, pdfFont, pdfFontBold } = useLanguageContext();
 
   const signatureStyles = StyleSheet.create({
     container: {
@@ -320,13 +320,13 @@ const SignatureSection = () => {
     leftText: {
       width: 90,
       marginRight: 10,
-      fontFamily: pdfFont,
+      fontFamily: pdfFontBold,
       fontWeight: 700,
     },
     rightText: {
       width: 30,
       marginRight: 10,
-      fontFamily: pdfFont,
+      fontFamily: pdfFontBold,
       fontWeight: 700,
     },
     line: {
