@@ -1,20 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  AppointmentSchema,
+  AppointmentsArraySchema,
   type Appointment,
 } from '@tamanu/shared/dtos/responses/AppointmentSchema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
-
-interface UpcomingAppointmentsResponse {
-  data: unknown[];
-  count: number;
-}
+import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 const transformData = (response: unknown): Appointment[] => {
-  const parsedResponse = response as UpcomingAppointmentsResponse;
-  return parsedResponse.data.map(item => AppointmentSchema.parse(item));
+  const parsedResponse = ArrayResponseSchema.parse(response);
+  if (!parsedResponse.data) {
+    return [];
+  }
+
+  return AppointmentsArraySchema.parse(parsedResponse.data);
 };
 
 export const useUpcomingAppointmentsQuery = () => {

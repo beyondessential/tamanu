@@ -25,4 +25,6 @@ export const MedicationSchema = z.object({
   prescriber: PrescriberSchema,
 });
 
+export const MedicationsArraySchema = z.array(MedicationSchema);
+
 export type Medication = z.infer<typeof MedicationSchema>;

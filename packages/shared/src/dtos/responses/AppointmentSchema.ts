@@ -55,4 +55,6 @@ export const AppointmentSchema = z.object({
   bookingType: ReferenceDataSchema.nullable().optional(),
 });
 
+export const AppointmentsArraySchema = z.array(AppointmentSchema);
+
 export type Appointment = z.infer<typeof AppointmentSchema>;

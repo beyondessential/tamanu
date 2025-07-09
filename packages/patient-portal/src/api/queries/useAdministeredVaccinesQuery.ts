@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  AdministeredVaccineSchema,
+  AdministeredVaccinesArraySchema,
   type AdministeredVaccine,
 } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
 import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
@@ -13,7 +13,7 @@ const transformData = (response: unknown): AdministeredVaccine[] => {
   if (!parsedResponse.data) {
     return [];
   }
-  return parsedResponse.data.map((item: unknown) => AdministeredVaccineSchema.parse(item));
+  return AdministeredVaccinesArraySchema.parse(parsedResponse.data);
 };
 
 export const useAdministeredVaccinesQuery = () => {

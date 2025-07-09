@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { MedicationSchema, type Medication } from '@tamanu/shared/dtos/responses/MedicationSchema';
+import {
+  MedicationsArraySchema,
+  type Medication,
+} from '@tamanu/shared/dtos/responses/MedicationSchema';
 import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
 
 import { useApi } from '../useApi';
@@ -10,7 +13,7 @@ const transformData = (response: unknown): Medication[] => {
   if (!parsedResponse.data) {
     return [];
   }
-  return parsedResponse.data.map((item: unknown) => MedicationSchema.parse(item));
+  return MedicationsArraySchema.parse(parsedResponse.data);
 };
 
 export const useMedicationsQuery = () => {
