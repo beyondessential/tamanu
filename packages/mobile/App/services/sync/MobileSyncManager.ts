@@ -332,40 +332,35 @@ export class MobileSyncManager {
     };
 
     if (isInitialSync) {
-      await this.pullInitialSync(sessionId, pullUntil, pullSettings, progressCallback);
+      await this.pullInitialSync({sessionId, pullUntil, totalPulled}, pullSettings, progressCallback);
     } else {
       await this.pullIncrementalSync(sessionId, pullUntil, pullSettings, progressCallback);
     }
   }
 
   async pullInitialSync(
-    sessionId: string,
-    pullUntil: number,
-    mobileSettings: MobileSyncSettings,
+    {sessionId,
+    pullUntil, totalPulled}: {sessionId: string, pullUntil: number, totalPulled: number}, 
+    mobileSyncSettings: MobileSyncSettings,
     progressCallback: (incrementalPulled: number) => void,
   ): Promise<void> {
-    await Database.transaction(async (transactingModels) => {
       const processStreamedDataFunction = async ({ models, records }: any) => {
-        // TODO: Implement processing logic here
-        // This will handle     incoming data in batches during initial sync
-        /**
-         *  await Database.client.transaction(async transactionEntityManager => {
-        const incomingModels = getTransactionalModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
+          await Database.client.transaction(async transactionEntityManager => {
+        const incomingModels = getTransactionalModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
         if (totalPulled > 0) {
           await saveIncomingChanges(
             totalPulled,
             incomingModels,
-            mobileSyncSettings.saveIncomingChanges,
+            mobileSyncSettings,
             this.updateProgress,
           );
         }
-         */
-      };
+        
       
       // All operations within this transaction block will be atomic
       // If any operation fails, the entire transaction will be rolled back
     });
-    
+  
     /**
     *  await this.models.wrapInTransaction(async transactingModels => {
       const processStreamedDataFunction = async ({ models, records }: ProcessStreamDataParams) => {
