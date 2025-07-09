@@ -74,14 +74,10 @@ const vaccineCertificateStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Bold',
-    fontWeight: 700,
     color: '#888888',
   },
   valueText: {
     fontSize: 8,
-    fontFamily: 'NotoKufiArabic-Regular',
-    fontWeight: 400,
     color: '#888888',
   },
   documentHeaderContent: {
@@ -93,8 +89,8 @@ const VaccineCertificateHeader = ({ patient }) => {
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
-  const ValueText = props => <BaseText style={valueStyles} {...props} />;
-  const LabelText = props => <BaseText style={labelStyles} {...props} />;
+  const ValueText = props => <Text style={valueStyles} {...props} />;
+  const LabelText = props => <Text bold style={labelStyles} {...props} />;
 
   const { getTranslation } = useLanguageContext();
   return (
@@ -143,41 +139,10 @@ const VaccineCertificateComponent = ({
   certificateData,
   healthFacility,
 }) => {
-  const { getTranslation, pdfFont } = useLanguageContext();
+  const { getTranslation } = useLanguageContext();
   const getLocalisation = key => get(localisation, key);
   const getSetting = key => get(settings, key);
   const countryName = getLocalisation('country.name');
-
-  const vaccineCertificateStyles = StyleSheet.create({
-    footerContent: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    footerLeft: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    footerRight: {
-      flex: 1,
-      textAlign: 'right',
-    },
-    labelText: {
-      fontSize: 8,
-      fontFamily: pdfFont,
-      fontWeight: 700,
-      color: '#888888',
-    },
-    valueText: {
-      fontSize: 8,
-      fontFamily: pdfFont,
-      fontWeight: 400,
-      color: '#888888',
-    },
-    documentHeaderContent: {
-      flexDirection: 'row',
-    },
-  });
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 

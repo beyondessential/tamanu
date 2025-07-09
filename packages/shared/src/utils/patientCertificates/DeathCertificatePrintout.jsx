@@ -64,12 +64,9 @@ const infoBoxStyles = StyleSheet.create({
   },
   boldText: {
     fontSize: 12,
-    fontFamily: 'GlobalPdfFont',
   },
   infoText: {
     fontSize: 12,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
   },
   italicBoldText: {
     fontStyle: 'italic',
@@ -102,8 +99,6 @@ const signStyles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
     lineHeight: 1,
   },
   line: {
@@ -162,7 +157,7 @@ const AuthorisedAndSignSection = () => {
   return (
     <View style={signStyles.container}>
       <View style={signStyles.row}>
-        <P style={signStyles.text}>
+        <P bold style={signStyles.text}>
           {getTranslation(
             'pdf.deathCertificate.signature.authorisedBy',
             'Authorised by (print name)',
@@ -173,13 +168,13 @@ const AuthorisedAndSignSection = () => {
       </View>
       <View style={signStyles.row}>
         <View style={signStyles.leftCol}>
-          <Text style={signStyles.text}>
+          <Text bold style={signStyles.text}>
             {getTranslation('pdf.deathCertificate.signature.signed', 'Signed')}:{' '}
           </Text>
           <View style={signStyles.line} />
         </View>
         <View style={signStyles.rightCol}>
-          <Text style={signStyles.text}>
+          <Text bold style={signStyles.text}>
             {getTranslation('pdf.deathCertificate.signature.date', 'Date')}:
           </Text>
           <View style={signStyles.line} />
@@ -328,7 +323,7 @@ const DeathCertificatePrintoutComponent = React.memo(
           <TableContainer>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles.boldText}>
+                <Text bold style={infoBoxStyles.boldText}>
                   {getTranslation('pdf.deathCertificate.causeOfDeath.primary.label.1', 'I')}
                   {'\n'}
                   {getTranslation(
@@ -341,7 +336,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                     'leading to death*',
                   )}
                 </Text>
-                <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
+                <Text bold style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
                   {getTranslation(
                     'pdf.deathCertificate.antecedentCauses.label',
                     'Antecedent Causes',
@@ -406,7 +401,7 @@ const DeathCertificatePrintoutComponent = React.memo(
             </InfoBoxRow>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles.boldText}>
+                <Text bold style={infoBoxStyles.boldText}>
                   {getTranslation('pdf.deathCertificate.contributingCauses.label.1', 'II')}
                   {'\n'}
                   {getTranslation(

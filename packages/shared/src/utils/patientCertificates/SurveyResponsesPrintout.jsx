@@ -41,10 +41,6 @@ const pageStyles = StyleSheet.create({
   itemText: {
     fontSize: 9,
   },
-  boldText: {
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
-  },
   boldDivider: {
     borderBottom: '2px solid black',
     height: 2,
@@ -100,7 +96,7 @@ const ResponseItem = ({ row }) => {
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+      <Text bold style={[pageStyles.itemText]}>
         {getAnswers({ answer, type, sourceType })}
       </Text>
     </View>

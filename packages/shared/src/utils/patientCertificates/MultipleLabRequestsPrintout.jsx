@@ -44,12 +44,6 @@ const labDetailsSectionStyles = StyleSheet.create({
   detailsContainer: {
     marginBottom: 5,
   },
-  heading: {
-    fontSize: 11,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
-    marginVertical: 3,
-  },
 });
 
 const generalStyles = StyleSheet.create({

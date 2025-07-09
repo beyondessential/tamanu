@@ -44,12 +44,9 @@ const infoBoxStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 10,
-    fontFamily: 'GlobalPdfFont',
   },
   infoText: {
     fontSize: 10,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
   },
 });
 
@@ -62,12 +59,6 @@ const notesSectionStyles = StyleSheet.create({
     border: borderStyle,
     minHeight: 76,
     padding: 10,
-  },
-  title: {
-    marginBottom: 3,
-    fontSize: 11,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
   },
 });
 
@@ -95,7 +86,9 @@ const extractProceduresInfo = ({ procedures, getSetting }) => {
 const InfoBox = ({ label, info }) => (
   <InfoBoxRow>
     <InfoBoxLabelCol>
-      <Text style={infoBoxStyles.labelText}>{label}</Text>
+      <Text bold style={infoBoxStyles.labelText}>
+        {label}
+      </Text>
     </InfoBoxLabelCol>
     <InfoBoxDataCol>
       {info.map((item, index) => {

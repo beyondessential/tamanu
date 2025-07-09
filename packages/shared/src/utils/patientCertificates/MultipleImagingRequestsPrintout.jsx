@@ -32,8 +32,6 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
   heading: {
     fontSize: 11,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
     marginVertical: 3,
   },
 });
@@ -85,7 +83,9 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
+      <Text bold style={labDetailsSectionStyles.heading}>
+        Imaging request details
+      </Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (

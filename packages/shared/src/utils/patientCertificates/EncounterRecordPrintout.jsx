@@ -37,10 +37,8 @@ const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
     fontSize: 11,
-    fontFamily: 'GlobalPdfFont',
   },
   tableColumnHeader: {
-    fontFamily: 'GlobalPdfFont',
     fontWeight: 700,
     fontSize: 10,
   },
@@ -49,18 +47,6 @@ const textStyles = StyleSheet.create({
   },
   tableCellFooter: {
     fontSize: 8,
-  },
-  headerLabel: {
-    fontSize: 8,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 700,
-    color: '#888888',
-  },
-  headerValue: {
-    fontSize: 8,
-    fontFamily: 'GlobalPdfFont',
-    fontWeight: 400,
-    color: '#888888',
   },
 });
 
@@ -91,7 +77,6 @@ const tableStyles = StyleSheet.create({
     fontSize: 8,
   },
   p: {
-    fontFamily: 'GlobalPdfFont',
     fontWeight: 400,
     fontSize: 8,
   },
@@ -146,6 +131,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
+      bold
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
