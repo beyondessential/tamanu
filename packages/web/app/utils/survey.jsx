@@ -298,24 +298,25 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-export const getAnswersFromData = async (data, survey) =>
-  Object.entries(data).reduce(async (accPromise, [key, val]) => {
-    const acc = await accPromise;
+export const getAnswersFromData = async (data, survey) => {
+  const answers = {};
+  for (const [key, val] of Object.entries(data)) {
     const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
     const currentDataElementType = currentComponent?.dataElement?.type;
     if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
       try {
         const size = val.size;
         const base64Data = await convertToBase64(val);
-        acc[key] = { size, data: base64Data };
+        answers[key] = { size, data: base64Data };
       } catch (e) {
         toast.error(e.message);
       }
     } else if (currentDataElementType !== 'PatientIssue') {
-      acc[key] = val;
+      answers[key] = val;
     }
-    return acc;
-  }, Promise.resolve({}));
+  }
+  return answers;
+};
 
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
