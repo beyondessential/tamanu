@@ -18,7 +18,7 @@ export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
   const { translations, getSetting, ...other } = props;
 
-  const isGlobalFontEnabled = getSetting && getSetting('globalPdfFont');
+  const isGlobalFontEnabled = getSetting && getSetting('useGlobalPdfFont');
 
   const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
   const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica-Bold';
