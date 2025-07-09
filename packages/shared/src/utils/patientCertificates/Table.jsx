@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from '@react-pdf/renderer';
 import { Text } from '../pdf/Text';
-import { useLanguageContext } from '../pdf/languageContext';
 
 const basicBorder = '1 solid black';
 
@@ -31,10 +30,9 @@ const tableStyles = StyleSheet.create({
 });
 
 const TR = props => <View {...props} style={tableStyles.tr} />;
-const TH = ({ customStyles, ...props }) => {
-  const { pdfFontBold } = useLanguageContext();
-  return <Text {...props} style={[tableStyles.th, customStyles, { fontFamily: pdfFontBold }]} />;
-};
+const TH = ({ customStyles, ...props }) => (
+  <Text bold {...props} style={[tableStyles.th, customStyles]} />
+);
 const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );

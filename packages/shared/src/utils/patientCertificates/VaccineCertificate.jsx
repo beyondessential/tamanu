@@ -58,38 +58,38 @@ const columns = getTranslation => [
   },
 ];
 
+const vaccineCertificateStyles = StyleSheet.create({
+  footerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footerLeft: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  footerRight: {
+    flex: 1,
+    textAlign: 'right',
+  },
+  labelText: {
+    fontSize: 8,
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
+    color: '#888888',
+  },
+  valueText: {
+    fontSize: 8,
+    fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 400,
+    color: '#888888',
+  },
+  documentHeaderContent: {
+    flexDirection: 'row',
+  },
+});
+
 const VaccineCertificateHeader = ({ patient }) => {
-  const { pdfFont } = useLanguageContext();
-  const vaccineCertificateStyles = StyleSheet.create({
-    footerContent: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    footerLeft: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    footerRight: {
-      flex: 1,
-      textAlign: 'right',
-    },
-    labelText: {
-      fontSize: 8,
-      fontFamily: pdfFont,
-      fontWeight: 700,
-      color: '#888888',
-    },
-    valueText: {
-      fontSize: 8,
-      fontFamily: pdfFont,
-      fontWeight: 400,
-      color: '#888888',
-    },
-    documentHeaderContent: {
-      flexDirection: 'row',
-    },
-  });
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
@@ -184,21 +184,28 @@ const VaccineCertificateComponent = ({
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
       <View style={vaccineCertificateStyles.footerLeft}>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printDate', 'Print date')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{getDisplayDate(printedDate)} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {getDisplayDate(printedDate)} |{' '}
+        </Text>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printingFacility', 'Printing facility')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{facilityName || healthFacility} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {facilityName || healthFacility} |{' '}
+        </Text>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printedBy', 'Printed by')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {printedBy}
+        </Text>
       </View>
       <View style={vaccineCertificateStyles.footerRight}>
         <Text
+          bold
           style={vaccineCertificateStyles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {

@@ -20,30 +20,26 @@ import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 
+const topStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  cell: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  key: {
+    fontSize: 9,
+    marginRight: 2,
+  },
+  value: {
+    fontSize: 9,
+  },
+});
+
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { pdfFontBold } = useLanguageContext();
-
-  const topStyles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginTop: 15,
-    },
-    cell: {
-      flexDirection: 'row',
-      marginBottom: 10,
-    },
-    key: {
-      fontSize: 9,
-      fontFamily: pdfFontBold,
-      fontWeight: 700,
-      marginRight: 2,
-    },
-    value: {
-      fontSize: 9,
-    },
-  });
-
   const date = getCurrentDateString();
   return (
     <View style={topStyles.container}>
@@ -52,7 +48,9 @@ const TopSection = ({ facilityName, childDisplayId }) => {
         <P style={topStyles.value}>{facilityName}</P>
       </View>
       <View style={topStyles.cell}>
-        <P style={topStyles.key}>Notification date:</P>
+        <P bold style={topStyles.key}>
+          Notification date:
+        </P>
         <P style={topStyles.value}>{getDisplayDate(date)}</P>
       </View>
       <View style={topStyles.cell}>
@@ -299,47 +297,42 @@ const ParentSection = ({ parentType, data = {} }) => {
   );
 };
 
+const signatureStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  leftCell: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    paddingRight: 10,
+  },
+  rightCell: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    paddingLeft: 10,
+  },
+  leftText: {
+    width: 90,
+    marginRight: 10,
+  },
+  rightText: {
+    width: 30,
+    marginRight: 10,
+  },
+  line: {
+    flex: 1,
+    borderBottom: '1 solid black',
+  },
+});
+
 const SignatureSection = () => {
-  const { getTranslation, pdfFont, pdfFontBold } = useLanguageContext();
-
-  const signatureStyles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      marginTop: 10,
-    },
-    leftCell: {
-      flexDirection: 'row',
-      marginBottom: 15,
-      paddingRight: 10,
-    },
-    rightCell: {
-      flexDirection: 'row',
-      marginBottom: 15,
-      paddingLeft: 10,
-    },
-    leftText: {
-      width: 90,
-      marginRight: 10,
-      fontFamily: pdfFontBold,
-      fontWeight: 700,
-    },
-    rightText: {
-      width: 30,
-      marginRight: 10,
-      fontFamily: pdfFontBold,
-      fontWeight: 700,
-    },
-    line: {
-      flex: 1,
-      borderBottom: '1 solid black',
-    },
-  });
-
+  const { getTranslation } = useLanguageContext();
   return (
     <View style={signatureStyles.container}>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>
+          <P bold style={signatureStyles.leftText}>
             {getTranslation(
               'pdf.birthNotification.signature.certifiedCorrectBy',
               'Certified correct by',
@@ -349,7 +342,7 @@ const SignatureSection = () => {
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>
+          <P bold style={signatureStyles.leftText}>
             {getTranslation(
               'pdf.birthNotification.signature.circleApplicable',
               'Circle applicable',
@@ -366,13 +359,13 @@ const SignatureSection = () => {
       </View>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>
+          <P bold style={signatureStyles.rightText}>
             {getTranslation('pdf.birthNotification.signature.signed', 'Signed') + ':'}
           </P>
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>
+          <P bold style={signatureStyles.rightText}>
             {getTranslation('pdf.birthNotification.signature.date', 'Date')}:
           </P>
           <View style={signatureStyles.line} />
