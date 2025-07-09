@@ -36,7 +36,7 @@ export const DashboardView = () => {
     <Box>
       <Stack spacing={1.5}>
         {/* Header */}
-        <Typography variant="h1" sx={{ fontSize: '2rem', fontWeight: 'bold', mb: 1 }}>
+        <Typography variant="h1" sx={{ fontWeight: 'bold', mb: 1, py: 1 }}>
           Hi {getPatientName()} 👋
         </Typography>
 

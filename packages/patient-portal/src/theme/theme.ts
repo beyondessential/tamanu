@@ -16,25 +16,13 @@ const patientPortalThemeConfig = {
     fontFamily: 'Roboto',
     h1: {
       fontFamily: 'Roboto',
-      fontSize: '2rem', // 32px
+      fontSize: '1.5rem', // 24px
       fontWeight: 500,
       lineHeight: 1.2,
     },
-    h2: {
-      fontFamily: 'Roboto',
-      fontSize: '1.75rem', // 28px
-      fontWeight: 500,
-      lineHeight: 1.3,
-    },
-    h3: {
-      fontFamily: 'Roboto',
-      fontSize: '1.5rem', // 24px
-      fontWeight: 500,
-      lineHeight: 1.4,
-    },
     h4: {
       fontFamily: 'Roboto',
-      fontSize: '1rem', // 16px - Your desired bold 16px heading
+      fontSize: '1rem', // 16px
       fontWeight: 600,
       lineHeight: 1.5,
     },
@@ -60,6 +48,10 @@ const patientPortalThemeConfig = {
       fontWeight: 400,
       lineHeight: 1.4,
     },
+  },
+  shape: {
+    ...themeConfig.shape,
+    borderRadius: 5,
   },
   components: {
     ...themeConfig.components,
