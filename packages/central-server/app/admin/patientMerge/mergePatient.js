@@ -319,15 +319,23 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   // one that wasn't tracked (obviously there are individual cases that could be handled more
   // specifically, but better to have a simple rule to rule them all, at the expense of a bit of
   // extra sync bandwidth)
-  const where = { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } };
   const existingPatientFacilityRecords = await models.PatientFacility.findAll({
-    where,
+    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
   });
-  // This is the only place where hard deletion is allowed, as we will be creating
-  // new records to replace the all the old ones and then some.
-  await models.PatientFacility.destroy({ where, force: true });
 
   if (existingPatientFacilityRecords.length === 0) return [];
+
+  // Soft delete the unwanted patient facility records
+  await models.PatientFacility.destroy({
+    where: { patientId: unwantedPatientId },
+  });
+
+  // This is the only place where hard deletion is allowed, as we will be creating
+  // new records to replace these.
+  await models.PatientFacility.destroy({
+    where: { patientId: keepPatientId },
+    force: true,
+  });
 
   const facilitiesTrackingPatient = [
     ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
