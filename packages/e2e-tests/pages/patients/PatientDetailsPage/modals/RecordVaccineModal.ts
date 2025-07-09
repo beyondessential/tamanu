@@ -66,9 +66,15 @@ export class RecordVaccineModal extends BasePatientModal {
     this.otherVaccineBrand = this.page.getByTestId('field-f1vm-input');
     this.otherVaccineDisease = this.page.getByTestId('field-gcfk-input');
     this.dateFieldIncludingError = this.page.getByTestId('field-8sou');
-    this.areaFieldIncludingError = this.page.getByTestId('field-zrlv-group-input-outerlabelfieldwrapper');
-    this.locationFieldIncludingError = this.page.getByTestId('field-zrlv-location-input-outerlabelfieldwrapper');
-    this.departmentFieldIncludingError = this.page.getByTestId('field-5sfc-input-outerlabelfieldwrapper');
+    this.areaFieldIncludingError = this.page.getByTestId(
+      'field-zrlv-group-input-outerlabelfieldwrapper',
+    );
+    this.locationFieldIncludingError = this.page.getByTestId(
+      'field-zrlv-location-input-outerlabelfieldwrapper',
+    );
+    this.departmentFieldIncludingError = this.page.getByTestId(
+      'field-5sfc-input-outerlabelfieldwrapper',
+    );
     this.categoryRequiredError = this.page.getByTestId('formhelpertext-sz5u');
     this.consentGivenRequiredError = this.page.getByTestId('formhelpertext-2d0o');
     this.vaccineNameRequiredError = this.page.getByTestId('field-npct-formhelptertext');
@@ -98,7 +104,6 @@ export class RecordVaccineModal extends BasePatientModal {
         break;
     }
   }
-
 
   async selectVaccine(specificVaccine?: string) {
     const vaccineName = await selectFieldOption(this.page, this.vaccineSelectField, {

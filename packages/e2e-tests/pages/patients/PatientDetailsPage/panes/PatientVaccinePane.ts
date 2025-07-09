@@ -2,11 +2,12 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
-import { ViewVaccineRecordModal } from '../modals/viewVaccineRecordModal';
+import { ViewVaccineRecordModal } from '../modals/ViewVaccineRecordModal';
 import {
   RequiredVaccineModalAssertionParams,
   OptionalVaccineModalAssertionParams,
 } from '../../../../types/vaccine/ViewVaccineModalAssertions';
+import { EditVaccineModal } from '../modals/EditVaccineModal';
 
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
@@ -15,10 +16,14 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTablePaginator: Locator;
   recordVaccineModal?: RecordVaccineModal;
   viewVaccineRecordModal?: ViewVaccineRecordModal;
+  editVaccineModal?: EditVaccineModal;
   readonly recordedVaccinesTableBody: Locator;
   readonly vaccineNotGivenCheckbox: Locator;
   readonly tableRowPrefix: string;
   readonly dateFieldForSingleVaccine: Locator;
+  readonly editVaccineButtonTestId: string;
+  readonly editVaccineOption: Locator;
+  readonly deleteVaccineOption: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,6 +40,9 @@ export class PatientVaccinePane extends BasePatientPane {
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.tableRowPrefix = `styledtablecell-2gyy-`;
     this.dateFieldForSingleVaccine = this.page.getByTestId('styledtablecell-2gyy-0-date');
+    this.editVaccineButtonTestId = 'openbutton-d1ec';
+    this.editVaccineOption = this.page.getByTestId('item-8ybn-0');
+    this.deleteVaccineOption = this.page.getByTestId('item-8ybn-1');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -44,6 +52,21 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     return this.recordVaccineModal;
+  }
+
+  //TODO: break some of this logic out into a separate "click action option" so can have a separate delete function?
+  async clickEditVaccineButton(vaccineName: string, scheduleOption: string, count: number) {
+    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
+    const editButton = this.recordedVaccinesTableBody
+      .getByTestId(`${this.tableRowPrefix}${row}-action`)
+      .getByTestId(this.editVaccineButtonTestId);
+    await editButton.click();
+    await this.editVaccineOption.click();
+    if (!this.editVaccineModal) {
+      this.editVaccineModal = new EditVaccineModal(this.page);
+    }
+
+    return this.editVaccineModal;
   }
 
   async getRecordedVaccineCount(): Promise<number> {
@@ -68,15 +91,15 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
- /**
-  * Asserts the values for a specific vaccine in the recorded vaccines table are correct
-  * @param vaccineName - The name of the vaccine to search for, e.g. "Pentavalent"
-  * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
-  * @param date - The date of the vaccine to search for, e.g. "2024-11-27"
-  * @param count - The number of times to run the search
-  * @param given - Whether the vaccine was given, e.g. true
-  * @param givenBy - The name of the person who gave the vaccine, e.g. "John Doe"
-  */ 
+  /**
+   * Asserts the values for a specific vaccine in the recorded vaccines table are correct
+   * @param vaccineName - The name of the vaccine to search for, e.g. "Pentavalent"
+   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param date - The date of the vaccine to search for, e.g. "2024-11-27"
+   * @param count - The number of times to run the search
+   * @param given - Whether the vaccine was given, e.g. true
+   * @param givenBy - The name of the person who gave the vaccine, e.g. "John Doe"
+   */
   async assertRecordedVaccineTable(
     vaccineName: string,
     scheduleOption: string,

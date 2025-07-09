@@ -1,6 +1,6 @@
-import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
-import { getItemFromLocalStorage, getCurrentUser } from "./generateNewPatient";
-import { constructFacilityUrl } from "./navigation";
+import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
+import { getItemFromLocalStorage, getCurrentUser } from './generateNewPatient';
+import { constructFacilityUrl } from './navigation';
 import { Locator } from '@playwright/test';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
@@ -19,7 +19,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientData.id}`);
   console.log('Verifying patient at URL:', verifyPatientUrl);
-  
+
   const verifyResponse = await fetch(verifyPatientUrl, {
     method: 'GET',
     headers: {
@@ -34,7 +34,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientData.id}/death`);
   console.log('Recording death at URL:', apiDeathUrl);
-  
+
   const response = await fetch(apiDeathUrl, {
     method: 'POST',
     headers: {
@@ -48,7 +48,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
       causeOfDeath: null,
       mannerOfDeath: 'Disease',
       outsideHealthFacility: false,
-      isPartialWorkflow: true
+      isPartialWorkflow: true,
     }),
   });
 
@@ -71,7 +71,7 @@ export async function SelectingFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   try {
     await searchBox.fill(searchText);
@@ -90,8 +90,8 @@ export async function SelectingFromSearchBox(
  * @returns The date with the offset applied
  */
 export async function offsetYear(
-  dateToOffset: string, 
-  offset: 'increaseByOneYear' | 'decreaseByOneYear'
+  dateToOffset: string,
+  offset: 'increaseByOneYear' | 'decreaseByOneYear',
 ): Promise<string> {
   const [yearStr, month, day] = dateToOffset.split('-');
   let year = Number(yearStr);

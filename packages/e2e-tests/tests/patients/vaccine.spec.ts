@@ -4,6 +4,7 @@ import { convertDateFormat, offsetYear } from '../../utils/testHelper';
 
 //TODO: add tests to confirm error messages if try to submit without required fields
 //TODO: make addvaccineandassert function less complex?
+//TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
@@ -13,6 +14,7 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.navigateToVaccineTab();
   });
 
+  //TODO: improve this by breaking it up into multiple functions. ask AI for suggestions maybe?
   async function addVaccineAndAssert(
     patientDetailsPage: PatientDetailsPage,
     given: boolean,
@@ -54,7 +56,14 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    if (!vaccine.vaccineName || !vaccine.scheduleOption || !vaccine.date || !vaccine.area || !vaccine.location || !vaccine.department) {
+    if (
+      !vaccine.vaccineName ||
+      !vaccine.scheduleOption ||
+      !vaccine.date ||
+      !vaccine.area ||
+      !vaccine.location ||
+      !vaccine.department
+    ) {
       throw new Error('Vaccine record is missing required fields');
     }
 
@@ -104,9 +113,14 @@ test.describe('Vaccines', () => {
         optionalParams,
       );
     }
+    return vaccine;
   }
 
-  async function triggerDateError(patientDetailsPage: PatientDetailsPage, date: string, expectedErrorMessage: string) {
+  async function triggerDateError(
+    patientDetailsPage: PatientDetailsPage,
+    date: string,
+    expectedErrorMessage: string,
+  ) {
     await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
@@ -116,7 +130,9 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
     //Assert the validation error appears
-    await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!).toContainText(expectedErrorMessage);
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!,
+    ).toContainText(expectedErrorMessage);
   }
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
@@ -238,7 +254,6 @@ test.describe('Vaccines', () => {
     });
   });
 
-
   test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
@@ -348,7 +363,10 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Date given cannot be before patient date of birth', async ({ patientDetailsPage, newPatient }) => {
+  test('Date given cannot be before patient date of birth', async ({
+    patientDetailsPage,
+    newPatient,
+  }) => {
     const dateBeforePatientDob = await offsetYear(newPatient.dateOfBirth!, 'decreaseByOneYear');
     const expectedErrorMessage = 'Date cannot be prior to patient date of birth';
 
@@ -366,30 +384,198 @@ test.describe('Vaccines', () => {
   });
 
   test('Mandatory fields must be filled', async ({ patientDetailsPage }) => {
-   const expectedAreaAndLocationError = 'locationId must be a `string` type, but the final value was: `null`';
-   const expectedDepartmentError = 'departmentId must be a `string` type, but the final value was: `null`';
-   const genericExpectedError = 'Required';
+    const expectedAreaAndLocationError =
+      'locationId must be a `string` type, but the final value was: `null`';
+    const expectedDepartmentError =
+      'departmentId must be a `string` type, but the final value was: `null`';
+    const genericExpectedError = 'Required';
 
-   await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
 
-   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
+    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-   //Attempt to submit without filling any fields
-   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
+    //Attempt to submit without filling any fields
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
-   //Assert the expected validation errors appear
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.areaFieldIncludingError!).toContainText(expectedAreaAndLocationError);
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.locationFieldIncludingError!).toContainText(expectedAreaAndLocationError);
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.departmentFieldIncludingError!).toContainText(expectedDepartmentError);
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRequiredError!).toContainText(genericExpectedError);
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.consentGivenRequiredError!).toContainText(genericExpectedError);
+    //Assert the expected validation errors appear
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.areaFieldIncludingError!,
+    ).toContainText(expectedAreaAndLocationError);
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.locationFieldIncludingError!,
+    ).toContainText(expectedAreaAndLocationError);
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.departmentFieldIncludingError!,
+    ).toContainText(expectedDepartmentError);
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRequiredError!,
+    ).toContainText(genericExpectedError);
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.consentGivenRequiredError!,
+    ).toContainText(genericExpectedError);
 
-   //Select a category to trigger validation on the vaccine field
-   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRoutineRadio.click();
-   await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
+    //Select a category to trigger validation on the vaccine field
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.categoryRoutineRadio.click();
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
 
-   //Assert the vaccine field validation error now appears
-   await expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal?.vaccineNameRequiredError!).toContainText(genericExpectedError);
+    //Assert the vaccine field validation error now appears
+    await expect(
+      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.vaccineNameRequiredError!,
+    ).toContainText(genericExpectedError);
+  });
+
+  //TODO: move this to top of page when done
+  async function editVaccine(
+    patientDetailsPage: PatientDetailsPage,
+    vaccineName: string,
+    scheduleOption: string,
+    count: number,
+    edits: {
+      batch?: string;
+      dateGiven?: string;
+      injectionSite?: string;
+      area?: string;
+      location?: string;
+      department?: string;
+      givenBy?: string;
+      consentCheckbox?: boolean;
+      consentGivenBy?: string;
+    } = {},
+  ) {
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
+      vaccineName,
+      scheduleOption,
+      count,
+    );
+
+    expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
+
+    const editedVaccine = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(edits);
+
+    if (!editedVaccine) {
+      throw new Error('Vaccine record was not edited successfully');
+    }
+
+    return editedVaccine;
+  }
+
+  //TODO: need to assert some changes in the recorded vaccine table too
+  async function assertEditedVaccine(
+    patientDetailsPage: PatientDetailsPage,
+    vaccineName: string,
+    scheduleOption: string,
+    count: number,
+    expectedEdits: {
+      batch?: string;
+      dateGiven?: string;
+      injectionSite?: string;
+      area?: string;
+      location?: string;
+      department?: string;
+      givenBy?: string;
+      consentGivenBy?: string;
+    },
+    remainsUnchanged: {
+      given: boolean;
+      category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
+      fillOptionalFields: boolean;
+    }
+  ) {
+    const requiredParams = {
+      vaccineName,
+      date: expectedEdits.dateGiven!,
+      area: expectedEdits.area!,
+      location: expectedEdits.location!,
+      department: expectedEdits.department!,
+      given: remainsUnchanged.given,
+      count,
+      category: remainsUnchanged.category,
+      fillOptionalFields: remainsUnchanged.fillOptionalFields,
+      schedule: scheduleOption,
+    };
+
+    const optionalParams = {
+      batch: expectedEdits.batch,
+      injectionSite: expectedEdits.injectionSite,
+      givenBy: expectedEdits.givenBy,
+    };
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
+  }
+
+  test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
+    const vaccineCount = 1;
+    //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const editedDateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
+
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', vaccineCount, {
+      fillOptionalFields: true,
+    });
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    //TODO: add assert to this same function? nah i dont think so since i wanna split the other up anyway
+    const editedVaccine = await editVaccine(
+      patientDetailsPage,
+      vaccine.vaccineName!,
+      vaccine.scheduleOption!,
+      vaccineCount,
+      {
+        batch: 'Edited batch field',
+        dateGiven: editedDateGiven,
+        injectionSite: vaccine.injectionSite,
+        area: vaccine.area,
+        location: vaccine.location,
+        department: vaccine.department,
+        givenBy: 'Edited given by field',
+        consentGivenBy: 'Edited consent field',
+      },
+    );
+
+    console.log('editedVaccine', editedVaccine);
+
+    await assertEditedVaccine(
+      patientDetailsPage,
+      vaccine.vaccineName!,
+      vaccine.scheduleOption!,
+      vaccineCount,
+      {
+        batch: editedVaccine.batch,
+        dateGiven: editedVaccine.dateGiven,
+        injectionSite: editedVaccine.injectionSite,
+        area: editedVaccine.area,
+        location: editedVaccine.location,
+        department: editedVaccine.department,
+        givenBy: editedVaccine.givenBy,
+        consentGivenBy: editedVaccine.consentGivenBy,
+      },
+      {
+        given: true,
+        category: 'Routine',
+        fillOptionalFields: true,
+      }
+    );
+  });
+
+  test('Edit a vaccine and fill fields that were originally skipped', async ({
+    patientDetailsPage,
+  }) => {
+    //TODO: this
+  });
+
+  test('Edit unique fields', async ({ patientDetailsPage }) => {
+    //TODO: are unique specific tests required?  e.g. do other, given, not given etc combos have unique fields to edit?
+  });
+
+  test('Validation works when editing a vaccine', async ({ patientDetailsPage }) => {
+    //TODO: this
+    //TODO: uncheck consent checkbox?
+  });
+
+  test('Delete', async ({ patientDetailsPage }) => {
+    //TODO: this
   });
 
   test('Check given elsewhere checkbox', async () => {

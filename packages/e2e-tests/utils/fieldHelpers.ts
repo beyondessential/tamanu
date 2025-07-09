@@ -14,7 +14,8 @@ export const selectOptionFromPopper = async (
   {
     selectFirst = false,
     optionToSelect = null,
-  }: { selectFirst?: boolean; optionToSelect?: string | null } = {},
+    optionToAvoid = null,
+  }: { selectFirst?: boolean; optionToSelect?: string | null; optionToAvoid?: string | null } = {},
 ): Promise<string> => {
   await popper.waitFor({ state: 'attached', timeout: 5000 });
 
@@ -40,6 +41,19 @@ export const selectOptionFromPopper = async (
     if (!selectedOption) {
       throw new Error(`Option "${optionToSelect}" not found in popper`);
     }
+  } else if (optionToAvoid) {
+    const filteredOptions = [];
+    for (const option of options) {
+      const optionText = await option.innerText();
+      if (optionText !== optionToAvoid) {
+        filteredOptions.push(option);
+      }
+    }
+    if (filteredOptions.length === 0) {
+      throw new Error(`No options found that are not "${optionToAvoid}"`);
+    }
+    //Select a random option that is not optionToAvoid
+    selectedOption = filteredOptions[Math.floor(Math.random() * filteredOptions.length)];
   } else {
     selectedOption = selectFirst ? options[0] : options[Math.floor(Math.random() * options.length)];
   }
@@ -58,6 +72,7 @@ export const selectOptionFromPopper = async (
  * @param field - The field locator.
  * @param selectFirst - Whether to select the first option.
  * @param optionToSelect - The optional option to select.
+ * @param optionToAvoid - The optional option to avoid. Will select a random option that is not optionToAvoid.
  * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -select) to get the base test id.
  * @param returnOptionText - Whether to return the text of the selected option.
  */
@@ -67,11 +82,13 @@ export const selectFieldOption = async (
   {
     selectFirst = false,
     optionToSelect = null,
+    optionToAvoid = null,
     stripTag = true,
     returnOptionText = false,
   }: {
     selectFirst?: boolean;
     optionToSelect?: string | null;
+    optionToAvoid?: string | null;
     stripTag?: boolean;
     returnOptionText?: boolean;
   } = {},
@@ -84,6 +101,7 @@ export const selectFieldOption = async (
   const selectedOptionText = await selectOptionFromPopper(testId, popper, {
     selectFirst,
     optionToSelect,
+    optionToAvoid,
   });
 
   await expect(field.locator(`text="${selectedOptionText}"`).first()).toBeVisible({
@@ -101,6 +119,7 @@ export const selectFieldOption = async (
  * @param field - The field locator.
  * @param selectFirst - Whether to select the first option.
  * @param optionToSelect - The optional option to select.
+ * @param optionToAvoid - The optional option to avoid. Will select a random option that is not optionToAvoid.
  * @param stripTag - Whether to strip the tag from the test id (e.g. a trailing -input) to get the base test id.
  * @param returnOptionText - Whether to return the text of the selected option.
  */
@@ -110,11 +129,13 @@ export const selectAutocompleteFieldOption = async (
   {
     selectFirst = false,
     optionToSelect = null,
+    optionToAvoid = null,
     stripTag = true,
     returnOptionText = false,
   }: {
     selectFirst?: boolean;
     optionToSelect?: string | null;
+    optionToAvoid?: string | null;
     stripTag?: boolean;
     returnOptionText?: boolean;
   } = {},
@@ -128,11 +149,37 @@ export const selectAutocompleteFieldOption = async (
   const selectedOptionText = await selectOptionFromPopper(testId, suggestionsContainer, {
     selectFirst,
     optionToSelect,
+    optionToAvoid,
   });
 
   await expect(input).toHaveValue(selectedOptionText, { timeout: 1000 });
 
   if (returnOptionText) {
     return selectedOptionText;
+  }
+};
+
+export const editFieldOption = async (
+  page: Page,
+  field: Locator,
+  {
+    fieldType = 'fieldOption',
+    optionToAvoid = null,
+    returnOptionText = false,
+  }: {
+    fieldType?: 'fieldOption' | 'autocompleteFieldOption';
+    optionToAvoid?: string | null;
+    returnOptionText?: boolean;
+  } = {},
+) => {
+  const selectedOption = await (
+    fieldType === 'fieldOption' ? selectFieldOption : selectAutocompleteFieldOption
+  )(page, field, {
+    optionToAvoid,
+    returnOptionText,
+  });
+
+  if (returnOptionText) {
+    return selectedOption;
   }
 };
