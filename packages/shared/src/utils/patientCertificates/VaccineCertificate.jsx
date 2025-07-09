@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, View, StyleSheet, Text as BaseText } from '@react-pdf/renderer';
+import { Document, View, StyleSheet } from '@react-pdf/renderer';
 
 import { Table } from './Table';
 import {
