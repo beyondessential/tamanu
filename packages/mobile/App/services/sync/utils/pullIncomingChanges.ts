@@ -33,13 +33,6 @@ export const pullIncomingChanges = async (
   const isInitialSync = since === -1;
   await createSnapshotTable();
 
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(
-    sessionId,
-    since,
-    tableNames,
-    tablesForFullResync,
-  );
-
   if (!totalToPull) {
     return { totalPulled: 0, pullUntil };
   }
@@ -52,17 +45,15 @@ export const pullIncomingChanges = async (
   return { totalPulled: totalToPull, pullUntil };
 };
 
-const pullRecordsInBatches = async (
+export const pullRecordsInBatches = async (
   {
     centralServer,
     sessionId,
     totalToPull,
-    pullSettings,
     progressCallback,
   }: PullIncomingChangesContext,
   processRecords: (
-    records: any,
-    pullSettings: MobileSyncSettings['pullIncomingChanges'],
+    records: any
   ) => Promise<void>,
 ) => {
   let fromId;
@@ -81,7 +72,7 @@ const pullRecordsInBatches = async (
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
-    await processRecords(recordsToSave, pullSettings);
+    await processRecords(recordsToSave);
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
