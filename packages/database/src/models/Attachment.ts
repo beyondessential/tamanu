@@ -20,7 +20,7 @@ export class Attachment extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
       },
     );
   }
