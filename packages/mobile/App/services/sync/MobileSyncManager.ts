@@ -11,7 +11,11 @@ import {
   snapshotOutgoingChanges,
   getTransactionalModelsForDirection,
 } from './utils';
-import { dropSnapshotTable, createSnapshotTable,insertSnapshotRecords } from './utils/manageSnapshotTable';
+import {
+  dropSnapshotTable,
+  createSnapshotTable,
+  insertSnapshotRecords,
+} from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
@@ -47,6 +51,7 @@ export interface PullParams {
   recordTotal: number;
   centralServer: CentralServerConnection;
   syncSettings: MobileSyncSettings;
+  pullUntil: number;
   progressCallback: (incrementalPulled: number) => void;
 }
 
@@ -233,8 +238,10 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
+    const syncSettings = this.settings.get<MobileSyncSettings>('mobileSync');
+
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
-    await this.syncIncomingChanges(sessionId);
+    await this.pullChanges(sessionId, syncSettings);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -350,7 +357,8 @@ export class MobileSyncManager {
       recordTotal: totalToPull,
       centralServer: this.centralServer,
       syncSettings,
-      progressCallback, 
+      pullUntil,
+      progressCallback,
     };
     if (isInitialSync) {
       await this.pullInitialSync(pullParams);
@@ -374,21 +382,20 @@ export class MobileSyncManager {
   async pullInitialSync({
     sessionId,
     recordTotal,
+    pullUntil,
     syncSettings,
     progressCallback,
   }: PullParams): Promise<void> {
     await Database.client.transaction(async transactionEntityManager => {
+      const incomingModels = getTransactionalModelsForDirection(
+        this.models,
+        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        transactionEntityManager,
+      );
       const processStreamedDataFunction = async (records: any) => {
-        const incomingModels = getTransactionalModelsForDirection(
-          this.models,
-          SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-          transactionEntityManager,
-        );
-        if (recordTotal > 0) {
-          // Pass records and sort progress eventually 
+          // Pass records and sort progress eventually
           await saveChangesFromMemory(records, syncSettings, incomingModels, progressCallback);
-          await this.postPull(transactionEntityManager, recordTotal);
-        }
+          await this.postPull(transactionEntityManager, pullUntil);
       };
       await pullRecordsInBatches(
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
@@ -403,6 +410,7 @@ export class MobileSyncManager {
     centralServer,
     syncSettings,
     progressCallback,
+    pullUntil,
   }: PullParams): Promise<void> {
     // Todo this isn't one big transaction
     const processStreamedDataFunction = async (records: any) => {
@@ -422,7 +430,7 @@ export class MobileSyncManager {
         transactionEntityManager,
       );
       await saveChangesFromSnapshot(recordTotal, incomingModels, syncSettings, progressCallback);
-      await this.postPull(transactionEntityManager, recordTotal);
+      await this.postPull(transactionEntityManager, pullUntil);
     });
   }
 }
