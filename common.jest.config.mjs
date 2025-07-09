@@ -25,7 +25,7 @@ export function config(importMeta, overrides = {}, { transformNodeModules = fals
     testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
     collectCoverageFrom: ['src/**/*.[jt]sx?'],
 
-    maxWorkers: '2',
+    maxWorkers: isCI ? '50%' : '25%',
 
     // workaround for memory leaks
     workerIdleMemoryLimit: '512MB',
