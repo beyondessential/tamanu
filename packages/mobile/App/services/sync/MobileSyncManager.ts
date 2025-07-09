@@ -17,6 +17,8 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
+import { saveIncomingChanges } from './utils';
+import { pullIncomingChanges } from './utils';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -344,9 +346,9 @@ export class MobileSyncManager {
     mobileSyncSettings: MobileSyncSettings,
     progressCallback: (incrementalPulled: number) => void,
   ): Promise<void> {
-      const processStreamedDataFunction = async ({ models, records }: any) => {
+      const processStreamedDataFunction = async (records: any) => {
           await Database.client.transaction(async transactionEntityManager => {
-        const incomingModels = getTransactionalModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
+        const incomingModels = getTransactionalModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
         if (totalPulled > 0) {
           await saveIncomingChanges(
             totalPulled,
@@ -354,13 +356,21 @@ export class MobileSyncManager {
             mobileSyncSettings,
             this.updateProgress,
           );
+
+      // Remove tables for full sync setting
+      await transactionEntityManager.remove(this.models.Setting, {key: 'tablesForFullResync'});
+    
+      console.log('ClientSyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
+      await transactionEntityManager.update(this.models.LocalSystemFact, {key: 'lastSuccessfulSyncPull'}, {value: pullUntil});
+          
         }
-        
+        await pullIncomingChanges(this.models, sessionId, processStreamedDataFunction);
       
       // All operations within this transaction block will be atomic
       // If any operation fails, the entire transaction will be rolled back
     });
   
+  }
     /**
     *  await this.models.wrapInTransaction(async transactingModels => {
       const processStreamedDataFunction = async ({ models, records }: ProcessStreamDataParams) => {
