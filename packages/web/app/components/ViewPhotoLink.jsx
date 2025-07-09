@@ -8,7 +8,6 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const Image = styled.img`
   display: block;
@@ -101,7 +100,6 @@ export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
     }
 
     try {
-      await sleepAsync(2000);
       const { data } = await api.get(`attachment/${imageId}`, { base64: true });
       setImageData(data);
       setErrorMessage(null);
