@@ -35,8 +35,10 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
-      - uses: actions/cache/save@v3
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -79,7 +81,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
       - run: npm run --workspace ${{ matrix.package }} build
 
@@ -114,7 +116,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build
 
   lint:
@@ -133,7 +135,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
+      - run: npm i
 
       - name: Lint errors
         run: npm run lint-all -- --quiet
@@ -160,7 +162,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/web-frontend test-storybook
 
@@ -194,7 +196,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
@@ -217,14 +219,10 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
-          path: mobile/node_modules
-      - run: npm ci
-        working-directory: packages/mobile
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
-          path: mobile/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm i
 
       - run: npm run test
         working-directory: packages/mobile
@@ -245,7 +243,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
+      - run: npm i
 
       - name: Install and start postgres
         run: |
@@ -273,7 +271,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: npm
-      - run: npm ci
+      - run: npm i
       - run: git diff --exit-code
 
   dbt-model:
@@ -304,7 +302,7 @@ jobs:
 
       - name: Build
         run: |
-          npm install
+          npm i
           npm run build-shared
           npm run --workspace @tamanu/central-server build
           npm run --workspace @tamanu/facility-server build
@@ -350,7 +348,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm i
       - run: npm run dbt-check-todos
 
   typos:
