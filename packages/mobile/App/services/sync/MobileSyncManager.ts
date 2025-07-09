@@ -369,7 +369,7 @@ export class MobileSyncManager {
     progressCallback,
   }: PullParams): Promise<void> {
     await Database.client.transaction(async transactionEntityManager => {
-    const processStreamedDataFunction = async (records: any) => {
+      const processStreamedDataFunction = async (records: any) => {
         const incomingModels = getTransactionalModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -406,15 +406,16 @@ export class MobileSyncManager {
     progressCallback,
   }: PullParams): Promise<void> {
     // Todo this isn't one big transaction
-    await Database.client.transaction(async transactionEntityManager => {
     const processStreamedDataFunction = async (records: any) => {
-        await insertSnapshotRecords(transactionEntityManager, sessionId, records);
-      };
-      await createSnapshotTable();
-      await pullRecordsInBatches(
-        { centralServer, sessionId, recordTotal, progressCallback },
-        processStreamedDataFunction,
-      );
-    });
+      await insertSnapshotRecords(records);
+    };
+
+    await createSnapshotTable();
+    await pullRecordsInBatches(
+      { centralServer, sessionId, recordTotal, progressCallback },
+      processStreamedDataFunction,
+    );
+
+    await Database.client.transaction(async transactionEntityManager => {});
   }
 }
