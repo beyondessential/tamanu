@@ -16,9 +16,9 @@ export const useLanguageContext = () => {
 
 export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
-  const { translations, ...other } = props;
+  const { translations, getSetting, ...other } = props;
 
-  const pdfFont = 'GlobalPdfFont';
+  const pdfFont = getSetting('globalPdfFont') ? 'GlobalPdfFont' : 'Helvetica';
 
   const contextValue = useMemo(() => {
     return {
@@ -40,7 +40,7 @@ export const withLanguageContext = Component => props => {
       },
       pdfFont,
     };
-  }, [translations]);
+  }, [translations, pdfFont]);
 
   // unsure that we are using only one provider for the component tree
   return 'makeIntlStyleSheet' in context ? (
