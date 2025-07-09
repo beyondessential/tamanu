@@ -17,7 +17,6 @@ env:
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
-    !packages/mobile/node_modules
 
 jobs:
   node_modules_cache:
