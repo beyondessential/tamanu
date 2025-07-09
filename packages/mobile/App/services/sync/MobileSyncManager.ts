@@ -11,16 +11,14 @@ import {
   snapshotOutgoingChanges,
   getTransactionalModelsForDirection,
 } from './utils';
-import { dropSnapshotTable, createSnapshotTable } from './utils/manageSnapshotTable';
+import { dropSnapshotTable, createSnapshotTable,insertSnapshotRecords } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
-import { saveIncomingChanges } from './utils';
-import { pullIncomingChanges } from './utils';
-import { insertSnapshotRecords } from './utils/manageSnapshotTable';
-import { pullRecordsInBatches } from './utils/pullIncomingChanges';
+import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
+import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -388,7 +386,7 @@ export class MobileSyncManager {
         );
         if (recordTotal > 0) {
           // Pass records and sort progress eventually 
-          await saveIncomingChanges(recordTotal, incomingModels, syncSettings, progressCallback);
+          await saveChangesFromMemory(records, syncSettings, incomingModels, progressCallback);
           await this.postPull(transactionEntityManager, recordTotal);
         }
       };
@@ -418,6 +416,12 @@ export class MobileSyncManager {
     );
 
     await Database.client.transaction(async transactionEntityManager => {
+      const incomingModels = getTransactionalModelsForDirection(
+        this.models,
+        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        transactionEntityManager,
+      );
+      await saveChangesFromSnapshot(recordTotal, incomingModels, syncSettings, progressCallback);
       await this.postPull(transactionEntityManager, recordTotal);
     });
   }

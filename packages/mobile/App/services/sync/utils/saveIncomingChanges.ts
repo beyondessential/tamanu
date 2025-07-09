@@ -104,7 +104,7 @@ const groupRecordsByType = async (records: SyncRecord[]): Promise<Record<string,
 export const saveChangesForModels = async (
   records: SyncRecord[],
   sortedModels: typeof MODELS_MAP,
-  saveSettings: MobileSyncSettings['saveIncomingChanges'],
+  syncSettings: MobileSyncSettings,
   chunkProgressCallback: (processedCount: number) => void,
 ): Promise<void> => {
   const recordsByType = await groupRecordsByType(records);
@@ -120,7 +120,7 @@ export const saveChangesForModels = async (
       await saveChangesForModel(
         model,
         sanitizedRecords,
-        saveSettings.maxRecordsPerInsertBatch,
+        syncSettings.maxRecordsPerInsertBatch,
         chunkProgressCallback,
       );
     }
@@ -129,18 +129,19 @@ export const saveChangesForModels = async (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  saveSettings: MobileSyncSettings['saveIncomingChanges'],
+  syncSettings: MobileSyncSettings,
+  incomingModels: Partial<typeof MODELS_MAP>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback?: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const sortedModels = await sortInDependencyOrder(MODELS_MAP);
-  await saveChangesForModels(records, sortedModels, saveSettings, () => {});
+  const sortedModels = await sortInDependencyOrder(incomingModels);
+  await saveChangesForModels(records, sortedModels, syncSettings, () => {});
 };
 
 export const saveChangesFromSnapshot = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
-  saveSettings: MobileSyncSettings['saveIncomingChanges'],
+  syncSettings: MobileSyncSettings,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   let savedRecordsCount = 0;
@@ -157,8 +158,8 @@ export const saveChangesFromSnapshot = async (
   const sortedModels = await sortInDependencyOrder(incomingModels);
   const allBatchIds = await getSnapshotBatchIds();
 
-  for (const batchIds of chunk(allBatchIds, saveSettings.maxBatchesToKeepInMemory)) {
+  for (const batchIds of chunk(allBatchIds, syncSettings.maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(batchIds);
-    await saveChangesForModels(batchRecords, sortedModels, saveSettings, chunkProgressCallback);
+    await saveChangesForModels(batchRecords, sortedModels, syncSettings, chunkProgressCallback);
   }
 };

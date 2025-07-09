@@ -1,13 +1,6 @@
-import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
-
-type PullIncomingChangesContext = {
-  centralServer: CentralServerConnection;
-  sessionId: string;
-  recordTotal: number;
-  progressCallback: (total: number, progressCount: number) => void;
-};
+import { PullParams } from '../MobileSyncManager';
 
 export const pullRecordsInBatches = async (
   {
@@ -15,7 +8,7 @@ export const pullRecordsInBatches = async (
     sessionId,
     recordTotal,
     progressCallback,
-  }: PullIncomingChangesContext,
+  }: PullParams,
   processRecords: (
     records: any
   ) => Promise<void>,
