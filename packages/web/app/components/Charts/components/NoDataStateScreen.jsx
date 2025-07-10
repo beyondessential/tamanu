@@ -68,8 +68,8 @@ export const NoDataStateScreen = props => {
 
   const loadingMessage = (
     <TranslatedText
-      stringId="charts.loading.vitals"
-      fallback="Vitals graph loading..."
+      stringId="charts.loading"
+      fallback="Graph loading…"
       data-testid="translatedtext-loading"
     />
   );
