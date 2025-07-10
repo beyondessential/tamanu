@@ -127,18 +127,6 @@ export const saveChangesForModels = async (
   }
 };
 
-export const saveChangesFromMemory = async (
-  records: SyncRecord[],
-  syncSettings: MobileSyncSettings,
-  incomingModels: Partial<typeof MODELS_MAP>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  progressCallback?: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<void> => {
-  // TODO: progress
-  // TODO: dont need this func really
-  await saveChangesForModels(records, Object.values(incomingModels), syncSettings, true, () => {});
-};
-
 export const saveChangesFromSnapshot = async (
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,

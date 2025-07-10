@@ -22,7 +22,7 @@ import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from '.
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import { saveChangesFromSnapshot, saveChangesForModels } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -386,14 +386,13 @@ export class MobileSyncManager {
         transactionEntityManager,
       );
       const processStreamedDataFunction = async (records: any) => {
-          // Pass records and sort progress eventually
-          await saveChangesFromMemory(records, syncSettings, incomingModels, progressCallback);
-          await this.postPull(transactionEntityManager, pullUntil);
-      };
-      await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
-        processStreamedDataFunction,
-      );
+          await saveChangesForModels(records, Object.values(incomingModels), syncSettings, true, () => {});
+        };
+        await pullRecordsInBatches(
+          { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+          processStreamedDataFunction,
+        );
+        await this.postPull(transactionEntityManager, pullUntil);
     });
   }
 
