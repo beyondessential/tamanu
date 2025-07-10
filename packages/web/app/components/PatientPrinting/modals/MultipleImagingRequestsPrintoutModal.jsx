@@ -8,9 +8,11 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useSettings } from '../../../contexts/Settings';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientDataQuery(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
@@ -21,6 +23,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
     <PDFLoader isLoading={isLoading} id="imaging-request-printout" data-testid="pdfloader-fwti">
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
+        getSetting={getSetting}
         patient={{ ...patient, village }}
         encounter={encounter}
         imagingRequests={imagingRequests}

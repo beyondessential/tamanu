@@ -51,9 +51,6 @@ const pageStyles = StyleSheet.create({
   itemText: {
     fontSize: 9,
   },
-  boldText: {
-    fontFamily: 'Helvetica-Bold',
-  },
   boldDivider: {
     borderBottom: '2px solid black',
     height: 2,
@@ -135,7 +132,7 @@ const ResponseItem = ({ row, getTranslation }) => {
       <Text style={pageStyles.itemText}>
         {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
       </Text>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+      <Text bold style={[pageStyles.itemText]}>
         {getAnswers({
           answer,
           type,
