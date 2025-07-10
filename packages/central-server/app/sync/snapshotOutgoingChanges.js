@@ -4,10 +4,12 @@ import {
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
+import { sortInDependencyOrder } from '@tamanu/database/utils/sortInDependencyOrder';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
+
 
 const snapshotChangesForModel = async (
   model,
@@ -226,6 +228,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     let fromId = '';
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);
+    const sortedModels = await sortInDependencyOrder(outgoingModels);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { avoidRepull } = config.sync.lookupTable;
     const { syncAllLabRequests } = sessionConfig;
@@ -288,13 +291,19 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             ? 'AND (pushed_by_device_id <> :deviceId OR pushed_by_device_id IS NULL)'
             : ''
         }
-        ORDER BY id
+        ORDER BY 
+          CASE record_type
+            ${sortedModels.map((m, index) => `WHEN '${m.tableName}' THEN ${index}`).join(' ')}
+            ELSE 999
+          END,
+          id
         LIMIT :limit
         RETURNING sync_lookup_id
       )
       SELECT MAX(sync_lookup_id) as "maxId",
         count(*) as "count"
-      FROM inserted;
+      FROM inserted
+     
     `,
         {
           replacements: {

@@ -134,9 +134,13 @@ export const saveChangesFromMemory = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback?: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
+  const recordsByType = await groupRecordsByType(records);
   const sortedModels = await sortInDependencyOrder(incomingModels);
-  await saveChangesForModels(records, sortedModels, syncSettings, () => {});
-};
+  for (const model of sortedModels) {
+    const recordsForModel = recordsByType[model.getTableName()] || [];
+    await saveChangesForModels(recordsForModel, sortedModels, syncSettings, () => {});
+  } 
+  };
 
 export const saveChangesFromSnapshot = async (
   incomingChangesCount: number,
