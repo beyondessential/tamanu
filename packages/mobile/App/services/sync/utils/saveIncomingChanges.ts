@@ -117,15 +117,12 @@ export const saveChangesFromMemory = async (
     records,
     Object.values(incomingModels),
   );
-  console.log('preparedRecordByModel', preparedRecordByModel);
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
-    console.log('model', model);
     if (modelName === 'users') {
       console.log('users saveChangesForModel');
-      await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
+      await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
     } else {
-      console.log('executeInserts');
       await executeInserts(
         model.getTransactionalRepository(),
         recordsForModel,
