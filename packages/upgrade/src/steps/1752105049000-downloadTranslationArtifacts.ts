@@ -33,8 +33,7 @@ export const STEPS: Steps = [
           );
         }
 
-        const artifacts: Artifact[] = await artifactsResponse.json();
-
+        const artifacts = (await artifactsResponse.json()) as unknown as Artifact[];
         const translationsArtifact = artifacts.find(
           (artifact: any) => artifact.artifact_type === 'translations',
         );
