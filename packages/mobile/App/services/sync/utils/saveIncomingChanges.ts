@@ -120,6 +120,7 @@ export const saveChangesFromMemory = async (
   );
   for (const [tableName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[tableName];
+    // TODO: I don't love doing this - could be cleaner
     const saveFunction =
       tableName !== incomingModels.User.getTableName() ? executeInserts : saveChangesForModel;
     await saveFunction(model, recordsForModel, maxRecordsPerInsertBatch, () => {});
