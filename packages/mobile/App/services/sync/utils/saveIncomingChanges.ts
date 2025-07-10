@@ -1,5 +1,5 @@
 import { In } from 'typeorm';
-import { chunk } from 'lodash';
+import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -89,19 +89,6 @@ export const saveChangesForModel = async (
   }
 };
 
-const groupRecordsByType = async (records: SyncRecord[]): Promise<Record<string, SyncRecord[]>> => {
-  const recordsByType: Record<string, SyncRecord[]> = {};
-  for (const record of records) {
-    const recordType = record.recordType;
-    if (!recordsByType[recordType]) {
-      recordsByType[recordType] = [];
-    }
-    recordsByType[recordType].push(record);
-  }
-
-  return recordsByType;
-};
-
 export const saveChangesForModels = async (
   records: SyncRecord[],
   sortedModels: typeof MODELS_MAP,
@@ -109,7 +96,7 @@ export const saveChangesForModels = async (
   isInitialSync: boolean,
   chunkProgressCallback: (processedCount: number) => void,
 ): Promise<void> => {
-  const recordsByType = await groupRecordsByType(records);
+  const recordsByType = groupBy(records, 'recordType');
 
   for (const model of sortedModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
@@ -147,6 +134,8 @@ export const saveChangesFromMemory = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback?: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
+  // TODO: progress
+  // TODO: dont need this func really
   await saveChangesForModels(records, Object.values(incomingModels), syncSettings, true, () => {});
 };
 
