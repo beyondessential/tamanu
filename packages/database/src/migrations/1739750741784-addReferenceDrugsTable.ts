@@ -54,7 +54,7 @@ export async function up(query: QueryInterface) {
       drugsReferenceData[0].map((it: any) => ({
         id: Sequelize.literal(`uuid_generate_v5(
           uuid_generate_v5(uuid_nil(), 'reference_drugs'),
-          ${it.id}
+          '${it.id}'
         )`),
         reference_data_id: it.id,
       })),

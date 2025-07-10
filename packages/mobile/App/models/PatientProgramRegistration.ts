@@ -1,4 +1,12 @@
-import { Entity, ManyToOne, RelationId, Column, BeforeInsert, OneToMany } from 'typeorm';
+import {
+  Entity,
+  ManyToOne,
+  RelationId,
+  Column,
+  BeforeInsert,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 
 import {
   DateTimeString,
@@ -42,6 +50,9 @@ const getValuesFromRelations = (values) => {
 @Entity('patient_program_registrations')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @PrimaryColumn()
+  id: ID;
 
   @Column({ type: 'varchar', nullable: false, default: RegistrationStatus.Active })
   registrationStatus: RegistrationStatus;
@@ -102,6 +113,15 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
+  }
+
+  @BeforeInsert()
+  async assignIdAsPatientProgramRegistrationId(): Promise<void> {
+    // For patient program registrations, we use a composite 
+    // primary key of patientId plus programRegistryId
+    // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
+    // to avoid clashes on the joined id
+    this.id = `${this.patient.replaceAll(';', ':')};${this.programRegistry.replaceAll(';', ':')}`;
   }
 
   static async getRecentOne(
