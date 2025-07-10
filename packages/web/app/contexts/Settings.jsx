@@ -22,7 +22,7 @@ export const useSettings = () => {
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
-  const reduxSettings = useSelector((state) => state.auth.settings);
+  const reduxSettings = useSelector(state => state.auth.settings);
 
   useEffect(() => {
     setSettings(reduxSettings);
@@ -34,7 +34,8 @@ export const SettingsProvider = ({ children }) => {
   return (
     <SettingsContext.Provider
       value={{
-        getSetting: (path) => get(settings, path),
+        getSetting: path => get(settings, path),
+        settings,
         isSettingsLoaded,
       }}
     >
