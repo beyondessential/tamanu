@@ -229,6 +229,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);
     const sortedModels = await sortInDependencyOrder(outgoingModels);
+    const valuesSQL = sortedModels.map(({tableName}, index) => `('${tableName}', ${index + 1})`).join(',\n');
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { avoidRepull } = config.sync.lookupTable;
     const { syncAllLabRequests } = sessionConfig;
@@ -236,7 +237,11 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
-      WITH inserted AS (
+      WITH priority(record_type, sort_order) AS (
+        VALUES
+          ${valuesSQL}
+      ),
+      inserted AS (
         INSERT INTO ${snapshotTableName} (
           sync_lookup_id,
           direction,
@@ -246,18 +251,19 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           saved_at_sync_tick,
           updated_at_by_field_sum,
           data
-        )
+        ) 
         SELECT
           id,
           '${SYNC_SESSION_DIRECTION.OUTGOING}',
           is_deleted,
-          record_type,
+          sync_lookup.record_type,
           record_id,
           updated_at_sync_tick,
           updated_at_by_field_sum,
           data
         FROM
           sync_lookup
+        JOIN priority ON sync_lookup.record_type = priority.record_type
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND id > :fromId` : ''}
         AND (
@@ -285,18 +291,13 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
               : ''
           }
         )
-        AND record_type IN (:recordTypes)
+        AND sync_lookup.record_type IN (:recordTypes)
         ${
           avoidRepull && deviceId
             ? 'AND (pushed_by_device_id <> :deviceId OR pushed_by_device_id IS NULL)'
             : ''
         }
-        ORDER BY 
-          CASE record_type
-            ${sortedModels.map((m, index) => `WHEN '${m.tableName}' THEN ${index}`).join(' ')}
-            ELSE 999
-          END,
-          id
+        ORDER BY priority.sort_order NULLS LAST
         LIMIT :limit
         RETURNING sync_lookup_id
       )
