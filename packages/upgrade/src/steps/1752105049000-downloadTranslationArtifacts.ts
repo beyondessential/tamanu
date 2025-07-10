@@ -18,16 +18,14 @@ export const STEPS: Steps = [
     async run({ models, log }: StepArgs) {
       const toVersion = '2.35.6'; // TESTING ONLY
       try {
-        log.info('Downloading translation artifacts', { version: toVersion });
+        const url = `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`;
+        log.info('Downloading translation artifacts', { version: toVersion, url });
 
-        const artifactsResponse = await fetch(
-          `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`,
-          {
-            headers: {
-              Accept: 'application/json',
-            },
+        const artifactsResponse = await fetch(url, {
+          headers: {
+            Accept: 'application/json',
           },
-        );
+        });
         if (!artifactsResponse.ok) {
           throw new Error(
             `Failed to fetch artifacts list: ${artifactsResponse.status} ${artifactsResponse.statusText}`,
