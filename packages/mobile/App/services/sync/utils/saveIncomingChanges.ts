@@ -25,6 +25,7 @@ export const saveChangesForModel = async (
   { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
+  const repository = model.getTransactionalRepository();
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
   );
@@ -75,16 +76,16 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate, maxRecordsPerInsertBatch, progressCallback);
+    await executeInserts(repository, recordsForCreate, maxRecordsPerInsertBatch, progressCallback);
   }
   if (recordsForUpdate.length > 0) {
-    await executeUpdates(model, recordsForUpdate, progressCallback);
+    await executeUpdates(repository, recordsForUpdate, progressCallback);
   }
   if (recordsForDelete.length > 0) {
-    await executeDeletes(model, recordsForDelete, progressCallback);
+    await executeDeletes(repository, recordsForDelete, progressCallback);
   }
   if (recordsForRestore.length > 0) {
-    await executeRestores(model, recordsForRestore, progressCallback);
+    await executeRestores(repository, recordsForRestore, progressCallback);
   }
 };
 
@@ -96,10 +97,10 @@ export const prepareChangesForModels = async (
   const preparedRecordByModel = {};
 
   for (const model of sortedModels) {
-    const tableName = model.getTableName();
-    const recordsForModel = recordsByType[tableName] || [];
+    const modelName = model.name;
+    const recordsForModel = recordsByType[modelName] || [];
     if (!recordsForModel.length) continue;
-    preparedRecordByModel[tableName] =
+    preparedRecordByModel[modelName] =
       'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
         : recordsForModel.map(r => r.data);
@@ -118,12 +119,22 @@ export const saveChangesFromMemory = async (
     records,
     Object.values(incomingModels),
   );
-  for (const [tableName, recordsForModel] of Object.entries(preparedRecordByModel)) {
-    const model = incomingModels[tableName];
-    // TODO: I don't love doing this - could be cleaner
-    const saveFunction =
-      tableName !== incomingModels.User.getTableName() ? executeInserts : saveChangesForModel;
-    await saveFunction(model, recordsForModel, syncSettings, () => {});
+  console.log('preparedRecordByModel', preparedRecordByModel);
+  for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
+    const model = incomingModels[modelName];
+    console.log('model', model);
+    if (modelName === 'users') {
+      console.log('users saveChangesForModel');
+      await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
+    } else {
+      console.log('executeInserts');
+      await executeInserts(
+        model.getTransactionalRepository(),
+        recordsForModel,
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
+    }
   }
 };
 
@@ -142,13 +153,8 @@ export const saveChangesFromSnapshot = async (
   for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(batchIds);
     const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
-    for (const [tableName, recordsForModel] of Object.entries(preparedRecordByModel)) {
-      await saveChangesForModel(
-        incomingModels[tableName],
-        recordsForModel,
-        syncSettings,
-        () => {},
-      );
+    for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
+      await saveChangesForModel(incomingModels[modelName], recordsForModel, syncSettings, () => {});
     }
   }
 };
