@@ -134,7 +134,7 @@ export const saveChangesFromMemory = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback?: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  await saveChangesForModels(records, incomingModels, syncSettings, () => {});
+  await saveChangesForModels(records, Object.values(incomingModels), syncSettings, () => {});
 };
 
 export const saveChangesFromSnapshot = async (
