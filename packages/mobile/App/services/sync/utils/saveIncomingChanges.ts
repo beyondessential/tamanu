@@ -120,7 +120,7 @@ export const saveChangesForModels = async (
       await saveChangesForModel(
         model,
         sanitizedRecords,
-        syncSettings.maxRecordsPerInsertBatch,
+        syncSettings.maxRecordsPerInsertBatch || 500,
         chunkProgressCallback,
       );
     }
@@ -158,7 +158,7 @@ export const saveChangesFromSnapshot = async (
   const sortedModels = await sortInDependencyOrder(incomingModels);
   const allBatchIds = await getSnapshotBatchIds();
 
-  for (const batchIds of chunk(allBatchIds, syncSettings.maxBatchesToKeepInMemory)) {
+  for (const batchIds of chunk(allBatchIds, syncSettings.maxBatchesToKeepInMemory || 5 )) {
     const batchRecords = await getSnapshotBatchesByIds(batchIds);
     await saveChangesForModels(batchRecords, sortedModels, syncSettings, chunkProgressCallback);
   }

@@ -213,7 +213,6 @@ export class MobileSyncManager {
     await dropSnapshotTable();
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-
     // the first step of sync is to start a session and retrieve the session id
     const {
       sessionId,
@@ -238,7 +237,7 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
-    const syncSettings = this.settings.get<MobileSyncSettings>('mobileSync');
+    const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
     await this.pullChanges(sessionId, syncSettings);
@@ -326,11 +325,10 @@ export class MobileSyncManager {
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
     const tableNames = Object.values(incomingModels).map(m => m.getTableName());
-
     if (isInitialSync) {
-      if (syncSettings.useUnsafeSchemaForInitialSync) {
+      // if (syncSettings.useUnsafeSchemaForInitialSync) {
         await Database.setUnsafePragma();
-      }
+      // }
       await createSnapshotTable();
     }
 
@@ -368,15 +366,10 @@ export class MobileSyncManager {
   }
 
   async postPull(transactionEntityManager: any, pullUntil: number) {
-    await transactionEntityManager.remove(this.models.Setting, {
-      key: 'tablesForFullResync',
-    });
+    // TODO: Fix doing with transaction
+      // await tablesForFullResync.remove();
 
-    await transactionEntityManager.upsert(
-      this.models.LocalSystemFact,
-      { key: 'lastSuccessfulSyncPull', value: pullUntil },
-      ['key'],
-    );
+    await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
   }
 
   async pullInitialSync({
@@ -414,7 +407,7 @@ export class MobileSyncManager {
   }: PullParams): Promise<void> {
     // Todo this isn't one big transaction
     const processStreamedDataFunction = async (records: any) => {
-      await insertSnapshotRecords(records, syncSettings.maxRecordsPerSnapshotBatch);
+      await insertSnapshotRecords(records, syncSettings.maxRecordsPerSnapshotBatch || 1000);
     };
 
     await createSnapshotTable();
