@@ -109,7 +109,7 @@ export const prepareChangesForModels = async (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  syncSettings: MobileSyncSettings,
+  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   incomingModels: Partial<typeof MODELS_MAP>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
@@ -119,18 +119,20 @@ export const saveChangesFromMemory = async (
     Object.values(incomingModels),
   );
   for (const [tableName, recordsForModel] of Object.entries(preparedRecordByModel)) {
-    if (tableName !== 'users') {
+    const model = incomingModels[tableName];
+    if (tableName !== incomingModels.User.getTableName()) {
+      // Assume inserts for all models except users
       await executeInserts(
-        incomingModels[tableName],
+        model,
         recordsForModel,
-        syncSettings.maxRecordsPerInsertBatch,
+        maxRecordsPerInsertBatch,
         () => {},
       );
     } else {
       await saveChangesForModel(
-        incomingModels[tableName],
+        model,
         recordsForModel,
-        syncSettings.maxRecordsPerInsertBatch,
+        maxRecordsPerInsertBatch,
         () => {},
       );
     }
