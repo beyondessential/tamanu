@@ -44,7 +44,7 @@ export class CentralServerConnection extends TamanuApi {
     let config;
     if (!upOptions || options.query || options.retryAuth || options.method) {
       // this is a local style 2-argument call
-      retryAuth = ['login', 'refresh'].includes(endpoint) ? false : (options.retryAuth ?? true);
+      retryAuth = options.retryAuth ?? true;
       query = options.query ?? {};
       delete options.retryAuth;
       delete options.query;
@@ -55,6 +55,10 @@ export class CentralServerConnection extends TamanuApi {
       delete upOptions.retryAuth;
       query = options;
       config = upOptions;
+    }
+
+    if (['login', 'refresh'].includes(endpoint)) {
+      retryAuth = false;
     }
 
     if (retryAuth && !this.hasToken()) {
