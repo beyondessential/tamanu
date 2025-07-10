@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -32,10 +32,10 @@ export const VitalsTable = React.memo(() => {
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );
 
-  const onCellClick = clickedCell => {
+  const onCellClick = useCallback((clickedCell) => {
     setOpenEditModal(true);
     setSelectedCell(clickedCell);
-  };
+  }, []);
 
   const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
