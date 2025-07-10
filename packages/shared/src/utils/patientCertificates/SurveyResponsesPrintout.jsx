@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -14,6 +14,16 @@ import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '@tamanu/utils/dateTime';
+import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
+import { camelCase } from 'lodash';
+
+export const getReferenceDataStringId = (value, category) => {
+  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
+};
+
+export const getReferenceDataOptionStringId = (value, category, option) => {
+  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
+};
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -70,7 +80,29 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, sourceType, type }) => {
+const getAnswers = ({
+  answer,
+  sourceType,
+  type,
+  getTranslation,
+  dataElementId,
+  config,
+  originalBody,
+}) => {
+  const translateOption = option => {
+    return getTranslation(
+      getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
+      option,
+    );
+  };
+
+  const translateReferenceData = a => {
+    return getTranslation(
+      getReferenceDataStringId(originalBody, getReferenceDataCategoryFromRowConfig(config)),
+      a,
+    );
+  };
+
   switch (sourceType || type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
@@ -85,29 +117,41 @@ const getAnswers = ({ answer, sourceType, type }) => {
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
       return formatShort(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return JSON.parse(answer).join(', ');
+      return JSON.parse(answer).map(translateOption);
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+      return translateReferenceData(answer);
     default:
-      return answer;
+      return translateOption(answer);
   }
 };
 
-const ResponseItem = ({ row }) => {
-  const { name, answer, type, sourceType } = row;
+const ResponseItem = ({ row, getTranslation }) => {
+  const { name, answer, type, sourceType, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
-      <Text style={pageStyles.itemText}>{name}</Text>
+      <Text style={pageStyles.itemText}>
+        {getTranslation(getReferenceDataStringId(row.dataElementId, 'programDataElement'), name)}
+      </Text>
       <Text bold style={[pageStyles.itemText]}>
-        {getAnswers({ answer, type, sourceType })}
+        {getAnswers({
+          answer,
+          type,
+          sourceType,
+          getTranslation,
+          dataElementId,
+          config,
+          originalBody,
+        })}
       </Text>
     </View>
   );
 };
 
-const ResponsesGroup = ({ rows }) => {
+const ResponsesGroup = ({ rows, getTranslation }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem key={row.id} row={row} />
+        <ResponseItem getTranslation={getTranslation} key={row.id} row={row} />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -118,6 +162,7 @@ const SurveyResponsesPrintoutComponent = ({
   patientData,
   certificateData,
   getLocalisation,
+  getTranslation,
   surveyResponse,
   isReferral,
   facility,
@@ -139,12 +184,16 @@ const SurveyResponsesPrintoutComponent = ({
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
 
+  const title = !isReferral
+    ? getTranslation('pdf.surveyResponses.programForm', 'Program form')
+    : getTranslation('pdf.surveyResponses.referral', 'Referral');
+
   return (
     <Document>
       <Page size="A4" style={pageStyles.body}>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={!isReferral ? 'Program form' : 'Referral'}
+          documentName={title}
           documentSubname={surveyResponse.title}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
@@ -153,7 +202,7 @@ const SurveyResponsesPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle={!isReferral ? 'Program form' : 'Referral'}
+            certificateTitle={title}
             certificateSubtitle={surveyResponse.title}
             letterheadConfig={certificateData}
           />
@@ -172,7 +221,7 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup key={index} rows={group} />
+          <ResponsesGroup getTranslation={getTranslation} key={index} rows={group} />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
