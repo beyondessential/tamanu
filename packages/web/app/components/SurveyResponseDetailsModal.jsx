@@ -128,7 +128,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       const { dataElement, id, config } = component;
       const { type, name, id: dataElementId } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      let answer = answerObject?.body;
+      const answer = answerObject?.body;
       const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
 
