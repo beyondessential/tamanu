@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { registerFonts } from './registerFonts';
@@ -16,7 +16,8 @@ export const useLanguageContext = () => {
 
 export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
-  const { translations, getSetting, ...other } = props;
+  const { translations, settings, ...other } = props;
+  const getSetting = key => get(settings, key);
 
   const isGlobalFontEnabled = getSetting('features.useGlobalPdfFont');
   const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
@@ -47,10 +48,10 @@ export const withLanguageContext = Component => props => {
 
   // unsure that we are using only one provider for the component tree
   return 'makeIntlStyleSheet' in context ? (
-    <Component {...other} getSetting={getSetting} />
+    <Component getSetting={getSetting} {...other} />
   ) : (
     <LanguageContext.Provider value={contextValue}>
-      <Component {...other} getSetting={getSetting} />
+      <Component getSetting={getSetting} {...other} />
     </LanguageContext.Provider>
   );
 };

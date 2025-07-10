@@ -2,6 +2,7 @@ import React from 'react';
 import { useRenderPDF } from '../../utils/useRenderPDF';
 import styled from 'styled-components';
 import { LoadingIndicator } from '../LoadingIndicator';
+import { useSettings } from '../../contexts/Settings';
 
 const FullIframe = styled.iframe`
   width: 100%;
@@ -9,10 +10,12 @@ const FullIframe = styled.iframe`
   min-height: 50vh;
 `;
 
-export const WorkerRenderedPDFViewer = (props) => {
+export const WorkerRenderedPDFViewer = props => {
+  const { settings } = useSettings();
   const { url, isFetching, error } = useRenderPDF({
     // need to pass language because in webworker, we can read window.localStorage
     language: window.localStorage.getItem('language'),
+    settings,
     ...props,
   });
 
