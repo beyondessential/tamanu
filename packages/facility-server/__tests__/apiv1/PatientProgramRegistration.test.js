@@ -176,7 +176,9 @@ describe('PatientProgramRegistration', () => {
 
       expect(result).toHaveSucceeded();
 
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
+      const createdRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: result.body.id },
+      });
 
       expect(createdRegistration).toMatchObject({
         programRegistryId: programRegistry1.id,
@@ -186,7 +188,9 @@ describe('PatientProgramRegistration', () => {
       });
 
       const createdRegistrationCondition =
-        await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
+        await models.PatientProgramRegistrationCondition.findOne({
+          where: { id: result.body.conditions[0].id },
+        });
 
       expect(createdRegistrationCondition).toMatchObject({
         clinicianId: clinician.id,
@@ -263,7 +267,9 @@ describe('PatientProgramRegistration', () => {
       expect(result.body.clinicalStatusId).toBe(status2.id);
 
       // Check that the updated status is reflected in the database
-      const updatedRegistration = await models.PatientProgramRegistration.findByPk(registration.id);
+      const updatedRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: registration.id },
+      });
       expect(updatedRegistration.clinicalStatusId).toBe(status2.id);
     });
 
@@ -343,7 +349,9 @@ describe('PatientProgramRegistration', () => {
       expect(result).toHaveSucceeded();
 
       // Check that the updated status is reflected in the database
-      const updatedRegistration = await models.PatientProgramRegistration.findByPk(registration.id);
+      const updatedRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: registration.id },
+      });
       expect(updatedRegistration.clinicalStatusId).toBe(status2.id);
 
       // Check that the new condition is reflected in the database
@@ -629,12 +637,10 @@ describe('PatientProgramRegistration', () => {
         expect(result.body).toHaveProperty('message', 'Registration successfully deleted');
 
         // Verify the registration is soft deleted and marked as recordedInError
-        const updatedRegistration = await models.PatientProgramRegistration.findByPk(
-          registration.id,
-          {
-            paranoid: false, // Include soft deleted records
-          },
-        );
+        const updatedRegistration = await models.PatientProgramRegistration.findOne({
+          where: { id: registration.id },
+          paranoid: false, // Include soft deleted records
+        });
 
         expect(updatedRegistration).toBeTruthy();
         expect(updatedRegistration.registrationStatus).toBe(

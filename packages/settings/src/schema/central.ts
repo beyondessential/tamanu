@@ -36,10 +36,21 @@ export const centralSettings = {
       highRisk: true,
       properties: {
         streaming: {
-          name: 'Streaming',
           description: 'Use streaming endpoints',
           type: yup.boolean(),
           defaultValue: false,
+        },
+      },
+    },
+    mobileSync: {
+      description: 'Settings related to mobile sync',
+      highRisk: true,
+      properties: {
+        insertBatchSize: {
+          name: 'Insert batch size',
+          description: 'The number of records to insert in a single batch',
+          type: yup.number().positive().integer(),
+          defaultValue: 500,
         },
       },
     },

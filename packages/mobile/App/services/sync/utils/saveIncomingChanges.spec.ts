@@ -51,12 +51,12 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
         { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
-      ]);
+      ], 500);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -80,7 +80,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
@@ -88,7 +88,7 @@ describe('saveChangesForModel', () => {
           ...newRecord,
           isDeleted,
         }, // isDeleted flag for soft deleting record after creation
-      ]);
+      ], 500);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -117,7 +117,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -150,7 +150,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -178,7 +178,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -209,7 +209,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes);
+      await saveChangesForModel(Model, changes, 500);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
