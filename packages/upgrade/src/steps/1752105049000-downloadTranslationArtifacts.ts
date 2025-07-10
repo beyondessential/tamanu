@@ -69,11 +69,11 @@ export const STEPS: Steps = [
         log.info('Importing new default translations', { count: translationRows.length });
 
         if (translationRows.length > 0) {
-          const [, count] = await models.TranslatedString.sequelize.query(
+          await models.TranslatedString.sequelize.query(
             `
                 INSERT INTO translated_strings (string_id, text, language)
                 VALUES ${translationRows.map(() => "(?, ?, 'default')").join(', ')}
-                ON CONFLICT (string_id, language) DO NOTHING;
+                ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
               `,
             {
               replacements: translationRows.flatMap(row => {
@@ -84,13 +84,7 @@ export const STEPS: Steps = [
             },
           );
 
-          if (count > 0) {
-            log.info('Successfully imported default translations', {
-              insertedCount: count,
-            });
-          } else {
-            log.info('No new default translations');
-          }
+          log.info('Successfully imported default translations');
         }
       } catch (error) {
         // Failing to import translations is not world-ending... for now
