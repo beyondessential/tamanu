@@ -34,6 +34,7 @@ Example: `git commit -m "doc: restructure LLM documentation system"`
 
 - Using past tense in commit messages (e.g., "added" instead of "add")
 - Making commit messages too vague or too detailed
+- Including a verbose bullet-point list of changes as the body of the commit
 - Forgetting to stage all files before committing
 - Using commands that produce paged output like `git diff`, `git log`, or `git show` without `| cat`
 
@@ -42,3 +43,4 @@ Example: `git commit -m "doc: restructure LLM documentation system"`
 - Use Australian/NZ English spelling (e.g., "organise", "colour", "centre") instead of American English (e.g., "organize", "color", "center")
 - Always stage all changes before committing to ensure consistency
 - When user says "commit and push", perform both operations in sequence
+- Commit incrementally instead of making large changesets whenever possible

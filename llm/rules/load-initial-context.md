@@ -25,3 +25,5 @@ When loading initial context, present information in this order:
 - For styling tasks, key files are located at:
   - `packages/web/app/constants/styles.js` - web styling constants and colours
   - `packages/web/app/theme/theme.js` - Material-UI theme configuration
+- Avoid verbose summaries of actions taken and items achieved at the end of conversations
+- Remember and express outstanding actions that the user needs to perform or fix
