@@ -61,7 +61,7 @@ export const STEPS: Steps = [
         log.info('Importing new translations', { count: translationsData.length });
 
         // Prepare translation data for bulk upsert
-        const translationRows = translationsData.flatMap((item: any) => [
+        const translationRows = translationsData.map((item: any) => [
           item.stringId,
           item.text,
           item.language,
@@ -75,7 +75,7 @@ export const STEPS: Steps = [
                 ON CONFLICT (string_id, language) DO NOTHING;
               `,
             {
-              replacements: translationRows,
+              replacements: translationRows.flat(),
               type: QueryTypes.INSERT,
             },
           );
