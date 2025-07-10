@@ -16,7 +16,7 @@ export const STEPS: Steps = [
       return serverType === 'central';
     },
     async run({ models, log }: StepArgs) {
-      const toVersion = '2.35.6'; // TESTING ONLY
+      const toVersion = '2.35.3'; // TESTING ONLY
       try {
         const url = `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`;
         log.info('Downloading translation artifacts', { version: toVersion, url });
