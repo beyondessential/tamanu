@@ -98,7 +98,6 @@ export const prepareChangesForModels = async (
   return sortedModels.reduce((acc, model) => {
     const recordsForModel = recordsByType[model.getTableName()] || [];
     if (!recordsForModel.length) return acc;
-
     acc[model.name] =
       'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
