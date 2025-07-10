@@ -47,10 +47,10 @@ export const withLanguageContext = Component => props => {
 
   // unsure that we are using only one provider for the component tree
   return 'makeIntlStyleSheet' in context ? (
-    <Component {...other} />
+    <Component {...other} getSetting={getSetting} />
   ) : (
     <LanguageContext.Provider value={contextValue}>
-      <Component {...other} />
+      <Component {...other} getSetting={getSetting} />
     </LanguageContext.Provider>
   );
 };
