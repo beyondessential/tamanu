@@ -13,11 +13,13 @@ import { useTranslation } from '../../../contexts/Translation';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { useSettings } from '../../../contexts/Settings';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
@@ -67,6 +69,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           labRequests={labRequests}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          getSetting={getSetting}
           data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>
