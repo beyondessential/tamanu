@@ -10,7 +10,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -19,7 +19,8 @@
     "paths": {
       "@utils/*": ["src/utils/*"],
       "@auth/*": ["src/auth/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/routes/*"],
+      "react": ["./node_modules/@types/react"]
     }
   },
   "include": ["src"],
