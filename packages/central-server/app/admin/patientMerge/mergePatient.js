@@ -154,11 +154,14 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     where: { patientId: keepPatientId },
   });
   const mergedPAD = {
-    ...getMergedFieldsForUpdate(existingKeepPAD.dataValues, existingUnwantedPAD.dataValues),
+    ...getMergedFieldsForUpdate(existingKeepPAD?.dataValues, existingUnwantedPAD.dataValues),
     patientId: keepPatientId,
   };
   await existingUnwantedPAD.destroy();
-  return existingKeepPAD.update(mergedPAD);
+  if (existingKeepPAD) {
+    return existingKeepPAD.update(mergedPAD);
+  }
+  return models.PatientAdditionalData.create(mergedPAD);
 }
 
 export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
@@ -171,14 +174,17 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
   });
   const mergedPatientBirthData = {
     ...getMergedFieldsForUpdate(
-      existingKeepPatientBirthData.dataValues,
+      existingKeepPatientBirthData?.dataValues,
       existingUnwantedPatientBirthData.dataValues,
     ),
     patientId: keepPatientId,
   };
 
   await existingUnwantedPatientBirthData.destroy();
-  return existingKeepPatientBirthData.update(mergedPatientBirthData);
+  if (existingKeepPatientBirthData) {
+    return existingKeepPatientBirthData.update(mergedPatientBirthData);
+  }
+  return models.PatientBirthData.create(mergedPatientBirthData);
 }
 
 export async function mergePatientDeathData(models, keepPatientId, unwantedPatientId) {
