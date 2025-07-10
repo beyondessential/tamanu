@@ -72,7 +72,7 @@ export const STEPS: Steps = [
           const [, count] = await models.TranslatedString.sequelize.query(
             `
                 INSERT INTO translated_strings (string_id, text, language)
-                VALUES ${translationRows.map(() => "(?, ?, 'en')").join(', ')}
+                VALUES ${translationRows.map(() => "(?, ?, 'default')").join(', ')}
                 ON CONFLICT (string_id, language) DO NOTHING;
               `,
             {
