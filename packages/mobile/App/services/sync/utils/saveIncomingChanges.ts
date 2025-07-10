@@ -94,18 +94,17 @@ export const prepareChangesForModels = async (
   sortedModels: typeof MODELS_MAP,
 ): Promise<Record<string, SyncRecord[]>> => {
   const recordsByType = groupBy(records, 'recordType');
-  const preparedRecordByModel = {};
 
-  for (const model of sortedModels) {
-    const modelName = model.name;
-    const recordsForModel = recordsByType[modelName] || [];
-    if (!recordsForModel.length) continue;
-    preparedRecordByModel[modelName] =
+  return sortedModels.reduce((acc, model) => {
+    const recordsForModel = recordsByType[model.getTableName()] || [];
+    if (!recordsForModel.length) return acc;
+
+    acc[model.name] =
       'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
         : recordsForModel.map(r => r.data);
-  }
-  return preparedRecordByModel;
+    return acc;
+  }, {});
 };
 
 export const saveChangesFromMemory = async (
