@@ -1,4 +1,5 @@
 import config from 'config';
+import { parse } from 'csv-parse/sync';
 import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
@@ -6,6 +7,13 @@ import { END } from '../step.js';
 interface Artifact {
   artifact_type: string;
   download_url: string;
+}
+
+interface Translation {
+  stringId: string;
+  default?: string; // from 2.36 maybe?
+  en?: string; // from 2.28
+  fallback?: string; // legacy
 }
 
 export const STEPS: Steps = [
@@ -40,7 +48,7 @@ export const STEPS: Steps = [
           throw new Error(`No translations artifact found for version ${toVersion}`);
         }
 
-        log.debug('Downloading translations artifact', {
+        log.info('Downloading translations artifact', {
           url: translationsArtifact.download_url,
         });
         const translationsResponse = await fetch(translationsArtifact.download_url);
@@ -50,45 +58,39 @@ export const STEPS: Steps = [
           );
         }
 
-        const translationsData = await translationsResponse.json();
+        const translationRows = parse(await translationsResponse.text(), {
+          columns: true,
+          skip_empty_lines: true,
+        }) as unknown as Translation[];
 
-        // Import translations into the database
-        if (
-          !translationsData ||
-          !Array.isArray(translationsData) ||
-          translationsData.length === 0
-        ) {
-          throw new Error('Empty or invalid translations data');
+        if (translationRows.length === 0) {
+          throw new Error('No valid translation rows found in CSV');
         }
 
-        log.info('Importing new translations', { count: translationsData.length });
-
-        // Prepare translation data for bulk upsert
-        const translationRows = translationsData.map((item: any) => [
-          item.stringId,
-          item.text,
-          item.language,
-        ]);
+        log.info('Importing new default translations', { count: translationRows.length });
 
         if (translationRows.length > 0) {
           const [, count] = await models.TranslatedString.sequelize.query(
             `
                 INSERT INTO translated_strings (string_id, text, language)
-                VALUES ${translationRows.map(() => '(?, ?, ?)').join(', ')}
+                VALUES ${translationRows.map(() => "(?, ?, 'default')").join(', ')}
                 ON CONFLICT (string_id, language) DO NOTHING;
               `,
             {
-              replacements: translationRows.flat(),
+              replacements: translationRows.flatMap(row => {
+                const text = row.default ?? row.en ?? row.fallback;
+                return text ? [row.stringId, text] : [];
+              }),
               type: QueryTypes.INSERT,
             },
           );
 
           if (count > 0) {
-            log.info('Successfully imported translations', {
+            log.info('Successfully imported default translations', {
               insertedCount: count,
             });
           } else {
-            log.info('No new translations imported');
+            log.info('No new default translations');
           }
         }
       } catch (error) {
