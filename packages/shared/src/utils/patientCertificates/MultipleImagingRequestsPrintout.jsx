@@ -31,9 +31,7 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 11,
-    fontWeight: 500,
     marginVertical: 3,
   },
 });
@@ -56,8 +54,10 @@ const MultipleImagingRequestSigningSection = () => {
   );
 };
 
-const getImagingRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown';
+const getImagingRequestType =
+  imagingTypes =>
+  ({ imagingType }) =>
+    imagingTypes[imagingType]?.label || 'Unknown';
 
 const getAreaNote = ({ areas, areaNote }) => {
   if (areas && areas.length > 0) {
@@ -83,7 +83,9 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
+      <Text bold style={labDetailsSectionStyles.heading}>
+        Imaging request details
+      </Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (
