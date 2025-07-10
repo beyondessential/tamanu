@@ -4,11 +4,16 @@ import config from 'config';
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
+import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
-const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
-  sequelize
+export const tablesWithoutColumn = (
+  sequelize: Sequelize,
+  column: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
     SELECT
@@ -22,10 +27,9 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
       AND pg_attribute.attname = $column
     WHERE pg_namespace.nspname IN ('public', 'logs')
       AND pg_class.relkind = 'r'
-      AND pg_attribute.attname IS NULL
-      AND (pg_namespace.nspname || '.' || pg_class.relname) NOT IN ($excludes);
+      AND pg_attribute.attname IS NULL;
   `,
-      { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
+      { type: QueryTypes.SELECT, bind: { column } },
     )
     .then(rows =>
       rows
@@ -33,16 +37,17 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
-
-const tablesWithoutTrigger = (
+};
+export const tablesWithoutTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
       SELECT
@@ -67,16 +72,18 @@ const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
+};
 
-const tablesWithTrigger = (
+export const tablesWithTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
       SELECT
@@ -100,8 +107,9 @@ const tablesWithTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
+};
 
 export async function runPreMigration(log: Logger, sequelize: Sequelize) {
   // remove sync tick trigger before migrations
