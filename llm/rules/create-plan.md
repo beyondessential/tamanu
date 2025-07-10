@@ -21,6 +21,7 @@ This helps break down large tasks into manageable steps and ensures nothing impo
 - Include estimates where helpful
 - Identify any unknowns or areas that need research
 - Consider backwards compatibility and migration needs
+- Commit the plan individually to the current branch
 
 # Avoid
 
