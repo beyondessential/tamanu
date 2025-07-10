@@ -15,7 +15,8 @@ export const STEPS: Steps = [
       // Only run on central server
       return serverType === 'central';
     },
-    async run({ toVersion, models, log }: StepArgs) {
+    async run({ models, log }: StepArgs) {
+      const toVersion = '2.35.6'; // TESTING ONLY
       try {
         log.info('Downloading translation artifacts', { version: toVersion });
 
