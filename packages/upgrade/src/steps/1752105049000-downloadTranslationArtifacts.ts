@@ -3,6 +3,11 @@ import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
 
+interface Artifact {
+  artifact_type: string;
+  download_url: string;
+}
+
 export const STEPS: Steps = [
   {
     at: END,
@@ -28,7 +33,7 @@ export const STEPS: Steps = [
           );
         }
 
-        const artifacts = await artifactsResponse.json();
+        const artifacts: Artifact[] = await artifactsResponse.json();
 
         const translationsArtifact = artifacts.find(
           (artifact: any) => artifact.artifact_type === 'translations',
@@ -40,7 +45,7 @@ export const STEPS: Steps = [
         log.debug('Downloading translations artifact', {
           url: translationsArtifact.download_url,
         });
-        const translationsResponse = await fetch(translationsArtifact.url);
+        const translationsResponse = await fetch(translationsArtifact.download_url);
         if (!translationsResponse.ok) {
           throw new Error(
             `Failed to download translations artifact: ${translationsResponse.status} ${translationsResponse.statusText}`,
