@@ -158,12 +158,7 @@ const DataTableHeading = ({ columns, title, width }) => {
             return (
               <View key={key} style={[tableStyles.baseCell, style]}>
                 <View style={rotateStyle}>
-                  <P
-                    bold
-                    style={{ letterSpacing: 0.3, fontFamily: 'GlobalPdfFont', fontWeight: 700 }}
-                  >
-                    {title[0]}
-                  </P>
+                  <P bold>{title[0]}</P>
                   <P>{title[1]}</P>
                 </View>
               </View>
