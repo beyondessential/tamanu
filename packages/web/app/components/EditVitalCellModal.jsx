@@ -5,16 +5,21 @@ import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 import { TranslatedReferenceData, TranslatedText } from './Translation';
 
 export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
-  const vitalLabel = <TranslatedReferenceData 
-    category="programDataElement" 
-    value={dataPoint?.component.dataElement.id} 
-    fallback={dataPoint?.component.dataElement.name} 
-  />
+  const vitalLabel = (
+    <TranslatedReferenceData
+      category="programDataElement"
+      value={dataPoint?.component.dataElement.id}
+      fallback={dataPoint?.component.dataElement.name}
+    />
+  );
   const date = formatShortest(dataPoint?.recordedDate);
   const time = formatTime(dataPoint?.recordedDate);
-  const title = <TranslatedText 
-    stringId="vitals.editCell.title" 
-    fallback=":vitalLabel | :date | :time" replacements={{ vitalLabel, date, time }} />
+  const title = (
+    <span>
+      {vitalLabel} | {date} | {time}
+    </span>
+  );
+
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
