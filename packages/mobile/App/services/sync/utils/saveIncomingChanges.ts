@@ -22,7 +22,7 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
-  insertBatchSize: number,
+  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const idToIncomingRecord = Object.fromEntries(
@@ -75,7 +75,7 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate, insertBatchSize, progressCallback);
+    await executeInserts(model, recordsForCreate, maxRecordsPerInsertBatch, progressCallback);
   }
   if (recordsForUpdate.length > 0) {
     await executeUpdates(model, recordsForUpdate, progressCallback);
@@ -109,8 +109,8 @@ export const prepareChangesForModels = async (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   incomingModels: Partial<typeof MODELS_MAP>,
+  syncSettings: MobileSyncSettings,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
@@ -123,7 +123,7 @@ export const saveChangesFromMemory = async (
     // TODO: I don't love doing this - could be cleaner
     const saveFunction =
       tableName !== incomingModels.User.getTableName() ? executeInserts : saveChangesForModel;
-    await saveFunction(model, recordsForModel, maxRecordsPerInsertBatch, () => {});
+    await saveFunction(model, recordsForModel, syncSettings, () => {});
   }
 };
 
@@ -146,7 +146,7 @@ export const saveChangesFromSnapshot = async (
       await saveChangesForModel(
         incomingModels[tableName],
         recordsForModel,
-        syncSettings.maxRecordsPerInsertBatch,
+        syncSettings,
         () => {},
       );
     }
