@@ -1,3 +1,4 @@
+import config from 'config';
 import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
@@ -13,14 +14,14 @@ export const STEPS: Steps = [
       try {
         log.info('Downloading translation artifacts', { version: toVersion });
 
-        // Fetch artifacts list from meta.tamanu.app
-        const artifactsUrl = `https://meta.tamanu.app/versions/${toVersion}/artifacts`;
-        const artifactsResponse = await fetch(artifactsUrl, {
-          headers: {
-            Accept: 'application/json',
+        const artifactsResponse = await fetch(
+          `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`,
+          {
+            headers: {
+              Accept: 'application/json',
+            },
           },
-        });
-
+        );
         if (!artifactsResponse.ok) {
           throw new Error(
             `Failed to fetch artifacts list: ${artifactsResponse.status} ${artifactsResponse.statusText}`,
