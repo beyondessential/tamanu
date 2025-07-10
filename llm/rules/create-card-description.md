@@ -1,8 +1,8 @@
 # Context
 
-Use this rule when creating ticket descriptions for Linear or similar project management tools, especially when documenting changes that have already been made but need a retrospective ticket description.
+Use this rule when creating card descriptions for Linear or similar project management tools, especially when documenting changes that have already been made but need a retrospective card description.
 
-The user prefers concise, problem-first ticket descriptions that explain the "why" rather than listing detailed technical changes. Use gentle, non-directive language appropriate for NZ/Australian culture.
+The user prefers concise, problem-first card descriptions that explain the "why" rather than listing detailed technical changes. Use gentle, non-directive language appropriate for NZ/Australian culture.
 
 # Process
 
@@ -26,11 +26,11 @@ Example structure:
 
 # Avoid
 
-- Writing in past tense when creating tickets (use present tense as if planning)
+- Writing in past tense when creating cards (use present tense as if planning)
 - Leading with the solution instead of the problem
 - Using overly directive language - prefer gentle suggestions like "we could" or "we can"
 - Using bold formatting - keep all text plain
 
 # Notes
 
-- Use Australian/NZ English spelling and terminology in ticket descriptions
+- Use Australian/NZ English spelling and terminology in card descriptions
