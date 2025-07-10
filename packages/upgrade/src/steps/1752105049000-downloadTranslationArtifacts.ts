@@ -71,7 +71,7 @@ export const STEPS: Steps = [
             `
                 INSERT INTO translated_strings (string_id, text, language)
                 VALUES ${translationRows.map(() => '(?, ?, ?)').join(', ')}
-                ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
+                ON CONFLICT (string_id, language) DO NOTHING;
               `,
             {
               replacements: translationRows,
