@@ -33,8 +33,7 @@ export const STEPS: Steps = [
           (artifact: any) => artifact.artifact_type === 'translations',
         );
         if (!translationsArtifact) {
-          log.warn('No translations artifact found for version', { version: toVersion });
-          return;
+          throw new Error(`No translations artifact found for version ${toVersion}`);
         }
 
         log.debug('Downloading translations artifact', {
@@ -50,8 +49,15 @@ export const STEPS: Steps = [
         const translationsData = await translationsResponse.json();
 
         // Import translations into the database
-        if (translationsData && Array.isArray(translationsData)) {
-          log.info('Importing translations', { count: translationsData.length });
+        if (
+          !translationsData ||
+          !Array.isArray(translationsData) ||
+          translationsData.length === 0
+        ) {
+          throw new Error('Empty or invalid translations data');
+        }
+
+        log.info('Importing new translations', { count: translationsData.length });
 
           // Prepare translation data for bulk upsert
           const translationRows = translationsData.map((item: any) => [
