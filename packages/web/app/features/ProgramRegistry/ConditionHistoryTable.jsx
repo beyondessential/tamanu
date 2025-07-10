@@ -1,8 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { DateDisplay, Heading5, TranslatedEnum, TranslatedText } from '../../components';
+import {
+  DateDisplay,
+  Heading5,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
+import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
+import {
+  useProgramRegistryConditionCategoriesQuery,
+} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const HistorySection = styled.section`
   display: flex;
@@ -43,7 +52,33 @@ const SmallText = styled.div`
   }
 `;
 
-export const ConditionHistoryTable = ({ historyData = [] }) => {
+const ConditionCategoryDisplay = ({ data, conditionCategories }) => {
+  if (data?.programRegistryConditionCategoryId) {
+    const conditionCategory = conditionCategories.find(
+      category => category.id === data.programRegistryConditionCategoryId,
+    );
+    return (
+      <TranslatedReferenceData
+        value={data.programRegistryConditionCategoryId}
+        fallback={conditionCategory?.name}
+        category="programRegistryConditionCategory"
+      />
+    );
+  }
+
+  // For backwards compatibility with the old enum values
+  return (
+    <TranslatedEnum
+      value={data.conditionCategory}
+      enumValues={DEPRECATED_PRCC_LABELS}
+    />
+  );
+};
+
+export const ConditionHistoryTable = ({ historyData = [], programRegistryId = '' }) => {
+  const { data: conditionCategories = [] } = useProgramRegistryConditionCategoriesQuery(
+    programRegistryId,
+  );
   return (
     <>
       <Heading5 mb={1} mt={1}>
@@ -63,9 +98,9 @@ export const ConditionHistoryTable = ({ historyData = [] }) => {
                 />
               </HistoryItemLabel>
               <HistoryItemValue>
-                <TranslatedEnum
-                  value={entry.data.conditionCategory}
-                  enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+                <ConditionCategoryDisplay
+                  data={entry.data}
+                  conditionCategories={conditionCategories}
                 />
               </HistoryItemValue>
             </HistoryItemRow>
