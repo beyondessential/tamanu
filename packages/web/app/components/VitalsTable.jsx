@@ -72,7 +72,7 @@ export const VitalsTable = React.memo(() => {
 
         processedRecord[date] = {
           ...record[date],
-          value: getTranslation(optionStringId, 'programDataElement'),
+          value: getTranslation(optionStringId, value),
         };
       }
     });
