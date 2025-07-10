@@ -120,22 +120,9 @@ export const saveChangesFromMemory = async (
   );
   for (const [tableName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[tableName];
-    if (tableName !== incomingModels.User.getTableName()) {
-      // Assume inserts for all models except users
-      await executeInserts(
-        model,
-        recordsForModel,
-        maxRecordsPerInsertBatch,
-        () => {},
-      );
-    } else {
-      await saveChangesForModel(
-        model,
-        recordsForModel,
-        maxRecordsPerInsertBatch,
-        () => {},
-      );
-    }
+    const saveFunction =
+      tableName !== incomingModels.User.getTableName() ? executeInserts : saveChangesForModel;
+    await saveFunction(model, recordsForModel, maxRecordsPerInsertBatch, () => {});
   }
 };
 
