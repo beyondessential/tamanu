@@ -29,11 +29,9 @@ export const STEPS: Steps = [
 
         const artifacts = await artifactsResponse.json();
 
-        // Find the translations artifact
         const translationsArtifact = artifacts.find(
-          (artifact: any) => artifact.name === 'translations',
+          (artifact: any) => artifact.artifact_type === 'translations',
         );
-
         if (!translationsArtifact) {
           log.warn('No translations artifact found for version', { version: toVersion });
           return;
