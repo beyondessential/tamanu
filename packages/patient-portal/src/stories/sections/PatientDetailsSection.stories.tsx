@@ -2,49 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PatientDetailsSection } from '../../components/sections/PatientDetailsSection';
 import { MockedApi } from '../utils/mockedApi';
 
+import { generateMock } from '@anatine/zod-mock';
+import { PatientSchema } from '@tamanu/shared/dtos/responses/PatientSchema';
+
 // TODO - ideally this could use fake data package
-const mockPatientData = {
-  id: 'patient-123',
-  displayId: 'PAT-2024-001',
-  firstName: 'Sarah',
-  lastName: 'Thompson',
-  dateOfBirth: '1985-03-15',
-  sex: 'female',
-  villageId: 'village-1',
-  village: {
-    id: 'village-1',
-    name: 'Suva Central',
-    code: 'SUVA-CENTRAL',
-    type: 'village',
-  },
-};
+const mockPatientData = generateMock(PatientSchema as any);
 
-const mockPatientDataMale = {
-  id: 'patient-456',
-  displayId: 'PAT-2024-002',
-  firstName: 'James',
-  lastName: 'Wilson',
-  dateOfBirth: '1992-07-22',
-  sex: 'male',
-  villageId: 'village-2',
-  village: {
-    id: 'village-2',
-    name: 'Nadi Town',
-    code: 'NADI-TOWN',
-    type: 'village',
-  },
-};
+const mockPatientDataMale = generateMock(PatientSchema as any);
 
-const mockPatientDataMinimal = {
-  id: 'patient-789',
-  displayId: 'PAT-2024-003',
-  firstName: null,
-  lastName: null,
-  dateOfBirth: null,
-  sex: 'other',
-  villageId: null,
-  village: null,
-};
+const mockPatientDataMinimal = generateMock(PatientSchema as any);
 
 const meta: Meta<typeof PatientDetailsSection> = {
   title: 'Components/Sections/PatientDetailsSection',

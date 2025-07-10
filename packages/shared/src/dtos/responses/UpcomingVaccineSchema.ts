@@ -1,15 +1,14 @@
 import { z } from 'zod';
-import { ScheduledVaccineSchema } from './ScheduledVaccineSchema';
+import { dateCustomValidation } from '@tamanu/utils/dateTime';
+import { VACCINE_CATEGORIES, VACCINE_STATUS } from '@tamanu/constants';
 
 export const UpcomingVaccineSchema = z.object({
-  id: z.string(),
-  dueDate: z.string().nullable(),
-  status: z.string(),
   scheduledVaccineId: z.string(),
-  scheduledVaccine: ScheduledVaccineSchema,
-  patientId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  category: z.enum(Object.values(VACCINE_CATEGORIES) as [string, ...string[]]),
+  label: z.string(),
+  scheduleName: z.string(),
+  dueDate: dateCustomValidation,
+  status: z.enum(Object.values(VACCINE_STATUS) as [string, ...string[]]),
 });
 
 export const UpcomingVaccinesArraySchema = z.array(UpcomingVaccineSchema);

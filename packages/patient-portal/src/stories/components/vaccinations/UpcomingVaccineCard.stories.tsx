@@ -2,107 +2,23 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { UpcomingVaccineCard } from '../../../components/sections/Vaccinations/UpcomingVaccineCard';
 import type { UpcomingVaccine } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
 
+import { generateMock } from '@anatine/zod-mock';
+import { UpcomingVaccineSchema } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+
 // Mock data for different upcoming vaccine scenarios
-const baseMockUpcomingVaccine: UpcomingVaccine = {
-  id: 'upcoming-1',
-  dueDate: '2024-01-15T00:00:00.000Z',
-  status: 'DUE',
-  scheduledVaccineId: 'scheduled-1',
-  scheduledVaccine: {
-    id: 'scheduled-1',
-    label: 'Annual Flu Shot',
-    doseLabel: 'Annual dose',
-    category: 'Routine',
-    schedule: 'Yearly',
-  },
-  patientId: 'patient-1',
-  createdAt: '2023-12-01T00:00:00.000Z',
-  updatedAt: '2023-12-01T00:00:00.000Z',
-};
+const baseMockUpcomingVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const upcomingCovidBooster: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-2',
-  dueDate: '2024-03-10T00:00:00.000Z',
-  status: 'UPCOMING',
-  scheduledVaccine: {
-    id: 'scheduled-2',
-    label: 'COVID-19 Bivalent Booster',
-    doseLabel: 'Booster',
-    category: 'COVID',
-    schedule: 'COVID-19 Booster',
-  },
-};
+const upcomingCovidBooster: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const overdueMmr: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-3',
-  dueDate: '2023-10-01T00:00:00.000Z',
-  status: 'OVERDUE',
-  scheduledVaccine: {
-    id: 'scheduled-3',
-    label: 'MMR Vaccine',
-    doseLabel: 'Dose 2',
-    category: 'Routine',
-    schedule: 'Childhood Immunisation',
-  },
-};
+const overdueMmr: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const scheduledHepB: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-4',
-  dueDate: '2024-06-20T00:00:00.000Z',
-  status: 'SCHEDULED',
-  scheduledVaccine: {
-    id: 'scheduled-4',
-    label: 'Hepatitis B Vaccine',
-    doseLabel: 'Dose 3',
-    category: 'Routine',
-    schedule: 'Hepatitis B Series',
-  },
-};
+const scheduledHepB: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const missedTetanus: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-5',
-  dueDate: '2023-08-15T00:00:00.000Z',
-  status: 'MISSED',
-  scheduledVaccine: {
-    id: 'scheduled-5',
-    label: 'Tetanus-Diphtheria (Td)',
-    doseLabel: '10-year booster',
-    category: 'Routine',
-    schedule: 'Adult Boosters',
-  },
-};
+const missedTetanus: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const travelVaccine: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-6',
-  dueDate: '2024-02-28T00:00:00.000Z',
-  status: 'DUE',
-  scheduledVaccine: {
-    id: 'scheduled-6',
-    label: 'Typhoid Vaccine',
-    doseLabel: 'Single dose',
-    category: 'Travel',
-    schedule: 'Travel Vaccination',
-  },
-};
+const travelVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
-const incompleteDataVaccine: UpcomingVaccine = {
-  ...baseMockUpcomingVaccine,
-  id: 'upcoming-7',
-  dueDate: undefined,
-  status: 'SCHEDULED',
-  scheduledVaccine: {
-    id: 'scheduled-7',
-    label: 'Unknown Vaccine',
-    doseLabel: undefined,
-    category: undefined,
-    schedule: undefined,
-  },
-};
+const incompleteDataVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
 
 const meta: Meta<typeof UpcomingVaccineCard> = {
   title: 'Components/Vaccinations/UpcomingVaccineCard',

@@ -1,32 +1,49 @@
 import { z } from 'zod';
+import { VACCINE_STATUS, INJECTION_SITE_VALUES } from '@tamanu/constants';
 import { ScheduledVaccineSchema } from './ScheduledVaccineSchema';
 import { EncounterSchema } from './EncounterSchema';
 import { UserSchema } from './UserSchema';
 import { LocationSchema } from './LocationSchema';
 import { DepartmentSchema } from './DepartmentSchema';
+import { ReferenceDataSchema } from './ReferenceDataSchema';
 
 export const AdministeredVaccineSchema = z.object({
   id: z.string(),
-  status: z.string(),
-  date: z.string(),
   batch: z.string().nullable(),
-  injectionSite: z.string().nullable(),
-  vaccineName: z.string().nullable(),
-  vaccineBrand: z.string().nullable(),
-  disease: z.string().nullable(),
+  consent: z.boolean().nullable(),
+  consentGivenBy: z.string().nullable(),
+  status: z.enum(Object.values(VACCINE_STATUS) as [string, ...string[]]),
+  reason: z.string().nullable(),
+  injectionSite: z.enum(Object.values(INJECTION_SITE_VALUES) as [string, ...string[]]).nullable(),
   givenBy: z.string().nullable(),
   givenElsewhere: z.boolean().nullable(),
-  notGivenReason: z.string().nullable(),
-  certifiable: z.boolean().nullable(),
+  vaccineBrand: z.string().nullable(),
+  vaccineName: z.string().nullable(),
+  disease: z.string().nullable(),
+  circumstanceIds: z.array(z.string()).nullable(),
+  date: z.string(),
+  updatedAtSyncTick: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
   encounterId: z.string(),
   scheduledVaccineId: z.string(),
-  scheduledVaccine: ScheduledVaccineSchema,
+  recorderId: z.string(),
+  locationId: z.string(),
+  departmentId: z.string(),
+  notGivenReasonId: z.string().nullable(),
+  // Custom computed fields added by the endpoint
+  vaccineDisplayName: z.string().nullable(),
+  displayLocation: z.string().nullable(),
+  // Associated entities
   encounter: EncounterSchema,
-  recorder: UserSchema.nullable(),
   location: LocationSchema.nullable(),
   department: DepartmentSchema.nullable(),
+  recorder: UserSchema.nullable(),
+  notGivenReason: ReferenceDataSchema.nullable(),
+  scheduledVaccine: ScheduledVaccineSchema,
+  // Flag indicating if vaccine is certifiable
+  certifiable: z.boolean().nullable(),
 });
 
 export const AdministeredVaccinesArraySchema = z.array(AdministeredVaccineSchema);

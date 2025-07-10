@@ -2,42 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { OutstandingFormsSection } from '../../components/sections/Forms/OutstandingFormsSection';
 import { MockedApi } from '../utils/mockedApi';
 
+import { generateMock } from '@anatine/zod-mock';
+import { OutstandingFormSchema } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
+
 // TODO - ideally this could use fake data package
 const mockFormsData = {
   data: [
-    {
-      id: 'form-1',
-      title: 'Annual Health Assessment',
-      description: 'Complete your yearly health check questionnaire',
-      dueDate: '2024-02-15T00:00:00.000Z',
-      priority: 'high',
-      formType: 'health-assessment',
-      status: 'pending',
-      createdAt: '2024-01-15T08:00:00.000Z',
-      updatedAt: '2024-01-15T08:00:00.000Z',
-    },
-    {
-      id: 'form-2',
-      title: 'Medication Review Form',
-      description: 'Review and update your current medications',
-      dueDate: '2024-01-20T00:00:00.000Z',
-      priority: 'medium',
-      formType: 'medication-review',
-      status: 'overdue',
-      createdAt: '2024-01-10T10:30:00.000Z',
-      updatedAt: '2024-01-10T10:30:00.000Z',
-    },
-    {
-      id: 'form-3',
-      title: 'Emergency Contact Information',
-      description: 'Update your emergency contact details',
-      dueDate: undefined,
-      priority: 'low',
-      formType: 'contact-info',
-      status: 'pending',
-      createdAt: '2024-01-12T14:15:00.000Z',
-      updatedAt: '2024-01-12T14:15:00.000Z',
-    },
+    generateMock(OutstandingFormSchema as any),
+    generateMock(OutstandingFormSchema as any),
+    generateMock(OutstandingFormSchema as any),
   ],
   count: 3,
 };
@@ -130,19 +103,7 @@ export const SingleForm: Story = {
       <MockedApi
         endpoints={{
           '/patient/me/outstanding-forms': () => ({
-            data: [
-              {
-                id: 'form-single',
-                title: 'Patient Registration Update',
-                description: 'Please update your patient registration information',
-                dueDate: '2024-03-01T00:00:00.000Z',
-                priority: 'high',
-                formType: 'registration-update',
-                status: 'pending',
-                createdAt: '2024-02-01T10:00:00.000Z',
-                updatedAt: '2024-02-01T10:00:00.000Z',
-              },
-            ],
+            data: [generateMock(OutstandingFormSchema as any)],
             count: 1,
           }),
         }}

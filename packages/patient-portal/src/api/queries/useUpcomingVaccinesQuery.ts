@@ -22,7 +22,7 @@ export const useUpcomingVaccinesQuery = () => {
 
   return useQuery<unknown, Error, UpcomingVaccine[]>({
     queryKey: ['upcomingVaccines', user?.id],
-    queryFn: () => api.get('/patient/me/upcomingVaccinations'),
+    queryFn: () => api.get('/patient/me/vaccinations/upcoming'),
     enabled: !!user?.id,
     select: transformData,
   });

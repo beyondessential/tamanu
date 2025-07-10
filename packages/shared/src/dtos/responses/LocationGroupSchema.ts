@@ -1,20 +1,17 @@
 import { z } from 'zod';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-export const UserSchema = z.object({
+export const LocationGroupSchema = z.object({
   id: z.string(),
-  displayId: z.string().nullable(),
-  email: z.string(),
-  displayName: z.string(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  role: z.string(),
-  phoneNumber: z.string().nullable(),
+  code: z.string(),
+  name: z.string(),
   visibilityStatus: z.enum(Object.values(VISIBILITY_STATUSES) as [string, ...string[]]),
+  isBookable: z.boolean(),
   updatedAtSyncTick: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  facilityId: z.string(),
 });
 
-export type User = z.infer<typeof UserSchema>;
+export type LocationGroup = z.infer<typeof LocationGroupSchema>;

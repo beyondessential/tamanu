@@ -22,7 +22,7 @@ export const useAdministeredVaccinesQuery = () => {
 
   return useQuery<unknown, Error, AdministeredVaccine[]>({
     queryKey: ['administeredVaccines', user?.id],
-    queryFn: () => api.get('/patient/me/administeredVaccines'),
+    queryFn: () => api.get('/patient/me/vaccinations/administered'),
     enabled: !!user?.id,
     select: transformData,
   });
