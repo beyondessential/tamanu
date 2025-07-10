@@ -127,6 +127,8 @@ medication.post(
 
     const data = await medicationInputSchema.parseAsync(req.body);
 
+    await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
+
     const patient = await Patient.findByPk(patientId);
     if (!patient) {
       throw new InvalidOperationError(`Patient with id ${patientId} not found`);
@@ -144,6 +146,15 @@ medication.post(
     res.send(result.forResponse());
   }),
 );
+
+const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
+  if (!medicationIds?.length) return true;
+
+  const isSensitive = await req.models.ReferenceData.hasSensitiveMedication(medicationIds);
+  if (isSensitive) {
+    req.checkPermission(action, 'SensitiveMedication');
+  }
+};
 
 const createEncounterPrescription = async ({ encounter, data, models }) => {
   const {
@@ -196,6 +207,8 @@ medication.post(
     req.checkPermission('create', 'Medication');
     const data = await medicationInputSchema.parseAsync(req.body);
 
+    await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
+
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
       throw new InvalidOperationError(`Encounter with id ${encounterId} not found`);
@@ -234,6 +247,8 @@ medication.post(
         );
       }
     }
+
+    await checkSensitiveMedicationPermission(medicationSet.map((m) => m.medicationId), req, 'create');
 
     const result = await req.db.transaction(async () => {
       const prescriptions = [];
@@ -312,6 +327,9 @@ medication.post(
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
+
     if (prescription.discontinued) {
       throw new ResourceConflictError('Prescription already discontinued');
     }
@@ -368,6 +386,8 @@ medication.post(
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
 
     if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
       throw new InvalidOperationError(
@@ -450,6 +470,8 @@ medication.post(
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
 
     // Find the encounter prescription link
     const encounterPrescription = await EncounterPrescription.findOne({
@@ -1232,7 +1254,7 @@ medication.post(
     });
 
     const importPrescriptions = [];
-    for (const prescriptionId of prescriptionIds) {
+    for (const prescriptionId of prescriptionIds) {      
       const prescription = ongoingPrescriptions.find((p) => p.id === prescriptionId);
       if (!prescription) {
         throw new InvalidOperationError(
@@ -1241,6 +1263,12 @@ medication.post(
       }
       importPrescriptions.push(prescription);
     }
+
+    await checkSensitiveMedicationPermission(
+      importPrescriptions.map((prescription) => prescription.medicationId), 
+      req, 
+      'create'
+    );
 
     const result = await db.transaction(async (transaction) => {
       const newPrescriptions = [];

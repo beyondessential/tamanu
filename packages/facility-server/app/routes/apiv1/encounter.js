@@ -231,7 +231,13 @@ encounterRelations.get(
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
+    const medicationFilter = {};
+    if (!req.ability.can('list', 'SensitiveMedication')) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQueryOptions = {
+      where: medicationFilter,
       order: [
         [
           literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
@@ -260,6 +266,15 @@ encounterRelations.get(
           attributes: ['id', 'encounterId', 'isSelectedForDischarge'],
           where: {
             encounterId: params.id,
+          },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive']
           },
         },
       ],

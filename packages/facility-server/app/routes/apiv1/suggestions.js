@@ -372,14 +372,44 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName }) => ({
-      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-      type: typeName,
-    }),
+    ({ endpoint, modelName, req }) => {
+      const baseWhere = {
+        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+        type: typeName,
+      };
+
+      if (
+        typeName === REFERENCE_TYPES.MEDICATION_SET
+        && !req.ability.can('list', 'SensitiveMedication')
+      ) {
+        baseWhere.id = {
+          [Op.notIn]: Sequelize.literal(`
+            (SELECT DISTINCT(r.reference_data_parent_id)
+            FROM reference_data_relations r
+            INNER JOIN reference_medication_templates rmt 
+              ON r.reference_data_id = rmt.reference_data_id
+            INNER JOIN reference_drugs rd 
+              ON rd.reference_data_id = rmt.medication_id
+            WHERE r.type = '${REFERENCE_DATA_RELATION_TYPES.MEDICATION}'
+              AND rd.is_sensitive = true
+              AND r.deleted_at IS NULL)
+          `)
+        };
+      }
+
+      if (
+        typeName === REFERENCE_TYPES.DRUG
+        && !req.ability.can('list', 'SensitiveMedication')
+      ) {
+        baseWhere['$referenceDrug.is_sensitive$'] = false;
+      }
+
+      return baseWhere;
+    },
     {
       includeBuilder: (req) => {
         const {
-          models: { ReferenceData, ReferenceMedicationTemplate },
+          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -396,7 +426,10 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
               },
             },
           },
-          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.DRUG && {
+            model: ReferenceDrug,
+            as: 'referenceDrug',
+          },
           typeName === REFERENCE_TYPES.MEDICATION_SET && {
             model: ReferenceData,
             as: 'children',

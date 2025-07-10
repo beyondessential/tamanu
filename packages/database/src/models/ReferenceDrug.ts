@@ -9,6 +9,7 @@ export class ReferenceDrug extends Model {
   declare route?: string;
   declare units?: string;
   declare notes?: string;
+  declare isSensitive: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -34,6 +35,11 @@ export class ReferenceDrug extends Model {
         notes: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        isSensitive: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },

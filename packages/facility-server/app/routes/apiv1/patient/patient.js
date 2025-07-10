@@ -507,13 +507,28 @@ patientRoute.get(
     const { PatientOngoingPrescription, Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
 
+    const medicationFilter = {};
+    if (!req.ability.can('list', 'SensitiveMedication')) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQuery = {
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
           where: { patientId },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
+          },
         },
       ],
     };
@@ -589,7 +604,13 @@ patientRoute.get(
       return;
     }
 
+    const medicationFilter = {};
+    if (!req.ability.can('list', 'SensitiveMedication')) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const dischargeMedications = await Prescription.findAll({
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
@@ -598,6 +619,15 @@ patientRoute.get(
           where: {
             isSelectedForDischarge: true,
             encounterId: lastInpatientEncounter.id,
+          },
+        },
+        {
+          model: req.models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: req.models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],
