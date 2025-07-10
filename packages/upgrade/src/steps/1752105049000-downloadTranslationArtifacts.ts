@@ -37,14 +37,10 @@ export const STEPS: Steps = [
           return;
         }
 
-        log.info('Found translations artifact', {
-          version: toVersion,
-          artifactUrl: translationsArtifact.url,
+        log.debug('Downloading translations artifact', {
+          url: translationsArtifact.download_url,
         });
-
-        // Download the translations artifact
         const translationsResponse = await fetch(translationsArtifact.url);
-
         if (!translationsResponse.ok) {
           throw new Error(
             `Failed to download translations artifact: ${translationsResponse.status} ${translationsResponse.statusText}`,
