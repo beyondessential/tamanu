@@ -65,6 +65,8 @@ import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
+import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
+import { MedicationWarningModal } from '../components/Medication/MedicationWarningModal';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -535,10 +537,13 @@ export const MedicationForm = ({
   const [awaitingPrint, setAwaitingPrint] = useState(false);
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [existingOngoingPrescriptions, setExistingOngoingPrescriptions] = useState(null);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
   });
+  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(patient?.id);
 
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
@@ -622,6 +627,25 @@ export const MedicationForm = ({
     };
   };
 
+  const handleChangeMedication = referenceDrug => {
+    if (!referenceDrug) return;
+    const existingOngoingPrescriptions = ongoingPrescriptions?.data?.filter(
+      prescription =>
+        prescription.medication.id === referenceDrug.referenceDataId && !prescription.discontinued,
+    );
+
+    // This is a workaround to avoid the warning modal from being shown before the select menu closed
+    setTimeout(() => {
+      setShowWarningModal(!!existingOngoingPrescriptions?.length);
+      setExistingOngoingPrescriptions(existingOngoingPrescriptions);
+    }, 300);
+  };
+
+  const handleCloseWarningModal = () => {
+    setShowWarningModal(false);
+    setExistingOngoingPrescriptions([]);
+  };
+
   return (
     <>
       <Form
@@ -675,6 +699,7 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
+                      handleChangeMedication(referenceDrug);
                     }}
                   />
                 </div>
@@ -987,6 +1012,20 @@ export const MedicationForm = ({
                 </FormSubmitButton>
               </Box>
             </ButtonRow>
+            {showWarningModal && (
+              <MedicationWarningModal
+                onClose={() => {
+                  handleCloseWarningModal();
+                  setValues({ ...values, medicationId: null });
+                }}
+                onContinueCreating={handleCloseWarningModal}
+                onCancelCreating={() => {
+                  handleCloseWarningModal();
+                  onCancel();
+                }}
+                existingOngoingPrescriptions={existingOngoingPrescriptions}
+              />
+            )}
           </StyledFormGrid>
         )}
       />
