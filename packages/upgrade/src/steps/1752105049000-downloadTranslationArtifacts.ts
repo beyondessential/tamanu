@@ -59,38 +59,40 @@ export const STEPS: Steps = [
 
         log.info('Importing new translations', { count: translationsData.length });
 
-          // Prepare translation data for bulk upsert
-          const translationRows = translationsData.map((item: any) => [
-            item.stringId,
-            item.text,
-            item.language,
-          ]);
+        // Prepare translation data for bulk upsert
+        const translationRows = translationsData.flatMap((item: any) => [
+          item.stringId,
+          item.text,
+          item.language,
+        ]);
 
-          if (translationRows.length > 0) {
-            await models.TranslatedString.sequelize.query(
-              `
+        if (translationRows.length > 0) {
+          const [, count] = await models.TranslatedString.sequelize.query(
+            `
                 INSERT INTO translated_strings (string_id, text, language)
                 VALUES ${translationRows.map(() => '(?, ?, ?)').join(', ')}
                 ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
               `,
-              {
-                replacements: translationRows.flat(),
-                type: QueryTypes.INSERT,
-              },
-            );
+            {
+              replacements: translationRows,
+              type: QueryTypes.INSERT,
+            },
+          );
 
-            log.info('Successfully imported translations', { count: translationRows.length });
+          if (count > 0) {
+            log.info('Successfully imported translations', {
+              insertedCount: count,
+            });
+          } else {
+            log.info('No new translations imported');
           }
-        } else {
-          log.warn('Invalid translations data format received');
         }
       } catch (error) {
-        log.error('Failed to download or import translation artifacts', {
-          error: error instanceof Error ? error.message : String(error),
-          version: toVersion,
+        // Failing to import translations is not world-ending... for now
+        // We may want to make this more strict in the future
+        log.error('Failed to import translations, you will need to manually import them', {
+          error,
         });
-        // Don't throw - we don't want to fail the entire upgrade process for translations
-        // The system can continue to work with existing translations
       }
     },
   },
