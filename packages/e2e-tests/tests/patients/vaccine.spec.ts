@@ -1,9 +1,11 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { convertDateFormat, offsetYear } from '../../utils/testHelper';
+import { Vaccine } from 'types/vaccine/Vaccine';
 
 //TODO: add tests to confirm error messages if try to submit without required fields
 //TODO: make addvaccineandassert function less complex?
+//TODO: is there a way to use {...props} to make the functions more readable?
 //TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
@@ -425,26 +427,50 @@ test.describe('Vaccines', () => {
   });
 
   //TODO: move this to top of page when done
+  //TODO: add documentation for this function, in particular document that area location etc will be randomly edited
   async function editVaccine(
     patientDetailsPage: PatientDetailsPage,
-    vaccineName: string,
-    scheduleOption: string,
+    vaccine: Partial<Vaccine>,
     count: number,
-    edits: {
+    specificEdits: {
       batch?: string;
       dateGiven?: string;
-      injectionSite?: string;
-      area?: string;
-      location?: string;
-      department?: string;
       givenBy?: string;
-      consentCheckbox?: boolean;
       consentGivenBy?: string;
-    } = {},
+    },
+    //TODO: add some kind of handling for the below possible edits?
+   // consentCheckbox?: boolean;
   ) {
-    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
+    const {
       vaccineName,
       scheduleOption,
+      injectionSite,
+      area,
+      location,
+      department,
+    } = vaccine;
+
+    const {
+      batch,
+      dateGiven,
+      givenBy,
+      consentGivenBy,
+    } = specificEdits;
+
+    const edits = {
+      batch,
+      dateGiven,
+      injectionSite,
+      area,
+      location,
+      department,
+      givenBy,
+      consentGivenBy,
+    }
+
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
+      vaccineName!,
+      scheduleOption!,
       count,
     );
 
@@ -460,101 +486,111 @@ test.describe('Vaccines', () => {
   }
 
   //TODO: need to assert some changes in the recorded vaccine table too
+  //TODO: add assert for       consentGivenBy,?
+  //TODO: add documentation for this function
   async function assertEditedVaccine(
     patientDetailsPage: PatientDetailsPage,
-    vaccineName: string,
-    scheduleOption: string,
+    vaccine: Partial<Vaccine>,
     count: number,
-    expectedEdits: {
-      batch?: string;
-      dateGiven?: string;
-      injectionSite?: string;
-      area?: string;
-      location?: string;
-      department?: string;
-      givenBy?: string;
-      consentGivenBy?: string;
-    },
     remainsUnchanged: {
+      vaccineName: string;
+      scheduleOption: string;
       given: boolean;
       category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
       fillOptionalFields: boolean;
     }
   ) {
+    const {
+      dateGiven,
+      area,
+      location,
+      department,
+      batch,
+      injectionSite,
+      givenBy,
+    } = vaccine;
+
+    const {
+      vaccineName,
+      scheduleOption,
+      given,
+      category,
+      fillOptionalFields,
+    } = remainsUnchanged;
+
+    if (
+      !vaccineName ||
+      !dateGiven ||
+      !area ||
+      !location ||
+      !department ||
+      !scheduleOption
+    ) {
+      throw new Error('Missing required vaccine fields');
+    }
+
     const requiredParams = {
       vaccineName,
-      date: expectedEdits.dateGiven!,
-      area: expectedEdits.area!,
-      location: expectedEdits.location!,
-      department: expectedEdits.department!,
-      given: remainsUnchanged.given,
+      date: dateGiven,
+      area: area,
+      location: location,
+      department: department,
+      given: given,
       count,
-      category: remainsUnchanged.category,
-      fillOptionalFields: remainsUnchanged.fillOptionalFields,
+      category: category,
+      fillOptionalFields: fillOptionalFields,
       schedule: scheduleOption,
     };
 
     const optionalParams = {
-      batch: expectedEdits.batch,
-      injectionSite: expectedEdits.injectionSite,
-      givenBy: expectedEdits.givenBy,
+      batch: batch,
+      injectionSite: injectionSite,
+      givenBy: givenBy,
     };
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
   }
 
   test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
     const vaccineCount = 1;
-    //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
+    const given = true;
+    const category = 'Routine';
+    const fillOptionalFields = true;
+
     const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    //The vaccine is created with today's date and this edits it to be one year ago
+    //A patient is always 18+ years old so one year ago avoids any validation errors
     const editedDateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
 
-    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', vaccineCount, {
-      fillOptionalFields: true,
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, given, category, vaccineCount, {
+      fillOptionalFields: fillOptionalFields,
     });
 
-    if (!vaccine) {
+    if (!vaccine || !vaccine.vaccineName || !vaccine.scheduleOption) {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    //TODO: add assert to this same function? nah i dont think so since i wanna split the other up anyway
     const editedVaccine = await editVaccine(
       patientDetailsPage,
-      vaccine.vaccineName!,
-      vaccine.scheduleOption!,
+      vaccine,
       vaccineCount,
       {
         batch: 'Edited batch field',
         dateGiven: editedDateGiven,
-        injectionSite: vaccine.injectionSite,
-        area: vaccine.area,
-        location: vaccine.location,
-        department: vaccine.department,
         givenBy: 'Edited given by field',
         consentGivenBy: 'Edited consent field',
       },
     );
 
-    console.log('editedVaccine', editedVaccine);
-
     await assertEditedVaccine(
       patientDetailsPage,
-      vaccine.vaccineName!,
-      vaccine.scheduleOption!,
+      editedVaccine,
       vaccineCount,
       {
-        batch: editedVaccine.batch,
-        dateGiven: editedVaccine.dateGiven,
-        injectionSite: editedVaccine.injectionSite,
-        area: editedVaccine.area,
-        location: editedVaccine.location,
-        department: editedVaccine.department,
-        givenBy: editedVaccine.givenBy,
-        consentGivenBy: editedVaccine.consentGivenBy,
-      },
-      {
-        given: true,
-        category: 'Routine',
-        fillOptionalFields: true,
+        vaccineName: vaccine.vaccineName,
+        scheduleOption: vaccine.scheduleOption,
+        given: given,
+        category: category,
+        fillOptionalFields: fillOptionalFields,
       }
     );
   });
