@@ -341,7 +341,6 @@ export class TamanuApi {
     return this.fetch(endpoint, undefined, {
       method: 'POST',
       body: formData,
-      headers: {},
       ...options,
     });
   }
