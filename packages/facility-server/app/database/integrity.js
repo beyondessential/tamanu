@@ -58,21 +58,17 @@ async function ensureFacilityMatches(context) {
       );
     }
   } else {
-    await performInitialIntegritySetup(context);
+    const centralServer = new CentralServerConnection(context);
+    log.info(`Verifying central server connection to ${centralServer.host}...`);
+    await centralServer.connect();
+    if (!centralServer.hasToken()) {
+      throw new Error('Could not obtain valid token from central server.');
+    }
+
+    log.info('Verified central server connection');
+
     const facilityIdsString = JSON.stringify(configuredFacilities);
     await LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
     log.info('Recorded facility IDs to database');
   }
-}
-
-async function performInitialIntegritySetup(context) {
-  const centralServer = new CentralServerConnection(context);
-  log.info(`Verifying central server connection to ${centralServer.host}...`);
-  await centralServer.connect();
-
-  if (!centralServer.hasToken()) {
-    throw new Error('Could not obtain valid token from central server.');
-  }
-
-  log.info('Verified central server connection');
 }

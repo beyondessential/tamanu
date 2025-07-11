@@ -1,5 +1,5 @@
 import { getDependentAssociations } from '../../src/utils/getDependentAssociations';
-import { createTestDatabase, closeDatabase } from '../sync/utilities';
+import { createTestDatabase, closeDatabase } from '../utilities';
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 
 describe('getDependentAssociations', () => {

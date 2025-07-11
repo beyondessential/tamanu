@@ -45,6 +45,11 @@ describe('CentralServerConnection', () => {
     displayName: 'Not Real',
     email: 'notreal@example.com',
   });
+  const meSuccess = fakeSuccess({
+    id: 'not-real',
+    displayName: 'Not Real',
+    email: 'notreal@example.com',
+  });
   const authInvalid = fakeFailure(401);
   const authFailure = fakeFailure(503);
   const clientVersionLow = fakeFailure(
