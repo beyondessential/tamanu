@@ -21,11 +21,12 @@ registerTranslatedLabelMethod();
 
 export function registerYup(translations = {}) {
   registerTranslatedLabelMethod(translations);
-  const defaultMessage = translations['validation.required'] || 'The :path field is required';
+  // We now just show the *Required message for every validation field instead of using translatedLabel
+  const defaultMessage = translations['validation.required.inline'] || '*Required';
   yup.setLocale({
     mixed: {
-      required: function ({ path }) {
-        return defaultMessage.replace(':path', path);
+      required: function () {
+        return defaultMessage;
       },
     },
   });
