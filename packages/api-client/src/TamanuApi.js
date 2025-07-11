@@ -210,6 +210,12 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
+    // Explicitly let the browser set the content-type header
+    // and add boundary value
+    if (config.body instanceof FormData) {
+      config.headers.delete('content-type');
+    }
+
     const requestInterceptorChain = [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
@@ -335,9 +341,7 @@ export class TamanuApi {
     return this.fetch(endpoint, undefined, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: {}, // Explicitly let the browser set the content-type header
       ...options,
     });
   }
