@@ -15,6 +15,10 @@ export interface Vaccine {
     injectionSite?: string;
     givenBy?: string;
     consentGivenBy?: string;
+    brand?: string;
+    disease?: string;
+    notGivenClinician?: string;
+    notGivenReason?: string;
 }
 /*
 possible extras

@@ -1,11 +1,8 @@
 import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
-import {
-  RequiredVaccineModalAssertionParams,
-  OptionalVaccineModalAssertionParams,
-} from '../../../../types/vaccine/ViewVaccineModalAssertions';
 import { convertDateFormat } from '../../../../utils/testHelper';
+import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class ViewVaccineRecordModal extends BasePatientModal {
   readonly modalTitle: Locator;
@@ -60,11 +57,15 @@ export class ViewVaccineRecordModal extends BasePatientModal {
 
   /**
    * Asserts the values for the required fields in the vaccine record modal match what was entered when creating the vaccine record
-   * @param requiredParams - The required parameters when creating a vaccine record
+   * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
-  async assertVaccineModalRequiredFields(requiredParams: RequiredVaccineModalAssertionParams) {
-    const { vaccineName, date, area, location, department, given, category, schedule } =
-      requiredParams;
+  async assertVaccineModalRequiredFields(vaccine: Partial<Vaccine>) {
+    const { vaccineName, dateGiven, area, location, department, given, category, scheduleOption } =
+      vaccine;
+
+    if (!vaccineName || !dateGiven || !area || !location || !department || !scheduleOption) {
+      throw new Error('Missing required vaccine fields');
+    }
 
     await expect(this.area).toContainText(area);
     await expect(this.location).toContainText(location);
@@ -76,31 +77,25 @@ export class ViewVaccineRecordModal extends BasePatientModal {
       await expect(this.vaccineNameOther).toContainText(vaccineName);
     } else {
       await expect(this.givenVaccineName).toContainText(vaccineName);
-      await expect(this.scheduleOption).toContainText(schedule!);
+      await expect(this.scheduleOption).toContainText(scheduleOption);
     }
 
     if (given) {
       await expect(this.givenStatus).toContainText('Given');
-      await expect(this.dateGiven).toContainText(convertDateFormat(date));
+      await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
     } else {
       await expect(this.givenStatus).toContainText('Not given');
-      await expect(this.dateNotGiven).toContainText(convertDateFormat(date));
+      await expect(this.dateNotGiven).toContainText(convertDateFormat(dateGiven));
     }
   }
 
   /**
    * Asserts the values for the optional fields in the vaccine record modal match what was entered when creating the vaccine record
-   * @param requiredParams - The required parameters when creating a vaccine record
-   * @param optionalParams - The optional parameters when creating a vaccine record
+   * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
-  async assertVaccineModalOptionalFields(
-    requiredParams: RequiredVaccineModalAssertionParams,
-    optionalParams: OptionalVaccineModalAssertionParams,
-  ) {
-    const { given, category } = requiredParams;
-
-    const { batch, injectionSite, givenBy, brand, disease, notGivenClinician, notGivenReason } =
-      optionalParams;
+  async assertVaccineModalOptionalFields(vaccine: Partial<Vaccine>) {
+    const { given, category, batch, injectionSite, givenBy, brand, disease, notGivenClinician, notGivenReason } =
+      vaccine;
 
     if (category === 'Other') {
       await expect(this.otherDisease).toContainText(disease!);

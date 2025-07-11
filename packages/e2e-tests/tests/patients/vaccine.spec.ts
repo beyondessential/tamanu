@@ -4,11 +4,13 @@ import { convertDateFormat, offsetYear } from '../../utils/testHelper';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 //TODO: add tests to confirm error messages if try to submit without required fields
+//TODO: can i make flynns timeout when recording vaccine reduced or removed?
 //TODO: make addvaccineandassert function less complex?
 //TODO: is there a way to use {...props} to make the functions more readable?
 //TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
+//TODO: manually run everything in debug after the significant refactors to ensure everything is working as expected
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -59,18 +61,6 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    //TODO: if i do some of the below refactors this might be removable
-    if (
-      !vaccine.vaccineName ||
-      !vaccine.scheduleOption ||
-      !vaccine.dateGiven ||
-      !vaccine.area ||
-      !vaccine.location ||
-      !vaccine.department
-    ) {
-      throw new Error('Vaccine record is missing required fields');
-    }
-
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
 
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
@@ -79,46 +69,12 @@ test.describe('Vaccines', () => {
       await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
     }
 
-    //TODO: refactor this to just pass vaccine object, destructure in the associated function?
-    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
-      vaccine.vaccineName,
-      vaccine.scheduleOption,
-      vaccine.dateGiven,
-      count,
-      given,
-      vaccine.givenBy,
-    );
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
 
-    //TODO: refactor this to just pass vaccine object, destructure in the associated function?
     if (viewVaccineRecord) {
-      const requiredParams = {
-        vaccineName: vaccine.vaccineName,
-        date: vaccine.dateGiven,
-        area: vaccine.area,
-        location: vaccine.location,
-        department: vaccine.department,
-        given,
-        count,
-        category,
-        fillOptionalFields: fillOptionalFields ?? false, // default to false if undefined
-        schedule: vaccine.scheduleOption,
-      };
-
-      const optionalParams = {
-        batch: vaccine.vaccineBatch,
-        injectionSite: vaccine.injectionSite,
-        givenBy: vaccine.givenBy,
-        brand: vaccine.brand,
-        disease: vaccine.disease,
-        notGivenClinician: vaccine.notGivenClinician,
-        notGivenReason: vaccine.notGivenReason,
-      };
-
-      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(
-        requiredParams,
-        optionalParams,
-      );
+      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
     }
+
     return vaccine;
   }
 
@@ -436,7 +392,6 @@ test.describe('Vaccines', () => {
   async function editVaccine(
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
-    count: number,
     specificEdits: {
       batch?: string;
       dateGiven?: string;
@@ -445,10 +400,12 @@ test.describe('Vaccines', () => {
     },
     //TODO: add some kind of handling for the below possible edits?
    // consentCheckbox?: boolean;
+   //TODO: some way to refactor the below to use less lines of code?
   ) {
     const {
       vaccineName,
       scheduleOption,
+      count,
       injectionSite,
       area,
       location,
@@ -476,7 +433,7 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
       vaccineName!,
       scheduleOption!,
-      count,
+      count!,
     );
 
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
@@ -504,92 +461,31 @@ test.describe('Vaccines', () => {
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
   ) {
-    //TODO: can maybe get rid of this if im just passing the vaccine object to everything else in this function?
-    const {
-      vaccineName,
-      scheduleOption,
-      count,
-      dateGiven,
-      area,
-      location,
-      department,
-      batch,
-      injectionSite,
-      givenBy,
-      given,
-      category,
-      fillOptionalFields,
-    } = vaccine;
+    const {vaccineName, scheduleOption, count} = vaccine;
 
-    //TODO: can maybe get rid of this if i refactor out requiredParams / optionalParms
-    if (
-      !vaccineName ||
-      !count ||
-      !given ||
-      !fillOptionalFields ||
-      !category ||
-      !dateGiven ||
-      !area ||
-      !location ||
-      !department ||
-      !scheduleOption
-    ) {
-      throw new Error('Missing required vaccine fields');
-    }
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
 
-    //TODO: just pase vaccine object to this?
-    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
-      vaccineName,
-      scheduleOption,
-      dateGiven,
-      count,
-      given,
-      givenBy,
-    );
-
-    //TODO: if i refacttor the viewVaccineRecordAndAssert to just take a vaccine object can get rid of below?
-    const requiredParams = {
-      vaccineName,
-      date: dateGiven,
-      area: area,
-      location: location,
-      department: department,
-      given: given,
-      count,
-      category: category,
-      fillOptionalFields: fillOptionalFields,
-      schedule: scheduleOption,
-    };
-
-    const optionalParams = {
-      batch: batch,
-      injectionSite: injectionSite,
-      givenBy: givenBy,
-    };
     //Confirm the expected changes are reflected when viewing the vaccine record modal
-    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
-
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
     await patientDetailsPage.closeViewVaccineModalButton().click();
 
-    /*
     //Confirm the expected changes are reflected when opening the edit modal again
     await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
-      vaccineName,
-      scheduleOption,
-      count,
+      vaccineName!,
+      scheduleOption!,
+      count!,
     );
 
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
 
-
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
-*/
-   // await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
+
+    //TODO: complete this
+  //  await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
     
   }
 
   test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
-    const vaccineCount = 1;
     const given = true;
     const category = 'Routine';
     const fillOptionalFields = true;
@@ -599,11 +495,9 @@ test.describe('Vaccines', () => {
     //A patient is always 18+ years old so one year ago avoids any validation errors
     const editedDateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
 
-    const vaccine = await addVaccineAndAssert(patientDetailsPage, given, category, vaccineCount, {
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, given, category, 1, {
       fillOptionalFields: fillOptionalFields,
     });
-
-    console.log('vaccine', vaccine);
 
     if (!vaccine || !vaccine.vaccineName || !vaccine.scheduleOption) {
       throw new Error('Vaccine record was not created successfully');
@@ -612,7 +506,6 @@ test.describe('Vaccines', () => {
     const editedVaccine = await editVaccine(
       patientDetailsPage,
       vaccine,
-      vaccineCount,
       {
         batch: 'Edited batch field',
         dateGiven: editedDateGiven,
@@ -620,8 +513,6 @@ test.describe('Vaccines', () => {
         consentGivenBy: 'Edited consent field',
       },
     );
-
-    console.log('editedVaccine', editedVaccine);
 
     await assertEditedVaccine(
       patientDetailsPage,

@@ -235,14 +235,14 @@ export class RecordVaccineModal extends BasePatientModal {
 
   async recordOptionalVaccineFieldsGiven(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
     const givenBy = 'Test Doctor';
-    const vaccineBatch = 'A12B3C';
+    const batch = 'A12B3C';
     const consentGivenBy = 'Recipient';
 
     let brand: string | undefined;
     let disease: string | undefined;
 
     await this.givenByField.fill(givenBy);
-    await this.vaccineBatchField.fill(vaccineBatch);
+    await this.vaccineBatchField.fill(batch);
     const injectionSite = await this.selectInjectionSite();
     await this.consentGivenByField.fill(consentGivenBy);
 
@@ -253,7 +253,7 @@ export class RecordVaccineModal extends BasePatientModal {
       await this.otherVaccineDisease.fill(disease);
     }
 
-    return { givenBy, vaccineBatch, injectionSite, consentGivenBy, brand, disease };
+    return { givenBy, batch, injectionSite, consentGivenBy, brand, disease };
   }
 
   async recordOptionalVaccineFieldsNotGiven(

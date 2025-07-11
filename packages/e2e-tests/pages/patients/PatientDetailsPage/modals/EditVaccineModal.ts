@@ -122,11 +122,11 @@ export class EditVaccineModal extends BasePatientModal {
       throw new Error('Missing required vaccine fields');
     }
 
-    expect(this.vaccineName).toContainText(vaccineName);
-    expect(this.schedule).toContainText(scheduleOption);
-    expect(this.givenStatus).toContainText(givenStatus);
-    expect(this.recordedBy).toContainText('Initial Admin');
-    expect(this.facility).toContainText('facility-1');
+    await expect(this.vaccineName).toContainText(vaccineName);
+    await expect(this.schedule).toContainText(scheduleOption);
+    await expect(this.givenStatus).toContainText(givenStatus);
+    await expect(this.recordedBy).toContainText('Initial Admin');
+    await expect(this.facility).toContainText('facility-1');
   }
 
   async assertEditableFields(vaccine: Partial<Vaccine>) {

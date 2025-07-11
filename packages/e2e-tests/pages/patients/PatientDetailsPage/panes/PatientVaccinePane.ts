@@ -3,11 +3,8 @@ import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
 import { ViewVaccineRecordModal } from '../modals/ViewVaccineRecordModal';
-import {
-  RequiredVaccineModalAssertionParams,
-  OptionalVaccineModalAssertionParams,
-} from '../../../../types/vaccine/ViewVaccineModalAssertions';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
+import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
@@ -93,23 +90,19 @@ export class PatientVaccinePane extends BasePatientPane {
 
   /**
    * Asserts the values for a specific vaccine in the recorded vaccines table are correct
-   * @param vaccineName - The name of the vaccine to search for, e.g. "Pentavalent"
-   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
-   * @param date - The date of the vaccine to search for, e.g. "2024-11-27"
-   * @param count - The number of times to run the search
-   * @param given - Whether the vaccine was given, e.g. true
-   * @param givenBy - The name of the person who gave the vaccine, e.g. "John Doe"
+   * @param vaccine - A partial vaccine object containing the fields to assert against
    */
   async assertRecordedVaccineTable(
-    vaccineName: string,
-    scheduleOption: string,
-    date: string,
-    count: number,
-    given: boolean,
-    givenBy?: string,
+    vaccine: Partial<Vaccine>
   ) {
+    const { vaccineName, scheduleOption, dateGiven, count, given, givenBy } = vaccine;
+
+    if (!vaccineName || !dateGiven || count === undefined || !scheduleOption) {
+      throw new Error('Missing required vaccine fields');
+    }
+
     //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
-    const formattedDate = convertDateFormat(date);
+    const formattedDate = convertDateFormat(dateGiven);
 
     const correctVaccineFound = await this.searchSpecificTableRowForMatch(
       vaccineName,
@@ -254,25 +247,27 @@ export class PatientVaccinePane extends BasePatientPane {
 
   /**
    * Views a vaccine record and asserts the values are correct
-   * @param requiredParams - The required parameters when creating a vaccine record
-   * @param optionalParams - The optional parameters when creating a vaccine record
+   * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
   async viewVaccineRecordAndAssert(
-    requiredParams: RequiredVaccineModalAssertionParams,
-    optionalParams: OptionalVaccineModalAssertionParams,
+    vaccine: Partial<Vaccine>
   ) {
-    const { vaccineName, count, fillOptionalFields, schedule } = requiredParams;
+    const { vaccineName, count, fillOptionalFields, scheduleOption } = vaccine;
 
-    const row = await this.findRowNumberForVaccine(vaccineName, schedule, count);
+    if (!vaccineName || count === undefined|| !scheduleOption) {
+      throw new Error('Missing required vaccine fields');
+    }
+
+    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
     const viewButton = this.recordedVaccinesTableBody
       .getByTestId(`${this.tableRowPrefix}${row}-action`)
       .getByRole('button', { name: 'View' });
     const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
 
-    await viewVaccineRecordModal.assertVaccineModalRequiredFields(requiredParams);
+    await viewVaccineRecordModal.assertVaccineModalRequiredFields(vaccine);
 
     if (fillOptionalFields) {
-      await viewVaccineRecordModal.assertVaccineModalOptionalFields(requiredParams, optionalParams);
+      await viewVaccineRecordModal.assertVaccineModalOptionalFields(vaccine);
     }
   }
 
