@@ -31,4 +31,4 @@ fi
 
 # Append csv header and print data
 # Add the special case stringIs for adding new languages
-printf "stringId,default\n"languageName","Placeholder"\n"countryCode","n/a"\n%s" "$data"
+printf "stringId,default\n"languageName","English"\n"countryCode","gb"\n%s" "$data"

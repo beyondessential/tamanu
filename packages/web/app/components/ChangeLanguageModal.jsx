@@ -6,7 +6,6 @@ import { useTranslationLanguagesQuery } from '../api/queries';
 import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
-import { mapValues, keyBy } from 'lodash';
 import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
 
@@ -63,10 +62,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
   const [language, setLanguage] = useState(storedLanguage);
   const { data = {}, error } = useTranslationLanguagesQuery();
 
-  const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
-
-  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-  const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
+  const { languageDisplayNames, languageCountryCodes, languagesInDb = [] } = data;
 
   const languageOptions = languagesInDb.map(({ language }) => {
     const countryCode = languageCountryCodes[language];
