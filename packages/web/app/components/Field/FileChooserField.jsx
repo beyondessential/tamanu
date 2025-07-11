@@ -8,6 +8,8 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
+import { useSettings } from '../../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -99,6 +101,10 @@ export const FileChooserInput = ({
   smallDisplay = false,
   ...props
 }) => {
+  const { getSetting } = useSettings();
+  const maxFileSizeInMB = getSetting(SETTING_KEYS.FILE_CHOOSER_MB_SIZE_LIMIT) || 10;
+  const maxFileSizeInBytes = maxFileSizeInMB * 1000 * 1000;
+
   // Convert the given filters into string format for the accept attribute of file input
   const acceptString = filters.map((filter) => `.${filter.extensions.join(', .')}`).join(', ');
 
@@ -113,13 +119,13 @@ export const FileChooserInput = ({
     if (!file) return;
 
     const fileSize = file.size;
-    const maxFileSize = 10 * 1000 * 1000; // 10MB
-    if (fileSize > maxFileSize) {
+    if (fileSize > maxFileSizeInBytes) {
       toast.error(
         <TranslatedText
-          stringId="chooseFile.alert.max10Mb"
-          fallback="Selected file size exceeds the maximum allowed size of 10MB"
-          data-testid="translatedtext-10mb"
+          stringId="chooseFile.alert.exceedsMaxSize"
+          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB MB"
+          replacements={{ maxFileSizeInMB }}
+          data-testid="translatedtext-b4t3"
         />,
       );
       return;
@@ -167,8 +173,9 @@ export const FileChooserInput = ({
               </Button>
               <HintText data-testid="hinttext-oxv8">
                 <TranslatedText
-                  stringId="chooseFile.hint.max10Mb.label"
-                  fallback="Max 10 MB"
+                  stringId="chooseFile.hint.maxSize.label"
+                  fallback="Max :maxFileSizeInMB MB"
+                  replacements={{ maxFileSizeInMB }}
                   data-testid="translatedtext-u0s3"
                 />
                 <br />
