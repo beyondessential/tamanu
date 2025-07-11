@@ -68,6 +68,7 @@ import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from '
 import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
 import { addProgramRegistryConditionCategories1749085185000 } from './1749085185000-addProgramRegistryConditionCategories';
 import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
+import { addFacilityIsSensitiveColumn1752187477000 } from './1752187477000-addFacilityIsSensitiveColumn';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -139,4 +140,5 @@ export const migrationList = [
   addPatientProgramRegistrationInactiveFields1744234389088,
   addProgramRegistryConditionCategories1749085185000,
   updateMedicationsDBSchema1750786972719,
+  addFacilityIsSensitiveColumn1752187477000,
 ];
