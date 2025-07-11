@@ -480,7 +480,7 @@ export class TamanuApi {
         // we try to show the actual name of the Kind when known instead of the raw value
         // we also display the raw value in hex as that's how they're defined in constants
         kind:
-          Object.entries(SYNC_STREAM_MESSAGE_KIND).find(([, value]) => value === kind)[0] ??
+          Object.entries(SYNC_STREAM_MESSAGE_KIND).find(([, value]) => value === kind)?.[0] ??
           `0x${kind.toString(16)}`,
         length,
         data,
