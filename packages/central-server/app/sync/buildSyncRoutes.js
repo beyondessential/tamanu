@@ -146,7 +146,7 @@ export const buildSyncRoutes = ctx => {
 
       while (!(await syncManager.checkSessionReady(sessionId))) {
         res.write(StreamMessage.sessionWaiting());
-        await sleepAsync(1000);
+        await sleepAsync(ctx.settings.get('sync.databasePollInterval'));
       }
 
       const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
@@ -210,7 +210,7 @@ export const buildSyncRoutes = ctx => {
 
       while (!(await syncManager.checkPullReady(sessionId))) {
         res.write(StreamMessage.pullWaiting());
-        await sleepAsync(1000);
+        await sleepAsync(ctx.settings.get('sync.databasePollInterval'));
       }
 
       const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId);
@@ -266,7 +266,7 @@ export const buildSyncRoutes = ctx => {
         // TODO: change this to a cursor
         const changes = await syncManager.getOutgoingChanges(sessionId, {
           fromId: startId,
-          limit: 100,
+          limit: ctx.settings.get('sync.databasePollBatchSize'),
         });
         if (changes.length === 0) {
           break;

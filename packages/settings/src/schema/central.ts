@@ -36,9 +36,24 @@ export const centralSettings = {
       highRisk: true,
       properties: {
         streaming: {
-          description: 'Use streaming endpoints',
-          type: yup.boolean(),
-          defaultValue: false,
+          properties: {
+            enabled: {
+              description: 'Use streaming endpoints',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            databasePollBatchSize: {
+              description:
+                'The number of records to poll in a single batch for a streaming endpoint',
+              type: yup.number().positive().integer().min(1),
+              defaultValue: 100,
+            },
+            databasePollInterval: {
+              description: 'The interval in milliseconds to poll the database for a streaming wait',
+              type: yup.number().positive().integer().min(10),
+              defaultValue: 1000,
+            },
+          },
         },
       },
     },
@@ -79,10 +94,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },

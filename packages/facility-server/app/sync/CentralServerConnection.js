@@ -128,7 +128,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async streaming() {
-    return Boolean((await this.loginData())?.settings?.sync?.streaming);
+    return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
