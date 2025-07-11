@@ -202,18 +202,18 @@ export class TamanuApi {
       ...otherConfig,
     };
 
+    // For fetch we have to explicitly remove the content-type header
+    // to allow the browser to add the boundary value
+    if (config.body instanceof FormData) {
+      config.headers.delete('content-type');
+    }
+
     if (
       config.body &&
       config.headers.get('content-type')?.startsWith('application/json') &&
       !(config.body instanceof Uint8Array) // also covers Buffer
     ) {
       config.body = JSON.stringify(config.body);
-    }
-
-    // For fetch we have to explicitly remove the content-type header
-    // to allow the browser to add the boundary value
-    if (config.body instanceof FormData) {
-      config.headers.delete('content-type');
     }
 
     const requestInterceptorChain = [];
