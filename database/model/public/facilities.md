@@ -47,5 +47,5 @@ Catchment area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data))
 {% enddocs %}
 
 {% docs facilities__is_sensitive %}
-Controls the sync behaviour of this facility. If `true` encounters here will only sync to instances of this facility and nowhere else.
+Controls the sync behaviour of this facility. If **`true`** encounters here will only sync to instances of this facility and nowhere else.
 {% enddocs %}
