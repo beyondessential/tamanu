@@ -9,6 +9,9 @@ export const SYNC_DIRECTIONS = {
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
 // 16-bit uint
+//
+// When adding message kinds here, also add them to the Wireshark dissector at:
+// /docs/wireshark-tamanu-stream.lua
 export const SYNC_STREAM_MESSAGE_KIND = {
   // Control messages start with 0xf
   END: 0xf001,
