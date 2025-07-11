@@ -1,10 +1,12 @@
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 
-// +---------+---------+----------------+
-// |   kind  |  length |     data...    |
-// +---------+---------+----------------+
-// | 4 bytes | 4 bytes | $length$ bytes |
-// +---------+---------+----------------+
+// +---------+---------+---------+----------------+
+// |  CR+LF  |   kind  |  length |     data...    |
+// +---------+---------+---------+----------------+
+// | 2 bytes | 2 bytes | 4 bytes | $length$ bytes |
+// +---------+---------+---------+----------------+
+//
+// See TamanuApi#stream for the full description
 
 export function startStream(res) {
   res.writeHead(200, {
@@ -17,7 +19,8 @@ function shape(kind, data = undefined) {
   const dataBytes =
     data === undefined ? Buffer.alloc(0) : Buffer.from(JSON.stringify(data), 'utf8');
   const buf = Buffer.alloc(dataBytes.length + 8);
-  buf.writeUInt32BE(kind, 0);
+  buf.write('\r\n', 0);
+  buf.writeUInt16BE(kind, 0);
   buf.writeUInt32BE(dataBytes.length, 4);
   dataBytes.copy(buf, 8);
   return buf;
