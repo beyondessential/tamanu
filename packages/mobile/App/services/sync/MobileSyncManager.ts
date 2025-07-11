@@ -298,22 +298,6 @@ export class MobileSyncManager {
     );
   }
 
-  // TODO: work out where we want these last bits, all else is accounted for in pullChanges
-  // /**
-  //  * Syncing incoming changes happens in two phases:
-  //  * pulling all the records from the server (in batches),
-  //  * then saving all those records into the local database
-  //  * this avoids a period of time where the the local database may be "partially synced"
-  //  * @param sessionId
-  //  */
-  // async syncIncomingChanges(sessionId: string): Promise<void> {
-  //   this.setSyncStage(2);
-  //   this.setProgress(
-  //     STAGE_MAX_PROGRESS[this.syncStage - 1],
-  //     'Pausing at 33% while server prepares for pull, please wait...',
-  //   );
-  //   this.lastSyncPulledRecordsCount = totalPulled;
-
   async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
@@ -339,11 +323,6 @@ export class MobileSyncManager {
       tablesForFullResync,
     );
 
-    /**
-     *   if (!totalToPull) {
-    return { totalPulled: 0, pullUntil };
-  }
-     */
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
       totalPulled += incrementalPulled;
@@ -366,7 +345,8 @@ export class MobileSyncManager {
   }
 
   async postPull(transactionEntityManager: any, pullUntil: number) {
-    // TODO: Fix doing with transaction
+    // TODO: this must use transaction entity manager too
+
     // await tablesForFullResync.remove();
 
     await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
@@ -385,9 +365,9 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
-      };
+      const processStreamedDataFunction = async (records: any) =>
+        saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+
       await pullRecordsInBatches(
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
@@ -405,7 +385,6 @@ export class MobileSyncManager {
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
-    // Todo this isn't one big transaction
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
