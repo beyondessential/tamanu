@@ -39,7 +39,6 @@
     "assertIfPulledRecordsUpdatedAfterPushSnapshot": false,
     "enabled": true,
     "jitterTime": "1s",
-    "streaming": false,
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
