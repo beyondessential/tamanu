@@ -193,9 +193,6 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
   const [includeReferenceData, setIncludeReferenceData] = useState(false);
   const [isSaving] = useIsSaving(isSubmitting, dirty);
 
-  const firstRow = useMemo(() => translationToFormValue(data[0]), []);
-  console.log(firstRow);
-
   const handleSave = event => {
     // Reset search so any validation errors are visible
     setSearchValue('');
@@ -248,7 +245,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(firstRow, ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
+      ...Object.keys(omit(translationToFormValue(data[0]), ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
         accessor: row => (
@@ -256,7 +253,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
         ),
       })),
     ],
-    [languageNames, firstRow],
+    [data, languageNames],
   );
 
   const tableRows = useMemo(() => {
