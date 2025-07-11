@@ -56,7 +56,8 @@ do
       -- add the decoded field values. message payload is
       -- omitted if length is zero, for concise display
       local msg = subtree:add(F_msg, data(offset, msg_len + 8))
-      msg:append_text(": " .. decode_kind(kind:uint()))
+      local decoded_kind = decode_kind(kind:uint())
+      if decoded_kind then msg:append_text(": " .. decoded_kind) end
       msg:add(F_msg_kind, kind, kind:uint())
       msg:add(F_msg_length, len, msg_len)
       if msg_len > 0 then msg:add(F_msg_data, data(offset + 8, len:uint())) end
