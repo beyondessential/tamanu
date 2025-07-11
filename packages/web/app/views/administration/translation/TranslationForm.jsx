@@ -58,6 +58,7 @@ const translationToFormValue = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest 
   ...rest,
   // Display default translations in english column
   [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
+  [DEFAULT_LANGUAGE_CODE]: defaultText,
 });
 
 const formValuesToTranslation = ({
@@ -69,6 +70,11 @@ const formValuesToTranslation = ({
   // Remove en translations that are the same as the default text so they are not saved
   [ENGLISH_LANGUAGE_CODE]: defaultText === enText ? null : enText,
 });
+
+const defaultLanguageNames = ({[DEFAULT_LANGUAGE_CODE]: defaultText, [ENGLISH_LANGUAGE_CODE]: enText, ...rest}) => ({
+  ...rest,
+  [ENGLISH_LANGUAGE_CODE]: enText || defaultText,
+})
 
 /**
  *
@@ -191,6 +197,9 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
   const [searchValue, setSearchValue] = useState('');
   const [includeReferenceData, setIncludeReferenceData] = useState(false);
   const [isSaving] = useIsSaving(isSubmitting, dirty);
+  
+  const firstRow = useMemo(() => translationToFormValue(data[0]), [])
+  console.log(firstRow)
 
   const handleSave = (event) => {
     // Reset search so any validation errors are visible
@@ -244,7 +253,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map((code) => ({
+      ...Object.keys(omit(firstRow, ['stringId', DEFAULT_LANGUAGE_CODE])).map((code) => ({
         key: code,
         title: languageNames[code],
         accessor: (row) => (
@@ -252,7 +261,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
         ),
       })),
     ],
-    [data, languageNames],
+    [languageNames, firstRow],
   );
 
   const tableRows = useMemo(() => {
@@ -367,7 +376,7 @@ export const TranslationForm = () => {
   const sortedTranslations = sortBy(
     translations,
     (obj) => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
-  ); // Ensure languageName key stays on top
+  ); 
 
   return (
     <Container data-testid="container-v9eo">
@@ -381,7 +390,7 @@ export const TranslationForm = () => {
           <FormContents
             {...props}
             data={sortedTranslations}
-            languageNames={languageNames}
+            languageNames={defaultLanguageNames(languageNames)}
             data-testid="formcontents-s4pk"
           />
         )}
