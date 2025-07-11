@@ -144,9 +144,10 @@ export const buildSyncRoutes = ctx => {
 
       startStream(res);
 
+      const interval = await ctx.settings.get('sync.databasePollInterval');
       while (!(await syncManager.checkSessionReady(sessionId))) {
         res.write(StreamMessage.sessionWaiting());
-        await sleepAsync(ctx.settings.get('sync.databasePollInterval'));
+        await sleepAsync(interval);
       }
 
       const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
@@ -208,9 +209,10 @@ export const buildSyncRoutes = ctx => {
 
       startStream(res);
 
+      const interval = await ctx.settings.get('sync.databasePollInterval');
       while (!(await syncManager.checkPullReady(sessionId))) {
         res.write(StreamMessage.pullWaiting());
-        await sleepAsync(ctx.settings.get('sync.databasePollInterval'));
+        await sleepAsync(interval);
       }
 
       const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId);
@@ -261,12 +263,13 @@ export const buildSyncRoutes = ctx => {
       startStream(res);
 
       let startId = fromId ? parseInt(fromId, 10) : 0;
+      const limit = await ctx.settings.get('sync.databasePollBatchSize');
       // eslint-disable-next-line no-constant-condition
       while (true) {
         // TODO: change this to a cursor
         const changes = await syncManager.getOutgoingChanges(sessionId, {
           fromId: startId,
-          limit: ctx.settings.get('sync.databasePollBatchSize'),
+          limit,
         });
         if (changes.length === 0) {
           break;

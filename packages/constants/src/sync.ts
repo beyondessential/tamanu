@@ -12,7 +12,7 @@ export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 //
 // When adding message kinds here, also add them to the Wireshark dissector at:
 // /docs/wireshark-tamanu-stream.lua
-const NEVER_USE_ZERO = Symbol();
+const NEVER_USE_ZERO = Symbol('zero');
 export const SYNC_STREAM_MESSAGE_KIND = {
   // This should never be used, so we make it impossible to
   [NEVER_USE_ZERO]: 0x0000,
