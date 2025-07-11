@@ -202,6 +202,12 @@ export class TamanuApi {
       ...otherConfig,
     };
 
+    // For fetch we have to explicitly remove the content-type header
+    // to allow the browser to add the boundary value
+    if (config.body instanceof FormData) {
+      config.headers.delete('content-type');
+    }
+
     if (
       config.body &&
       config.headers.get('content-type')?.startsWith('application/json') &&
@@ -335,9 +341,6 @@ export class TamanuApi {
     return this.fetch(endpoint, undefined, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       ...options,
     });
   }
