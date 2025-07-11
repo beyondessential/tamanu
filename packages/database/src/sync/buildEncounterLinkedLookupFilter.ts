@@ -6,7 +6,13 @@ export function buildEncounterLinkedLookupFilter(model: typeof Model) {
   return {
     select: buildSyncLookupSelect(model, {
       patientId: 'encounters.patient_id',
+      facilityId: 'facilities.id',
     }),
-    joins: buildEncounterLinkedSyncFilterJoins([model.tableName, 'encounters']),
+    joins: buildEncounterLinkedSyncFilterJoins([
+      model.tableName,
+      'encounters',
+      'locations',
+      'facilities',
+    ]),
   };
 }
