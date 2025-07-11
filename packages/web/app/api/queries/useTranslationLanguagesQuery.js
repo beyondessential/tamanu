@@ -12,14 +12,13 @@ const applyDefaultsToTranslations = ({
   [ENGLISH_LANGUAGE_CODE]: enText || defaultText,
 });
 
-
 export const useTranslationLanguagesQuery = () => {
   const api = useApi();
   return useQuery(['languageList'], () => api.get('public/translation/languageOptions'), {
     select: (data) => {
       const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
-      const languageDisplayNames = mapValues(keyBy(applyDefaultsToTranslations(languageNames), 'language'), 'text');
-      const languageCountryCodes = mapValues(keyBy(applyDefaultsToTranslations(countryCodes), 'language'), 'text');
+      const languageDisplayNames = applyDefaultsToTranslations(mapValues(keyBy(languageNames, 'language'), 'text'));
+      const languageCountryCodes = applyDefaultsToTranslations(mapValues(keyBy(countryCodes, 'language'), 'text'));
       return { languageDisplayNames, languageCountryCodes, languagesInDb };
     },
   });
