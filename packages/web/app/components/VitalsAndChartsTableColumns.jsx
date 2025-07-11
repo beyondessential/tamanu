@@ -21,6 +21,7 @@ import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
@@ -156,6 +157,44 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   );
 });
 
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, firstColTitle) => {
+  return (cells) => {
+    const { value, config, validationCriteria, historyLogs, component } = cells[date];
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const isMultiSelect =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const handleCellClick = () => {
+      onCellClick(cells[date]);
+    };
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+      return (
+        <ViewPhotoLink
+          imageId={value}
+          data-testid="viewphotolink-chrt"
+          firstColTitle={firstColTitle}
+        />
+      );
+    }
+
+    return (
+      <RangeValidatedCell
+        value={isMultiSelect ? parseMultiselectValue(value) : value}
+        config={config}
+        validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+        isEdited={historyLogs.length > 1}
+        onClick={shouldBeClickable ? handleCellClick : null}
+        ValueWrapper={VitalsLimitedLinesCell}
+        data-testid={`rangevalidatedcell-${date}`}
+      />
+    );
+  };
+};
+
 export const getChartsTableColumns = (
   selectedChartSurveyName,
   patient,
@@ -192,31 +231,7 @@ export const getChartsTableColumns = (
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: (cells) => {
-          const { value, config, validationCriteria, historyLogs, component } = cells[date];
-          const isCalculatedQuestion =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-          const isMultiSelect =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-          const handleCellClick = () => {
-            onCellClick(cells[date]);
-          };
-          const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-          const isValid = isCurrent ? true : Boolean(value);
-          const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-
-          return (
-            <RangeValidatedCell
-              value={isMultiSelect ? parseMultiselectValue(value) : value}
-              config={config}
-              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
-              isEdited={historyLogs.length > 1}
-              onClick={shouldBeClickable ? handleCellClick : null}
-              ValueWrapper={VitalsLimitedLinesCell}
-              data-testid={`rangevalidatedcell-${date}`}
-            />
-          );
-        },
+        accessor: getRecordedDateAccessor(date, patient, onCellClick, isEditEnabled, firstColTitle),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },

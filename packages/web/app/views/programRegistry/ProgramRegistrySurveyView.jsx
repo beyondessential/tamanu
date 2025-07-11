@@ -42,7 +42,7 @@ export const ProgramRegistrySurveyView = () => {
       patientId: patient.id,
       facilityId,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
     });
 
     navigateToProgramRegistry();

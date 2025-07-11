@@ -29,7 +29,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       encounterId: encounter.id,
       facilityId,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
     });
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();

@@ -254,7 +254,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       patientId: patient.id,
       encounterId: encounter.id,
       endTime: submittedTime,
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
       facilityId,
     };
 
