@@ -368,7 +368,7 @@ export const TranslationForm = () => {
   const sortedTranslations = sortBy(
     translations,
     obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
-  );
+  );  // Ensure languageName and countryCode stays on top
 
   return (
     <Container data-testid="container-v9eo">
