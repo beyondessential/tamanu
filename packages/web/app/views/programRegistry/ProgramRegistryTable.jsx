@@ -20,8 +20,7 @@ import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation.jsx';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
-const ConditionsCell = ({ conditions }) => {
-  const { getTranslation } = useTranslation();
+const ConditionsCell = ({ conditions, getTranslation }) => {
   return conditions
     ?.map(condition => {
       const { id, name } = condition;
@@ -32,6 +31,7 @@ const ConditionsCell = ({ conditions }) => {
 };
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const params = useParams();
   const [openModal, setOpenModal] = useState();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -43,6 +43,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
+        exportOverrides: {
+          accessor: data => getEnumTranslation(REGISTRATION_STATUSES, data.registrationStatus),
+        },
         sortable: false,
       },
       {
@@ -101,7 +104,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ConditionsCell,
+        accessor: ({ conditions }) => (
+          <ConditionsCell conditions={conditions} getTranslation={getTranslation} />
+        ),
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
@@ -135,6 +140,15 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'clinicalStatus',
         title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
+        exportOverrides: {
+          accessor: data => {
+            const { id, name } = data.clinicalStatus || {};
+            return getTranslation(
+              getReferenceDataStringId(id, 'programRegistryClinicalStatus'),
+              name,
+            );
+          },
+        },
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
@@ -143,6 +157,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'actions',
         title: '',
+        allowExport: false,
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
