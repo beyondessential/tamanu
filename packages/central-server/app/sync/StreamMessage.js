@@ -20,7 +20,7 @@ function shape(kind, data = undefined) {
     data === undefined ? Buffer.alloc(0) : Buffer.from(JSON.stringify(data), 'utf8');
   const buf = Buffer.alloc(dataBytes.length + 8);
   buf.write('\r\n', 0);
-  buf.writeUInt16BE(kind, 0);
+  buf.writeUInt16BE(kind, 2);
   buf.writeUInt32BE(dataBytes.length, 4);
   dataBytes.copy(buf, 8);
   return buf;
