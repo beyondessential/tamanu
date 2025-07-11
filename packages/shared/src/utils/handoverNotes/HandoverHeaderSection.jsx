@@ -20,6 +20,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
         <H3
           style={{
             textAlign: 'right',
+            fontFamily: 'NotoKufiArabic-Bold',
             fontWeight: 700,
             marginBottom: 10,
           }}
@@ -29,6 +30,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
         <H3
           style={{
             textAlign: 'right',
+            fontFamily: 'NotoKufiArabic-Bold',
             fontWeight: 'bold',
           }}
         >

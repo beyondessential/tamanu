@@ -13,15 +13,15 @@ const styles = StyleSheet.create({
 
   labelText: {
     fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     color: '#888888',
   },
 
   valueText: {
     fontSize: 8,
+    fontFamily: 'NotoKufiArabic-Regular',
     fontWeight: 400,
-    fontFamily: 'Helvetica',
     color: '#888888',
   },
 });

@@ -35,33 +35,31 @@ const pageStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
   },
   tableColumnHeader: {
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     fontSize: 10,
   },
   tableCellContent: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   tableCellFooter: {
-    fontFamily: 'Helvetica',
     fontSize: 8,
   },
   headerLabel: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     color: '#888888',
   },
   headerValue: {
     fontSize: 8,
+    fontFamily: 'NotoKufiArabic-Regular',
     fontWeight: 400,
-    fontFamily: 'Helvetica',
     color: '#888888',
   },
 });
@@ -93,7 +91,8 @@ const tableStyles = StyleSheet.create({
     fontSize: 8,
   },
   p: {
-    fontFamily: 'Helvetica',
+    fontFamily: 'NotoKufiArabic-Regular',
+    fontWeight: 400,
     fontSize: 8,
   },
   notesCell: {
@@ -111,8 +110,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = (props) => <View style={tableStyles.table} {...props} />;
-const Row = (props) => (
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => (
   <View
     style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]}
     {...props}
@@ -174,7 +173,7 @@ const DataTableHeading = ({ columns, title, width }) => {
                 <View
                   style={rotateStyle}
                 >
-                  <P bold style={{ letterSpacing: 0.3 }}>{title[0]}</P>
+                  <P bold style={{ letterSpacing: 0.3, fontFamily: 'NotoKufiArabic-Bold', fontWeight: 700 }}>{title[0]}</P>
                   <P>{title[1]}</P>
                 </View>
               </View>
@@ -200,7 +199,7 @@ const DataTable = ({ data, columns, title, type }) => {
   return (
     <Table>
       <DataTableHeading columns={columns} title={title} width={width} />
-      {data.map((row) => (
+      {data.map(row => (
         <Row key={row.id} wrap={false} width={width}>
           {columns.map(({ key, accessor, style }, index) => (
             <Cell key={key} style={style} bold={type === 'vitals' && index === 0}>
@@ -268,7 +267,7 @@ const NotesSection = ({ notes }) => {
       <View>
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
-          {notes.map((note) => (
+          {notes.map(note => (
             <>
               <View minPresenceAhead={80} />
               <View style={tableStyles.notesRow} key={note.id}>
@@ -443,9 +442,9 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'areaToBeImaged',
         title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.areas?.length
-            ? imagingRequest?.areas.map((area) => area.name).join(', ')
+            ? imagingRequest?.areas.map(area => area.name).join(', ')
             : imagingRequest?.areaNote,
         style: { width: '25%' },
       },
@@ -465,7 +464,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.results[0]?.completedAt
             ? formatShort(imagingRequest?.results[0]?.completedAt)
             : '--/--/----',
@@ -482,7 +481,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dose',
         title: getTranslation('pdf.table.column.dose', 'Dose'),
-        accessor: (medication) => {
+        accessor: medication => {
           return (
             <Text>
               {getDose(medication, getTranslation, getEnumTranslation)}
@@ -611,7 +610,7 @@ const EncounterRecordPrintoutComponent = ({
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (
         <>
-          {[0, 12, 24, 36, 48].map((start) => {
+          {[0, 12, 24, 36, 48].map(start => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <MultiPageHeader

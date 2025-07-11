@@ -32,7 +32,8 @@ const topStyles = StyleSheet.create({
   },
   key: {
     fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     marginRight: 2,
   },
   value: {
@@ -90,8 +91,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = (props) => <View style={tableStyles.table} {...props} />;
-const Row = (props) => <View style={tableStyles.row} {...props} />;
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, bold, children }) => (
   <Text bold={bold} style={[tableStyles.p, style]}>
     {children}
@@ -117,11 +118,11 @@ const LeftCell = ({ children }) => (
 );
 
 const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find((e) => e.value === v);
+  const entry = mapping.find(e => e.value === v);
   return entry ? entry.label : '';
 };
 
-const getFullName = (patient) => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
+const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
 
 const ChildSection = ({ data }) => {
   const { getTranslation } = useLanguageContext();
@@ -314,12 +315,14 @@ const signatureStyles = StyleSheet.create({
   leftText: {
     width: 90,
     marginRight: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   rightText: {
     width: 30,
     marginRight: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
   },
   line: {
     flex: 1,

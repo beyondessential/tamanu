@@ -6,7 +6,6 @@ const certificateMargins = '0 18px';
 
 export const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
     position: 'relative',
     padding: '30 30 0 30',
     color: '#222222',
@@ -32,8 +31,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     width: 100,
   },
   line: {

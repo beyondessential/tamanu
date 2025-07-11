@@ -14,9 +14,9 @@ const tableStyles = StyleSheet.create({
   },
   th: {
     flex: 1,
-    fontFamily: 'Helvetica-Bold',
     fontSize: 10,
-    fontWeight: 500,
+    fontFamily: 'NotoKufiArabic-Bold',
+    fontWeight: 700,
     padding: 3,
     borderRight: basicBorder,
     margin: 0,
