@@ -96,15 +96,19 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   };
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
-  let fromId;
-  let totalPulled = 0;
-  let records = [];
-  let writes = [];
+  let totalPulled = 0; // statistics
+  let records = []; // for batching writes
+  let writes = []; // ongoing write promises
 
-  stream: for await (const { kind, message } of centralServer.stream(() => ({
+  // keep track of the ID we're on so we can resume the stream
+  // on disconnect from where we left off rather than the start
+  let fromId;
+  const endpointFn = () => ({
     endpoint: `sync/${sessionId}/pull/stream`,
     query: { fromId },
-  }))) {
+  });
+
+  stream: for await (const { kind, message } of centralServer.stream(endpointFn)) {
     if (records.length >= WRITE_BATCH_SIZE) {
       // do writes in the background while we're continuing to stream data
       writes.push(writeBatch(records));
