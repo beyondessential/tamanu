@@ -2838,5 +2838,60 @@ describe('CentralSyncManager', () => {
         },
       });
     });
+
+    it('includes only encounters from sensitive facilities in the sync lookup table', async () => {
+      // Create two facilities: one sensitive, one not
+      const sensitiveFacility = await models.Facility.create({
+        ...fake(models.Facility),
+        isSensitive: true,
+      });
+      const nonSensitiveFacility = await models.Facility.create({
+        ...fake(models.Facility),
+        isSensitive: false,
+      });
+
+      // Create locations for each facility
+      const sensitiveLocation = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: sensitiveFacility.id,
+      });
+      const nonSensitiveLocation = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: nonSensitiveFacility.id,
+      });
+
+      // Create patients and encounters for each facility
+      const patientSensitive = await models.Patient.create(fake(models.Patient));
+      const patientNonSensitive = await models.Patient.create(fake(models.Patient));
+
+      await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patientSensitive.id,
+        locationId: sensitiveLocation.id,
+      });
+      await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patientNonSensitive.id,
+        locationId: nonSensitiveLocation.id,
+      });
+
+      // Run the lookup table update
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: { enabled: true },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+      await centralSyncManager.updateLookupTable();
+
+      // Fetch lookup data for encounters
+      const lookupData = await models.SyncLookup.findAll({
+        where: { recordType: 'encounters' },
+      });
+
+      // Only the sensitive facility's encounter should be present
+      expect(lookupData).toHaveLength(1);
+      expect(lookupData[0].data.locationId).toBe(sensitiveLocation.id);
+    });
   });
 });
