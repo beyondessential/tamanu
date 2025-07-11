@@ -68,7 +68,7 @@ export class AccessLog extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.User, {
+    this.hasMany(models.User, {
       foreignKey: 'userId',
       as: 'user',
     });
