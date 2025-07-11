@@ -44,6 +44,10 @@ const errorMessageFromSession = session =>
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
+
 export class CentralSyncManager {
   static config = _config;
 
@@ -57,6 +61,7 @@ export class CentralSyncManager {
 
   currentSyncTick;
 
+  /** @type {ApplicationContext} */
   store;
 
   purgeInterval;

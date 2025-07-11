@@ -10,6 +10,11 @@ import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
+
+/** @param ctx {ApplicationContext} */
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
