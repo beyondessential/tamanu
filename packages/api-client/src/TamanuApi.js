@@ -397,8 +397,7 @@ export class TamanuApi {
    *
    * ```js
    * for await (const { kind, message } of centralServer.stream(() => ({
-   *   endpoint: `sync/${sessionId}/pull/stream`,
-   *   query: { fromId },
+   *   endpoint: `some/kind/of/stream`,
    * }))) {
    *   switch (kind) {
    *     case SYNC_STREAM_MESSAGE_KIND.SOMETHING:
