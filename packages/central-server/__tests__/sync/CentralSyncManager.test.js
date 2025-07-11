@@ -2841,12 +2841,34 @@ describe('CentralSyncManager', () => {
   });
 
   describe('facilityId filtering in encounter-linked sync', () => {
+    let facilityA, facilityB, facilityC;
+    let departmentA, departmentB, departmentC;
+    let locationA, locationB, locationC;
+    let patient;
+
+    beforeEach(async () => {
+      facilityA = await models.Facility.create(fake(models.Facility));
+      departmentA = await models.Department.create(
+        fake(models.Department, { facilityId: facilityA.id }),
+      );
+      locationA = await models.Location.create(fake(models.Location, { facilityId: facilityA.id }));
+
+      facilityB = await models.Facility.create(fake(models.Facility));
+      departmentB = await models.Department.create(
+        fake(models.Department, { facilityId: facilityB.id }),
+      );
+      locationB = await models.Location.create(fake(models.Location, { facilityId: facilityB.id }));
+
+      facilityC = await models.Facility.create(fake(models.Facility));
+      departmentC = await models.Department.create(
+        fake(models.Department, { facilityId: facilityC.id }),
+      );
+      locationC = await models.Location.create(fake(models.Location, { facilityId: facilityC.id }));
+
+      patient = await models.Patient.create(fake(models.Patient));
+    });
+
     it('only syncs encounters linked to the specified facilityIds', async () => {
-      // Arrange: create two facilities, and encounters for each
-      // TODO: Add any required fields for Encounter/Location creation
-      const facilityA = await models.Facility.create(fake(models.Facility));
-      const facilityB = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         patientId: patient.id,
         facilityId: facilityA.id,
@@ -2855,17 +2877,15 @@ describe('CentralSyncManager', () => {
       const encounterA = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityA.id }))
-        ).id,
+        locationId: locationA.id,
+        departmentId: departmentA.id,
       });
       // Encounter for facilityB
       const encounterB = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityB.id }))
-        ).id,
+        locationId: locationB.id,
+        departmentId: departmentB.id,
       });
 
       // Act: start a sync session for facilityA only
@@ -2893,11 +2913,6 @@ describe('CentralSyncManager', () => {
     });
 
     it('only syncs encounter-linked records for encounters in the specified facilityIds', async () => {
-      // Arrange: create two facilities, one patient, and an encounter in each facility
-      // TODO: Add any required fields for Encounter/Location/EncounterPrescription creation
-      const facilityA = await models.Facility.create(fake(models.Facility));
-      const facilityB = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         patientId: patient.id,
         facilityId: facilityA.id,
@@ -2905,16 +2920,14 @@ describe('CentralSyncManager', () => {
       const encounterA = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityA.id }))
-        ).id,
+        locationId: locationA.id,
+        departmentId: departmentA.id,
       });
       const encounterB = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityB.id }))
-        ).id,
+        locationId: locationB.id,
+        departmentId: departmentB.id,
       });
       // Create an EncounterPrescription for each encounter
       const prescriptionA = await models.EncounterPrescription.create({
@@ -2951,12 +2964,6 @@ describe('CentralSyncManager', () => {
     });
 
     it('syncs encounters and linked records for all specified facilityIds', async () => {
-      // Arrange: create three facilities, one patient, and an encounter in each
-      // TODO: Add any required fields for Encounter/Location creation
-      const facilityA = await models.Facility.create(fake(models.Facility));
-      const facilityB = await models.Facility.create(fake(models.Facility));
-      const facilityC = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         patientId: patient.id,
         facilityId: facilityA.id,
@@ -2964,23 +2971,20 @@ describe('CentralSyncManager', () => {
       const encounterA = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityA.id }))
-        ).id,
+        locationId: locationA.id,
+        departmentId: departmentA.id,
       });
       const encounterB = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityB.id }))
-        ).id,
+        locationId: locationB.id,
+        departmentId: departmentB.id,
       });
       const encounterC = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityC.id }))
-        ).id,
+        locationId: locationC.id,
+        departmentId: departmentC.id,
       });
 
       // Act: start a sync session for facilityA and facilityB
@@ -3008,11 +3012,6 @@ describe('CentralSyncManager', () => {
     });
 
     it('syncs all encounters if no facilityIds are specified', async () => {
-      // Arrange: create two facilities and encounters for each
-      // TODO: Add any required fields for Encounter/Location creation
-      const facilityA = await models.Facility.create(fake(models.Facility));
-      const facilityB = await models.Facility.create(fake(models.Facility));
-      const patient = await models.Patient.create(fake(models.Patient));
       await models.PatientFacility.create({
         patientId: patient.id,
         facilityId: facilityA.id,
@@ -3020,16 +3019,14 @@ describe('CentralSyncManager', () => {
       const encounterA = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityA.id }))
-        ).id,
+        locationId: locationA.id,
+        departmentId: departmentA.id,
       });
       const encounterB = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
-        locationId: (
-          await models.Location.create(fake(models.Location, { facilityId: facilityB.id }))
-        ).id,
+        locationId: locationB.id,
+        departmentId: departmentB.id,
       });
 
       // Act: start a sync session with facilityIds: []
