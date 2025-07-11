@@ -86,23 +86,19 @@ export class RecordVaccineModal extends BasePatientModal {
     } else {
       await this.notGivenTab.click();
     }
+
+    return isVaccineGiven ? 'Given' : 'Not given';
   }
 
   async selectCategory(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
-    switch (category) {
-      case 'Routine':
-        await this.categoryRoutineRadio.click();
-        break;
-      case 'Catchup':
-        await this.categoryCatchupRadio.click();
-        break;
-      case 'Campaign':
-        await this.categoryCampaignRadio.click();
-        break;
-      case 'Other':
-        await this.categoryOtherRadio.click();
-        break;
-    }
+    const categoryMap = {
+      Routine: this.categoryRoutineRadio,
+      Catchup: this.categoryCatchupRadio,
+      Campaign: this.categoryCampaignRadio,
+      Other: this.categoryOtherRadio,
+    };
+    
+    await categoryMap[category].click();
   }
 
   async selectVaccine(specificVaccine?: string) {
@@ -167,6 +163,7 @@ export class RecordVaccineModal extends BasePatientModal {
   async recordVaccine(
     given: boolean,
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+    count: number,
     {
       specificVaccine = undefined,
       fillOptionalFields = false,
@@ -181,7 +178,7 @@ export class RecordVaccineModal extends BasePatientModal {
       specificDate?: string;
     } = {},
   ) {
-    await this.selectIsVaccineGiven(given);
+    const givenStatus = await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
     let vaccineName: string | undefined;
@@ -203,7 +200,7 @@ export class RecordVaccineModal extends BasePatientModal {
       await this.dateField.fill(specificDate);
     }
 
-    const date = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
+    const dateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
 
     if (category !== 'Other') {
       vaccineName = await this.selectVaccine(specificVaccine);
@@ -229,7 +226,7 @@ export class RecordVaccineModal extends BasePatientModal {
     await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
 
-    return { vaccineName, scheduleOption, date, ...optionalFields, ...locationGroup };
+    return { vaccineName, scheduleOption, dateGiven, count,category, given, givenStatus, fillOptionalFields, ...optionalFields, ...locationGroup };
   }
 
   async waitForModalToClose() {

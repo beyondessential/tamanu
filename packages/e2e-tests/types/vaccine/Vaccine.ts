@@ -2,15 +2,19 @@
 export interface Vaccine {
     vaccineName: string;
     scheduleOption: string;
+    given: boolean;
+    givenStatus: string;
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
+    count: number;
+    area: string;
+    location: string;
+    department: string;
+    dateGiven: string;
+    fillOptionalFields?: boolean;
     batch?: string;
-    dateGiven?: string;
     injectionSite?: string;
-    area?: string;
-    location?: string;
-    department?: string;
     givenBy?: string;
     consentGivenBy?: string;
-    given?: boolean;
 }
 /*
 possible extras

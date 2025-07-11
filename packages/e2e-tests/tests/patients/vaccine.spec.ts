@@ -45,6 +45,7 @@ test.describe('Vaccines', () => {
     const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
       given,
       category,
+      count,
       {
         specificVaccine: specificVaccine ?? undefined,
         fillOptionalFields,
@@ -58,10 +59,11 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
+    //TODO: if i do some of the below refactors this might be removable
     if (
       !vaccine.vaccineName ||
       !vaccine.scheduleOption ||
-      !vaccine.date ||
+      !vaccine.dateGiven ||
       !vaccine.area ||
       !vaccine.location ||
       !vaccine.department
@@ -77,19 +79,21 @@ test.describe('Vaccines', () => {
       await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
     }
 
+    //TODO: refactor this to just pass vaccine object, destructure in the associated function?
     await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
       vaccine.vaccineName,
-      vaccine.scheduleOption!,
-      vaccine.date!,
+      vaccine.scheduleOption,
+      vaccine.dateGiven,
       count,
       given,
       vaccine.givenBy,
     );
 
+    //TODO: refactor this to just pass vaccine object, destructure in the associated function?
     if (viewVaccineRecord) {
       const requiredParams = {
         vaccineName: vaccine.vaccineName,
-        date: vaccine.date,
+        date: vaccine.dateGiven,
         area: vaccine.area,
         location: vaccine.location,
         department: vaccine.department,
@@ -428,6 +432,7 @@ test.describe('Vaccines', () => {
 
   //TODO: move this to top of page when done
   //TODO: add documentation for this function, in particular document that area location etc will be randomly edited
+//TODO: assert that the uneditable fields are accurate?
   async function editVaccine(
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
@@ -476,31 +481,34 @@ test.describe('Vaccines', () => {
 
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
 
-    const editedVaccine = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(edits);
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
 
-    if (!editedVaccine) {
+    const editedVaccineValues = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(edits);
+
+    if (!editedVaccineValues) {
       throw new Error('Vaccine record was not edited successfully');
     }
+
+    const editedVaccine = {
+      ...vaccine,
+      ...editedVaccineValues,
+    };
 
     return editedVaccine;
   }
 
-  //TODO: need to assert some changes in the recorded vaccine table too
+  //TODO: need to click edit after editing to confirm all fields are updated as expected
   //TODO: add assert for       consentGivenBy,?
   //TODO: add documentation for this function
   async function assertEditedVaccine(
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
-    count: number,
-    remainsUnchanged: {
-      vaccineName: string;
-      scheduleOption: string;
-      given: boolean;
-      category: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
-      fillOptionalFields: boolean;
-    }
   ) {
+    //TODO: can maybe get rid of this if im just passing the vaccine object to everything else in this function?
     const {
+      vaccineName,
+      scheduleOption,
+      count,
       dateGiven,
       area,
       location,
@@ -508,18 +516,18 @@ test.describe('Vaccines', () => {
       batch,
       injectionSite,
       givenBy,
-    } = vaccine;
-
-    const {
-      vaccineName,
-      scheduleOption,
       given,
       category,
       fillOptionalFields,
-    } = remainsUnchanged;
+    } = vaccine;
 
+    //TODO: can maybe get rid of this if i refactor out requiredParams / optionalParms
     if (
       !vaccineName ||
+      !count ||
+      !given ||
+      !fillOptionalFields ||
+      !category ||
       !dateGiven ||
       !area ||
       !location ||
@@ -529,6 +537,17 @@ test.describe('Vaccines', () => {
       throw new Error('Missing required vaccine fields');
     }
 
+    //TODO: just pase vaccine object to this?
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(
+      vaccineName,
+      scheduleOption,
+      dateGiven,
+      count,
+      given,
+      givenBy,
+    );
+
+    //TODO: if i refacttor the viewVaccineRecordAndAssert to just take a vaccine object can get rid of below?
     const requiredParams = {
       vaccineName,
       date: dateGiven,
@@ -547,7 +566,26 @@ test.describe('Vaccines', () => {
       injectionSite: injectionSite,
       givenBy: givenBy,
     };
+    //Confirm the expected changes are reflected when viewing the vaccine record modal
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(requiredParams, optionalParams);
+
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+
+    /*
+    //Confirm the expected changes are reflected when opening the edit modal again
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
+      vaccineName,
+      scheduleOption,
+      count,
+    );
+
+    expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
+
+
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
+*/
+   // await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
+    
   }
 
   test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
@@ -565,6 +603,8 @@ test.describe('Vaccines', () => {
       fillOptionalFields: fillOptionalFields,
     });
 
+    console.log('vaccine', vaccine);
+
     if (!vaccine || !vaccine.vaccineName || !vaccine.scheduleOption) {
       throw new Error('Vaccine record was not created successfully');
     }
@@ -581,17 +621,11 @@ test.describe('Vaccines', () => {
       },
     );
 
+    console.log('editedVaccine', editedVaccine);
+
     await assertEditedVaccine(
       patientDetailsPage,
       editedVaccine,
-      vaccineCount,
-      {
-        vaccineName: vaccine.vaccineName,
-        scheduleOption: vaccine.scheduleOption,
-        given: given,
-        category: category,
-        fillOptionalFields: fillOptionalFields,
-      }
     );
   });
 
