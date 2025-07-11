@@ -17,9 +17,9 @@ if [[ "$directory" == "./packages" ]]; then
 fi
 
 # Get all translated string data from TranslatedText and getTranslatedString.
-ttoutput=$(rg -PINU --multiline-dotall "$ttregex" -or '"$1","$2"' -g "*.{ts,tsx,js,jsx}" "$directory" \
+ttoutput=$(rg -PINU --multiline-dotall "$ttregex" -or '"$1","$2","' -g "*.{ts,tsx,js,jsx}" "$directory" \
     | rg --multiline-dotall --passthru -U '\n\s*\b' -r '' )
-gtoutput=$(rg -PINU --multiline-dotall "$gtregex" -or '"$1","$2"' -g "*.{ts,tsx,js,jsx}" "$directory")
+gtoutput=$(rg -PINU --multiline-dotall "$gtregex" -or '"$1","$2","' -g "*.{ts,tsx,js,jsx}" "$directory")
 
 # Combine and sort
 data=$(printf "%s\n%s\n%s" "$ttoutput" "$gtoutput" "$teoutput" | sort -u)
@@ -30,4 +30,5 @@ if [ -z "$data" ]; then
 fi
 
 # Append csv header and print data
-printf "stringId,en\n"languageName","English"\n"countryCode","gb"\n%s" "$data"
+# Add the special case stringIs for adding new languages
+printf "stringId,default,en\n"languageName","Placeholder","English"\n"countryCode","n/a","gb"\n%s" "$data"
