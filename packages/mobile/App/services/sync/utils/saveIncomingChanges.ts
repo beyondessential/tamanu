@@ -8,7 +8,7 @@ import { executeDeletes, executeInserts, executeRestores, executeUpdates } from 
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
-import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
+import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
@@ -89,19 +89,18 @@ export const saveChangesForModel = async (
   }
 };
 
-export const prepareChangesForModels = async (
+export const prepareChangesForModels = (
   records: SyncRecord[],
   sortedModels: typeof MODELS_MAP,
-): Promise<Record<string, SyncRecord[]>> => {
+): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
-
   return sortedModels.reduce((acc, model) => {
     const recordsForModel = recordsByType[model.getTableName()] || [];
     if (!recordsForModel.length) return acc;
     acc[model.name] =
       'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
-        : recordsForModel.map(r => r.data);
+        : recordsForModel
     return acc;
   }, {});
 };
@@ -113,7 +112,7 @@ export const saveChangesFromMemory = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = await prepareChangesForModels(
+  const preparedRecordByModel = prepareChangesForModels(
     records,
     Object.values(incomingModels),
   );
@@ -124,7 +123,7 @@ export const saveChangesFromMemory = async (
     } else {
       await executeInserts(
         model.getTransactionalRepository(),
-        recordsForModel,
+        recordsForModel.map(({isDeleted, data}) => ({...buildFromSyncRecord(model, data), isDeleted})),
         syncSettings.maxRecordsPerInsertBatch,
         progressCallback,
       );
