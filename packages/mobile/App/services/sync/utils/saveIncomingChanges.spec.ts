@@ -16,6 +16,7 @@ const getModel = jest.fn(() => ({
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
 }));
 const Model = getModel() as any;
+const progressCallback = jest.fn();
 
 const generateExistingRecord = (id, data = {}) => ({
   id,
@@ -51,12 +52,17 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
-      expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
-        { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
-      ], 500);
+      expect(saveChangeModules.executeInserts).toBeCalledWith(
+        Model,
+        [
+          { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
+        ],
+        500,
+        progressCallback,
+      );
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -80,15 +86,20 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
-      expect(saveChangeModules.executeInserts).toBeCalledWith(Model, [
-        {
-          ...newRecord,
-          isDeleted,
-        }, // isDeleted flag for soft deleting record after creation
-      ], 500);
+      expect(saveChangeModules.executeInserts).toBeCalledWith(
+        Model,
+        [
+          {
+            ...newRecord,
+            isDeleted,
+          }, // isDeleted flag for soft deleting record after creation
+        ],
+        500,
+        progressCallback,
+      );
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -117,11 +128,11 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.executeUpdates).toBeCalledWith(Model, [newRecord], progressCallback);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
@@ -150,7 +161,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -178,12 +189,12 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.executeDeletes).toBeCalledWith(Model, [newRecord], progressCallback);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
   });
@@ -209,13 +220,17 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500);
+      await saveChangesForModel(Model, changes, 500, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(1);
-      expect(saveChangeModules.executeRestores).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.executeRestores).toBeCalledWith(
+        Model,
+        [newRecord],
+        progressCallback,
+      );
     });
   });
 });
