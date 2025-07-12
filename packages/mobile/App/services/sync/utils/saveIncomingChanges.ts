@@ -1,5 +1,5 @@
 import { In } from 'typeorm';
-import { chunk } from 'lodash';
+import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -8,7 +8,7 @@ import { executeDeletes, executeInserts, executeRestores, executeUpdates } from 
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
-import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
+import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
@@ -22,9 +22,10 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
-  insertBatchSize: number,
+  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
+  const repository = model.getTransactionalRepository();
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
   );
@@ -75,77 +76,78 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate, insertBatchSize, progressCallback);
+    await executeInserts(repository, recordsForCreate, maxRecordsPerInsertBatch, progressCallback);
   }
   if (recordsForUpdate.length > 0) {
-    await executeUpdates(model, recordsForUpdate, progressCallback);
+    await executeUpdates(repository, recordsForUpdate, progressCallback);
   }
   if (recordsForDelete.length > 0) {
-    await executeDeletes(model, recordsForDelete, progressCallback);
+    await executeDeletes(repository, recordsForDelete, progressCallback);
   }
   if (recordsForRestore.length > 0) {
-    await executeRestores(model, recordsForRestore, progressCallback);
+    await executeRestores(repository, recordsForRestore, progressCallback);
   }
 };
 
-const groupRecordsByType = async (batchIds: number[]): Promise<Record<string, SyncRecord[]>> => {
-  const recordsByType: Record<string, SyncRecord[]> = {};
-
-  const batchRecords = await getSnapshotBatchesByIds(batchIds);
-
-  for (const record of batchRecords) {
-    const recordType = record.recordType;
-    if (!recordsByType[recordType]) {
-      recordsByType[recordType] = [];
-    }
-    recordsByType[recordType].push(record);
-  }
-
-  return recordsByType;
+export const prepareChangesForModels = (
+  records: SyncRecord[],
+  sortedModels: typeof MODELS_MAP,
+): Record<string, SyncRecord[]> => {
+  const recordsByType = groupBy(records, 'recordType');
+  return sortedModels.reduce((acc, model) => {
+    const recordsForModel = recordsByType[model.getTableName()] || [];
+    if (!recordsForModel.length) return acc;
+    acc[model.name] =
+      'sanitizePulledRecordData' in model
+        ? model.sanitizePulledRecordData(recordsForModel)
+        : recordsForModel
+    return acc;
+  }, {});
 };
 
-/**
- * Save all the incoming changes in the right order of dependency,
- * efficiently grouping by model during single batch iteration
- * @param sessionId
- * @param incomingChangesCount
- * @param incomingModels
- * @param progressCallback
- * @returns
- */
-export const saveIncomingChanges = async (
-  incomingChangesCount: number,
+export const saveChangesFromMemory = async (
+  records: SyncRecord[],
   incomingModels: Partial<typeof MODELS_MAP>,
-  { maxBatchesToKeepInMemory, maxRecordsPerInsertBatch }: MobileSyncSettings['saveIncomingChanges'],
+  syncSettings: MobileSyncSettings,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  let savedRecordsCount = 0;
+  const preparedRecordByModel = prepareChangesForModels(
+    records,
+    Object.values(incomingModels),
+  );
+  for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
+    const model = incomingModels[modelName];
+    if (modelName === incomingModels.User.name) {
+      await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
+    } else {
+      await executeInserts(
+        model.getTransactionalRepository(),
+        recordsForModel.map(({isDeleted, data}) => ({...buildFromSyncRecord(model, data), isDeleted})),
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
+    }
+  }
+};
+
+export const saveChangesFromSnapshot = async (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  incomingChangesCount: number,
+  incomingModels: Partial<typeof MODELS_MAP>,
+  syncSettings: MobileSyncSettings,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+): Promise<void> => {
+  const { maxBatchesToKeepInMemory = 5 } = syncSettings;
+  const sortedModels = await sortInDependencyOrder(incomingModels);
   const allBatchIds = await getSnapshotBatchIds();
+
   for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
-    const recordsByType = await groupRecordsByType(batchIds);
-    const sortedModels = await sortInDependencyOrder(incomingModels);
-
-    for (const model of sortedModels) {
-      const recordType = model.getTableName();
-      const recordsForModel = recordsByType[recordType] || [];
-
-      if (recordsForModel.length > 0) {
-        const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
-        const sanitizedRecords = hasSanitizeMethod
-          ? model.sanitizePulledRecordData(recordsForModel)
-          : recordsForModel;
-
-        const chunkProgressCallback = (processedCount: number) => {
-          savedRecordsCount += processedCount;
-          progressCallback(
-            incomingChangesCount,
-            savedRecordsCount,
-            `Processed ${savedRecordsCount}/${incomingChangesCount} records...`,
-          );
-        };
-
-        await saveChangesForModel(model, sanitizedRecords, maxRecordsPerInsertBatch, chunkProgressCallback);
-      }
+    const batchRecords = await getSnapshotBatchesByIds(batchIds);
+    const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
+    for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
+      await saveChangesForModel(incomingModels[modelName], recordsForModel, syncSettings, () => {});
     }
   }
 };
