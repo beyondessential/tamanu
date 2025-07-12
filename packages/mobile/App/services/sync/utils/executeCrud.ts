@@ -2,7 +2,7 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { MAX_RECORDS_IN_BULK_INSERT } from '~/infra/db/limits';
+import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS  } from '../../../infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
