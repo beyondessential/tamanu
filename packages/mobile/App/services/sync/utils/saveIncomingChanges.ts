@@ -118,7 +118,7 @@ export const saveChangesFromMemory = async (
   );
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
-    if (modelName === 'users') {
+    if (modelName === incomingModels.User.name) {
       await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
     } else {
       await executeInserts(
