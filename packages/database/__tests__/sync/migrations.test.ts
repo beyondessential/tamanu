@@ -1,4 +1,4 @@
-import { closeDatabase, initDatabase } from './utilities';
+import { closeDatabase, initDatabase } from '../utilities';
 import { runPostMigration, runPreMigration } from '../../src/services/migrations/migrationHooks';
 import { createMigrationInterface } from '../../src/services/migrations/migrations';
 import { fake } from '@tamanu/fake-data/fake';
@@ -13,7 +13,7 @@ describe('migrations', () => {
       database = await initDatabase();
       models = database.models;
       umzug = createMigrationInterface(log, database.sequelize);
-      await runPreMigration(log, database.sequelize)
+      await runPreMigration(log, database.sequelize);
       await umzug.up();
       await runPostMigration(log, database.sequelize);
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 1);
