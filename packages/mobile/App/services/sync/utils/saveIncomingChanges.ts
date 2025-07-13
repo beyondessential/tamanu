@@ -110,12 +110,12 @@ export const prepareChangesForModels = (
         ? model.sanitizePulledRecordData(recordsForModel)
         : recordsForModel;
     }
-    // Clear processed records from memory immediately
+
     if (recordsByType[model.getTableName()]) {
       recordsByType[model.getTableName()] = null;
     }
   }
-  forceGC();
+  // forceGC();
   return result;
 };
 
