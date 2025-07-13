@@ -41,6 +41,7 @@ export type MobileSyncSettings = {
   maxBatchesToKeepInMemory: number;
   maxRecordsPerInsertBatch: number;
   maxRecordsPerSnapshotBatch: number;
+  memoryProcessingBatchSize?: number;
   useUnsafeSchemaForInitialSync: boolean;
 };
 

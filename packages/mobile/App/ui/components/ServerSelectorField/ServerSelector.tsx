@@ -37,6 +37,11 @@ const fetchServers = async (): Promise<SelectOption[]> => {
     value: s.host,
   }));
 
+  options.unshift({
+    label: 'Daniel Home(port 3000)',
+    value: 'http://192.168.1.13:3000',
+  });
+
   if (__DEV__) {
     // If dev mode, add a local server option using special alias to localhost
     options.unshift({

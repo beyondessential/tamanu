@@ -4,12 +4,106 @@ import { chunk, groupBy } from 'lodash';
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
+import { executeDeletes, executeRestores, executeUpdates, executeInserts } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
+
+function strippedIsDeleted(row) {
+  const newRow = { ...row };
+  delete newRow.isDeleted;
+  return newRow;
+}
+
+// Helper function to force garbage collection if available
+function forceGC() {
+  if (typeof global !== 'undefined' && global.gc) {
+    global.gc();
+  }
+}
+
+/**
+ * Execute inserts using QueryBuilder pattern
+ */
+export const executeInsertsWithQueryBuilder = async (
+  model: typeof BaseModel,
+  rows: any[],
+  insertBatchSize: number,
+  _progressCallback: (processedCount: number) => void,
+): Promise<void> => {
+  if (rows.length === 0) return;
+  
+  const repository = model.getTransactionalRepository();
+  
+  // Memory-efficient deduplication
+  const deduplicated = [];
+  const idsAdded = new Set();
+  const softDeleted = [];
+
+  // Process rows in smaller chunks to avoid memory spikes
+  for (let i = 0; i < rows.length; i += 1000) {
+    const chunkEnd = Math.min(i + 1000, rows.length);
+    const rowChunk = rows.slice(i, chunkEnd);
+    
+    for (const row of rowChunk) {
+      const { id } = row;
+      if (!idsAdded.has(id)) {
+        if (row.isDeleted) {
+          softDeleted.push(strippedIsDeleted(row));
+        }
+        deduplicated.push({ ...strippedIsDeleted(row), id });
+        idsAdded.add(id);
+      }
+    }
+  }
+
+  // Clear the Set to free memory
+  idsAdded.clear();
+
+  // Process deduplicated records in batches
+  for (const batchOfRows of chunk(deduplicated, insertBatchSize)) {
+    try {
+      const timeBefore = performance.now(); 
+      // Create fresh QueryBuilder for each batch to avoid memory leaks
+      await repository
+        .createQueryBuilder()
+        .insert()
+        .into(model.getTableName())
+        .values(batchOfRows)
+        .execute();
+      const timeAfter = performance.now();
+      console.log(`Inserted ${batchOfRows.length} ${model.getTableName()} records in ${timeAfter - timeBefore}ms`);
+    } catch (e) {
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
+      await Promise.all(
+        batchOfRows.map(async row => {
+          try {
+            await repository
+              .createQueryBuilder()
+              .insert()
+              .into(model.getTableName())
+              .values([row])
+              .execute();
+          } catch (error) {
+            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+          }
+        }),
+      );
+    }
+  }
+
+  // Clear main array to free memory
+  deduplicated.length = 0;
+
+  // Handle soft deleted records
+  if (softDeleted.length > 0) {
+    await executeDeletes(repository, softDeleted);
+    softDeleted.length = 0;
+  }
+};
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -94,39 +188,85 @@ export const prepareChangesForModels = (
   sortedModels: typeof MODELS_MAP,
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
-  return sortedModels.reduce((acc, model) => {
+  const result = {};
+  
+  // Process models one by one to avoid keeping all data in memory
+  for (const model of sortedModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
-    if (!recordsForModel.length) return acc;
-    acc[model.name] =
-      'sanitizePulledRecordData' in model
+    if (recordsForModel.length > 0) {
+      result[model.name] = 'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
-        : recordsForModel
-    return acc;
-  }, {});
+        : recordsForModel;
+    }
+    // Clear processed records from memory immediately
+    if (recordsByType[model.getTableName()]) {
+      recordsByType[model.getTableName()] = null;
+    }
+  }
+  
+  return result;
 };
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
   incomingModels: Partial<typeof MODELS_MAP>,
   syncSettings: MobileSyncSettings,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = prepareChangesForModels(
-    records,
-    Object.values(incomingModels),
-  );
-  for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
-    const model = incomingModels[modelName];
-    if (modelName === incomingModels.User.name) {
-      await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
-    } else {
-      await executeInserts(
-        model.getTransactionalRepository(),
-        recordsForModel.map(({isDeleted, data}) => ({...buildFromSyncRecord(model, data), isDeleted})),
-        syncSettings.maxRecordsPerInsertBatch,
-        progressCallback,
-      );
+  const { maxRecordsPerInsertBatch = 500, memoryProcessingBatchSize = 2000 } = syncSettings;
+  const totalRecords = records.length;
+  let processedRecords = 0;
+
+  // Process records in smaller memory-efficient batches
+  for (let i = 0; i < records.length; i += memoryProcessingBatchSize) {
+    const batchEnd = Math.min(i + memoryProcessingBatchSize, records.length);
+    const recordsBatch = records.slice(i, batchEnd);
+    
+    // Process this batch and release memory immediately
+    const preparedRecordByModel = prepareChangesForModels(recordsBatch, Object.values(incomingModels));
+    
+    for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
+      const model = incomingModels[modelName];
+      
+      if (modelName === incomingModels.User.name) {
+        await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
+      } else {
+        // Process model records in smaller sub-batches to reduce memory pressure
+        for (let j = 0; j < recordsForModel.length; j += maxRecordsPerInsertBatch) {
+          const subBatch = recordsForModel.slice(j, j + maxRecordsPerInsertBatch);
+          
+          // Transform records just in time, not all at once
+          const transformedRecords = subBatch.map(({ isDeleted, data }) => ({
+            ...buildFromSyncRecord(model, data),
+            isDeleted,
+          }));
+          
+          await executeInsertsWithQueryBuilder(
+            model,
+            transformedRecords,
+            maxRecordsPerInsertBatch,
+            () => {},
+          );
+          
+          // Update progress
+          processedRecords += subBatch.length;
+          progressCallback(totalRecords, processedRecords, `Processing ${modelName}`);
+          
+          // Explicit cleanup to help GC
+          transformedRecords.length = 0;
+        }
+      }
+    }
+    
+    // Clear batch data to help garbage collection
+    recordsBatch.length = 0;
+    Object.keys(preparedRecordByModel).forEach(key => {
+      preparedRecordByModel[key] = null;
+    });
+    
+    // Force garbage collection periodically during large syncs
+    if (i % (memoryProcessingBatchSize * 5) === 0) {
+      forceGC();
     }
   }
 };
