@@ -87,3 +87,6 @@ sources:
             description: "{{ doc('patient_program_registration_conditions__patient_program_registration_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'patient_program_registrations')
+                  field: id

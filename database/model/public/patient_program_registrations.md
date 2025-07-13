@@ -52,5 +52,5 @@ The clinician that removed the patient from the program registry.
 {% enddocs %}
 
 {% docs patient_program_registrations__deactivated_date %}
-The date that the patient from the program registry.
+The date that the patient was removed from the program registry.
 {% enddocs %}
