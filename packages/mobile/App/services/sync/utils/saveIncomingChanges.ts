@@ -11,6 +11,12 @@ import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTa
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
 
+const forceGC = () => {
+  if (typeof gc === 'function') {
+    gc();
+  }
+};
+
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
  * @param model
@@ -131,6 +137,8 @@ export const saveChangesFromMemory = async (
         progressCallback,
       );
     }
+    forceGC();
+
   }
 };
 

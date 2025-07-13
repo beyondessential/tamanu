@@ -9,7 +9,7 @@ import {
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactionalModelsForDirection,
+  getTransactingModelsForDirection,
 } from './utils';
 import {
   dropSnapshotTable,
@@ -344,8 +344,8 @@ export class MobileSyncManager {
     }
   }
 
-  async postPull(transactingModels: any, pullUntil: number) {
-    const localSystemFactRepository = transactingModels.LocalSystemFact.getTransactionalRepository();
+  async postPull({ LocalSystemFact }: any, pullUntil: number) {
+    const localSystemFactRepository = LocalSystemFact.getTransactionalRepository();
 
     const tablesForFullResync = await localSystemFactRepository.findOne({
       where: { key: 'tablesForFullResync' },
@@ -377,7 +377,7 @@ export class MobileSyncManager {
     progressCallback,
   }: PullParams): Promise<void> {
     await Database.client.transaction(async transactionEntityManager => {
-      const incomingModels = getTransactionalModelsForDirection(
+      const incomingModels = getTransactingModelsForDirection(
         this.models,
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
@@ -385,14 +385,16 @@ export class MobileSyncManager {
       console.log(
         `MobileSyncManager.pullInitialSync(): Beginning pull of ${recordTotal} records for initial sync`,
       );
-      const processStreamedDataFunction = async (records: any) =>
+      const processStreamedDataFunction = async (records: any) => {
+        console.log('save changes');
         saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+      };
 
       await pullRecordsInBatches(
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
-      await this.postPull(iconmingModels, pullUntil);
+      await this.postPull(incomingModels, pullUntil);
     });
   }
 
@@ -422,7 +424,7 @@ export class MobileSyncManager {
         transactionEntityManager,
       );
       await saveChangesFromSnapshot(recordTotal, incomingModels, syncSettings, progressCallback);
-      await this.postPull(transactionEntityManager, pullUntil);
+      await this.postPull(incomingModels, pullUntil);
     });
   }
 }
