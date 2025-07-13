@@ -365,6 +365,9 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
+      console.log(
+        `MobileSyncManager.pullInitialSync(): Beginning pull of ${recordTotal} records for initial sync`,
+      );
       const processStreamedDataFunction = async (records: any) =>
         saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
 
