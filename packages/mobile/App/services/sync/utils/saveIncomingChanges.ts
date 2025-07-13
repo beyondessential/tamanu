@@ -35,7 +35,6 @@ export const saveChangesForModel = async (
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
   );
-
   // split changes into create, update, delete
   const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
@@ -109,7 +108,11 @@ const prepareChangesForModels = (
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
     }
-  }
+  }    
+  const timeBefore = performance.now();
+  forceGC();
+  const timeAfter = performance.now();
+  console.log(`Prepared changes for models in ${timeAfter - timeBefore}ms`);
   return changesByModel;
 };
 
@@ -137,8 +140,6 @@ export const saveChangesFromMemory = async (
         progressCallback,
       );
     }
-    forceGC();
-
   }
 };
 

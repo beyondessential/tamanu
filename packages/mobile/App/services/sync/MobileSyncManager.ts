@@ -344,8 +344,8 @@ export class MobileSyncManager {
     }
   }
 
-  async postPull({ LocalSystemFact }: any, pullUntil: number) {
-    const localSystemFactRepository = LocalSystemFact.getTransactionalRepository();
+  async postPull(entityManager: any, { LocalSystemFact }: typeof MODELS_MAP, pullUntil: number) {
+    const localSystemFactRepository = entityManager.getRepository(LocalSystemFact);
 
     const tablesForFullResync = await localSystemFactRepository.findOne({
       where: { key: 'tablesForFullResync' },
@@ -376,25 +376,33 @@ export class MobileSyncManager {
     syncSettings,
     progressCallback,
   }: PullParams): Promise<void> {
+    await Database.setUnsafePragma();
     await Database.client.transaction(async transactionEntityManager => {
-      const incomingModels = getTransactingModelsForDirection(
-        this.models,
-        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        transactionEntityManager,
-      );
-      console.log(
-        `MobileSyncManager.pullInitialSync(): Beginning pull of ${recordTotal} records for initial sync`,
-      );
-      const processStreamedDataFunction = async (records: any) => {
-        console.log('save changes');
-        saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
-      };
+      try {
+        const incomingModels = getTransactingModelsForDirection(
+          this.models,
+          SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+          transactionEntityManager,
+        );
+        console.log(
+          `MobileSyncManager.pullInitialSync(): Beginning pull of ${recordTotal} records for initial sync`,
+        );
+        const processStreamedDataFunction = async (records: any) => {
+          saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+        };
 
-      await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
-        processStreamedDataFunction,
-      );
-      await this.postPull(incomingModels, pullUntil);
+        await pullRecordsInBatches(
+          { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+          processStreamedDataFunction,
+        );
+        await this.postPull(transactionEntityManager, incomingModels, pullUntil);
+        await transactionEntityManager.commit();
+      } catch (error) {
+        await transactionEntityManager.rollback();
+        console.error('Error pulling initial sync', error);
+      } finally {
+        await Database.setSafePragma();
+      }
     });
   }
 
@@ -424,7 +432,7 @@ export class MobileSyncManager {
         transactionEntityManager,
       );
       await saveChangesFromSnapshot(recordTotal, incomingModels, syncSettings, progressCallback);
-      await this.postPull(incomingModels, pullUntil);
+      await this.postPull(transactionEntityManager, incomingModels, pullUntil);
     });
   }
 }
