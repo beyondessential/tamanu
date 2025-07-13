@@ -3,7 +3,7 @@ import { AllergiesSection } from '../../components/sections/AllergiesSection';
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AllergySchema } from '@tamanu/shared/dtos/responses/AllergySchema';
+import { AllergySchema } from '@tamanu/shared/schemas/responses/allergy.schema';
 
 // TODO - ideally this could use fake data package
 const mockData = {

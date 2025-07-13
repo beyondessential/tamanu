@@ -3,7 +3,7 @@ import { OutstandingFormsSection } from '../../components/sections/Forms/Outstan
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { OutstandingFormSchema } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
+import { OutstandingFormSchema } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
 
 // TODO - ideally this could use fake data package
 const mockFormsData = {

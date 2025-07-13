@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormCard } from '../../components/sections/Forms/FormCard';
-import type { OutstandingForm } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
+import type { OutstandingForm } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
 
 import { generateMock } from '@anatine/zod-mock';
-import { OutstandingFormSchema } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
+import { OutstandingFormSchema } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
 
 const mockForm: OutstandingForm = generateMock(OutstandingFormSchema as any);
 

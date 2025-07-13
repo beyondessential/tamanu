@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   OngoingConditionsArraySchema,
   type OngoingCondition,
-} from '@tamanu/shared/dtos/responses/OngoingConditionSchema';
-import { PaginatedResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+} from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
+import { PaginatedResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

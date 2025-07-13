@@ -3,7 +3,7 @@ import { PatientDetailsSection } from '../../components/sections/PatientDetailsS
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { PatientSchema } from '@tamanu/shared/dtos/responses/PatientSchema';
+import { PatientSchema } from '@tamanu/shared/schemas/responses/patient.schema';
 
 // TODO - ideally this could use fake data package
 const mockPatientData = generateMock(PatientSchema as any);

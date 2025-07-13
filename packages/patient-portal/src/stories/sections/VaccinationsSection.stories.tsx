@@ -3,8 +3,8 @@ import { VaccinationsSection } from '../../components/sections/VaccinationsSecti
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
-import { UpcomingVaccineSchema } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
+import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
 
 // TODO - ideally this could use fake data package
 const mockAdministeredVaccines = {

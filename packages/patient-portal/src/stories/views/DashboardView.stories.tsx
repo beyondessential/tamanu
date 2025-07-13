@@ -3,17 +3,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DashboardView } from '../../views/DashboardView';
 import { MockedApi } from '../utils/mockedApi';
 import { PrivatePageLayout } from '../../components/layouts/PrivatePageLayout';
-import { type AdministeredVaccine } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
-import { type UpcomingVaccine } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import { type AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
+import { type UpcomingVaccine } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
-import { UpcomingVaccineSchema } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
-import { PatientSchema } from '@tamanu/shared/dtos/responses/PatientSchema';
-import { OutstandingFormSchema } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
-import { AppointmentSchema } from '@tamanu/shared/dtos/responses/AppointmentSchema';
-import { OngoingConditionSchema } from '@tamanu/shared/dtos/responses/OngoingConditionSchema';
-import { AllergySchema } from '@tamanu/shared/dtos/responses/AllergySchema';
-import { MedicationSchema } from '@tamanu/shared/dtos/responses/MedicationSchema';
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
+import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
+import { PatientSchema } from '@tamanu/shared/schemas/responses/patient.schema';
+import { OutstandingFormSchema } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/responses/appointment.schema';
+import { OngoingConditionSchema } from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
+import { AllergySchema } from '@tamanu/shared/schemas/responses/allergy.schema';
+import { MedicationSchema } from '@tamanu/shared/schemas/responses/medication.schema';
 
 // Mock data for patient
 const mockPatientData = generateMock(PatientSchema as any);

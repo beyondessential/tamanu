@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { FacilitySchema } from './FacilitySchema';
-import { LocationGroupSchema } from './LocationGroupSchema';
+import { FacilitySchema } from './facility.schema';
+import { LocationGroupSchema } from './locationGroup.schema';
 
 export const LocationSchema = z.object({
   id: z.string(),

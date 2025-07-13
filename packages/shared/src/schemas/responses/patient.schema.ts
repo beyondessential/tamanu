@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { dateCustomValidation, datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
-import { ReferenceDataSchema } from './ReferenceDataSchema';
+import { ReferenceDataSchema } from './referenceData.schema';
 import { SexSchema } from '../commonSchemas';
 
 export const PatientSchema = z.object({

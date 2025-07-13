@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   AdministeredVaccinesArraySchema,
   type AdministeredVaccine,
-} from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
-import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+} from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
+import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

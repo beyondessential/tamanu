@@ -78,15 +78,15 @@
       "require": "./dist/cjs/audit/*.js",
       "import": "./dist/esm/audit/*.js"
     },
-    "./dtos/*": {
-      "types": "./dist/types/dtos/*.d.ts",
-      "require": "./dist/cjs/dtos/*.js",
-      "import": "./dist/esm/dtos/*.js"
+    "./schemas/*": {
+      "types": "./dist/types/schemas/*.d.ts",
+      "require": "./dist/cjs/schemas/*.js",
+      "import": "./dist/esm/schemas/*.js"
     },
-    "./dtos/responses/*": {
-      "types": "./dist/types/dtos/responses/*.d.ts",
-      "require": "./dist/cjs/dtos/responses/*.js",
-      "import": "./dist/esm/dtos/responses/*.js"
+    "./schemas/responses/*": {
+      "types": "./dist/types/schemas/responses/*.d.ts",
+      "require": "./dist/cjs/schemas/responses/*.js",
+      "import": "./dist/esm/schemas/responses/*.js"
     },
     "./*": {
       "require": "./dist/cjs/*/index.js",

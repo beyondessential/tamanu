@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { AllergiesArraySchema, type Allergy } from '@tamanu/shared/dtos/responses/AllergySchema';
-import { PaginatedResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+import {
+  AllergiesArraySchema,
+  type Allergy,
+} from '@tamanu/shared/schemas/responses/allergy.schema';
+import { PaginatedResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 

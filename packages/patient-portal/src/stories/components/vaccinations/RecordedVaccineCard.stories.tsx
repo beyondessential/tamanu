@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RecordedVaccineCard } from '../../../components/sections/Vaccinations/RecordedVaccineCard';
-import type { AdministeredVaccine } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
 
 // Mock data for different administered vaccine scenarios
 const baseMockAdministeredVaccine: AdministeredVaccine = generateMock(

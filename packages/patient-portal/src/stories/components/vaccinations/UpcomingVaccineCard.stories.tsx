@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { UpcomingVaccineCard } from '../../../components/sections/Vaccinations/UpcomingVaccineCard';
-import type { UpcomingVaccine } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import type { UpcomingVaccine } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
 
 import { generateMock } from '@anatine/zod-mock';
-import { UpcomingVaccineSchema } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
 
 // Mock data for different upcoming vaccine scenarios
 const baseMockUpcomingVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);

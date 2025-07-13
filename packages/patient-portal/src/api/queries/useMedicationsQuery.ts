@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   MedicationsArraySchema,
   type Medication,
-} from '@tamanu/shared/dtos/responses/MedicationSchema';
-import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+} from '@tamanu/shared/schemas/responses/medication.schema';
+import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

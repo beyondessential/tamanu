@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   OutstandingFormArraySchema,
   type OutstandingForm,
-} from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
-import { PaginatedResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+} from '@tamanu/shared/schemas/responses/outstandingForm.schema';
+import { PaginatedResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

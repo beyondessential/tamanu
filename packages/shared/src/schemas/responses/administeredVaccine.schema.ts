@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { VACCINE_STATUS, INJECTION_SITE_VALUES } from '@tamanu/constants';
-import { ScheduledVaccineSchema } from './ScheduledVaccineSchema';
-import { EncounterSchema } from './EncounterSchema';
-import { UserSchema } from './UserSchema';
-import { LocationSchema } from './LocationSchema';
-import { DepartmentSchema } from './DepartmentSchema';
-import { ReferenceDataSchema } from './ReferenceDataSchema';
+import { ScheduledVaccineSchema } from './scheduledVaccine.schema';
+import { EncounterSchema } from './encounter.schema';
+import { UserSchema } from './user.schema';
+import { LocationSchema } from './location.schema';
+import { DepartmentSchema } from './department.schema';
+import { ReferenceDataSchema } from './referenceData.schema';
 
 export const AdministeredVaccineSchema = z.object({
   id: z.string(),

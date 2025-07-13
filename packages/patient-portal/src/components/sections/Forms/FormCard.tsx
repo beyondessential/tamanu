@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
-import type { OutstandingForm } from '@tamanu/shared/dtos/responses/OutstandingFormSchema';
+import type { OutstandingForm } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
 
 interface FormCardProps {
   form: OutstandingForm;

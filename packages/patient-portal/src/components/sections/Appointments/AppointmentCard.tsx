@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@mui/material';
-import { type Appointment } from '@tamanu/shared/dtos/responses/AppointmentSchema';
+import { type Appointment } from '@tamanu/shared/schemas/responses/appointment.schema';
 
 import { LabelValueList } from '../../LabelValueList';
 import {

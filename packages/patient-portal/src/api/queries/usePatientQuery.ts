@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { PatientSchema, type Patient } from '@tamanu/shared/dtos/responses/PatientSchema';
+import { PatientSchema, type Patient } from '@tamanu/shared/schemas/responses/patient.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

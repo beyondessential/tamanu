@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import {
   AppointmentsArraySchema,
   type Appointment,
-} from '@tamanu/shared/dtos/responses/AppointmentSchema';
+} from '@tamanu/shared/schemas/responses/appointment.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
-import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 const transformData = (response: unknown): Appointment[] => {
   const parsedResponse = ArrayResponseSchema.parse(response);

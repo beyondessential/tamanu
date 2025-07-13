@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   UpcomingVaccinesArraySchema,
   type UpcomingVaccine,
-} from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
-import { ArrayResponseSchema } from '@tamanu/shared/dtos/responses/CommonResponseSchemas';
+} from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
+import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';

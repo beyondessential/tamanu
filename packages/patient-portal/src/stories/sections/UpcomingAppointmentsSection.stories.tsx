@@ -3,7 +3,7 @@ import { UpcomingAppointmentsSection } from '../../components/sections/Appointme
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AppointmentSchema } from '@tamanu/shared/dtos/responses/AppointmentSchema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/responses/appointment.schema';
 
 // TODO - ideally this could use fake data package
 const mockAppointments = {

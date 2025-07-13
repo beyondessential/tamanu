@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { VACCINE_CATEGORIES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { ReferenceDataSchema } from './ReferenceDataSchema';
+import { ReferenceDataSchema } from './referenceData.schema';
 
 export const ScheduledVaccineSchema = z.object({
   id: z.string(),

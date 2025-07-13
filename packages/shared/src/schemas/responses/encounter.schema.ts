@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { LocationSchema } from './LocationSchema';
+import { LocationSchema } from './location.schema';
 
 export const EncounterSchema = z.object({
   id: z.string(),

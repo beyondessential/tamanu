@@ -3,7 +3,7 @@ import { OngoingConditionsSection } from '../../components/sections/OngoingCondi
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { OngoingConditionSchema } from '@tamanu/shared/dtos/responses/OngoingConditionSchema';
+import { OngoingConditionSchema } from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
 
 // TODO - ideally this could use fake data package
 const mockData = {

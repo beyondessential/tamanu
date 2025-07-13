@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Card, CardContent } from '@mui/material';
-import type { AdministeredVaccine } from '@tamanu/shared/dtos/responses/AdministeredVaccineSchema';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
 import {
   formatDate,
   formatVaccineGivenBy,

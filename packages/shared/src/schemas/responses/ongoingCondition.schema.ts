@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ReferenceDataSchema } from './ReferenceDataSchema';
+import { ReferenceDataSchema } from './referenceData.schema';
 
 export const OngoingConditionSchema = z.object({
   id: z.string(),

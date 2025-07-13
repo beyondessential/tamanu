@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
-import type { UpcomingVaccine } from '@tamanu/shared/dtos/responses/UpcomingVaccineSchema';
+import type { UpcomingVaccine } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
 import { formatWeekOf, getVaccineStatusColor } from '../../../utils/format';
 
 const DetailsContainer = styled(Box)({
