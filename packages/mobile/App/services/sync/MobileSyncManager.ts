@@ -344,12 +344,29 @@ export class MobileSyncManager {
     }
   }
 
-  async postPull(transactionEntityManager: any, pullUntil: number) {
-    // TODO: this must use transaction entity manager too
+  async postPull(transactingModels: any, pullUntil: number) {
+    const localSystemFactRepository = transactingModels.LocalSystemFact.getTransactionalRepository();
 
-    // await tablesForFullResync.remove();
+    const tablesForFullResync = await localSystemFactRepository.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+    if (tablesForFullResync) {
+      await localSystemFactRepository.delete(tablesForFullResync);
+    }
 
-    await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
+    const lastSuccessfulPull = await localSystemFactRepository.findOne({
+      where: { key: 'lastSuccessfulPull' },
+    });
+
+    if (lastSuccessfulPull) {
+      lastSuccessfulPull.value = pullUntil;
+      await localSystemFactRepository.save(lastSuccessfulPull);
+    } else {
+      await localSystemFactRepository.insert({
+        key: 'lastSuccessfulPull',
+        value: pullUntil,
+      });
+    }
   }
 
   async pullInitialSync({
@@ -375,7 +392,7 @@ export class MobileSyncManager {
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
-      await this.postPull(transactionEntityManager, pullUntil);
+      await this.postPull(iconmingModels, pullUntil);
     });
   }
 
@@ -399,7 +416,7 @@ export class MobileSyncManager {
     );
 
     await Database.client.transaction(async transactionEntityManager => {
-      const incomingModels = getTransactionalModelsForDirection(
+      const incomingModels = getTransactingModelsForDirection(
         this.models,
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,

@@ -11,7 +11,7 @@ export const getModelsForDirection = (
     ),
   );
 
-export const getTransactionalModelsForDirection = (
+export const getTransactingModelsForDirection = (
   models: typeof MODELS_MAP,
   direction: SYNC_DIRECTIONS,
   entityManager: any,
