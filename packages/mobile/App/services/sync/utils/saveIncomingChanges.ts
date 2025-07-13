@@ -116,6 +116,8 @@ export const saveChangesFromMemory = async (
   const preparedRecordByModel = prepareChangesForModels(records, Object.values(incomingModels));
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
+    // For initial sync the database is empty beyond the user model
+    // so we can assume records are inserts for all models except User
     if (modelName === incomingModels.User.name) {
       await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
     } else {
