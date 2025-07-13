@@ -94,15 +94,22 @@ export const prepareChangesForModels = (
   sortedModels: typeof MODELS_MAP,
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
-  return sortedModels.reduce((acc, model) => {
+  const result = {};
+  
+  for (const model of sortedModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
-    if (!recordsForModel.length) return acc;
-    acc[model.name] =
-      'sanitizePulledRecordData' in model
+    if (recordsForModel.length > 0) {
+      result[model.name] = 'sanitizePulledRecordData' in model
         ? model.sanitizePulledRecordData(recordsForModel)
-        : recordsForModel
-    return acc;
-  }, {});
+        : recordsForModel;
+    }
+
+    // Clear processed records from memory immediately
+    if (recordsByType[model.getTableName()]) {
+      recordsByType[model.getTableName()] = null;
+    }
+  }
+  return result;
 };
 
 export const saveChangesFromMemory = async (
