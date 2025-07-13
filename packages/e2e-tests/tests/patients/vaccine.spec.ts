@@ -5,12 +5,9 @@ import { Vaccine } from 'types/vaccine/Vaccine';
 
 //TODO: add tests to confirm error messages if try to submit without required fields
 //TODO: can i make flynns timeout when recording vaccine reduced or removed?
-//TODO: make addvaccineandassert function less complex?
-//TODO: is there a way to use {...props} to make the functions more readable?
 //TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
 //TODO: check regression test doc
 //TODO: delete all console logs and TODOsthat i added before submitting
-//TODO: manually run everything in debug after the significant refactors to ensure everything is working as expected
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -18,7 +15,6 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.navigateToVaccineTab();
   });
 
-  //TODO: improve this by breaking it up into multiple functions. ask AI for suggestions maybe?
   async function addVaccineAndAssert(
     patientDetailsPage: PatientDetailsPage,
     given: boolean,
@@ -388,19 +384,11 @@ test.describe('Vaccines', () => {
 
   //TODO: move this to top of page when done
   //TODO: add documentation for this function, in particular document that area location etc will be randomly edited
-//TODO: assert that the uneditable fields are accurate?
   async function editVaccine(
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
-    specificEdits: {
-      batch?: string;
-      dateGiven?: string;
-      givenBy?: string;
-      consentGivenBy?: string;
-    },
-    //TODO: add some kind of handling for the below possible edits?
-   // consentCheckbox?: boolean;
-   //TODO: some way to refactor the below to use less lines of code?
+    specificEdits: Partial<Vaccine> = {},
+    onlyEditSpecificFields?: boolean,
   ) {
     const {
       vaccineName,
@@ -410,14 +398,14 @@ test.describe('Vaccines', () => {
       area,
       location,
       department,
-    } = vaccine;
-
-    const {
       batch,
       dateGiven,
       givenBy,
       consentGivenBy,
-    } = specificEdits;
+    } = {
+      ...vaccine,
+      ...specificEdits,
+    };
 
     const edits = {
       batch,
@@ -440,7 +428,9 @@ test.describe('Vaccines', () => {
 
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
 
-    const editedVaccineValues = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(edits);
+    const editedVaccineValues = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(
+      onlyEditSpecificFields ? specificEdits : edits,
+    );
 
     if (!editedVaccineValues) {
       throw new Error('Vaccine record was not edited successfully');
@@ -454,8 +444,6 @@ test.describe('Vaccines', () => {
     return editedVaccine;
   }
 
-  //TODO: need to click edit after editing to confirm all fields are updated as expected
-  //TODO: add assert for       consentGivenBy,?
   //TODO: add documentation for this function
   async function assertEditedVaccine(
     patientDetailsPage: PatientDetailsPage,
@@ -475,13 +463,9 @@ test.describe('Vaccines', () => {
       scheduleOption!,
       count!,
     );
-
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
-
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
-
-    //TODO: complete this
-  //  await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
     
   }
 
@@ -499,7 +483,7 @@ test.describe('Vaccines', () => {
       fillOptionalFields: fillOptionalFields,
     });
 
-    if (!vaccine || !vaccine.vaccineName || !vaccine.scheduleOption) {
+    if (!vaccine) {
       throw new Error('Vaccine record was not created successfully');
     }
 
@@ -523,10 +507,70 @@ test.describe('Vaccines', () => {
   test('Edit a vaccine and fill fields that were originally skipped', async ({
     patientDetailsPage,
   }) => {
-    //TODO: this
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    const editedVaccine = await editVaccine(
+      patientDetailsPage,
+      vaccine,
+      {
+        batch: 'New batch field',
+        givenBy: 'New given by field',
+        consentGivenBy: 'New consent field',
+        injectionSite: 'To be edited automatically',
+      },
+      true,
+    );
+
+    await assertEditedVaccine(
+      patientDetailsPage,
+      editedVaccine,
+    );
   });
 
-  test('Edit unique fields', async ({ patientDetailsPage }) => {
+  test('Edit unique fields for other vaccine', async ({ patientDetailsPage }) => {
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
+      specificVaccine: 'Test Vaccine',
+      fillOptionalFields: true,
+    });
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    const editedVaccine = await editVaccine(patientDetailsPage, vaccine, {
+      brand: 'Edited brand',
+      disease: 'Edited disease',
+    }, true);
+
+    await assertEditedVaccine(patientDetailsPage, editedVaccine);
+  });
+
+  test('Edit unique fields for not given vaccine', async ({ patientDetailsPage }) => {
+    //TODO: reason is new field, status is not given
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
+      specificVaccine: 'Hep B',
+      fillOptionalFields: true,
+    });
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    const editedVaccine = await editVaccine(patientDetailsPage, vaccine, {
+      notGivenReason: 'Edited reason',
+      notGivenClinician: 'Edited clinician',
+    }, true);
+
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+
+    await assertEditedVaccine(patientDetailsPage, editedVaccine);
+  });
+
+  test('Edit one vaccine when multiple are present', async ({ patientDetailsPage }) => {
     //TODO: are unique specific tests required?  e.g. do other, given, not given etc combos have unique fields to edit?
   });
 
