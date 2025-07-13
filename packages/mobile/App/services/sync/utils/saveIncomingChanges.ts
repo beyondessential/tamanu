@@ -94,18 +94,17 @@ const prepareChangesForModels = (
   sortedModels: typeof MODELS_MAP,
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
-  const result = {};
-
+  const changesByModel: Record<string, SyncRecord[]> = {};
   for (const model of sortedModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
     if (recordsForModel.length > 0) {
-      result[model.name] =
+      changesByModel[model.name] =
         'sanitizePulledRecordData' in model
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
     }
   }
-  return result;
+  return changesByModel;
 };
 
 export const saveChangesFromMemory = async (
@@ -140,10 +139,9 @@ export const saveChangesFromSnapshot = async (
 ): Promise<void> => {
   const { maxBatchesToKeepInMemory = 5 } = syncSettings;
   const sortedModels = await sortInDependencyOrder(incomingModels);
-  const allBatchIds = await getSnapshotBatchIds();
-
-  for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
-    const batchRecords = await getSnapshotBatchesByIds(batchIds);
+  const batchIds = await getSnapshotBatchIds();
+  for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
+    const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
     const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
     for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
       await saveChangesForModel(
