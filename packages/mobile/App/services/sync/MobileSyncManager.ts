@@ -369,10 +369,12 @@ export class MobileSyncManager {
       const processStreamedDataFunction = async (records: any) =>
         saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
 
+      console.log('pullInitialSync')
       await pullRecordsInBatches(
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
+      console.log('pullInitialSync2')
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
