@@ -1,0 +1,34 @@
+:3000 {
+	root * /app
+	log {
+		output stderr
+	}
+
+	encode zstd gzip
+	file_server {
+		precompressed zstd br gzip
+	}
+
+	header / Cache-Control no-cache
+	header /manifest.json Cache-Control no-cache
+	header /env.js Cache-Control no-cache
+
+	# SPA fallback 
+	try_files {path} {path}/ /index.html
+
+	handle_errors {
+		@custom_err file /resources/errors/{err.status_code}.html
+		handle @custom_err {
+			rewrite * {file_match.relative}
+			file_server
+		}
+	}
+
+	respond /env.js <<JS
+		window.env = {
+			NODE_ENV: `{$NODE_ENV}` || 'production',
+			BUGSNAG_API_KEY: `{$BUGSNAG_API_KEY}` || null,
+			REVISION: `{$REVISION}` || null,
+		}
+		JS 200
+}
