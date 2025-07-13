@@ -89,19 +89,20 @@ export const saveChangesForModel = async (
   }
 };
 
-export const prepareChangesForModels = (
+const prepareChangesForModels = (
   records: SyncRecord[],
   sortedModels: typeof MODELS_MAP,
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
   const result = {};
-  
+
   for (const model of sortedModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
     if (recordsForModel.length > 0) {
-      result[model.name] = 'sanitizePulledRecordData' in model
-        ? model.sanitizePulledRecordData(recordsForModel)
-        : recordsForModel;
+      result[model.name] =
+        'sanitizePulledRecordData' in model
+          ? model.sanitizePulledRecordData(recordsForModel)
+          : recordsForModel;
     }
   }
   return result;
@@ -111,21 +112,20 @@ export const saveChangesFromMemory = async (
   records: SyncRecord[],
   incomingModels: Partial<typeof MODELS_MAP>,
   syncSettings: MobileSyncSettings,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+  progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = prepareChangesForModels(
-    records,
-    Object.values(incomingModels),
-  );
+  const preparedRecordByModel = prepareChangesForModels(records, Object.values(incomingModels));
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
     if (modelName === incomingModels.User.name) {
-      await saveChangesForModel(model, recordsForModel, syncSettings, () => {});
+      await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
     } else {
       await executeInserts(
         model.getTransactionalRepository(),
-        recordsForModel.map(({isDeleted, data}) => ({...buildFromSyncRecord(model, data), isDeleted})),
+        recordsForModel.map(({ isDeleted, data }) => ({
+          ...buildFromSyncRecord(model, data),
+          isDeleted,
+        })),
         syncSettings.maxRecordsPerInsertBatch,
         progressCallback,
       );
@@ -134,12 +134,9 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
   syncSettings: MobileSyncSettings,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+  progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
   const { maxBatchesToKeepInMemory = 5 } = syncSettings;
   const sortedModels = await sortInDependencyOrder(incomingModels);
@@ -149,7 +146,12 @@ export const saveChangesFromSnapshot = async (
     const batchRecords = await getSnapshotBatchesByIds(batchIds);
     const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
     for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
-      await saveChangesForModel(incomingModels[modelName], recordsForModel, syncSettings, () => {});
+      await saveChangesForModel(
+        incomingModels[modelName],
+        recordsForModel,
+        syncSettings,
+        progressCallback,
+      );
     }
   }
 };
