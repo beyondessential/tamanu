@@ -17,12 +17,10 @@ import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
-// Type definitions
 interface User {
   id: string;
   email: string;
   displayName: string;
-  // Add other user properties as needed
 }
 
 interface LoginData {
@@ -33,7 +31,9 @@ interface LoginData {
 
 interface LoginResponse extends LoginData {
   user: User;
-  ability: any; // Type this based on your ability system
+  ability: {
+    can: (action: string, subject: string, field?: string) => boolean;
+  }; 
   server: ServerInfo;
 }
 
@@ -295,7 +295,6 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
-    // Fixed interceptor chain handling
     const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> = [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
@@ -328,11 +327,7 @@ export class TamanuApi {
       responsePromise = responsePromise.then(fulfilled, rejected);
     }
     
-    try {
-      await responsePromise;
-    } catch (error) {
-      // Handle interceptor errors if needed
-    }
+    await reponsePromise.catch(() => {});
 
     if (response.ok) {
       if (returnResponse) {
