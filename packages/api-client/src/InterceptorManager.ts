@@ -2,10 +2,10 @@ import { forEach as _forEach } from 'lodash';
 
 
 export type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
-export type RequestInterceptorRejected = (error: any) => any;
+export type RequestInterceptorRejected = (error: any) => any | Promise<any>;
 
 export type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
-export type ResponseInterceptorRejected = (error: any) => any;
+export type ResponseInterceptorRejected = (error: any) => any | Promise<any>;
 
 export type Interceptor<T = unknown, E = Error> = {
   fulfilled: (value: T) => T | Promise<T>;
