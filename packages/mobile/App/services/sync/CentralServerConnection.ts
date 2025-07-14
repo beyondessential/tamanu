@@ -93,12 +93,19 @@ export class CentralServerConnection extends TamanuApi {
     
     //TODO: This info doesn't exist in config like in facility
     const credentials = await readConfig('syncCredentials');
+    const facilityId = await readConfig('facilityId', '');
 
     try {
       return await this.login(credentials.email, credentials.password, {
         backoff,
         timeout,
       }).then(loginData => {
+        const { allowedFacilities } = loginData;
+        if (facilityId && allowedFacilities !== CAN_ACCESS_ALL_FACILITIES && !allowedFacilities.map(f => f.id).includes(facilityId)) {
+          console.warn('User doesnt have permission for this facility: ', facilityId);
+          throw new AuthenticationError(forbiddenFacilityMessage);
+        }
+
         return (this.#loginData = loginData);
       });
     } catch (error) {
@@ -141,7 +148,7 @@ export class CentralServerConnection extends TamanuApi {
       // we're waiting in a queue
       return { status };
     }
-    
+
     if (await this.streaming()) {
       for await (const { kind, message } of this.stream(() => ({
         endpoint: `sync/${sessionId}/ready/stream`,
