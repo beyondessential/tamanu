@@ -77,6 +77,9 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
 
   const areAuditChangesEnabled = getSetting('audit.changes.enabled');
 
+  // Check if the current condition is "recorded in error"
+  const isRecordedInError = programRegistryConditionCategory?.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR;
+
   const handleConfirmedSubmit = async values => {
     await submit(values);
     setWarningOpen(false);
@@ -93,6 +96,16 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
     } else {
       await handleConfirmedSubmit(values);
     }
+  };
+
+  // Process the condition data to ensure proper display
+  const processedCondition = {
+    ...condition,
+    // Ensure category is properly formatted for display
+    programRegistryConditionCategory: {
+      ...programRegistryConditionCategory,
+      name: programRegistryConditionCategory?.name || '',
+    },
   };
 
   return (
@@ -153,19 +166,38 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                 </span>
               ),
               width: 180,
-              accessor: ({ programRegistryCondition }) => (
-                <ProgramRegistryConditionCategoryField
-                  name="programRegistryConditionCategoryId"
-                  programRegistryId={programRegistryId}
-                  disabled={!programRegistryCondition?.id}
-                  disabledTooltipText={getTranslation(
-                    'programRegistry.relatedConditionsCategory.tooltip',
-                    'Select a condition to add related categories',
-                  )}
-                  ariaLabelledby="condition-category-label"
-                  required
-                />
-              ),
+              accessor: ({ programRegistryCondition }) => {
+                // Add protection for "recorded in error" conditions
+                if (isRecordedInError) {
+                  return (
+                    <ProgramRegistryConditionCategoryField
+                      name="programRegistryConditionCategoryId"
+                      programRegistryId={programRegistryId}
+                      disabled
+                      disabledTooltipText={getTranslation(
+                        'programRegistry.recordedInError.tooltip',
+                        'Cannot edit entry that has been recorded in error',
+                      )}
+                      ariaLabelledby="condition-category-label"
+                      required
+                    />
+                  );
+                }
+
+                return (
+                  <ProgramRegistryConditionCategoryField
+                    name="programRegistryConditionCategoryId"
+                    programRegistryId={programRegistryId}
+                    disabled={!programRegistryCondition?.id}
+                    disabledTooltipText={getTranslation(
+                      'programRegistry.relatedConditionsCategory.tooltip',
+                      'Select a condition to add related categories',
+                    )}
+                    ariaLabelledby="condition-category-label"
+                    required
+                  />
+                );
+              },
             },
             {
               title: (
@@ -183,7 +215,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   ariaLabelledBy="condition-category-change-reason-label"
                   component={StyledTextField}
                   required
-                  disabled={!dirty}
+                  disabled={!dirty || isRecordedInError}
                 />
               ),
             },
@@ -191,7 +223,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
 
           return (
             <>
-              <StyledFormTable columns={columns} data={[condition]} />
+              <StyledFormTable columns={columns} data={[processedCondition]} />
               {areAuditChangesEnabled && (
                 <>
                   <Divider />
@@ -201,7 +233,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                   />
                 </>
               )}
-              <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting} />
+              <ModalFormActionRow onCancel={onClose} confirmDisabled={!dirty || isSubmitting || isRecordedInError} />
               <RecordedInErrorWarningModal
                 open={warningOpen}
                 onClose={() => setWarningOpen(false)}

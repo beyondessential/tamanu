@@ -150,18 +150,32 @@ if (isRecordedInError(programRegistryConditionCategory?.code)) {
 
 ### Fix 3: Investigate ReferenceData Permission Bug
 
-**Action**: Investigate why users are incorrectly being required to have `write` ReferenceData permissions when updating patient condition categories.
+**Status**: **REQUIRES FURTHER INVESTIGATION** - Root cause not found in codebase
 
-**Potential Investigation Areas**:
-1. **Frontend permission checks**: Look for any components or hooks that might be checking `write` ReferenceData permissions when they should be checking PatientProgramRegistrationCondition permissions
-2. **Middleware**: Check if there's any middleware that's incorrectly treating condition category operations as reference data operations
-3. **Role/permission configuration**: Verify that the role configurations aren't incorrectly bundling ReferenceData permissions with program registry permissions
+**Action**: The development team needs to perform runtime debugging to identify where the incorrect `write` ReferenceData permission check is occurring.
+
+**Investigation Steps**:
+1. **Enable permission debugging**: Add logging to trace all permission checks during the condition category update workflow
+2. **Check middleware/interceptors**: Look for any API middleware or request interceptors that might be adding permission checks
+3. **Review role configurations**: Check if user roles are configured to require bundled permissions that include ReferenceData
+4. **Frontend debugging**: Use browser dev tools to monitor all API requests and responses during condition updates
+5. **Backend debugging**: Add logging to the backend permission checking middleware to trace which permissions are being checked
+
+**Evidence of Bug**:
+- Backend API endpoints (`patient/programRegistration/condition/{id}` and `patient/programRegistration/{id}`) only require:
+  - `read` PatientProgramRegistrationCondition
+  - `write` PatientProgramRegistrationCondition 
+  - `create` PatientProgramRegistrationCondition (for new conditions)
+- Frontend components don't have explicit ReferenceData permission checks
+- No middleware or permission logic found in codebase that would require ReferenceData permissions
 
 **Expected Behavior**: Users should only need:
 - `write` PatientProgramRegistrationCondition (to update existing conditions)
 - `create` PatientProgramRegistrationCondition (to add new conditions)
 - `read` ProgramRegistry (for the specific registry)
 - `read` PatientProgramRegistrationCondition (to view conditions)
+
+**Recommendation**: Until the root cause is found, document the current workaround (users need `write` ReferenceData permissions) and prioritize finding the bug in the next sprint.
 
 ## Testing Recommendations
 
@@ -174,9 +188,9 @@ if (isRecordedInError(programRegistryConditionCategory?.code)) {
 
 ## Priority
 
-- **High**: Fix 1 (`[object Object]` display) - User experience issue
-- **High**: Fix 2 (Recorded in error reversibility) - Data integrity issue  
-- **Medium**: Fix 3 (Permission bug investigation) - Incorrectly requiring extra permissions
+- **High**: Fix 1 (`[object Object]` display) - User experience issue ✅ **FIXED**
+- **High**: Fix 2 (Recorded in error reversibility) - Data integrity issue ✅ **FIXED**
+- **Medium**: Fix 3 (Permission bug investigation) - Incorrectly requiring extra permissions ⚠️ **REQUIRES INVESTIGATION**
 
 ## Additional Notes
 
