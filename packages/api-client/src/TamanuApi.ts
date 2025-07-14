@@ -33,7 +33,7 @@ interface LoginResponse extends LoginData {
   user: User;
   ability: {
     can: (action: string, subject: string, field?: string) => boolean;
-  }; 
+  };
   server: ServerInfo;
 }
 
@@ -48,14 +48,7 @@ interface TamanuApiConfig {
   agentVersion: string;
   deviceId: string;
   defaultRequestConfig?: RequestInit;
-  logger?: Logger;
-}
-
-interface Logger {
-  log: (message: string, ...args: any[]) => void;
-  error: (message: string, ...args: any[]) => void;
-  warn: (message: string, ...args: any[]) => void;
-  info: (message: string, ...args: any[]) => void;
+  logger?: Console;
 }
 
 interface FetchOptions extends RequestInit {
