@@ -13,9 +13,15 @@ import {
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
 } from './errors';
-import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+import { BaseFetchOptions, fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
-import { InterceptorManager } from './InterceptorManager';
+import {
+  InterceptorManager,
+  type RequestInterceptorFulfilled,
+  type RequestInterceptorRejected,
+  type ResponseInterceptorFulfilled,
+  type ResponseInterceptorRejected,
+} from './InterceptorManager';
 
 interface Logger {
   debug: (message: string, data?: any) => void;
@@ -59,7 +65,7 @@ interface TamanuApiConfig {
   logger?: LoggerType;
 }
 
-interface FetchOptions extends RequestInit {
+interface FetchOptions extends BaseFetchOptions {
   useAuthToken?: string | boolean;
   returnResponse?: boolean;
   throwResponse?: boolean;
@@ -71,13 +77,6 @@ interface PasswordChangeArgs {
   currentPassword: string;
   newPassword: string;
 }
-
-// Fixed interceptor types
-type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
-type RequestInterceptorRejected = (error: any) => any;
-
-type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
-type ResponseInterceptorRejected = (error: any) => any;
 
 export class TamanuApi {
   #host: string;

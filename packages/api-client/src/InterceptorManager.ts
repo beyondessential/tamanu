@@ -1,12 +1,19 @@
 import { forEach as _forEach } from 'lodash';
 
+
+export type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
+export type RequestInterceptorRejected = (error: any) => any;
+
+export type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
+export type ResponseInterceptorRejected = (error: any) => any;
+
 export type Interceptor<T = unknown, E = Error> = {
   fulfilled: (value: T) => T | Promise<T>;
   rejected: (error: E) => E | Promise<E>;
 };
 
 export class InterceptorManager<T = unknown, E = Error> {
-  handlers: (Interceptor<T, E> | null)[];
+  handlers: (Interceptor<T, E> | null)[]; 
 
   constructor() {
     this.handlers = [];
