@@ -31,11 +31,18 @@ export const getDateFromTimeString = (time, initialDate = new Date()) => {
   return set(initialDate, { hours: hour, minutes: minute, seconds: 0 });
 };
 
+
+export const areDatesInSameTimeSlot = (date1, date2) => {
+  const slot1 = findAdministrationTimeSlotFromIdealTime(date1);
+  const slot2 = findAdministrationTimeSlotFromIdealTime(date2);
+  return slot1.index === slot2.index;
+};
+
 export const getFirstAdministrationDate = (startDate, idealTimes) => {
   const firstStartTime = idealTimes
     .map((idealTime) => getDateFromTimeString(idealTime, startDate))
     .concat(idealTimes.map((idealTime) => getDateFromTimeString(idealTime, addDays(startDate, 1))))
-    .filter((idealTime) => idealTime.getTime() > startDate.getTime())
+    .filter((idealTime) => idealTime.getTime() > startDate.getTime() || areDatesInSameTimeSlot(startDate, idealTime))
     .sort((a, b) => a - b)[0];
 
   return firstStartTime;
