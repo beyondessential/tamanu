@@ -365,7 +365,6 @@ export class MobileSyncManager {
         value: pullUntil,
       });
     }
-    console.log('post pull 7')
   }
 
   async pullInitialSync({
