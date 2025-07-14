@@ -72,12 +72,41 @@ interface PasswordChangeArgs {
   newPassword: string;
 }
 
-// Fixed interceptor types
+interface StreamEndpointConfig {
+  endpoint: string;
+  query?: Record<string, any>;
+  options?: Record<string, any>;
+}
+
+interface StreamOptions {
+  decodeMessage?: boolean;
+  streamRetryAttempts?: number;
+  streamRetryInterval?: number;
+}
+
+interface StreamMessage {
+  kind: number;
+  message: any;
+}
+
+interface DecodeResult {
+  buf: Buffer;
+  length?: number;
+  kind?: number;
+  message?: any;
+}
+
+// Interceptor types
 type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
 type RequestInterceptorRejected = (error: any) => any;
 
 type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
 type ResponseInterceptorRejected = (error: any) => any;
+
+interface Interceptor<T, U> {
+  fulfilled: T;
+  rejected: U;
+}
 
 export class TamanuApi {
   #host: string;
@@ -307,7 +336,7 @@ export class TamanuApi {
     const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
       [];
     // request: first in last out
-    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor: Interceptor<RequestInterceptorFulfilled, RequestInterceptorRejected>) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
     });
 
@@ -330,7 +359,7 @@ export class TamanuApi {
       ResponseInterceptorFulfilled | ResponseInterceptorRejected
     > = [];
     // response: first in first out
-    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor: Interceptor<ResponseInterceptorFulfilled, ResponseInterceptorRejected>) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
 
@@ -509,7 +538,7 @@ export class TamanuApi {
         return response;
       }
 
-      await new Promise(resolve => {
+      await new Promise<void>(resolve => {
         setTimeout(resolve, waitTime);
       });
     }
@@ -562,14 +591,14 @@ export class TamanuApi {
    * other reason, pass `decodeMessage: false`. This will be slightly faster as the framing allows
    * us to seek forward through the received data rather than read every byte.
    *
-   * @param {() => ({ endpoint: string, query?: Record<string, string>, options?: Record<string, any> })} endpointFn
-   * @param {{ decodeMessage?: boolean, streamRetryAttempts?: number, streamRetryInterval?: number }} streamOptions
-   * @returns
+   * @param endpointFn Function that returns endpoint configuration
+   * @param streamOptions Stream configuration options
+   * @returns AsyncGenerator yielding stream messages
    */
   async *stream(
-    endpointFn,
-    { decodeMessage = true, streamRetryAttempts = 10, streamRetryInterval = 10000 } = {},
-  ) {
+    endpointFn: () => StreamEndpointConfig,
+    { decodeMessage = true, streamRetryAttempts = 10, streamRetryInterval = 10000 }: StreamOptions = {},
+  ): AsyncGenerator<StreamMessage, void, unknown> {
     // +---------+---------+---------+----------------+
     // |  CR+LF  |   kind  |  length |     data...    |
     // +---------+---------+---------+----------------+
@@ -581,7 +610,7 @@ export class TamanuApi {
     // The first two bytes are a CR+LF (a newline), which makes it possible
     // to curl an endpoint and get (almost) newline-delimited JSON which
     // will print nicely in a terminal.
-    const decodeOne = buffer => {
+    const decodeOne = (buffer: Buffer): DecodeResult => {
       if (buffer.length < 8) {
         return { buf: buffer };
       }
@@ -614,7 +643,7 @@ export class TamanuApi {
         // message is assumed to be an empty object when length is zero,
         // such that it can generally be assumed that message is an object
         // (though that will depend on stream endpoint application)
-        const message = length > 0 ? JSON.parse(data) : {};
+        const message = length > 0 ? JSON.parse(data.toString()) : {};
         return { buf: buffer, length, kind, message };
       } else {
         return { buf: buffer, length, kind, message: data };
@@ -627,7 +656,12 @@ export class TamanuApi {
       const response = await this.fetch(endpoint, query, {
         ...options,
         returnResponse: true,
-      });
+      }) as Response;
+      
+      if (!response.body) {
+        throw new Error('Response body is null');
+      }
+      
       const reader = response.body.getReader();
 
       // buffer used to accumulate the data received from the stream.
@@ -653,7 +687,7 @@ export class TamanuApi {
             break decoder;
           }
 
-          yield { kind, message };
+          yield { kind: kind!, message };
 
           if (kind === SYNC_STREAM_MESSAGE_KIND.END) {
             return; // stop processing data
@@ -690,7 +724,7 @@ export class TamanuApi {
 
       // this is sleepAsync but it's simple enough to implement ourselves
       // instead of adding a whole dependency on @tamanu/shared just for it
-      await new Promise(resolve => {
+      await new Promise<void>(resolve => {
         setTimeout(resolve, streamRetryInterval);
       });
 
