@@ -68,23 +68,35 @@ if (initialValue === 'recordedInError') {
 
 ### 3. ReferenceData Write Permissions Issue
 
-**Root Cause**: The system requires `write` permissions for `ReferenceData` because program registry condition categories are stored in the `program_registry_condition_categories` table, but the permission system treats them as reference data.
+**Root Cause**: Users are incorrectly being required to have `write` ReferenceData permissions when recording/updating patient condition categories. This is a bug - the API endpoints for updating patient conditions only require PatientProgramRegistrationCondition permissions.
 
-**Location**: `packages/central-server/app/admin/referenceDataImporter/referenceDataImporter.js`
+**Location**: Unknown - requires investigation
 
 **Analysis**:
-- Lines 24-25 in `referenceDataImporter.js` require both `create` and `write` permissions for ReferenceData
-- Program registry condition categories are treated as reference data despite being in their own table
-- This is by design, as indicated by the comment in `packages/constants/src/importable.ts` line 87: "Reference data stored in its own table but are not general importable types"
+- The actual API endpoints that handle patient condition updates only require:
+  - `write` PatientProgramRegistrationCondition
+  - `read` PatientProgramRegistrationCondition  
+  - `create` PatientProgramRegistrationCondition (for new conditions)
+  - `read` ProgramRegistry (for the specific registry)
+- **No `write` ReferenceData permissions are required** in the backend API
+- The issue is likely in frontend permission checking or middleware incorrectly treating condition categories as reference data
 
 **Evidence**:
 ```javascript
-// In referenceDataImporter.js lines 24-25
-checkPermission('create', 'ReferenceData');
-checkPermission('write', 'ReferenceData');
+// patientProgramRegistrationConditions.js - UPDATE condition category
+req.checkPermission('read', 'PatientProgramRegistrationCondition');
+req.checkPermission('write', 'PatientProgramRegistrationCondition');
+// NO ReferenceData permissions required
+
+// patientProgramRegistration.js - UPDATE registration with conditions  
+req.checkPermission('write', 'PatientProgramRegistration');
+if (conditions.length > 0) {
+  req.checkPermission('create', 'PatientProgramRegistrationCondition');
+}
+// NO ReferenceData permissions required
 ```
 
-**This is actually correct behavior** - users need write permissions to modify reference data including condition categories.
+**This is a bug** - users should not need `write` ReferenceData permissions to record condition categories for patients.
 
 ## Recommended Fixes
 
@@ -136,23 +148,35 @@ if (isRecordedInError(programRegistryConditionCategory?.code)) {
 }
 ```
 
-### Fix 3: ReferenceData Permissions (Documentation)
+### Fix 3: Investigate ReferenceData Permission Bug
 
-**Action**: Document that `write` ReferenceData permissions are required for program registry condition category management.
+**Action**: Investigate why users are incorrectly being required to have `write` ReferenceData permissions when updating patient condition categories.
 
-**Rationale**: This is expected behavior since condition categories are managed as reference data. Users need write permissions to modify reference data, which includes creating and updating condition categories.
+**Potential Investigation Areas**:
+1. **Frontend permission checks**: Look for any components or hooks that might be checking `write` ReferenceData permissions when they should be checking PatientProgramRegistrationCondition permissions
+2. **Middleware**: Check if there's any middleware that's incorrectly treating condition category operations as reference data operations
+3. **Role/permission configuration**: Verify that the role configurations aren't incorrectly bundling ReferenceData permissions with program registry permissions
+
+**Expected Behavior**: Users should only need:
+- `write` PatientProgramRegistrationCondition (to update existing conditions)
+- `create` PatientProgramRegistrationCondition (to add new conditions)
+- `read` ProgramRegistry (for the specific registry)
+- `read` PatientProgramRegistrationCondition (to view conditions)
 
 ## Testing Recommendations
 
 1. **Test `[object Object]` Fix**: Create multiple conditions of the same type with "Resolved" and "Disproven" categories and verify they display correctly
 2. **Test "Recorded in error" Protection**: Mark a condition as "Recorded in error" and verify it cannot be edited
-3. **Test Permissions**: Verify that users with only `read` and `list` ReferenceData permissions cannot create condition categories, while users with `write` permissions can
+3. **Test Permissions Bug**: 
+   - Create a user with only PatientProgramRegistrationCondition permissions (no ReferenceData write permissions)
+   - Verify they can successfully record and update patient condition categories
+   - If they can't, investigate where the incorrect permission check is happening
 
 ## Priority
 
 - **High**: Fix 1 (`[object Object]` display) - User experience issue
 - **High**: Fix 2 (Recorded in error reversibility) - Data integrity issue  
-- **Low**: Fix 3 (Documentation) - Working as designed
+- **Medium**: Fix 3 (Permission bug investigation) - Incorrectly requiring extra permissions
 
 ## Additional Notes
 
