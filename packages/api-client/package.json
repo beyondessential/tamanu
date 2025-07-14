@@ -5,12 +5,15 @@
   "description": "API client for Tamanu Facility Server",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/cjs/index.d.ts",
       "import": "./dist/mjs/index.js",
       "require": "./dist/cjs/index.js"
     },
     "./*": {
+      "types": "./dist/cjs/*.d.ts",
       "import": "./dist/mjs/*.js",
       "require": "./dist/cjs/*.js"
     }
