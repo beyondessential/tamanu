@@ -2,7 +2,7 @@ import { isRecoverable } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 import { type LoggerType } from './TamanuApi';
 
-interface RetryBackoffOptions {
+export interface RetryBackoffOptions {
   log?: LoggerType;
   maxAttempts?: number;
   maxWaitMs?: number;

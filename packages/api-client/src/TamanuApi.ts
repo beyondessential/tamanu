@@ -14,7 +14,7 @@ import {
   getVersionIncompatibleMessage,
 } from './errors';
 import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
-import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
+import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
 interface Logger {
@@ -64,14 +64,7 @@ interface FetchOptions extends RequestInit {
   returnResponse?: boolean;
   throwResponse?: boolean;
   waitForAuth?: boolean;
-  backoff?: boolean | BackoffOptions;
-}
-
-interface BackoffOptions {
-  maxAttempts?: number;
-  baseDelay?: number;
-  maxDelay?: number;
-  factor?: number;
+  backoff?: boolean | RetryBackoffOptions;
 }
 
 interface PasswordChangeArgs {
