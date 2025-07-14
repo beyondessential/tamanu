@@ -27,6 +27,7 @@ console.log('AuthInvalidError', AuthInvalidError);
 console.log('VersionIncompatibleError', VersionIncompatibleError);
 
 export class CentralServerConnection extends TamanuApi {
+  #loginData: LoginResponse;
   emitter = mitt();
 
   constructor({ deviceId, host }) {
@@ -75,20 +76,20 @@ export class CentralServerConnection extends TamanuApi {
     } catch (err) {
       if (retryAuth && err instanceof AuthError) {
         this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
-        await this.refresh();
-        return this.fetch(endpoint, options, upOptions);
+        await this.connect();
+        return super.fetch(endpoint, options, upOptions);
       }
       throw err;
     }
   }
 
   async pollUntilTrue(endpoint: string) {
-    return this.pollUntilOk(endpoint);
+    return super.pollUntilOk(endpoint);
   }
 
-  async connect(backoff, timeout = this.timeout) {
+  async connect(email: string, password: string) {
     try {
-      await this.refreshToken({
+      await super.refreshToken({
         retryAuth: false,
       });
       return;
@@ -96,35 +97,26 @@ export class CentralServerConnection extends TamanuApi {
       // ignore error
     }
 
-    const { email, password } = config.sync;
-    log.info(`Logging in to ${this.host} as ${email}...`);
+
+    console.log(`Logging in to ${super.host} as ${email}...`);
 
     try {
-      return await this.login(email, password, {
-        backoff,
-        timeout,
+      return await super.login(email, password, {
+        backoff: { maxAttempts: 1 },
+        timeout: 10000,
       }).then(loginData => {
         return (this.#loginData = loginData);
       });
     } catch (error) {
       if (error instanceof AuthInvalidError) {
-        const newError = new BadAuthenticationError(error.message);
-        newError.response = error.response;
-        newError.cause = error;
-        throw newError;
+        throw new AuthenticationError(error.message);
       }
 
       if (error instanceof VersionIncompatibleError) {
-        const newError = new FacilityAndSyncVersionIncompatibleError(error.message);
-        newError.response = error.response;
-        newError.cause = error;
-        throw newError;
+        throw new FacilityAndSyncVersionIncompatibleError(error.message);
       }
 
-      const newError = new RemoteCallFailedError(error.message);
-      newError.response = error.response;
-      newError.cause = error;
-      throw newError;
+      throw new RemoteCallFailedError(error.message);
     }
   }
 

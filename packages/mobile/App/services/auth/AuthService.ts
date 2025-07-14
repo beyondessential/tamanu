@@ -119,11 +119,9 @@ export class AuthService {
     const syncServerLocation = await readConfig('syncServerLocation');
     const server = syncServerLocation || params.server;
 
-    // create the sync source and log in to it
-    await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
     const { user, token, refreshToken, settings, localisation, permissions } =
-      await this.centralServer.login(params.email, params.password);
+      await this.centralServer.connect(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
