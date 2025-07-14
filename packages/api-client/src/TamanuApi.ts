@@ -234,10 +234,11 @@ export class TamanuApi {
     query: Record<string, any> = {},
     options: FetchOptions = {},
   ): Promise<any> {
-    let { useAuthToken = this.#authToken, ...moreConfig } = {
+    const { useAuthToken, ...moreConfig } = {
       ...this.#defaultRequestConfig,
       ...options,
     };
+    let authToken = useAuthToken ?? this.#authToken;
     const {
       headers,
       returnResponse = false,
@@ -251,7 +252,7 @@ export class TamanuApi {
       await this.#ongoingAuth;
       if (useAuthToken !== false) {
         // use the auth token from after the pending login
-        useAuthToken = this.#authToken;
+        authToken = this.#authToken;
       }
     }
 
@@ -272,8 +273,8 @@ export class TamanuApi {
       reqHeaders.set('content-type', 'application/json');
     }
 
-    if (useAuthToken) {
-      reqHeaders.set('authorization', `Bearer ${useAuthToken}`);
+    if (authToken) {
+      reqHeaders.set('authorization', `Bearer ${authToken}`);
     }
 
     for (const [key, value] of Object.entries(headers ?? {})) {
