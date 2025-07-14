@@ -34,7 +34,7 @@ const createUserFilters = filterParams => {
     },
   ];
 
-  return filters.filter(f => f);
+  return filters.filter(f => !!f);
 };
 
 usersRouter.get(
