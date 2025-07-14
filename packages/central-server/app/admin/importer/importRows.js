@@ -7,7 +7,7 @@ import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../e
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
 import { validateTableRows } from './validateTableRows';
-import { collectTranslationData, bulkUpsertTranslationDefaults } from './translationHandler';
+import { generateTranslationsForData, bulkUpsertTranslationDefaults } from './translationHandler';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -254,7 +254,7 @@ export async function importRows(
         await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
-      const recordTranslationData = collectTranslationData(model, sheetName, normalizedValues);
+      const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
       translationData.push(...recordTranslationData);
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -262,7 +262,9 @@ export async function importRows(
     }
   }
 
-  await bulkUpsertTranslationDefaults(models, translationData);
+  if (errors.length === 0) {
+    await bulkUpsertTranslationDefaults(models, translationData);
+  }
 
   log.debug('Done with these rows');
   return stats;

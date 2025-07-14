@@ -43,6 +43,7 @@ import {
   getReferenceDataStringId,
   NumberField,
   SelectField,
+  SmallBodyText,
   TextField,
   TranslatedSelectField,
 } from '../components';
@@ -65,6 +66,7 @@ import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
+import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -522,6 +524,10 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
+  const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
+  const existingDrugIds = medications
+    .filter(({ discontinued }) => !discontinued)
+    .map(({ medication }) => medication?.id);
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
@@ -535,6 +541,7 @@ export const MedicationForm = ({
   const [awaitingPrint, setAwaitingPrint] = useState(false);
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
+  const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -622,6 +629,11 @@ export const MedicationForm = ({
     };
   };
 
+  const handleChangeMedication = drugId => {
+    const isExistingDrug = existingDrugIds.includes(drugId);
+    setShowExistingDrugWarning(isExistingDrug);
+  };
+
   return (
     <>
       <Form
@@ -675,8 +687,17 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
+                      handleChangeMedication(e.target.value);
                     }}
                   />
+                  {showExistingDrugWarning && (
+                    <SmallBodyText mt="2px" color={Colors.midText}>
+                      <TranslatedText
+                        stringId="medication.warning.existingDrug"
+                        fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
+                      />
+                    </SmallBodyText>
+                  )}
                 </div>
               </>
             ) : (
