@@ -5,7 +5,6 @@ import { AuthenticationError, forbiddenFacilityMessage, generalErrorMessage } fr
 import { version } from '/root/package.json';
 
 import {
-  BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
@@ -19,12 +18,7 @@ import {
   AuthInvalidError,
   VersionIncompatibleError,
 } from '@tamanu/api-client';
-import { SERVER_TYPES } from '@tamanu/constants';
-
-console.log('TamanuApi', TamanuApi);
-console.log('AuthError', AuthError);
-console.log('AuthInvalidError', AuthInvalidError);
-console.log('VersionIncompatibleError', VersionIncompatibleError);
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
@@ -70,6 +64,10 @@ export class CentralServerConnection extends TamanuApi {
       retryAuth = false;
     }
 
+    if (retryAuth && !this.hasToken()) {
+      await this.connect();
+    }
+
     try {
       const response = await super.fetch(endpoint, query, config);
       return response;
@@ -83,11 +81,7 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
 
-  async pollUntilTrue(endpoint: string) {
-    return super.pollUntilOk(endpoint);
-  }
-
-  async connect(email: string, password: string) {
+  async connect(backoff = { maxAttempts: 1 }, timeout = super.timeout) {
     try {
       await super.refreshToken({
         retryAuth: false,
@@ -96,14 +90,14 @@ export class CentralServerConnection extends TamanuApi {
     } catch (_) {
       // ignore error
     }
-
-
-    console.log(`Logging in to ${super.host} as ${email}...`);
+    
+    //TODO: This info doesn't exist in config like in facility
+    const credentials = await readConfig('syncCredentials');
 
     try {
-      return await super.login(email, password, {
-        backoff: { maxAttempts: 1 },
-        timeout: 10000,
+      return await this.login(credentials.email, credentials.password, {
+        backoff,
+        timeout,
       }).then(loginData => {
         return (this.#loginData = loginData);
       });
@@ -118,6 +112,14 @@ export class CentralServerConnection extends TamanuApi {
 
       throw new RemoteCallFailedError(error.message);
     }
+  }
+
+  async loginData() {
+    if (!this.hasToken() || !this.#loginData) {
+      await this.connect();
+    }
+
+    return this.#loginData;
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
@@ -139,15 +141,33 @@ export class CentralServerConnection extends TamanuApi {
       // we're waiting in a queue
       return { status };
     }
+    
+    if (await this.streaming()) {
+      for await (const { kind, message } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the new tick from starting the session
+            return { sessionId, ...message };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persist records from another client
-    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    await this.pollUntilOk(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
-
     return { sessionId, startedAtTick };
   }
 
@@ -252,35 +272,35 @@ export class CentralServerConnection extends TamanuApi {
     this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
-    try {
-      const data = await this.fetch('login', {
-        method: 'POST',
-        body: { email, password, deviceId: this.deviceId },
-        retryAuth: false,
-        backoff: { maxAttempts: 1 },
-      });
+  // async login(email: string, password: string): Promise<LoginResponse> {
+  //   try {
+  //     const data = await this.fetch('login', {
+  //       method: 'POST',
+  //       body: { email, password, deviceId: this.deviceId },
+  //       retryAuth: false,
+  //       backoff: { maxAttempts: 1 },
+  //     });
 
-      const facilityId = await readConfig('facilityId', '');
-      const { token, refreshToken, user, allowedFacilities } = data;
-      if (
-        facilityId &&
-        allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
-        !allowedFacilities.map(f => f.id).includes(facilityId)
-      ) {
-        console.warn('User doesnt have permission for this facility: ', facilityId);
-        throw new AuthenticationError(forbiddenFacilityMessage);
-      }
+  //     const facilityId = await readConfig('facilityId', '');
+  //     const { token, refreshToken, user, allowedFacilities } = data;
+  //     if (
+  //       facilityId &&
+  //       allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
+  //       !allowedFacilities.map(f => f.id).includes(facilityId)
+  //     ) {
+  //       console.warn('User doesnt have permission for this facility: ', facilityId);
+  //       throw new AuthenticationError(forbiddenFacilityMessage);
+  //     }
 
-      if (!token || !refreshToken || !user) {
-        // auth failed in some other regard
-        console.warn('Auth failed with an inexplicable error', data);
-        throw new AuthenticationError(generalErrorMessage);
-      }
-      this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
-      return data;
-    } catch (err) {
-      this.throwError(err);
-    }
-  }
+  //     if (!token || !refreshToken || !user) {
+  //       // auth failed in some other regard
+  //       console.warn('Auth failed with an inexplicable error', data);
+  //       throw new AuthenticationError(generalErrorMessage);
+  //     }
+  //     this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+  //     return data;
+  //   } catch (err) {
+  //     this.throwError(err);
+  //   }
+  // }
 }
