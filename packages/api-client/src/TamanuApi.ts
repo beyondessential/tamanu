@@ -15,7 +15,14 @@ import {
 } from './errors';
 import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
-import { InterceptorManager } from './InterceptorManager';
+import {
+  InterceptorManager,
+  type Interceptor,
+  type RequestInterceptorFulfilled,
+  type RequestInterceptorRejected,
+  type ResponseInterceptorFulfilled,
+  type ResponseInterceptorRejected,
+} from './InterceptorManager';
 
 interface Logger {
   debug: (message: string, data?: any) => void;
@@ -96,18 +103,6 @@ interface DecodeResult {
   message?: any;
 }
 
-// Interceptor types
-type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
-type RequestInterceptorRejected = (error: any) => any;
-
-type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
-type ResponseInterceptorRejected = (error: any) => any;
-
-interface Interceptor<T, U> {
-  fulfilled: T;
-  rejected: U;
-}
-
 export class TamanuApi {
   #host: string;
   #prefix: string;
@@ -127,8 +122,8 @@ export class TamanuApi {
   agentVersion: string;
   deviceId: string;
   interceptors: {
-    request: InterceptorManager<RequestInit, any>;
-    response: InterceptorManager<Response, any>;
+    request: InterceptorManager<RequestInterceptorFulfilled, RequestInterceptorRejected>;
+    response: InterceptorManager<ResponseInterceptorFulfilled, ResponseInterceptorRejected>;
   };
 
   constructor({
@@ -148,8 +143,8 @@ export class TamanuApi {
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
     this.interceptors = {
-      request: new InterceptorManager<RequestInit, any>(),
-      response: new InterceptorManager<Response, any>(),
+      request: new InterceptorManager<RequestInterceptorFulfilled, RequestInterceptorRejected>(),
+      response: new InterceptorManager<ResponseInterceptorFulfilled, ResponseInterceptorRejected>(),
     };
     if (logger) {
       this.logger = logger;
@@ -336,7 +331,9 @@ export class TamanuApi {
     const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
       [];
     // request: first in last out
-    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor: Interceptor<RequestInterceptorFulfilled, RequestInterceptorRejected>) {
+    this.interceptors.request.forEach(function unshiftRequestInterceptors(
+      interceptor: Interceptor<RequestInterceptorFulfilled, RequestInterceptorRejected>,
+    ) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
     });
 
@@ -359,7 +356,9 @@ export class TamanuApi {
       ResponseInterceptorFulfilled | ResponseInterceptorRejected
     > = [];
     // response: first in first out
-    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor: Interceptor<ResponseInterceptorFulfilled, ResponseInterceptorRejected>) {
+    this.interceptors.response.forEach(function pushResponseInterceptors(
+      interceptor: Interceptor<ResponseInterceptorFulfilled, ResponseInterceptorRejected>,
+    ) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
 
@@ -597,7 +596,11 @@ export class TamanuApi {
    */
   async *stream(
     endpointFn: () => StreamEndpointConfig,
-    { decodeMessage = true, streamRetryAttempts = 10, streamRetryInterval = 10000 }: StreamOptions = {},
+    {
+      decodeMessage = true,
+      streamRetryAttempts = 10,
+      streamRetryInterval = 10000,
+    }: StreamOptions = {},
   ): AsyncGenerator<StreamMessage, void, unknown> {
     // +---------+---------+---------+----------------+
     // |  CR+LF  |   kind  |  length |     data...    |
@@ -653,15 +656,15 @@ export class TamanuApi {
     let { endpoint, query, options } = endpointFn();
     for (let attempt = 1; attempt <= streamRetryAttempts; attempt++) {
       this.logger.debug(`Stream: attempt ${attempt} of ${streamRetryAttempts} for ${endpoint}`);
-      const response = await this.fetch(endpoint, query, {
+      const response = (await this.fetch(endpoint, query, {
         ...options,
         returnResponse: true,
-      }) as Response;
-      
+      })) as Response;
+
       if (!response.body) {
         throw new Error('Response body is null');
       }
-      
+
       const reader = response.body.getReader();
 
       // buffer used to accumulate the data received from the stream.
