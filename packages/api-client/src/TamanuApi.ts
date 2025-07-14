@@ -13,7 +13,7 @@ import {
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
 } from './errors';
-import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+import { BaseFetchOptions, fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -66,7 +66,7 @@ interface TamanuApiConfig {
   logger?: LoggerType;
 }
 
-interface FetchOptions extends RequestInit {
+interface FetchOptions extends BaseFetchOptions {
   useAuthToken?: string | boolean;
   returnResponse?: boolean;
   throwResponse?: boolean;

@@ -2,7 +2,7 @@ import { ServerUnavailableError } from './errors';
 
 import type { LoggerType } from './TamanuApi';
 
-export interface FetchOptions extends RequestInit {
+export interface BaseFetchOptions extends RequestInit {
   fetch?: typeof fetch;
   timeout?: number | false;
 }
@@ -19,7 +19,7 @@ export interface ResponseErrorData {
 
 export async function fetchOrThrowIfUnavailable(
   url: string,
-  { fetch: fetchFn = fetch, timeout = false, ...config }: FetchOptions = {},
+  { fetch: fetchFn = fetch, timeout = false, ...config }: BaseFetchOptions = {},
 ): Promise<Response> {
   const abort = new AbortController();
   let timer: NodeJS.Timeout | number | undefined;
