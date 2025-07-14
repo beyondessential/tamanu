@@ -109,10 +109,8 @@ const prepareChangesForModels = (
           : recordsForModel;
     }
   }    
-  const timeBefore = performance.now();
-  forceGC();
-  const timeAfter = performance.now();
-  console.log(`Prepared changes for models in ${timeAfter - timeBefore}ms`);
+
+  forceGC()
   return changesByModel;
 };
 
@@ -130,15 +128,15 @@ export const saveChangesFromMemory = async (
     if (modelName === incomingModels.User.name) {
       await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
     } else {
-      await executeInserts(
-        model.getTransactionalRepository(),
-        recordsForModel.map(({ isDeleted, data }) => ({
-          ...buildFromSyncRecord(model, data),
-          isDeleted,
-        })),
-        syncSettings.maxRecordsPerInsertBatch,
-        progressCallback,
-      );
+        await executeInserts(
+          model.getTransactionalRepository(),
+          recordsForModel.map(({ isDeleted, data }) => ({
+            ...buildFromSyncRecord(model, data),
+            isDeleted,
+          })),
+          syncSettings.maxRecordsPerInsertBatch,
+          progressCallback,
+        );
     }
   }
 };

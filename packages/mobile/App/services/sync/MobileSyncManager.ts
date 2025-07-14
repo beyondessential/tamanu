@@ -309,12 +309,6 @@ export class MobileSyncManager {
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
     const tableNames = Object.values(incomingModels).map(m => m.getTableName());
-    if (isInitialSync) {
-      // if (syncSettings.useUnsafeSchemaForInitialSync) {
-      await Database.setUnsafePragma();
-      // }
-      await createSnapshotTable();
-    }
 
     const { totalToPull, pullUntil } = await this.centralServer.initiatePull(
       sessionId,
@@ -375,6 +369,7 @@ export class MobileSyncManager {
     progressCallback,
   }: PullParams): Promise<void> {
     await Database.setUnsafePragma();
+    await createSnapshotTable();
     await Database.client.transaction(async transactionEntityManager => {
       try {
         const incomingModels = getTransactingModelsForDirection(
@@ -394,10 +389,6 @@ export class MobileSyncManager {
           processStreamedDataFunction,
         );
         await this.postPull(transactionEntityManager, pullUntil);
-        await transactionEntityManager.commit();
-      } catch (error) {
-        await transactionEntityManager.rollback();
-        throw error;
       } finally {
         await Database.setSafePragma();
       }
