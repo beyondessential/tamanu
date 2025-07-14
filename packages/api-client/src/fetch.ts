@@ -19,11 +19,11 @@ export interface ResponseErrorData {
 
 export async function fetchOrThrowIfUnavailable(
   url: string,
-  { fetch: fetchFn = fetch, timeout = false, ...config }: FetchOptions = {}
+  { fetch: fetchFn = fetch, timeout = false, ...config }: FetchOptions = {},
 ): Promise<Response> {
   const abort = new AbortController();
   let timer: NodeJS.Timeout | number | undefined;
-  
+
   if (timeout && Number.isFinite(timeout) && !config.signal) {
     timer = setTimeout(() => abort.abort(), timeout);
   }
@@ -46,7 +46,7 @@ export async function fetchOrThrowIfUnavailable(
 
 export async function getResponseErrorSafely(
   response: Response,
-  logger: LoggerType = console
+  logger: LoggerType = console,
 ): Promise<ResponseErrorData> {
   try {
     const data = await response.text();

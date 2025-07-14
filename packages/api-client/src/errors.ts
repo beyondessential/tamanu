@@ -3,7 +3,7 @@ import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 export class ServerUnavailableError extends Error {}
 export class ServerResponseError extends Error {
   response: Response;
-  
+
   constructor(message: string, response: Response) {
     super(message);
     this.response = response;

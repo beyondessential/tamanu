@@ -1,6 +1,6 @@
 import { isRecoverable } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
-import { type LoggerType } from './types';
+import { type LoggerType } from './TamanuApi';
 
 interface RetryBackoffOptions {
   log?: LoggerType;
@@ -12,7 +12,12 @@ interface RetryBackoffOptions {
 export async function fetchWithRetryBackoff(
   url: string,
   config: RequestInit = {},
-  { log = console, maxAttempts = 15, maxWaitMs = 10000, multiplierMs = 300 }: RetryBackoffOptions = {},
+  {
+    log = console,
+    maxAttempts = 15,
+    maxWaitMs = 10000,
+    multiplierMs = 300,
+  }: RetryBackoffOptions = {},
 ): Promise<Response> {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     // developer assert, not a real runtime error

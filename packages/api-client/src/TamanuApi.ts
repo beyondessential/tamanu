@@ -25,7 +25,6 @@ interface Logger {
 
 export type LoggerType = Logger | Console;
 
-
 interface User {
   id: string;
   email: string;
@@ -163,9 +162,7 @@ export class TamanuApi {
         { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       )) as Response;
 
-const serverType = response.headers.get(
-  'x-tamanu-server',
-) as keyof typeof SERVER_TYPES;
+      const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
         throw new ServerResponseError(
           `Tamanu server type '${String(serverType)}' is not supported.`,
@@ -314,8 +311,8 @@ const serverType = response.headers.get(
       config.body = JSON.stringify(config.body);
     }
 
-const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
-  [];
+    const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
+      [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
@@ -330,9 +327,9 @@ const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterc
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetcher(url, { 
-      fetch: this.fetchImplementation, 
-      ...latestConfig 
+    const response = await fetcher(url, {
+      fetch: this.fetchImplementation,
+      ...latestConfig,
     } as FetchOptions);
 
     // Fixed response interceptor chain handling
@@ -379,10 +376,7 @@ const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterc
    * Generally only used internally.
    */
   async extractError(endpoint: string, response: Response): Promise<never> {
-    const { error } = await getResponseErrorSafely(
-      response, 
-      this.logger
-    );
+    const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
     if (response.status === 403 && error) {
