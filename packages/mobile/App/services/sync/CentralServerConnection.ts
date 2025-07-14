@@ -105,7 +105,7 @@ export class CentralServerConnection extends TamanuApi {
           console.warn('User doesnt have permission for this facility: ', facilityId);
           throw new AuthenticationError(forbiddenFacilityMessage);
         }
-
+        this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
         return (this.#loginData = loginData);
       });
     } catch (error) {
