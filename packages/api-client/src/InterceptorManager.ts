@@ -1,12 +1,12 @@
 import { forEach as _forEach } from 'lodash';
 
-type Interceptor = {
-  fulfilled: (value: any) => any;
-  rejected: (error: any) => any;
+type Interceptor<T = unknown, E = Error> = {
+  fulfilled: (value: T) => T | Promise<T>;
+  rejected: (error: E) => E | Promise<E>;
 };
 
-export class InterceptorManager {
-  handlers: (Interceptor | null)[];
+export class InterceptorManager<T = unknown, E = Error> {
+  handlers: (Interceptor<T, E> | null)[];
 
   constructor() {
     this.handlers = [];
@@ -20,7 +20,7 @@ export class InterceptorManager {
    *
    * @return An ID used to remove interceptor later
    */
-  use(fulfilled: (value: any) => any, rejected: (error: any) => any): number {
+  use(fulfilled: (value: T) => T | Promise<T>, rejected: (error: E) => E | Promise<E>): number {
     this.handlers.push({
       fulfilled,
       rejected,
@@ -62,7 +62,7 @@ export class InterceptorManager {
    *
    * @returns void
    */
-  forEach(fn: (interceptor: Interceptor) => void): void {
+  forEach(fn: (interceptor: Interceptor<T, E>) => void): void {
     _forEach(this.handlers, function forEachHandler(h) {
       if (h !== null) {
         fn(h);

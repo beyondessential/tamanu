@@ -97,8 +97,8 @@ export class TamanuApi {
   agentVersion: string;
   deviceId: string;
   interceptors: {
-    request: InterceptorManager;
-    response: InterceptorManager;
+    request: InterceptorManager<RequestInit, Error>;
+    response: InterceptorManager<Response, Error>;
   };
 
   constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }: TamanuApiConfig) {
@@ -111,8 +111,8 @@ export class TamanuApi {
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
     this.interceptors = {
-      request: new InterceptorManager(),
-      response: new InterceptorManager(),
+      request: new InterceptorManager<RequestInit, Error>(),
+      response: new InterceptorManager<Response, Error>(),
     };
     if (logger) {
       this.logger = logger;
@@ -288,9 +288,9 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
-    const requestInterceptorChain: any[] = [];
+    const requestInterceptorChain: Array<(value: RequestInit) => RequestInit | Promise<RequestInit> | (error: Error) => Error | Promise<Error>> = [];
     // request: first in last out
-    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor: any) {
+    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
     });
     let i = 0;
@@ -305,9 +305,9 @@ export class TamanuApi {
 
     const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
 
-    const responseInterceptorChain: any[] = [];
+    const responseInterceptorChain: Array<(value: Response) => Response | Promise<Response> | (error: Error) => Error | Promise<Error>> = [];
     // response: first in first out
-    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor: any) {
+    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
     let j = 0;
