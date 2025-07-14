@@ -1,6 +1,7 @@
 import mitt from 'mitt';
 
 import { MODELS_MAP } from '~/models/modelsMap';
+import { v4 as uuidv4 } from 'uuid';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
@@ -29,16 +30,21 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', (err) => {
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
     });
   }
 
-  async initialise(): Promise<void> {
-    const server = await readConfig('syncServerLocation');
-    await this.centralServer.connect(server);
+  async initialiseCentralServerConnection() {
+    const host = await readConfig('syncServerLocation');
+    let deviceId = await readConfig('deviceId');
+    if (!deviceId) {
+      deviceId = `mobile-${uuidv4()}`;
+      await writeConfig('deviceId', deviceId);
+    }
+    this.centralServer = new CentralServerConnection({ host, deviceId });
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
