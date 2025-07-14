@@ -27,10 +27,15 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-const STAGE_MAX_PROGRESS = {
+const STAGE_MAX_PROGRESS_INCREMENTAL = {
   1: 33,
   2: 66,
   3: 100,
+};
+
+const STAGE_MAX_PROGRESS_INITIAL = {
+  1: 33,
+  2: 100,
 };
 
 type SyncOptions = {
@@ -44,7 +49,8 @@ export type MobileSyncSettings = {
   useUnsafeSchemaForInitialSync: boolean;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
+export const SYNC_STAGES_TOTAL_INITIAL = Object.values(STAGE_MAX_PROGRESS_INITIAL).length;
 
 export interface PullParams {
   sessionId: string;
@@ -108,11 +114,17 @@ export class MobileSyncManager {
    * @param progress
    * @param progressMessage
    */
-  updateProgress = (total: number, progress: number, progressMessage: string): void => {
+  updateProgress = (
+    total: number,
+    progress: number,
+    progressMessage: string,
+    isInitialSync: boolean = false,
+  ): void => {
+    const progressByStage = isInitialSync ? STAGE_MAX_PROGRESS_INITIAL : STAGE_MAX_PROGRESS_INCREMENTAL;
     // Get previous stage max progress
-    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    const previousProgress = progressByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
+    const progressDenominator = progressByStage[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
@@ -299,6 +311,7 @@ export class MobileSyncManager {
   }
 
   async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
+    this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
 
@@ -336,7 +349,6 @@ export class MobileSyncManager {
     } else {
       await this.pullIncrementalSync(pullParams);
     }
-    console.log('pulled wiuddit')
   }
 
   async postPull(entityManager: any, pullUntil: number) {
@@ -378,11 +390,8 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        console.log(
-          `MobileSyncManager.pullInitialSync(): Beginning pull of ${recordTotal} records for initial sync`,
-        );
         const processStreamedDataFunction = async (records: any) => {
-          saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+          await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
         };
 
         await pullRecordsInBatches(
@@ -415,6 +424,7 @@ export class MobileSyncManager {
       processStreamedDataFunction,
     );
 
+    this.setSyncStage(3);
     await Database.client.transaction(async transactionEntityManager => {
       const incomingModels = getTransactingModelsForDirection(
         this.models,
