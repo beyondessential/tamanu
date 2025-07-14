@@ -17,6 +17,8 @@ import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
+import { type LoggerType } from './types';
+
 interface User {
   id: string;
   email: string;
@@ -48,7 +50,7 @@ interface TamanuApiConfig {
   agentVersion: string;
   deviceId: string;
   defaultRequestConfig?: RequestInit;
-  logger?: Console;
+  logger?: LoggerType;
 }
 
 interface FetchOptions extends RequestInit {
@@ -91,7 +93,7 @@ export class TamanuApi {
 
   lastRefreshed: number | null = null;
   user: User | null = null;
-  logger: Console = console;
+  logger: LoggerType = console;
   fetchImplementation: typeof fetch = fetch;
   agentName: string;
   agentVersion: string;
@@ -371,7 +373,10 @@ export class TamanuApi {
    * Generally only used internally.
    */
   async extractError(endpoint: string, response: Response): Promise<never> {
-    const { error } = await getResponseErrorSafely(response, this.logger);
+    const { error } = await getResponseErrorSafely(
+      response, 
+      this.logger // TODO: fix this
+    );
     const message = error?.message || response.status.toString();
 
     if (response.status === 403 && error) {

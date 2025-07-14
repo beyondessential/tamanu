@@ -1,14 +1,9 @@
 import { isRecoverable } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
-
-interface Logger {
-  debug: (message: string, data?: any) => void;
-  warn: (message: string, data?: any) => void;
-  error: (message: string, data?: any) => void;
-}
+import { type LoggerType } from './types';
 
 interface RetryBackoffOptions {
-  log?: Logger;
+  log?: LoggerType;
   maxAttempts?: number;
   maxWaitMs?: number;
   multiplierMs?: number;
