@@ -314,8 +314,8 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
-    const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
-      [];
+const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> =
+  [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
