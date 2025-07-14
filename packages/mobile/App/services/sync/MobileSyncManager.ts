@@ -344,9 +344,8 @@ export class MobileSyncManager {
     }
   }
 
-  async postPull(entityManager: any, { LocalSystemFact }: typeof MODELS_MAP, pullUntil: number) {
-    const localSystemFactRepository = entityManager.getRepository(LocalSystemFact);
-
+  async postPull(entityManager: any, pullUntil: number) {
+    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
     const tablesForFullResync = await localSystemFactRepository.findOne({
       where: { key: 'tablesForFullResync' },
     });
@@ -357,7 +356,6 @@ export class MobileSyncManager {
     const lastSuccessfulPull = await localSystemFactRepository.findOne({
       where: { key: 'lastSuccessfulPull' },
     });
-
     if (lastSuccessfulPull) {
       lastSuccessfulPull.value = pullUntil;
       await localSystemFactRepository.save(lastSuccessfulPull);
@@ -367,6 +365,7 @@ export class MobileSyncManager {
         value: pullUntil,
       });
     }
+    console.log('post pull 7')
   }
 
   async pullInitialSync({
@@ -395,7 +394,7 @@ export class MobileSyncManager {
           { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
           processStreamedDataFunction,
         );
-        await this.postPull(transactionEntityManager, incomingModels, pullUntil);
+        await this.postPull(transactionEntityManager, pullUntil);
         await transactionEntityManager.commit();
       } catch (error) {
         await transactionEntityManager.rollback();
