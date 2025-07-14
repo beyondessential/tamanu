@@ -1,6 +1,13 @@
 import { forEach as _forEach } from 'lodash';
 
+type Interceptor = {
+  fulfilled: (value: any) => any;
+  rejected: (error: any) => any;
+};
+
 export class InterceptorManager {
+  handlers: (Interceptor | null)[];
+
   constructor() {
     this.handlers = [];
   }
@@ -8,12 +15,12 @@ export class InterceptorManager {
   /**
    * Add a new interceptor to the stack
    *
-   * @param {Function} fulfilled The function to handle `then` for a `Promise`
-   * @param {Function} rejected The function to handle `reject` for a `Promise`
+   * @param fulfilled The function to handle `then` for a `Promise`
+   * @param rejected The function to handle `reject` for a `Promise`
    *
-   * @return {Number} An ID used to remove interceptor later
+   * @return An ID used to remove interceptor later
    */
-  use(fulfilled, rejected) {
+  use(fulfilled: (value: any) => any, rejected: (error: any) => any): number {
     this.handlers.push({
       fulfilled,
       rejected,
@@ -24,11 +31,11 @@ export class InterceptorManager {
   /**
    * Remove an interceptor from the stack
    *
-   * @param {Number} id The ID that was returned by `use`
+   * @param id The ID that was returned by `use`
    *
-   * @returns {Boolean} `true` if the interceptor was removed, `false` otherwise
+   * @returns `true` if the interceptor was removed, `false` otherwise
    */
-  eject(id) {
+  eject(id: number): void {
     if (this.handlers[id]) {
       this.handlers[id] = null;
     }
@@ -37,9 +44,9 @@ export class InterceptorManager {
   /**
    * Clear all interceptors from the stack
    *
-   * @returns {void}
+   * @returns void
    */
-  clear() {
+  clear(): void {
     if (this.handlers) {
       this.handlers = [];
     }
@@ -51,11 +58,11 @@ export class InterceptorManager {
    * This method is particularly useful for skipping over any
    * interceptors that may have become `null` calling `eject`.
    *
-   * @param {Function} fn The function to call for each interceptor
+   * @param fn The function to call for each interceptor
    *
-   * @returns {void}
+   * @returns void
    */
-  forEach(fn) {
+  forEach(fn: (interceptor: Interceptor) => void): void {
     _forEach(this.handlers, function forEachHandler(h) {
       if (h !== null) {
         fn(h);
