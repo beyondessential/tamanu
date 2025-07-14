@@ -262,20 +262,4 @@ export class CentralServerConnection extends TamanuApi {
     throw err;
   }
 
-  async refresh(): Promise<void> {
-    const data = await this.fetch('refresh', {
-      method: 'POST',
-      body: { refreshToken: this.refreshToken, deviceId: this.deviceId },
-      retryAuth: false,
-      backoff: { maxAttempts: 1 },
-    });
-    if (!data.token || !data.refreshToken) {
-      // auth failed in some other regard
-      console.warn('Token refresh failed with an inexplicable error', data);
-      throw new AuthenticationError(generalErrorMessage);
-    }
-    this.setRefreshToken(data.refreshToken);
-    this.setToken(data.token);
-    this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
-  }
 }
