@@ -1,17 +1,14 @@
 import mitt from 'mitt';
-import { v4 as uuidv4 } from 'uuid';
-import { readConfig, writeConfig } from '../config';
-import { FetchOptions, LoginResponse, SyncRecord } from './types';
-import {
-  AuthenticationError,
-  forbiddenFacilityMessage,
-  generalErrorMessage,
-  // invalidTokenMessage,
-  // invalidUserCredentialsMessage,
-  // OutdatedVersionError,
-  // RemoteError,
-} from '../error';
+import { readConfig } from '../config';
+import { LoginResponse, SyncRecord } from './types';
+import { AuthenticationError, forbiddenFacilityMessage, generalErrorMessage } from '../error';
 import { version } from '/root/package.json';
+
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+  RemoteCallFailedError,
+} from '@tamanu/shared/errors';
 
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
@@ -30,15 +27,9 @@ console.log('AuthInvalidError', AuthInvalidError);
 console.log('VersionIncompatibleError', VersionIncompatibleError);
 
 export class CentralServerConnection extends TamanuApi {
-  host: string;
-  deviceId: string;
-
-  token: string | null;
-  refreshToken: string | null;
-
   emitter = mitt();
 
-  constructor({deviceId, host}) { 
+  constructor({ deviceId, host }) {
     const url = new URL(host.trim());
     url.pathname = '/api';
 
@@ -55,112 +46,102 @@ export class CentralServerConnection extends TamanuApi {
     });
   }
 
-  async connect(host: string) {
-    this.host = host; // TODO look into this
-    this.deviceId = await readConfig('deviceId');
-
-    if (!this.deviceId) {
-      this.deviceId = `mobile-${uuidv4()}`;
-      await writeConfig('deviceId', this.deviceId);
+  async fetch(endpoint: string, options: any = {}, upOptions: any = null): Promise<any> {
+    let retryAuth: boolean;
+    let query: Record<string, any>;
+    let config: any;
+    if (!upOptions || options.query || options.retryAuth || options.method) {
+      // this is a local style 2-argument call
+      retryAuth = options.retryAuth ?? true;
+      query = options.query ?? {};
+      delete options.retryAuth;
+      delete options.query;
+      config = options;
+    } else {
+      // this is an api-client style 3-argument call
+      retryAuth = upOptions.retryAuth ?? false;
+      delete upOptions.retryAuth;
+      query = options;
+      config = upOptions;
     }
-  }
 
-  async fetch(
-    path: string,
-    query: Record<string, string | number | boolean>,
-    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
-  ): Promise<any> {
-    if (!this.host) {
-      throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
+    if (['login', 'refresh'].includes(endpoint)) {
+      retryAuth = false;
     }
 
-    const queryString = Object.entries(query)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('&');
-    const url = `${this.host}/${API_PREFIX}/${path}${queryString && `?${queryString}`}`;
-    const extraHeaders = config?.headers || {};
-    const headers = {
-      Authorization: `Bearer ${this.token}`,
-      Accept: 'application/json',
-      'X-Tamanu-Client': 'Tamanu Mobile',
-      'X-Version': version,
-      ...extraHeaders,
-    };
-    const isLogin = path.startsWith('login');
     try {
-      const response = await callWithBackoff(
-        async () => fetchAndParse(url, { ...config, headers }, isLogin),
-        backoff,
-      );
+      const response = await super.fetch(endpoint, query, config);
       return response;
     } catch (err) {
-      // Handle sync disconnection and attempt refresh if possible
-
-      if (err instanceof AuthenticationError && !isLogin) {
+      if (retryAuth && err instanceof AuthError) {
         this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
-        if (this.refreshToken && !skipAttemptRefresh) {
-          await this.refresh();
-          // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig = { ...config, skipAttemptRefresh: true };
-          return this.fetch(path, query, updatedConfig);
-        }
+        await this.refresh();
+        return this.fetch(endpoint, options, upOptions);
       }
       throw err;
     }
   }
 
-  async get(
-    path: string,
-    query: Record<string, string | number | boolean>,
-    options?: FetchOptions,
-  ) {
-    return this.fetch(path, query, { ...options, method: 'GET' });
+  async pollUntilTrue(endpoint: string) {
+    return this.pollUntilOk(endpoint);
   }
 
-  async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
-    return this.fetch(path, query, {
-      ...options,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-  }
-
-  async delete(path: string, query: Record<string, string | number>) {
-    return this.fetch(path, query, { method: 'DELETE' });
-  }
-
-  async pollUntilTrue(endpoint: string): Promise<void> {
-    // poll the provided endpoint until we get a valid response
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.get(endpoint, {});
-      if (response) {
-        return response;
-      }
-      await sleepAsync(waitTime);
+  async connect(backoff, timeout = this.timeout) {
+    try {
+      await this.refreshToken({
+        retryAuth: false,
+      });
+      return;
+    } catch (_) {
+      // ignore error
     }
-    throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
+
+    const { email, password } = config.sync;
+    log.info(`Logging in to ${this.host} as ${email}...`);
+
+    try {
+      return await this.login(email, password, {
+        backoff,
+        timeout,
+      }).then(loginData => {
+        return (this.#loginData = loginData);
+      });
+    } catch (error) {
+      if (error instanceof AuthInvalidError) {
+        const newError = new BadAuthenticationError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      if (error instanceof VersionIncompatibleError) {
+        const newError = new FacilityAndSyncVersionIncompatibleError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      const newError = new RemoteCallFailedError(error.message);
+      newError.response = error.response;
+      newError.cause = error;
+      throw newError;
+    }
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.post(
-      'sync',
-      {},
-      {
+    const { sessionId, status } = await this.fetch('sync', {
+      method: 'POST',
+      body: {
         urgent,
         lastSyncedTick,
         facilityIds: [facilityId],
         deviceId: this.deviceId,
         isMobile: true,
       },
-    );
+    });
 
     if (!sessionId) {
       // we're waiting in a queue
@@ -173,13 +154,13 @@ export class CentralServerConnection extends TamanuApi {
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startedAtTick } = await this.get(`sync/${sessionId}/metadata`, {});
+    const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
 
     return { sessionId, startedAtTick };
   }
 
   async endSyncSession(sessionId: string) {
-    return this.delete(`sync/${sessionId}`, {});
+    return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
   async initiatePull(
@@ -196,52 +177,46 @@ export class CentralServerConnection extends TamanuApi {
       tablesForFullResync,
       deviceId: this.deviceId,
     };
-    await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
+    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get(`sync/${sessionId}/pull/metadata`, {});
+    return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 
-  async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
+  async pull(
+    sessionId: string,
+    { limit = 100, fromId }: { limit?: number; fromId?: string } = {},
+  ): Promise<SyncRecord[]> {
     const query: { limit: number; fromId?: string } = { limit };
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.get(`sync/${sessionId}/pull`, query, {
+    return this.fetch(`sync/${sessionId}/pull`, {
+      query,
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
     });
   }
 
-  async push(sessionId: string, changes): Promise<void> {
-    return this.post(`sync/${sessionId}/push`, {}, { changes });
+  async push(sessionId: string, changes: any): Promise<void> {
+    return this.fetch(`sync/${sessionId}/push`, { method: 'POST', body: { changes } });
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.post(
-      `sync/${sessionId}/push/complete`,
-      {},
-      { tablesToInclude, deviceId: this.deviceId },
-    );
+    await this.fetch(`sync/${sessionId}/push/complete`, {
+      method: 'POST',
+      body: { tablesToInclude, deviceId: this.deviceId },
+    });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const isComplete = await this.get(`sync/${sessionId}/push/complete`, {});
-      if (isComplete) {
-        return;
-      }
-      await sleepAsync(waitTime);
-    }
-    throw new Error(`Could not fetch if push has been completed after ${maxAttempts} attempts`);
+    await this.pollUntilTrue(`sync/${sessionId}/push/complete`);
   }
 
   setToken(token: string): void {
@@ -269,12 +244,12 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async refresh(): Promise<void> {
-    const data = await this.post(
-      'refresh',
-      {},
-      { refreshToken: this.refreshToken, deviceId: this.deviceId },
-      { skipAttemptRefresh: true, backoff: { maxAttempts: 1 } },
-    );
+    const data = await this.fetch('refresh', {
+      method: 'POST',
+      body: { refreshToken: this.refreshToken, deviceId: this.deviceId },
+      retryAuth: false,
+      backoff: { maxAttempts: 1 },
+    });
     if (!data.token || !data.refreshToken) {
       // auth failed in some other regard
       console.warn('Token refresh failed with an inexplicable error', data);
@@ -287,12 +262,12 @@ export class CentralServerConnection extends TamanuApi {
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const data = await this.post(
-        'login',
-        {},
-        { email, password, deviceId: this.deviceId },
-        { backoff: { maxAttempts: 1 } },
-      );
+      const data = await this.fetch('login', {
+        method: 'POST',
+        body: { email, password, deviceId: this.deviceId },
+        retryAuth: false,
+        backoff: { maxAttempts: 1 },
+      });
 
       const facilityId = await readConfig('facilityId', '');
       const { token, refreshToken, user, allowedFacilities } = data;
