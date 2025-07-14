@@ -6,16 +6,15 @@ import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
-  invalidTokenMessage,
-  invalidUserCredentialsMessage,
-  OutdatedVersionError,
-  RemoteError,
+  // invalidTokenMessage,
+  // invalidUserCredentialsMessage,
+  // OutdatedVersionError,
+  // RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
-
 
 import {
   TamanuApi,
@@ -23,48 +22,14 @@ import {
   AuthInvalidError,
   VersionIncompatibleError,
 } from '@tamanu/api-client';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 console.log('TamanuApi', TamanuApi);
 console.log('AuthError', AuthError);
 console.log('AuthInvalidError', AuthInvalidError);
 console.log('VersionIncompatibleError', VersionIncompatibleError);
 
-const API_PREFIX = 'api';
-
-const fetchAndParse = async (
-  url: string,
-  config: FetchOptions,
-  isLogin: boolean,
-): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
-  }
-
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
-    }
-  }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
-};
-
-export class CentralServerConnection {
+export class CentralServerConnection extends TamanuApi {
   host: string;
   deviceId: string;
 
@@ -73,8 +38,25 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
+  constructor({deviceId, host}) { 
+    const url = new URL(host.trim());
+    url.pathname = '/api';
+
+    super({
+      endpoint: url.toString(),
+      agentName: SERVER_TYPES.MOBILE,
+      agentVersion: version,
+      deviceId,
+      defaultRequestConfig: {
+        timeout: 10000,
+        waitForAuth: true,
+        backoff: true,
+      },
+    });
+  }
+
   async connect(host: string) {
-    this.host = host;
+    this.host = host; // TODO look into this
     this.deviceId = await readConfig('deviceId');
 
     if (!this.deviceId) {
