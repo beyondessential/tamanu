@@ -399,7 +399,7 @@ export class MobileSyncManager {
         await transactionEntityManager.commit();
       } catch (error) {
         await transactionEntityManager.rollback();
-        console.error('Error pulling initial sync', error);
+        throw error;
       } finally {
         await Database.setSafePragma();
       }
