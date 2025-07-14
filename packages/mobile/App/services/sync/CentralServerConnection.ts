@@ -278,36 +278,4 @@ export class CentralServerConnection extends TamanuApi {
     this.setToken(data.token);
     this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
   }
-
-  // async login(email: string, password: string): Promise<LoginResponse> {
-  //   try {
-  //     const data = await this.fetch('login', {
-  //       method: 'POST',
-  //       body: { email, password, deviceId: this.deviceId },
-  //       retryAuth: false,
-  //       backoff: { maxAttempts: 1 },
-  //     });
-
-  //     const facilityId = await readConfig('facilityId', '');
-  //     const { token, refreshToken, user, allowedFacilities } = data;
-  //     if (
-  //       facilityId &&
-  //       allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
-  //       !allowedFacilities.map(f => f.id).includes(facilityId)
-  //     ) {
-  //       console.warn('User doesnt have permission for this facility: ', facilityId);
-  //       throw new AuthenticationError(forbiddenFacilityMessage);
-  //     }
-
-  //     if (!token || !refreshToken || !user) {
-  //       // auth failed in some other regard
-  //       console.warn('Auth failed with an inexplicable error', data);
-  //       throw new AuthenticationError(generalErrorMessage);
-  //     }
-  //     this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
-  //     return data;
-  //   } catch (err) {
-  //     this.throwError(err);
-  //   }
-  // }
 }
