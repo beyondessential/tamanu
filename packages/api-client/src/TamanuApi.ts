@@ -78,6 +78,13 @@ interface PasswordChangeArgs {
   newPassword: string;
 }
 
+// Fixed interceptor types
+type RequestInterceptorFulfilled = (value: RequestInit) => RequestInit | Promise<RequestInit>;
+type RequestInterceptorRejected = (error: any) => any;
+
+type ResponseInterceptorFulfilled = (value: Response) => Response | Promise<Response>;
+type ResponseInterceptorRejected = (error: any) => any;
+
 export class TamanuApi {
   #host: string;
   #prefix: string;
@@ -97,8 +104,8 @@ export class TamanuApi {
   agentVersion: string;
   deviceId: string;
   interceptors: {
-    request: InterceptorManager<RequestInit, Error>;
-    response: InterceptorManager<Response, Error>;
+    request: InterceptorManager<RequestInit, any>;
+    response: InterceptorManager<Response, any>;
   };
 
   constructor({ endpoint, agentName, agentVersion, deviceId, defaultRequestConfig = {}, logger }: TamanuApiConfig) {
@@ -111,8 +118,8 @@ export class TamanuApi {
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
     this.interceptors = {
-      request: new InterceptorManager<RequestInit, Error>(),
-      response: new InterceptorManager<Response, Error>(),
+      request: new InterceptorManager<RequestInit, any>(),
+      response: new InterceptorManager<Response, any>(),
     };
     if (logger) {
       this.logger = logger;
@@ -288,37 +295,44 @@ export class TamanuApi {
       config.body = JSON.stringify(config.body);
     }
 
-    const requestInterceptorChain: Array<(value: RequestInit) => RequestInit | Promise<RequestInit> | (error: Error) => Error | Promise<Error>> = [];
+    // Fixed interceptor chain handling
+    const requestInterceptorChain: Array<RequestInterceptorFulfilled | RequestInterceptorRejected> = [];
     // request: first in last out
     this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
       requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
     });
-    let i = 0;
+    
     let requestPromise = Promise.resolve(config);
+    let i = 0;
     while (i < requestInterceptorChain.length) {
-      requestPromise = requestPromise.then(
-        requestInterceptorChain[i++],
-        requestInterceptorChain[i++],
-      );
+      const fulfilled = requestInterceptorChain[i++] as RequestInterceptorFulfilled;
+      const rejected = requestInterceptorChain[i++] as RequestInterceptorRejected;
+      requestPromise = requestPromise.then(fulfilled, rejected);
     }
     const latestConfig = await requestPromise;
 
     const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
 
-    const responseInterceptorChain: Array<(value: Response) => Response | Promise<Response> | (error: Error) => Error | Promise<Error>> = [];
+    // Fixed response interceptor chain handling
+    const responseInterceptorChain: Array<ResponseInterceptorFulfilled | ResponseInterceptorRejected> = [];
     // response: first in first out
     this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
-    let j = 0;
+    
     let responsePromise = response.ok ? Promise.resolve(response) : Promise.reject(response);
+    let j = 0;
     while (j < responseInterceptorChain.length) {
-      responsePromise = responsePromise.then(
-        responseInterceptorChain[j++],
-        responseInterceptorChain[j++],
-      );
+      const fulfilled = responseInterceptorChain[j++] as ResponseInterceptorFulfilled;
+      const rejected = responseInterceptorChain[j++] as ResponseInterceptorRejected;
+      responsePromise = responsePromise.then(fulfilled, rejected);
     }
-    await responsePromise.catch(() => {});
+    
+    try {
+      await responsePromise;
+    } catch (error) {
+      // Handle interceptor errors if needed
+    }
 
     if (response.ok) {
       if (returnResponse) {
