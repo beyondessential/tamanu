@@ -16,6 +16,19 @@ import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } 
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
+
+import {
+  TamanuApi,
+  AuthError,
+  AuthInvalidError,
+  VersionIncompatibleError,
+} from '@tamanu/api-client';
+
+console.log('TamanuApi', TamanuApi);
+console.log('AuthError', AuthError);
+console.log('AuthInvalidError', AuthInvalidError);
+console.log('VersionIncompatibleError', VersionIncompatibleError);
+
 const API_PREFIX = 'api';
 
 const fetchAndParse = async (
@@ -60,7 +73,7 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  async connect(host: string): void {
+  async connect(host: string) {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 

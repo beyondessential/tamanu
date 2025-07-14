@@ -90,6 +90,7 @@
     "react-native-tab-view": "^2.13.0",
     "react-native-vector-icons": "^7.1.0",
     "react-redux": "8.0.2",
+    "@tamanu/api-client": "*",
     "reactotron-react-native": "^5.1.7",
     "reactotron-redux": "^3.1.2",
     "redux": "^4.0.5",
