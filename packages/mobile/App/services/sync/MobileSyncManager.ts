@@ -336,6 +336,7 @@ export class MobileSyncManager {
     } else {
       await this.pullIncrementalSync(pullParams);
     }
+    console.log('pulled wiuddit')
   }
 
   async postPull(entityManager: any, pullUntil: number) {
@@ -420,8 +421,8 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(recordTotal, incomingModels, syncSettings, progressCallback);
-      await this.postPull(transactionEntityManager, incomingModels, pullUntil);
+      await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
+      await this.postPull(transactionEntityManager, pullUntil);
     });
   }
 }
