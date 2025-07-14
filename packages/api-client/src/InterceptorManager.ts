@@ -1,6 +1,6 @@
 import { forEach as _forEach } from 'lodash';
 
-type Interceptor<T = unknown, E = Error> = {
+export type Interceptor<T = unknown, E = Error> = {
   fulfilled: (value: T) => T | Promise<T>;
   rejected: (error: E) => E | Promise<E>;
 };
