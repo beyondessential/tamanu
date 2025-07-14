@@ -44,7 +44,7 @@ interface LoginData {
   permissions?: string[];
 }
 
-interface LoginResponse extends LoginData {
+export interface LoginResponse extends LoginData {
   user: User;
   ability: {
     can: (action: string, subject: string, field?: string) => boolean;

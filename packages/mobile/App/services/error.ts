@@ -37,9 +37,7 @@ export class OutdatedVersionError extends Error {
   }
 }
 
-export const noServerAccessMessage = 'Unable to access Server.\n Please check internet connection.';
 export const invalidUserCredentialsMessage =
   'Invalid user credentials.\nPlease check email and password and try again.';
-export const invalidTokenMessage = 'Your login has expired, please sign out and back in.';
 export const forbiddenFacilityMessage = 'You dont have access to this facility'
 export const generalErrorMessage = 'Oops, something went wrong.\n Please try again later!';

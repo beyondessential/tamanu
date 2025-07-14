@@ -1,24 +1,25 @@
 import mitt from 'mitt';
 import { readConfig } from '../config';
-import { LoginResponse, SyncRecord } from './types';
-import { AuthenticationError, forbiddenFacilityMessage, generalErrorMessage } from '../error';
+import { SyncRecord } from './types';
 import { version } from '/root/package.json';
 
 import {
+  BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-
-import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
-
 import {
   TamanuApi,
   AuthError,
   AuthInvalidError,
   VersionIncompatibleError,
+  LoginResponse,
 } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+
+import { CentralConnectionStatus } from '~/types';
+import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
+
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
@@ -90,9 +91,10 @@ export class CentralServerConnection extends TamanuApi {
     } catch (_) {
       // ignore error
     }
-    
+
     //TODO: This info doesn't exist in config like in facility
     const credentials = await readConfig('syncCredentials');
+
     const facilityId = await readConfig('facilityId', '');
 
     try {
@@ -101,16 +103,20 @@ export class CentralServerConnection extends TamanuApi {
         timeout,
       }).then(loginData => {
         const { allowedFacilities } = loginData;
-        if (facilityId && allowedFacilities !== CAN_ACCESS_ALL_FACILITIES && !allowedFacilities.map(f => f.id).includes(facilityId)) {
+        if (
+          facilityId &&
+          allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
+          !allowedFacilities.map(f => f.id).includes(facilityId)
+        ) {
           console.warn('User doesnt have permission for this facility: ', facilityId);
-          throw new AuthenticationError(forbiddenFacilityMessage);
+          throw new BadAuthenticationError('You dont have access to this facility');
         }
         this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
         return (this.#loginData = loginData);
       });
     } catch (error) {
       if (error instanceof AuthInvalidError) {
-        throw new AuthenticationError(error.message);
+        throw new BadAuthenticationError(error.message);
       }
 
       if (error instanceof VersionIncompatibleError) {
@@ -127,6 +133,10 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     return this.#loginData;
+  }
+
+  async streaming() {
+    return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
@@ -161,12 +171,11 @@ export class CentralServerConnection extends TamanuApi {
             // includes the new tick from starting the session
             return { sessionId, ...message };
           default:
-            log.warn(`Unexpected message kind: ${kind}`);
+            console.warn(`Unexpected message kind: ${kind}`);
         }
       }
       throw new Error('Unexpected end of stream');
     }
-
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
@@ -198,9 +207,27 @@ export class CentralServerConnection extends TamanuApi {
     };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
+    if (await this.streaming()) {
+      for await (const { kind, message } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/pull/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the metadata for the changes we're about to pull
+            return { sessionId, ...message };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
-    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    await this.pollUntilOk(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
     return this.fetch(`sync/${sessionId}/pull/metadata`);
@@ -235,31 +262,6 @@ export class CentralServerConnection extends TamanuApi {
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
-    await this.pollUntilTrue(`sync/${sessionId}/push/complete`);
+    await this.pollUntilOk(`sync/${sessionId}/push/complete`);
   }
-
-  setToken(token: string): void {
-    this.token = token;
-  }
-
-  clearToken(): void {
-    this.token = null;
-  }
-
-  setRefreshToken(refreshToken: string): void {
-    this.refreshToken = refreshToken;
-  }
-
-  clearRefreshToken(): void {
-    this.refreshToken = null;
-  }
-
-  throwError(err: Error): never {
-    // emit error after throwing
-    setTimeout(() => {
-      this.emitter.emit('error', err);
-    }, 1);
-    throw err;
-  }
-
 }
