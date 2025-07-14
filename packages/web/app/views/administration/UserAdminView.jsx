@@ -75,7 +75,7 @@ const COLUMNS = [
     key: 'displayId',
     title: <TranslatedText stringId="admin.users.displayId.column" fallback="ID" />,
     sortable: false,
-    accessor: ({ displayId }) => <Box minWidth='60px'>{displayFieldOrHyphen(displayId)}</Box>,
+    accessor: ({ displayId }) => <Box minWidth="60px">{displayFieldOrHyphen(displayId)}</Box>,
   },
   {
     key: 'roleName',
@@ -89,7 +89,7 @@ const COLUMNS = [
     sortable: true,
     accessor: ({ designations }) =>
       displayFieldOrHyphen(designations?.length > 0 ? designations.join(', ') : null),
-    CellComponent: (props) => <LimitedLinesCell {...props} isOneLine maxWidth='150px' />,
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
   },
   {
     key: 'email',
@@ -125,11 +125,11 @@ export const UserAdminView = React.memo(() => {
   return (
     <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
       <TableContainer>
-      <UserSearchBar
-        onSearch={setSearchParameters}
-        searchParameters={searchParameters}
-        data-testid="usersearchbar-admin"
-      />
+        <UserSearchBar
+          onSearch={setSearchParameters}
+          searchParameters={searchParameters}
+          data-testid="usersearchbar-admin"
+        />
         <UserTable fetchOptions={searchParameters} data-testid="usertable-mpss" />
       </TableContainer>
     </AdminViewContainer>
