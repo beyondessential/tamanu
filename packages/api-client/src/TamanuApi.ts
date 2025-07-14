@@ -91,7 +91,7 @@ export class TamanuApi {
 
   lastRefreshed: number | null = null;
   user: User | null = null;
-  logger: Logger = console;
+  logger: Console = console;
   fetchImplementation: typeof fetch = fetch;
   agentName: string;
   agentVersion: string;
@@ -321,7 +321,11 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetcher(url, { fetch: this.fetchImplementation, ...latestConfig });
+    // TODO: come back when done fetch ts
+    const response = await fetcher(url, { 
+      fetch: this.fetchImplementation, 
+      ...latestConfig 
+    } as any);
 
     // Fixed response interceptor chain handling
     const responseInterceptorChain: Array<

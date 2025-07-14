@@ -1,11 +1,24 @@
 import { isRecoverable } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 
+interface Logger {
+  debug: (message: string, data?: any) => void;
+  warn: (message: string, data?: any) => void;
+  error: (message: string, data?: any) => void;
+}
+
+interface RetryBackoffOptions {
+  log?: Logger;
+  maxAttempts?: number;
+  maxWaitMs?: number;
+  multiplierMs?: number;
+}
+
 export async function fetchWithRetryBackoff(
-  url,
-  config = {},
-  { log = console, maxAttempts = 15, maxWaitMs = 10000, multiplierMs = 300 } = {},
-) {
+  url: string,
+  config: RequestInit = {},
+  { log = console, maxAttempts = 15, maxWaitMs = 10000, multiplierMs = 300 }: RetryBackoffOptions = {},
+): Promise<Response> {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     // developer assert, not a real runtime error
     throw new Error(`retries: maxAttempts must be a finite integer, instead got ${maxAttempts}`);
@@ -39,7 +52,7 @@ export async function fetchWithRetryBackoff(
         log.error(`retries: failed, error was irrecoverable`, {
           attempt,
           maxAttempts,
-          stack: e.stack,
+          stack: e instanceof Error ? e.stack : String(e),
         });
         throw e;
       }
@@ -49,7 +62,7 @@ export async function fetchWithRetryBackoff(
         log.error(`retries: failed, max retries exceeded`, {
           attempt,
           maxAttempts,
-          stack: e.stack,
+          stack: e instanceof Error ? e.stack : String(e),
         });
         throw e;
       }
@@ -61,10 +74,10 @@ export async function fetchWithRetryBackoff(
         attempt,
         maxAttempts,
         retryingIn: `${delay}ms`,
-        stack: e.stack,
+        stack: e instanceof Error ? e.stack : String(e),
       });
 
-      await new Promise(resolve => {
+      await new Promise<void>(resolve => {
         setTimeout(resolve, delay);
       });
     }
