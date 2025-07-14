@@ -39,5 +39,5 @@ export class OutdatedVersionError extends Error {
 
 export const invalidUserCredentialsMessage =
   'Invalid user credentials.\nPlease check email and password and try again.';
-export const forbiddenFacilityMessage = 'You dont have access to this facility'
+export const forbiddenFacilityMessage = 'You don\'t have access to this facility'
 export const generalErrorMessage = 'Oops, something went wrong.\n Please try again later!';
