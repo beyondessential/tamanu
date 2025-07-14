@@ -17,7 +17,14 @@ import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
-import { type LoggerType } from './types';
+interface Logger {
+  debug: (message: string, data?: any) => void;
+  warn: (message: string, data?: any) => void;
+  error: (message: string, data?: any) => void;
+}
+
+export type LoggerType = Logger | Console;
+
 
 interface User {
   id: string;
@@ -323,11 +330,10 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    // TODO: come back when done fetch ts
     const response = await fetcher(url, { 
       fetch: this.fetchImplementation, 
       ...latestConfig 
-    } as any);
+    } as FetchOptions);
 
     // Fixed response interceptor chain handling
     const responseInterceptorChain: Array<
@@ -375,7 +381,7 @@ export class TamanuApi {
   async extractError(endpoint: string, response: Response): Promise<never> {
     const { error } = await getResponseErrorSafely(
       response, 
-      this.logger // TODO: fix this
+      this.logger
     );
     const message = error?.message || response.status.toString();
 

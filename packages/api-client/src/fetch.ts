@@ -1,6 +1,21 @@
 import { ServerUnavailableError } from './errors';
 
-import type { LoggerType, FetchOptions, ResponseErrorData } from './types';
+import type { LoggerType } from './TamanuApi';
+
+export interface FetchOptions extends RequestInit {
+  fetch?: typeof fetch;
+  timeout?: number | false;
+}
+
+export interface ResponseError {
+  name: string;
+  message: string;
+}
+
+export interface ResponseErrorData {
+  error?: ResponseError;
+  [key: string]: any;
+}
 
 export async function fetchOrThrowIfUnavailable(
   url: string,
