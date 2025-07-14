@@ -163,9 +163,9 @@ export class TamanuApi {
         { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       )) as Response;
 
-      const serverType = response.headers.get(
-        'x-tamanu-server',
-      ) as keyof typeof SERVER_TYPES;
+const serverType = response.headers.get(
+  'x-tamanu-server',
+) as keyof typeof SERVER_TYPES;
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
         throw new ServerResponseError(
           `Tamanu server type '${String(serverType)}' is not supported.`,
