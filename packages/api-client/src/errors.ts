@@ -2,7 +2,9 @@ import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 
 export class ServerUnavailableError extends Error {}
 export class ServerResponseError extends Error {
-  constructor(message, response) {
+  response: Response;
+  
+  constructor(message: string, response: Response) {
     super(message);
     this.response = response;
   }
@@ -43,14 +45,13 @@ export function isRecoverable(error) {
   return true;
 }
 
-export function getVersionIncompatibleMessage(error, response) {
+export function getVersionIncompatibleMessage(error: ServerResponseError, response: Response) {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers
-      .get('X-Max-Client-Version')
+    const maxAppVersion = (response.headers.get('X-Max-Client-Version') ?? '0.0.0')
       .split('.', 3)
       .slice(0, 2)
       .join('.');
