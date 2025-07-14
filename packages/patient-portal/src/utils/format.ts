@@ -47,7 +47,7 @@ export const formatRoute = (route: string | undefined) => {
   return route.charAt(0).toUpperCase() + route.slice(1);
 };
 
-export const formatPrescriber = (prescriber: { displayName?: string } | null | undefined) => {
+export const formatPrescriber = (prescriber?: { displayName?: string | null } | null) => {
   return prescriber?.displayName || '--';
 };
 
