@@ -31,6 +31,32 @@ export const centralSettings = {
         },
       },
     },
+    sync: {
+      description: 'Settings related to sync',
+      highRisk: true,
+      properties: {
+        streaming: {
+          properties: {
+            enabled: {
+              description: 'Use streaming endpoints',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            databasePollBatchSize: {
+              description:
+                'The number of records to poll in a single batch for a streaming endpoint',
+              type: yup.number().positive().integer().min(1),
+              defaultValue: 100,
+            },
+            databasePollInterval: {
+              description: 'The interval in milliseconds to poll the database for a streaming wait',
+              type: yup.number().positive().integer().min(10),
+              defaultValue: 1000,
+            },
+          },
+        },
+      },
+    },
     mobileSync: {
       description: 'Settings related to mobile sync',
       highRisk: true,
