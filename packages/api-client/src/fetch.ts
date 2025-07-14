@@ -1,14 +1,35 @@
 import { ServerUnavailableError } from './errors';
 
-export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, ...config } = {}) {
+import type { LoggerType } from './TamanuApi';
+
+export interface FetchOptions extends RequestInit {
+  fetch?: typeof fetch;
+  timeout?: number | false;
+}
+
+export interface ResponseError {
+  name: string;
+  message: string;
+}
+
+export interface ResponseErrorData {
+  error?: ResponseError;
+  [key: string]: any;
+}
+
+export async function fetchOrThrowIfUnavailable(
+  url: string,
+  { fetch: fetchFn = fetch, timeout = false, ...config }: FetchOptions = {},
+): Promise<Response> {
   const abort = new AbortController();
-  let timer;
+  let timer: NodeJS.Timeout | number | undefined;
+
   if (timeout && Number.isFinite(timeout) && !config.signal) {
     timer = setTimeout(() => abort.abort(), timeout);
   }
 
   try {
-    return await fetch(url, { signal: abort.signal, ...config }).finally(() => {
+    return await fetchFn(url, { signal: abort.signal, ...config }).finally(() => {
       clearTimeout(timer);
     });
   } catch (e) {
@@ -23,14 +44,17 @@ export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, .
   }
 }
 
-export async function getResponseErrorSafely(response, logger = console) {
+export async function getResponseErrorSafely(
+  response: Response,
+  logger: LoggerType = console,
+): Promise<ResponseErrorData> {
   try {
     const data = await response.text();
     if (data.length === 0) {
       return {};
     }
 
-    return JSON.parse(data);
+    return JSON.parse(data) as ResponseErrorData;
   } catch (e) {
     // log json parsing errors, but still return a valid object
     logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
