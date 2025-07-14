@@ -41,7 +41,7 @@ export async function fetchWithRetryBackoff(
         totalTime: `${totalMs}ms`,
       });
       return result;
-    } catch (e) {
+    } catch (e: Error) {
       // throw if the error is irrecoverable
       if (!isRecoverable(e)) {
         log.error(`retries: failed, error was irrecoverable`, {

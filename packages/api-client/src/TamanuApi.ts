@@ -168,7 +168,7 @@ export class TamanuApi {
       ) as keyof typeof SERVER_TYPES;
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
         throw new ServerResponseError(
-          `Tamanu server type '${serverType}' is not supported.`,
+          `Tamanu server type '${String(serverType)}' is not supported.`,
           response,
         );
       }
@@ -441,7 +441,7 @@ export class TamanuApi {
 
   async postWithFileUpload(
     endpoint: string,
-    file: File | Blob,
+    file: Blob,
     body: any,
     options: FetchOptions = {},
   ): Promise<any> {

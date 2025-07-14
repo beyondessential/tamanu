@@ -17,7 +17,11 @@ export class ForbiddenError extends AuthError {}
 export class VersionIncompatibleError extends ServerResponseError {}
 export class ResourceConflictError extends ServerResponseError {}
 
-export function isRecoverable(error) {
+export function isRecoverable(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
   if (error instanceof ServerUnavailableError) {
     return true;
   }
