@@ -49,7 +49,7 @@ export function isRecoverable(error: unknown) {
   return true;
 }
 
-export function getVersionIncompatibleMessage(error: { message: string }, response: Response) {
+export function getVersionIncompatibleMessage(error: Error, response: Response) {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
