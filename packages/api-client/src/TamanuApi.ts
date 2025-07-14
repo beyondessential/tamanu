@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -50,6 +50,7 @@ export interface LoginResponse extends LoginData {
     can: (action: string, subject: string, field?: string) => boolean;
   };
   server: ServerInfo;
+  allowedFacilities: string[] | typeof CAN_ACCESS_ALL_FACILITIES;
 }
 
 interface ServerInfo {
