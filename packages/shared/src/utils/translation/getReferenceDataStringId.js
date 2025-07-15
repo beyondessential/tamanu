@@ -1,27 +1,19 @@
-import { camelCase } from 'lodash';
+import slugify from 'slugify';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-const specialCharacters = {
-  '+': 'Plus',
-  '@': 'At',
-  '-': 'Dash',
-  '/': 'Per',
-  '%': 'Percent',
-};
 
-const formatOptionForStringId = str =>
-  camelCase(
-    str.replace(
-      new RegExp(`[${Object.keys(specialCharacters).join('')}]`, 'g'),
-      match => `${specialCharacters[match]} `,
-    ),
-  );
-
-  
+/**
+ * Returns the stringId for a reference data option.
+* @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
+ */
 export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category)}.option.${formatOptionForStringId(option)}`;
+  return `${getReferenceDataStringId(value, category)}.option.${slugify(option)}`;
 };
 
+/**
+ * Returns the stringId for a reference data value.
+ * @example getReferenceDataStringId('O', 'bloodType') -> "refData.bloodType.o"
+ */
 export const getReferenceDataStringId = (value, category) => {
   return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
 };
