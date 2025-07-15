@@ -19,6 +19,7 @@ export async function up(query: QueryInterface): Promise<void> {
     WITH duplicate_groups AS (
       SELECT patient_id, program_registry_id
       FROM patient_program_registrations
+      WHERE is_most_recent = true
       GROUP BY patient_id, program_registry_id
       HAVING COUNT(*) > 1
     ),
