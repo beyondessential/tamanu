@@ -5,15 +5,9 @@ export const getReferenceDataStringId = (value, category) => {
 };
 
 function toCamelCaseWithSpecialCharacters(str) {
-  return str
-    .split(/([^a-zA-Z0-9]+)/)
-    .map((word, index) => {
-      if (index === 0 || /[^a-zA-Z0-9]/.test(word)) {
-        return word;
-      }
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join('');
+  return str.replace(/([^a-zA-Z0-9]+)([a-zA-Z0-9])/g, (match, separator, nextChar) => {
+    return separator + nextChar.toUpperCase();
+  });
 }
 
 export const getReferenceDataOptionStringId = (value, category, option) => {
