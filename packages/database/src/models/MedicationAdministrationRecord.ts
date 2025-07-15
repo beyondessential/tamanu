@@ -11,7 +11,10 @@ import {
   startOfDay,
 } from 'date-fns';
 import config from 'config';
-import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
+import {
+  getFirstAdministrationDate,
+  areDatesInSameTimeSlot,
+} from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
@@ -190,10 +193,13 @@ export class MedicationAdministrationRecord extends Model {
           minutes,
           0,
         );
-        // Skip if the next due date is before the start date, after the end date, or after the prescription was discontinued
+
+        const prescriptionStartDate = new Date(prescription.startDate);
+        // Skip if the next due date is after the end date, or after the prescription was discontinued
         // For cron job, skip if the next due date is before the last due date (to avoid creating duplicate records)
         if (
-          nextDueDate < new Date(prescription.startDate) ||
+          (nextDueDate < prescriptionStartDate &&
+            !areDatesInSameTimeSlot(prescriptionStartDate, nextDueDate)) ||
           nextDueDate > endDate ||
           (lastMedicationAdministrationRecord &&
             nextDueDate <= new Date(lastMedicationAdministrationRecord.dueAt)) ||
