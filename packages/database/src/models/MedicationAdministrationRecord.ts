@@ -220,8 +220,8 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          // If the due date of the first administration is the 29th or 30th, then set the next due date to the 1st of the next month
           const lastDueDay = getDate(lastDueDate);
+          // If the due date of the first administration is the 29th or 30th or 31st, then set the next due date to the 1st of the second next month
           if (lastDueDay >= 29) {
             lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));
           } else {
