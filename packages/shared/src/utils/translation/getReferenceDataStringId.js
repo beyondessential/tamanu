@@ -1,4 +1,5 @@
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import { camelCase } from 'lodash';
 
 const specialCharacters = {
   '+': 'Plus',
@@ -20,18 +21,15 @@ const specialCharacters = {
  * @example "1.1" -> "1Dot1"
  */
 const formatOptionForStringId = str =>
+  camelCase(
     str.replace(
       new RegExp(`[${Object.keys(specialCharacters).join('')}]`, 'g'),
       match => `${specialCharacters[match]} `,
-    ).replace(/([^a-zA-Z0-9]+)([a-zA-Z0-9])/g, (_, separator, nextChar) => {
-      return separator + nextChar.toUpperCase();
-    });
-
-  
+    ),
+  );
 /**
-
  * Returns the stringId for a reference data option.
-* @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
+ * @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
  */
 export const getReferenceDataOptionStringId = (value, category, option) => {
   return `${getReferenceDataStringId(value, category)}.option.${formatOptionForStringId(option)}`;
