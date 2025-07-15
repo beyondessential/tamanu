@@ -16,7 +16,6 @@ import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
-import { PatientOngoingPrescription } from './PatientOngoingPrescription';
 
 const TIME_OFFSET = 3;
 
@@ -71,12 +70,6 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => PatientContact, (contact) => contact.patient)
   contacts: PatientContact[];
-
-  @OneToMany(
-    () => PatientOngoingPrescription,
-    patientOngoingPrescription => patientOngoingPrescription.patient,
-  )
-  patientOngoingPrescriptions: PatientOngoingPrescription[];
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');

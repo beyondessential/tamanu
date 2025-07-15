@@ -8,10 +8,9 @@ import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './Program
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedReferenceData } from '../../components';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
-  background: ${props => props.theme.palette.primary.main};
+  background: ${(props) => props.theme.palette.primary.main};
   text-align: center;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
@@ -33,7 +32,7 @@ export const SurveyView = ({
   const { getTranslation } = useTranslation();
   const { components } = survey;
   const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const initialValues = getFormInitialValues(
     currentComponents,
@@ -42,12 +41,12 @@ export const SurveyView = ({
     currentUser,
     patientProgramRegistration,
   );
-  const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
-    survey,
-    getTranslation,
-  ]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(survey, getTranslation),
+    [survey, getTranslation],
+  );
 
-  const renderSurvey = props => {
+  const renderSurvey = (props) => {
     const {
       submitForm,
       values,
@@ -61,11 +60,11 @@ export const SurveyView = ({
     } = props;
 
     // 1. get a list of visible fields
-    const submitVisibleValues = event => {
+    const submitVisibleValues = (event) => {
       const visibleFields = new Set(
         currentComponents
-          .filter(c => checkVisibility(c, values, currentComponents))
-          .map(x => x.dataElementId),
+          .filter((c) => checkVisibility(c, values, currentComponents))
+          .map((x) => x.dataElementId),
       );
 
       // 2. Filter the form values to only include visible fields
@@ -101,7 +100,7 @@ export const SurveyView = ({
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
         <SurveyPaneHeading variant="h6" data-testid="surveypaneheading-b5sc">
-          <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
+          {survey.name}
         </SurveyPaneHeading>
       </SurveyPaneHeader>
       <Form

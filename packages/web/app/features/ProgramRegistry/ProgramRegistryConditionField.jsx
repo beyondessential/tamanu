@@ -2,9 +2,10 @@ import React from 'react';
 import { useTranslation } from '../../contexts/Translation';
 import { useProgramRegistryConditionsQuery } from '../../api/queries';
 import {
-  AutocompleteField,
+  BaseSelectField,
   FieldWithTooltip,
   getReferenceDataStringId,
+  TranslatedReferenceData,
 } from '../../components';
 
 export const ProgramRegistryConditionField = ({
@@ -19,12 +20,17 @@ export const ProgramRegistryConditionField = ({
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
   const options = conditions?.filter(optionsFilter).map?.(condition => ({
     label: (
-      getTranslation(
-        getReferenceDataStringId(condition.id, 'programRegistryCondition'),
-        condition.name,
-      )
+      <TranslatedReferenceData
+        fallback={condition.name}
+        value={condition.id}
+        category="programRegistryCondition"
+      />
     ),
     value: condition.id,
+    searchString: getTranslation(
+      getReferenceDataStringId(condition.id, 'programRegistryCondition'),
+      condition.name,
+    ),
   }));
 
   const onChange = event => {
@@ -51,7 +57,7 @@ export const ProgramRegistryConditionField = ({
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={AutocompleteField}
+      component={BaseSelectField}
       options={options}
       disabled={!conditions || conditions.length === 0}
       aria-labelledby={ariaLabelledby}

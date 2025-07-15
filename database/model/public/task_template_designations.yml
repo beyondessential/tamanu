@@ -6,7 +6,9 @@ sources:
     tables:
       - name: task_template_designations
         description: '{{ doc("table__task_template_designations") }}'
-        tags: []
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: uuid

@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.37.0",
+  "version": "2.35.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -47,28 +47,27 @@
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "^20.9.0"
   },
   "packageManager": "npm@10.8.0",
   "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/api-client",
       "packages/build-tooling",
-      "packages/central-server",
-      "packages/constants",
-      "packages/database",
-      "packages/e2e-tests",
-      "packages/facility-server",
-      "packages/fake-data",
-      "packages/mobile",
       "packages/scripts",
-      "packages/settings",
+      "packages/web",
+      "packages/facility-server",
+      "packages/central-server",
       "packages/shared",
-      "packages/upgrade",
+      "packages/constants",
+      "packages/settings",
+      "packages/api-client",
+      "packages/mobile",
+      "packages/database",
       "packages/utils",
-      "packages/web"
+      "packages/fake-data",
+      "packages/e2e-tests"
     ]
   },
   "devDependencies": {

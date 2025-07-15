@@ -57,28 +57,24 @@ export function createMigrationInterface(log, sequelize) {
   return umzug;
 }
 
-export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts }) {
-  log.info('Running pre-migration steps...');
-  await runPreMigration(log, sequelize);
-  log.info(`Applied pre-migration steps successfully.`);
-
-  log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
-  const applied = await migrations.up(upOpts);
-  await createMigrationAuditLog(sequelize, applied, 'up');
-
-  log.info('Applied migrations successfully');
-
-  log.info('Running post-migration steps...');
-  await runPostMigration(log, sequelize);
-  log.info(`Applied post-migration steps successfully.`);
-}
-
-async function migrateUp(log, sequelize, upOpts = undefined) {
+async function migrateUp(log, sequelize) {
   const migrations = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
-    await migrateUpTo({ log, sequelize, migrations, pending, upOpts });
+    log.info('Running pre-migration steps...');
+    await runPreMigration(log, sequelize);
+    log.info(`Applied pre-migration steps successfully.`);
+
+    log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
+    const applied = await migrations.up();
+    await createMigrationAuditLog(sequelize, applied, 'up');
+
+    log.info('Applied migrations successfully');
+
+    log.info('Running post-migration steps...');
+    await runPostMigration(log, sequelize);
+    log.info(`Applied post-migration steps successfully.`);
   } else {
     log.info('Migrations already up-to-date.');
   }
@@ -139,8 +135,10 @@ export async function migrate(log, sequelize, direction) {
   throw new Error(`Unrecognised migrate direction: ${direction}`);
 }
 
-export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
-  const migrateCommand = new Command(name).description('Apply or roll back database migrations');
+export function createMigrateCommand(Command, migrateCallback) {
+  const migrateCommand = new Command('migrate').description(
+    'Apply or roll back database migrations',
+  );
 
   migrateCommand
     .command('up', { isDefault: true })

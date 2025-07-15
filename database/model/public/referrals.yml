@@ -6,8 +6,9 @@ sources:
     tables:
       - name: referrals
         description: '{{ doc("table__referrals") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

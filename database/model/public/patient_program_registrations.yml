@@ -6,11 +6,12 @@ sources:
     tables:
       - name: patient_program_registrations
         description: '{{ doc("table__patient_program_registrations") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
-            data_type: text
+            data_type: uuid
             description: "{{ doc('generic__id') }} in patient_program_registrations."
             data_tests:
               - unique

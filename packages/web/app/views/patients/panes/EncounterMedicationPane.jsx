@@ -25,7 +25,6 @@ import { MedicationImportModal } from '../../../components/Medication/Medication
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 import { useAuth } from '../../../contexts/Auth';
-import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -71,7 +70,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
   const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
-  const { navigateToMar, navigateToEncounter } = usePatientNavigation();
+  const { navigateToMar } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
 
@@ -106,12 +105,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const canImportOngoingPrescriptions =
     !!importableOngoingPrescriptions?.length && !encounter.endDate;
   const canAccessMar = ability.can('read', 'MedicationAdministration');
-
-  const handleNavigateToMar = () => {
-    // Navigate to the medication tab first to ensure it will be back to the same tab after navigating to the MAR
-    navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.MEDICATION }, true);
-    navigateToMar();
-  };
 
   return (
     <TabPane data-testid="tabpane-u787">
@@ -184,29 +177,27 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   </StyledTextButton>
                 )}
                 {canPrintPrescription && (
-                  <NoteModalActionBlocker>
-                    <StyledTextButton
-                      onClick={() => setPrintMedicationModalOpen(true)}
-                      disabled={readonly}
-                      color="primary"
-                      data-testid="styledtextbutton-hbja"
-                    >
-                      <ThemedTooltip
-                        title={
-                          <Box width="60px" fontWeight={400}>
-                            <TranslatedText
-                              stringId="medication.action.printPrescription"
-                              fallback="Print prescription"
-                            />
-                          </Box>
-                        }
-                      >
-                        <Box display={'flex'}>
-                          <PrintIcon />
+                  <StyledTextButton
+                    onClick={() => setPrintMedicationModalOpen(true)}
+                    disabled={readonly}
+                    color="primary"
+                    data-testid="styledtextbutton-hbja"
+                  >
+                    <ThemedTooltip
+                      title={
+                        <Box width="60px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="medication.action.printPrescription"
+                            fallback="Print prescription"
+                          />
                         </Box>
-                      </ThemedTooltip>
-                    </StyledTextButton>
-                  </NoteModalActionBlocker>
+                      }
+                    >
+                      <Box display={'flex'}>
+                        <PrintIcon />
+                      </Box>
+                    </ThemedTooltip>
+                  </StyledTextButton>
                 )}
               </>
             )}
@@ -217,7 +208,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                 disabled={readonly}
                 variant="outlined"
                 color="primary"
-                onClick={handleNavigateToMar}
+                onClick={navigateToMar}
               >
                 <TranslatedText
                   stringId="medication.action.medicationAdminRecord"

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: settings
         description: '{{ doc("table__settings") }}'
-        tags:
-          - system
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid

@@ -6,8 +6,9 @@ sources:
     tables:
       - name: discharges
         description: '{{ doc("table__discharges") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

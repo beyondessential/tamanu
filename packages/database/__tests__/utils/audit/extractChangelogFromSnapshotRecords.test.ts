@@ -5,7 +5,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { extractChangelogFromSnapshotRecords } from '../../../src/utils/audit/extractChangelogFromSnapshotRecords';
 import type { SyncSnapshotAttributesWithChangelog } from '../../../src/types/sync';
 import { Attributes } from 'sequelize';
-import { createTestDatabase } from '../../utilities';
+import { createTestDatabase } from '../../sync/utilities';
 
 describe('extractChangelogFromSnapshotRecords', () => {
   let models;

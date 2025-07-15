@@ -1,8 +1,3 @@
-export const GLOBAL_EXCLUDE_TABLES = [
-  // internal migration tables
-  'public.SequelizeMeta',
-];
-
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
   'logs.fhir_writes',
@@ -11,6 +6,7 @@ export const NON_SYNCING_TABLES = [
   'public.one_time_logins',
   'public.patient_vrs_data',
   'public.refresh_tokens',
+  'public.SequelizeMeta',
   'public.signers',
   'public.sync_device_ticks',
   'public.sync_lookup_ticks',
@@ -22,11 +18,8 @@ export const NON_SYNCING_TABLES = [
 ];
 
 export const NON_LOGGED_TABLES = [
-  // logs
   'logs.changes',
-  'logs.accesses',
   'logs.debug_logs',
-
   // internal authentication tables
   'public.one_time_logins',
   'public.refresh_tokens',
@@ -37,6 +30,9 @@ export const NON_LOGGED_TABLES = [
   'public.sync_lookup',
   'public.sync_device_ticks',
   'public.sync_lookup_ticks',
+
+  // internal migration tables
+  'public.SequelizeMeta',
 
   // caches
   'public.user_localisation_caches',

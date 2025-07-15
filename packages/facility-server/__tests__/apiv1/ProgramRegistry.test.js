@@ -1,8 +1,4 @@
-import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  REGISTRATION_STATUSES,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { REGISTRATION_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 
@@ -19,6 +15,12 @@ describe('ProgramRegistry', () => {
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
+  afterEach(async () => {
+    await models.PatientProgramRegistration.truncate();
+    await models.ProgramRegistry.truncate();
+    await models.Program.truncate();
+    await models.Patient.truncate({ cascade: true });
+  });
 
   const createProgramRegistry = async ({ ...params } = {}) => {
     const program = await models.Program.create(fake(models.Program));
@@ -28,13 +30,6 @@ describe('ProgramRegistry', () => {
   };
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
-    afterEach(async () => {
-      await models.PatientProgramRegistration.truncate();
-      await models.ProgramRegistry.truncate();
-      await models.Program.truncate();
-      await models.Patient.truncate({ cascade: true });
-    });
-
     it('should fetch a program registry', async () => {
       const { id } = await createProgramRegistry({
         name: 'Hepatitis Registry',
@@ -71,12 +66,6 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
-    afterEach(async () => {
-      await models.PatientProgramRegistration.truncate();
-      await models.ProgramRegistry.truncate();
-      await models.Program.truncate();
-      await models.Patient.truncate({ cascade: true });
-    });
     it('should list available program registries', async () => {
       await createProgramRegistry();
       await createProgramRegistry({
@@ -116,7 +105,7 @@ describe('ProgramRegistry', () => {
 
       // Should show (patient already has registration but it's deleted):
       const { id: registryId2 } = await createProgramRegistry();
-      const registrationOne = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -125,13 +114,19 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await registrationOne.update({
-        registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-      })
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 09:00:00',
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+          programRegistryId: registryId2,
+          clinicianId: app.user.id,
+        }),
+      );
 
       // Shouldn't show (patient has a registration but it's been deleted before):
       const { id: registryId3 } = await createProgramRegistry();
-      const registrationTwo = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -140,9 +135,15 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await registrationTwo.update({
-        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-      });
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          date: '2023-09-04 09:00:00',
+          patientId: testPatient.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          programRegistryId: registryId3,
+          clinicianId: app.user.id,
+        }),
+      );
 
       const result = await app
         .get('/api/programRegistry')
@@ -201,12 +202,6 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
-    afterEach(async () => {
-      await models.PatientProgramRegistration.truncate();
-      await models.ProgramRegistry.truncate();
-      await models.Program.truncate();
-      await models.Patient.truncate({ cascade: true });
-    });
     it('should list available conditions', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
       await models.ProgramRegistryCondition.create(
@@ -260,16 +255,20 @@ describe('ProgramRegistry', () => {
 
       // Patient 2: Should show most recent registration only
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2' }));
-      const registration = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
           date: '2023-09-04 08:00:00',
         }),
       );
-      await registration.update({
-        date: '2023-09-05 08:00:00',
-      });
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2023-09-05 08:00:00',
+        }),
+      );
 
       const result = await app
         .get(`/api/programRegistry/${programRegistryId}/registrations`)
@@ -306,7 +305,6 @@ describe('ProgramRegistry', () => {
           patient: {
             displayId: '2',
           },
-          date: '2023-09-05 08:00:00',
         },
       ]);
     });
@@ -319,18 +317,6 @@ describe('ProgramRegistry', () => {
       );
       const decoyCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, {
-          programRegistryId,
-        }),
-      );
-      const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-        }),
-      );
-      const errorConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
           programRegistryId,
         }),
       );
@@ -355,14 +341,13 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
 
@@ -379,7 +364,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
 
@@ -411,18 +396,6 @@ describe('ProgramRegistry', () => {
       const decoyCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
-      const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-        }),
-      );
-      const errorConditionCategory = await models.ProgramRegistryConditionCategory.create(
-        fake(models.ProgramRegistryConditionCategory, {
-          programRegistryId,
-          code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-        }),
-      );
 
       const clinician = await models.User.create(fake(models.User, { displayName: 'Lucy' }));
 
@@ -434,7 +407,7 @@ describe('ProgramRegistry', () => {
       };
 
       // Patient 1: Should show
-      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '1-1' }));
+      const patient1 = await models.Patient.create(fake(models.Patient, { displayId: '2-1' }));
       const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
@@ -448,14 +421,12 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: unknownConditionCategory.id,
         }),
       );
 
@@ -472,7 +443,6 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration2.id,
           programRegistryConditionId: decoyCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
         }),
       );
 
@@ -489,7 +459,7 @@ describe('ProgramRegistry', () => {
         fake(models.PatientProgramRegistrationCondition, {
           patientProgramRegistrationId: registration3.id,
           programRegistryConditionId: relevantCondition.id,
-          programRegistryConditionCategoryId: errorConditionCategory.id,
+          conditionCategory: 'recordedInError',
         }),
       );
 
@@ -505,9 +475,6 @@ describe('ProgramRegistry', () => {
       expect(body.data.length).toEqual(1);
       expect(body.data).toMatchObject([
         {
-          patient: {
-            displayId: '1-1',
-          },
           conditions: expect.arrayContaining([
             { name: decoyCondition.name, id: decoyCondition.id },
             { name: relevantCondition.name, id: relevantCondition.id },

@@ -2,24 +2,12 @@ import React, { useCallback } from 'react';
 import { FormModal } from './FormModal';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
-import { TranslatedReferenceData } from './Translation';
 
 export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
-  const vitalLabel = (
-    <TranslatedReferenceData
-      category="programDataElement"
-      value={dataPoint?.component.dataElement.id}
-      fallback={dataPoint?.component.dataElement.name}
-    />
-  );
+  const vitalLabel = dataPoint?.component.dataElement.name;
   const date = formatShortest(dataPoint?.recordedDate);
   const time = formatTime(dataPoint?.recordedDate);
-  const title = (
-    <span>
-      {vitalLabel} | {date} | {time}
-    </span>
-  );
-
+  const title = `${vitalLabel} | ${date} | ${time}`;
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);

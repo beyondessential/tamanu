@@ -1,9 +1,7 @@
+import { keyBy } from 'lodash';
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
-
-import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-
 import { BaseModel } from '~/models/BaseModel';
-import { VisibilityStatus } from '~/visibilityStatuses';
+import { TranslatedString } from '~/models/TranslatedString';
 
 export interface OptionType {
   label: string;
@@ -36,21 +34,17 @@ export const getReferenceDataTypeFromSuggester = (suggester: Suggester<any>): st
   return MODEL_TO_REFERENCE_DATA_TYPE[suggester.model.name] || suggester.options?.where?.type;
 };
 
-const defaultFormatter = (record): OptionType => ({
-  label: record.entity_display_label,
-  value: record.entity_id,
-});
+const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
 
-const getTranslationJoinParams = (dataType: string, language: string) => [
-  'translated_strings',
-  'translation',
-  'translation.stringId = :prefix || entity.id AND translation.language = :language',
-  {
-    prefix: `refData.${dataType}.`,
-    language,
-  },
-];
+const extractDataId = ({ stringId }) => stringId.split('.').pop();
 
+const replaceDataLabelsWithTranslations = ({ data, translations }) => {
+  const translationsByDataId = keyBy(translations, extractDataId);
+  return data.map((item) => ({
+    ...item,
+    name: translationsByDataId[item.id]?.text ?? item.name,
+  }));
+};
 export interface SuggesterConfig<ModelType> {
   model: ModelType;
   options: SuggesterOptions<ModelType>;
@@ -87,40 +81,52 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     return this.model.findVisible(options);
   }
 
-  fetchCurrentOption = async (
-    value: string | null,
-    language: string = ENGLISH_LANGUAGE_CODE,
-  ): Promise<OptionType> => {
-    const { column = 'name' } = this.options;
+  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
     if (!value) return undefined;
     try {
-      const dataType = getReferenceDataTypeFromSuggester(this);
-      const query = this.model
-        .getRepository()
-        .createQueryBuilder('entity')
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
-        .where('entity.id = :id', { id: value });
+      const data = await this.model.getRepository().findOne({ where: { id: value } });
 
-      const result = await query.getRawOne();
-      if (!result) return undefined;
-
-      return this.formatter(result);
+      return this.formatter(data);
     } catch (e) {
       return undefined;
     }
   };
 
-  fetchSuggestions = async (
-    search: string,
-    language: string = ENGLISH_LANGUAGE_CODE,
-  ): Promise<OptionType[]> => {
+  fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
-      let query = this.model.getRepository().createQueryBuilder('entity');
+      const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
+        language,
+        dataType,
+        search,
+      );
+
+      const suggestedIds = translations.map(extractDataId);
+
+      let query = this.model
+        .getRepository()
+        .createQueryBuilder('entity')
+        .where(
+          new Brackets((qb) => {
+            if (search) {
+              qb.where(`${column} LIKE :search`, {
+                search: `%${search}%`,
+              }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
+            }
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            Object.entries(where).forEach(([key, value]) => {
+              qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
+            });
+          }),
+        )
+        .orderBy(`entity.${column}`, 'ASC')
+        .limit(25);
 
       if (relations) {
         relations.forEach((relation) => {
@@ -128,39 +134,13 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         });
       }
 
-      // Assign a label property using the translation if it exists otherwise use the original entity name
-      query = query
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
+      let data = await query.getMany();
 
-      query = query.where(
-        new Brackets((qb) => {
-          if (search) {
-            qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
-          }
-        }),
-      );
+      data = replaceDataLabelsWithTranslations({ data, translations });
 
-      Object.entries(where).forEach(([key, value]) => {
-        query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
-      });
-
-      // Add visibility status filtering if the model has a visibilityStatus column
-      const hasVisibilityStatus = this.model
-        .getRepository()
-        .metadata.columns.find((col) => col.propertyName === 'visibilityStatus');
-      if (hasVisibilityStatus) {
-        query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
-          visibilityStatus: VisibilityStatus.Current,
-        });
-      }
-
-      query = query.orderBy('entity_display_label', 'ASC').limit(25);
-
-      const data = await query.getRawMany();
-
-      const filteredData = this.filter ? data.filter(this.filter) : data;
-      const formattedData = filteredData.map(this.formatter);
+      const formattedData = this.filter
+        ? data.filter(this.filter).map(this.formatter)
+        : data.map(this.formatter);
 
       if (this.lastUpdatedAt < requestedAt) {
         this.cachedData = formattedData;

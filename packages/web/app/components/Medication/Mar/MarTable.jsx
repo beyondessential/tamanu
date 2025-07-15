@@ -186,7 +186,7 @@ export const MarTable = ({ selectedDate }) => {
     {
       marDate: toDateString(selectedDate),
       orderBy: 'date',
-      order: 'asc',
+      order: 'desc',
     },
   );
   const medications = (medicationsData?.data || []).sort((a, b) => {

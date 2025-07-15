@@ -11,9 +11,9 @@ export class PatientProgramRegistrationCondition extends Model {
   declare deletionDate?: string;
   declare patientProgramRegistrationId: string;
   declare programRegistryConditionId?: string;
-  declare programRegistryConditionCategoryId: string;
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
+  declare conditionCategory?: string;
   declare reasonForChange?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -27,8 +27,9 @@ export class PatientProgramRegistrationCondition extends Model {
         deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),
-        programRegistryConditionCategoryId: {
+        conditionCategory: {
           type: DataTypes.STRING,
+          defaultValue: 'unknown',
           allowNull: false,
         },
         reasonForChange: {
@@ -54,11 +55,6 @@ export class PatientProgramRegistrationCondition extends Model {
       as: 'programRegistryCondition',
     });
 
-    this.belongsTo(models.ProgramRegistryConditionCategory, {
-      foreignKey: { name: 'programRegistryConditionCategoryId', allowNull: false },
-      as: 'programRegistryConditionCategory',
-    });
-
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
       as: 'clinician',
@@ -71,7 +67,7 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['programRegistryCondition', 'programRegistryConditionCategory'];
+    return ['programRegistryCondition'];
   }
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {

@@ -9,7 +9,6 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';
 import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const Wrapper = styled.div`
   display: flex;
@@ -108,18 +107,16 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
       </DateSelectWrapper>
       <ButtonWrapper>
         {canCreatePrescription && (
-          <NoteModalActionBlocker>
-            <ButtonWithPermissionCheck
-              onClick={() => setCreateMedicationModalOpen(true)}
-              verb="create"
-              noun="Medication"
-            >
-              <TranslatedText
-                stringId="medication.action.newPrescription"
-                fallback="New prescription"
-              />
-            </ButtonWithPermissionCheck>
-          </NoteModalActionBlocker>
+          <ButtonWithPermissionCheck
+            onClick={() => setCreateMedicationModalOpen(true)}
+            verb="create"
+            noun="Medication"
+          >
+            <TranslatedText
+              stringId="medication.action.newPrescription"
+              fallback="New prescription"
+            />
+          </ButtonWithPermissionCheck>
         )}
       </ButtonWrapper>
     </Wrapper>

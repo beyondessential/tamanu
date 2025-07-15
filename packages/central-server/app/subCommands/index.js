@@ -23,5 +23,4 @@ export * from './startAll';
 export * from './startApi';
 export * from './startFhirWorker';
 export * from './startTasks';
-export * from './upgrade';
 export * from './user';

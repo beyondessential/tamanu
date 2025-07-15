@@ -6,8 +6,9 @@ sources:
     tables:
       - name: encounters
         description: '{{ doc("table__encounters") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

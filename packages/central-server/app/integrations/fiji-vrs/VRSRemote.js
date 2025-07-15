@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 import { log } from '@tamanu/shared/services/logging';
 import { RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';

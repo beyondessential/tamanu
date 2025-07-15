@@ -48,7 +48,6 @@ lints.md
 .keys
 .tmp
 *.csca
-*.pem
 
 # Docker
 /dockercfg

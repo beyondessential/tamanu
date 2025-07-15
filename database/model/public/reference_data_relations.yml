@@ -6,8 +6,9 @@ sources:
     tables:
       - name: reference_data_relations
         description: '{{ doc("table__reference_data_relations") }}'
-        tags:
-          - reference
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: uuid

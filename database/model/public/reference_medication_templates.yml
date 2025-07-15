@@ -6,7 +6,9 @@ sources:
     tables:
       - name: reference_medication_templates
         description: '{{ doc("table__reference_medication_templates") }}'
-        tags: []
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: uuid

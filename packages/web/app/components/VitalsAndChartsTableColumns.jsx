@@ -22,24 +22,14 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
 
-const IconButton = styled(IconButtonComponent)`
-  padding: 9px 5px;
-`;
-
 const getExportOverrideTitle = (date) => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
 };
-
-const parseMultiselectValue = value => {
-  if (!value) return;
-  try {
-    return JSON.parse(value).join(', ');
-  } catch (e) {
-    return value;
-  }
-};
+const IconButton = styled(IconButtonComponent)`
+  padding: 9px 5px;
+`;
 
 const VitalsLimitedLinesCell = ({ value }) => (
   <LimitedLinesCell
@@ -138,19 +128,19 @@ const TitleCell = React.memo(({ value }) => {
     >
       {value}
       {isSuccess && allGraphedChartKeys.length > 1 && (
-        <IconButton
-          size="small"
-          onClick={() => {
-            setChartKeys(chartKeys);
-            setIsInMultiChartsView(true);
-            setModalTitle('Vitals');
-            setVitalChartModalOpen(true);
-          }}
-          data-testid="iconbutton-u6iz"
-        >
-          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
-        </IconButton>
-      )}
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys(chartKeys);
+              setIsInMultiChartsView(true);
+              setModalTitle('Vitals');
+              setVitalChartModalOpen(true);
+            }}
+            data-testid="iconbutton-u6iz"
+          >
+            <VitalVectorIcon data-testid="vitalvectoricon-qhwu"/>
+          </IconButton>
+        )}
       {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
     </Box>
   );
@@ -191,18 +181,15 @@ export const getChartsTableColumns = (
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-          const isMultiSelect =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
           const handleCellClick = () => {
             onCellClick(cells[date]);
           };
           const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
           const isValid = isCurrent ? true : Boolean(value);
           const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-
           return (
             <RangeValidatedCell
-              value={isMultiSelect ? parseMultiselectValue(value) : value}
+              value={value}
               config={config}
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}

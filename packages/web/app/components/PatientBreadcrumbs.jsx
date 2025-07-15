@@ -58,6 +58,7 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
   const params = useParams();
 
   const handleCategoryClick = () => navigateToCategory(params.category);
+
   // Navigates down the patientRoutes tree to get the active route hierarchy
   // and outputs a list of links and titles for these routes.
   const getPatientCrumbs = (routeList, crumbs = []) => {
@@ -68,13 +69,8 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
         path: routeConfig.path,
       });
       if (matched) {
-        let subCrumbs = [];
-        if (routeConfig?.subPaths?.length) {
-          subCrumbs = routeConfig.subPaths.map(subPath => getBreadcrumbFromRoute(subPath));
-        }
         return getPatientCrumbs(routeConfig.routes, [
           ...crumbs,
-          ...subCrumbs,
           getBreadcrumbFromRoute(routeConfig),
         ]);
       }

@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Chance = require('chance');
+const fetch = require('node-fetch');
 const morgan = require('morgan');
 
 // shared helper for logging

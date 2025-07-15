@@ -2,7 +2,11 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import {
+  BaseModelSubclass,
+  getReferenceDataTypeFromSuggester,
+  Suggester,
+} from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -11,7 +15,7 @@ import { RequiredIndicator } from '../RequiredIndicator';
 import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -46,7 +50,6 @@ export const AutocompleteModalField = ({
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
-  const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
@@ -62,14 +65,20 @@ export const AutocompleteModalField = ({
   useEffect(() => {
     if (!suggester) return;
     (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value, language);
+      const data = await suggester.fetchCurrentOption(value);
       if (data) {
-        setLabel(data.label);
+        const refDataType = getReferenceDataTypeFromSuggester(suggester);
+        setLabel(
+          <TranslatedText
+            stringId={getReferenceDataStringId(data.value, refDataType)}
+            fallback={data.label}
+          />,
+        );
       } else {
         setLabel(null);
       }
     })();
-  }, [value, suggester, language]);
+  }, [value, suggester]);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;

@@ -6,7 +6,9 @@ sources:
     tables:
       - name: appointment_schedules
         description: '{{ doc("table__appointment_schedules") }}'
-        tags: []
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

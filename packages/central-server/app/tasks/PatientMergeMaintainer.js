@@ -12,8 +12,8 @@ import {
   mergePatientBirthData,
   mergePatientDeathData,
   mergePatientFieldValues,
+  mergePatientProgramRegistrationConditions,
   mergePatientProgramRegistrations,
-  refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
@@ -33,7 +33,6 @@ export class PatientMergeMaintainer extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.models = context.store.models;
-    this.sequelize = context.store.sequelize;
   }
 
   checkModelsMissingSpecificUpdateCoverage() {
@@ -62,7 +61,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
         patients.id = ${tableName}.${patientFieldName} 
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING ${tableName}.id;
+      RETURNING patients.id, patients.merged_into_id;
     `);
     return result.rows;
   }
@@ -87,58 +86,33 @@ export class PatientMergeMaintainer extends ScheduledTask {
     );
   }
 
-  async updateDependentRecordsForResync(merges) {
-    const encounters = merges['Encounter'] || [];
-    await refreshMultiChildRecordsForSync(this.models.Encounter, encounters);
-
-    // Patient Care Plans
-    const patientCarePlans = merges['PatientCarePlan'] || [];
-    await refreshMultiChildRecordsForSync(this.models.PatientCarePlan, patientCarePlans);
-
-    // Patient Death Data
-    const patientDeathDataRecords = merges['PatientDeathData'] || [];
-    await refreshMultiChildRecordsForSync(this.models.PatientDeathData, patientDeathDataRecords);
-  }
-
   async remergePatientRecords() {
-    return this.sequelize.transaction(async () => {
-      // set up an object for counting affected records
-      const counts = {};
-      const merges = {};
-      const updateCounts = (name, records) => {
-        const len = records && records.length;
-        if (len) {
-          counts[name] = len;
-        }
-      };
-      const updateMerges = (name, records) => {
-        if (records?.length) {
-          merges[name] = records;
-        }
-      };
+    // set up an object for counting affected records
+    const counts = {};
+    const updateCounts = (name, records) => {
+      const len = records && records.length;
+      if (len) {
+        counts[name] = len;
+      }
+    };
 
-      // do all the simple model updates
-      for (const modelName of simpleUpdateModels) {
-        const model = this.models[modelName];
-        const records = await this.mergeAllRecordsForModel(model);
+    // do all the simple model updates
+    for (const modelName of simpleUpdateModels) {
+      const model = this.models[modelName];
+      const records = await this.mergeAllRecordsForModel(model);
+      updateCounts(modelName, records);
+    }
+
+    // then the model updates that need specific updates:
+    for (const modelName of specificUpdateModels) {
+      const method = this[`specificUpdate_${modelName}`];
+      if (method) {
+        const records = await method.call(this);
         updateCounts(modelName, records);
-        updateMerges(modelName, records);
       }
+    }
 
-      // then the model updates that need specific updates:
-      for (const modelName of specificUpdateModels) {
-        const method = this[`specificUpdate_${modelName}`];
-        if (method) {
-          const records = await method.call(this);
-          updateCounts(modelName, records);
-          updateMerges(modelName, records);
-        }
-      }
-
-      await this.updateDependentRecordsForResync(merges);
-
-      return counts;
-    });
+    return counts;
   }
 
   async specificUpdate_Patient() {
@@ -194,8 +168,8 @@ export class PatientMergeMaintainer extends ScheduledTask {
         keepPatientId,
         mergedPatientId,
       );
-      if (mergedPatientDeathData?.length) {
-        records.push(...mergedPatientDeathData);
+      if (mergedPatientDeathData) {
+        records.push(mergedPatientDeathData);
       }
     }
     return records;
@@ -249,6 +223,27 @@ export class PatientMergeMaintainer extends ScheduledTask {
       );
       if (mergedPatientProgramRegistrationData) {
         records.push(mergedPatientProgramRegistrationData);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientProgramRegistrationCondition() {
+    const { PatientProgramRegistrationCondition } = this.models;
+    const patientProgramRegistrationConditionMerges = await this.findPendingMergePatients(
+      PatientProgramRegistrationCondition,
+    );
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientProgramRegistrationConditionMerges) {
+      const mergedPatientProgramRegistrationConditionData =
+        await mergePatientProgramRegistrationConditions(
+          this.models,
+          keepPatientId,
+          mergedPatientId,
+        );
+      if (mergedPatientProgramRegistrationConditionData) {
+        records.push(mergedPatientProgramRegistrationConditionData);
       }
     }
     return records;

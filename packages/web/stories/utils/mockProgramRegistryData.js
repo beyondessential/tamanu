@@ -798,11 +798,7 @@ export const dummyApi = {
             {
               id: 'condition-1',
               date: '2025-01-11 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-1',
-                code: 'confirmed',
-                name: 'Confirmed',
-              },
+              conditionCategory: 'confirmed',
               programRegistryCondition: {
                 id: 'prc-2',
                 name: 'Hypertension',
@@ -811,11 +807,7 @@ export const dummyApi = {
             {
               id: 'condition-2',
               date: '2025-02-13 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-1',
-                code: 'confirmed',
-                name: 'Confirmed',
-              },
+              conditionCategory: 'confirmed',
               programRegistryCondition: {
                 id: 'prc-1',
                 name: 'Diabetes',
@@ -824,11 +816,7 @@ export const dummyApi = {
             {
               id: 'condition-3',
               date: '2024-01-03 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-2',
-                code: 'underInvestigation',
-                name: 'Under investigation',
-              },
+              conditionCategory: 'underInvestigation',
               programRegistryCondition: {
                 id: 'prc-3',
                 name: 'Liver cancer',
@@ -837,11 +825,7 @@ export const dummyApi = {
             {
               id: 'condition-4',
               date: '2024-03-02 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-2',
-                code: 'underInvestigation',
-                name: 'Under investigation',
-              },
+              conditionCategory: 'underInvestigation',
               programRegistryCondition: {
                 id: 'prc-4',
                 name: 'Tuberculosis of lung',
@@ -850,11 +834,7 @@ export const dummyApi = {
             {
               id: 'condition-5',
               date: '2024-01-09 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-3',
-                code: 'disproven',
-                name: 'Disproven',
-              },
+              conditionCategory: 'disproven',
               programRegistryCondition: {
                 id: 'prc-5',
                 name: 'Tuberculosis of heart',
@@ -863,11 +843,7 @@ export const dummyApi = {
             {
               id: 'condition-6',
               date: '2024-06-11 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-4',
-                code: 'resolved',
-                name: 'Resolved',
-              },
+              conditionCategory: 'resolved',
               programRegistryCondition: {
                 id: 'prc-6',
                 name: 'Malaria',
@@ -876,11 +852,7 @@ export const dummyApi = {
             {
               id: 'condition-7',
               date: '2024-07-11 14:23:39',
-              programRegistryConditionCategory: {
-                id: 'prcc-5',
-                code: 'recordedInError',
-                name: 'Recorded in error',
-              },
+              conditionCategory: 'recordedInError',
               programRegistryCondition: {
                 id: 'prc-7',
                 name: 'Hayfever',

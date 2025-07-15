@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -12,10 +12,12 @@ import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+} from '~/constants/programRegistries';
+import { TranslatedEnum, getEnumStringId } from '~/ui/components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
-import { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface FieldValue {
   label: string;
@@ -36,26 +38,18 @@ interface PatientProgramRegistrationConditionsFieldItemProps {
   error?: string;
   disabled?: boolean;
   isNewlyCreated?: boolean;
-  conditionCategoryOptions: FieldValue[];
 }
 
-const getConditionCategoryOptions = (
-  conditionCategories: IProgramRegistryConditionCategory[],
-  getTranslation: (stringId: string, fallback: string) => string,
-) => {
-  if (!conditionCategories) return [];
+const EXCLUDED_CONDITION_CATEGORIES = [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR];
 
-  return conditionCategories.filter((category: IProgramRegistryConditionCategory) =>
-    category.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
-  )
-  .map((category: IProgramRegistryConditionCategory) => ({
-    value: category.id,
-    label: getTranslation(
-      getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
-      category.name,
+const CONDITION_CATEGORY_OPTIONS = Object.values(PROGRAM_REGISTRY_CONDITION_CATEGORIES)
+  .filter((category) => !EXCLUDED_CONDITION_CATEGORIES.includes(category))
+  .map((category) => ({
+    value: category,
+    label: (
+      <TranslatedEnum value={category} enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS} />
     ),
   }));
-}
 
 const PatientProgramRegistrationConditionsFieldItem = ({
   value,
@@ -66,7 +60,6 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   error,
   disabled,
   isNewlyCreated,
-  conditionCategoryOptions,
 }: PatientProgramRegistrationConditionsFieldItemProps): ReactElement => {
   const navigation = useNavigation();
   const { getTranslation } = useTranslation();
@@ -79,10 +72,16 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   const buildLabel = useCallback(() => {
     if (!condition || !category) return '';
 
-    const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
+    const conditionStringId = getReferenceDataStringId('programRegistryCondition', condition.value);
     const conditionLabel = getTranslation(conditionStringId, condition.label);
-    const categoryStringId = getReferenceDataStringId(category.value, 'programRegistryConditionCategory');
-    const categoryLabel = getTranslation(categoryStringId, category.label);
+    const categoryStringId = getEnumStringId(
+      category.value,
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+    );
+    const categoryLabel = getTranslation(
+      categoryStringId,
+      PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[category.value],
+    );
 
     return `${conditionLabel} (${categoryLabel})`;
   }, [condition, category, getTranslation]);
@@ -135,18 +134,11 @@ const PatientProgramRegistrationConditionsFieldItem = ({
             },
           );
         },
-        options: conditionCategoryOptions,
+        options: CONDITION_CATEGORY_OPTIONS,
         modalTitle: getTranslation('programRegistry.category.addCategoryLabel', 'Add category'),
       });
     },
-    [setCategory,
-      onChange,
-      isNewlyCreated,
-      onDelete,
-      getTranslation,
-      navigation,
-      conditionCategoryOptions,
-    ],
+    [setCategory, onChange, isNewlyCreated, onDelete, getTranslation, navigation],
   );
 
   const openConditionScreen = useCallback(() => {
@@ -235,22 +227,6 @@ export const PatientProgramRegistrationConditionsField = ({
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
 
-  const [conditionCategories] = useBackendEffect(({ models }) => 
-    models.ProgramRegistryConditionCategory.find({
-      where: {
-        programRegistry: { id: programRegistryId },
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    }),
-    [programRegistryId],
-  );
-
-  // Filter out recorded in error category and map to options
-  const conditionCategoryOptions = getConditionCategoryOptions(
-    conditionCategories,
-    getTranslation,
-  );
-
   const conditionSuggester = new Suggester({
     model: models.ProgramRegistryCondition,
     options: {
@@ -258,10 +234,7 @@ export const PatientProgramRegistrationConditionsField = ({
         programRegistry: programRegistryId,
       },
     },
-    filter: ({ entity_id }) => {
-      // hide previously selected conditions
-      return !conditions.map((value) => value?.condition?.value).includes(entity_id);
-    },
+    filter: ({ id }) => !conditions.map((value) => value?.condition?.value).includes(id), // hide previously selected conditions
   });
 
   const addItem = (newValue: ConditionAndCategory) => {
@@ -296,7 +269,6 @@ export const PatientProgramRegistrationConditionsField = ({
         <PatientProgramRegistrationConditionsFieldItem
           conditionSuggester={conditionSuggester}
           onChange={addItem}
-          conditionCategoryOptions={conditionCategoryOptions}
         />
       ) : (
         conditions.map((value, index) => (
@@ -307,7 +279,6 @@ export const PatientProgramRegistrationConditionsField = ({
             onChange={editItem(index)}
             onDelete={deleteItem(index)}
             isNewlyCreated={value === undefined} // Newly created item
-            conditionCategoryOptions={conditionCategoryOptions}
           />
         ))
       )}

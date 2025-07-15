@@ -66,16 +66,6 @@ export class ProgramRegistry extends Model {
       foreignKey: 'programRegistryId',
       as: 'patientProgramRegistrations',
     });
-
-    this.hasMany(models.ProgramRegistryCondition, {
-      foreignKey: 'programRegistryId',
-      as: 'conditions',
-    });
-
-    this.hasMany(models.ProgramRegistryConditionCategory, {
-      foreignKey: 'programRegistryId',
-      as: 'conditionCategories',
-    });
   }
 
   static buildSyncFilter() {

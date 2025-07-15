@@ -32,13 +32,12 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   />
 );
 
-export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, currentInstanceId }) => {
+export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage }) => {
   const patient = useSelector((state) => state.patient);
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
     encounter.id,
     selectedSurveyId,
-    currentInstanceId,
   );
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);

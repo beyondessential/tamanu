@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 import { Provider } from './Provider';
 
 export class MerlinProvider extends Provider {

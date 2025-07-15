@@ -6,8 +6,9 @@ sources:
     tables:
       - name: lab_request_logs
         description: '{{ doc("table__lab_request_logs") }}'
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

@@ -6,7 +6,9 @@ sources:
     tables:
       - name: encounter_prescriptions
         description: '{{ doc("table__encounter_prescriptions") }}'
-        tags: []
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid
