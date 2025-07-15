@@ -46,37 +46,29 @@ async function ensureFacilityMatches(context) {
   const configuredFacilities = selectFacilityIds(config);
   const lastFacilities = await LocalSystemFact.get(FACT_FACILITY_IDS);
 
-  if (!lastFacilities) {
-    await performInitialIntegritySetup(context);
-    return;
-  }
-
-  // ensure both arrays contain the same set of facility ids
-  const match = JSON.parse(lastFacilities).every((facilityId) =>
-    configuredFacilities.includes(facilityId),
-  );
-  if (!match) {
-    // if the facility doesn't match, error
-    throw new Error(
-      `integrity check failed: serverFacilityId mismatch: read ${configuredFacilities} from config, but already registered as ${lastFacilities} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityIds" key from the "local_system_fact" table)`,
+  if (lastFacilities) {
+    // ensure both arrays contain the same set of facility ids
+    const match = JSON.parse(lastFacilities).every(facilityId =>
+      configuredFacilities.includes(facilityId),
     );
+    if (!match) {
+      // if the facility doesn't match, error
+      throw new Error(
+        `integrity check failed: serverFacilityId mismatch: read ${configuredFacilities} from config, but already registered as ${lastFacilities} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityIds" key from the "local_system_fact" table)`,
+      );
+    }
+  } else {
+    const centralServer = new CentralServerConnection(context);
+    log.info(`Verifying central server connection to ${centralServer.host}...`);
+    await centralServer.connect();
+    if (!centralServer.hasToken()) {
+      throw new Error('Could not obtain valid token from central server.');
+    }
+
+    log.info('Verified central server connection');
+
+    const facilityIdsString = JSON.stringify(configuredFacilities);
+    await LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
+    log.info('Recorded facility IDs to database');
   }
-}
-
-async function performInitialIntegritySetup(context) {
-  const centralServer = new CentralServerConnection(context);
-  log.info(`Verifying sync connection to ${centralServer.host}...`);
-
-  const { token, serverFacilityIds } = await centralServer.connect();
-
-  if (!token) {
-    throw new Error('Could not obtain valid token from central server.');
-  }
-
-  // We've ensured that our immutable config stuff is valid -- save it!
-  const { LocalSystemFact } = context.models;
-  const facilityIdsString = JSON.stringify(serverFacilityIds);
-  await LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
-
-  log.info(`Verified with central server as facilities ${facilityIdsString}`);
 }
