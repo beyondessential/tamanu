@@ -27,6 +27,7 @@ const formatOptionForStringId = str =>
       match => `${specialCharacters[match]} `,
     ),
   );
+  
 /**
  * Returns the stringId for a reference data option.
  * @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
