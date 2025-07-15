@@ -82,15 +82,13 @@ export function generateTranslationsForData(model, sheetName, values) {
 export async function bulkUpsertTranslationDefaults(models, translationData) {
   if (translationData.length === 0) return;
 
-  console.log(translationData)
   const duplicates = translationData.filter(
     (item, index, self) => self.findIndex(t => t[0] === item[0]) !== index,
   );
 
   if (duplicates.length > 0) {
-    throw new Error(
-      'Duplicates stringId found for stringIds: ' + duplicates.map(d => d[0]).join(', '),
-    );
+    const stringIds = duplicates.map(d => d[0]);
+    throw new Error(`Duplicates stringId found for stringIds: ${stringIds.join(', ')}`);
   }
 
   await models.TranslatedString.sequelize.query(
