@@ -102,5 +102,4 @@ export async function bulkUpsertTranslationDefaults(models, translationData) {
       type: models.TranslatedString.sequelize.QueryTypes.INSERT,
     },
   );
-  console.log('after translation upsert', translationData);
 }
