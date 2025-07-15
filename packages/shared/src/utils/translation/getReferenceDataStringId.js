@@ -1,24 +1,40 @@
-import slugify from 'slugify';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-slugify.extend({
-  '+': 'plus',
-  '-': 'minus',
-  '/': 'per',
-  '%': 'percent',
-  '.': 'dot',
-  ':': 'colon',
-  '=': 'equals',
-});
+const specialCharacters = {
+  '+': 'Plus',
+  '@': 'At',
+  '-': 'Dash',
+  '/': 'Per',
+  '%': 'Percent',
+  '.': 'Dot',
+  ':': 'Colon',
+  '=': 'Equals',
+};
 
 /**
+ * Tries to replace special characters with words and then camelCases the result.
+ * If no special character match, it just uses the original special character.
+ * This ensures no duplicates when importing options while cleaning up most to readable strings
+ * @example "A++" -> "APlusPlus"
+ * @example "100/ml " -> "100PerMl"
+ * @example "1.1" -> "1Dot1"
+ */
+const formatOptionForStringId = str =>
+    str.replace(
+      new RegExp(`[${Object.keys(specialCharacters).join('')}]`, 'g'),
+      match => `${specialCharacters[match]} `,
+    ).replace(/([^a-zA-Z0-9]+)([a-zA-Z0-9])/g, (_, separator, nextChar) => {
+      return separator + nextChar.toUpperCase();
+    });
+
+  
+/**
+
  * Returns the stringId for a reference data option.
- * Uses slugify to clean up the option strings special characters
- * @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
- * @example getReferenceDataOptionStringId('pde1', 'programDataElement', 'A++') -> "refData.programDataElement.pde1.option.aplusplus"
+* @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
  */
 export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category)}.option.${slugify(option, { lower: true, strict: true, })}`;
+  return `${getReferenceDataStringId(value, category)}.option.${formatOptionForStringId(option)}`;
 };
 
 /**
