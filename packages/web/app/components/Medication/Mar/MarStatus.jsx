@@ -180,7 +180,10 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMar
       }
     }
 
-    return pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
+    const hasOverlap = pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
+
+    // If there's overlap and the pause ended after the time slot
+    return hasOverlap && pauseEndDate >= endDateOfSlot;
   });
 };
 
