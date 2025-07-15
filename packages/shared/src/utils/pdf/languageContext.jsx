@@ -16,11 +16,16 @@ export const useLanguageContext = () => {
 
 export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
-  const { translations, getSetting, settings, ...other } = props;
+  const { translations, settings, ...other } = props;
 
-  const isGlobalFontEnabled = getSetting
-    ? getSetting('features.useGlobalPdfFont')
-    : settings?.features?.useGlobalPdfFont;
+  // If in the pdf.worker context we pass settings an an object not as a function
+  // and should build a getSetting function from it.
+  let { getSetting } = other;
+  if (!getSetting && settings) {
+    getSetting = key => settings[key];
+  }
+
+  const isGlobalFontEnabled = getSetting('features.useGlobalPdfFont');
   const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
   const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont-Bold' : 'Helvetica-Bold';
 
