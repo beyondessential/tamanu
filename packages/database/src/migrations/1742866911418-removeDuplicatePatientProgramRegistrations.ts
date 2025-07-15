@@ -2,14 +2,14 @@ import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // Ensure is_most_recent still exists
-  const [hasIsMostRecent]: any = await query.sequelize.query(`
+  const [isMostRecentResults]: any = await query.sequelize.query(`
     SELECT EXISTS (SELECT TRUE
     FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'patient_program_registrations' AND column_name = 'is_most_recent');
   `);
 
   // Skip migration
-  if (!hasIsMostRecent?.[0]?.exists) {
+  if (!isMostRecentResults?.[0]?.exists) {
     return;
   }
 
