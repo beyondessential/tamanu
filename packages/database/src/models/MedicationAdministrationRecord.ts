@@ -115,6 +115,8 @@ export class MedicationAdministrationRecord extends Model {
    * skips generation if the calculated due date falls outside the valid prescription period
    * or before the last generated MAR.
    *
+   * IMPORTANT: keep it in sync with the mobile app's MedicationAdministrationRecord model
+   *
    * @param prescription The prescription object for which to generate MARs.
    */
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
@@ -149,17 +151,10 @@ export class MedicationAdministrationRecord extends Model {
     // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
     if (prescription.idealTimes && prescription.idealTimes.length > 0) {
-      try {
-        firstAdministrationDate = getFirstAdministrationDate(
-          new Date(prescription.startDate),
-          prescription.idealTimes,
-        );
-      } catch (error) {
-        console.error(
-          `Error calculating first administration date for prescription ${prescription.id}:`,
-          error,
-        );
-      }
+      firstAdministrationDate = getFirstAdministrationDate(
+        new Date(prescription.startDate),
+        prescription.idealTimes,
+      );
     }
 
     // Get the upcoming records should be generated time frame
@@ -225,8 +220,8 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          // If the due date of the first administration is the 29th or 30th, then set the next due date to the 1st of the next month
           const lastDueDay = getDate(lastDueDate);
+          // If the due date of the first administration is the 29th or 30th or 31st, then set the next due date to the 1st of the second next month
           if (lastDueDay >= 29) {
             lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));
           } else {
@@ -299,7 +294,7 @@ export class MedicationAdministrationRecord extends Model {
     await this.destroy({
       where: {
         id: {
-          [Op.in]: marsToRemove.map((mar) => mar.id),
+          [Op.in]: marsToRemove.map(mar => mar.id),
         },
       },
       transaction,
