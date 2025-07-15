@@ -1,16 +1,6 @@
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { camelCase } from 'lodash';
-
-const specialCharacters = {
-  '+': 'Plus',
-  '@': 'At',
-  '-': 'Dash',
-  '/': 'Per',
-  '%': 'Percent',
-  '.': 'Dot',
-  ':': 'Colon',
-  '=': 'Equals',
-};
+import { specialCharacterMap } from './specialCharactersMap';
 
 /**
  * Tries to replace special characters with words and then camelCases the result.
@@ -23,8 +13,8 @@ const specialCharacters = {
 const formatOptionForStringId = str =>
   camelCase(
     str.replace(
-      new RegExp(`[${Object.keys(specialCharacters).join('\\')}]`, 'g'),
-      match => `${specialCharacters[match]}`,
+      new RegExp(`[${Object.keys(specialCharacterMap).join('\\')}]`, 'g'),
+      match => `${specialCharacterMap[match]}`,
     ),
   );
 
