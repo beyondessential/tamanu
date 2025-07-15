@@ -24,6 +24,5 @@ export const getOngoingConditions = asyncHandler(async (req, res) => {
 
   res.send({
     data: ongoingConditions.map(condition => OngoingConditionSchema.parse(condition.forResponse())),
-    count: ongoingConditions.length,
   });
 });
