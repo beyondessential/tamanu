@@ -180,10 +180,7 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMar
       }
     }
 
-    const hasOverlap = pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
-
-    // If there's overlap and the pause ended after the time slot
-    return hasOverlap && pauseEndDate >= endDateOfSlot;
+    return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
   });
 };
 
@@ -251,12 +248,11 @@ export const MarStatus = ({
   );
   const isPreviouslyPaused =
     previousTimeSlot &&
-    previousMarInfo &&
     getIsPaused({
       pauseRecords: pauseRecords?.data,
       timeSlot: previousTimeSlot,
       selectedDate,
-      recordedAt: previousMarInfo.recordedAt,
+      recordedAt: previousMarInfo?.recordedAt,
       nextMarInfo: marInfo,
     });
 
