@@ -23,11 +23,11 @@ const specialCharacters = {
 const formatOptionForStringId = str =>
   camelCase(
     str.replace(
-      new RegExp(`[${Object.keys(specialCharacters).join('')}]`, 'g'),
-      match => `${specialCharacters[match]} `,
+      new RegExp(`[${Object.keys(specialCharacters).join('\\')}]`, 'g'),
+      match => `${specialCharacters[match]}`,
     ),
   );
-  
+
 /**
  * Returns the stringId for a reference data option.
  * @example getReferenceDataOptionStringId('question1', 'surveyScreenComponent', 'undecided') -> "refData.surveyScreenComponent.detail.question1.option.undecided"
