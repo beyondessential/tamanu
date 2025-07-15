@@ -5,7 +5,6 @@ import { ReferenceData } from './ReferenceData';
 import { User } from './User';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
-import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 import {
   addDays,
   addHours,
@@ -17,6 +16,7 @@ import {
   startOfDay,
 } from 'date-fns';
 import { getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
+import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
 
 @Entity('medication_administration_records')
 export class MedicationAdministrationRecord extends BaseModel {

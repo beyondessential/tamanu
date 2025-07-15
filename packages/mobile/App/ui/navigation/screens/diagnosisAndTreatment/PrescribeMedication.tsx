@@ -33,7 +33,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   DRUG_UNIT_LABELS,
-} from '@tamanu/constants';
+} from '~/constants/medications';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { PatientAllergy } from '~/models/PatientAllergy';
 import { useTranslation } from '~/ui/contexts/TranslationContext';

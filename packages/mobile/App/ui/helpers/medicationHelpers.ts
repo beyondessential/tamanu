@@ -1,4 +1,4 @@
-import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '~/constants/medications';
 import { FrequencySuggestion } from './FrequencySuggester';
 import { camelCase } from 'lodash';
 import { addDays, format, set } from 'date-fns';
