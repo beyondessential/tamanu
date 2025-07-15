@@ -151,3 +151,18 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
     'BD - AM and lunch',
   ],
 };
+
+export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
+  { startTime: '00:00', endTime: '02:00' },
+  { startTime: '02:00', endTime: '04:00' },
+  { startTime: '04:00', endTime: '06:00' },
+  { startTime: '06:00', endTime: '08:00', periodLabel: 'breakfast' },
+  { startTime: '08:00', endTime: '10:00' },
+  { startTime: '10:00', endTime: '12:00' },
+  { startTime: '12:00', endTime: '14:00', periodLabel: 'lunch' },
+  { startTime: '14:00', endTime: '16:00' },
+  { startTime: '16:00', endTime: '18:00' },
+  { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
+  { startTime: '20:00', endTime: '22:00' },
+  { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
+];
