@@ -1,6 +1,16 @@
 import slugify from 'slugify';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
+slugify.extend({
+  '+': 'plus',
+  '-': 'minus',
+  '/': 'per',
+  '%': 'percent',
+  '.': 'dot',
+  ':': 'colon',
+  '=': 'equals',
+});
+
 /**
  * Returns the stringId for a reference data option.
  * Uses slugify to clean up the option strings special characters
@@ -8,7 +18,7 @@ import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
  * @example getReferenceDataOptionStringId('pde1', 'programDataElement', 'A++') -> "refData.programDataElement.pde1.option.aplusplus"
  */
 export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category)}.option.${slugify(option, { lower: true })}`;
+  return `${getReferenceDataStringId(value, category)}.option.${slugify(option, { lower: true, strict: true, })}`;
 };
 
 /**
