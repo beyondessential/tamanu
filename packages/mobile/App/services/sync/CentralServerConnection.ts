@@ -188,7 +188,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async endSyncSession(sessionId: string) {
-    return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
+    return this.delete(`sync/${sessionId}`);
   }
 
   async initiatePull(
