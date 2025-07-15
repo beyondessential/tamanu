@@ -1,7 +1,6 @@
 import slugify from 'slugify';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-
 /**
  * Returns the stringId for a reference data option.
  * Uses slugify to clean up the option strings special characters
