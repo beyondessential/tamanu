@@ -1,0 +1,325 @@
+import { test, expect } from '@fixtures/baseFixture';
+import { LabRequestModal } from '../../pages/patients/LabRequestPage/modals/LabRequestModal';
+import { LabRequestPane } from '@pages/patients/LabRequestPage/panes/LabRequestPane';
+import { selectFieldOption } from '@utils/fieldHelpers';
+
+test.describe('Lab Request Tests', () => {
+  let labRequestModal: LabRequestModal;
+  let labRequestPane: LabRequestPane;
+
+  test.beforeEach(async ({ page, newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToLabsTab(); 
+    // Initialize the lab request modal
+    labRequestModal = new LabRequestModal(page);
+    labRequestPane = new LabRequestPane(page);
+  });
+
+  test.describe('Panel Lab Request Tests', () => {
+    test('should create a panel lab request with basic details', async () => {
+      await labRequestPane.newLabRequestButton.click();
+      const panelsToSelect= ["Others", "Demo Test Panel"]
+      
+      await expect(labRequestModal.heading).toHaveText('Creating a new lab request');
+      await expect(labRequestModal.description).toHaveText('Please complete the details below and select the lab request type');
+      await labRequestModal.waitForModalToLoad();
+      await labRequestModal.validateDescription('Please complete the details below and select the lab request type');
+      const requestedDateTime = await labRequestModal.validateRequestedDateTimeIsToday();
+      await labRequestModal.validateDepartment();
+      const requestingClinician = await labRequestModal.validateRequestingClinician();
+      await labRequestModal.nextButton.click();
+      // Create panel lab request
+      const panelCategories = await labRequestModal.panelModal.selectPanelsByText(panelsToSelect);
+      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInTable(panelsToSelect, panelCategories);
+      await labRequestModal.nextButton.click();
+      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(panelsToSelect, panelCategories);
+      await labRequestModal.finaliseButton.click();
+      await expect(labRequestModal.panelModal.requestFinalisedHeading).toHaveText('Request finalised');
+      await labRequestModal.panelModal.closeButton.click();
+      await labRequestPane.validateLabRequestTableContent(
+        panelCategories,
+        requestedDateTime,
+        requestingClinician,
+        'Unknown',
+        'Sample not collected',
+      );
+    });
+    
+    test('should allow searching for panels', async () => {
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.waitForModalToLoad();
+      await labRequestModal.clickNext();
+      await labRequestModal.panelModal.searchPanelAndValidate('Demo Test Panel');
+    });
+    
+    test('Clear panel selection and validate', async () => {
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.waitForModalToLoad();
+      await labRequestModal.clickNext();
+      const panelsToSelect= ["Others", "Demo Test Panel"]
+      const panelCategories = await labRequestModal.panelModal.selectPanelsByText(panelsToSelect);
+      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInTable(panelsToSelect, panelCategories);
+      await labRequestModal.panelModal.clearAllButton.click();
+      const panelCount = await labRequestModal.panelModal.selectedPanelsList.locator('div').count();
+      await expect(panelCount).toBe(0);
+    });
+    
+    test('Create a lab request with all fields filled', async () => {
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.waitForModalToLoad();
+      await labRequestModal.prioritySelect.selectOption('High risk group');
+      await labRequestModal.clickNext();
+      const panelsToSelect= ["Demo Test Panel"]
+      const panelCategories = await labRequestModal.panelModal.selectPanelsByText(panelsToSelect);
+      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInTable(panelsToSelect, panelCategories);
+      await labRequestModal.panelModal.addNotes('This is a test note');
+      await labRequestModal.panelModal.setDateTimeCollected('2025-07-04T11:30');
+      await selectFieldOption(labRequestModal.page, labRequestModal.panelModal.collectedByInputs, {
+        selectFirst: true,
+      });
+      await selectFieldOption(labRequestModal.page, labRequestModal.panelModal.specimenTypeInputs, {
+        selectFirst: true,
+      });
+      await selectFieldOption(labRequestModal.page, labRequestModal.panelModal.siteInputs, {
+        selectFirst: true,
+      });
+      await labRequestModal.finaliseButton.click();
+    });
+  });
+
+  test.describe('Individual Lab Request Tests', () => {
+    test('should create an individual lab request with basic details', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Create individual lab request
+      await labRequestModal.createIndividualLabRequest({
+        requestingClinician: 'Dr. Davis',
+        requestDateTime: '2025-07-04T11:00',
+        department: 'Endocrinology',
+        priority: 'Medium',
+        individualTests: ['Glucose', 'Cholesterol'],
+        notes: 'Routine blood work for diabetes monitoring',
+        sampleDetails: [
+          {
+            dateTimeCollected: '2025-07-04T11:30',
+            collectedBy: 'Nurse Brown',
+            specimenType: 'Blood',
+            site: 'Right Arm'
+          }
+        ]
+      });
+
+      // Verify the request was created successfully
+      await expect(page.getByText('Lab request created successfully')).toBeVisible();
+    });
+
+    test('should validate individual test selection is required', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill basic details but don't select any tests
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Miller',
+        requestType: 'individual'
+      });
+
+      await labRequestModal.clickNext();
+
+      // Try to proceed without selecting tests
+      await labRequestModal.clickNext();
+
+      // Verify error message is shown
+      await expect(labRequestModal.individualModal.individualTestSelectionError).toBeVisible();
+    });
+
+    test('should allow selecting multiple individual tests', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill basic details
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Taylor',
+        requestType: 'individual'
+      });
+
+      await labRequestModal.clickNext();
+
+      // Select multiple tests
+      const individualModal = labRequestModal.individualModal;
+      await individualModal.selectIndividualTestByText('Glucose');
+      await individualModal.selectIndividualTestByText('Cholesterol');
+
+      // Verify tests are selected
+      await individualModal.validateIndividualTestIsSelected('Glucose');
+      await individualModal.validateIndividualTestIsSelected('Cholesterol');
+      await individualModal.validateSelectedIndividualTestsCount(2);
+    });
+
+    test('should allow searching for individual tests', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill basic details
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Anderson',
+        requestType: 'individual'
+      });
+
+      await labRequestModal.clickNext();
+
+      // Search for a specific test
+      const individualModal = labRequestModal.individualModal;
+      await individualModal.searchIndividualTests('Glucose');
+      await page.waitForTimeout(500);
+
+      // Verify search results
+      await expect(individualModal.individualTestCheckboxes.getByText('Glucose')).toBeVisible();
+    });
+  });
+
+  test.describe('Sample Details Tests', () => {
+    test('should fill sample details for panel request', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Navigate through to sample details page
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Garcia',
+        requestType: 'panel'
+      });
+
+      await labRequestModal.clickNext();
+
+      // Select a panel
+      await labRequestModal.panelModal.selectPanelByText('Bloods');
+
+      await labRequestModal.clickNext();
+
+      // Fill sample details
+      const panelModal = labRequestModal.panelModal;
+      await panelModal.fillSampleDetailsForPanel({
+        panelIndex: 0,
+        dateTimeCollected: '2025-07-04T12:00',
+        collectedBy: 'Nurse Wilson',
+        specimenType: 'Blood',
+        site: 'Left Arm'
+      });
+
+      // Verify sample details are filled
+      await expect(panelModal.dateTimeCollectedInputs.first()).toHaveValue('2025-07-04T12:00');
+    });
+
+    test('should validate all sample detail fields are empty by default', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Navigate through to sample details page
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Martinez',
+        requestType: 'panel'
+      });
+
+      await labRequestModal.clickNext();
+
+      // Select a panel
+      await labRequestModal.panelModal.selectPanelByText('Bloods');
+
+      await labRequestModal.clickNext();
+
+      // Verify all fields are empty
+      await labRequestModal.panelModal.validateAllFieldsAreEmpty();
+    });
+  });
+
+  test.describe('Navigation Tests', () => {
+    test('should allow navigation between modal pages', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill basic details
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Rodriguez',
+        requestType: 'panel'
+      });
+
+      // Navigate to panel selection
+      await labRequestModal.clickNext();
+
+      // Navigate back to basic details
+      await labRequestModal.clickBack();
+
+      // Verify we're back on the basic details page
+      await labRequestModal.validateHeading('Creating a new lab request');
+
+      // Navigate forward again
+      await labRequestModal.clickNext();
+
+      // Select a panel
+      await labRequestModal.panelModal.selectPanelByText('Bloods');
+
+      // Navigate to sample details
+      await labRequestModal.clickNext();
+
+      // Navigate back to panel selection
+      await labRequestModal.clickBack();
+
+      // Verify panel is still selected
+      await labRequestModal.panelModal.validatePanelIsSelected('Bloods');
+    });
+
+    test('should allow canceling the lab request process', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill some details
+      await labRequestModal.fillBasicLabRequest({
+        requestingClinician: 'Dr. Lopez',
+        requestType: 'panel'
+      });
+
+      // Cancel the request
+      await labRequestModal.clickCancel();
+
+      // Verify modal is closed
+      await expect(labRequestModal.form).not.toBeVisible();
+    });
+  });
+
+  test.describe('Form Validation Tests', () => {
+    test('should validate required fields in basic details', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Try to proceed without filling required fields
+      await labRequestModal.clickNext();
+
+      // Verify validation errors are shown
+      await expect(page.getByText('Requesting clinician is required')).toBeVisible();
+    });
+
+    test('should validate request type selection', async ({ page }) => {
+      await page.getByTestId('new-lab-request-button').click();
+      
+      await labRequestModal.waitForModalToLoad();
+
+      // Fill other fields but don't select request type
+      await labRequestModal.requestingClinicianInput.fill('Dr. Perez');
+
+      // Try to proceed
+      await labRequestModal.clickNext();
+
+      // Verify validation error is shown
+      await expect(page.getByText(/request type is required/i)).toBeVisible();
+    });
+  });
+});

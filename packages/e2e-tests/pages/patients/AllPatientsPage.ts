@@ -2,8 +2,8 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
-import { SelectingFromSearchBox, convertDateFormat } from '../../utils/testHelper';
-
+import { convertDateFormat } from '../../utils/testHelper';
+import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { PatientTable } from './PatientTable';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { Patient } from '../../types/Patient';
@@ -82,9 +82,9 @@ export class AllPatientsPage extends BasePage {
     this.lastNameTxt = page.getByTestId('localisedfield-ngsn-input');
     this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
     this.CulturalNameTxt = page.getByTestId('localisedfield-epbq-input');
-    this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
+    this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
-    this.includeDeceasedChk = page.getByTestId('checkinput-x2e3-controlcheck');
+    this.includeDeceasedChk = page.getByTestId('field-ngy7-controlcheck');
     this.advanceSearchIcon = page.getByTestId('iconbutton-zrkv');
     this.searchBtn = page.getByTestId('searchbutton-nt24');
     this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
@@ -114,15 +114,6 @@ export class AllPatientsPage extends BasePage {
   getPatientData() {
     if (!this._patientData) throw new Error('Patient data has not been set');
     return this._patientData;
-  }
-
-  async waitForTableToLoad() {
-    try {
-      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-      await this.allPatientsTableLoadingCell.waitFor({ state: 'hidden' });      
-    } catch (error) {
-      throw new Error(`Failed to wait for table to load: ${error.message}`);
-    }
   }
 
   /**
@@ -215,13 +206,13 @@ export class AllPatientsPage extends BasePage {
       await this.CulturalNameTxt.fill(searchCriteria.culturalName);
     }
     if (searchCriteria.village) {
-      await SelectingFromSearchBox(
+      await selectAutocompleteFieldOption(
+        this.page,
         this.villageSearchBox,
-        this.villageSuggestionList,
-        searchCriteria.village
+        { optionToSelect: searchCriteria.village }
       );
     }
-    if (searchCriteria.sex) {
+    if (searchCriteria.sex){
       await this.sexDropDownIcon.click();
       await this.page.getByTestId('twocolumnsfield-wg4x').getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
     }
@@ -251,7 +242,7 @@ export class AllPatientsPage extends BasePage {
     await expect(this.lastNameTxt).toHaveValue('');
     await expect(this.DOBTxt).toHaveValue('');
     await expect(this.CulturalNameTxt).toHaveValue('');
-    await expect(this.villageSearchBox).toHaveValue('');
+    await expect(this.villageSearchBox.locator('input')).toHaveValue('');
     await expect(this.sexDropDownCrossIcon).not.toBeVisible();
     await expect(this.DOBFromTxt).toHaveValue('');
     await expect(this.DOBToTxt).toHaveValue('');
