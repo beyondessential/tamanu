@@ -1,6 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import type { InitOptions, Models } from '../types/model';
 import { Model } from './Model';
 
@@ -10,10 +10,6 @@ export class PatientUser extends Model {
   declare patientId: string;
   declare role: string;
   declare visibilityStatus: string;
-
-  static getSystemUser() {
-    return this.findByPk(SYSTEM_USER_UUID);
-  }
 
   forResponse() {
     return Object.assign({}, this.dataValues);
