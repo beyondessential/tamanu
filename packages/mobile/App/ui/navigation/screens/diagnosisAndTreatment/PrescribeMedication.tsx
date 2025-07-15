@@ -106,10 +106,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   }, [selectedPatient?.id, models.PatientAllergy]);
 
   const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-      selectedPatient.id,
-      user.id,
-    );
+    const encounter = await models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id);
 
     const idealTimes =
       values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
