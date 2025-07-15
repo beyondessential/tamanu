@@ -13,8 +13,8 @@ import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
-import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useSettings } from '../../../contexts/Settings';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
