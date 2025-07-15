@@ -136,7 +136,7 @@ const FrequencySearchInput: React.FC<FrequencySearchFieldProps> = ({
 
 interface FormikFrequencySearchFieldProps {
   value: string;
-  onChange: (newValue: any, selectedItem?: any) => void;
+  onChange: (newValue: any) => void;
   label?: React.ReactNode;
   error?: string;
   required?: boolean;

@@ -106,11 +106,7 @@ export class Prescription extends BaseModel {
         ...row,
       };
       // Convert idealTimes to ARRAY because central server expects it to be ARRAY
-      if (row.data.idealTimes) {
-        sanitizedRow.data.idealTimes = sanitizedRow.data.idealTimes.split(',');
-      } else if (!sanitizedRow.data.idealTimes) {
-        sanitizedRow.data.idealTimes = [];
-      }
+      sanitizedRow.data.idealTimes = row.data.idealTimes ? row.data.idealTimes.split(',') : [];
 
       return sanitizedRow;
     });
