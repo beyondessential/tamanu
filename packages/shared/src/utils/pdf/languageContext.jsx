@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { registerFonts } from './registerFonts';
@@ -22,7 +22,7 @@ export const withLanguageContext = Component => props => {
   // and should build a getSetting function from it.
   let { getSetting } = other;
   if (!getSetting && settings) {
-    getSetting = key => settings[key];
+    getSetting = key => get(settings, key);
   }
 
   const isGlobalFontEnabled = getSetting('features.useGlobalPdfFont');
