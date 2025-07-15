@@ -15,7 +15,7 @@ import {
   setDate,
   startOfDay,
 } from 'date-fns';
-import { getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
+import { areDatesInSameTimeSlot, getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
 import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
 
 @Entity('medication_administration_records')
@@ -128,10 +128,13 @@ export class MedicationAdministrationRecord extends BaseModel {
           minutes,
           0,
         );
-        // Skip if the next due date is before the start date, after the end date, or after the prescription was discontinued
+
+        const prescriptionStartDate = new Date(prescription.startDate);
+        // Skip if the next due date is before the start date and not in the same time slot, after the end date, or after the prescription was discontinued
         // For cron job, skip if the next due date is before the last due date (to avoid creating duplicate records)
         if (
-          nextDueDate < new Date(prescription.startDate) ||
+          (nextDueDate < prescriptionStartDate &&
+            !areDatesInSameTimeSlot(prescriptionStartDate, nextDueDate)) ||
           nextDueDate > endDate ||
           (prescription.discontinuedDate && nextDueDate >= new Date(prescription.discontinuedDate))
         ) {
