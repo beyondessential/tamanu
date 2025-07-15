@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getPatientAllergies } from './allergies';
+import { getAllergies } from './allergies';
 import { getPatient } from './patient';
 import { getOngoingConditions } from './ongoingConditions';
 
@@ -10,4 +10,4 @@ patientDataRoutes.get('/', getPatient);
 
 patientDataRoutes.get('/ongoing-conditions', getOngoingConditions);
 
-patientDataRoutes.get('/allergies', getPatientAllergies);
+patientDataRoutes.get('/allergies', getAllergies);
