@@ -81,7 +81,7 @@ export class Prescription extends BaseModel {
 
   @OneToMany(
     () => EncounterPrescription,
-    (encounterPrescription) => encounterPrescription.prescription,
+    encounterPrescription => encounterPrescription.prescription,
   )
   encounterPrescriptions: EncounterPrescription[];
 
@@ -101,13 +101,15 @@ export class Prescription extends BaseModel {
   medicationId?: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
       // Convert idealTimes to ARRAY because central server expects it to be ARRAY
       if (row.data.idealTimes) {
         sanitizedRow.data.idealTimes = sanitizedRow.data.idealTimes.split(',');
+      } else if (!sanitizedRow.data.idealTimes) {
+        sanitizedRow.data.idealTimes = [];
       }
 
       return sanitizedRow;
@@ -115,7 +117,7 @@ export class Prescription extends BaseModel {
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
