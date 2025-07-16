@@ -38,7 +38,7 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     this.panelCheckboxes = page.getByTestId('selectortable-dwrp');
     this.selectedPanelsList = page.getByTestId('selectortable-6eaw');
     this.selectedPanelItems = page.getByTestId('testitemwrapper-o7ha');
-    this.selectedPanelLabels = page.getByTestId('selectortable-6eaw');
+    this.selectedPanelLabels = page.getByTestId('selectortable-6eaw').getByTestId('labeltext-6stl');
     this.notesTextarea = page.getByTestId('field-3t0x-input');
     this.panelSelectionError = page.getByTestId('formhelpertext-198r');
     this.panelsList = page.getByTestId('labeltext-6stl');
@@ -105,9 +105,9 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     for (let i = 0; i < expectedPanels.length; i++) {
       const expectedPanel = expectedPanels[i];
       const expectedCategory = expectedCategories[i];
-      const panelLabel = this.selectedPanelLabels.filter({ hasText: expectedPanel });
+      const panelLabel = this.selectedPanelsList.filter({ hasText: expectedPanel });
       await expect(panelLabel).toBeVisible();
-      const categoryLabel = this.selectedPanelLabels.locator('..').getByTestId('categorytext-jno3').filter({ hasText: expectedCategory });
+      const categoryLabel = this.selectedPanelsList.locator('..').getByTestId('categorytext-jno3').filter({ hasText: expectedCategory });
       await expect(categoryLabel).toBeVisible();
     }
   }

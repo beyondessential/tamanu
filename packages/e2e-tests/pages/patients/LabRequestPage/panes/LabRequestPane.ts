@@ -10,6 +10,7 @@ export class LabRequestPane {
   
   // Table row and cell locators
   readonly tableRows: Locator;
+  readonly categoryHeader: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +22,7 @@ export class LabRequestPane {
     
     // Table row and cell locators
     this.tableRows = this.tableBody.locator('tr');
+    this.categoryHeader = page.getByTestId('tablesortlabel-0qxx-category.name');
   }
   
   // Helper methods to get specific cells
@@ -87,5 +89,20 @@ export class LabRequestPane {
       const statusCell = this.getStatusCell(i);
       await expect(statusCell).toHaveText(status);
     }
+  }
+
+  async sortTableByCategory() {
+    // Click on the category column header to sort by category alphabetically
+    for (let i = 0; i < 2; i++) {
+      await this.categoryHeader.click();
+      
+    }
+    
+  }
+
+  async waitForTableToLoad() {
+    // Wait for the lab request table to be visible and loaded
+    await this.labRequestTable.waitFor({ state: 'visible' });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 } 

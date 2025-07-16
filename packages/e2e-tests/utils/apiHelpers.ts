@@ -179,7 +179,6 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
 
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientId}`);
-  console.log('Verifying patient at URL:', verifyPatientUrl);
   
   const verifyResponse = await api.get(verifyPatientUrl);
 
@@ -188,7 +187,6 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
   }
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientId}/death`);
-  console.log('Recording death at URL:', apiDeathUrl);
   
   const deathData = {
     clinicianId: user.id,
@@ -199,7 +197,6 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
     isPartialWorkflow: true
   };
 
-  console.log('Death data being sent:', JSON.stringify(deathData, null, 2));
 
   const response = await api.post(apiDeathUrl, {
     data: deathData,

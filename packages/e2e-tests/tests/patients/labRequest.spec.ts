@@ -38,6 +38,8 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.finaliseButton.click();
       await expect(labRequestModal.panelModal.requestFinalisedHeading).toHaveText('Request finalised');
       await labRequestModal.panelModal.closeButton.click();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.validateLabRequestTableContent(
         panelCategories,
         requestedDateTime,
@@ -85,11 +87,12 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.panelModal.selectFirstCollectedBy();
       await labRequestModal.panelModal.selectFirstSpecimenType();
       await labRequestModal.panelModal.selectFirstSite();
-      await labRequestModal.nextButton.click();
       await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(panelsToSelect, panelCategories);
       await labRequestModal.finaliseButton.click();
       await expect(labRequestModal.panelModal.requestFinalisedHeading).toHaveText('Request finalised');
       await labRequestModal.panelModal.closeButton.click();
+      await labRequestPane.waitForTableToLoad();  
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.validateLabRequestTableContent(
         panelCategories,
         currentDateTime,
@@ -128,7 +131,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.panelModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
       await labRequestModal.backButton.click();
-      await expect(labRequestModal.panelModal.selectedPanelLabels.first()).toHaveText('Demo Test PanelU&E');
+      await expect(labRequestModal.panelModal.selectedPanelLabels.first()).toHaveText(panelsToSelect[0]);
       await expect(labRequestModal.panelModal.notesTextarea).toHaveValue(noteToAdd);
       await labRequestModal.backButton.click();
       await labRequestModal.validateDepartment();

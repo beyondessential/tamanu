@@ -41,7 +41,4 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     this.siteInputs = page.getByTestId('styledfield-mog8-input');
     this.siteExpandIcons = page.getByTestId('styledfield-mog8-input-expandmoreicon');
   }
-
-  
-  
 } 

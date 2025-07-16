@@ -136,14 +136,14 @@ export class AllPatientsPage extends BasePage {
       );
     } catch (error) {
       throw new Error(
-        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`
+        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
 
   async clickOnFirstRow() {
-    await this.waitForTableToLoad();
-    await this.allPatientsTable.locator('tbody tr').first().click();
+    await this.patientTable.waitForTableToLoad();
+    await this.patientTable.rows.first().click();
     await this.page.waitForURL('**/#/patients/all/*');
   }
 

@@ -66,7 +66,7 @@ test.describe('All patient table search', () => {
 
   test("Search by filling all the fields", async ({ newPatient,allPatientsPage }) => {
     await allPatientsPage.searchTable({NHN:newPatient.displayId,firstName:newPatient.firstName,
-      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.VillageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
+      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.villageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
       DOBTo: newPatient.dateOfBirth, advancedSearch: true });
       await allPatientsPage.validateOneSearchResult();
       await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
@@ -83,7 +83,7 @@ test.describe('All patient table search', () => {
 
   test("Clear search", async ({ newPatient,allPatientsPage }) => {
     await allPatientsPage.searchTable({NHN:newPatient.displayId,firstName:newPatient.firstName,
-      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.VillageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
+      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.villageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
       DOBTo: newPatient.dateOfBirth, advancedSearch: true });
     await allPatientsPage.clearSearch();
     await allPatientsPage.validateAllFieldsAreEmpty();
@@ -104,11 +104,11 @@ test.describe('All patient table pagination', () => {
     await allPatientsPage.patientTable.pageRecordCountDropDown.click();
     await allPatientsPage.patientTable.patientPageRecordCount25.click();
     await allPatientsPage.patientTable.waitForTableToLoad();
-    //await allPatientsPage.patientTable.waitForTableRowCount(25);
+    await allPatientsPage.patientTable.waitForTableRowCount(25);
     await allPatientsPage.patientTable.validateNumberOfPatients(25);
     await allPatientsPage.patientTable.patientPage2.click();
     await allPatientsPage.patientTable.waitForTableToLoad();
-    //await allPatientsPage.patientTable.waitForTableRowCount(25);
+    await allPatientsPage.patientTable.waitForTableRowCount(25);
     await allPatientsPage.patientTable.validateNumberOfPatients(25);
     await expect(allPatientsPage.patientTable.pageRecordCount).toContainText('26–50 of');
 
