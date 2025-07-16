@@ -56,7 +56,7 @@ export const KebabMenu = () => {
   const { getLocalisation } = useLocalisation();
   const { languageDisplayNames, languagesInDb = [] } = data;
 
-  const languageOptions = languagesInDb.map(({ language }) => {
+  const languageOptions = languagesInDb.map(language => {
     return {
       label: languageDisplayNames[language],
       value: language,

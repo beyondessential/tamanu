@@ -40,7 +40,7 @@ const customStyles = {
     ...(state.isSelected && { borderColor: Colors.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: (provided) => ({
+  menu: provided => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -64,7 +64,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
 
   const { languageDisplayNames, languageCountryCodes, languagesInDb = [] } = data;
 
-  const languageOptions = languagesInDb.map(({ language }) => {
+  const languageOptions = languagesInDb.map(language => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
@@ -79,7 +79,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     };
   });
 
-  const handleLanguageChange = (event) => {
+  const handleLanguageChange = event => {
     setLanguage(event.target.value);
   };
 

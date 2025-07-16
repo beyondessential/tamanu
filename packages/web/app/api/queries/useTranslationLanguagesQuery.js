@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { keyBy, mapValues } from 'lodash';
+import { keyBy, mapValues, uniq } from 'lodash';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 const applyDefaultsToTranslations = ({
@@ -19,7 +19,9 @@ export const useTranslationLanguagesQuery = () => {
       const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
       const languageDisplayNames = applyDefaultsToTranslations(mapValues(keyBy(languageNames, 'language'), 'text'));
       const languageCountryCodes = applyDefaultsToTranslations(mapValues(keyBy(countryCodes, 'language'), 'text'));
-      return { languageDisplayNames, languageCountryCodes, languagesInDb };
+      const languagesInDbDefaulted = uniq(languagesInDb.map(({ language }) => language === DEFAULT_LANGUAGE_CODE ? ENGLISH_LANGUAGE_CODE : language));
+
+      return { languageDisplayNames, languageCountryCodes, languagesInDb:languagesInDbDefaulted };
     },
   });
 };    

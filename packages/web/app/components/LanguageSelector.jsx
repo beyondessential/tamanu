@@ -64,7 +64,7 @@ export const LanguageSelector = () => {
 
   const { languageDisplayNames, languageCountryCodes, languagesInDb = [] } = data;
 
-  const languageOptions = languagesInDb.map(({ language }) => {
+  const languageOptions = languagesInDb.map(language => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
