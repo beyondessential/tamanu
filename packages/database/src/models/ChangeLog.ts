@@ -67,8 +67,7 @@ export class ChangeLog extends Model {
         },
         reason: {
           type: DataTypes.TEXT,
-          allowNull: false,
-          defaultValue: 'unknown',
+          allowNull: true,
         },
       },
 

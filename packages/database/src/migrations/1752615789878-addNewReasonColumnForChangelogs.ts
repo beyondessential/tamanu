@@ -14,8 +14,7 @@ const TABLE = {
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn(TABLE, 'reason', {
     type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue: 'unknown',
+    allowNull: true,
   });
 
   await query.sequelize.query(`
@@ -47,7 +46,7 @@ export async function up(query: QueryInterface): Promise<void> {
         NEW.id,                   -- record_id
         local_system_fact('${FACT_DEVICE_ID}', 'unknown'), -- device_id,
         local_system_fact('${FACT_CURRENT_VERSION}', 'unknown'), -- version,
-        get_session_config('${AUDIT_REASON_KEY}', 'unknown'), -- reason,
+        get_session_config('${AUDIT_REASON_KEY}', NULL), -- reason,
         NEW.created_at,           -- created_at
         NEW.updated_at,           -- updated_at
         NEW.deleted_at,           -- deleted_at
