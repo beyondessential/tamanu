@@ -5,6 +5,7 @@ import { editFieldOption } from '@utils/fieldHelpers';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
 export class EditVaccineModal extends BasePatientModal {
+  readonly modalTitle: Locator;
   readonly vaccineName: Locator;
   readonly vaccineNameOther: Locator;
   readonly schedule: Locator;
@@ -28,9 +29,18 @@ export class EditVaccineModal extends BasePatientModal {
   readonly disease: Locator;
   readonly reason: Locator;
   readonly notGivenClinician: Locator;
+  readonly closeModalButton: Locator;
+  readonly areaFieldClearButton: Locator;
+  readonly locationFieldClearButton: Locator;
+  readonly departmentFieldClearButton: Locator;
+  readonly areaRequiredError: Locator;
+  readonly locationRequiredError: Locator;
+  readonly departmentRequiredError: Locator;
+  readonly consentRequiredError: Locator;
 
   constructor(page: Page) {
     super(page);
+    this.modalTitle = this.page.getByTestId('modaltitle-ojhf');
     this.vaccineName = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-igtk');
     this.vaccineNameOther = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-jbi4');
     this.schedule = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-s88j');
@@ -54,6 +64,14 @@ export class EditVaccineModal extends BasePatientModal {
     this.disease = this.page.getByTestId('field-gcfk-input');
     this.reason = this.page.getByTestId('selectinput-phtg-select');
     this.notGivenClinician = this.page.getByTestId('field-xycc-input');
+    this.closeModalButton = this.page.getByTestId('iconbutton-eull');
+    this.areaFieldClearButton = this.page.getByTestId('field-zrlv-group-input-clearbutton');
+    this.locationFieldClearButton = this.page.getByTestId('field-zrlv-location-input-clearbutton');
+    this.departmentFieldClearButton = this.page.getByTestId('field-5sfc-input-clearbutton');
+    this.areaRequiredError = this.page.getByTestId('field-zrlv-group-input-outerlabelfieldwrapper').getByText('*Required');
+    this.locationRequiredError = this.page.getByTestId('field-zrlv-location-input-outerlabelfieldwrapper').getByText('*Required');
+    this.departmentRequiredError = this.page.getByTestId('field-5sfc-input-outerlabelfieldwrapper').getByText('*Required');
+    this.consentRequiredError = this.page.getByTestId('formhelpertext-2d0o');
   }
 
   async editFields(vaccine: Partial<Vaccine>) {
@@ -147,6 +165,9 @@ export class EditVaccineModal extends BasePatientModal {
     }
 
     await this.submitEditsButton.click();
+    //Confirm the modal is closed before progressing
+    await expect(this.modalTitle).not.toBeVisible();
+
     return editedFields;
   }
 
@@ -217,6 +238,26 @@ export class EditVaccineModal extends BasePatientModal {
 
     if (notGivenClinician) {
       await expect(this.notGivenClinician).toHaveValue(notGivenClinician);
+    }
+  }
+
+  async clearAllFields() {
+    //Note: location field is cleared automatically due to area being cleared
+    await this.areaFieldClearButton.click();
+    await this.departmentFieldClearButton.click();
+    await this.consentCheckbox.click();
+  }
+
+  async assertRequiredFieldErrors() {
+    const errorFields = [
+      this.areaRequiredError,
+      this.locationRequiredError, 
+      this.departmentRequiredError,
+      this.consentRequiredError
+    ];
+  
+    for (const errorField of errorFields) {
+      await expect(errorField).toContainText('Required');
     }
   }
 }

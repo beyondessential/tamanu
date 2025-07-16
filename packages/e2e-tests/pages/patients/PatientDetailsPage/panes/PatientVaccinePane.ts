@@ -5,6 +5,7 @@ import { convertDateFormat } from '../../../../utils/testHelper';
 import { ViewVaccineRecordModal } from '../modals/ViewVaccineRecordModal';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
 import { Vaccine } from 'types/vaccine/Vaccine';
+import { DeleteVaccineModal } from '../modals/DeleteVaccineModal';
 
 export class PatientVaccinePane extends BasePatientPane {
   readonly recordVaccineButton: Locator;
@@ -14,11 +15,12 @@ export class PatientVaccinePane extends BasePatientPane {
   recordVaccineModal?: RecordVaccineModal;
   viewVaccineRecordModal?: ViewVaccineRecordModal;
   editVaccineModal?: EditVaccineModal;
+  deleteVaccineModal?: DeleteVaccineModal;
   readonly recordedVaccinesTableBody: Locator;
   readonly vaccineNotGivenCheckbox: Locator;
   readonly tableRowPrefix: string;
   readonly dateFieldForSingleVaccine: Locator;
-  readonly editVaccineButtonTestId: string;
+  readonly vaccineKebabMenuTestId: string;
   readonly editVaccineOption: Locator;
   readonly deleteVaccineOption: Locator;
 
@@ -37,7 +39,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
     this.tableRowPrefix = `styledtablecell-2gyy-`;
     this.dateFieldForSingleVaccine = this.page.getByTestId('styledtablecell-2gyy-0-date');
-    this.editVaccineButtonTestId = 'openbutton-d1ec';
+    this.vaccineKebabMenuTestId = 'openbutton-d1ec';
     this.editVaccineOption = this.page.getByTestId('item-8ybn-0');
     this.deleteVaccineOption = this.page.getByTestId('item-8ybn-1');
   }
@@ -51,19 +53,28 @@ export class PatientVaccinePane extends BasePatientPane {
     return this.recordVaccineModal;
   }
 
-  //TODO: break some of this logic out into a separate "click action option" so can have a separate delete function?
-  async clickEditVaccineButton(vaccineName: string, scheduleOption: string, count: number) {
-    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
-    const editButton = this.recordedVaccinesTableBody
-      .getByTestId(`${this.tableRowPrefix}${row}-action`)
-      .getByTestId(this.editVaccineButtonTestId);
-    await editButton.click();
+  async clickEditVaccineButton(vaccine: Partial<Vaccine>) {
+    await this.openVaccineKebabMenu(vaccine); 
     await this.editVaccineOption.click();
     if (!this.editVaccineModal) {
       this.editVaccineModal = new EditVaccineModal(this.page);
     }
 
     return this.editVaccineModal;
+  }
+
+  async openVaccineKebabMenu(vaccine: Partial<Vaccine>) {
+    const { vaccineName, count, scheduleOption } = vaccine;
+
+    if (!vaccineName || count === undefined || !scheduleOption) {
+      throw new Error('Missing required vaccine fields');
+    }
+
+    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
+    const vaccineKebabMenu = this.recordedVaccinesTableBody
+      .getByTestId(`${this.tableRowPrefix}${row}-action`)
+      .getByTestId(this.vaccineKebabMenuTestId);
+    await vaccineKebabMenu.click();
   }
 
   async getRecordedVaccineCount(): Promise<number> {
@@ -88,6 +99,7 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
+  //TODO: refactor the functions used in this function to pass the whole vaccine and then destructure within the function?
   /**
    * Asserts the values for a specific vaccine in the recorded vaccines table are correct
    * @param vaccine - A partial vaccine object containing the fields to assert against
@@ -278,5 +290,20 @@ export class PatientVaccinePane extends BasePatientPane {
     }
     await this.viewVaccineRecordModal.waitForModalToOpen();
     return this.viewVaccineRecordModal;
+  }
+
+  async deleteVaccine(vaccine: Partial<Vaccine>) {
+    await this.openVaccineKebabMenu(vaccine); 
+    await this.deleteVaccineOption.click();
+
+    if (!this.deleteVaccineModal) {
+      this.deleteVaccineModal = new DeleteVaccineModal(this.page);
+    }
+
+    await expect(this.deleteVaccineModal.modalTitle).toContainText('Delete vaccination record');
+    await expect(this.deleteVaccineModal.modalContent).toContainText('WARNING: This action is irreversible!');
+    await this.deleteVaccineModal.confirmButton.click();
+    //Confirm the modal is closed before progressing
+    await expect(this.deleteVaccineModal.modalTitle).not.toBeVisible();
   }
 }

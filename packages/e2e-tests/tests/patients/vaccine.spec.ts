@@ -6,7 +6,9 @@ import { Vaccine } from 'types/vaccine/Vaccine';
 //TODO: add tests to confirm error messages if try to submit without required fields
 //TODO: can i make flynns timeout when recording vaccine reduced or removed?
 //TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
-//TODO: check regression test doc
+//TODO: does vaccine always need to be <Partial> or is there a way to not do that?
+//TODO: is there a better way to handle count? especially in situations like vaccineToDelete.count = 2 after a second vaccine is added?
+//TODO: double check regression test doc, is vaccine schedule stuff possible?
 //TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 test.describe('Vaccines', () => {
@@ -391,9 +393,6 @@ test.describe('Vaccines', () => {
     onlyEditSpecificFields?: boolean,
   ) {
     const {
-      vaccineName,
-      scheduleOption,
-      count,
       injectionSite,
       area,
       location,
@@ -418,11 +417,7 @@ test.describe('Vaccines', () => {
       consentGivenBy,
     }
 
-    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
-      vaccineName!,
-      scheduleOption!,
-      count!,
-    );
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
 
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
 
@@ -449,7 +444,6 @@ test.describe('Vaccines', () => {
     patientDetailsPage: PatientDetailsPage,
     vaccine: Partial<Vaccine>,
   ) {
-    const {vaccineName, scheduleOption, count} = vaccine;
 
     await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
 
@@ -458,15 +452,12 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.closeViewVaccineModalButton().click();
 
     //Confirm the expected changes are reflected when opening the edit modal again
-    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(
-      vaccineName!,
-      scheduleOption!,
-      count!,
-    );
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
+
     expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
-    
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.closeModalButton.click();
   }
 
   test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
@@ -550,7 +541,6 @@ test.describe('Vaccines', () => {
   });
 
   test('Edit unique fields for not given vaccine', async ({ patientDetailsPage }) => {
-    //TODO: reason is new field, status is not given
     const vaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
       specificVaccine: 'Hep B',
       fillOptionalFields: true,
@@ -571,16 +561,64 @@ test.describe('Vaccines', () => {
   });
 
   test('Edit one vaccine when multiple are present', async ({ patientDetailsPage }) => {
-    //TODO: are unique specific tests required?  e.g. do other, given, not given etc combos have unique fields to edit?
+     const firstVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1);
+
+     const secondVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
+
+     //Updates the count to 2 after a second vaccine is added
+     firstVaccine.count = 2;
+
+     const editedVaccine = await editVaccine(patientDetailsPage, firstVaccine, {
+      batch: 'Edited batch field',
+      givenBy: 'Edited given by field',
+      consentGivenBy: 'Edited consent field',
+      injectionSite: 'Will be edited automatically',
+     });
+
+     //Confirm the first vaccine is edited as expected
+     await assertEditedVaccine(patientDetailsPage, editedVaccine);
+
+     //Confirm the second vaccine is not edited
+     await assertEditedVaccine(patientDetailsPage, secondVaccine);
+
   });
 
   test('Validation works when editing a vaccine', async ({ patientDetailsPage }) => {
-    //TODO: this
-    //TODO: uncheck consent checkbox?
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
+
+    expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
+
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.clearAllFields();
+
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.submitEditsButton.click();
+
+    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertRequiredFieldErrors();
   });
 
-  test('Delete', async ({ patientDetailsPage }) => {
-    //TODO: this
+  test('Delete a vaccine', async ({ patientDetailsPage }) => {
+    const vaccineToDelete = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
+    const vaccineToKeep = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
+    const vaccineCountAfterDeletion = 1;
+
+    //Update the count to 2 after the second vaccine is added
+    vaccineToDelete.count = 2;
+
+    if (!vaccineToDelete || !vaccineToKeep) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.deleteVaccine(vaccineToDelete);
+
+    //Assert that the vaccine to keep remains unchanged and only the deleted vaccine is removed
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
+    await patientDetailsPage.closeViewVaccineModalButton().click();
+    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(vaccineCountAfterDeletion);
   });
 
   test('Check given elsewhere checkbox', async () => {
