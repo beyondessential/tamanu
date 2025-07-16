@@ -218,7 +218,7 @@ export async function importRows(
     try {
       // Normalize undefined values to null to avoid incorrect change detection
       const normalizedValues = { ...values };
-      Object.keys(normalizedValues).forEach((key) => {
+      Object.keys(normalizedValues).forEach(key => {
         if (normalizedValues[key] === undefined) {
           normalizedValues[key] = null;
         }
@@ -229,9 +229,13 @@ export async function importRows(
           if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
+          if (!existing.deletedAt) {
+            updateStat(stats, statkey(model, sheetName), 'deleted');
+          } else {
+            updateStat(stats, statkey(model, sheetName), 'skipped');
+          }
           await existing.update(normalizedValues);
           await existing.destroy();
-          updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
           if (existing.deletedAt) {
             await existing.restore();
