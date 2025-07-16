@@ -65,9 +65,7 @@ const STATS_COLUMNS = [
     ),
     sortable: false,
   },
-  { key: 'skipped', title: 'Skipped', sortable: false },
-  { key: 'deleted', title: 'Deleted', sortable: false },
-  { key: 'restored', title: 'Restored', sortable: false },
+  { key: 'skipped', title: 'No change', sortable: false },
 ];
 
 const ImportStatsDisplay = ({ stats }) => (
@@ -151,7 +149,7 @@ const ImportForm = ({
   );
 };
 
-function sumStat(stats, fields = ['created', 'updated', 'errored']) {
+function sumStat(stats, fields = ['created', 'updated', 'errored', 'skipped']) {
   return sum(Object.values(stats).map((stat) => sum(fields.map((f) => stat[f]))));
 }
 
@@ -178,6 +176,7 @@ const OutcomeHeader = ({ result }) => {
             `${sumStat(result.stats, ['created'])} created, ` +
             `${sumStat(result.stats, ['updated'])} updated, ` +
             `${sumStat(result.stats, ['errored'])} errored, ` +
+            `${sumStat(result.stats, ['skipped'])} skipped, ` +
             `${sumStat(result.stats)} total`}
         </p>
       )}
