@@ -95,7 +95,6 @@
     "re-resizable": "^6.11.2"
   },
   "overrides": {
-    "react": "18.2.0",
     "react-native-svg": "^12.1.0",
     "react-redux": "8.0.2",
     "react-dom": "18.2.0",
