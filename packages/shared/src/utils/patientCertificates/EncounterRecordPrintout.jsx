@@ -327,6 +327,7 @@ const EncounterRecordPrintoutComponent = ({
   vitalsData,
   recordedDates,
   getVitalsColumn,
+  getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
@@ -550,7 +551,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
         <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />

@@ -224,7 +224,7 @@ const DischargeSummaryPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
