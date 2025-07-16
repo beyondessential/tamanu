@@ -173,7 +173,6 @@ export async function addVaccineAndAssert(
 
     //Confirm the expected changes are reflected when viewing the vaccine record modal
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
-    await patientDetailsPage.closeViewVaccineModalButton().click();
 
     //Confirm the expected changes are reflected when opening the edit modal again
     await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);

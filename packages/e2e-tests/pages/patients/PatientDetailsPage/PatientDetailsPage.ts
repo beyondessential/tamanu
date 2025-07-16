@@ -385,8 +385,4 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
       .first();
   }
-
-  closeViewVaccineModalButton() {
-    return this.page.getByTestId('iconbutton-eull');
-  }
 }

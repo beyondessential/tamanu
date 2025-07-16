@@ -23,7 +23,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly vaccineKebabMenuTestId: string;
   readonly editVaccineOption: Locator;
   readonly deleteVaccineOption: Locator;
-
+  readonly closeModalButton: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -42,6 +42,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.vaccineKebabMenuTestId = 'openbutton-d1ec';
     this.editVaccineOption = this.page.getByTestId('item-8ybn-0');
     this.deleteVaccineOption = this.page.getByTestId('item-8ybn-1');
+    this.closeModalButton = this.page.getByTestId('iconbutton-eull');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -280,6 +281,8 @@ export class PatientVaccinePane extends BasePatientPane {
     if (fillOptionalFields) {
       await viewVaccineRecordModal.assertVaccineModalOptionalFields(vaccine);
     }
+
+    await this.closeModalButton.click();
   }
 
   async viewVaccineModal(viewButton: Locator) {

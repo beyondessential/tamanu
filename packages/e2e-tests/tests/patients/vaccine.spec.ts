@@ -161,15 +161,11 @@ test.describe('Vaccines', () => {
       viewVaccineRecord: true,
     });
 
-    await patientDetailsPage.closeViewVaccineModalButton().click();
-
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 1, {
       specificVaccine: 'Hep B',
       fillOptionalFields: true,
       viewVaccineRecord: true,
     });
-
-    await patientDetailsPage.closeViewVaccineModalButton().click();
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
       specificVaccine: 'bOPV',
@@ -186,8 +182,6 @@ test.describe('Vaccines', () => {
       viewVaccineRecord: true,
     });
 
-    await patientDetailsPage.closeViewVaccineModalButton().click();
-
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
       specificVaccine: 'Pentavalent',
       isFollowUpVaccine: true,
@@ -203,8 +197,6 @@ test.describe('Vaccines', () => {
       specificVaccine: 'bOPV',
       viewVaccineRecord: true,
     });
-
-    await patientDetailsPage.closeViewVaccineModalButton().click();
 
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 1, {
       specificVaccine: 'bOPV',
@@ -233,8 +225,6 @@ test.describe('Vaccines', () => {
       specificDate: dateGiven,
       viewVaccineRecord: true,
     });
-
-    await patientDetailsPage.closeViewVaccineModalButton().click();
 
     await expect(patientDetailsPage.patientVaccinePane?.dateFieldForSingleVaccine!).toContainText(
       convertDateFormat(dateGiven),
@@ -459,7 +449,7 @@ test.describe('Vaccines', () => {
 
     //Assert that the vaccine to keep remains unchanged and only the deleted vaccine is removed
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
-    await patientDetailsPage.closeViewVaccineModalButton().click();
+
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(vaccineCountAfterDeletion);
   });
 
@@ -503,5 +493,34 @@ test.describe('Vaccines', () => {
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
     await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(category, vaccineName);
+  });
+
+  test('Not given vaccines should be hidden if there is a corresponding given vaccine (desktop only)', async ({ patientDetailsPage }) => {
+    const uniqueVaccineName = 'Hep B';
+    const matchingVaccineName = 'MMR';
+    
+    const uniqueNotGivenVaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
+      specificVaccine: uniqueVaccineName,
+    });
+    const matchingNotGivenVaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0, {
+      specificVaccine: matchingVaccineName,
+    });
+    const givenVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {
+      specificVaccine: matchingVaccineName,
+    });
+    //When given and not given vaccinations are both displayed the count should be 2 instead of 3 since the given vaccine replaces matchingNotGivenVaccine
+    const totalVaccineCount = 2;
+    uniqueNotGivenVaccine.count = totalVaccineCount;
+    givenVaccine.count = totalVaccineCount;
+   
+    if (!uniqueNotGivenVaccine || !matchingNotGivenVaccine || !givenVaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    //Confirms only two vaccines are displayed in the table and neither are the not given vaccine that should be hidden
+    await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(uniqueNotGivenVaccine);
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(givenVaccine);
+    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(totalVaccineCount);
   });
 });
