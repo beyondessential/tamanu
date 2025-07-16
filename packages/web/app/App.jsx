@@ -21,6 +21,8 @@ import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery
 import { useSingleTab } from './utils/singleTab';
 import { SERVER_TYPES } from '@tamanu/constants';
 
+// TODO: REMOVE THIS COMMENT
+
 const AppContainer = styled.div`
   display: flex;
   background: #f7f9fb;
