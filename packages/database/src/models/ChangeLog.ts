@@ -18,7 +18,7 @@ export class ChangeLog extends Model {
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
   declare recordData: string;
-  declare reason: string;
+  declare reason: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
