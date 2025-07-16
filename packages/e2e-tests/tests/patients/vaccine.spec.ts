@@ -2,11 +2,11 @@ import { test, expect } from '@fixtures/baseFixture';
 import { convertDateFormat, offsetYear } from '../../utils/testHelper';
 import { addVaccineAndAssert, triggerDateError, editVaccine, assertEditedVaccine } from '@utils/vaccineTestHelpers';
 
-//TODO: does vaccine always need to be <Partial> or is there a way to not do that?
 //TODO: is there a better way to handle count? especially in situations like vaccineToDelete.count = 2 after a second vaccine is added?
 //TODO: double check regression test doc, is vaccine schedule stuff possible?
 //TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
+//TODO: run prettier before submitting
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -461,5 +461,47 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
     await patientDetailsPage.closeViewVaccineModalButton().click();
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(vaccineCountAfterDeletion);
+  });
+
+  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with 1 dose)', async ({ patientDetailsPage }) => {
+    const category = 'Routine';
+    const vaccine = await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+      specificVaccine: 'Hep B',
+    });
+
+    if (!vaccine || !vaccine.vaccineName) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+
+    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
+
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(category, vaccine.vaccineName);
+  });
+
+  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with multiple doses)', async ({ patientDetailsPage }) => {
+    const category = 'Routine';
+    const vaccineName = 'Rotavirus'
+
+    const firstDose = await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+      specificVaccine: vaccineName,
+    });
+    
+    const secondDose = await addVaccineAndAssert(patientDetailsPage, true, category, 2, {
+      specificVaccine: vaccineName,
+      isFollowUpVaccine: true,
+      specificScheduleOption: '10 weeks',
+    });
+
+    if (!firstDose || !secondDose) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+
+    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
+
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(category, vaccineName);
   });
 });

@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
-import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import { selectFieldOption, selectAutocompleteFieldOption, returnAllOptionsFromDropdown } from '@utils/fieldHelpers';
 
 export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
@@ -271,5 +271,16 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     return { notGivenReason, notGivenClinician, disease };
+  }
+
+  async assertVaccineNotInDropdown(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other', vaccineName: string) {
+    await this.selectCategory(category);
+
+    const allOptions = await returnAllOptionsFromDropdown(this.page, this.vaccineSelectField);
+
+    // Check that the vaccine is not in the list of vaccine options and throws error if present
+    for (const option of allOptions) {
+      expect(option, `"${vaccineName}" was found in the dropdown when it should not be present`).not.toBe(vaccineName);
+    }
   }
 }

@@ -183,3 +183,28 @@ export const editFieldOption = async (
     return selectedOption;
   }
 };
+
+export const returnAllOptionsFromDropdown = async (
+  page: Page,
+  dropdown: Locator,
+  {
+    stripTag = true,
+  }: {
+    stripTag?: boolean;
+  } = {},
+) => {
+  await expect(dropdown).toBeEnabled();
+  await dropdown.click();
+
+  const testId = await getBaseTestId(dropdown, stripTag ? '-select' : '');
+  const popper = page.getByTestId(`${testId}-optioncontainer`);
+
+  const optionLocator = popper.getByTestId(`${testId}-option`);
+  const options = await optionLocator.all();
+  const optionNames = [];
+  for (const option of options) {
+    optionNames.push(await option.innerText());
+  }
+
+  return optionNames;
+};
