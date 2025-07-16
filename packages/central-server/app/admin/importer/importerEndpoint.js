@@ -37,9 +37,21 @@ export function normaliseSheetName(name, modelName) {
       .join(' '),
   );
 
-  // Exception because ProgramRegistryClinicalStatus is imported in the registry sheet
+  // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
     return PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+  }
+  if (modelName === 'ProgramDataElement') {
+    return OTHER_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
+  }
+  if (modelName === 'SurveyScreenComponent') {
+    return OTHER_REFERENCE_TYPES.SURVEY_SCREEN_COMPONENT;
+  }
+  if (modelName === 'Program') {
+    return OTHER_REFERENCE_TYPES.PROGRAM;
+  }
+  if (modelName === 'Survey') {
+    return OTHER_REFERENCE_TYPES.SURVEY;
   }
 
   return normMapping[norm] || norm;
