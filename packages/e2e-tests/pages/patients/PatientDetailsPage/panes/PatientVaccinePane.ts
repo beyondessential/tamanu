@@ -99,7 +99,6 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.recordedVaccinesTableLoadingIndicator.waitFor({ state: 'detached' });
   }
 
-  //TODO: refactor the functions used in this function to pass the whole vaccine and then destructure within the function?
   /**
    * Asserts the values for a specific vaccine in the recorded vaccines table are correct
    * @param vaccine - A partial vaccine object containing the fields to assert against

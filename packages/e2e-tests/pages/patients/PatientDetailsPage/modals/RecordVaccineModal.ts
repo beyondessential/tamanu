@@ -223,7 +223,6 @@ export class RecordVaccineModal extends BasePatientModal {
         : await this.recordOptionalVaccineFieldsNotGiven(category);
     }
 
-    await this.page.waitForTimeout(2000);
     await this.confirmButton.click();
 
     return { vaccineName, scheduleOption, dateGiven, count,category, given, givenStatus, fillOptionalFields, ...optionalFields, ...locationGroup };

@@ -1,11 +1,7 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { convertDateFormat, offsetYear } from '../../utils/testHelper';
-import { Vaccine } from 'types/vaccine/Vaccine';
+import { addVaccineAndAssert, triggerDateError, editVaccine, assertEditedVaccine } from '@utils/vaccineTestHelpers';
 
-//TODO: add tests to confirm error messages if try to submit without required fields
-//TODO: can i make flynns timeout when recording vaccine reduced or removed?
-//TODO: if i end up with a lot of custom functions in this file maybe move to a separate file?
 //TODO: does vaccine always need to be <Partial> or is there a way to not do that?
 //TODO: is there a better way to handle count? especially in situations like vaccineToDelete.count = 2 after a second vaccine is added?
 //TODO: double check regression test doc, is vaccine schedule stuff possible?
@@ -16,84 +12,6 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.navigateToVaccineTab();
   });
-
-  async function addVaccineAndAssert(
-    patientDetailsPage: PatientDetailsPage,
-    given: boolean,
-    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
-    count: number = 1,
-    {
-      specificVaccine = null,
-      fillOptionalFields = false,
-      viewVaccineRecord = false,
-      isFollowUpVaccine = false,
-      specificScheduleOption = undefined,
-      specificDate = undefined,
-    }: {
-      specificVaccine?: string | null;
-      fillOptionalFields?: boolean;
-      viewVaccineRecord?: boolean;
-      isFollowUpVaccine?: boolean;
-      specificScheduleOption?: string;
-      specificDate?: string;
-    } = {},
-  ) {
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-
-    const vaccine = await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.recordVaccine(
-      given,
-      category,
-      count,
-      {
-        specificVaccine: specificVaccine ?? undefined,
-        fillOptionalFields,
-        isFollowUpVaccine,
-        specificScheduleOption,
-        specificDate,
-      },
-    );
-
-    if (!vaccine) {
-      throw new Error('Vaccine record was not created successfully');
-    }
-
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
-
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(count);
-
-    if (!given) {
-      await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
-    }
-
-    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
-
-    if (viewVaccineRecord) {
-      await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
-    }
-
-    return vaccine;
-  }
-
-  async function triggerDateError(
-    patientDetailsPage: PatientDetailsPage,
-    date: string,
-    expectedErrorMessage: string,
-  ) {
-    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
-
-    expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
-
-    //Attempt to submit a date that should trigger a validation error
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateField.fill(date);
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.confirmButton.click();
-
-    //Assert the validation error appears
-    await expect(
-      patientDetailsPage.patientVaccinePane?.recordVaccineModal?.dateFieldIncludingError!,
-    ).toContainText(expectedErrorMessage);
-  }
 
   test('Add a routine vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
@@ -384,82 +302,6 @@ test.describe('Vaccines', () => {
     ).toContainText(genericExpectedError);
   });
 
-  //TODO: move this to top of page when done
-  //TODO: add documentation for this function, in particular document that area location etc will be randomly edited
-  async function editVaccine(
-    patientDetailsPage: PatientDetailsPage,
-    vaccine: Partial<Vaccine>,
-    specificEdits: Partial<Vaccine> = {},
-    onlyEditSpecificFields?: boolean,
-  ) {
-    const {
-      injectionSite,
-      area,
-      location,
-      department,
-      batch,
-      dateGiven,
-      givenBy,
-      consentGivenBy,
-    } = {
-      ...vaccine,
-      ...specificEdits,
-    };
-
-    const edits = {
-      batch,
-      dateGiven,
-      injectionSite,
-      area,
-      location,
-      department,
-      givenBy,
-      consentGivenBy,
-    }
-
-    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
-
-    expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
-
-    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
-
-    const editedVaccineValues = await patientDetailsPage.patientVaccinePane?.editVaccineModal?.editFields(
-      onlyEditSpecificFields ? specificEdits : edits,
-    );
-
-    if (!editedVaccineValues) {
-      throw new Error('Vaccine record was not edited successfully');
-    }
-
-    const editedVaccine = {
-      ...vaccine,
-      ...editedVaccineValues,
-    };
-
-    return editedVaccine;
-  }
-
-  //TODO: add documentation for this function
-  async function assertEditedVaccine(
-    patientDetailsPage: PatientDetailsPage,
-    vaccine: Partial<Vaccine>,
-  ) {
-
-    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
-
-    //Confirm the expected changes are reflected when viewing the vaccine record modal
-    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
-    await patientDetailsPage.closeViewVaccineModalButton().click();
-
-    //Confirm the expected changes are reflected when opening the edit modal again
-    await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
-
-    expect(patientDetailsPage.patientVaccinePane?.editVaccineModal).toBeDefined();
-    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
-    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
-    await patientDetailsPage.patientVaccinePane?.editVaccineModal?.closeModalButton.click();
-  }
-
   test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
     const given = true;
     const category = 'Routine';
@@ -619,9 +461,5 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
     await patientDetailsPage.closeViewVaccineModalButton().click();
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(vaccineCountAfterDeletion);
-  });
-
-  test('Check given elsewhere checkbox', async () => {
-    //TODO: this feature is currently not working as per EPI-1019, if fixed then add test case
   });
 });
