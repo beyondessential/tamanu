@@ -117,7 +117,6 @@
     "decimal.js": "^10.4.3",
     "hookable": "^5.5.3",
     "json5": "^2.2.3",
-    "slugify": "^1.6.6",
     "khmer-unicode-converter": "^0.0.6",
     "libhoney": "^4.3.0",
     "lodash": "^4.17.11",
