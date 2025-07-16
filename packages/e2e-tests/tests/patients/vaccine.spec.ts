@@ -517,10 +517,40 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    //Confirms only two vaccines are displayed in the table and neither are the not given vaccine that should be hidden
+    //Confirms only two vaccines are displayed in the table and neither of them are the not given vaccine that should be hidden
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(uniqueNotGivenVaccine);
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(givenVaccine);
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(totalVaccineCount);
+  });
+
+  //TODO: create some kind of function that takes vaccines as parameters and asserts they're in a certain order?
+  //TODO: if i create above function could this be used in previous test case?
+  test('Table can be sorted by clicking column headers', async ({ patientDetailsPage }) => {
+    const vaccines = [
+      await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {
+        specificVaccine: 'Rotavirus',
+      }),
+      await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
+        specificVaccine: 'Hep B',
+      }),
+      await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3, {
+        specificVaccine: 'TCV Typhoid',
+      }),
+    ];
+
+    if (!vaccines.every(vaccine => vaccine)) {
+      throw new Error('Vaccine records were not created successfully');
+    }
+
+    //Clicks the vaccine column header to sort the table in descending order by vaccine name
+    await patientDetailsPage.patientVaccinePane?.vaccineColumnHeader.click();
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'desc');
+
+    //Clicks the vaccine column header to sort the table in ascending order by vaccine name
+    await patientDetailsPage.patientVaccinePane?.vaccineColumnHeader.click();
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'asc');
+    
+    //TODO: extend this to date column
   });
 });

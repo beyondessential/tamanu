@@ -24,6 +24,9 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly editVaccineOption: Locator;
   readonly deleteVaccineOption: Locator;
   readonly closeModalButton: Locator;
+  readonly vaccineColumnHeader: Locator;
+  readonly dateColumnHeader: Locator;
+  
   constructor(page: Page) {
     super(page);
 
@@ -43,6 +46,8 @@ export class PatientVaccinePane extends BasePatientPane {
     this.editVaccineOption = this.page.getByTestId('item-8ybn-0');
     this.deleteVaccineOption = this.page.getByTestId('item-8ybn-1');
     this.closeModalButton = this.page.getByTestId('iconbutton-eull');
+    this.vaccineColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-vaccineDisplayName');
+    this.dateColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-date');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -307,5 +312,19 @@ export class PatientVaccinePane extends BasePatientPane {
     await this.deleteVaccineModal.confirmButton.click();
     //Confirm the modal is closed before progressing
     await expect(this.deleteVaccineModal.modalTitle).not.toBeVisible();
+  }
+
+  async assertVaccineOrder(vaccines: Partial<Vaccine>[], order: 'asc' | 'desc') {
+    const vaccineNames = vaccines.map((vaccine) => vaccine.vaccineName).filter((name): name is string => name !== undefined);
+    const sortedVaccineNames = [...vaccineNames].sort((a, b) => 
+      order === 'asc' ? a.localeCompare(b) : b.localeCompare(a)
+    );
+    
+    //Iterate through the table and assert each row is in the correct order
+    for (let i = 0; i < sortedVaccineNames.length; i++) {
+      const sortedVaccineName = sortedVaccineNames[i];
+      const row = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-vaccineDisplayName`);
+      await expect(row, `Vaccine ${sortedVaccineName} is not in the correct order`).toContainText(sortedVaccineName);
+    }
   }
 }
