@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {
   TextInputMaskOptionProp,
   TextInputMaskTypeProp,
-} from 'react-native-masked-text';
+} from '@react-native-masked-view/masked-view';
 import { TextField } from './TextField';
 import { MaskedTextField } from './MaskedTextField';
 interface BaseStoryProps {

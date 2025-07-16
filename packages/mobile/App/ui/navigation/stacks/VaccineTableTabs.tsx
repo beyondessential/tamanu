@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import Orientation from 'react-native-orientation';
+// import Orientation from 'react-native-orientation';
 import { Routes } from '/helpers/routes';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
@@ -8,13 +8,13 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 const Tabs = createTopTabNavigator();
 
 export const VaccineTableTabs = (): ReactElement => {
-  useEffect(() => {
-    Orientation.unlockAllOrientations();
+  // useEffect(() => {
+  //   Orientation.unlockAllOrientations();
 
-    return (): void => {
-      Orientation.lockToPortrait();
-    };
-  }, []);
+  //   return (): void => {
+  //     Orientation.lockToPortrait();
+  //   };
+  // }, []);
 
   return (
     <Tabs.Navigator

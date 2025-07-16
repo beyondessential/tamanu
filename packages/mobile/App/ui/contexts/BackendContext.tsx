@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import RnBgTask from 'react-native-bg-thread';
+// import RnBgTask from 'react-native-bg-thread';
 import { BackendManager } from '../../services/BackendManager';
 
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -17,10 +17,10 @@ export const BackendProvider = ({ Component }): ReactElement => {
       backendManager.stopSyncService();
       setInitialised(false);
 
-      RnBgTask.runInBackground(async () => {
-        await backendManager.initialise();
-        setInitialised(true);
-      });
+      // RnBgTask.runInBackground(async () => {
+      //   await backendManager.initialise();
+      //   setInitialised(true);
+      // });
     })();
     return () => {
       backendManager.stopSyncService();

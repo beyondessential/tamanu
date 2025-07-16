@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['module:@react-native/babel-preset'],
   plugins: [
     'babel-plugin-transform-typescript-metadata',
     'react-native-reanimated/plugin',
@@ -10,6 +10,7 @@ module.exports = {
         root: ['./'],
         extensions: ['ts', '.tsx', '.json'],
         alias: {
+          'react-native-sqlite-storage': 'react-native-nitro-sqlite',
           '~': './App',
           '/styled': './App/ui/styled',
           '/components': './App/ui/components',
