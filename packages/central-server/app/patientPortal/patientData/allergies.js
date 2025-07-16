@@ -25,6 +25,5 @@ export const getAllergies = asyncHandler(async (req, res) => {
 
   res.send({
     data: allergies.map(allergy => AllergySchema.parse(allergy.forResponse())),
-    count: allergies.length,
   });
 });
