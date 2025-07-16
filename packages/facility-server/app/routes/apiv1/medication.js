@@ -132,7 +132,7 @@ medication.post(
       throw new InvalidOperationError(`Patient with id ${patientId} not found`);
     }
 
-    const result = await db.transaction(async (transaction) => {
+    const result = await db.transaction(async transaction => {
       const prescription = await Prescription.create(data, { transaction });
       await PatientOngoingPrescription.create(
         { patientId, prescriptionId: prescription.id },
@@ -146,37 +146,7 @@ medication.post(
 );
 
 const createEncounterPrescription = async ({ encounter, data, models }) => {
-  const {
-    Prescription,
-    EncounterPrescription,
-    MedicationAdministrationRecord,
-    PatientOngoingPrescription,
-  } = models;
-  const existingOngoingPrescriptions = await Prescription.findAll({
-    where: {
-      medicationId: data.medicationId,
-      discontinued: { [Op.not]: true },
-    },
-    include: [
-      {
-        model: PatientOngoingPrescription,
-        as: 'patientOngoingPrescription',
-        where: {
-          patientId: encounter.patientId,
-        },
-      },
-    ],
-  });
-
-  // Discontinue any existing ongoing medications with the same medication
-  for (const existingOngoingPrescription of existingOngoingPrescriptions) {
-    existingOngoingPrescription.discontinued = true;
-    existingOngoingPrescription.discontinuingClinicianId = SYSTEM_USER_UUID;
-    existingOngoingPrescription.discontinuingReason =
-      'Discontinued due to new prescription of same medication';
-    existingOngoingPrescription.discontinuedDate = getCurrentDateTimeString();
-    await existingOngoingPrescription.save();
-  }
+  const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
 
   const prescription = await Prescription.create({ ...data, id: undefined });
   await EncounterPrescription.create({
@@ -249,7 +219,7 @@ medication.post(
       return prescriptions;
     });
 
-    res.send(result.map((prescription) => prescription.forResponse()));
+    res.send(result.map(prescription => prescription.forResponse()));
   }),
 );
 
@@ -259,7 +229,7 @@ const updatePharmacyNotesInputSchema = z
       .string()
       .optional()
       .nullable()
-      .transform((v) => (!v ? null : v)),
+      .transform(v => (!v ? null : v)),
     displayPharmacyNotesInMar: z.boolean().optional(),
   })
   .strip();
@@ -301,14 +271,23 @@ const discontinueInputSchema = z
 medication.post(
   '/:id/discontinue',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { Prescription } = models;
+    const { models, params, db } = req;
+    const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
     const data = await discontinueInputSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Medication');
 
-    const prescription = await Prescription.findByPk(params.id);
+    const prescription = await Prescription.findByPk(params.id, {
+      include: [
+        {
+          model: models.EncounterPrescription,
+          as: 'encounterPrescription',
+          attributes: ['encounterId'],
+          required: false,
+        },
+      ],
+    });
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
@@ -316,14 +295,50 @@ medication.post(
       throw new ResourceConflictError('Prescription already discontinued');
     }
 
-    Object.assign(prescription, {
-      ...data,
-      discontinuedDate: data.discontinuingDate
-        ? toDateTimeString(data.discontinuingDate)
-        : getCurrentDateTimeString(),
-      discontinued: true,
+    await db.transaction(async () => {
+      Object.assign(prescription, {
+        ...data,
+        discontinuedDate: data.discontinuingDate
+          ? toDateTimeString(data.discontinuingDate)
+          : getCurrentDateTimeString(),
+        discontinued: true,
+      });
+      await prescription.save();
+      // if the prescription is associated with an encounter, we need to remove the same prescription from the patient's ongoing medications
+      const encounterId = prescription.encounterPrescription?.encounterId;
+      if (!encounterId) return;
+      const encounter = await Encounter.findByPk(encounterId);
+      // if the encounter is not found or the encounter is ended, we don't need to remove the prescription from the patient's ongoing medications
+      if (!encounter || encounter.endDate) return;
+      const existingPatientOngoingPrescription = await PatientOngoingPrescription.findOne({
+        where: {
+          patientId: encounter.patientId,
+        },
+        include: [
+          {
+            model: models.Prescription,
+            as: 'prescription',
+            where: {
+              medicationId: prescription.medicationId,
+              doseAmount: prescription.doseAmount,
+              units: prescription.units,
+              route: prescription.route,
+              frequency: prescription.frequency,
+            },
+          },
+        ],
+      });
+      if (existingPatientOngoingPrescription) {
+        const existingOngoingPrescription = existingPatientOngoingPrescription.prescription;
+        Object.assign(existingOngoingPrescription, {
+          discontinuingClinicianId: SYSTEM_USER_UUID,
+          discontinuedDate: getCurrentDateTimeString(),
+          discontinued: true,
+          discontinuingReason: 'Discontinued by user discontinue encounter prescription',
+        });
+        await existingOngoingPrescription.save();
+      }
     });
-    await prescription.save();
 
     const updatedObject = await Prescription.findByPk(params.id, {
       include: Prescription.getListReferenceAssociations(),
@@ -552,7 +567,7 @@ const getPausesQuerySchema = z
     marDate: z
       .string()
       .optional()
-      .refine((val) => !val || !isNaN(new Date(val).getTime()), {
+      .refine(val => !val || !isNaN(new Date(val).getTime()), {
         message: 'marDate must be a valid date string',
       }),
   })
@@ -610,7 +625,7 @@ medication.get(
     // Return pause records
     res.send({
       count: pauseRecords.length,
-      data: pauseRecords.map((record) => record.forResponse()),
+      data: pauseRecords.map(record => record.forResponse()),
     });
   }),
 );
@@ -661,7 +676,7 @@ medication.get(
     // Return history records
     res.send({
       count: pauseHistory.length,
-      data: pauseHistory.map((record) => record.forResponse()),
+      data: pauseHistory.map(record => record.forResponse()),
     });
   }),
 );
@@ -1084,7 +1099,7 @@ medication.get(
 
     res.send({
       count: doses.length,
-      data: doses.map((dose) => dose.forResponse()),
+      data: doses.map(dose => dose.forResponse()),
     });
   }),
 );
@@ -1201,7 +1216,7 @@ medication.post(
   '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
-    const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription, MedicationAdministrationRecord } = models;
+    const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
     const { prescriptionIds, prescriberId, encounterId } =
       await importOngoingMedicationsSchema.parseAsync(req.body);
@@ -1233,7 +1248,7 @@ medication.post(
 
     const importPrescriptions = [];
     for (const prescriptionId of prescriptionIds) {
-      const prescription = ongoingPrescriptions.find((p) => p.id === prescriptionId);
+      const prescription = ongoingPrescriptions.find(p => p.id === prescriptionId);
       if (!prescription) {
         throw new InvalidOperationError(
           `Prescription with id ${prescriptionId} not found or has been discontinued`,
@@ -1242,39 +1257,22 @@ medication.post(
       importPrescriptions.push(prescription);
     }
 
-    const result = await db.transaction(async (transaction) => {
+    const result = await db.transaction(async () => {
       const newPrescriptions = [];
 
       for (const prescription of importPrescriptions) {
-        const newPrescription = await Prescription.create(
-          {
+        const newPrescription = await createEncounterPrescription({
+          encounter,
+          data: {
             ...prescription.toJSON(),
-            id: undefined,
             createdAt: undefined,
             updatedAt: undefined,
             prescriberId,
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
           },
-          { transaction },
-        );
-
-        await EncounterPrescription.create(
-          {
-            encounterId: encounter.id,
-            prescriptionId: newPrescription.id,
-          },
-          { transaction },
-        );
-
-        // Discontinue the original ongoing prescription
-        prescription.discontinued = true;
-        prescription.discontinuingClinicianId = SYSTEM_USER_UUID;
-        prescription.discontinuingReason = 'Imported from ongoing medications';
-        prescription.discontinuedDate = getCurrentDateTimeString();
-        await prescription.save({ transaction });
-
-        await MedicationAdministrationRecord.generateMedicationAdministrationRecords(newPrescription);
+          models,
+        });
 
         newPrescriptions.push(newPrescription);
       }
@@ -1284,7 +1282,7 @@ medication.post(
 
     res.send({
       count: result.length,
-      data: result.map((prescription) => prescription.forResponse()),
+      data: result.map(prescription => prescription.forResponse()),
     });
   }),
 );
@@ -1359,7 +1357,7 @@ medication.get(
     });
 
     // Transform results for the response
-    const transformedResults = results.map((result) => ({
+    const transformedResults = results.map(result => ({
       type: result.type,
       id: result.id,
       marStatus: result.mar_status,

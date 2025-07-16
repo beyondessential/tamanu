@@ -84,10 +84,10 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const medications = req.body.medications || {};
-        for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { quantity, repeats } = medicationValues;
-          const medication = await models.Prescription.findByPk(medicationId, {
+        const prescriptions = req.body.medications || {};
+        for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
+          const { quantity, repeats } = prescriptionValues;
+          const prescription = await models.Prescription.findByPk(prescriptionId, {
             include: [
               {
                 model: models.EncounterPrescription,
@@ -104,18 +104,38 @@ encounter.put(
             ],
           });
 
-          if (!medication || medication.discontinued) continue;
+          if (!prescription || prescription.discontinued) continue;
 
-          await medication.update({ quantity, repeats });
+          await prescription.update({ quantity, repeats });
           await models.EncounterPrescription.update(
             { isSelectedForDischarge: true },
-            { where: { encounterId: id, prescriptionId: medication.id } },
+            { where: { encounterId: id, prescriptionId: prescription.id } },
           );
-          // If the medication is ongoing, we need to add it to the patient's ongoing medications
-          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+          // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
+          if (prescription.isOngoing && prescription.encounterPrescription?.encounterId === id) {
+            const existingPatientOngoingPrescription =
+              await models.PatientOngoingPrescription.findOne({
+                where: {
+                  patientId: encounterObject.patientId,
+                },
+                include: [
+                  {
+                    model: models.Prescription,
+                    as: 'prescription',
+                    where: {
+                      medicationId: prescription.medicationId,
+                      doseAmount: prescription.doseAmount,
+                      units: prescription.units,
+                      route: prescription.route,
+                      frequency: prescription.frequency,
+                    },
+                  },
+                ],
+              });
+            if (existingPatientOngoingPrescription) continue;
             await models.PatientOngoingPrescription.create({
               patientId: encounterObject.patientId,
-              prescriptionId: medication.id,
+              prescriptionId: prescription.id,
             });
           }
         }
@@ -321,7 +341,7 @@ encounterRelations.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map((x) => x.forResponse());
+    const data = objects.map(x => x.forResponse());
 
     res.send({ count, data });
   }),
@@ -389,12 +409,12 @@ encounterRelations.get(
     });
 
     const data = await Promise.all(
-      objects.map(async (ir) => {
+      objects.map(async ir => {
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map((a) => a.forResponse()),
-          results: ir.results.map((result) => result.forResponse()),
+          areas: ir.areas.map(a => a.forResponse()),
+          results: ir.results.map(result => result.forResponse()),
         };
       }),
     );
@@ -415,7 +435,7 @@ encounterRelations.get(
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
-    noteTypeCounts.forEach((n) => {
+    noteTypeCounts.forEach(n => {
       noteTypeToCount[n.noteType] = n.count;
     });
     res.send({ data: noteTypeToCount });
@@ -528,7 +548,7 @@ encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurve
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req) {
   const { db, params, query } = req;
-  const { id: encounterId, surveyId = null} = params;
+  const { id: encounterId, surveyId = null } = params;
   const { order = 'DESC', instanceId = null } = query;
 
   const isVitals = surveyId === null;
@@ -632,7 +652,7 @@ async function getAnswersWithHistory(req) {
     },
   );
 
-  const data = result.map((r) => r.result);
+  const data = result.map(r => r.result);
   return { count, data };
 }
 
@@ -657,7 +677,7 @@ async function getGraphData(req, dateDataElementId) {
     },
   });
 
-  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+  const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
 
   const answers = await SurveyResponseAnswer.findAll({
     where: {
@@ -668,10 +688,10 @@ async function getGraphData(req, dateDataElementId) {
   });
 
   const data = answers
-    .map((answer) => {
+    .map(answer => {
       const { responseId } = answer;
       const recordedDateAnswer = dateAnswers.find(
-        (dateAnswer) => dateAnswer.responseId === responseId,
+        dateAnswer => dateAnswer.responseId === responseId,
       );
       const recordedDate = recordedDateAnswer.body;
       return { ...answer.dataValues, recordedDate };
@@ -764,7 +784,7 @@ encounterRelations.get(
 
 const encounterTasksQuerySchema = z.object({
   order: z.preprocess(
-    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
     z.enum(['ASC', 'DESC']).optional().default('ASC'),
   ),
   orderBy: z.enum(['dueTime', 'name']).optional().default('dueTime'),
@@ -821,7 +841,7 @@ encounterRelations.get(
       offset: page * rowsPerPage,
       include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
-    const results = queryResults.map((x) => x.forResponse());
+    const results = queryResults.map(x => x.forResponse());
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });
