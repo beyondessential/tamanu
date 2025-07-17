@@ -5,7 +5,7 @@ import {
   SYNC_STREAM_MESSAGE_KIND,
   CAN_ACCESS_ALL_FACILITIES,
 } from '@tamanu/constants';
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { buildAbilityForUser } from '@tamanu/shared/permissions';
 
 import {
   AuthExpiredError,
@@ -55,7 +55,7 @@ export interface LoginResponse extends LoginData {
   };
   server: ServerInfo;
   allowedFacilities: { id: string }[] | typeof CAN_ACCESS_ALL_FACILITIES;
-  settings: any;
+  settings: any; // TODO
 }
 
 interface ServerInfo {

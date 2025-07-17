@@ -10,38 +10,21 @@ import {
   LoginResponse,
 } from '@tamanu/api-client';
 
-// TODO: all the shared imports seem broken
-// import { SYNC_STREAM_MESSAGE_KIND, SERVER_TYPES } from '@tamanu/constants';
-// import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+  RemoteCallFailedError,
+} from '@tamanu/shared/errors';
 
-import { CentralConnectionStatus, FetchOptions, SyncRecord, SyncConnectionParameters } from '~/types';
+import { SYNC_STREAM_MESSAGE_KIND, SERVER_TYPES } from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
-/** TODO: Duplication with shared/errors import didn't work */
-class BaseError extends Error {
-  status: number;
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    this.status = getCodeForErrorName(this.name);
-  }
-}
-
-class BadAuthenticationError extends BaseError {}
-class FacilityAndSyncVersionIncompatibleError extends BaseError {}
-class RemoteCallFailedError extends BaseError {}
-
-const getCodeForErrorName = (name: string) => {
-  switch (name) {
-    case 'BadAuthenticationError':
-      return 401;
-    case 'FacilityAndSyncVersionIncompatibleError':
-      return 403;
-    case 'RemoteCallFailedError':
-      return 500;
-    default:
-      return 500;
-  }
-};
+import {
+  CentralConnectionStatus,
+  FetchOptions,
+  SyncRecord,
+  SyncConnectionParameters,
+} from '~/types';
 
 
 export class CentralServerConnection extends TamanuApi {
@@ -54,7 +37,7 @@ export class CentralServerConnection extends TamanuApi {
 
     super({
       endpoint: url.toString(),
-      agentName: 'mobile',
+      agentName: SERVER_TYPES.MOBILE,
       agentVersion: version,
       deviceId,
       defaultRequestConfig: {
@@ -118,7 +101,7 @@ export class CentralServerConnection extends TamanuApi {
         const { allowedFacilities } = loginData;
         if (
           facilityId &&
-          allowedFacilities !== 'ALL' &&
+          allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
           !allowedFacilities.map(f => f.id).includes(facilityId)
         ) {
           console.warn('User doesnt have permission for this facility: ', facilityId);
@@ -181,14 +164,10 @@ export class CentralServerConnection extends TamanuApi {
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
         handler: switch (kind) {
-          // TODO: these are the same as the constants in @tamanu/constants, but they're not
-          // exported from there for some reason
-          // SESSION_WAITING
-          case 0x0001:
-          // still waiting
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
+            // still waiting
             break handler;
-          // END
-          case 0xf001:
+          case SYNC_STREAM_MESSAGE_KIND.END:
             // includes the new tick from starting the session
             return { sessionId, ...message };
           default:
