@@ -84,7 +84,9 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
   const { id } = params;
-  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { surveyId: body.surveyId };
+  const surveyWhereClause = isVital
+    ? { surveyType: SURVEY_TYPES.VITALS }
+    : { surveyId: body.surveyId };
   const answerObject = await SurveyResponseAnswer.findByPk(id, {
     include: [
       {
@@ -144,7 +146,9 @@ async function postSurveyResponseAnswer(req, isVital = false) {
     throw new InvalidOperationError('Invalid data element.');
   }
 
-  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { surveyId: body.surveyId };
+  const surveyWhereClause = isVital
+    ? { surveyType: SURVEY_TYPES.VITALS }
+    : { surveyId: body.surveyId };
   const dateDataElementId = isVital ? VITALS_DATA_ELEMENT_IDS.dateRecorded : null;
   const responseObject = await SurveyResponse.findAll({
     where: {
