@@ -114,6 +114,7 @@ async function putSurveyResponseAnswer(req, isVital = false) {
 
   await db.transaction(async () => {
     const { newValue = '', reasonForChange, date } = body;
+    await answerObject.update({ body: newValue });
     await VitalLog.create({
       date,
       reasonForChange,
@@ -122,7 +123,6 @@ async function putSurveyResponseAnswer(req, isVital = false) {
       recordedById: user.id,
       answerId: id,
     });
-    await answerObject.update({ body: newValue });
     await answerObject.upsertCalculatedQuestions({ date, reasonForChange, user });
   });
 
@@ -202,13 +202,13 @@ surveyResponseAnswer.put(
       settings,
       body: { facilityId },
     } = req;
+    req.checkPermission('write', 'Vitals');
 
     const enableVitalEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_VITAL_EDIT);
     if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
 
-    req.checkPermission('write', 'Vitals');
     const answerObject = await putSurveyResponseAnswer(req, true);
     res.send(answerObject);
   }),
