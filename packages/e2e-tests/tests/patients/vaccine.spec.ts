@@ -381,7 +381,8 @@ test.describe('Vaccines', () => {
       patientDetailsPage,
       vaccine,
       {
-        notGivenReason: 'Edited reason',
+        //The current value is given because this is a prefilled dropdown field and we want to avoid this current value
+        notGivenReason: vaccine.notGivenReason,
         notGivenClinician: 'Edited clinician',
       },
       true,

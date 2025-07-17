@@ -342,7 +342,7 @@ export class PatientDetailsPage extends BasePatientPage {
   /**
    * Gets current browser date in the YYYY-MM-DD format in the browser timezone
    */
-  async getCurrentBrowserDateISOFormat() {
+  getCurrentBrowserDateISOFormat() {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');

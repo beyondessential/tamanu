@@ -112,20 +112,10 @@ export async function editVaccine(
   specificEdits: Partial<Vaccine> = {},
   onlyEditSpecificFields?: boolean,
 ) {
-  const { injectionSite, area, location, department, batch, dateGiven, givenBy, consentGivenBy } = {
-    ...vaccine,
-    ...specificEdits,
-  };
 
   const edits = {
-    batch,
-    dateGiven,
-    injectionSite,
-    area,
-    location,
-    department,
-    givenBy,
-    consentGivenBy,
+    ...vaccine,
+    ...specificEdits
   };
 
   await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
