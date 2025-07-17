@@ -157,7 +157,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   );
 });
 
-const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, firstColTitle) => {
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
   return (cells) => {
     const { value, config, validationCriteria, historyLogs, component } = cells[date];
     const isCalculatedQuestion =
@@ -176,7 +176,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, firs
         <ViewPhotoLink
           imageId={value}
           data-testid="viewphotolink-chrt"
-          firstColTitle={firstColTitle}
+          chartTitle={chartTitle}
         />
       );
     }
