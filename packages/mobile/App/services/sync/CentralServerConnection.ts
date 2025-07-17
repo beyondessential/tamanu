@@ -9,13 +9,11 @@ import {
   VersionIncompatibleError,
   LoginResponse,
 } from '@tamanu/api-client';
-
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-
 import { SYNC_STREAM_MESSAGE_KIND, SERVER_TYPES } from '@tamanu/constants';
 import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
@@ -25,7 +23,6 @@ import {
   SyncRecord,
   SyncConnectionParameters,
 } from '~/types';
-
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
