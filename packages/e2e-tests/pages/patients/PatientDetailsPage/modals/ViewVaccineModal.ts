@@ -4,7 +4,7 @@ import { BasePatientModal } from './BasePatientModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
 import { Vaccine } from 'types/vaccine/Vaccine';
 
-export class ViewVaccineRecordModal extends BasePatientModal {
+export class ViewVaccineModal extends BasePatientModal {
   readonly modalTitle: Locator;
   readonly givenVaccineName: Locator;
   readonly vaccineNameOther: Locator;

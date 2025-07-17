@@ -2,7 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
-import { ViewVaccineRecordModal } from '../modals/temp';
+import { ViewVaccineModal } from '../modals/ViewVaccineModal';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { DeleteVaccineModal } from '../modals/DeleteVaccineModal';
@@ -13,7 +13,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly recordedVaccinesTableLoadingIndicator: Locator;
   readonly recordedVaccinesTablePaginator: Locator;
   recordVaccineModal?: RecordVaccineModal;
-  viewVaccineRecordModal?: ViewVaccineRecordModal;
+  viewVaccineModal?: ViewVaccineModal;
   editVaccineModal?: EditVaccineModal;
   deleteVaccineModal?: DeleteVaccineModal;
   readonly recordedVaccinesTableBody: Locator;
@@ -275,24 +275,24 @@ export class PatientVaccinePane extends BasePatientPane {
     const viewButton = this.recordedVaccinesTableBody
       .getByTestId(`${this.tableRowPrefix}${row}-action`)
       .getByRole('button', { name: 'View' });
-    const viewVaccineRecordModal = await this.viewVaccineModal(viewButton);
+    const viewVaccineModal = await this.openViewVaccineModal(viewButton);
 
-    await viewVaccineRecordModal.assertVaccineModalRequiredFields(vaccine);
+    await viewVaccineModal.assertVaccineModalRequiredFields(vaccine);
 
     if (fillOptionalFields) {
-      await viewVaccineRecordModal.assertVaccineModalOptionalFields(vaccine);
+      await viewVaccineModal.assertVaccineModalOptionalFields(vaccine);
     }
 
     await this.closeModalButton.click();
   }
 
-  async viewVaccineModal(viewButton: Locator) {
+  async openViewVaccineModal(viewButton: Locator) {
     await viewButton.click();
-    if (!this.viewVaccineRecordModal) {
-      this.viewVaccineRecordModal = new ViewVaccineRecordModal(this.page);
+    if (!this.viewVaccineModal) {
+      this.viewVaccineModal = new ViewVaccineModal(this.page);
     }
-    await this.viewVaccineRecordModal.waitForModalToOpen();
-    return this.viewVaccineRecordModal;
+    await this.viewVaccineModal.waitForModalToOpen();
+    return this.viewVaccineModal;
   }
 
   async deleteVaccine(vaccine: Partial<Vaccine>) {
