@@ -3,11 +3,6 @@ import { readConfig } from '../config';
 import { version } from '/root/package.json';
 
 import {
-  BadAuthenticationError,
-  FacilityAndSyncVersionIncompatibleError,
-  RemoteCallFailedError,
-} from '@tamanu/shared';
-import {
   TamanuApi,
   AuthError,
   AuthInvalidError,
@@ -18,6 +13,35 @@ import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
 import { CentralConnectionStatus, FetchOptions, SyncRecord, SyncConnectionParameters } from '~/types';
+
+
+
+class BaseError extends Error {
+  status: number;
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+    this.status = getCodeForErrorName(this.name);
+  }
+}
+
+class BadAuthenticationError extends BaseError {}
+class FacilityAndSyncVersionIncompatibleError extends BaseError {}
+class RemoteCallFailedError extends BaseError {}
+
+const getCodeForErrorName = (name: string) => {
+  switch (name) {
+    case 'BadAuthenticationError':
+      return 401;
+    case 'FacilityAndSyncVersionIncompatibleError':
+      return 403;
+    case 'RemoteCallFailedError':
+      return 500;
+    default:
+      return 500;
+  }
+};
+
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
