@@ -67,7 +67,7 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
   
-  async connect(backoff = { maxAttempts: 1 }, timeout = super.timeout) {
+  async connect(backoff = { maxAttempts: 1 }, timeout = this.timeout) {
     try {
       await super.refreshToken({
         retryAuth: false,
