@@ -11,6 +11,7 @@ export const SETTING_KEYS = {
   SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',
   INTEGRATIONS_IMAGING: 'integrations.imaging',
   FEATURES_DESKTOP_CHARTING_ENABLED: 'features.desktopCharting.enabled',
+  FILE_CHOOSER_MB_SIZE_LIMIT: 'fileChooserMbSizeLimit',
 };
 
 export const SETTINGS_SCOPES = {

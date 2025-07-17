@@ -1,11 +1,25 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
+import { Box, IconButton } from '@material-ui/core';
+import { toast } from 'react-toastify';
 import { Colors } from '../../constants';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { ConditionalTooltip } from '../Tooltip';
+import { useSettings } from '../../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
 
-// this import means that file chooser can't be previewed in storybook
+const StyledIconButton = styled(IconButton)`
+  margin-left: 5px;
+  padding: 5px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+`;
 
 const FieldButtonRow = styled.div`
   width: 100%;
@@ -25,10 +39,72 @@ const ChangeSelectionButton = styled.a`
   cursor: pointer;
 `;
 
+// Smaller string with ellipsis in the middle to show file extension
+const getSmallFileName = (value, maxLength) => {
+  const middlePoint = Math.floor(maxLength / 2);
+  const ellipsisOffset = 3;
+  const lastHalfIndex = value.length - middlePoint + ellipsisOffset;
+  return value.slice(0, middlePoint) + '...' + value.slice(lastHalfIndex, value.length);
+};
+
+const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
+  if (smallDisplay) {
+    const maxLength = 50;
+    const needEllipsis = value.name.length > maxLength;
+    const smallName = needEllipsis ? getSmallFileName(value.name, maxLength) : value.name;
+    return (
+      <Box display="flex">
+        <ConditionalTooltip
+          visible={needEllipsis}
+          title={value.name}
+          data-testid="themedtooltip-h7lo"
+        >
+          {smallName}
+        </ConditionalTooltip>
+        <StyledIconButton
+          onClick={onClear}
+          data-testid="removeselectionbutton-yt3j"
+        >
+          <StyledClearIcon />
+        </StyledIconButton>
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      {value.name}
+      <ChangeSelectionButton
+        onClick={showFileDialog}
+        data-testid="changeselectionbutton-fvw1"
+      >
+        <TranslatedText
+          stringId="chooseFile.button.changeSelection.label"
+          fallback="Change selection"
+          data-testid="translatedtext-qw1d"
+        />
+      </ChangeSelectionButton>
+    </>
+  );
+};
+
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
+export const FILTER_PHOTOS = { name: 'Photos (.jpg, .jpeg)', extensions: ['jpg', 'jpeg'] };
 
-export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
+export const FileChooserInput = ({
+  value = '',
+  label,
+  name,
+  filters,
+  onChange,
+  smallDisplay = false,
+  ...props
+}) => {
+  const { getSetting } = useSettings();
+  const maxFileSizeInMB = getSetting(SETTING_KEYS.FILE_CHOOSER_MB_SIZE_LIMIT) || 10;
+  const maxFileSizeInBytes = maxFileSizeInMB * 1000 * 1000;
+
   // Convert the given filters into string format for the accept attribute of file input
   const acceptString = filters.map((filter) => `.${filter.extensions.join(', .')}`).join(', ');
 
@@ -42,7 +118,24 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
     const file = event.target.files[0];
     if (!file) return;
 
+    const fileSize = file.size;
+    if (fileSize > maxFileSizeInBytes) {
+      toast.error(
+        <TranslatedText
+          stringId="chooseFile.alert.exceedsMaxSize"
+          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB MB"
+          replacements={{ maxFileSizeInMB }}
+          data-testid="translatedtext-b4t3"
+        />,
+      );
+      return;
+    }
+
     onChange({ target: { name, value: file } });
+  };
+
+  const onClear = () => {
+    onChange({ target: { name, value: '' } });
   };
 
   return (
@@ -58,19 +151,12 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
       <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
         <FieldButtonRow className={value ? 'has-value' : ''} data-testid="fieldbuttonrow-snj9">
           {value ? (
-            <>
-              {value.name}
-              <ChangeSelectionButton
-                onClick={showFileDialog}
-                data-testid="changeselectionbutton-fvw1"
-              >
-                <TranslatedText
-                  stringId="chooseFile.button.changeSelection.label"
-                  fallback="Change selection"
-                  data-testid="translatedtext-qw1d"
-                />
-              </ChangeSelectionButton>
-            </>
+            <ValueSection
+              value={value}
+              smallDisplay={smallDisplay}
+              showFileDialog={showFileDialog}
+              onClear={onClear}
+            />
           ) : (
             <>
               <Button
@@ -87,8 +173,9 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
               </Button>
               <HintText data-testid="hinttext-oxv8">
                 <TranslatedText
-                  stringId="chooseFile.hint.max10Mb.label"
-                  fallback="Max 10 MB"
+                  stringId="chooseFile.hint.maxSize.label"
+                  fallback="Max :maxFileSizeInMB MB"
+                  replacements={{ maxFileSizeInMB }}
                   data-testid="translatedtext-u0s3"
                 />
                 <br />
