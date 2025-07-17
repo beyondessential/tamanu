@@ -673,9 +673,22 @@ export const DischargeForm = ({
   const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications =
-    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
+  const activeMedications = (encounterMedications?.data || []).filter(
+    medication => !medication.discontinued,
+  );
+  const onGoingMedications = (ongoingPrescriptions?.data || [])
+    .filter(p => !p.discontinued)
+    .filter(
+      p =>
+        !activeMedications.some(
+          am =>
+            am.medicationId === p.medicationId &&
+            am.doseAmount === p.doseAmount &&
+            am.units === p.units &&
+            am.route === p.route &&
+            am.frequency === p.frequency,
+        ),
+    );
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,
