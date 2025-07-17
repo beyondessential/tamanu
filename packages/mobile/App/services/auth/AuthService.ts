@@ -26,15 +26,8 @@ export class AuthService {
 
   emitter = mitt();
 
-  constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
+  constructor(models: typeof MODELS_MAP) {
     this.models = models;
-    this.centralServer = centralServer;
-
-    this.centralServer.emitter.on('error', err => {
-      if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
-        this.emitter.emit('authError', err);
-      }
-    });
   }
 
   async initialiseCentralServerConnection() {
@@ -45,6 +38,12 @@ export class AuthService {
       await writeConfig('deviceId', deviceId);
     }
     this.centralServer = new CentralServerConnection({ host, deviceId });
+    this.centralServer.emitter.on('error', err => {
+      if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
+        this.emitter.emit('authError', err);
+      }
+    });
+    return this.centralServer;
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {

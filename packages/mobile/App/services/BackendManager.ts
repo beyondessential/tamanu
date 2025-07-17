@@ -36,7 +36,6 @@ export class BackendManager {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.centralServer = new CentralServerConnection();
     this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
@@ -46,7 +45,8 @@ export class BackendManager {
 
   async initialise(): Promise<void> {
     await Database.connect();
-    await this.auth.initialiseCentralServerConnection();
+    const centralServer = await this.auth.initialiseCentralServerConnection();
+    this.centralServer = centralServer;
     await this.startSyncService();
   }
 
