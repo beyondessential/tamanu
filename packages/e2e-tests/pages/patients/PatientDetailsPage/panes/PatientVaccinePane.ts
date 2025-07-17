@@ -297,6 +297,7 @@ export class PatientVaccinePane extends BasePatientPane {
 
   async deleteVaccine(vaccine: Partial<Vaccine>) {
     await this.openVaccineKebabMenu(vaccine);
+    await this.deleteVaccineOption.isVisible();
     await this.deleteVaccineOption.click();
 
     if (!this.deleteVaccineModal) {

@@ -83,6 +83,7 @@ export async function SelectingFromSearchBox(
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
 }
+
 /**
  * Utility method to offset a date by one year
  * @param dateToOffset - The date to offset
