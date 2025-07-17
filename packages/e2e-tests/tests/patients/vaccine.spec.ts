@@ -2,9 +2,6 @@ import { test, expect } from '@fixtures/baseFixture';
 import { convertDateFormat, offsetYear } from '../../utils/testHelper';
 import { addVaccineAndAssert, triggerDateError, editVaccine, assertEditedVaccine } from '@utils/vaccineTestHelpers';
 
-//TODO: is there a better way to handle count? especially in situations like vaccineToDelete.count = 2 after a second vaccine is added?
-//TODO: double check regression test doc, is vaccine schedule stuff possible?
-//TODO: delete all console logs and TODOsthat i added before submitting
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 //TODO: run prettier before submitting
 test.describe('Vaccines', () => {
@@ -524,18 +521,23 @@ test.describe('Vaccines', () => {
     expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(totalVaccineCount);
   });
 
-  //TODO: create some kind of function that takes vaccines as parameters and asserts they're in a certain order?
-  //TODO: if i create above function could this be used in previous test case?
-  test('Table can be sorted by clicking column headers', async ({ patientDetailsPage }) => {
+  test('Recorded vaccines table can be sorted by clicking column headers', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const dateOneYearAgo = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
+    const dateTwoYearsAgo = await offsetYear(dateOneYearAgo, 'decreaseByOneYear');
+
     const vaccines = [
       await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {
         specificVaccine: 'Rotavirus',
+        specificDate: currentBrowserDate
       }),
       await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
         specificVaccine: 'Hep B',
+        specificDate: dateOneYearAgo
       }),
       await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3, {
         specificVaccine: 'TCV Typhoid',
+        specificDate: dateTwoYearsAgo
       }),
     ];
 
@@ -545,12 +547,18 @@ test.describe('Vaccines', () => {
 
     //Clicks the vaccine column header to sort the table in descending order by vaccine name
     await patientDetailsPage.patientVaccinePane?.vaccineColumnHeader.click();
-    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'desc');
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'vaccine', 'desc');
 
     //Clicks the vaccine column header to sort the table in ascending order by vaccine name
     await patientDetailsPage.patientVaccinePane?.vaccineColumnHeader.click();
-    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'asc');
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'vaccine', 'asc');
     
-    //TODO: extend this to date column
+    //Clicks the date column header to sort the table in descending order by date
+    await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'desc');
+
+    //Clicks the date column header to sort the table in ascending order by date
+    await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
+    await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
   });
 });

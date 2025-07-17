@@ -314,12 +314,41 @@ export class PatientVaccinePane extends BasePatientPane {
     await expect(this.deleteVaccineModal.modalTitle).not.toBeVisible();
   }
 
-  async assertVaccineOrder(vaccines: Partial<Vaccine>[], order: 'asc' | 'desc') {
-    const vaccineNames = vaccines.map((vaccine) => vaccine.vaccineName).filter((name): name is string => name !== undefined);
-    const sortedVaccineNames = [...vaccineNames].sort((a, b) => 
+  /**
+   * Asserts the order of the vaccines in the table is correct
+   * @param vaccines - An array of vaccines to assert the order of, each vaccine includes properties like vaccineName, dateGiven etc
+   * @param sortBy - The column to sort by, e.g. "vaccine" or "date"
+   * @param order - The order to sort by, e.g. "asc" or "desc"
+   */
+
+  async assertVaccineOrder(vaccines: Partial<Vaccine>[], sortBy: 'vaccine' | 'date', order: 'asc' | 'desc') {
+    let sortedVaccineNames: string[] = [];
+
+    if (sortBy === 'vaccine') {
+    const filteredVaccineNames = vaccines.map((vaccine) => vaccine.vaccineName).filter((name): name is string => name !== undefined);
+    sortedVaccineNames = [...filteredVaccineNames].sort((a, b) => 
       order === 'asc' ? a.localeCompare(b) : b.localeCompare(a)
     );
-    
+  } else if (sortBy === 'date') {
+    sortedVaccineNames = vaccines
+      .filter((vaccine): vaccine is Vaccine => 
+        vaccine.vaccineName !== undefined && 
+        vaccine.dateGiven !== undefined
+      )
+      .sort((a, b) => {
+        const dateA = new Date(a.dateGiven);
+        const dateB = new Date(b.dateGiven);
+        return order === 'asc' 
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
+      })
+      .map(vaccine => vaccine.vaccineName);
+  }
+
+    if (sortedVaccineNames.length === 0) {
+      throw new Error('Test data has not been sorted correctly');
+    }
+
     //Iterate through the table and assert each row is in the correct order
     for (let i = 0; i < sortedVaccineNames.length; i++) {
       const sortedVaccineName = sortedVaccineNames[i];
