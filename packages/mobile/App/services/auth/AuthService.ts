@@ -121,7 +121,7 @@ export class AuthService {
 
     console.log(`Getting token from ${server}`);
     const { user, token, refreshToken, settings, localisation, permissions } =
-      await this.centralServer.connect(server);
+    await this.centralServer.connect();
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -149,14 +149,14 @@ export class AuthService {
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
-    const { server, email } = params;
-    await this.centralServer.connect(server);
+    const { email } = params;
+    await this.centralServer.connect();
     await this.centralServer.post('resetPassword', {}, { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
-    const { server, ...rest } = params;
-    await this.centralServer.connect(server);
+    const { ...rest } = params;
+    await this.centralServer.connect();
     await this.centralServer.post('changePassword', {}, { ...rest });
   }
 }
