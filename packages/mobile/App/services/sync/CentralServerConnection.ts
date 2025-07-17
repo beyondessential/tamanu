@@ -6,7 +6,7 @@ import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
-} from '@tamanu/shared/errors';
+} from '@tamanu/shared';
 import {
   TamanuApi,
   AuthError,
