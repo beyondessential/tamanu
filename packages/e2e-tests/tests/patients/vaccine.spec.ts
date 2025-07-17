@@ -7,8 +7,6 @@ import {
   assertEditedVaccine,
 } from '@utils/vaccineTestHelpers';
 
-//TODO: before submitting PR run the tests a bunch locally to check for any flakiness
-//TODO: run prettier before submitting
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
