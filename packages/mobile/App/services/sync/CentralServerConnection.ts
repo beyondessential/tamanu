@@ -1,6 +1,5 @@
 import mitt from 'mitt';
 import { readConfig } from '../config';
-import { SyncRecord } from './types';
 import { version } from '/root/package.json';
 
 import {
@@ -16,9 +15,9 @@ import {
   LoginResponse,
 } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
-import { CentralConnectionStatus, FetchOptions } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
+import { CentralConnectionStatus, FetchOptions, SyncRecord } from '~/types';
 
 
 export class CentralServerConnection extends TamanuApi {
@@ -67,10 +66,10 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
   
-  async connect(backoff = { maxAttempts: 1 }, timeout = this.timeout) {
+  async connect(backoff = { maxAttempts: 1 }, timeout = 10000) {
     try {
       await super.refreshToken({
-        retryAuth: false,
+        // retryAuth: false, Doesn't exist on TamanuApi side
       });
       return;
     } catch (_) {

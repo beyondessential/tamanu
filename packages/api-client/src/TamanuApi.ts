@@ -67,7 +67,7 @@ interface TamanuApiConfig {
   agentName: string;
   agentVersion: string;
   deviceId: string;
-  defaultRequestConfig?: RequestInit;
+  defaultRequestConfig?: FetchOptions;
   logger?: LoggerType;
 }
 
