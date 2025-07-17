@@ -32,13 +32,8 @@ export const isTranslatedText = (element) => {
  * @returns {string} - The translated text
  */
 export const extractTranslationFromComponent = (element, getTranslation) => {
-  if (typeof element === 'string') {
-    return element;
-  }
-
-  if (!isValidElement(element)) {
-    return '';
-  }
+  if (typeof element === 'string') return element;
+  if (!isTranslatedText(element)) return '';
 
   const { type, props } = element;
   switch (type) {
