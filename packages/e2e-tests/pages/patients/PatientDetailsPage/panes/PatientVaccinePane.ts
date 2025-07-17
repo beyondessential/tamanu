@@ -2,7 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
 import { convertDateFormat } from '../../../../utils/testHelper';
-import { ViewVaccineRecordModal } from '../modals/ViewVaccineRecordModal';
+import { ViewVaccineRecordModal } from '../modals/temp';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { DeleteVaccineModal } from '../modals/DeleteVaccineModal';
