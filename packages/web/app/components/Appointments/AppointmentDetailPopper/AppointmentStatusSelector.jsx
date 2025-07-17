@@ -10,6 +10,7 @@ import { useAppointmentMutation } from '../../../api/mutations';
 import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
 import { useTranslation } from '../../../contexts/Translation';
+import { getEnumStringId } from '../../Translation/TranslatedEnum';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
   status => status !== APPOINTMENT_STATUSES.CANCELLED,
@@ -39,7 +40,7 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
-  const { getEnumTranslation } = useTranslation();
+  const { getTranslation } = useTranslation();
   const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () =>
       toast.success(
@@ -81,9 +82,10 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
     >
       {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
         const isSelected = status === appointment.status;
+        const statusStringId = getEnumStringId(status, APPOINTMENT_STATUSES);
         return (
           <AppointmentStatusChip
-            appointmentStatus={getEnumTranslation(APPOINTMENT_STATUSES, status)}
+            appointmentStatus={getTranslation(statusStringId, status)}
             disabled={disabled || isSelected}
             key={status}
             selected={isSelected}
