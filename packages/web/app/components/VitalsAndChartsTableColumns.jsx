@@ -231,7 +231,13 @@ export const getChartsTableColumns = (
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: getRecordedDateAccessor(date, patient, onCellClick, isEditEnabled, firstColTitle),
+        accessor: getRecordedDateAccessor(
+          date,
+          patient,
+          onCellClick,
+          isEditEnabled,
+          selectedChartSurveyName,
+        ),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },
