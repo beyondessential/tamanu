@@ -1,6 +1,6 @@
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { AUDIT_REASON_KEY, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
@@ -151,6 +151,7 @@ export class SurveyResponseAnswer extends Model {
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
 
+    const { date, reasonForChange, user, isVital } = data;
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
@@ -171,7 +172,7 @@ export class SurveyResponseAnswer extends Model {
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.update({ body: newCalculatedValue });
+        await existingCalculatedAnswer.updateWithReasonForChange(newCalculatedValue, reasonForChange);
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,
@@ -180,7 +181,6 @@ export class SurveyResponseAnswer extends Model {
         });
       }
 
-      const { date, reasonForChange, user, isVital } = data;
       if (isVital) {
         await models.VitalLog.create({
           date,
@@ -192,6 +192,14 @@ export class SurveyResponseAnswer extends Model {
         });
       }
     }
+    return this;
+  }
+
+  // This is to avoid affecting other audit logs that might be created in the same transaction
+  async updateWithReasonForChange(newValue: string, reasonForChange: string) {
+    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+    await this.update({ body: newValue });
+    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, null);
     return this;
   }
 }

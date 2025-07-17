@@ -116,8 +116,8 @@ async function putSurveyResponseAnswer(req, isVital = false) {
 
   await db.transaction(async () => {
     const { newValue = '', reasonForChange, date } = body;
-    await answerObject.update({ body: newValue });
     if (isVital) {
+      await answerObject.update({ body: newValue });
       await VitalLog.create({
         date,
         reasonForChange,
@@ -126,6 +126,8 @@ async function putSurveyResponseAnswer(req, isVital = false) {
         recordedById: user.id,
         answerId: id,
       });
+    } else {
+      await answerObject.updateWithReasonForChange(newValue, reasonForChange);
     }
     await answerObject.upsertCalculatedQuestions({ date, reasonForChange, user, isVital });
   });
