@@ -121,7 +121,7 @@ export class AuthService {
 
     console.log(`Getting token from ${server}`);
     const { user, token, refreshToken, settings, localisation, permissions } =
-    await this.centralServer.connect();
+    await this.centralServer.connect(params);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {

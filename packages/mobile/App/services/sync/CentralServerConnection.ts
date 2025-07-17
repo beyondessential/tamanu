@@ -17,8 +17,7 @@ import {
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
-import { CentralConnectionStatus, FetchOptions, SyncRecord } from '~/types';
-
+import { CentralConnectionStatus, FetchOptions, SyncRecord, SyncConnectionParameters } from '~/types';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
@@ -40,8 +39,12 @@ export class CentralServerConnection extends TamanuApi {
       },
     });
   }
-  
-  async fetch(endpoint: string, query: Record<string, any> = {}, options: FetchOptions = {}): Promise<any> {
+
+  async fetch(
+    endpoint: string,
+    query: Record<string, any> = {},
+    options: FetchOptions = {},
+  ): Promise<any> {
     let retryAuth = options.retryAuth ?? true;
     delete options.retryAuth;
 
@@ -54,7 +57,7 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     try {
-      const response = await super.fetch(endpoint, query,  options);
+      const response = await super.fetch(endpoint, query, options);
       return response;
     } catch (err) {
       if (retryAuth && err instanceof AuthError) {
@@ -65,8 +68,12 @@ export class CentralServerConnection extends TamanuApi {
       throw err;
     }
   }
-  
-  async connect(backoff = { maxAttempts: 1 }, timeout = 10000) {
+
+  async connect(
+    params: SyncConnectionParameters = {},
+    backoff = { maxAttempts: 1 },
+    timeout = 10000,
+  ) {
     try {
       await super.refreshToken({
         // retryAuth: false, Doesn't exist on TamanuApi side
@@ -76,13 +83,10 @@ export class CentralServerConnection extends TamanuApi {
       // ignore error
     }
 
-    //TODO: This info doesn't exist in config like in facility
-    const credentials = await readConfig('syncCredentials');
-
     const facilityId = await readConfig('facilityId', '');
 
     try {
-      return await this.login(credentials.email, credentials.password, {
+      return await this.login(params.email, params.password, {
         backoff,
         timeout,
       }).then(loginData => {
@@ -127,16 +131,20 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.fetch('sync', {}, {
-      method: 'POST',
-      body: {
-        urgent,
-        lastSyncedTick,
-        facilityIds: [facilityId],
-        deviceId: this.deviceId,
-        isMobile: true,
+    const { sessionId, status } = await this.fetch(
+      'sync',
+      {},
+      {
+        method: 'POST',
+        body: {
+          urgent,
+          lastSyncedTick,
+          facilityIds: [facilityId],
+          deviceId: this.deviceId,
+          isMobile: true,
+        },
       },
-    });
+    );
 
     if (!sessionId) {
       // we're waiting in a queue
@@ -238,10 +246,14 @@ export class CentralServerConnection extends TamanuApi {
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.fetch(`sync/${sessionId}/push/complete`, {}, {
-      method: 'POST',
-      body: { tablesToInclude, deviceId: this.deviceId },
-    });
+    await this.fetch(
+      `sync/${sessionId}/push/complete`,
+      {},
+      {
+        method: 'POST',
+        body: { tablesToInclude, deviceId: this.deviceId },
+      },
+    );
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
