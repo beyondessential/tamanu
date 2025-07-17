@@ -59,6 +59,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
+
   constructor(page: Page) {
     super(page);
 
@@ -338,17 +339,17 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-/**
-  * Gets current browser date in the YYYY-MM-DD format in the browser timezone
-  */
-async getCurrentBrowserDateISOFormat() {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const day = String(currentDate.getDate()).padStart(2, '0');
+  /**
+   * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+   */
+  getCurrentBrowserDateISOFormat() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
 
-  return `${year}-${month}-${day}`;
-}
+    return `${year}-${month}-${day}`;
+  }
 
   // Helper methods for handling multiple buttons with the same test ID
   getSubmitEditsButton() {

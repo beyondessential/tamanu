@@ -49,6 +49,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
         }
         value={includeNotGiven}
         onClick={() => setIncludeNotGiven(!includeNotGiven)}
+        data-testid="notgivencheckbox-mz3p"
       />
     </Container>
   );
