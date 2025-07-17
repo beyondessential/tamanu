@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -8,6 +8,7 @@ export class PatientFacility extends Model {
   declare id: string;
   declare patientId: string;
   declare facilityId: string;
+  declare lastInteractedTime: Date;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -35,6 +36,11 @@ export class PatientFacility extends Model {
             model: 'facilities',
             key: 'id',
           },
+        },
+        lastInteractedTime: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.fn('now'),
         },
       },
       {
