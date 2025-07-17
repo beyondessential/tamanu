@@ -13,6 +13,7 @@ import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 import { ExpandMoreIcon } from './FieldCommonComponents';
+import { isTranslatedText } from '../Translation/utils';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -182,7 +183,7 @@ export const SelectInput = ({
   if (disabled || isReadonly || !options || options.length === 0) {
     const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
     const valueText =
-      isValidElement(selectedOptionLabel) && selectedOptionLabel.type.name === 'TranslatedText'
+    isTranslatedText(selectedOptionLabel)
         ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
         : selectedOptionLabel;
     return (
