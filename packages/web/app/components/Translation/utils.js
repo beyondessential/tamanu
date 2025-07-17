@@ -40,20 +40,13 @@ export const extractTranslationFromComponent = (element, getTranslation) => {
     return '';
   }
 
-  // Handle TranslatedText components
-  if (element.type === TranslatedText) {
-    const { stringId, fallback } = element.props;
-    return getTranslation(stringId, fallback);
+  const { type, props } = element;
+  switch (type) {
+    case TranslatedText:
+      return getTranslation(props.stringId, props.fallback);
+    case TranslatedReferenceData:
+      return getTranslation(getReferenceDataStringId(props.value, props.category), props.fallback);
+    default:
+      return '';
   }
-
-  // Handle TranslatedReferenceData components
-  if (element.type === TranslatedReferenceData) {
-    const { value, category, fallback } = element.props;
-    if (!value) return '';
-    const stringId = getReferenceDataStringId(value, category);
-    return getTranslation(stringId, fallback);
-  }
-
-  // If it's a complex element, return empty string to avoid [object Object]
-  return '';
 };
