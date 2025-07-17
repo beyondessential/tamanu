@@ -84,7 +84,7 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
   return <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />;
 };
 
-export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
+export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
   const [showModal, setShowModal] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -108,8 +108,8 @@ export const ViewPhotoLink = ({ imageId, firstColTitle = null }) => {
       setErrorMessage(`Error: ${error.message}`);
     }
   }, [api, imageId]);
-  const isChartView = !!firstColTitle;
-  const title = isChartView ? `${firstColTitle} | View image` : 'Image';
+  const isChartView = !!chartTitle;
+  const title = isChartView ? `${chartTitle} | View image` : 'Image';
 
   return (
     <>
