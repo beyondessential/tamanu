@@ -4,10 +4,11 @@ import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import type { InitOptions } from '../types/model';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 type TranslationOptions = {
-  replacements: Record<string, string>;
-  casing: 'uppercase' | 'lowercase' | 'sentence';
+  replacements?: Record<string, string>;
+  casing?: 'uppercase' | 'lowercase' | 'sentence';
 };
 
 export class TranslatedString extends Model {
@@ -116,7 +117,7 @@ export class TranslatedString extends Model {
       where: {
         language,
         // filter Boolean to avoid query all records
-        [Op.or]: prefixIds.filter(Boolean).map((prefixId) => ({
+        [Op.or]: prefixIds.filter(Boolean).map(prefixId => ({
           id: {
             [Op.startsWith]: prefixId,
           },
@@ -132,9 +133,19 @@ export class TranslatedString extends Model {
   static getTranslationFunction = async (language: string, prefixIds: string[] = []) => {
     const translations = await TranslatedString.getTranslations(language, prefixIds);
 
-    return (stringId: string, fallback: string, translationOptions: TranslationOptions) => {
+    return (stringId: string, fallback: string, translationOptions: TranslationOptions = {}) => {
       const translationFunc = translationFactory(translations);
       const { value } = translationFunc(stringId, fallback, translationOptions);
+      return value;
+    };
+  };
+
+  static getEnumTranslationFunction = async (language: string, prefixIds: string[] = []) => {
+    const translationFunc = await TranslatedString.getTranslationFunction(language, prefixIds);
+    return (enumValues: Record<string, string>, currentValue: string) => {
+      const fallback = enumValues[currentValue];
+      const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+      const value = translationFunc(stringId, fallback || '');
       return value;
     };
   };
