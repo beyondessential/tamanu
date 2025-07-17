@@ -9,6 +9,7 @@ const applyDefaultsToTranslations = ({
   ...rest
 }) => ({
   ...rest,
+  [DEFAULT_LANGUAGE_CODE]: defaultText,
   [ENGLISH_LANGUAGE_CODE]: enText || defaultText,
 });
 
