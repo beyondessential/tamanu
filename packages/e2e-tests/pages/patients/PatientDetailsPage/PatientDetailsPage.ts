@@ -7,6 +7,7 @@ import { CarePlanModal } from './modals/CarePlanModal';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
+  readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
@@ -63,6 +64,7 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
