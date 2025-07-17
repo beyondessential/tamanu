@@ -9,12 +9,12 @@ import {
   VersionIncompatibleError,
   LoginResponse,
 } from '@tamanu/api-client';
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
-import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
+
+// TODO: all the shared imports seem broken
+// import { SYNC_STREAM_MESSAGE_KIND, SERVER_TYPES } from '@tamanu/constants';
+// import { CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants/auth';
 
 import { CentralConnectionStatus, FetchOptions, SyncRecord, SyncConnectionParameters } from '~/types';
-
-
 
 /** TODO: Duplication with shared/errors import didn't work */
 class BaseError extends Error {
@@ -54,7 +54,7 @@ export class CentralServerConnection extends TamanuApi {
 
     super({
       endpoint: url.toString(),
-      agentName: SERVER_TYPES.MOBILE,
+      agentName: 'mobile',
       agentVersion: version,
       deviceId,
       defaultRequestConfig: {
@@ -118,7 +118,7 @@ export class CentralServerConnection extends TamanuApi {
         const { allowedFacilities } = loginData;
         if (
           facilityId &&
-          allowedFacilities !== CAN_ACCESS_ALL_FACILITIES &&
+          allowedFacilities !== 'ALL' &&
           !allowedFacilities.map(f => f.id).includes(facilityId)
         ) {
           console.warn('User doesnt have permission for this facility: ', facilityId);
@@ -181,10 +181,14 @@ export class CentralServerConnection extends TamanuApi {
         endpoint: `sync/${sessionId}/ready/stream`,
       }))) {
         handler: switch (kind) {
-          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
-            // still waiting
+          // TODO: these are the same as the constants in @tamanu/constants, but they're not
+          // exported from there for some reason
+          // SESSION_WAITING
+          case 0x0001:
+          // still waiting
             break handler;
-          case SYNC_STREAM_MESSAGE_KIND.END:
+          // END
+          case 0xf001:
             // includes the new tick from starting the session
             return { sessionId, ...message };
           default:
