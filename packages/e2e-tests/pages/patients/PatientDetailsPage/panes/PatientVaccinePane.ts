@@ -26,7 +26,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly closeModalButton: Locator;
   readonly vaccineColumnHeader: Locator;
   readonly dateColumnHeader: Locator;
-  
+
   constructor(page: Page) {
     super(page);
 
@@ -60,7 +60,7 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async clickEditVaccineButton(vaccine: Partial<Vaccine>) {
-    await this.openVaccineKebabMenu(vaccine); 
+    await this.openVaccineKebabMenu(vaccine);
     await this.editVaccineOption.click();
     if (!this.editVaccineModal) {
       this.editVaccineModal = new EditVaccineModal(this.page);
@@ -109,9 +109,7 @@ export class PatientVaccinePane extends BasePatientPane {
    * Asserts the values for a specific vaccine in the recorded vaccines table are correct
    * @param vaccine - A partial vaccine object containing the fields to assert against
    */
-  async assertRecordedVaccineTable(
-    vaccine: Partial<Vaccine>
-  ) {
+  async assertRecordedVaccineTable(vaccine: Partial<Vaccine>) {
     const { vaccineName, scheduleOption, dateGiven, count, given, givenBy } = vaccine;
 
     if (!vaccineName || !dateGiven || count === undefined || !scheduleOption) {
@@ -266,12 +264,10 @@ export class PatientVaccinePane extends BasePatientPane {
    * Views a vaccine record and asserts the values are correct
    * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
-  async viewVaccineRecordAndAssert(
-    vaccine: Partial<Vaccine>
-  ) {
+  async viewVaccineRecordAndAssert(vaccine: Partial<Vaccine>) {
     const { vaccineName, count, fillOptionalFields, scheduleOption } = vaccine;
 
-    if (!vaccineName || count === undefined|| !scheduleOption) {
+    if (!vaccineName || count === undefined || !scheduleOption) {
       throw new Error('Missing required vaccine fields');
     }
 
@@ -300,7 +296,7 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async deleteVaccine(vaccine: Partial<Vaccine>) {
-    await this.openVaccineKebabMenu(vaccine); 
+    await this.openVaccineKebabMenu(vaccine);
     await this.deleteVaccineOption.click();
 
     if (!this.deleteVaccineModal) {
@@ -308,7 +304,9 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     await expect(this.deleteVaccineModal.modalTitle).toContainText('Delete vaccination record');
-    await expect(this.deleteVaccineModal.modalContent).toContainText('WARNING: This action is irreversible!');
+    await expect(this.deleteVaccineModal.modalContent).toContainText(
+      'WARNING: This action is irreversible!',
+    );
     await this.deleteVaccineModal.confirmButton.click();
     //Confirm the modal is closed before progressing
     await expect(this.deleteVaccineModal.modalTitle).not.toBeVisible();
@@ -321,29 +319,35 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param order - The order to sort by, e.g. "asc" or "desc"
    */
 
-  async assertVaccineOrder(vaccines: Partial<Vaccine>[], sortBy: 'vaccine' | 'date', order: 'asc' | 'desc') {
+  async assertVaccineOrder(
+    vaccines: Partial<Vaccine>[],
+    sortBy: 'vaccine' | 'date',
+    order: 'asc' | 'desc',
+  ) {
     let sortedVaccineNames: string[] = [];
 
     if (sortBy === 'vaccine') {
-    const filteredVaccineNames = vaccines.map((vaccine) => vaccine.vaccineName).filter((name): name is string => name !== undefined);
-    sortedVaccineNames = [...filteredVaccineNames].sort((a, b) => 
-      order === 'asc' ? a.localeCompare(b) : b.localeCompare(a)
-    );
-  } else if (sortBy === 'date') {
-    sortedVaccineNames = vaccines
-      .filter((vaccine): vaccine is Vaccine => 
-        vaccine.vaccineName !== undefined && 
-        vaccine.dateGiven !== undefined
-      )
-      .sort((a, b) => {
-        const dateA = new Date(a.dateGiven);
-        const dateB = new Date(b.dateGiven);
-        return order === 'asc' 
-          ? dateA.getTime() - dateB.getTime()
-          : dateB.getTime() - dateA.getTime();
-      })
-      .map(vaccine => vaccine.vaccineName);
-  }
+      const filteredVaccineNames = vaccines
+        .map(vaccine => vaccine.vaccineName)
+        .filter((name): name is string => name !== undefined);
+      sortedVaccineNames = [...filteredVaccineNames].sort((a, b) =>
+        order === 'asc' ? a.localeCompare(b) : b.localeCompare(a),
+      );
+    } else if (sortBy === 'date') {
+      sortedVaccineNames = vaccines
+        .filter(
+          (vaccine): vaccine is Vaccine =>
+            vaccine.vaccineName !== undefined && vaccine.dateGiven !== undefined,
+        )
+        .sort((a, b) => {
+          const dateA = new Date(a.dateGiven);
+          const dateB = new Date(b.dateGiven);
+          return order === 'asc'
+            ? dateA.getTime() - dateB.getTime()
+            : dateB.getTime() - dateA.getTime();
+        })
+        .map(vaccine => vaccine.vaccineName);
+    }
 
     if (sortedVaccineNames.length === 0) {
       throw new Error('Test data has not been sorted correctly');
@@ -352,8 +356,12 @@ export class PatientVaccinePane extends BasePatientPane {
     //Iterate through the table and assert each row is in the correct order
     for (let i = 0; i < sortedVaccineNames.length; i++) {
       const sortedVaccineName = sortedVaccineNames[i];
-      const row = this.recordedVaccinesTableBody.getByTestId(`${this.tableRowPrefix}${i}-vaccineDisplayName`);
-      await expect(row, `Vaccine ${sortedVaccineName} is not in the correct order`).toContainText(sortedVaccineName);
+      const row = this.recordedVaccinesTableBody.getByTestId(
+        `${this.tableRowPrefix}${i}-vaccineDisplayName`,
+      );
+      await expect(row, `Vaccine ${sortedVaccineName} is not in the correct order`).toContainText(
+        sortedVaccineName,
+      );
     }
   }
 }

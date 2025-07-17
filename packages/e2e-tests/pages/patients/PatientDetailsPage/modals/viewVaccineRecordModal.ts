@@ -94,8 +94,17 @@ export class ViewVaccineRecordModal extends BasePatientModal {
    * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
   async assertVaccineModalOptionalFields(vaccine: Partial<Vaccine>) {
-    const { given, category, batch, injectionSite, givenBy, brand, disease, notGivenClinician, notGivenReason } =
-      vaccine;
+    const {
+      given,
+      category,
+      batch,
+      injectionSite,
+      givenBy,
+      brand,
+      disease,
+      notGivenClinician,
+      notGivenReason,
+    } = vaccine;
 
     if (category === 'Other') {
       await expect(this.otherDisease).toContainText(disease!);

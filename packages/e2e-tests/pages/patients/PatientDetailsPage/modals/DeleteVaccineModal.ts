@@ -1,4 +1,4 @@
-import { Locator, Page, } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 import { BasePatientModal } from './BasePatientModal';
 
@@ -13,5 +13,4 @@ export class DeleteVaccineModal extends BasePatientModal {
     this.modalContent = this.page.getByTestId('modalcontent-bk4w');
     this.confirmButton = this.page.getByTestId('confirmbutton-y3tb');
   }
-
 }

@@ -1,6 +1,11 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { convertDateFormat, offsetYear } from '../../utils/testHelper';
-import { addVaccineAndAssert, triggerDateError, editVaccine, assertEditedVaccine } from '@utils/vaccineTestHelpers';
+import {
+  addVaccineAndAssert,
+  triggerDateError,
+  editVaccine,
+  assertEditedVaccine,
+} from '@utils/vaccineTestHelpers';
 
 //TODO: before submitting PR run the tests a bunch locally to check for any flakiness
 //TODO: run prettier before submitting
@@ -307,21 +312,14 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    const editedVaccine = await editVaccine(
-      patientDetailsPage,
-      vaccine,
-      {
-        batch: 'Edited batch field',
-        dateGiven: editedDateGiven,
-        givenBy: 'Edited given by field',
-        consentGivenBy: 'Edited consent field',
-      },
-    );
+    const editedVaccine = await editVaccine(patientDetailsPage, vaccine, {
+      batch: 'Edited batch field',
+      dateGiven: editedDateGiven,
+      givenBy: 'Edited given by field',
+      consentGivenBy: 'Edited consent field',
+    });
 
-    await assertEditedVaccine(
-      patientDetailsPage,
-      editedVaccine,
-    );
+    await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
   test('Edit a vaccine and fill fields that were originally skipped', async ({
@@ -345,10 +343,7 @@ test.describe('Vaccines', () => {
       true,
     );
 
-    await assertEditedVaccine(
-      patientDetailsPage,
-      editedVaccine,
-    );
+    await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
   test('Edit unique fields for other vaccine', async ({ patientDetailsPage }) => {
@@ -361,10 +356,15 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    const editedVaccine = await editVaccine(patientDetailsPage, vaccine, {
-      brand: 'Edited brand',
-      disease: 'Edited disease',
-    }, true);
+    const editedVaccine = await editVaccine(
+      patientDetailsPage,
+      vaccine,
+      {
+        brand: 'Edited brand',
+        disease: 'Edited disease',
+      },
+      true,
+    );
 
     await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
@@ -379,10 +379,15 @@ test.describe('Vaccines', () => {
       throw new Error('Vaccine record was not created successfully');
     }
 
-    const editedVaccine = await editVaccine(patientDetailsPage, vaccine, {
-      notGivenReason: 'Edited reason',
-      notGivenClinician: 'Edited clinician',
-    }, true);
+    const editedVaccine = await editVaccine(
+      patientDetailsPage,
+      vaccine,
+      {
+        notGivenReason: 'Edited reason',
+        notGivenClinician: 'Edited clinician',
+      },
+      true,
+    );
 
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
 
@@ -390,26 +395,25 @@ test.describe('Vaccines', () => {
   });
 
   test('Edit one vaccine when multiple are present', async ({ patientDetailsPage }) => {
-     const firstVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1);
+    const firstVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1);
 
-     const secondVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
+    const secondVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
 
-     //Updates the count to 2 after a second vaccine is added
-     firstVaccine.count = 2;
+    //Updates the count to 2 after a second vaccine is added
+    firstVaccine.count = 2;
 
-     const editedVaccine = await editVaccine(patientDetailsPage, firstVaccine, {
+    const editedVaccine = await editVaccine(patientDetailsPage, firstVaccine, {
       batch: 'Edited batch field',
       givenBy: 'Edited given by field',
       consentGivenBy: 'Edited consent field',
       injectionSite: 'Will be edited automatically',
-     });
+    });
 
-     //Confirm the first vaccine is edited as expected
-     await assertEditedVaccine(patientDetailsPage, editedVaccine);
+    //Confirm the first vaccine is edited as expected
+    await assertEditedVaccine(patientDetailsPage, editedVaccine);
 
-     //Confirm the second vaccine is not edited
-     await assertEditedVaccine(patientDetailsPage, secondVaccine);
-
+    //Confirm the second vaccine is not edited
+    await assertEditedVaccine(patientDetailsPage, secondVaccine);
   });
 
   test('Validation works when editing a vaccine', async ({ patientDetailsPage }) => {
@@ -447,10 +451,14 @@ test.describe('Vaccines', () => {
     //Assert that the vaccine to keep remains unchanged and only the deleted vaccine is removed
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccineToKeep);
 
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(vaccineCountAfterDeletion);
+    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(
+      vaccineCountAfterDeletion,
+    );
   });
 
-  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with 1 dose)', async ({ patientDetailsPage }) => {
+  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with 1 dose)', async ({
+    patientDetailsPage,
+  }) => {
     const category = 'Routine';
     const vaccine = await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
       specificVaccine: 'Hep B',
@@ -464,17 +472,22 @@ test.describe('Vaccines', () => {
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(category, vaccine.vaccineName);
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(
+      category,
+      vaccine.vaccineName,
+    );
   });
 
-  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with multiple doses)', async ({ patientDetailsPage }) => {
+  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with multiple doses)', async ({
+    patientDetailsPage,
+  }) => {
     const category = 'Routine';
-    const vaccineName = 'Rotavirus'
+    const vaccineName = 'Rotavirus';
 
     const firstDose = await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
       specificVaccine: vaccineName,
     });
-    
+
     const secondDose = await addVaccineAndAssert(patientDetailsPage, true, category, 2, {
       specificVaccine: vaccineName,
       isFollowUpVaccine: true,
@@ -489,19 +502,36 @@ test.describe('Vaccines', () => {
 
     expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
-    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(category, vaccineName);
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.assertVaccineNotInDropdown(
+      category,
+      vaccineName,
+    );
   });
 
-  test('Not given vaccines should be hidden if there is a corresponding given vaccine (desktop only)', async ({ patientDetailsPage }) => {
+  test('Not given vaccines should be hidden if there is a corresponding given vaccine (desktop only)', async ({
+    patientDetailsPage,
+  }) => {
     const uniqueVaccineName = 'Hep B';
     const matchingVaccineName = 'MMR';
-    
-    const uniqueNotGivenVaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
-      specificVaccine: uniqueVaccineName,
-    });
-    const matchingNotGivenVaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0, {
-      specificVaccine: matchingVaccineName,
-    });
+
+    const uniqueNotGivenVaccine = await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Routine',
+      0,
+      {
+        specificVaccine: uniqueVaccineName,
+      },
+    );
+    const matchingNotGivenVaccine = await addVaccineAndAssert(
+      patientDetailsPage,
+      false,
+      'Catchup',
+      0,
+      {
+        specificVaccine: matchingVaccineName,
+      },
+    );
     const givenVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {
       specificVaccine: matchingVaccineName,
     });
@@ -509,7 +539,7 @@ test.describe('Vaccines', () => {
     const totalVaccineCount = 2;
     uniqueNotGivenVaccine.count = totalVaccineCount;
     givenVaccine.count = totalVaccineCount;
-   
+
     if (!uniqueNotGivenVaccine || !matchingNotGivenVaccine || !givenVaccine) {
       throw new Error('Vaccine record was not created successfully');
     }
@@ -518,10 +548,14 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(uniqueNotGivenVaccine);
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(givenVaccine);
-    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(totalVaccineCount);
+    expect(await patientDetailsPage.patientVaccinePane?.getRecordedVaccineCount()).toBe(
+      totalVaccineCount,
+    );
   });
 
-  test('Recorded vaccines table can be sorted by clicking column headers', async ({ patientDetailsPage }) => {
+  test('Recorded vaccines table can be sorted by clicking column headers', async ({
+    patientDetailsPage,
+  }) => {
     const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
     const dateOneYearAgo = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
     const dateTwoYearsAgo = await offsetYear(dateOneYearAgo, 'decreaseByOneYear');
@@ -529,15 +563,15 @@ test.describe('Vaccines', () => {
     const vaccines = [
       await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {
         specificVaccine: 'Rotavirus',
-        specificDate: currentBrowserDate
+        specificDate: currentBrowserDate,
       }),
       await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 2, {
         specificVaccine: 'Hep B',
-        specificDate: dateOneYearAgo
+        specificDate: dateOneYearAgo,
       }),
       await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 3, {
         specificVaccine: 'TCV Typhoid',
-        specificDate: dateTwoYearsAgo
+        specificDate: dateTwoYearsAgo,
       }),
     ];
 
@@ -552,7 +586,7 @@ test.describe('Vaccines', () => {
     //Clicks the vaccine column header to sort the table in ascending order by vaccine name
     await patientDetailsPage.patientVaccinePane?.vaccineColumnHeader.click();
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'vaccine', 'asc');
-    
+
     //Clicks the date column header to sort the table in descending order by date
     await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'desc');

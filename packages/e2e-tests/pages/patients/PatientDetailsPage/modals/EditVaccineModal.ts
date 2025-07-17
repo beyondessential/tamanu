@@ -51,11 +51,17 @@ export class EditVaccineModal extends BasePatientModal {
     this.dateGiven = this.page.getByTestId('field-8sou-input').getByRole('textbox');
     this.injectionSite = this.page.getByTestId('field-jz48-select');
     this.area = this.page.getByTestId('field-zrlv-group-input');
-    this.areaSearch = this.page.getByTestId('field-zrlv-group-input').getByRole('textbox', { name: 'Search...' });
+    this.areaSearch = this.page
+      .getByTestId('field-zrlv-group-input')
+      .getByRole('textbox', { name: 'Search...' });
     this.location = this.page.getByTestId('field-zrlv-location-input');
-    this.locationSearch = this.page.getByTestId('field-zrlv-location-input').getByRole('textbox', { name: 'Search...' });
+    this.locationSearch = this.page
+      .getByTestId('field-zrlv-location-input')
+      .getByRole('textbox', { name: 'Search...' });
     this.department = this.page.getByTestId('field-5sfc-input');
-    this.departmentSearch = this.page.getByTestId('field-5sfc-input').getByRole('textbox', { name: 'Search...' });
+    this.departmentSearch = this.page
+      .getByTestId('field-5sfc-input')
+      .getByRole('textbox', { name: 'Search...' });
     this.givenBy = this.page.getByTestId('field-xycc-input');
     this.consentCheckbox = this.page.getByTestId('consentfield-rvwt-controlcheck');
     this.consentGivenBy = this.page.getByTestId('field-inc8-input');
@@ -68,14 +74,34 @@ export class EditVaccineModal extends BasePatientModal {
     this.areaFieldClearButton = this.page.getByTestId('field-zrlv-group-input-clearbutton');
     this.locationFieldClearButton = this.page.getByTestId('field-zrlv-location-input-clearbutton');
     this.departmentFieldClearButton = this.page.getByTestId('field-5sfc-input-clearbutton');
-    this.areaRequiredError = this.page.getByTestId('field-zrlv-group-input-outerlabelfieldwrapper').getByText('*Required');
-    this.locationRequiredError = this.page.getByTestId('field-zrlv-location-input-outerlabelfieldwrapper').getByText('*Required');
-    this.departmentRequiredError = this.page.getByTestId('field-5sfc-input-outerlabelfieldwrapper').getByText('*Required');
+    this.areaRequiredError = this.page
+      .getByTestId('field-zrlv-group-input-outerlabelfieldwrapper')
+      .getByText('*Required');
+    this.locationRequiredError = this.page
+      .getByTestId('field-zrlv-location-input-outerlabelfieldwrapper')
+      .getByText('*Required');
+    this.departmentRequiredError = this.page
+      .getByTestId('field-5sfc-input-outerlabelfieldwrapper')
+      .getByText('*Required');
     this.consentRequiredError = this.page.getByTestId('formhelpertext-2d0o');
   }
 
   async editFields(vaccine: Partial<Vaccine>) {
-    const { batch, dateGiven, injectionSite, area, location, department, givenBy, consentGivenBy, fillOptionalFields, brand, disease, notGivenReason, notGivenClinician } = vaccine;
+    const {
+      batch,
+      dateGiven,
+      injectionSite,
+      area,
+      location,
+      department,
+      givenBy,
+      consentGivenBy,
+      fillOptionalFields,
+      brand,
+      disease,
+      notGivenReason,
+      notGivenClinician,
+    } = vaccine;
     const editedFields: Partial<Vaccine> = {};
 
     if (batch) {
@@ -178,7 +204,9 @@ export class EditVaccineModal extends BasePatientModal {
       throw new Error('Missing required vaccine fields');
     }
 
-    await expect(category === 'Other' ? this.vaccineNameOther : this.vaccineName).toContainText(vaccineName);
+    await expect(category === 'Other' ? this.vaccineNameOther : this.vaccineName).toContainText(
+      vaccineName,
+    );
     if (category !== 'Other') {
       await expect(this.schedule).toContainText(scheduleOption);
     }
@@ -190,7 +218,20 @@ export class EditVaccineModal extends BasePatientModal {
   }
 
   async assertEditableFields(vaccine: Partial<Vaccine>) {
-    const { batch, dateGiven, injectionSite, area, location, department, givenBy, consentGivenBy, brand, disease, notGivenReason, notGivenClinician } = vaccine;
+    const {
+      batch,
+      dateGiven,
+      injectionSite,
+      area,
+      location,
+      department,
+      givenBy,
+      consentGivenBy,
+      brand,
+      disease,
+      notGivenReason,
+      notGivenClinician,
+    } = vaccine;
 
     if (batch) {
       await expect(this.batch).toHaveValue(batch);
@@ -251,11 +292,11 @@ export class EditVaccineModal extends BasePatientModal {
   async assertRequiredFieldErrors() {
     const errorFields = [
       this.areaRequiredError,
-      this.locationRequiredError, 
+      this.locationRequiredError,
       this.departmentRequiredError,
-      this.consentRequiredError
+      this.consentRequiredError,
     ];
-  
+
     for (const errorField of errorFields) {
       await expect(errorField).toContainText('Required');
     }
