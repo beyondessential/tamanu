@@ -295,7 +295,7 @@ user.get(
     const tasks = await models.Task.findAll({
       limit: rowsPerPage,
       offset: page * rowsPerPage,
-      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime', 'taskType'],
       subQuery: false,
       ...baseQueryOptions,
     });
