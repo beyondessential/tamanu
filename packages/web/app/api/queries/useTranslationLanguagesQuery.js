@@ -16,13 +16,21 @@ const applyDefaultsToTranslations = ({
 export const useTranslationLanguagesQuery = () => {
   const api = useApi();
   return useQuery(['languageList'], () => api.get('public/translation/languageOptions'), {
-    select: (data) => {
+    select: data => {
       const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
-      const languageDisplayNames = applyDefaultsToTranslations(mapValues(keyBy(languageNames, 'language'), 'text'));
-      const languageCountryCodes = applyDefaultsToTranslations(mapValues(keyBy(countryCodes, 'language'), 'text'));
-      const languagesInDbDefaulted = uniq(languagesInDb.map(({ language }) => language === DEFAULT_LANGUAGE_CODE ? ENGLISH_LANGUAGE_CODE : language));
+      const languageDisplayNames = applyDefaultsToTranslations(
+        mapValues(keyBy(languageNames, 'language'), 'text'),
+      );
+      const languageCountryCodes = applyDefaultsToTranslations(
+        mapValues(keyBy(countryCodes, 'language'), 'text'),
+      );
+      const languagesInDbDefaulted = uniq(
+        languagesInDb.map(({ language }) =>
+          language === DEFAULT_LANGUAGE_CODE ? ENGLISH_LANGUAGE_CODE : language,
+        ),
+      );
 
-      return { languageDisplayNames, languageCountryCodes, languagesInDb:languagesInDbDefaulted };
+      return { languageDisplayNames, languageCountryCodes, languagesInDb: languagesInDbDefaulted };
     },
   });
-};    
+};
