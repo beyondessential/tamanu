@@ -145,6 +145,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
   const handleSubmit = async data => {
     const newShapeData = {
       date: getCurrentDateTimeString(),
+      surveyId: dataPoint.component.surveyId,
     };
     Object.entries(data).forEach(([key, value]) => {
       if (key === valueName) newShapeData.newValue = value;
