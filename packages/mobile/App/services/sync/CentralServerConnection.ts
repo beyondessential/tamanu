@@ -16,6 +16,7 @@ import { CentralConnectionStatus, FetchOptions, SyncRecord, SyncConnectionParame
 
 
 
+/** TODO: Duplication with shared/errors import didn't work */
 class BaseError extends Error {
   status: number;
   constructor(message) {
