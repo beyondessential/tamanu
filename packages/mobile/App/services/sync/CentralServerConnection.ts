@@ -17,7 +17,7 @@ import {
 } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 
-import { CentralConnectionStatus } from '~/types';
+import { CentralConnectionStatus, FetchOptions } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 
@@ -41,25 +41,10 @@ export class CentralServerConnection extends TamanuApi {
       },
     });
   }
-
-  async fetch(endpoint: string, options: any = {}, upOptions: any = null): Promise<any> {
-    let retryAuth: boolean;
-    let query: Record<string, any>;
-    let config: any;
-    if (!upOptions || options.query || options.retryAuth || options.method) {
-      // this is a local style 2-argument call
-      retryAuth = options.retryAuth ?? true;
-      query = options.query ?? {};
-      delete options.retryAuth;
-      delete options.query;
-      config = options;
-    } else {
-      // this is an api-client style 3-argument call
-      retryAuth = upOptions.retryAuth ?? false;
-      delete upOptions.retryAuth;
-      query = options;
-      config = upOptions;
-    }
+  
+  async fetch(endpoint: string, query: Record<string, any> = {}, options: FetchOptions = {}): Promise<any> {
+    let retryAuth = options.retryAuth ?? true;
+    delete options.retryAuth;
 
     if (['login', 'refresh'].includes(endpoint)) {
       retryAuth = false;
@@ -70,13 +55,13 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     try {
-      const response = await super.fetch(endpoint, query, config);
+      const response = await super.fetch(endpoint, query,  options);
       return response;
     } catch (err) {
       if (retryAuth && err instanceof AuthError) {
         this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
         await this.connect();
-        return super.fetch(endpoint, options, upOptions);
+        return super.fetch(endpoint, query, options);
       }
       throw err;
     }
@@ -143,7 +128,7 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.fetch('sync', {
+    const { sessionId, status } = await this.fetch('sync', {}, {
       method: 'POST',
       body: {
         urgent,
@@ -205,7 +190,7 @@ export class CentralServerConnection extends TamanuApi {
       tablesForFullResync,
       deviceId: this.deviceId,
     };
-    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
+    await this.fetch(`sync/${sessionId}/pull/initiate`, {}, { method: 'POST', body });
 
     if (await this.streaming()) {
       for await (const { kind, message } of this.stream(() => ({
@@ -219,7 +204,7 @@ export class CentralServerConnection extends TamanuApi {
             // includes the metadata for the changes we're about to pull
             return { sessionId, ...message };
           default:
-            log.warn(`Unexpected message kind: ${kind}`);
+            console.warn(`Unexpected message kind: ${kind}`);
         }
       }
       throw new Error('Unexpected end of stream');
@@ -241,8 +226,7 @@ export class CentralServerConnection extends TamanuApi {
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.fetch(`sync/${sessionId}/pull`, {
-      query,
+    return this.fetch(`sync/${sessionId}/pull`, query, {
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
@@ -250,12 +234,12 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async push(sessionId: string, changes: any): Promise<void> {
-    return this.fetch(`sync/${sessionId}/push`, { method: 'POST', body: { changes } });
+    return this.fetch(`sync/${sessionId}/push`, {}, { method: 'POST', body: { changes } });
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.fetch(`sync/${sessionId}/push/complete`, {
+    await this.fetch(`sync/${sessionId}/push/complete`, {}, {
       method: 'POST',
       body: { tablesToInclude, deviceId: this.deviceId },
     });
