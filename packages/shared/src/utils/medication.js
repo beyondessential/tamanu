@@ -53,13 +53,9 @@ export const getFirstAdministrationDate = (startDate, idealTimes) => {
   return firstStartTime;
 };
 
-export const getDose = (medication, getTranslation, getEnumTranslation) => {
+export const getMedicationDoseDisplay = (medication, getTranslation, getEnumTranslation) => {
   let { doseAmount, units, isVariableDose } = medication;
-  if (!units) return '';
-
-  if (isVariableDose && !doseAmount) {
-    doseAmount = getTranslation('medication.table.variable', 'Variable 1');
-  }
+  if (isVariableDose) doseAmount = getTranslation('medication.table.variable', 'Variable');
   return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units)}`;
 };
 
