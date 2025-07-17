@@ -117,15 +117,17 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   await db.transaction(async () => {
     const { newValue = '', reasonForChange, date } = body;
     await answerObject.update({ body: newValue });
-    await VitalLog.create({
-      date,
-      reasonForChange,
-      previousValue: answerObject.body,
-      newValue,
-      recordedById: user.id,
-      answerId: id,
-    });
-    await answerObject.upsertCalculatedQuestions({ date, reasonForChange, user });
+    if (isVital) {
+      await VitalLog.create({
+        date,
+        reasonForChange,
+        previousValue: answerObject.body,
+        newValue,
+        recordedById: user.id,
+        answerId: id,
+      });
+    }
+    await answerObject.upsertCalculatedQuestions({ date, reasonForChange, user, isVital });
   });
 
   return answerObject;
@@ -186,14 +188,16 @@ async function postSurveyResponseAnswer(req, isVital = false) {
       body: newValue,
       responseId: responseObject[0].id,
     });
-    await VitalLog.create({
-      date,
-      reasonForChange,
-      newValue,
-      recordedById: user.id,
-      answerId: newAnswer.id,
-    });
-    await newAnswer.upsertCalculatedQuestions({ date, reasonForChange, user });
+    if (isVital) {
+      await VitalLog.create({
+        date,
+        reasonForChange,
+        newValue,
+        recordedById: user.id,
+        answerId: newAnswer.id,
+      });
+    }
+    await newAnswer.upsertCalculatedQuestions({ date, reasonForChange, user, isVital });
   });
 
   return newAnswer;

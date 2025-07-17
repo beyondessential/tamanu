@@ -120,6 +120,7 @@ export class SurveyResponseAnswer extends Model {
     date: string;
     reasonForChange: string;
     user: ModelProperties<User>;
+    isVital: boolean;
   }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
@@ -179,15 +180,17 @@ export class SurveyResponseAnswer extends Model {
         });
       }
 
-      const { date, reasonForChange, user } = data;
-      await models.VitalLog.create({
-        date,
-        reasonForChange,
-        previousValue: previousCalculatedValue || null,
-        newValue: newCalculatedValue,
-        recordedById: user.id,
-        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
-      });
+      const { date, reasonForChange, user, isVital } = data;
+      if (isVital) {
+        await models.VitalLog.create({
+          date,
+          reasonForChange,
+          previousValue: previousCalculatedValue || null,
+          newValue: newCalculatedValue,
+          recordedById: user.id,
+          answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
+        });
+      }
     }
     return this;
   }
