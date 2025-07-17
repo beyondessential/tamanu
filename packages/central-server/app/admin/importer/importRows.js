@@ -50,6 +50,19 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
+// Configuration for fields to ignore when checking for changes per model
+const IGNORED_FIELDS_BY_MODEL = {
+  SurveyScreenComponent: ['componentIndex'],
+};
+
+function checkForChanges(existing, normalizedValues, model) {
+  const ignoredFields = IGNORED_FIELDS_BY_MODEL[model] || [];
+
+  return Object.keys(normalizedValues)
+    .filter(key => !ignoredFields?.includes(key))
+    .some(key => existing.changed(key));
+}
+
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {}, skipExisting = false },
@@ -230,6 +243,7 @@ export async function importRows(
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           if (!existing.deletedAt) {
+            updateStat(stats, statkey(model, sheetName), 'updated');
             updateStat(stats, statkey(model, sheetName), 'deleted');
           } else {
             updateStat(stats, statkey(model, sheetName), 'skipped');
@@ -237,20 +251,23 @@ export async function importRows(
           await existing.update(normalizedValues);
           await existing.destroy();
         } else {
+          let hasUpdatedStats = false;
           if (existing.deletedAt) {
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
+            updateStat(stats, statkey(model, sheetName), 'updated');
+            hasUpdatedStats = true;
           }
 
           existing.set(normalizedValues);
-          const hasValueChanges = Object.keys(normalizedValues).some((key) =>
-            existing.changed(key),
-          );
+          const hasValueChanges = checkForChanges(existing, normalizedValues, model);
 
-          if (hasValueChanges) {
-            updateStat(stats, statkey(model, sheetName), 'updated');
-          } else {
-            updateStat(stats, statkey(model, sheetName), 'skipped');
+          if (!hasUpdatedStats) {
+            if (hasValueChanges) {
+              updateStat(stats, statkey(model, sheetName), 'updated');
+            } else {
+              updateStat(stats, statkey(model, sheetName), 'skipped');
+            }
           }
           await existing.save();
         }
