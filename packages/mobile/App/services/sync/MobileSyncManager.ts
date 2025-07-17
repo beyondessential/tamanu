@@ -120,7 +120,9 @@ export class MobileSyncManager {
     progressMessage: string,
     isInitialSync: boolean = false,
   ): void => {
-    const progressByStage = isInitialSync ? STAGE_MAX_PROGRESS_INITIAL : STAGE_MAX_PROGRESS_INCREMENTAL;
+    const progressByStage = isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL
+      : STAGE_MAX_PROGRESS_INCREMENTAL;
     // Get previous stage max progress
     const previousProgress = progressByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
@@ -361,15 +363,15 @@ export class MobileSyncManager {
     }
 
     const lastSuccessfulPull = await localSystemFactRepository.findOne({
-      where: { key: 'lastSuccessfulPull' },
+      where: { key: LAST_SUCCESSFUL_PULL },
     });
     if (lastSuccessfulPull) {
-      lastSuccessfulPull.value = pullUntil;
+      lastSuccessfulPull.value = pullUntil.toString();
       await localSystemFactRepository.save(lastSuccessfulPull);
     } else {
       await localSystemFactRepository.insert({
-        key: 'lastSuccessfulPull',
-        value: pullUntil,
+        key: LAST_SUCCESSFUL_PULL,
+        value: pullUntil.toString(),
       });
     }
   }
@@ -382,26 +384,21 @@ export class MobileSyncManager {
     progressCallback,
   }: PullParams): Promise<void> {
     await Database.setUnsafePragma();
-    await createSnapshotTable();
     await Database.client.transaction(async transactionEntityManager => {
-      try {
-        const incomingModels = getTransactingModelsForDirection(
-          this.models,
-          SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-          transactionEntityManager,
-        );
-        const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
-        };
+      const incomingModels = getTransactingModelsForDirection(
+        this.models,
+        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        transactionEntityManager,
+      );
+      const processStreamedDataFunction = async (records: any) => {
+        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+      };
 
-        await pullRecordsInBatches(
-          { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
-          processStreamedDataFunction,
-        );
-        await this.postPull(transactionEntityManager, pullUntil);
-      } finally {
-        await Database.setSafePragma();
-      }
+      await pullRecordsInBatches(
+        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+        processStreamedDataFunction,
+      );
+      await this.postPull(transactionEntityManager, pullUntil);
     });
   }
 

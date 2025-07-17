@@ -36,16 +36,24 @@ export const executeInserts = async (
     Math.min(insertBatchSize, MAX_RECORDS_IN_BULK_INSERT),
   )) {
     try {
-      // insert with listeners turned off, so that it doesn't cause a patient to be marked for
-      // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
-      await repository.insert(batchOfRows, { listeners: false });
+      // Use TypeORM query builder for bulk insert with prepared statements
+      
+      await repository
+        .createQueryBuilder()
+        .insert()
+        .values(batchOfRows)
+        .execute();
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
         batchOfRows.map(async row => {
           try {
-            await repository.insert(row);
+            await repository
+              .createQueryBuilder()
+              .insert()
+              .values([row])
+              .execute();
           } catch (error) {
             throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
