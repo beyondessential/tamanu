@@ -228,12 +228,16 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
               },
               dose: {
                 doseQuantity: {
-                  value: parseInt(prescription.doseAmount),
+                  value: parseFloat(prescription.doseAmount),
                   unit: prescription.units,
                 },
               },
             },
           ],
+        },
+        dispenseRequest: {
+          quantity: pharmacyOrderPrescription.quantity,
+          numberOfRepeatsAllowed: pharmacyOrderPrescription.repeats,
         },
         authoredOn: pharmacyOrder.createdAt.toISOString(),
         note: [

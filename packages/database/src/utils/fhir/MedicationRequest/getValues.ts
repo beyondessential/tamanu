@@ -44,6 +44,10 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     medication: await medication(upstream, models),
     authoredOn: pharmacyOrder.createdAt,
     dosageInstruction: await dosageInstruction(upstream, models),
+    dispenseRequest: {
+      quantity: upstream.quantity,
+      numberOfRepeatsAllowed: upstream.repeats,
+    },
     recorder,
     requester,
     subject,
@@ -165,10 +169,6 @@ async function dosageInstruction(
         }),
       ],
     }),
-    dispenseRequest: {
-      quantity: prescription.quantity,
-      numberOfRepeatsAllowed: prescription.repeats,
-    },
   });
 }
 
