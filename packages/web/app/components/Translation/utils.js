@@ -3,6 +3,7 @@ import { SexCell } from '../../views/patients/columns';
 import { LocationCell } from '../LocationCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedSex, TranslatedText } from '.';
 import { ClinicalStatusCell } from '../../views/programRegistry/ClinicalStatusDisplay';
+import { getReferenceDataStringId } from './TranslatedReferenceData';
 
 /**
  * Given a valid React element, returns true if and only if that element is a wrapper around
@@ -22,4 +23,25 @@ export const isTranslatedText = (element) => {
     SexCell,
     ClinicalStatusCell,
   ].includes(element.type);
+};
+
+/**
+ * Extracts the translated text from a translation component
+ * @param {React.ReactElement|string} element - The element to extract translation from
+ * @param {Function} getTranslation - The translation function from useTranslation hook
+ * @returns {string} - The translated text
+ */
+export const extractTranslationFromComponent = (element, getTranslation) => {
+  if (typeof element === 'string') return element;
+  if (!isTranslatedText(element)) return '';
+
+  const { type, props } = element;
+  switch (type) {
+    case TranslatedText:
+      return getTranslation(props.stringId, props.fallback);
+    case TranslatedReferenceData:
+      return getTranslation(getReferenceDataStringId(props.value, props.category), props.fallback);
+    default:
+      return '';
+  }
 };
