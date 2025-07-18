@@ -73,6 +73,10 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.JSONB,
       allowNull: true,
     },
+    dispense_request: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
     resolved: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

@@ -20,8 +20,8 @@ export function getQueryToFindUpstreamIds(models: Models, table: string, id: str
       return {
         include: [
           {
-            model: PharmacyOrderPrescription,
-            as: 'pharmacyOrderPrescription',
+            model: Prescription,
+            as: 'prescription',
             required: true,
             where: { id },
           },
