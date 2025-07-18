@@ -103,6 +103,18 @@ interface DecodeResult {
   message?: any;
 }
 
+interface LoginResponseData {
+  token: string;
+  refreshToken: string;
+  permissions?: string[];
+  server?: {
+    type: string;
+    centralHost?: string;
+  };
+  centralHost?: string;
+  serverType?: string;
+}
+
 export class TamanuApi {
   #host: string;
   #prefix: string;
@@ -187,13 +199,14 @@ export class TamanuApi {
         );
       }
 
+      const responseData = (await response.json()) as LoginResponseData;
       const {
-        server = {},
+        server: serverFromResponse,
         centralHost,
         serverType: responseServerType,
         ...loginData
-      } = await response.json();
-
+      } = responseData;
+      const server = serverFromResponse ?? { type: '', centralHost: undefined };
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
