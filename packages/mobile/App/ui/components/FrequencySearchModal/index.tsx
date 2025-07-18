@@ -7,7 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/FrequencySuggester';
+import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
 
 const styles = StyleSheet.create({
   container: {

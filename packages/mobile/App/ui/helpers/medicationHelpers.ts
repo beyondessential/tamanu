@@ -2,7 +2,7 @@ import {
   ADMINISTRATION_FREQUENCY_SYNONYMS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '~/constants/medications';
-import { FrequencySuggestion } from './FrequencySuggester';
+import { FrequencySuggestion } from './frequencySuggester';
 import { camelCase } from 'lodash';
 import { addDays, format, isSameDay, set } from 'date-fns';
 
