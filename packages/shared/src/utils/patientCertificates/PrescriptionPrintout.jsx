@@ -141,7 +141,7 @@ const PrescriptionPrintoutComponent = ({
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent style={{ margin: 0 }}>
