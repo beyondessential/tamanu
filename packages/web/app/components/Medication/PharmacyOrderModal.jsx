@@ -24,6 +24,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { BaseModal } from '../BaseModal';
+import { notifyError } from '../../utils';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -359,8 +360,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
       await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
       setShowSuccess(true);
     } catch (error) {
-      console.error('Failed to send pharmacy order:', error);
-      // Handle error appropriately
+      notifyError(error.message);
     }
   }, [validateForm, encounter.id, orderingClinicianId, comments, prescriptions, api]);
 
