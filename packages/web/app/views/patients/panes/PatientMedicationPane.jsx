@@ -14,7 +14,7 @@ import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { Button } from '../../../components';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
@@ -191,7 +191,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
       <CellText discontinued={data?.discontinued}>
-        {getDose(data, getTranslation, getEnumTranslation)}
+        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </CellText>
     ),
@@ -273,7 +273,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
       <>
-        {getDose(data, getTranslation, getEnumTranslation)}
+        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </>
     ),

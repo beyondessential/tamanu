@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
 
 import styled from 'styled-components';
-import { getDose } from '@tamanu/shared/utils/medication';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -14,7 +13,11 @@ import { AutocompleteField, CheckField, Field, Form, NumberField, TextField } fr
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_STATUS,
+  ADMINISTRATION_STATUS_LABELS,
+  DRUG_UNIT_SHORT_LABELS,
+} from '@tamanu/constants';
 import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
@@ -235,9 +238,9 @@ export const MarDetails = ({
   };
 
   const onSubmit = async (data, { setFieldValue }) => {
-    const isDoseAmountNotMatch = data.doses.some(
-      dose => Number(dose.doseAmount) !== Number(medication.doseAmount),
-    );
+    const isDoseAmountNotMatch =
+      !medication.isVariableDose &&
+      data.doses.some(dose => Number(dose.doseAmount) !== Number(medication.doseAmount));
     if (!showWarningModal && isDoseAmountNotMatch) {
       setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
       return;
@@ -504,11 +507,10 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              {getDose(
-                                { ...medication, doseAmount: dose.doseAmount },
-                                getTranslation,
-                                getEnumTranslation,
-                              )}
+                              {`${dose.doseAmount} ${getEnumTranslation(
+                                DRUG_UNIT_SHORT_LABELS,
+                                medication.units,
+                              )}`}
                             </DarkestText>
                             <MidText mt={'15px'}>
                               <TranslatedText

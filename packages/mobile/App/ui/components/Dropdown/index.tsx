@@ -11,6 +11,7 @@ import { useBackend } from '~/ui/hooks';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { isEqual } from 'lodash';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -106,6 +107,19 @@ export const Dropdown = React.memo(
 
       return Array.isArray(value) ? value : [value];
     });
+
+      useEffect(() => {
+        if (Array.isArray(value)) {
+          if (!isEqual(value, selectedItems)) {
+            setSelectedItems(value);
+          }
+        } else {
+          if (value !== selectedItems[0]) {
+            setSelectedItems([value]);
+          }
+        }
+      }, [value]);
+
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
@@ -221,8 +235,8 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
       });
       setOptions(translatedResults);
     })();
-  // Only run once
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <Dropdown {...props} options={options} />;

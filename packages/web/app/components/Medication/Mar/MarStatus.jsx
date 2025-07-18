@@ -180,7 +180,7 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMar
       }
     }
 
-    return pauseStartDate < endDateOfSlot && pauseEndDate > startDateOfSlot;
+    return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
   });
 };
 
@@ -248,12 +248,11 @@ export const MarStatus = ({
   );
   const isPreviouslyPaused =
     previousTimeSlot &&
-    previousMarInfo &&
     getIsPaused({
       pauseRecords: pauseRecords?.data,
       timeSlot: previousTimeSlot,
       selectedDate,
-      recordedAt: previousMarInfo.recordedAt,
+      recordedAt: previousMarInfo?.recordedAt,
       nextMarInfo: marInfo,
     });
 

@@ -43,7 +43,7 @@ import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
@@ -267,7 +267,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         />
       </DarkestText>
       <Box fontSize={'14px'} color={Colors.midText}>
-        {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+        {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
         {getTranslatedFrequency(medication.frequency, getTranslation)}
       </Box>
     </Box>
@@ -673,9 +673,22 @@ export const DischargeForm = ({
   const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications =
-    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
+  const activeMedications = (encounterMedications?.data || []).filter(
+    medication => !medication.discontinued,
+  );
+  const onGoingMedications = (ongoingPrescriptions?.data || [])
+    .filter(p => !p.discontinued)
+    .filter(
+      p =>
+        !activeMedications.some(
+          am =>
+            am.medicationId === p.medicationId &&
+            am.doseAmount === p.doseAmount &&
+            am.units === p.units &&
+            am.route === p.route &&
+            am.frequency === p.frequency,
+        ),
+    );
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,

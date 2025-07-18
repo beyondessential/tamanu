@@ -21,7 +21,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort, formatTime } from '@tamanu/utils/dateTime';
-import { getDose, getTranslatedFrequency } from '../medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 
@@ -327,6 +327,7 @@ const EncounterRecordPrintoutComponent = ({
   vitalsData,
   recordedDates,
   getVitalsColumn,
+  getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
@@ -485,7 +486,7 @@ const EncounterRecordPrintoutComponent = ({
         accessor: (medication) => {
           return (
             <Text>
-              {getDose(medication, getTranslation, getEnumTranslation)}
+              {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)}
               {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
             </Text>
           );
@@ -550,7 +551,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
         <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />
