@@ -2,7 +2,11 @@ import mitt from 'mitt';
 import { readConfig } from '../config';
 import { version } from '/root/package.json';
 
-import { SYNC_STREAM_MESSAGE_KIND, SERVER_TYPES, CAN_ACCESS_ALL_FACILITIES } from '@tamanu/constants';
+import {
+  SYNC_STREAM_MESSAGE_KIND,
+  SERVER_TYPES,
+  CAN_ACCESS_ALL_FACILITIES,
+} from '@tamanu/constants';
 import {
   TamanuApi,
   AuthError,
