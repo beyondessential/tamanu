@@ -205,7 +205,7 @@ export class TamanuApi {
         centralHost,
         serverType: responseServerType,
         ...loginData
-      } = responseData as LoginResponseData & { server?: ServerInfo };
+      } = responseData as LoginResponseData;
 
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
