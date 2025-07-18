@@ -527,16 +527,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 />
 
                 <Field
-                  component={Checkbox}
-                  name="isPhoneOrder"
-                  text={
-                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone order" />
-                  }
-                  fieldFontSize={14}
-                  fieldColor={theme.colors.TEXT_DARK}
-                />
-
-                <Field
                   component={TextField}
                   name="notes"
                   label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}

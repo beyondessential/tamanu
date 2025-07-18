@@ -24,10 +24,6 @@ export class FrequencySuggester {
   };
 
   fetchSuggestions = async (search: string): Promise<FrequencySuggestion[]> => {
-    if (!search) {
-      return this.suggestions;
-    }
-
     const searchLower = search.toLowerCase();
 
     const getMatchType = (label: string, synonyms: string[]) => {
