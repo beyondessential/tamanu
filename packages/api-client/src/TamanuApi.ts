@@ -1,6 +1,10 @@
 import qs from 'qs';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  CAN_ACCESS_ALL_FACILITIES,
+} from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -44,12 +48,14 @@ interface LoginData {
   permissions?: string[];
 }
 
-interface LoginResponse extends LoginData {
+export interface LoginResponse extends LoginData {
   user: User;
   ability: {
     can: (action: string, subject: string, field?: string) => boolean;
   };
   server: ServerInfo;
+  allowedFacilities: { id: string }[] | typeof CAN_ACCESS_ALL_FACILITIES;
+  settings: any; // TODO
 }
 
 interface ServerInfo {
@@ -62,7 +68,7 @@ interface TamanuApiConfig {
   agentName: string;
   agentVersion: string;
   deviceId: string;
-  defaultRequestConfig?: RequestInit;
+  defaultRequestConfig?: FetchOptions;
   logger?: LoggerType;
 }
 
@@ -212,7 +218,7 @@ export class TamanuApi {
       this.setToken(loginData.token, loginData.refreshToken);
 
       const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
-      return { ...loginData, user, ability, server };
+      return { ...loginData, user, ability, server } as LoginResponse;
     })().finally(() => {
       this.#ongoingAuth = null;
     }));

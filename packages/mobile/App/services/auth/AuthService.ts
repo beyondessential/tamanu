@@ -1,6 +1,7 @@
 import mitt from 'mitt';
 
 import { MODELS_MAP } from '~/models/modelsMap';
+import { v4 as uuidv4 } from 'uuid';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
@@ -25,20 +26,28 @@ export class AuthService {
 
   emitter = mitt();
 
-  constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
+  constructor(models: typeof MODELS_MAP) {
     this.models = models;
-    this.centralServer = centralServer;
+  }
 
-    this.centralServer.emitter.on('error', (err) => {
+  private attachErrorHandlers(centralServer: CentralServerConnection): void {
+    centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
     });
   }
 
-  async initialise(): Promise<void> {
-    const server = await readConfig('syncServerLocation');
-    await this.centralServer.connect(server);
+  async initialiseCentralServerConnection() {
+    const host = await readConfig('syncServerLocation');
+    let deviceId = await readConfig('deviceId');
+    if (!deviceId) {
+      deviceId = `mobile-${uuidv4()}`;
+      await writeConfig('deviceId', deviceId);
+    }
+    this.centralServer = new CentralServerConnection({ host, deviceId });
+    this.attachErrorHandlers(this.centralServer);
+    return this.centralServer;
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
@@ -113,11 +122,9 @@ export class AuthService {
     const syncServerLocation = await readConfig('syncServerLocation');
     const server = syncServerLocation || params.server;
 
-    // create the sync source and log in to it
-    await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
     const { user, token, refreshToken, settings, localisation, permissions } =
-      await this.centralServer.login(params.email, params.password);
+    await this.centralServer.connect(params);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -145,14 +152,14 @@ export class AuthService {
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
-    const { server, email } = params;
-    await this.centralServer.connect(server);
+    const { email } = params;
+    await this.centralServer.connect();
     await this.centralServer.post('resetPassword', {}, { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
-    const { server, ...rest } = params;
-    await this.centralServer.connect(server);
+    const { ...rest } = params;
+    await this.centralServer.connect();
     await this.centralServer.post('changePassword', {}, { ...rest });
   }
 }

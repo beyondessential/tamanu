@@ -2,7 +2,7 @@ module.exports = {
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
+    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm|@tamanu/)',
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
@@ -27,6 +27,10 @@ module.exports = {
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
     '/presentation(.*)$': '<rootDir>/App/presentation$1',
+    // Subpath exports for @tamanu/shared
+    '^@tamanu/shared/errors$': '<rootDir>/../shared/dist/cjs/errors.js',
+    '^@tamanu/shared/(.*)$': '<rootDir>/../shared/dist/cjs/$1/index.js',
+    '^@tamanu/constants/(.*)$': '<rootDir>/../constants/dist/cjs/$1.js',
   },
   globals: {
     'ts-jest': {
