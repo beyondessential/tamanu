@@ -7,6 +7,7 @@ import * as yup from 'yup';
 
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormCancelButton } from '../components/Button';
@@ -26,7 +27,6 @@ import { FormGrid } from '../components/FormGrid';
 import {
   TranslatedReferenceData,
   TranslatedText,
-  getReferenceDataStringId,
 } from '../components/Translation';
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useEncounter } from '../contexts/Encounter';

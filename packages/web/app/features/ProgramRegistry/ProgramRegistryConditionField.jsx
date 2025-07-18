@@ -1,10 +1,12 @@
 import React from 'react';
+
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../../contexts/Translation';
 import { useProgramRegistryConditionsQuery } from '../../api/queries';
 import {
   AutocompleteField,
   FieldWithTooltip,
-  getReferenceDataStringId,
 } from '../../components';
 
 export const ProgramRegistryConditionField = ({

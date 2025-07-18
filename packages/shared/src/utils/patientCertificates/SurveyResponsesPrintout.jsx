@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { PROGRAM_DATA_ELEMENT_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -15,15 +15,7 @@ import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyA
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
-import { camelCase } from 'lodash';
-
-export const getReferenceDataStringId = (value, category) => {
-  return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
-};
-
-export const getReferenceDataOptionStringId = (value, category, option) => {
-  return `${getReferenceDataStringId(value, category)}.option.${camelCase(option)}`;
-};
+import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
 
 const pageStyles = StyleSheet.create({
   body: {
