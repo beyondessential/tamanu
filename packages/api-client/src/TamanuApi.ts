@@ -5,7 +5,7 @@ import {
   SYNC_STREAM_MESSAGE_KIND,
   CAN_ACCESS_ALL_FACILITIES,
 } from '@tamanu/constants';
-import { buildAbilityForUser } from '@tamanu/shared/permissions';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
