@@ -297,7 +297,7 @@ export class MedicationAdministrationRecord extends Model {
       dueTime,
       status: TASK_STATUSES.TODO,
       requestTime: getCurrentDateTimeString(),
-      requestedByUserId: prescription.prescriberId,
+      requestedByUserId: SYSTEM_USER_UUID,
     });
   }
 
