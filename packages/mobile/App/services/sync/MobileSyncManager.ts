@@ -6,27 +6,36 @@ import { CentralServerConnection } from './CentralServerConnection';
 import {
   getModelsForDirection,
   getSyncTick,
-  pullIncomingChanges,
   pushOutgoingChanges,
-  saveIncomingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactionalModelsForDirection
+  getTransactingModelsForDirection,
 } from './utils';
-import { dropSnapshotTable } from './utils/manageSnapshotTable';
+import {
+  dropSnapshotTable,
+  createSnapshotTable,
+  insertSnapshotRecords,
+} from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
+import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
+import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-const STAGE_MAX_PROGRESS = {
+const STAGE_MAX_PROGRESS_INCREMENTAL = {
   1: 33,
   2: 66,
   3: 100,
+};
+
+const STAGE_MAX_PROGRESS_INITIAL = {
+  1: 33,
+  2: 100,
 };
 
 type SyncOptions = {
@@ -34,17 +43,23 @@ type SyncOptions = {
 };
 
 export type MobileSyncSettings = {
-  saveIncomingChanges: {
-    maxBatchesToKeepInMemory: number;
-    maxRecordsPerInsertBatch: number;
-  };
-  pullIncomingChanges: {
-    maxRecordsPerSnapshotBatch: number;
-  };
+  maxBatchesToKeepInMemory: number;
+  maxRecordsPerInsertBatch: number;
+  maxRecordsPerSnapshotBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
+export const SYNC_STAGES_TOTAL_INITIAL = Object.values(STAGE_MAX_PROGRESS_INITIAL).length;
+
+export interface PullParams {
+  sessionId: string;
+  recordTotal: number;
+  centralServer: CentralServerConnection;
+  syncSettings: MobileSyncSettings;
+  pullUntil: number;
+  progressCallback: (incrementalPulled: number) => void;
+}
 
 export class MobileSyncManager {
   isQueuing = false;
@@ -99,11 +114,19 @@ export class MobileSyncManager {
    * @param progress
    * @param progressMessage
    */
-  updateProgress = (total: number, progress: number, progressMessage: string): void => {
+  updateProgress = (
+    total: number,
+    progress: number,
+    progressMessage: string,
+    isInitialSync: boolean = false,
+  ): void => {
+    const progressByStage = isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL
+      : STAGE_MAX_PROGRESS_INCREMENTAL;
     // Get previous stage max progress
-    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    const previousProgress = progressByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
+    const progressDenominator = progressByStage[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
@@ -204,7 +227,6 @@ export class MobileSyncManager {
     await dropSnapshotTable();
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-
     // the first step of sync is to start a session and retrieve the session id
     const {
       sessionId,
@@ -229,8 +251,10 @@ export class MobileSyncManager {
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
+    const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
+
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
-    await this.syncIncomingChanges(sessionId);
+    await this.pullChanges(sessionId, syncSettings);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -288,95 +312,124 @@ export class MobileSyncManager {
     );
   }
 
-  /**
-   * Syncing incoming changes happens in two phases:
-   * pulling all the records from the server (in batches),
-   * then saving all those records into the local database
-   * this avoids a period of time where the the local database may be "partially synced"
-   * @param sessionId
-   */
-  async syncIncomingChanges(sessionId: string): Promise<void> {
+  async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
-
-    const mobileSyncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
-
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
-    console.log(
-      `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
-    );
 
-    // This is the start of stage 2 which is calling pull/initiate.
-    // At this stage, we don't really know how long it will take.
-    // So only showing a message to indicate this this is still in progress
-    this.setProgress(
-      STAGE_MAX_PROGRESS[this.syncStage - 1],
-      'Pausing at 33% while server prepares for pull, please wait...',
-    );
-    const tablesForFullResync = await this.models.LocalSystemFact.findOne({
+    const tablesForFullResyncSetting = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
+    const tablesForFullResync = tablesForFullResyncSetting?.value.split(',');
 
-    const incomingModelNames = Object.values(
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-    ).map(m => m.getTableName());
+    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const tableNames = Object.values(incomingModels).map(m => m.getTableName());
 
-    const { totalPulled, pullUntil } = await pullIncomingChanges(
-      this.centralServer,
+    const { totalToPull, pullUntil } = await this.centralServer.initiatePull(
       sessionId,
       pullSince,
-      incomingModelNames,
-      tablesForFullResync?.value.split(','),
-      mobileSyncSettings.pullIncomingChanges,
-      (total, downloadedChangesTotal) =>
-        this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
+      tableNames,
+      tablesForFullResync,
     );
 
-    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalPulled} changes`);
+    let totalPulled = 0;
+    const progressCallback = (incrementalPulled: number) => {
+      totalPulled += incrementalPulled;
+      this.updateProgress(totalToPull, totalPulled, 'Pulling all new changes...');
+    };
+
+    const pullParams: PullParams = {
+      sessionId,
+      recordTotal: totalToPull,
+      centralServer: this.centralServer,
+      syncSettings,
+      pullUntil,
+      progressCallback,
+    };
+    if (isInitialSync) {
+      await this.pullInitialSync(pullParams);
+    } else {
+      await this.pullIncrementalSync(pullParams);
+    }
+  }
+
+  async postPull(entityManager: any, pullUntil: number) {
+    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
+    const tablesForFullResync = await localSystemFactRepository.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+    if (tablesForFullResync) {
+      await localSystemFactRepository.delete(tablesForFullResync);
+    }
+
+    const lastSuccessfulPull = await localSystemFactRepository.findOne({
+      where: { key: LAST_SUCCESSFUL_PULL },
+    });
+    if (lastSuccessfulPull) {
+      lastSuccessfulPull.value = pullUntil.toString();
+      await localSystemFactRepository.save(lastSuccessfulPull);
+    } else {
+      await localSystemFactRepository.insert({
+        key: LAST_SUCCESSFUL_PULL,
+        value: pullUntil.toString(),
+      });
+    }
+  }
+
+  async pullInitialSync({
+    sessionId,
+    recordTotal,
+    pullUntil,
+    syncSettings,
+    progressCallback,
+  }: PullParams): Promise<void> {
+    await Database.setUnsafePragma();
+    await Database.client.transaction(async transactionEntityManager => {
+      const incomingModels = getTransactingModelsForDirection(
+        this.models,
+        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        transactionEntityManager,
+      );
+      const processStreamedDataFunction = async (records: any) => {
+        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+      };
+
+      await pullRecordsInBatches(
+        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+        processStreamedDataFunction,
+      );
+      await this.postPull(transactionEntityManager, pullUntil);
+    });
+  }
+
+  async pullIncrementalSync({
+    sessionId,
+    recordTotal,
+    centralServer,
+    syncSettings,
+    progressCallback,
+    pullUntil,
+  }: PullParams): Promise<void> {
+    const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
+    const processStreamedDataFunction = async (records: any) => {
+      await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
+    };
+
+    await createSnapshotTable();
+    await pullRecordsInBatches(
+      { centralServer, sessionId, recordTotal, progressCallback },
+      processStreamedDataFunction,
+    );
 
     this.setSyncStage(3);
-
-    const shouldUseUnsafeSchema = isInitialSync && mobileSyncSettings.useUnsafeSchemaForInitialSync;
-
-    if (shouldUseUnsafeSchema) {
-      await Database.setUnsafePragma();
-    }
-
-    try {
-      await Database.client.transaction(async transactionEntityManager => {
-        const incomingModels = getTransactionalModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL, transactionEntityManager);
-        if (totalPulled > 0) {
-          await saveIncomingChanges(
-            totalPulled,
-            incomingModels,
-            mobileSyncSettings.saveIncomingChanges,
-            this.updateProgress,
-          );
-        }
-
-        if (tablesForFullResync) {
-          await tablesForFullResync.remove();
-        }
-
-        // update the last successful sync in the same save transaction,
-        // if updating the cursor fails, we want to roll back the rest of the saves
-        // so that we don't end up detecting them as needing a sync up
-        // to the central server when we attempt to resync from the same old cursor
-        await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
-      });
-    } catch (error) {
-      console.error('Error saving incoming changes', error);
-      throw error;
-    } finally {
-      if (shouldUseUnsafeSchema) {
-        await Database.setDefaultPragma();
-      }
-    }
-
-    this.lastSyncPulledRecordsCount = totalPulled;
-
-    console.log(
-      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${totalPulled}`,
-    );
+    await Database.client.transaction(async transactionEntityManager => {
+      const incomingModels = getTransactingModelsForDirection(
+        this.models,
+        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        transactionEntityManager,
+      );
+      await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
+      await this.postPull(transactionEntityManager, pullUntil);
+    });
   }
 }
