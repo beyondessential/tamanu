@@ -222,7 +222,7 @@ export const TriageForm = ({
         startTime: getCurrentDateTimeString(),
         endTime: getCurrentDateTimeString(),
         patientId: patient.id,
-        answers: getAnswersFromData(data, survey),
+        answers: await getAnswersFromData(data, survey),
       };
     }
 

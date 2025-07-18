@@ -56,3 +56,20 @@ export const base64ToJson = <T = unknown>(base64str: string) => {
 export const jsonToBase64 = (obj: Record<string, unknown>) => {
   return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
 };
+
+// Convert a file to a base64 string
+export const convertToBase64 = (file: File) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        throw new Error('Failed to read file');
+      }
+      // Extract the base64 data from the data url for saving
+      // See note for more details https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+      const base64Data = reader.result.split('base64,').pop();
+      return resolve(base64Data);
+    };
+    reader.onerror = (conversionError) => reject(conversionError);
+  });

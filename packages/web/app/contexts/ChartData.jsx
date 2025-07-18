@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useEncounter } from './Encounter';
 import { useEncounterChartWithResponseQuery } from '../api/queries/useEncounterChartWithResponseQuery';
@@ -36,14 +36,14 @@ export const ChartDataProvider = ({ children }) => {
     setIsInitiated(true);
   }, [userPreferences, chartWithResponse, shouldInit]);
 
+  const contextValue = useMemo(() => ({
+    isLoading: !isInitiated,
+    selectedChartTypeId,
+    setSelectedChartTypeId,
+  }), [isInitiated, selectedChartTypeId, setSelectedChartTypeId]);
+
   return (
-    <ChartDataContext.Provider
-      value={{
-        isLoading: !isInitiated,
-        selectedChartTypeId,
-        setSelectedChartTypeId,
-      }}
-    >
+    <ChartDataContext.Provider value={contextValue}>
       {children}
     </ChartDataContext.Provider>
   );
