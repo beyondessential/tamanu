@@ -226,7 +226,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                           onClick={() => setPharmacyOrderModalOpen(true)}
                           disabled={readonly}
                           color="primary"
-                          data-testid="styledtextbutton-hbja"
+                          data-testid="styledtextbutton-uhgj"
                         >
                           <ThemedTooltip
                             title={
