@@ -186,6 +186,41 @@ encounter.post(
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
+encounter.post(
+  '/:id/pharmacyOrder',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, body } = req;
+    const { id } = params;
+    req.checkPermission('write', 'Encounter');
+    req.checkPermission('read', 'Medication');
+    const encounterObject = await models.Encounter.findByPk(id);
+    if (!encounterObject) throw new NotFoundError();
+
+    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+
+    const result = await db.transaction(async () => {
+      const pharmacyOrder = await models.PharmacyOrder.create({
+        orderingClinicianId,
+        comments,
+        encounterId: id,
+      });
+
+      await models.PharmacyOrderPrescription.bulkCreate(
+        pharmacyOrderPrescriptions.map(prescription => ({
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.prescriptionId,
+          quantity: prescription.quantity,
+          repeats: prescription.repeats,
+        })),
+      );
+
+      return pharmacyOrder;
+    });
+
+    res.send(result);
+  }),
+);
+
 encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
 encounter.delete('/:id', deleteEncounter);
@@ -321,7 +356,7 @@ encounterRelations.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map((x) => x.forResponse());
+    const data = objects.map(x => x.forResponse());
 
     res.send({ count, data });
   }),
@@ -338,6 +373,7 @@ encounterRelations.get(
     },
   }),
 );
+
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
 encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
@@ -389,12 +425,12 @@ encounterRelations.get(
     });
 
     const data = await Promise.all(
-      objects.map(async (ir) => {
+      objects.map(async ir => {
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map((a) => a.forResponse()),
-          results: ir.results.map((result) => result.forResponse()),
+          areas: ir.areas.map(a => a.forResponse()),
+          results: ir.results.map(result => result.forResponse()),
         };
       }),
     );
@@ -415,7 +451,7 @@ encounterRelations.get(
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
-    noteTypeCounts.forEach((n) => {
+    noteTypeCounts.forEach(n => {
       noteTypeToCount[n.noteType] = n.count;
     });
     res.send({ data: noteTypeToCount });
@@ -528,7 +564,7 @@ encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurve
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req) {
   const { db, params, query } = req;
-  const { id: encounterId, surveyId = null} = params;
+  const { id: encounterId, surveyId = null } = params;
   const { order = 'DESC', instanceId = null } = query;
 
   const isVitals = surveyId === null;
@@ -632,7 +668,7 @@ async function getAnswersWithHistory(req) {
     },
   );
 
-  const data = result.map((r) => r.result);
+  const data = result.map(r => r.result);
   return { count, data };
 }
 
@@ -657,7 +693,7 @@ async function getGraphData(req, dateDataElementId) {
     },
   });
 
-  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+  const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
 
   const answers = await SurveyResponseAnswer.findAll({
     where: {
@@ -668,10 +704,10 @@ async function getGraphData(req, dateDataElementId) {
   });
 
   const data = answers
-    .map((answer) => {
+    .map(answer => {
       const { responseId } = answer;
       const recordedDateAnswer = dateAnswers.find(
-        (dateAnswer) => dateAnswer.responseId === responseId,
+        dateAnswer => dateAnswer.responseId === responseId,
       );
       const recordedDate = recordedDateAnswer.body;
       return { ...answer.dataValues, recordedDate };
@@ -764,7 +800,7 @@ encounterRelations.get(
 
 const encounterTasksQuerySchema = z.object({
   order: z.preprocess(
-    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
     z.enum(['ASC', 'DESC']).optional().default('ASC'),
   ),
   orderBy: z.enum(['dueTime', 'name']).optional().default('dueTime'),
@@ -821,7 +857,7 @@ encounterRelations.get(
       offset: page * rowsPerPage,
       include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
-    const results = queryResults.map((x) => x.forResponse());
+    const results = queryResults.map(x => x.forResponse());
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });
