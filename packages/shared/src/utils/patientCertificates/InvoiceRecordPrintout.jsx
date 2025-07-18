@@ -449,6 +449,7 @@ const InvoiceRecordPrintoutComponent = ({
   certificateData,
   discharge,
   getLocalisation,
+  getSetting,
   clinicianText,
   invoice,
   enablePatientInsurer,
@@ -474,7 +475,7 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetails getLocalisation={getLocalisation} getSetting={getSetting} patient={patientData} />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}
