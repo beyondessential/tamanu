@@ -19,6 +19,7 @@ export class FhirMedicationRequest extends FhirResource {
   declare recorder?: Record<string, any>;
   declare note?: Record<string, any>;
   declare dosageInstruction?: Record<string, any>;
+  declare dispenseRequest?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -41,6 +42,7 @@ export class FhirMedicationRequest extends FhirResource {
         recorder: DataTypes.JSONB,
         note: DataTypes.JSONB,
         dosageInstruction: DataTypes.JSONB,
+        dispenseRequest: DataTypes.JSONB,
       },
       options,
     );

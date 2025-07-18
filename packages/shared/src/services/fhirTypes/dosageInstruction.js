@@ -13,13 +13,6 @@ export class FhirDosageInstruction extends FhirBaseType {
         timing: FhirTiming.asYup().nullable().default(null),
         doseAndRate: yup.array().of(FhirDoseAndRate.asYup()).nullable().default(null),
         route: FhirCodeableConcept.asYup().nullable().default(null),
-        dispenseRequest: yup
-          .object({
-            quantity: yup.number().nullable().default(null),
-            numberOfRepeatsAllowed: yup.number().nullable().default(null),
-          })
-          .nullable()
-          .default(null),
       })
       .noUnknown();
   }
