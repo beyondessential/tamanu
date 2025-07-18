@@ -205,14 +205,14 @@ encounter.post(
         encounterId: id,
       });
 
-      for (const prescription of pharmacyOrderPrescriptions) {
-        await models.PharmacyOrderPrescription.create({
+      await models.PharmacyOrderPrescription.bulkCreate(
+        pharmacyOrderPrescriptions.map(prescription => ({
           pharmacyOrderId: pharmacyOrder.id,
           prescriptionId: prescription.prescriptionId,
           quantity: prescription.quantity,
           repeats: prescription.repeats,
-        });
-      }
+        })),
+      );
 
       return pharmacyOrder;
     });
@@ -564,7 +564,7 @@ encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurve
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req) {
   const { db, params, query } = req;
-  const { id: encounterId, surveyId = null} = params;
+  const { id: encounterId, surveyId = null } = params;
   const { order = 'DESC', instanceId = null } = query;
 
   const isVitals = surveyId === null;
