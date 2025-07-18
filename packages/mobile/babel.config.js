@@ -27,6 +27,10 @@ module.exports = {
           '/infra': './App/infra',
           '/presentation': './App/presentation',
           '/root': './',
+          // Monorepo packages - point to built distribution files
+          '@tamanu/shared': '../shared/dist/cjs',
+          '@tamanu/constants': '../constants/dist/cjs',
+          '@tamanu/api-client': '../api-client/dist/cjs',
         },
       },
     ],

@@ -18,7 +18,7 @@
       "/types/*": ["App/types/*"],
       "/navigation/*": ["App/ui/navigation/*"],      
       "/containers/*":["App/ui/containers/*"],
-      "/contexts/*":["App/ui/contexts/*"],
+      "/contexts/*": ["App/ui/contexts/*"],
       "/store/*": ["App/ui/store/*"],
       "/models/*": ["App/ui/models/*"],
       "/services/*": ["App/ui/services/*"],
@@ -26,8 +26,13 @@
       "/data/*": ["App/data/*"],
       "/infra/*": ["App/infra/*"],
       "/presentation/*": ["App/presentation/*"],
-      "/migrations/*": ["App/migrations/*"]
+      "/migrations/*": ["App/migrations/*"],
+      // Monorepo packages - point to built distribution files
+      "@tamanu/shared/*": ["../shared/dist/cjs/*"],
+      "@tamanu/constants/*": ["../constants/dist/cjs/*"],
+      "@tamanu/api-client/*": ["../api-client/dist/cjs/*"]
     },
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "jsx": "react",
