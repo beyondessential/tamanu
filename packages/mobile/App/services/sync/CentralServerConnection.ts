@@ -83,8 +83,8 @@ export class CentralServerConnection extends TamanuApi {
   ) {
     try {
       await super.refreshToken({
-        // retryAuth: false, Doesn't exist on TamanuApi side
-      });
+        retryAuth: false,
+      } as FetchOptions);
       return;
     } catch (_) {
       // ignore error
