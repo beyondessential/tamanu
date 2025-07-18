@@ -56,7 +56,7 @@ export class CentralServerConnection extends TamanuApi {
       query = options;
       config = upOptions;
     }
-
+  
     if (['login', 'refresh'].includes(endpoint)) {
       retryAuth = false;
     }
@@ -84,7 +84,7 @@ export class CentralServerConnection extends TamanuApi {
   async connect(backoff = config.sync.backoff, timeout = this.timeout) {
     try {
       await this.refreshToken({
-        // retryAuth: false, // this doesn't exist on TamanuApi side
+        retryAuth: false,
       });
       return;
     } catch (_) {
