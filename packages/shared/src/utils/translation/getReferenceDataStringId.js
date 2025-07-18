@@ -1,22 +1,13 @@
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { camelCase } from 'lodash';
-import { specialCharacterMap } from './specialCharactersMap';
 
 /**
- * Tries to replace special characters with words and then camelCases the result.
- * If no special character match, it just uses the original special character.
- * This ensures no duplicates when importing options while cleaning up most to readable strings
- * @example "A++" -> "APlusPlus"
- * @example "100/ml " -> "100PerMl"
- * @example "1.1" -> "1Dot1"
+ * Replace any spaces and dots with underscores (dots are the delimiter in translation ids)
+ *
+ * @example "hello world" → "hello_world"
+ * @example "test.value" → "test_value"
+ * @example "hello.world test" → "hello_world_test"
  */
-const formatOptionForStringId = str =>
-  camelCase(
-    str.replace(
-      new RegExp(`[${Object.keys(specialCharacterMap).join('\\')}]`, 'g'),
-      match => `${specialCharacterMap[match]}`,
-    ),
-  );
+const formatOptionForStringId = str => str.replace(/[\s.]/g, '_');
 
 /**
  * Returns the stringId for a reference data option.
