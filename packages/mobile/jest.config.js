@@ -27,6 +27,10 @@ module.exports = {
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
     '/presentation(.*)$': '<rootDir>/App/presentation$1',
+    // Subpath exports for @tamanu/shared
+    '^@tamanu/shared/errors$': '<rootDir>/../shared/dist/cjs/errors.js',
+    '^@tamanu/shared/(.*)$': '<rootDir>/../shared/dist/cjs/$1/index.js',
+    '^@tamanu/constants/(.*)$': '<rootDir>/../constants/dist/cjs/$1.js',
   },
   globals: {
     'ts-jest': {
