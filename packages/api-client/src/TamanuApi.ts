@@ -218,7 +218,7 @@ export class TamanuApi {
       this.setToken(loginData.token, loginData.refreshToken);
 
       const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
-      return { ...loginData, user, ability, server };
+      return { ...loginData, user, ability, server } as LoginResponse;
     })().finally(() => {
       this.#ongoingAuth = null;
     }));
