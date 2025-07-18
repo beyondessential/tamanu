@@ -30,6 +30,14 @@ export class AuthService {
     this.models = models;
   }
 
+  private attachErrorHandlers(centralServer: CentralServerConnection): void {
+    centralServer.emitter.on('error', err => {
+      if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
+        this.emitter.emit('authError', err);
+      }
+    });
+  }
+
   async initialiseCentralServerConnection() {
     const host = await readConfig('syncServerLocation');
     let deviceId = await readConfig('deviceId');
@@ -38,11 +46,7 @@ export class AuthService {
       await writeConfig('deviceId', deviceId);
     }
     this.centralServer = new CentralServerConnection({ host, deviceId });
-    this.centralServer.emitter.on('error', err => {
-      if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
-        this.emitter.emit('authError', err);
-      }
-    });
+    this.attachErrorHandlers(this.centralServer);
     return this.centralServer;
   }
 
