@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { CheckCircle } from '@material-ui/icons';
 
 import { Table } from '../Table';
 import {
@@ -18,6 +17,7 @@ import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { pharmacyIcon } from '../../constants/images';
 
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
@@ -29,6 +29,12 @@ const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
     max-width: 900px;
   }
+`;
+
+const PharmacyIcon = styled.img`
+  width: 40%;
+  height: 40%;
+  margin-bottom: 30px;
 `;
 
 const COLUMN_KEYS = {
@@ -215,12 +221,6 @@ const CommentsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const SuccessIcon = styled(CheckCircle)`
-  font-size: 64px;
-  color: ${Colors.success};
-  margin-bottom: 16px;
-`;
-
 const SuccessText = styled.div`
   font-weight: bold;
   font-size: 16px;
@@ -393,7 +393,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
         onClose={handleClose}
       >
         <SuccessContent>
-          <SuccessIcon />
+          <PharmacyIcon src={pharmacyIcon} alt="Pharmacy" />
           <SuccessText>
             <TranslatedText
               stringId="pharmacyOrder.success.message"
