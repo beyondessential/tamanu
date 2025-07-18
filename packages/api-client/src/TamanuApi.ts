@@ -199,14 +199,14 @@ export class TamanuApi {
         );
       }
 
-      const responseData = await response.json() as LoginResponseData;
+      const responseData = (await response.json()) as LoginResponseData;
       const {
-        server = { type: '', centralHost: undefined },
+        server: serverFromResponse,
         centralHost,
         serverType: responseServerType,
         ...loginData
-      } = responseData as LoginResponseData;
-
+      } = responseData;
+      const server = serverFromResponse ?? { type: '', centralHost: undefined };
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
