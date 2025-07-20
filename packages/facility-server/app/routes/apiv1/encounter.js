@@ -535,7 +535,7 @@ async function getAnswersWithHistory(req) {
   const dateDataElement = isVitals
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
-  const historyTable = 'vital_logs'; // TODO: Create new model/table and use it here if its not vitals query
+
   // The LIMIT and OFFSET occur in an unusual place in this query
   // So we can't run it through the generic runPaginatedQuery function
   const countResult = await db.query(
@@ -567,6 +567,27 @@ async function getAnswersWithHistory(req) {
   }
 
   const { page = 0, rowsPerPage = 10 } = query;
+  const vitalsHistorySelect = `
+    SELECT
+      history_table.answer_id,
+      ARRAY_AGG((
+        JSONB_BUILD_OBJECT(
+          'newValue', history_table.new_value,
+          'reasonForChange', history_table.reason_for_change,
+          'date', history_table.date,
+          'userDisplayName', u.display_name
+        )
+      )) logs
+    FROM survey_response_answers sra
+      INNER JOIN survey_responses sr ON sr.id = sra.response_id
+      LEFT JOIN vital_logs history_table ON history_table.answer_id = sra.id
+      LEFT JOIN users u ON u.id = history_table.recorded_by_id
+    WHERE sr.encounter_id = :encounterId
+      AND sr.deleted_at IS NULL
+    GROUP BY history_table.answer_id
+  `;
+  const chartHistorySelect = `
+  `;
 
   const result = await db.query(
     `
@@ -585,23 +606,7 @@ async function getAnswersWithHistory(req) {
         ORDER BY body ${order} LIMIT :limit OFFSET :offset
       ),
       history AS (
-        SELECT
-          history_table.answer_id,
-          ARRAY_AGG((
-            JSONB_BUILD_OBJECT(
-              'newValue', history_table.new_value,
-              'reasonForChange', history_table.reason_for_change,
-              'date', history_table.date,
-              'userDisplayName', u.display_name
-            )
-          )) logs
-        FROM survey_response_answers sra
-          INNER JOIN survey_responses sr ON sr.id = sra.response_id
-          LEFT JOIN ${historyTable} history_table ON history_table.answer_id = sra.id
-          LEFT JOIN users u ON u.id = history_table.recorded_by_id
-        WHERE sr.encounter_id = :encounterId
-          AND sr.deleted_at IS NULL
-        GROUP BY history_table.answer_id
+        ${isVitals ? vitalsHistorySelect : chartHistorySelect}
       )
 
       SELECT
