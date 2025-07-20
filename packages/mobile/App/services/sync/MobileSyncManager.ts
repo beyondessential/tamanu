@@ -33,6 +33,11 @@ const STAGE_MAX_PROGRESS = {
   3: 100,
 };
 
+const STAGE_MAX_PROGRESS_INITIAL_SYNC = {
+  1: 33,
+  2: 100,
+};
+
 type SyncOptions = {
   urgent: boolean;
 };
@@ -56,6 +61,8 @@ export interface PullParams {
 }
 
 export class MobileSyncManager {
+  isInitialSync = false;
+
   isQueuing = false;
 
   isSyncing = false;
@@ -113,10 +120,13 @@ export class MobileSyncManager {
     progress: number,
     progressMessage: string,
   ): void => {
+    const maxProgress = this.isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL_SYNC
+      : STAGE_MAX_PROGRESS;
     // Get previous stage max progress
-    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    const previousProgress = maxProgress[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
+    const progressDenominator = maxProgress[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
@@ -305,7 +315,7 @@ export class MobileSyncManager {
   async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-    const isInitialSync = pullSince === -1;
+    this.isInitialSync = pullSince === -1;
 
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
@@ -351,7 +361,7 @@ export class MobileSyncManager {
       pullUntil,
       progressCallback,
     };
-    if (isInitialSync) {
+    if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
       await this.pullIncrementalSync(pullParams);

@@ -29,7 +29,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
-  const [formattedlastSuccessfulSyncTime, setFormattedlastSuccessfulSyncTime] = useState(
+  const [formattedLastSuccessfulSyncTime, setFormattedLastSuccessfulSyncTime] = useState(
     formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
   );
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
@@ -82,7 +82,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setSyncStage(syncManager.syncStage);
           setProgress(syncManager.progress);
           setProgressMessage(syncManager.progressMessage);
-          setFormattedlastSuccessfulSyncTime(
+          setFormattedLastSuccessfulSyncTime(
             formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
           );
           setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
@@ -104,7 +104,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFormattedlastSuccessfulSyncTime(
+      setFormattedLastSuccessfulSyncTime(
         formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
       );
     }, 1000);
@@ -191,7 +191,12 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               <TranslatedText
                 stringId="sync.message.syncStatus"
                 fallback=":currentSyncStage of :totalSyncStages syncing"
-                replacements={{ currentSyncStage: syncStage, totalSyncStages: SYNC_STAGES_TOTAL }}
+                replacements={{
+                  currentSyncStage: syncStage,
+                  totalSyncStages: syncManager.isInitialSync
+                    ? SYNC_STAGES_TOTAL
+                    : SYNC_STAGES_TOTAL - 1,
+                }}
               />
             }
           </StyledText>
@@ -205,7 +210,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             {progressMessage}
           </StyledText>
         ) : null}
-        {!isSyncing && formattedlastSuccessfulSyncTime ? (
+        {!isSyncing && formattedLastSuccessfulSyncTime ? (
           <>
             <StyledText
               marginTop={screenPercentageToDP(1.72, Orientation.Height)}
@@ -222,7 +227,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {formattedlastSuccessfulSyncTime}
+              {formattedLastSuccessfulSyncTime}
             </StyledText>
             {!isSyncing &&
             lastSyncPulledRecordsCount !== null &&
