@@ -49,11 +49,7 @@ export const executeInserts = async (
       await Promise.all(
         batchOfRows.map(async row => {
           try {
-            await repository
-              .createQueryBuilder()
-              .insert()
-              .values([row])
-              .execute();
+            await repository.insert(row);
           } catch (error) {
             throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
