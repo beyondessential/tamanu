@@ -1,5 +1,6 @@
 import { saveChangesForModel } from './saveIncomingChanges';
 import * as saveChangeModules from './executeCrud';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {
@@ -17,6 +18,13 @@ const getModel = jest.fn(() => ({
 }));
 const Model = getModel() as any;
 const progressCallback = jest.fn();
+
+const mobileSyncSettings: MobileSyncSettings = {
+  maxRecordsPerInsertBatch: 500,
+  maxBatchesToKeepInMemory: 10,
+  maxRecordsPerSnapshotBatch: 500,
+  useUnsafeSchemaForInitialSync: false,
+};
 
 const generateExistingRecord = (id, data = {}) => ({
   id,
@@ -52,7 +60,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, {}, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(
@@ -86,7 +94,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(
@@ -128,7 +136,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -161,7 +169,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -189,7 +197,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
@@ -220,7 +228,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, 500, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
