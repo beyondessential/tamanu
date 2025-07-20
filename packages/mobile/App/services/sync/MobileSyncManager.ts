@@ -312,10 +312,10 @@ export class MobileSyncManager {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
-    
-    if (isInitialSync) {
-      this.progressMaxByStage = STAGE_MAX_PROGRESS_INITIAL;
-    }
+
+    this.progressMaxByStage = isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL
+      : STAGE_MAX_PROGRESS_INCREMENTAL;
 
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
