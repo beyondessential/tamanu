@@ -245,3 +245,44 @@ surveyResponseAnswer.post(
     res.send(newAnswer);
   }),
 );
+
+surveyResponseAnswer.put(
+  '/chart/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      settings,
+      body: { facilityId },
+    } = req;
+    req.checkPermission('write', 'Charting');
+
+    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    if (!enableChartEdit) {
+      throw new InvalidOperationError('Editing charts is disabled.');
+    }
+
+    const answerObject = await putSurveyResponseAnswer(req);
+    res.send(answerObject);
+  }),
+);
+
+surveyResponseAnswer.post(
+  '/chart',
+  asyncHandler(async (req, res) => {
+    const {
+      settings,
+      body: { facilityId },
+    } = req;
+    req.checkPermission('create', 'Charting');
+
+    // Even though this wouldn't technically be editing a chart
+    // we will not allow the creation of a single chart answer if its not enabled
+    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    if (!enableChartEdit) {
+      throw new InvalidOperationError('Editing charts is disabled.');
+    }
+
+    const newAnswer = await postSurveyResponseAnswer(req);
+
+    res.send(newAnswer);
+  }),
+);
