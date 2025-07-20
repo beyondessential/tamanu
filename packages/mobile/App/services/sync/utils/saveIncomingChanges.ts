@@ -45,7 +45,7 @@ export const saveChangesForModel = async (
     const batchOfIds = incomingRecords.map(r => r.id);
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-    const batchOfExisting = await model.find({
+    const batchOfExisting = await repository.find({
       where: { id: In(batchOfIds) },
       select: ['id', 'deletedAt'],
       withDeleted: true,

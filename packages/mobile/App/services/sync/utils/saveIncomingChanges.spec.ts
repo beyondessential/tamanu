@@ -13,8 +13,10 @@ jest.mock('./buildFromSyncRecord', () => {
 // Mock dependencies like `model.find`
 const find = jest.fn();
 const getModel = jest.fn(() => ({
-  find,
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
+  getTransactionalRepository: jest.fn(() => ({
+    find,
+  })),
 }));
 const Model = getModel() as any;
 const progressCallback = jest.fn();
@@ -31,7 +33,7 @@ const generateExistingRecord = (id, data = {}) => ({
   ...data,
 });
 const mockExistingRecords = records => {
-  find.mockImplementation(() => records);
+  getModel().getTransactionalRepository().find.mockImplementation(() => records);
 };
 
 describe('saveChangesForModel', () => {
@@ -60,7 +62,7 @@ describe('saveChangesForModel', () => {
         },
       ];
       // act
-      await saveChangesForModel(Model, changes, {}, progressCallback);
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
       expect(saveChangeModules.executeInserts).toBeCalledWith(
