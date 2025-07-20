@@ -113,11 +113,7 @@ export class MobileSyncManager {
    * @param progress
    * @param progressMessage
    */
-  updateProgress = (
-    total: number,
-    progress: number,
-    progressMessage: string,
-  ): void => {
+  updateProgress = (total: number, progress: number, progressMessage: string): void => {
     // Get previous stage max progress
     const previousProgress = this.progressMaxByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
@@ -402,20 +398,30 @@ export class MobileSyncManager {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
 
+    let pullTotal = 0;
+    const pullProgressCallback = (incrementalPulled: number) => {
+      pullTotal += Number(incrementalPulled);
+      this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
+    };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback: () => {} },
+      { centralServer, sessionId, recordTotal, progressCallback: pullProgressCallback },
       processStreamedDataFunction,
     );
 
     this.setSyncStage(3);
+    let totalSaved = 0;
+    const saveProgressCallback = (incrementalPulled: number) => {
+      totalSaved += Number(incrementalPulled);
+      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+    };
     await Database.client.transaction(async transactionEntityManager => {
       const incomingModels = getTransactingModelsForDirection(
         this.models,
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(incomingModels, syncSettings, () => {});
+      await saveChangesFromSnapshot(incomingModels, syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
