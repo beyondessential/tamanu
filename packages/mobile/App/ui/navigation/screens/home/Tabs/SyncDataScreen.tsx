@@ -193,7 +193,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
                 fallback=":currentSyncStage of :totalSyncStages syncing"
                 replacements={{
                   currentSyncStage: syncStage,
-                  totalSyncStages: syncManager.progressMaxByStage.length,
+                  totalSyncStages: Object.keys(syncManager.progressMaxByStage).length,
                 }}
               />
             }
