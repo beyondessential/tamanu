@@ -112,7 +112,6 @@ export class MobileSyncManager {
     total: number,
     progress: number,
     progressMessage: string,
-    // isInitialSync: boolean = false,
   ): void => {
     const progressByStage = STAGE_MAX_PROGRESS;
     // Get previous stage max progress
@@ -308,6 +307,17 @@ export class MobileSyncManager {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
+
+    console.log(
+      `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
+    );
+    // This is the start of stage 2 which is calling pull/initiate.
+    // At this stage, we don't really know how long it will take.
+    // So only showing a message to indicate this this is still in progress
+    this.setProgress(
+      STAGE_MAX_PROGRESS[this.syncStage - 1],
+      'Pausing at 33% while server prepares for pull, please wait...',
+    );
 
     const tablesForFullResyncSetting = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
