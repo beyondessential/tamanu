@@ -193,7 +193,9 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
                 fallback=":currentSyncStage of :totalSyncStages syncing"
                 replacements={{
                   currentSyncStage: syncStage,
-                  totalSyncStages: syncManager.isInitialSync ? SYNC_STAGES_TOTAL - 1 : SYNC_STAGES_TOTAL,
+                  totalSyncStages: syncManager.isInitialSync
+                    ? SYNC_STAGES_TOTAL - 1
+                    : SYNC_STAGES_TOTAL,
                 }}
               />
             }
