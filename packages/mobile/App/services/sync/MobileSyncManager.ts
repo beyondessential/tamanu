@@ -113,11 +113,10 @@ export class MobileSyncManager {
     progress: number,
     progressMessage: string,
   ): void => {
-    const progressByStage = STAGE_MAX_PROGRESS;
     // Get previous stage max progress
-    const previousProgress = progressByStage[this.syncStage - 1] || 0;
+    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = progressByStage[this.syncStage] - previousProgress;
+    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
