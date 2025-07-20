@@ -27,15 +27,10 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-const STAGE_MAX_PROGRESS_INCREMENTAL = {
+const STAGE_MAX_PROGRESS = {
   1: 33,
   2: 66,
   3: 100,
-};
-
-const STAGE_MAX_PROGRESS_INITIAL = {
-  1: 33,
-  2: 100,
 };
 
 type SyncOptions = {
@@ -49,8 +44,7 @@ export type MobileSyncSettings = {
   useUnsafeSchemaForInitialSync: boolean;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
-export const SYNC_STAGES_TOTAL_INITIAL = Object.values(STAGE_MAX_PROGRESS_INITIAL).length;
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export interface PullParams {
   sessionId: string;
@@ -118,15 +112,11 @@ export class MobileSyncManager {
     total: number,
     progress: number,
     progressMessage: string,
-    isInitialSync: boolean = false,
   ): void => {
-    const progressByStage = isInitialSync
-      ? STAGE_MAX_PROGRESS_INITIAL
-      : STAGE_MAX_PROGRESS_INCREMENTAL;
     // Get previous stage max progress
-    const previousProgress = progressByStage[this.syncStage - 1] || 0;
+    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = progressByStage[this.syncStage] - previousProgress;
+    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
@@ -317,6 +307,17 @@ export class MobileSyncManager {
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
 
+    console.log(
+      `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
+    );
+    // This is the start of stage 2 which is calling pull/initiate.
+    // At this stage, we don't really know how long it will take.
+    // So only showing a message to indicate this this is still in progress
+    this.setProgress(
+      STAGE_MAX_PROGRESS[this.syncStage - 1],
+      'Pausing at 33% while server prepares for pull, please wait...',
+    );
+
     const tablesForFullResyncSetting = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
@@ -335,7 +336,11 @@ export class MobileSyncManager {
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
       totalPulled += incrementalPulled;
-      this.updateProgress(totalToPull, totalPulled, 'Pulling all new changes...');
+      this.updateProgress(
+        totalToPull,
+        totalPulled,
+        `Pulling changes (${totalPulled}/${totalToPull})`,
+      );
     };
 
     const pullParams: PullParams = {
@@ -350,29 +355,6 @@ export class MobileSyncManager {
       await this.pullInitialSync(pullParams);
     } else {
       await this.pullIncrementalSync(pullParams);
-    }
-  }
-
-  async postPull(entityManager: any, pullUntil: number) {
-    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
-    const tablesForFullResync = await localSystemFactRepository.findOne({
-      where: { key: 'tablesForFullResync' },
-    });
-    if (tablesForFullResync) {
-      await localSystemFactRepository.delete(tablesForFullResync);
-    }
-
-    const lastSuccessfulPull = await localSystemFactRepository.findOne({
-      where: { key: LAST_SUCCESSFUL_PULL },
-    });
-    if (lastSuccessfulPull) {
-      lastSuccessfulPull.value = pullUntil.toString();
-      await localSystemFactRepository.save(lastSuccessfulPull);
-    } else {
-      await localSystemFactRepository.insert({
-        key: LAST_SUCCESSFUL_PULL,
-        value: pullUntil.toString(),
-      });
     }
   }
 
@@ -431,5 +413,31 @@ export class MobileSyncManager {
       await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
+  }
+
+  async postPull(entityManager: any, pullUntil: number) {
+    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
+
+    const tablesForFullResync = await localSystemFactRepository.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+
+    if (tablesForFullResync) {
+      await localSystemFactRepository.delete(tablesForFullResync);
+    }
+
+    const lastSuccessfulPull = await localSystemFactRepository.findOne({
+      where: { key: LAST_SUCCESSFUL_PULL },
+    });
+
+    if (lastSuccessfulPull) {
+      lastSuccessfulPull.value = pullUntil.toString();
+      await localSystemFactRepository.save(lastSuccessfulPull);
+    } else {
+      await localSystemFactRepository.insert({
+        key: LAST_SUCCESSFUL_PULL,
+        value: pullUntil.toString(),
+      });
+    }
   }
 }
