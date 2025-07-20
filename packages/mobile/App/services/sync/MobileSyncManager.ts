@@ -27,15 +27,10 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-const STAGE_MAX_PROGRESS_INCREMENTAL = {
+const STAGE_MAX_PROGRESS = {
   1: 33,
   2: 66,
   3: 100,
-};
-
-const STAGE_MAX_PROGRESS_INITIAL = {
-  1: 33,
-  2: 100,
 };
 
 type SyncOptions = {
@@ -49,8 +44,7 @@ export type MobileSyncSettings = {
   useUnsafeSchemaForInitialSync: boolean;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
-export const SYNC_STAGES_TOTAL_INITIAL = Object.values(STAGE_MAX_PROGRESS_INITIAL).length;
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export interface PullParams {
   sessionId: string;
@@ -118,11 +112,9 @@ export class MobileSyncManager {
     total: number,
     progress: number,
     progressMessage: string,
-    isInitialSync: boolean = false,
+    // isInitialSync: boolean = false,
   ): void => {
-    const progressByStage = isInitialSync
-      ? STAGE_MAX_PROGRESS_INITIAL
-      : STAGE_MAX_PROGRESS_INCREMENTAL;
+    const progressByStage = STAGE_MAX_PROGRESS;
     // Get previous stage max progress
     const previousProgress = progressByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
