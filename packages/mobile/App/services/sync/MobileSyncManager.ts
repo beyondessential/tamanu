@@ -327,7 +327,11 @@ export class MobileSyncManager {
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
       totalPulled += incrementalPulled;
-      this.updateProgress(totalToPull, totalPulled, `Pulling all new changes... ${totalPulled}/${totalToPull}`);
+      this.updateProgress(
+        totalToPull,
+        totalPulled,
+        `Pulling changes (${totalPulled}/${totalToPull})`,
+      );
     };
 
     const pullParams: PullParams = {
@@ -404,7 +408,7 @@ export class MobileSyncManager {
 
   async postPull(entityManager: any, pullUntil: number) {
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
-    
+
     const tablesForFullResync = await localSystemFactRepository.findOne({
       where: { key: 'tablesForFullResync' },
     });
