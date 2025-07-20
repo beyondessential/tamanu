@@ -108,8 +108,9 @@ const prepareChangesForModels = (
           ? model.sanitizePulledRecordData(recordsForModel)
           : recordsForModel;
     }
-  }    
-
+  }
+  // Force garbage collection to free up memory
+  // otherwise the memory will be exhausted during this step in larger syncs
   forceGC()
   return changesByModel;
 };

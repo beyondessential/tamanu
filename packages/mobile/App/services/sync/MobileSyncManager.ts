@@ -327,7 +327,7 @@ export class MobileSyncManager {
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
       totalPulled += incrementalPulled;
-      this.updateProgress(totalToPull, totalPulled, 'Pulling all new changes...');
+      this.updateProgress(totalToPull, totalPulled, `Pulling all new changes... ${totalPulled}/${totalToPull}`);
     };
 
     const pullParams: PullParams = {
