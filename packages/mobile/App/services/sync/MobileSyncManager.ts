@@ -343,16 +343,6 @@ export class MobileSyncManager {
       tablesForFullResync,
     );
 
-    let totalPulled = 0;
-    const progressCallback = (incrementalPulled: number) => {
-      totalPulled += Number(incrementalPulled);
-      this.updateProgress(
-        totalToPull,
-        totalPulled,
-        `Pulling changes (${totalPulled}/${totalToPull})`,
-      );
-    };
-
     const pullParams: PullParams = {
       sessionId,
       recordTotal: totalToPull,
@@ -373,8 +363,16 @@ export class MobileSyncManager {
     recordTotal,
     pullUntil,
     syncSettings,
-    progressCallback,
   }: PullParams): Promise<void> {
+    let totalPulled = 0;
+    const progressCallback = (incrementalPulled: number) => {
+      totalPulled += Number(incrementalPulled);
+      this.updateProgress(
+        recordTotal,
+        totalPulled,
+        `Saving changes (${totalPulled}/${recordTotal})`,
+      );
+    };
     await Database.setUnsafePragma();
     await Database.client.transaction(async transactionEntityManager => {
       const incomingModels = getTransactingModelsForDirection(
