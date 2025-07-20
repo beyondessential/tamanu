@@ -38,7 +38,12 @@ const mockSyncTick = 5;
 describe('MobileSyncManager', () => {
   const centralServerConnection = new CentralServerConnection();
   const mockSettingsService = {
-    getSetting: jest.fn(),
+    getSetting: jest.fn().mockReturnValue({
+      maxBatchesToKeepInMemory: 10,
+      maxRecordsPerInsertBatch: 100,
+      maxRecordsPerSnapshotBatch: 1000,
+      useUnsafeSchemaForInitialSync: false,
+    }),
   };
   let mobileSyncManager;
 
@@ -152,7 +157,12 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pullChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.pullChanges).toBeCalledWith(mockSessionId, expect.any(Object));
+      expect(mobileSyncManager.pullChanges).toBeCalledWith(mockSessionId, {
+        maxBatchesToKeepInMemory: 10,
+        maxRecordsPerInsertBatch: 100,
+        maxRecordsPerSnapshotBatch: 1000,
+        useUnsafeSchemaForInitialSync: false,
+      });
     });
   });
 
