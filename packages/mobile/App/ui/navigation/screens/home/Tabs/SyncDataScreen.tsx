@@ -6,7 +6,6 @@ import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
 import {
-  MobileSyncManager,
   SYNC_EVENT_ACTIONS,
 } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
@@ -17,8 +16,8 @@ import { useTranslation } from '/contexts/TranslationContext';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
-  const backend = useContext(BackendContext);
-  const syncManager: MobileSyncManager = backend.syncManager;
+  const backend = useContext(BackendContext) as BackendContext;
+  const syncManager = backend.syncManager;
   const { getTranslation } = useTranslation();
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
