@@ -345,29 +345,6 @@ export class MobileSyncManager {
     }
   }
 
-  async postPull(entityManager: any, pullUntil: number) {
-    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
-    const tablesForFullResync = await localSystemFactRepository.findOne({
-      where: { key: 'tablesForFullResync' },
-    });
-    if (tablesForFullResync) {
-      await localSystemFactRepository.delete(tablesForFullResync);
-    }
-
-    const lastSuccessfulPull = await localSystemFactRepository.findOne({
-      where: { key: LAST_SUCCESSFUL_PULL },
-    });
-    if (lastSuccessfulPull) {
-      lastSuccessfulPull.value = pullUntil.toString();
-      await localSystemFactRepository.save(lastSuccessfulPull);
-    } else {
-      await localSystemFactRepository.insert({
-        key: LAST_SUCCESSFUL_PULL,
-        value: pullUntil.toString(),
-      });
-    }
-  }
-
   async pullInitialSync({
     sessionId,
     recordTotal,
@@ -423,5 +400,31 @@ export class MobileSyncManager {
       await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
+  }
+
+  async postPull(entityManager: any, pullUntil: number) {
+    const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
+    
+    const tablesForFullResync = await localSystemFactRepository.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
+
+    if (tablesForFullResync) {
+      await localSystemFactRepository.delete(tablesForFullResync);
+    }
+
+    const lastSuccessfulPull = await localSystemFactRepository.findOne({
+      where: { key: LAST_SUCCESSFUL_PULL },
+    });
+
+    if (lastSuccessfulPull) {
+      lastSuccessfulPull.value = pullUntil.toString();
+      await localSystemFactRepository.save(lastSuccessfulPull);
+    } else {
+      await localSystemFactRepository.insert({
+        key: LAST_SUCCESSFUL_PULL,
+        value: pullUntil.toString(),
+      });
+    }
   }
 }
