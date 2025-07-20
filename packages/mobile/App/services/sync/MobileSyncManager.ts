@@ -56,7 +56,6 @@ export interface PullParams {
   centralServer: CentralServerConnection;
   syncSettings: MobileSyncSettings;
   pullUntil: number;
-  progressCallback: (incrementalPulled: number) => void;
 }
 
 export class MobileSyncManager {
@@ -349,7 +348,6 @@ export class MobileSyncManager {
       centralServer: this.centralServer,
       syncSettings,
       pullUntil,
-      progressCallback,
     };
     if (isInitialSync) {
       await this.pullInitialSync(pullParams);
@@ -397,7 +395,6 @@ export class MobileSyncManager {
     recordTotal,
     centralServer,
     syncSettings,
-    progressCallback,
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
@@ -407,7 +404,7 @@ export class MobileSyncManager {
 
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback },
+      { centralServer, sessionId, recordTotal, progressCallback: () => {} },
       processStreamedDataFunction,
     );
 
@@ -418,7 +415,7 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
+      await saveChangesFromSnapshot(incomingModels, syncSettings, () => {});
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
