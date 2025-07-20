@@ -86,7 +86,7 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   const { id } = params;
   const surveyWhereClause = isVital
     ? { surveyType: SURVEY_TYPES.VITALS }
-    : { surveyId: body.surveyId };
+    : { id: body.surveyId };
   const answerObject = await SurveyResponseAnswer.findByPk(id, {
     include: [
       {
@@ -152,7 +152,7 @@ async function postSurveyResponseAnswer(req, isVital = false) {
 
   const surveyWhereClause = isVital
     ? { surveyType: SURVEY_TYPES.VITALS }
-    : { surveyId: body.surveyId };
+    : { id: body.surveyId };
   const dateDataElementId = isVital ? VITALS_DATA_ELEMENT_IDS.dateRecorded : null;
   const responseObject = await SurveyResponse.findAll({
     where: {
