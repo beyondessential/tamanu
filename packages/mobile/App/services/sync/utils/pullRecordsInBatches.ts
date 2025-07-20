@@ -7,7 +7,7 @@ export const pullRecordsInBatches = async (
     centralServer,
     sessionId,
     recordTotal,
-    progressCallback,
+    progressCallback = () => {},
   }: PullParams,
   processRecords: (
     records: any

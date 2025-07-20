@@ -335,7 +335,7 @@ export class MobileSyncManager {
 
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
-      totalPulled += incrementalPulled;
+      totalPulled += Number(incrementalPulled);
       this.updateProgress(
         totalToPull,
         totalPulled,
@@ -377,7 +377,7 @@ export class MobileSyncManager {
       };
 
       await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+        { centralServer: this.centralServer, sessionId, recordTotal },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
