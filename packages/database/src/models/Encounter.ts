@@ -387,6 +387,12 @@ export class Encounter extends Model {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
         isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
+        facilityId: `
+          CASE
+            WHEN facilities.is_sensitive = TRUE THEN facilities.id
+            ELSE NULL
+          END
+        `,
       }),
       joins: `
         LEFT JOIN (
@@ -394,6 +400,8 @@ export class Encounter extends Model {
           FROM lab_requests
           WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
         ) AS new_labs ON new_labs.encounter_id = encounters.id
+        LEFT JOIN locations ON encounters.location_id = locations.id
+        LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
       where: `
         encounters.updated_at_sync_tick > :since -- to include including normal encounters
