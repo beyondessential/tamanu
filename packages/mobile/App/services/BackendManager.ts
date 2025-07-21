@@ -36,7 +36,6 @@ export class BackendManager {
   constructor(deviceId: string) {
     const { models } = Database;
     this.models = models;
-    this.auth = new AuthService(models);
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
