@@ -272,7 +272,7 @@ medication.post(
   '/:id/discontinue',
   asyncHandler(async (req, res) => {
     const { models, params, db } = req;
-    const { Encounter, Prescription, PatientOngoingPrescription } = models;
+    const { Encounter, Prescription } = models;
 
     const data = await discontinueInputSchema.parseAsync(req.body);
 
@@ -310,24 +310,11 @@ medication.post(
       const encounter = await Encounter.findByPk(encounterId);
       // if the encounter is not found or the encounter is ended, we don't need to remove the prescription from the patient's ongoing medications
       if (!encounter || encounter.endDate) return;
-      const existingPatientOngoingPrescription = await PatientOngoingPrescription.findOne({
-        where: {
-          patientId: encounter.patientId,
-        },
-        include: [
-          {
-            model: models.Prescription,
-            as: 'prescription',
-            where: {
-              medicationId: prescription.medicationId,
-              doseAmount: prescription.doseAmount,
-              units: prescription.units,
-              route: prescription.route,
-              frequency: prescription.frequency,
-            },
-          },
-        ],
-      });
+      
+      const existingPatientOngoingPrescription = await models.PatientOngoingPrescription.findPatientOngoingMedicationWithSameDetails(
+        encounter.patientId, prescription
+      );
+
       if (existingPatientOngoingPrescription) {
         const existingOngoingPrescription = existingPatientOngoingPrescription.prescription;
         Object.assign(existingOngoingPrescription, {
