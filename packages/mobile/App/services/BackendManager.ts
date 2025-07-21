@@ -40,7 +40,6 @@ export class BackendManager {
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
-    this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
   }
 
   async initialise(): Promise<void> {
@@ -48,6 +47,7 @@ export class BackendManager {
     const host = await readConfig('syncServerLocation');
     const centralServer = await this.auth.initialiseCentralServerConnection(host);
     this.centralServer = centralServer;
+    this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
     await this.startSyncService();
   }
 
