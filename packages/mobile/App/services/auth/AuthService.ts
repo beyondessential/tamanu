@@ -141,8 +141,7 @@ export class AuthService {
   }
   
   endSession(): void {
-    // TODO: should add clear token?
-    this.centralServer.setToken(null, null);
+    this.centralServer.clearToken();
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
