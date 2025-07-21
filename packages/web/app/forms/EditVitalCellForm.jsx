@@ -189,11 +189,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4} data-testid="formgrid-yjyh">
-          <SurveyQuestion
-            component={dataPoint.component}
-            disabled={isDeleted}
-            data-testid="surveyquestion-2f43"
-          />
+          <Box style={{ gridColumn: '1 / 3' }}>
+            <SurveyQuestion
+              component={dataPoint.component}
+              disabled={isDeleted}
+              data-testid="surveyquestion-2f43"
+            />
+          </Box>
           {showDeleteEntryButton && (
             <DeleteEntryButton
               disabled={isDeleted}
