@@ -56,6 +56,7 @@ export interface PullParams {
   centralServer: CentralServerConnection;
   syncSettings: MobileSyncSettings;
   pullUntil: number;
+  progressCallback?: (incrementalPulled: number) => void;
 }
 
 export class MobileSyncManager {
@@ -244,7 +245,7 @@ export class MobileSyncManager {
 
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
-    await this.syncOutgoingChanges(sessionId, newSyncClockTime);
+    await this.pushOutgoingChanges(sessionId, newSyncClockTime);
     await this.pullIncomingChanges(sessionId, syncSettings);
 
     await this.centralServer.endSyncSession(sessionId);
@@ -260,7 +261,7 @@ export class MobileSyncManager {
    * Syncing outgoing changes in batches
    * @param sessionId
    */
-  async syncOutgoingChanges(sessionId: string, newSyncClockTime: number): Promise<void> {
+  async pushOutgoingChanges(sessionId: string, newSyncClockTime: number): Promise<void> {
     this.setSyncStage(1);
 
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
@@ -273,14 +274,14 @@ export class MobileSyncManager {
 
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
-      `MobileSyncManager.syncOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
+      `MobileSyncManager.pushOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
     );
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
 
     console.log(
-      `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
+      `MobileSyncManager.pushOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
     );
 
     if (outgoingChanges.length > 0) {
@@ -299,19 +300,19 @@ export class MobileSyncManager {
     await setSyncTick(this.models, LAST_SUCCESSFUL_PUSH, currentSyncTick);
 
     console.log(
-      `MobileSyncManager.syncOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
+      `MobileSyncManager.pushOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
     );
   }
 
   /**
    * Syncing incoming changes follows two different paths:
-   * 
+   *
    * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
    * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
-   * 
+   *
    * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
-   * @param syncSettings - the sync settings for the sync session 
+   * @param syncSettings - the sync settings for the sync session
    */
   async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
@@ -325,7 +326,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    
+
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -390,7 +391,7 @@ export class MobileSyncManager {
       };
 
       await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal },
+        { centralServer: this.centralServer, sessionId, recordTotal, syncSettings, pullUntil },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
@@ -416,7 +417,7 @@ export class MobileSyncManager {
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback: pullProgressCallback },
+      { centralServer, sessionId, recordTotal, syncSettings, pullUntil, progressCallback: pullProgressCallback },
       processStreamedDataFunction,
     );
 
