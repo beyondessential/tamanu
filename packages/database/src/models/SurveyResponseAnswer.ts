@@ -1,6 +1,6 @@
 import { upperFirst } from 'lodash';
-import { DataTypes } from 'sequelize';
-import { AUDIT_REASON_KEY, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes, Op } from 'sequelize';
+import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
@@ -127,11 +127,21 @@ export class SurveyResponseAnswer extends Model {
     }
     const { models } = this.sequelize;
     const surveyResponse: SurveyResponse = await (this as any).getSurveyResponse();
-    const vitalsSurvey = await models.Survey.getVitalsSurvey();
-    const isVitalSurvey = surveyResponse.surveyId === vitalsSurvey?.id;
-    if (isVitalSurvey === false) {
+    const isEditableSurvey = await models.Survey.findOne({
+      where: {
+        id: surveyResponse.surveyId,
+        surveyType: {
+          [Op.in]: [
+            SURVEY_TYPES.VITALS,
+            SURVEY_TYPES.SIMPLE_CHART,
+            SURVEY_TYPES.COMPLEX_CHART,
+          ],
+        },
+      },
+    });
+    if (!isEditableSurvey) {
       throw new InvalidOperationError(
-        'upsertCalculatedQuestions must only be called with vitals answers',
+        'upsertCalculatedQuestions must only be called with vitals or charting answers',
       );
     }
 
@@ -197,7 +207,9 @@ export class SurveyResponseAnswer extends Model {
 
   // This is to avoid affecting other audit logs that might be created in the same transaction
   async updateWithReasonForChange(newValue: string, reasonForChange: string) {
-    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+    if (reasonForChange) {
+      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+    }
     await this.update({ body: newValue });
     await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, null);
     return this;
