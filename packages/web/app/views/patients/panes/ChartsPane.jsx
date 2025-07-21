@@ -262,12 +262,13 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       responseData.metadata = {
         chartInstanceResponseId: currentComplexChartInstance.chartInstanceId,
       };
-    } else if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
-      reloadChartInstances();
     }
 
     await api.post('surveyResponse', responseData);
     queryClient.invalidateQueries(['encounterCharts', encounter.id, survey.id]);
+    if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
+      reloadChartInstances();
+    }
     handleCloseModal();
   };
 
