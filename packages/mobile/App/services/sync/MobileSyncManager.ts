@@ -325,7 +325,8 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    // This is the start of stage 2 which is calling pull/initiate.
+    
+    // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
     this.setProgress(
@@ -439,7 +440,7 @@ export class MobileSyncManager {
   /**
    * Post-pull actions should be run inside the save transaction
    * @param entityManager - the entity manager for the save transaction
-   * @param pullUntil - the pull until cursor
+   * @param pullUntil - the new value for the last successful pull
    */
   async postPull(entityManager: any, pullUntil: number) {
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
