@@ -2866,12 +2866,26 @@ describe('CentralSyncManager', () => {
     };
 
     it('wont sync sensitive encounters to any facility where it was not created', async () => {
-      const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({ isSensitive: true });
-      const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
-        isSensitive: false,
+      const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
+        isSensitive: true,
+      });
+      const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
+        await createFacilityWithEncounter({
+          isSensitive: false,
+        });
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
       });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      // Update the lookup table to include the encounters
+      await centralSyncManager.updateLookupTable();
+
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -2885,26 +2899,34 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-
-      const encounterIds = outgoingChanges
-        .filter(c => c.recordType === 'encounters')
-        .map(c => c.recordId);
+      const encounterChanges = outgoingChanges.filter(c => c.recordType === 'encounters');
+      const encounterIds = encounterChanges.map(c => c.recordId);
 
       expect(encounterIds).not.toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
 
     it('will sync sensitive encounters to itself', async () => {
-      const { facility: sensitiveFacility, encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-        isSensitive: true,
-      });
+      const { facility: sensitiveFacility, encounter: sensitiveEncounter } =
+        await createFacilityWithEncounter({
+          isSensitive: true,
+        });
 
       const { encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
         isSensitive: false,
       });
 
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      // Update the lookup table to include the encounters
+      await centralSyncManager.updateLookupTable();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -2925,7 +2947,5 @@ describe('CentralSyncManager', () => {
       expect(encounterIds).toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
-
-    it.todo('will not sync between sensitive facilities');
   });
 });
