@@ -77,7 +77,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async connect(
-    params: SyncConnectionParameters = {},
+    params?: SyncConnectionParameters,
     backoff = { maxAttempts: 1 },
     timeout = 10000,
   ) {
