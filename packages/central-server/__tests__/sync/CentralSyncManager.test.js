@@ -2840,196 +2840,72 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe('facilityId filtering in encounter-linked sync', () => {
+  describe('encounter-linked sync filtering based on facility sensitivity', () => {
+    let patient;
     let facilityA, facilityB, facilityC;
     let departmentA, departmentB, departmentC;
     let locationA, locationB, locationC;
-    let patient;
+    let encounterA, encounterB, encounterC;
 
     beforeEach(async () => {
-      facilityA = await models.Facility.create(fake(models.Facility));
+      patient = await models.Patient.create(fake(models.Patient));
+
+      // Sensitive facility
+      facilityA = await models.Facility.create(fake(models.Facility, { isSensitive: true }));
       departmentA = await models.Department.create(
         fake(models.Department, { facilityId: facilityA.id }),
       );
       locationA = await models.Location.create(fake(models.Location, { facilityId: facilityA.id }));
+      encounterA = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        locationId: locationA.id,
+        departmentId: departmentA.id,
+      });
+      
 
+      // Non-sensitive facilities
       facilityB = await models.Facility.create(fake(models.Facility));
       departmentB = await models.Department.create(
         fake(models.Department, { facilityId: facilityB.id }),
       );
       locationB = await models.Location.create(fake(models.Location, { facilityId: facilityB.id }));
-
+      encounterB = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+        locationId: locationB.id,
+        departmentId: departmentB.id,
+      });
       facilityC = await models.Facility.create(fake(models.Facility));
       departmentC = await models.Department.create(
         fake(models.Department, { facilityId: facilityC.id }),
       );
       locationC = await models.Location.create(fake(models.Location, { facilityId: facilityC.id }));
-
-      patient = await models.Patient.create(fake(models.Patient));
-    });
-
-    it('only syncs encounters linked to the specified facilityIds', async () => {
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityA.id,
-      });
-      // Encounter for facilityA
-      const encounterA = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationA.id,
-        departmentId: departmentA.id,
-      });
-      // Encounter for facilityB
-      const encounterB = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationB.id,
-        departmentId: departmentB.id,
-      });
-
-      // Act: start a sync session for facilityA only
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await centralSyncManager.setupSnapshotForPull(
-        sessionId,
-        {
-          since: 1,
-          facilityIds: [facilityA.id],
-        },
-        () => true,
-      );
-
-      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const encounterIds = outgoingChanges
-        .filter(c => c.recordType === 'encounters')
-        .map(c => c.recordId);
-
-      // Assert: only encounterA is included, not encounterB
-      expect(encounterIds).toContain(encounterA.id);
-      expect(encounterIds).not.toContain(encounterB.id);
-    });
-
-    it('only syncs encounter-linked records for encounters in the specified facilityIds', async () => {
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityA.id,
-      });
-      const encounterA = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationA.id,
-        departmentId: departmentA.id,
-      });
-      const encounterB = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationB.id,
-        departmentId: departmentB.id,
-      });
-      // Create an EncounterPrescription for each encounter
-      const prescriptionA = await models.EncounterPrescription.create({
-        encounterId: encounterA.id,
-        // TODO: Add any other required fields for EncounterPrescription
-      });
-      const prescriptionB = await models.EncounterPrescription.create({
-        encounterId: encounterB.id,
-        // TODO: Add any other required fields for EncounterPrescription
-      });
-
-      // Act: start a sync session for facilityA only
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await centralSyncManager.setupSnapshotForPull(
-        sessionId,
-        {
-          since: 1,
-          facilityIds: [facilityA.id],
-        },
-        () => true,
-      );
-
-      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const prescriptionIds = outgoingChanges
-        .filter(c => c.recordType === 'encounter_prescriptions')
-        .map(c => c.recordId);
-
-      // Assert: only prescriptionA is included, not prescriptionB
-      expect(prescriptionIds).toContain(prescriptionA.id);
-      expect(prescriptionIds).not.toContain(prescriptionB.id);
-    });
-
-    it('syncs encounters and linked records for all specified facilityIds', async () => {
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityA.id,
-      });
-      const encounterA = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationA.id,
-        departmentId: departmentA.id,
-      });
-      const encounterB = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: locationB.id,
-        departmentId: departmentB.id,
-      });
-      const encounterC = await models.Encounter.create({
+      encounterC = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
         locationId: locationC.id,
         departmentId: departmentC.id,
       });
 
-      // Act: start a sync session for facilityA and facilityB
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await centralSyncManager.setupSnapshotForPull(
-        sessionId,
-        {
-          since: 1,
-          facilityIds: [facilityA.id, facilityB.id],
-        },
-        () => true,
-      );
-
-      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const encounterIds = outgoingChanges
-        .filter(c => c.recordType === 'encounters')
-        .map(c => c.recordId);
-
-      // Assert: only encounterA and encounterB are included, not encounterC
-      expect(encounterIds).toEqual(expect.arrayContaining([encounterA.id, encounterB.id]));
-      expect(encounterIds).not.toContain(encounterC.id);
-    });
-
-    it('syncs all encounters if no facilityIds are specified', async () => {
+      // Patient is marked for sync on all facilities
       await models.PatientFacility.create({
         patientId: patient.id,
         facilityId: facilityA.id,
       });
-      const encounterA = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
+      await models.PatientFacility.create({
         patientId: patient.id,
-        locationId: locationA.id,
-        departmentId: departmentA.id,
+        facilityId: facilityB.id,
       });
-      const encounterB = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
+      await models.PatientFacility.create({
         patientId: patient.id,
-        locationId: locationB.id,
-        departmentId: departmentB.id,
+        facilityId: facilityC.id,
       });
 
-      // Act: start a sync session with facilityIds: []
+
+    });
+
+    it('wont sync sensitive encounters to any facility where it was not created', async () => {
       const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
@@ -3038,7 +2914,7 @@ describe('CentralSyncManager', () => {
         sessionId,
         {
           since: 1,
-          facilityIds: [],
+          facilityIds: [facilityB.id],
         },
         () => true,
       );
@@ -3048,8 +2924,37 @@ describe('CentralSyncManager', () => {
         .filter(c => c.recordType === 'encounters')
         .map(c => c.recordId);
 
-      // Assert: both encounters are included
-      expect(encounterIds).toEqual(expect.arrayContaining([encounterA.id, encounterB.id]));
+      expect(encounterIds).not.toContain(encounterA.id);
+      expect(encounterIds).toContain(encounterB.id);
+      expect(encounterIds).toContain(encounterC.id);
+
     });
+
+    it('will sync sensitive encounters to itself', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facilityA.id],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const encounterIds = outgoingChanges
+        .filter(c => c.recordType === 'encounters')
+        .map(c => c.recordId);
+
+      expect(encounterIds).toContain(encounterA.id);
+      expect(encounterIds).toContain(encounterB.id);
+      expect(encounterIds).toContain(encounterC.id);
+
+    })
+
+    it.todo('will not sync between sensitive facilities')
   });
 });
