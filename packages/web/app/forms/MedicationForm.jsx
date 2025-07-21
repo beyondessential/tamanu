@@ -12,6 +12,7 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
 } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
@@ -40,7 +41,6 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  getReferenceDataStringId,
   NumberField,
   SelectField,
   SmallBodyText,
