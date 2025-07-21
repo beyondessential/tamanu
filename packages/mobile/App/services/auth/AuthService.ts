@@ -145,13 +145,13 @@ export class AuthService {
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { email, server } = params;
-    await this.initialiseCentralServerConnection(server);
+    await this.centralServer.setEndpoint(server);
     await this.centralServer.post('resetPassword', { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
     const { server, ...rest } = params;
-    await this.initialiseCentralServerConnection(server);
+    await this.centralServer.setEndpoint(server);
     await this.centralServer.post('changePassword', { ...rest });
   }
 }
