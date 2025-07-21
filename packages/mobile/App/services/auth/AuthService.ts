@@ -136,10 +136,10 @@ export class AuthService {
     return result;
   }
 
-  // TODO: This bit
+  // TODO: These ones a no exist
   startSession(token: string, refreshToken: string): void {
     this.centralServer.setToken(token);
-    this.centralServer.refreshToken = refreshToken
+    this.centralServer.setRefreshToken(refreshToken);
   }
 
   endSession(): void {
