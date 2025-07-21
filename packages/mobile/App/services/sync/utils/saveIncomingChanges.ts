@@ -111,7 +111,7 @@ const prepareChangesForModels = (
   }
   // Force garbage collection to free up memory
   // otherwise the memory will be exhausted during this step in larger syncs
-  forceGC()
+  forceGC();
   return changesByModel;
 };
 
@@ -129,15 +129,12 @@ export const saveChangesFromMemory = async (
     if (modelName === incomingModels.User.name) {
       await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
     } else {
-        await executeInserts(
-          model.getTransactionalRepository(),
-          recordsForModel.map(({ isDeleted, data }) => ({
-            ...buildFromSyncRecord(model, data),
-            isDeleted,
-          })),
-          syncSettings.maxRecordsPerInsertBatch,
-          progressCallback,
-        );
+      await executeInserts(
+        model.getTransactionalRepository(),
+        recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
     }
   }
 };
