@@ -245,7 +245,7 @@ export class MobileSyncManager {
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
-    await this.pullChanges(sessionId, syncSettings);
+    await this.pullIncomingChanges(sessionId, syncSettings);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -303,7 +303,17 @@ export class MobileSyncManager {
     );
   }
 
-  async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
+  /**
+   * Syncing incoming changes follows two different paths:
+   * 
+   * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
+   * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
+   * 
+   * Both approaches avoid a period of time where the local database may be "partially synced"
+   * @param sessionId - the session id for the sync session
+   * @param syncSettings - the sync settings for the sync session 
+   */
+  async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
