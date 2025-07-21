@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import RnBgTask from 'react-native-bg-thread';
 import { v4 as uuidv4 } from 'uuid';
 
-import { BackendManager } from '../../services/BackendManager';8
+import { BackendManager } from '../../services/BackendManager';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { readConfig, writeConfig } from '~/services/config';
@@ -11,11 +11,11 @@ export const BackendContext = React.createContext<BackendManager>(undefined);
 
 export const BackendProvider = ({ Component }): ReactElement => {
   const [initialised, setInitialised] = useState(false);
-  const [backendManager, setBackendManager] = useState<BackendManager>(null);
+  const [backendManager, setBackendManager] = useState<BackendManager>(new BackendManager(null));
 
   useEffect(() => {
     (async (): Promise<void> => {
-      backendManager?.stopSyncService();
+      backendManager.stopSyncService();
       setInitialised(false);
 
       const deviceId = await readConfig('deviceId');
@@ -32,7 +32,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
       });
     })();
     return () => {
-      backendManager?.stopSyncService();
+      backendManager.stopSyncService();
     };
   }, [backendManager]);
 
