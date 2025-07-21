@@ -40,6 +40,7 @@ export const executeInserts = async (
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
       await repository
         .createQueryBuilder()
+        // TODO waa 
         .insert({ listeners: false })
         .values(batchOfRows)
         .execute();

@@ -15,7 +15,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
 
   useEffect(() => {
     (async (): Promise<void> => {
-      backendManager.stopSyncService();
+      backendManager?.stopSyncService();
       setInitialised(false);
 
       const deviceId = await readConfig('deviceId');
@@ -32,7 +32,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
       });
     })();
     return () => {
-      backendManager.stopSyncService();
+      backendManager?.stopSyncService();
     };
   }, [backendManager]);
 
