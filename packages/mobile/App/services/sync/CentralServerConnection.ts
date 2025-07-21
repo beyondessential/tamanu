@@ -26,12 +26,8 @@ export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
   emitter = mitt();
 
-  constructor({ deviceId, host }) {
-    const url = new URL(host.trim());
-    url.pathname = '/api';
-
+  constructor(deviceId: string) {
     super({
-      endpoint: url.toString(),
       agentName: SERVER_TYPES.MOBILE,
       agentVersion: version,
       deviceId,
