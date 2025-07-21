@@ -17,6 +17,9 @@ const forceGC = () => {
   }
 };
 
+export type TransactingModel = typeof BaseModel & { getTransactionalRepository: () => Repository<any> };
+export type TransactingModelMap = Partial<TransactingModel>;
+
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
  * @param model
@@ -26,8 +29,7 @@ const forceGC = () => {
  * @returns
  */
 export const saveChangesForModel = async (
-  // Todo come back to this type
-  model: typeof BaseModel & { getTransactionalRepository: () => Repository<any> },
+  model: TransactingModel,
   changes: SyncRecord[],
   { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
@@ -144,7 +146,7 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  incomingModels: Partial<typeof MODELS_MAP>,
+  incomingModels: TransactingModelMap,
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
