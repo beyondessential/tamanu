@@ -47,7 +47,7 @@ export class BackendManager {
 
   async initialise(): Promise<void> {
     await Database.connect();
-
+    await this.auth.initialise();
     await this.startSyncService();
   }
 
