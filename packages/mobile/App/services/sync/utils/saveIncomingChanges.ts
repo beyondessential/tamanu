@@ -1,4 +1,4 @@
-import { In } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
@@ -26,7 +26,8 @@ const forceGC = () => {
  * @returns
  */
 export const saveChangesForModel = async (
-  model: typeof BaseModel,
+  // Todo come back to this type
+  model: typeof BaseModel & { getTransactionalRepository: () => Repository<any> },
   changes: SyncRecord[],
   { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
@@ -96,7 +97,7 @@ export const saveChangesForModel = async (
 
 const prepareChangesForModels = (
   records: SyncRecord[],
-  sortedModels: typeof MODELS_MAP,
+  sortedModels: (typeof MODELS_MAP)[keyof typeof MODELS_MAP][],
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
   const changesByModel: Record<string, SyncRecord[]> = {};
@@ -111,7 +112,7 @@ const prepareChangesForModels = (
   }
   // Force garbage collection to free up memory
   // otherwise the memory will be exhausted during this step in larger syncs
-  forceGC()
+  forceGC();
   return changesByModel;
 };
 
@@ -129,15 +130,15 @@ export const saveChangesFromMemory = async (
     if (modelName === incomingModels.User.name) {
       await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
     } else {
-        await executeInserts(
-          model.getTransactionalRepository(),
-          recordsForModel.map(({ isDeleted, data }) => ({
-            ...buildFromSyncRecord(model, data),
-            isDeleted,
-          })),
-          syncSettings.maxRecordsPerInsertBatch,
-          progressCallback,
-        );
+      await executeInserts(
+        model.getTransactionalRepository(),
+        recordsForModel.map(({ isDeleted, data }) => ({
+          ...buildFromSyncRecord(model, data),
+          isDeleted,
+        })),
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
     }
   }
 };
