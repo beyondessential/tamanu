@@ -27,10 +27,14 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-const STAGE_MAX_PROGRESS = {
+const STAGE_MAX_PROGRESS_INCREMENTAL = {
   1: 33,
   2: 66,
   3: 100,
+};
+const STAGE_MAX_PROGRESS_INITIAL = {
+  1: 33,
+  2: 100,
 };
 
 type SyncOptions = {
@@ -44,7 +48,7 @@ export type MobileSyncSettings = {
   useUnsafeSchemaForInitialSync: boolean;
 };
 
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
 
 export interface PullParams {
   sessionId: string;
@@ -52,10 +56,11 @@ export interface PullParams {
   centralServer: CentralServerConnection;
   syncSettings: MobileSyncSettings;
   pullUntil: number;
-  progressCallback: (incrementalPulled: number) => void;
 }
 
 export class MobileSyncManager {
+  progressMaxByStage: Record<number, number> = STAGE_MAX_PROGRESS_INCREMENTAL;
+
   isQueuing = false;
 
   isSyncing = false;
@@ -108,15 +113,11 @@ export class MobileSyncManager {
    * @param progress
    * @param progressMessage
    */
-  updateProgress = (
-    total: number,
-    progress: number,
-    progressMessage: string,
-  ): void => {
+  updateProgress = (total: number, progress: number, progressMessage: string): void => {
     // Get previous stage max progress
-    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    const previousProgress = this.progressMaxByStage[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
+    const progressDenominator = this.progressMaxByStage[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
@@ -244,7 +245,7 @@ export class MobileSyncManager {
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 
     await this.syncOutgoingChanges(sessionId, newSyncClockTime);
-    await this.pullChanges(sessionId, syncSettings);
+    await this.pullIncomingChanges(sessionId, syncSettings);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -302,19 +303,34 @@ export class MobileSyncManager {
     );
   }
 
-  async pullChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
+  /**
+   * Syncing incoming changes follows two different paths:
+   * 
+   * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
+   * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
+   * 
+   * Both approaches avoid a period of time where the local database may be "partially synced"
+   * @param sessionId - the session id for the sync session
+   * @param syncSettings - the sync settings for the sync session 
+   */
+  async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     const isInitialSync = pullSince === -1;
 
+    this.progressMaxByStage = isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL
+      : STAGE_MAX_PROGRESS_INCREMENTAL;
+
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    // This is the start of stage 2 which is calling pull/initiate.
+    
+    // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
     this.setProgress(
-      STAGE_MAX_PROGRESS[this.syncStage - 1],
+      this.progressMaxByStage[this.syncStage - 1],
       'Pausing at 33% while server prepares for pull, please wait...',
     );
 
@@ -333,23 +349,12 @@ export class MobileSyncManager {
       tablesForFullResync,
     );
 
-    let totalPulled = 0;
-    const progressCallback = (incrementalPulled: number) => {
-      totalPulled += incrementalPulled;
-      this.updateProgress(
-        totalToPull,
-        totalPulled,
-        `Pulling changes (${totalPulled}/${totalToPull})`,
-      );
-    };
-
     const pullParams: PullParams = {
       sessionId,
       recordTotal: totalToPull,
       centralServer: this.centralServer,
       syncSettings,
       pullUntil,
-      progressCallback,
     };
     if (isInitialSync) {
       await this.pullInitialSync(pullParams);
@@ -363,8 +368,16 @@ export class MobileSyncManager {
     recordTotal,
     pullUntil,
     syncSettings,
-    progressCallback,
   }: PullParams): Promise<void> {
+    let totalPulled = 0;
+    const progressCallback = (incrementalPulled: number) => {
+      totalPulled += Number(incrementalPulled);
+      this.updateProgress(
+        recordTotal,
+        totalPulled,
+        `Saving changes (${totalPulled}/${recordTotal})`,
+      );
+    };
     await Database.setUnsafePragma();
     await Database.client.transaction(async transactionEntityManager => {
       const incomingModels = getTransactingModelsForDirection(
@@ -377,7 +390,7 @@ export class MobileSyncManager {
       };
 
       await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
+        { centralServer: this.centralServer, sessionId, recordTotal },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
@@ -389,7 +402,6 @@ export class MobileSyncManager {
     recordTotal,
     centralServer,
     syncSettings,
-    progressCallback,
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
@@ -397,24 +409,39 @@ export class MobileSyncManager {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
 
+    let pullTotal = 0;
+    const pullProgressCallback = (incrementalPulled: number) => {
+      pullTotal += Number(incrementalPulled);
+      this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
+    };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback },
+      { centralServer, sessionId, recordTotal, progressCallback: pullProgressCallback },
       processStreamedDataFunction,
     );
 
     this.setSyncStage(3);
+    let totalSaved = 0;
+    const saveProgressCallback = (incrementalPulled: number) => {
+      totalSaved += Number(incrementalPulled);
+      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+    };
     await Database.client.transaction(async transactionEntityManager => {
       const incomingModels = getTransactingModelsForDirection(
         this.models,
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(incomingModels, syncSettings, progressCallback);
+      await saveChangesFromSnapshot(incomingModels, syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
 
+  /**
+   * Post-pull actions should be run inside the save transaction
+   * @param entityManager - the entity manager for the save transaction
+   * @param pullUntil - the new value for the last successful pull
+   */
   async postPull(entityManager: any, pullUntil: number) {
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
 
@@ -426,6 +453,10 @@ export class MobileSyncManager {
       await localSystemFactRepository.delete(tablesForFullResync);
     }
 
+    // update the last successful sync in the same save transaction,
+    // if updating the cursor fails, we want to roll back the rest of the saves
+    // so that we don't end up detecting them as needing a sync up
+    // to the central server when we attempt to resync from the same old cursor
     const lastSuccessfulPull = await localSystemFactRepository.findOne({
       where: { key: LAST_SUCCESSFUL_PULL },
     });

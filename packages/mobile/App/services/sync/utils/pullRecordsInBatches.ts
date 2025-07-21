@@ -7,7 +7,7 @@ export const pullRecordsInBatches = async (
     centralServer,
     sessionId,
     recordTotal,
-    progressCallback,
+    progressCallback = () => {},
   }: PullParams,
   processRecords: (
     records: any
@@ -32,9 +32,9 @@ export const pullRecordsInBatches = async (
     await processRecords(recordsToSave);
 
     fromId = records[records.length - 1].id;
-    totalPulled += recordsToSave.length;
+    totalPulled += records.length;
     limit = calculatePageLimit(limit, pullTime);
 
-    progressCallback(recordTotal, totalPulled);
+    progressCallback(recordsToSave.length);
   }
 };

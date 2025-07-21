@@ -121,28 +121,36 @@ class DatabaseHelper {
   }
 
   async setDefaultPragma(): Promise<void> {
-    await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
-    await this.client.query(`PRAGMA synchronous = 2;`);
-    await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
-    await this.client.query(`PRAGMA locking_mode = NORMAL;`);
-    await this.client.query(`PRAGMA temp_store = 0;`);
-    console.log('Applied default pragma settings');
+    try {
+      await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
+      await this.client.query(`PRAGMA synchronous = 2;`);
+      await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
+      await this.client.query(`PRAGMA locking_mode = NORMAL;`);
+      await this.client.query(`PRAGMA temp_store = 0;`);
+      console.log('Applied default pragma settings');
+    } catch (e) {
+      console.error('Error applying default pragma settings:', e);
+    }
   }
 
   // WARNING: These settings prioritize performance over data safety
   // We only use for initial sync when data loss is acceptable
   async setUnsafePragma(): Promise<void> {
-    // Disables rollback journal - no transaction rollback or crash recovery
-    await this.client.query(`PRAGMA journal_mode = OFF;`); 
-    // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
-    await this.client.query(`PRAGMA synchronous = 0;`); 
-    // Sets page cache to 1M pages (~1GB with default 1KB pages)
-    await this.client.query(`PRAGMA cache_size = 1000000;`); 
-    // Locks database exclusively - prevents other processes from accessing
-    await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); 
-    // Stores temporary tables, indices, and views in RAM instead of disk
-    await this.client.query(`PRAGMA temp_store = MEMORY;`); 
-    console.log('Applied unsafe pragma settings');
+    try {
+      // Disables rollback journal - no transaction rollback or crash recovery
+      await this.client.query(`PRAGMA journal_mode = OFF;`); 
+      // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
+      await this.client.query(`PRAGMA synchronous = 0;`); 
+      // Sets page cache to 1M pages (~1GB with default 1KB pages)
+      await this.client.query(`PRAGMA cache_size = 1000000;`); 
+      // Locks database exclusively - prevents other processes from accessing
+      await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); 
+      // Stores temporary tables, indices, and views in RAM instead of disk
+      await this.client.query(`PRAGMA temp_store = MEMORY;`); 
+      console.log('Applied unsafe pragma settings');
+    } catch (e) {
+      console.error('Error applying unsafe pragma settings:', e);
+    }
   }
 }
 
