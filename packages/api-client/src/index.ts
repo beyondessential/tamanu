@@ -9,4 +9,4 @@ export {
   VersionIncompatibleError,
   ResourceConflictError,
 } from './errors';
-export { TamanuApi, LoginResponse } from './TamanuApi';
+export { TamanuApi, type LoginResponse } from './TamanuApi';
