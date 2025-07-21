@@ -21,10 +21,12 @@ import {
 } from '@tamanu/shared/errors';
 import {
   CentralConnectionStatus,
-  FetchOptions,
-  SyncRecord,
   SyncConnectionParameters,
 } from '~/types';
+import {
+  FetchOptions,
+  SyncRecord,
+} from './types';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
