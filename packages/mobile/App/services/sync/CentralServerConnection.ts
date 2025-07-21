@@ -19,14 +19,8 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-import {
-  CentralConnectionStatus,
-  SyncConnectionParameters,
-} from '~/types';
-import {
-  FetchOptions,
-  SyncRecord,
-} from './types';
+import { CentralConnectionStatus, SyncConnectionParameters } from '~/types';
+import { FetchOptions, SyncRecord } from './types';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
@@ -78,11 +72,7 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
 
-  async connect(
-    params?: SyncConnectionParameters,
-    backoff = { maxAttempts: 1 },
-    timeout = 10000,
-  ) {
+  async connect(params?: SyncConnectionParameters, backoff = { maxAttempts: 1 }, timeout = 10000) {
     try {
       await super.refreshToken({
         retryAuth: false,
@@ -140,16 +130,13 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.post(
-      'sync',
-      {
-          urgent,
-          lastSyncedTick,
-          facilityIds: [facilityId],
-          deviceId: this.deviceId,
-          isMobile: true,
-        },
-    );
+    const { sessionId, status } = await this.post('sync', {
+      urgent,
+      lastSyncedTick,
+      facilityIds: [facilityId],
+      deviceId: this.deviceId,
+      isMobile: true,
+    });
 
     if (!sessionId) {
       // we're waiting in a queue
@@ -238,20 +225,21 @@ export class CentralServerConnection extends TamanuApi {
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.fetch(`sync/${sessionId}/pull`, query, {
-      // allow 5 minutes for the sync pull as it can take a while
-      // (the full 5 minutes would be pretty unusual! but just to be safe)
+    return this.get(`sync/${sessionId}/pull`, query, {
       timeout: 5 * 60 * 1000,
     });
   }
 
   async push(sessionId: string, changes: any): Promise<void> {
-    return this.post(`sync/${sessionId}/push`, {changes});
+    return this.post(`sync/${sessionId}/push`, { changes });
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.post(`sync/${sessionId}/push/complete`, { tablesToInclude, deviceId: this.deviceId });
+    await this.post(`sync/${sessionId}/push/complete`, {
+      tablesToInclude,
+      deviceId: this.deviceId,
+    });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
