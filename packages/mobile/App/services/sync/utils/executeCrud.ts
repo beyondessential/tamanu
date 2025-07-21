@@ -2,7 +2,7 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS  } from '../../../infra/db/limits';
+import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -38,12 +38,7 @@ export const executeInserts = async (
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
-      await repository
-        .createQueryBuilder()
-        // TODO waa 
-        .insert({ listeners: false })
-        .values(batchOfRows)
-        .execute();
+      await repository.save(batchOfRows, { listeners: false })
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
