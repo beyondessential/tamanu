@@ -45,8 +45,7 @@ export class BackendManager {
   async initialise(): Promise<void> {
     await Database.connect();
     const host = await readConfig('syncServerLocation');
-    const centralServer = await this.auth.initialiseCentralServerConnection(host);
-    this.centralServer = centralServer;
+    this.centralServer = await this.auth.initialiseCentralServerConnection(host);
     this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
     await this.startSyncService();
   }

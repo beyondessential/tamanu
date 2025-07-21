@@ -56,6 +56,7 @@ export interface LoginResponse extends LoginData {
   server: ServerInfo;
   allowedFacilities: { id: string }[] | typeof CAN_ACCESS_ALL_FACILITIES;
   settings: any; // TODO
+  localisation: any; // TODO
 }
 
 interface ServerInfo {
