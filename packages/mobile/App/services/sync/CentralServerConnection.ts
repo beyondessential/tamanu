@@ -140,19 +140,15 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.fetch(
+    const { sessionId, status } = await this.post(
       'sync',
-      {},
       {
-        method: 'POST',
-        body: {
           urgent,
           lastSyncedTick,
           facilityIds: [facilityId],
           deviceId: this.deviceId,
           isMobile: true,
         },
-      },
     );
 
     if (!sessionId) {
@@ -184,12 +180,12 @@ export class CentralServerConnection extends TamanuApi {
     await this.pollUntilOk(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
+    const { startedAtTick } = await this.get(`sync/${sessionId}/metadata`);
     return { sessionId, startedAtTick };
   }
 
   async endSyncSession(sessionId: string) {
-    return this.fetch(`sync/${sessionId}`, {}, { method: 'DELETE' });
+    return this.delete(`sync/${sessionId}`);
   }
 
   async initiatePull(
@@ -206,7 +202,7 @@ export class CentralServerConnection extends TamanuApi {
       tablesForFullResync,
       deviceId: this.deviceId,
     };
-    await this.fetch(`sync/${sessionId}/pull/initiate`, {}, { method: 'POST', body });
+    await this.post(`sync/${sessionId}/pull/initiate`, body);
 
     if (await this.streaming()) {
       for await (const { kind, message } of this.stream(() => ({
@@ -231,7 +227,7 @@ export class CentralServerConnection extends TamanuApi {
     await this.pollUntilOk(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.fetch(`sync/${sessionId}/pull/metadata`);
+    return this.get(`sync/${sessionId}/pull/metadata`);
   }
 
   async pull(
@@ -250,19 +246,12 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async push(sessionId: string, changes: any): Promise<void> {
-    return this.fetch(`sync/${sessionId}/push`, {}, { method: 'POST', body: { changes } });
+    return this.post(`sync/${sessionId}/push`, {changes});
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.fetch(
-      `sync/${sessionId}/push/complete`,
-      {},
-      {
-        method: 'POST',
-        body: { tablesToInclude, deviceId: this.deviceId },
-      },
-    );
+    await this.post(`sync/${sessionId}/push/complete`, { tablesToInclude, deviceId: this.deviceId });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
