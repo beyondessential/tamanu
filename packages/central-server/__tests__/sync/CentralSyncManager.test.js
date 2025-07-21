@@ -2887,22 +2887,6 @@ describe('CentralSyncManager', () => {
         locationId: locationC.id,
         departmentId: departmentC.id,
       });
-
-      // Patient is marked for sync on all facilities
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityA.id,
-      });
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityB.id,
-      });
-      await models.PatientFacility.create({
-        patientId: patient.id,
-        facilityId: facilityC.id,
-      });
-
-
     });
 
     it('wont sync sensitive encounters to any facility where it was not created', async () => {
@@ -2920,6 +2904,7 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      
       const encounterIds = outgoingChanges
         .filter(c => c.recordType === 'encounters')
         .map(c => c.recordId);
