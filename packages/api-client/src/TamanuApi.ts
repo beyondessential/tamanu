@@ -65,7 +65,7 @@ interface ServerInfo {
 }
 
 interface TamanuApiConfig {
-  endpoint: string;
+  endpoint?: string;
   agentName: string;
   agentVersion: string;
   deviceId: string;
@@ -153,11 +153,13 @@ export class TamanuApi {
     defaultRequestConfig = {},
     logger,
   }: TamanuApiConfig) {
-    this.#prefix = endpoint;
-    const endpointUrl = new URL(endpoint);
-    this.#host = endpointUrl.origin;
+    if (endpoint) {
+      this.#prefix = endpoint;
+      const endpointUrl = new URL(endpoint);
+      this.#host = endpointUrl.origin;
+    }
     this.#defaultRequestConfig = defaultRequestConfig;
-
+    
     this.agentName = agentName;
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
@@ -172,6 +174,12 @@ export class TamanuApi {
 
   get host(): string {
     return this.#host;
+  }
+
+  setEndpoint(endpoint: string): void {
+    this.#prefix = endpoint;
+    const endpointUrl = new URL(endpoint);
+    this.#host = endpointUrl.origin;
   }
 
   setAuthFailureHandler(handler: (message: string) => void): void {
