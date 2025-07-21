@@ -36,7 +36,7 @@ export class BackendManager {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.auth = new AuthService(models, this.centralServer);
+    this.auth = new AuthService(models);
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
@@ -45,12 +45,13 @@ export class BackendManager {
 
   async initialise(): Promise<void> {
     await Database.connect();
-    const centralServer = await this.auth.initialiseCentralServerConnection();
+    const host = await readConfig('syncServerLocation');
+    const centralServer = await this.auth.initialiseCentralServerConnection(host);
     this.centralServer = centralServer;
     await this.startSyncService();
   }
 
-  async startSyncService(): Promise<void> {
+  async startSyncService(): Promise<void> { 
     if (this.interval) {
       return; // already started
     }

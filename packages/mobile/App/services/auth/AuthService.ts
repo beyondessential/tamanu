@@ -30,8 +30,7 @@ export class AuthService {
     this.models = models;
   }
 
-  async initialiseCentralServerConnection() {
-    const host = await readConfig('syncServerLocation');
+  async initialiseCentralServerConnection(host: string) {
     let deviceId = await readConfig('deviceId');
     if (!deviceId) {
       deviceId = `mobile-${uuidv4()}`;
@@ -148,14 +147,14 @@ export class AuthService {
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
-    const { email } = params;
-    await this.centralServer.connect();
-    await this.centralServer.post('resetPassword', {}, { email });
+    const { email, server } = params;
+    await this.initialiseCentralServerConnection(server);
+    await this.centralServer.post('resetPassword', { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
-    const { ...rest } = params;
-    await this.centralServer.connect();
-    await this.centralServer.post('changePassword', {}, { ...rest });
+    const { server, ...rest } = params;
+    await this.initialiseCentralServerConnection(server);
+    await this.centralServer.post('changePassword', { ...rest });
   }
 }
