@@ -83,8 +83,8 @@ describe('MobileSyncManager', () => {
 
   describe('runSync()', () => {
     it('should start sync session when running sync', async () => {
-      const syncOutgoingChangesSpy = jest
-        .spyOn(mobileSyncManager, 'syncOutgoingChanges')
+      const pushOutgoingChangesSpy = jest
+        .spyOn(mobileSyncManager, 'pushOutgoingChanges')
         .mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
       const startSyncSessionSpy = jest
@@ -97,14 +97,14 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       const startSyncSessionCallOrder = startSyncSessionSpy.mock.invocationCallOrder[0];
-      const syncOutgoingChangesCallOrder = syncOutgoingChangesSpy.mock.invocationCallOrder[0];
+      const pushOutgoingChangesCallOrder = pushOutgoingChangesSpy.mock.invocationCallOrder[0];
 
-      expect(startSyncSessionCallOrder).toBeLessThan(syncOutgoingChangesCallOrder);
+      expect(startSyncSessionCallOrder).toBeLessThan(pushOutgoingChangesCallOrder);
     });
 
     it('should sync outgoing changes before incoming changes', async () => {
-      const syncOutgoingChangesSpy = jest
-        .spyOn(mobileSyncManager, 'syncOutgoingChanges')
+      const pushOutgoingChangesSpy = jest
+        .spyOn(mobileSyncManager, 'pushOutgoingChanges')
         .mockImplementationOnce(jest.fn());
       const pullIncomingChangesSpy = jest
         .spyOn(mobileSyncManager, 'pullIncomingChanges')
@@ -118,14 +118,14 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.runSync();
 
-      const syncOutgoingChangesCallOrder = syncOutgoingChangesSpy.mock.invocationCallOrder[0];
+      const pushOutgoingChangesCallOrder = pushOutgoingChangesSpy.mock.invocationCallOrder[0];
       const pullIncomingChangesCallOrder = pullIncomingChangesSpy.mock.invocationCallOrder[0];
 
-      expect(syncOutgoingChangesCallOrder).toBeLessThan(pullIncomingChangesCallOrder);
+      expect(pushOutgoingChangesCallOrder).toBeLessThan(pullIncomingChangesCallOrder);
     });
 
-    it("should call syncOutgoingChanges() with the correct 'sessionId' and 'newSyncClockTime'", async () => {
-      jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
+    it("should call pushOutgoingChanges() with the correct 'sessionId' and 'newSyncClockTime'", async () => {
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
@@ -138,12 +138,12 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.runSync();
 
-      expect(mobileSyncManager.syncOutgoingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.syncOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledTimes(1);
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
     });
 
     it("should call pullIncomingChanges() with the correct 'sessionId' and 'syncSettings'", async () => {
-      jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
@@ -166,7 +166,7 @@ describe('MobileSyncManager', () => {
     });
   });
 
-  describe('syncOutgoingChanges()', () => {
+  describe('pushOutgoingChanges()', () => {
     it('should snapshotOutgoingChanges with the right models and correct lastSuccessfulSyncPush', async () => {
       const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
       const pushSince = 2;
@@ -179,7 +179,7 @@ describe('MobileSyncManager', () => {
         resolve([]);
       }));
 
-      await mobileSyncManager.syncOutgoingChanges(sessionId, newSyncClockTime);
+      await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
       expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, pushSince);
     });
@@ -192,7 +192,7 @@ describe('MobileSyncManager', () => {
       getModelsForDirection.mockReturnValueOnce(modelsToPush);
       snapshotOutgoingChanges.mockImplementationOnce(() => []);
 
-      await mobileSyncManager.syncOutgoingChanges(sessionId, newSyncClockTime);
+      await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
       expect(pushOutgoingChanges).not.toBeCalled();
     });
