@@ -20,7 +20,7 @@ export const pullRecordsInBatches = async (
   // pull changes a page at a time
   while (totalPulled < recordTotal) {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, limit, fromId);
+    const records = await centralServer.pull(sessionId, { limit, fromId });
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,

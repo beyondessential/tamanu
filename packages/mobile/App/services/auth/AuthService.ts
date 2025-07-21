@@ -28,17 +28,20 @@ export class AuthService {
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
     this.centralServer = centralServer;
+  }
 
-    this.centralServer.emitter.on('error', (err) => {
+   async initialise(): Promise<void> {
+    const server = await readConfig('syncServerLocation');
+    if (!server) return;
+    const url = new URL(server);
+    url.pathname = '/api';
+    this.centralServer.setEndpoint(url.toString());
+    await this.centralServer.connect();
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
     });
-  }
-
-  async initialise(): Promise<void> {
-    const server = await readConfig('syncServerLocation');
-    await this.centralServer.connect(server);
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
@@ -113,11 +116,9 @@ export class AuthService {
     const syncServerLocation = await readConfig('syncServerLocation');
     const server = syncServerLocation || params.server;
 
-    // create the sync source and log in to it
-    await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
     const { user, token, refreshToken, settings, localisation, permissions } =
-      await this.centralServer.login(params.email, params.password);
+      await this.centralServer.connect(params);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -135,24 +136,22 @@ export class AuthService {
   }
 
   startSession(token: string, refreshToken: string): void {
-    this.centralServer.setToken(token);
-    this.centralServer.setRefreshToken(refreshToken);
+    this.centralServer.setToken(token, refreshToken);
   }
-
+  
   endSession(): void {
     this.centralServer.clearToken();
-    this.centralServer.clearRefreshToken();
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
-    const { server, email } = params;
-    await this.centralServer.connect(server);
-    await this.centralServer.post('resetPassword', {}, { email });
+    const { email, server } = params;
+    await this.centralServer.setEndpoint(server);
+    await this.centralServer.post('resetPassword', { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
     const { server, ...rest } = params;
-    await this.centralServer.connect(server);
-    await this.centralServer.post('changePassword', {}, { ...rest });
+    await this.centralServer.setEndpoint(server);
+    await this.centralServer.post('changePassword', { ...rest });
   }
 }

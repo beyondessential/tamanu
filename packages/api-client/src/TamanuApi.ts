@@ -1,6 +1,10 @@
 import qs from 'qs';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  CAN_ACCESS_ALL_FACILITIES,
+} from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -44,12 +48,15 @@ interface LoginData {
   permissions?: string[];
 }
 
-interface LoginResponse extends LoginData {
+export interface LoginResponse extends LoginData {
   user: User;
   ability: {
     can: (action: string, subject: string, field?: string) => boolean;
   };
   server: ServerInfo;
+  allowedFacilities: { id: string }[] | typeof CAN_ACCESS_ALL_FACILITIES;
+  settings: any; // TODO
+  localisation: any; // TODO
 }
 
 interface ServerInfo {
@@ -58,11 +65,11 @@ interface ServerInfo {
 }
 
 interface TamanuApiConfig {
-  endpoint: string;
+  endpoint?: string;
   agentName: string;
   agentVersion: string;
   deviceId: string;
-  defaultRequestConfig?: RequestInit;
+  defaultRequestConfig?: FetchOptions;
   logger?: LoggerType;
 }
 
@@ -146,11 +153,13 @@ export class TamanuApi {
     defaultRequestConfig = {},
     logger,
   }: TamanuApiConfig) {
-    this.#prefix = endpoint;
-    const endpointUrl = new URL(endpoint);
-    this.#host = endpointUrl.origin;
+    if (endpoint) {
+      this.#prefix = endpoint;
+      const endpointUrl = new URL(endpoint);
+      this.#host = endpointUrl.origin;
+    }
     this.#defaultRequestConfig = defaultRequestConfig;
-
+    
     this.agentName = agentName;
     this.agentVersion = agentVersion;
     this.deviceId = deviceId;
@@ -165,6 +174,13 @@ export class TamanuApi {
 
   get host(): string {
     return this.#host;
+  }
+
+  setEndpoint(endpoint: string): void {
+    this.clearToken();
+    this.#prefix = endpoint;
+    const endpointUrl = new URL(endpoint);
+    this.#host = endpointUrl.origin;
   }
 
   setAuthFailureHandler(handler: (message: string) => void): void {
@@ -212,7 +228,7 @@ export class TamanuApi {
       this.setToken(loginData.token, loginData.refreshToken);
 
       const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
-      return { ...loginData, user, ability, server };
+      return { ...loginData, user, ability, server } as LoginResponse;
     })().finally(() => {
       this.#ongoingAuth = null;
     }));
@@ -258,7 +274,12 @@ export class TamanuApi {
 
   setToken(token: string, refreshToken: string | null = null): void {
     this.#authToken = token;
-    this.#refreshToken = refreshToken || undefined;
+    this.#refreshToken = refreshToken;
+  }
+
+  clearToken(): void {
+    this.#authToken = null;
+    this.#refreshToken = null;
   }
 
   hasToken(): boolean {

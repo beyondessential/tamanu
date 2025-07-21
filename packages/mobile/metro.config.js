@@ -6,7 +6,6 @@
  */
 
 const path = require('path');
-
 const { FileStore } = require('metro-cache');
 
 // still works with npm
@@ -21,13 +20,21 @@ module.exports = {
 
   resolver: {
     // https://github.com/facebook/metro/issues/1#issuecomment-453450709
-    extraNodeModules: new Proxy(
-      {},
-      {
-        get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
-      },
-    ),
+    extraNodeModules: {
+      ...new Proxy(
+        {},
+        {
+          get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
+        },
+      ),
+      // Add monorepo packages to Metro's module resolution
+      '@tamanu/shared': path.resolve(__dirname, '../shared/dist/cjs'),
+      '@tamanu/constants': path.resolve(__dirname, '../constants/dist/cjs'),
+      '@tamanu/api-client': path.resolve(__dirname, '../api-client/dist/cjs'),
+    },
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+    resolverMainFields: ['react-native', 'browser', 'main'],
+    platforms: ['ios', 'android', 'native', 'web'],
   },
 
   // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires

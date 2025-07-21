@@ -33,14 +33,14 @@ export class BackendManager {
 
   interval: NodeJS.Timeout;
 
-  constructor() {
+  constructor(deviceId: string) {
     const { models } = Database;
     this.models = models;
-    this.centralServer = new CentralServerConnection();
-    this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
+    this.centralServer = new CentralServerConnection(deviceId);
+    this.auth = new AuthService(models, this.centralServer);
     this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
   }
 
@@ -50,7 +50,7 @@ export class BackendManager {
     await this.startSyncService();
   }
 
-  async startSyncService(): Promise<void> {
+  async startSyncService(): Promise<void> { 
     if (this.interval) {
       return; // already started
     }
