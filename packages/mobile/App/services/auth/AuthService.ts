@@ -16,7 +16,8 @@ import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
 import { VisibilityStatus } from '../../visibilityStatuses';
-import { User } from '~/models/User';
+import { User } from '~/mod
+els/User';
 import { PureAbility } from '@casl/ability';
 
 export class AuthService {
@@ -26,23 +27,23 @@ export class AuthService {
 
   emitter = mitt();
 
-  constructor(models: typeof MODELS_MAP) {
+  constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
+    this.centralServer = centralServer;
   }
 
-  async initialiseCentralServerConnection(host: string) {
-    let deviceId = await readConfig('deviceId');
-    if (!deviceId) {
-      deviceId = `mobile-${uuidv4()}`;
-      await writeConfig('deviceId', deviceId);
-    }
-    this.centralServer = new CentralServerConnection({ host, deviceId });
+   async initialise(): Promise<void> {
+    const server = await readConfig('syncServerLocation');
+    if (!server) return;
+    const url = new URL(server);
+    url.pathname = '/api';
+    this.centralServer.setEndpoint(url.toString());
+    await this.centralServer.connect();
     this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
     });
-    return this.centralServer;
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
