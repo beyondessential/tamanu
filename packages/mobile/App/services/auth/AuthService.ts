@@ -30,11 +30,12 @@ export class AuthService {
     this.centralServer = centralServer;
   }
 
-   async initialise(): Promise<void> {
+   async initialise(deviceId: string): Promise<void> {
     const server = await readConfig('syncServerLocation');
     if (!server) return;
     const url = new URL(server);
     url.pathname = '/api';
+    this.centralServer.deviceId = deviceId;
     this.centralServer.setEndpoint(url.toString());
     await this.centralServer.connect();
     this.centralServer.emitter.on('error', err => {
@@ -140,6 +141,7 @@ export class AuthService {
   }
   
   endSession(): void {
+    console.log('Ending session', this.centralServer);
     this.centralServer.clearToken();
   }
 

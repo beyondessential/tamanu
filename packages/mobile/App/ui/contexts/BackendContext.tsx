@@ -9,9 +9,10 @@ import { readConfig, writeConfig } from '~/services/config';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
+const backendManager = new BackendManager();
+
 export const BackendProvider = ({ Component }): ReactElement => {
   const [initialised, setInitialised] = useState(false);
-  const [backendManager, setBackendManager] = useState<BackendManager>(new BackendManager(null));
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -24,17 +25,15 @@ export const BackendProvider = ({ Component }): ReactElement => {
         await writeConfig('deviceId', newDeviceId);
       }
 
-      setBackendManager(new BackendManager(deviceId));
-
       RnBgTask.runInBackground(async () => {
-        await backendManager.initialise();
+        await backendManager.initialise(deviceId);
         setInitialised(true);
       });
     })();
     return () => {
       backendManager.stopSyncService();
     };
-  }, [backendManager]);
+  }, []);
 
   if (!initialised) {
     return <LoadingScreen />;
