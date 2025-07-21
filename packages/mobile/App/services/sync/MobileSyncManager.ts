@@ -436,6 +436,11 @@ export class MobileSyncManager {
     });
   }
 
+  /**
+   * Post-pull actions should be run inside the save transaction
+   * @param entityManager - the entity manager for the save transaction
+   * @param pullUntil - the pull until cursor
+   */
   async postPull(entityManager: any, pullUntil: number) {
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
 
@@ -447,6 +452,10 @@ export class MobileSyncManager {
       await localSystemFactRepository.delete(tablesForFullResync);
     }
 
+    // update the last successful sync in the same save transaction,
+    // if updating the cursor fails, we want to roll back the rest of the saves
+    // so that we don't end up detecting them as needing a sync up
+    // to the central server when we attempt to resync from the same old cursor
     const lastSuccessfulPull = await localSystemFactRepository.findOne({
       where: { key: LAST_SUCCESSFUL_PULL },
     });
