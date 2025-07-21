@@ -1,7 +1,6 @@
 import mitt from 'mitt';
 
 import { MODELS_MAP } from '~/models/modelsMap';
-import { v4 as uuidv4 } from 'uuid';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
@@ -16,8 +15,7 @@ import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
 import { VisibilityStatus } from '../../visibilityStatuses';
-import { User } from '~/mod
-els/User';
+import { User } from '~/models/User';
 import { PureAbility } from '@casl/ability';
 
 export class AuthService {

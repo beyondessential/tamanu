@@ -177,6 +177,7 @@ export class TamanuApi {
   }
 
   setEndpoint(endpoint: string): void {
+    this.clearToken();
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
