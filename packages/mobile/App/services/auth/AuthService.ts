@@ -136,15 +136,13 @@ export class AuthService {
     return result;
   }
 
-  // TODO: These ones a no exist
   startSession(token: string, refreshToken: string): void {
-    this.centralServer.setToken(token);
-    this.centralServer.setRefreshToken(refreshToken);
+    this.centralServer.setToken(token, refreshToken);
   }
-
+  
   endSession(): void {
-    this.centralServer.clearToken();
-    this.centralServer.clearRefreshToken();
+    // TODO: should add clear token?
+    this.centralServer.setToken(null, null);
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {

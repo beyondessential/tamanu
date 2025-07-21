@@ -264,7 +264,12 @@ export class TamanuApi {
 
   setToken(token: string, refreshToken: string | null = null): void {
     this.#authToken = token;
-    this.#refreshToken = refreshToken || undefined;
+    this.#refreshToken = refreshToken;
+  }
+
+  clearToken(): void {
+    this.#authToken = null;
+    this.#refreshToken = null;
   }
 
   hasToken(): boolean {
