@@ -151,10 +151,11 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;
     });
+    const directory = isVital ? 'vital' : 'chart';
 
     // The survey response answer might not exist
     if (dataPoint.answerId) {
-      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, {
+      await api.put(`surveyResponseAnswer/${directory}/${dataPoint.answerId}`, {
         facilityId,
         ...newShapeData,
       });
@@ -165,9 +166,10 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
         encounterId: encounter.id,
         recordedDate: dataPoint.recordedDate,
       };
-      await api.post('surveyResponseAnswer/vital', { facilityId, ...newVitalData });
+      await api.post(`surveyResponseAnswer/${directory}`, { facilityId, ...newVitalData });
     }
-    queryClient.invalidateQueries(['encounterVitals', encounter.id]);
+    const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
+    queryClient.invalidateQueries([primaryQueryKey, encounter.id]);
     handleClose();
   };
   const validateFn = values => {
