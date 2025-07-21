@@ -329,7 +329,7 @@ export class MobileSyncManager {
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
     this.setProgress(
-      STAGE_MAX_PROGRESS_INCREMENTAL[this.syncStage - 1],
+      this.progressMaxByStage[this.syncStage - 1],
       'Pausing at 33% while server prepares for pull, please wait...',
     );
 
