@@ -1,6 +1,6 @@
 # Setting Up LLM Rules as a Submodule
 
-This guide explains how to convert the copied `/rules` directory into a proper git submodule once the shared repository is hosted.
+This guide explains how to convert the copied `/common-rules` directory into a proper git submodule once the shared repository is hosted.
 
 ## Prerequisites
 
@@ -27,16 +27,16 @@ git push -u origin main
 cd /path/to/tamanu
 
 # Remove the copied rules directory
-rm -rf llm/rules
+rm -rf llm/common-rules
 
 # Remove from git if still tracked
-git rm -r --cached llm/rules 2>/dev/null || true
+git rm -r --cached llm/common-rules 2>/dev/null || true
 
 # Add as submodule
-git submodule add https://github.com/[ORG]/llm-rules.git llm/rules
+git submodule add https://github.com/[ORG]/llm-rules.git llm/common-rules
 
 # Commit the submodule
-git add .gitmodules llm/rules
+git add .gitmodules llm/common-rules
 git commit -m "repo: convert LLM rules to submodule
 
 - Replace copied rules with submodule reference
@@ -53,15 +53,15 @@ Update the TODO in `llm/README.md` to point to the actual hosted repository URL.
 
 ```bash
 # Make changes in the submodule
-cd llm/rules
+cd llm/common-rules
 # ... make changes ...
 git add . && git commit -m "feat: improve rule X"
 git push
 
 # Update Tamanu to use the latest
 cd ../../
-git submodule update --remote llm/rules
-git add llm/rules
+git submodule update --remote llm/common-rules
+git add llm/common-rules
 git commit -m "deps: update shared LLM rules"
 ```
 
