@@ -13,7 +13,7 @@ Use this rule when you are being onboarded as a background agent to work on task
 
 3. **Load task-specific rules as needed**:
 
-   - If the user mentions copy changes, text updates, or UI wording changes, load `llm/rules-tamanu/update-copy.md`
+   - If the user mentions copy changes, text updates, or UI wording changes, load `llm/project-rules/update-copy.md`
    - Load other relevant rules based on the specific task being requested
 
 # Avoid

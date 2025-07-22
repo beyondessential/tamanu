@@ -20,7 +20,6 @@ The project uses conventional commits and has specific branch naming and PR titl
   - `style` for formatting changes
   - `test` for adding or fixing tests
   - `chore` for maintenance tasks
-  - Other types as listed in CONTRIBUTING.md (if available)
 - Create a branch name using the format: `type/{card-code}/{brief-description}`
 - Use kebab-case for the description part
 - Keep the description concise but descriptive of the main change
@@ -38,4 +37,3 @@ Example: `git switch -c feat/NASS-1712/restructure-llm-docs`
 # Notes
 
 - Use Australian/NZ English spelling and terminology in branch names and all outputs
-- Adapt the card code format to match the project's Linear workspace (NASS- for Tamanu, TUP- for Tupaia, etc.)

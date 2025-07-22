@@ -12,7 +12,7 @@ Use this for:
 # Process
 
 - Look through the current chat history for valuable patterns and workflows
-- Create a new .md file in `llm/rules/` (for generic rules) or `llm/rules-tamanu/` (for project-specific rules) with a descriptive name (e.g., `debug-sync-issues.md`, `update-database-schema.md`)
+- Create a new .md file in `llm/rules/` (for generic rules) or `llm/project-rules/` (for project-specific rules) with a descriptive name (e.g., `debug-sync-issues.md`, `update-database-schema.md`)
 - Structure the rule document with these sections:
   - **Context**: When and why this rule should be used (be specific about triggers)
   - **Process**: Step-by-step instructions for the AI agent to follow

@@ -1,6 +1,6 @@
 # LLM Documentation and Rules
 
-This directory contains documentation and rules for LLM agents working on the Tamanu project.
+This directory contains documentation and rules for LLM agents working on this project.
 
 ## Structure
 
@@ -18,18 +18,18 @@ rm -rf llm/rules
 git submodule add https://github.com/[ORG]/llm-rules.git llm/rules
 ```
 
-### `/rules-tamanu` - Tamanu-Specific Rules
+### `/project-rules` - Project-Specific Rules
 
-Contains rules that are specific to the Tamanu project, including:
+Contains rules that are specific to this project, including:
 
-- `translate-hardcoded-strings.md` - Tamanu's TranslatedText system
-- `load-initial-context.md` - Tamanu project context loading
-- `onboard-bg-agent.md` - Tamanu background agent onboarding
-- `update-copy.md` - Tamanu-specific copy update workflows
+- `translate-hardcoded-strings.md` - Project's TranslatedText system (if applicable)
+- `load-initial-context.md` - Project context loading
+- `onboard-bg-agent.md` - Background agent onboarding
+- `update-copy.md` - Project-specific copy update workflows
 
 ### `/docs` - Project Documentation
 
-Contains documentation about Tamanu's codebase for LLM context.
+Contains documentation about the project's codebase for LLM context.
 
 ### `/plans` - Development Plans
 
@@ -43,7 +43,7 @@ Contains on-call and operational documentation.
 
 When an LLM agent needs to follow a rule:
 
-1. First check if there's a Tamanu-specific version in `/rules-tamanu`
+1. First check if there's a project-specific version in `/project-rules`
 2. If not, use the generic version from `/rules`
 3. Always prioritise project-specific rules over generic ones
 
@@ -52,7 +52,7 @@ When an LLM agent needs to follow a rule:
 The generic rules in `/rules` are maintained in a separate repository to enable sharing across multiple projects. When making changes:
 
 1. **For generic improvements**: Update the shared repository
-2. **For Tamanu-specific changes**: Update files in `/rules-tamanu`
+2. **For project-specific changes**: Update files in `/project-rules`
 
 The shared repository contains these rules for use across Tamanu and Tupaia:
 
@@ -65,5 +65,5 @@ The shared repository contains these rules for use across Tamanu and Tupaia:
 When adding new rules:
 
 - **Generic/reusable rules** → Add to shared repository
-- **Tamanu-specific rules** → Add to `/rules-tamanu`
+- **Project-specific rules** → Add to `/project-rules`
 - Always include Australian/NZ English spelling guidance in Notes sections
