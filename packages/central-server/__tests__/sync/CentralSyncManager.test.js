@@ -2842,8 +2842,28 @@ describe('CentralSyncManager', () => {
   describe('encounter-linked sync filtering based on facility sensitivity', () => {
     let patient;
 
+    const testConfig = {
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    };
+
     beforeEach(async () => {
       patient = await models.Patient.create(fake(models.Patient));
+      // Reset modules to ensure fresh imports
+      jest.resetModules();
+      jest.doMock('@tamanu/shared/utils/withConfig', () => ({
+        withConfig: (fn) => {
+          const inner = function inner(...args) {
+            return fn(...args, testConfig);
+          };
+          inner.overrideConfig = fn;
+          return inner;
+        },
+      }));
     });
 
     const createFacilityWithEncounter = async ({ isSensitive = false }) => {
@@ -2873,14 +2893,7 @@ describe('CentralSyncManager', () => {
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll();
@@ -2900,14 +2913,7 @@ describe('CentralSyncManager', () => {
           isSensitive: false,
         });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -2950,14 +2956,7 @@ describe('CentralSyncManager', () => {
           encounterId: nonSensitiveEncounter.id,
         }),
       );
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -2982,63 +2981,63 @@ describe('CentralSyncManager', () => {
     });
 
     // TODO: bit more complicated test setup
-    // it('wont sync sensitive encounter prescriptions to any facility where it was not created', async () => {
-    //   const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-    //     isSensitive: true,
-    //   });
-    //   const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-    //     await createFacilityWithEncounter({
-    //       isSensitive: false,
-    //     });
+    it('wont sync sensitive encounter prescriptions to any facility where it was not created', async () => {
+      const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
+        isSensitive: true,
+      });
+      const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
+        await createFacilityWithEncounter({
+          isSensitive: false,
+        });
 
-    //   // Create prescriptions first
-    //   const sensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
-    //   const nonSensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
+      // Create prescriptions first
+      const sensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
+      const nonSensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
 
-    //   // Create prescriptions linked to encounters
-    //   const sensitivePrescription = await models.EncounterPrescription.create(
-    //     fake(models.EncounterPrescription, {
-    //       encounterId: sensitiveEncounter.id,
-    //       prescriptionId: sensitivePrescriptionData.id,
-    //     }),
-    //   );
-    //   const nonSensitivePrescription = await models.EncounterPrescription.create(
-    //     fake(models.EncounterPrescription, {
-    //       encounterId: nonSensitiveEncounter.id,
-    //       prescriptionId: nonSensitivePrescriptionData.id,
-    //     }),
-    //   );
+      // Create prescriptions linked to encounters
+      const sensitivePrescription = await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: sensitiveEncounter.id,
+          prescriptionId: sensitivePrescriptionData.id,
+        }),
+      );
+      const nonSensitivePrescription = await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: nonSensitiveEncounter.id,
+          prescriptionId: nonSensitivePrescriptionData.id,
+        }),
+      );
 
-    //   const centralSyncManager = initializeCentralSyncManager({
-    //     sync: {
-    //       lookupTable: {
-    //         enabled: true,
-    //       },
-    //       maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-    //     },
-    //   });
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
 
-    //   await centralSyncManager.updateLookupTable();
+      await centralSyncManager.updateLookupTable();
 
-    //   const { sessionId } = await centralSyncManager.startSession();
-    //   await waitForSession(centralSyncManager, sessionId);
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
 
-    //   await centralSyncManager.setupSnapshotForPull(
-    //     sessionId,
-    //     {
-    //       since: 1,
-    //       facilityIds: [nonSensitiveFacility.id],
-    //     },
-    //     () => true,
-    //   );
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [nonSensitiveFacility.id],
+        },
+        () => true,
+      );
 
-    //   const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    //   const prescriptionChanges = outgoingChanges.filter(c => c.recordType === 'encounter_prescriptions');
-    //   const prescriptionIds = prescriptionChanges.map(c => c.recordId);
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const prescriptionChanges = outgoingChanges.filter(c => c.recordType === 'encounter_prescriptions');
+      const prescriptionIds = prescriptionChanges.map(c => c.recordId);
 
-    //   expect(prescriptionIds).not.toContain(sensitivePrescription.id);
-    //   expect(prescriptionIds).toContain(nonSensitivePrescription.id);
-    // });
+      expect(prescriptionIds).not.toContain(sensitivePrescription.id);
+      expect(prescriptionIds).toContain(nonSensitivePrescription.id);
+    });
 
     it('wont sync sensitive encounter lab requests to any facility where it was not created', async () => {
       const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
@@ -3061,14 +3060,7 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3114,14 +3106,7 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3154,14 +3139,7 @@ describe('CentralSyncManager', () => {
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
 
       // Update the lookup table to include the encounters
       await centralSyncManager.updateLookupTable();
@@ -3196,14 +3174,7 @@ describe('CentralSyncManager', () => {
         isSensitive: true,
       });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
