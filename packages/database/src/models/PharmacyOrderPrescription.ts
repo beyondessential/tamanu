@@ -19,16 +19,6 @@ export class PharmacyOrderPrescription extends Model {
     super.init(
       {
         id: primaryKey,
-        pharmacyOrderId: {
-          type: DataTypes.UUID,
-          allowNull: false,
-          field: 'pharmacy_order_id',
-        },
-        prescriptionId: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-          field: 'prescription_id',
-        },
         quantity: {
           type: DataTypes.INTEGER,
           allowNull: false,
