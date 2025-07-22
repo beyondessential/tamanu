@@ -2865,6 +2865,35 @@ describe('CentralSyncManager', () => {
       return { facility, encounter };
     };
 
+    it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
+      const { facility: sensitiveFacility, encounter: sensitiveEncounter } =
+        await createFacilityWithEncounter({
+          isSensitive: true,
+        });
+
+      const { encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
+        isSensitive: false,
+      });
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData = await models.SyncLookup.findAll();
+
+      expect(lookupData.find(l => l.recordId === sensitiveEncounter.id).facilityId).toBe(
+        sensitiveFacility.id,
+      );
+      expect(lookupData.find(l => l.recordId === nonSensitiveEncounter.id).facilityId).toBeNull();
+    });
+
     it('wont sync sensitive encounters to any facility where it was not created', async () => {
       const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
         isSensitive: true,
@@ -2883,7 +2912,7 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      // Update the lookup table to include the encounters
+      // Update the lookup table to include the encounterds
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -2916,7 +2945,6 @@ describe('CentralSyncManager', () => {
         });
 
       // Create procedures linked to encounters
-      console.log('Creating sensitive procedure...');
       const sensitiveProcedure = await models.Procedure.create(
         fake(models.Procedure, {
           encounterId: sensitiveEncounter.id,
@@ -2951,10 +2979,9 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      
+
       const procedureChanges = outgoingChanges.filter(c => c.recordType === 'procedures');
       const procedureIds = procedureChanges.map(c => c.recordId);
-
 
       expect(procedureIds).not.toContain(sensitiveProcedure.id);
       expect(procedureIds).toContain(nonSensitiveProcedure.id);
