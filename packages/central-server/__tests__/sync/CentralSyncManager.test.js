@@ -2870,24 +2870,14 @@ describe('CentralSyncManager', () => {
         await createFacilityWithEncounter({
           isSensitive: true,
         });
-
       const { encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll();
-
       expect(lookupData.find(l => l.recordId === sensitiveEncounter.id).facilityId).toBe(
         sensitiveFacility.id,
       );
@@ -2903,14 +2893,7 @@ describe('CentralSyncManager', () => {
           isSensitive: false,
         });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
 
       // Update the lookup table to include the encounterds
       await centralSyncManager.updateLookupTable();
@@ -2955,15 +2938,7 @@ describe('CentralSyncManager', () => {
           encounterId: nonSensitiveEncounter.id,
         }),
       );
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3067,15 +3042,7 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3121,15 +3088,7 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3162,14 +3121,7 @@ describe('CentralSyncManager', () => {
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
 
       // Update the lookup table to include the encounters
       await centralSyncManager.updateLookupTable();
@@ -3192,6 +3144,41 @@ describe('CentralSyncManager', () => {
 
       expect(encounterIds).toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
+    });
+
+    it('wont sync between facilities just because they are both sensitive', async () => {
+      const { facility: sensitiveFacilityA, encounter: sensitiveEncounterA } =
+        await createFacilityWithEncounter({
+          isSensitive: true,
+        });
+
+      const { encounter: sensitiveEncounterB } =
+        await createFacilityWithEncounter({
+          isSensitive: true,
+        });
+
+      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [sensitiveFacilityA.id],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      const encounterIds = outgoingChanges
+        .filter(c => c.recordType === 'encounters')
+        .map(c => c.recordId);
+
+      expect(encounterIds).toContain(sensitiveEncounterA.id);
+      expect(encounterIds).not.toContain(sensitiveEncounterB.id);
     });
   });
 });
