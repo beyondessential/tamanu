@@ -2873,7 +2873,14 @@ describe('CentralSyncManager', () => {
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll();
@@ -2893,9 +2900,14 @@ describe('CentralSyncManager', () => {
           isSensitive: false,
         });
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
-
-      // Update the lookup table to include the encounterds
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -2938,7 +2950,14 @@ describe('CentralSyncManager', () => {
           encounterId: nonSensitiveEncounter.id,
         }),
       );
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3042,7 +3061,14 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3088,7 +3114,14 @@ describe('CentralSyncManager', () => {
         }),
       );
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -3121,7 +3154,14 @@ describe('CentralSyncManager', () => {
         isSensitive: false,
       });
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
 
       // Update the lookup table to include the encounters
       await centralSyncManager.updateLookupTable();
@@ -3156,7 +3196,14 @@ describe('CentralSyncManager', () => {
         isSensitive: true,
       });
 
-      const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
