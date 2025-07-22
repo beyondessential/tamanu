@@ -4,6 +4,7 @@ import { initDatabase } from '../database';
 import { VERSION } from '../middleware/versionCompatibility';
 
 export const upgradeCommand = new Command('upgrade')
+  .alias('migrate')
   .description('Upgrade Tamanu installation')
   .action(async () => {
     const { sequelize, models } = await initDatabase();

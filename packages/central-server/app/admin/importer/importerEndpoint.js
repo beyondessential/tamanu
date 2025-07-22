@@ -5,7 +5,7 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, PROGRAM_REGISTRY_REFERENCE_TYPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -25,7 +25,8 @@ const normMapping = {
   // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
   // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
   registry: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY,
-  registryCondition: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
+  registryCondition: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
+  registryConditionCategories: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
 };
 
 export function normaliseSheetName(name, modelName) {
@@ -36,9 +37,21 @@ export function normaliseSheetName(name, modelName) {
       .join(' '),
   );
 
-  // Exception because ProgramRegistryClinicalStatus is imported in the registry sheet
+  // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
-    return OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+    return PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+  }
+  if (modelName === 'ProgramDataElement') {
+    return OTHER_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
+  }
+  if (modelName === 'SurveyScreenComponent') {
+    return OTHER_REFERENCE_TYPES.SURVEY_SCREEN_COMPONENT;
+  }
+  if (modelName === 'Program') {
+    return OTHER_REFERENCE_TYPES.PROGRAM;
+  }
+  if (modelName === 'Survey') {
+    return OTHER_REFERENCE_TYPES.SURVEY;
   }
 
   return normMapping[norm] || norm;

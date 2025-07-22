@@ -198,7 +198,11 @@ const DischargeSummaryPrintoutComponent = ({
   const primaryDiagnoses = visibleDiagnoses.filter((d) => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter((d) => !d.isPrimary);
   const notes = discharge?.note;
-  const { facilityName, facilityAddress, facilityTown } = discharge;
+  const {
+    name: facilityName,
+    address: facilityAddress,
+    town: facilityTown,
+  } = discharge.address;
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {
@@ -257,7 +261,7 @@ const DischargeSummaryPrintoutComponent = ({
               <ProceduresTable procedures={procedures} getSetting={getSetting} />
             </TableContainer>
           )}
-          {medications.length > 0 && (
+          {visibleMedications.length > 0 && (
             <TableContainer>
               <Table
                 data={visibleMedications}

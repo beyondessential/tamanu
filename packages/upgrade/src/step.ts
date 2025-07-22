@@ -8,20 +8,27 @@ export const END: At = ':end:';
 export const MIGRATION_PREFIX = 'migration/';
 export const STEP_PREFIX = 'upgrade/';
 
-export type StepStr = `upgrade/${string}` | `upgrade/${string}/${number}`;
+export type StepStr = `upgrade/${string}/${number}`;
 export type MigrationStr = `migration/${string}`;
 export type Need = StepStr | MigrationStr;
 export type Needs = Need[];
 
-export const needsStep = (step: string) => `upgrade/${basename(step, extname(step))}` as StepStr;
+export const needsStep = (step: string) => {
+  const re = /^(?<file>.+?)(\/(?<index>\d+))?$/;
+  const { file, index } = re.exec(step)?.groups || {};
+  if (!file) throw new Error(`Invalid step name: ${step}`);
+  if (!index) throw new Error('You must provide an index when depending on upgrade steps');
+
+  return `upgrade/${basename(file, extname(file))}/${index}` as StepStr;
+};
 export const needsMigration = (mig: string) =>
   `migration/${basename(mig, extname(mig))}` as MigrationStr;
 export const onlySteps = (needs: Needs): StepStr[] =>
   needs.filter((need: Need) => need.startsWith(STEP_PREFIX)) as StepStr[];
 export const onlyMigrations = (needs: Needs): MigrationStr[] =>
   needs.filter((need: Need) => need.startsWith(MIGRATION_PREFIX)) as MigrationStr[];
-export const stepFile = (str: StepStr) => str.split('/')[1]! + '.js';
-export const migrationFile = (str: MigrationStr) => str.split('/')[1]! + '.js';
+export const stepFile = (str: StepStr) => str.split('/')[1] + '.js';
+export const migrationFile = (str: MigrationStr) => str.split('/')[1] + '.js';
 
 export interface StepArgs {
   sequelize: Sequelize;
