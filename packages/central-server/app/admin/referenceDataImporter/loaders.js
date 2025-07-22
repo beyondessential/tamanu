@@ -19,7 +19,7 @@ function stripNotes(fields) {
   return values;
 }
 
-export const loaderFactory = (model) => (fields) => [{ model, values: stripNotes(fields) }];
+export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
 export function referenceDataLoaderFactory(type) {
   return ({ id, code, name, visibilityStatus }) => [
@@ -44,8 +44,8 @@ export function patientFieldDefinitionLoader(values) {
         ...stripNotes(values),
         options: (values.options || '')
           .split(',')
-          .map((v) => v.trim())
-          .filter((v) => v !== ''),
+          .map(v => v.trim())
+          .filter(v => v !== ''),
       },
     },
   ];
@@ -93,7 +93,7 @@ export function administeredVaccineLoader(item) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].some((v) => v === consent?.toLowerCase()),
+        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
         ...data,
 
         // relationships
@@ -153,7 +153,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
     if (
       predefinedPatientFields.includes(definitionId) ||
-      foreignKeySchemata.Patient.find((schema) => schema.field === definitionId) ||
+      foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
       !value
     )
       continue;
@@ -271,8 +271,8 @@ export function labTestPanelLoader(item) {
 
   (testTypesInPanel || '')
     .split(',')
-    .map((t) => t.trim())
-    .forEach((testType) => {
+    .map(t => t.trim())
+    .forEach(testType => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
@@ -290,13 +290,13 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   const { id: taskSetId, tasks: taskIdsString } = item;
   const taskIds = taskIdsString
     .split(',')
-    .map((taskId) => taskId.trim())
+    .map(taskId => taskId.trim())
     .filter(Boolean);
 
   const existingTaskIds = await models.ReferenceData.findAll({
     where: { id: { [Op.in]: taskIds } },
-  }).then((tasks) => tasks.map(({ id }) => id));
-  const nonExistentTaskIds = taskIds.filter((taskId) => !existingTaskIds.includes(taskId));
+  }).then(tasks => tasks.map(({ id }) => id));
+  const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
   if (nonExistentTaskIds.length > 0) {
     pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
   }
@@ -313,7 +313,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   });
 
   // Upsert tasks that are in task set
-  const rows = existingTaskIds.map((taskId) => ({
+  const rows = existingTaskIds.map(taskId => ({
     model: 'ReferenceDataRelation',
     values: {
       referenceDataId: taskId,
@@ -330,7 +330,7 @@ export async function userLoader(item, { models, pushError }) {
   const rows = [];
 
   const allowedFacilityIds = allowedFacilities
-    ? allowedFacilities.split(',').map((t) => t.trim())
+    ? allowedFacilities.split(',').map(t => t.trim())
     : [];
 
   rows.push({
@@ -348,10 +348,10 @@ export async function userLoader(item, { models, pushError }) {
 
   if (existingUser) {
     const idsToBeDeleted = existingUser.facilities
-      .map((f) => f.id)
-      .filter((id) => !allowedFacilityIds.includes(id));
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
 
-    idsToBeDeleted.forEach((facilityId) => {
+    idsToBeDeleted.forEach(facilityId => {
       rows.push({
         model: 'UserFacility',
         values: {
@@ -364,7 +364,7 @@ export async function userLoader(item, { models, pushError }) {
     });
   }
 
-  allowedFacilityIds.forEach((facilityId) => {
+  allowedFacilityIds.forEach(facilityId => {
     rows.push({
       model: 'UserFacility',
       values: {
@@ -377,7 +377,7 @@ export async function userLoader(item, { models, pushError }) {
 
   const designationIds = (designations || '')
     .split(',')
-    .map((d) => d.trim())
+    .map(d => d.trim())
     .filter(Boolean);
 
   if (id) {
@@ -435,7 +435,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 
   const designationIds = (assignedTo || '')
     .split(',')
-    .map((d) => d.trim())
+    .map(d => d.trim())
     .filter(Boolean);
 
   await models.TaskTemplateDesignation.destroy({
@@ -443,7 +443,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   });
 
   const existingDesignationIds = await models.ReferenceData.findByIds(designationIds).then(
-    (designations) => designations.map((d) => d.id),
+    designations => designations.map(d => d.id),
   );
   for (const designationId of designationIds) {
     if (!existingDesignationIds.includes(designationId)) {
@@ -552,7 +552,7 @@ export async function medicationSetLoader(item, { models, pushError }) {
 
   const medicationTemplateIds = (medicationTemplateIdsString || '')
     .split(',')
-    .map((id) => id.trim())
+    .map(id => id.trim())
     .filter(Boolean);
 
   let existingTemplateIds = [];
@@ -566,7 +566,7 @@ export async function medicationSetLoader(item, { models, pushError }) {
     existingTemplateIds = existingTemplates.map(({ id }) => id);
 
     const nonExistentTemplateIds = medicationTemplateIds.filter(
-      (id) => !existingTemplateIds.includes(id),
+      id => !existingTemplateIds.includes(id),
     );
     if (nonExistentTemplateIds.length > 0) {
       pushError(
@@ -595,5 +595,62 @@ export async function medicationSetLoader(item, { models, pushError }) {
       },
     });
   }
+
+  return rows;
+}
+
+export async function procedureTypeLoader(item, { models, pushError }) {
+  const { id, formLink } = item;
+  const rows = [];
+
+  const surveyIdList = formLink ? formLink.split(',').map(s => s.trim()) : [];
+
+  // Validate that all surveys exist before creating relationships
+  if (surveyIdList.length > 0) {
+    const existingSurveys = await models.Survey.findAll({
+      where: { id: { [Op.in]: surveyIdList } },
+    });
+    const existingSurveyIds = existingSurveys.map(({ id }) => id);
+    const nonExistentSurveyIds = surveyIdList.filter(
+      surveyId => !existingSurveyIds.includes(surveyId),
+    );
+    if (nonExistentSurveyIds.length > 0) {
+      pushError(
+        `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
+      );
+    }
+  }
+
+  const existingProcedureType = await models.ReferenceData.findByPk(id, {
+    include: [{ model: models.Survey, as: 'surveys' }],
+  });
+
+  if (existingProcedureType) {
+    const idsToBeDeleted = existingProcedureType.surveys
+      .map(s => s.id)
+      .filter(surveyId => !surveyIdList.includes(surveyId));
+
+    idsToBeDeleted.forEach(surveyId => {
+      rows.push({
+        model: 'ProcedureTypeSurvey',
+        values: {
+          procedureTypeId: id,
+          surveyId: surveyId,
+          deletedAt: new Date(),
+        },
+      });
+    });
+  }
+
+  surveyIdList.forEach(surveyId => {
+    rows.push({
+      model: 'ProcedureTypeSurvey',
+      values: {
+        procedureTypeId: id,
+        surveyId: surveyId,
+      },
+    });
+  });
+
   return rows;
 }
