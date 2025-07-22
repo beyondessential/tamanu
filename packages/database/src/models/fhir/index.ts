@@ -7,6 +7,7 @@ export * from './FhirPatient';
 export * from './FhirPractitioner';
 export * from './FhirServiceRequest';
 export * from './FhirSpecimen';
+export * from './FhirMedicationRequest';
 
 export * from './MediciReport';
 
