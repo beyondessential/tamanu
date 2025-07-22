@@ -363,11 +363,11 @@ describe('Data definition import', () => {
       );
 
       // Filter out the clinical/patient record types as they dont get translated
-      const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
+      const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
         OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
       );
       await Promise.all(
-        translatableNonRefDataTableImports.map(async (type) => {
+        translatableNonRefDataTableImports.map(async type => {
           const recordsForDataType = await models[type].findAll({
             attributes: ['id'],
             raw: true,
@@ -378,22 +378,6 @@ describe('Data definition import', () => {
           expectedStringIds.push(...nonRefDataTableStringIds);
         }),
       );
-    // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
-      OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
-    );
-    await Promise.all(
-      translatableNonRefDataTableImports.map(async type => {
-        const recordsForDataType = await models[type].findAll({
-          attributes: ['id'],
-          raw: true,
-        });
-        const nonRefDataTableStringIds = recordsForDataType.map(
-          ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
-        );
-        expectedStringIds.push(...nonRefDataTableStringIds);
-      }),
-    );
 
       const createdTranslationCount = await TranslatedString.count({
         where: { stringId: { [Op.in]: expectedStringIds } },
@@ -420,10 +404,10 @@ describe('Data definition import', () => {
       const translations = await models.TranslatedString.findAll({
         where: { stringId: { [Op.like]: 'refData.patientFieldDefinition%' } },
       });
-      const stringIds = translations.map((translation) => translation.stringId);
+      const stringIds = translations.map(translation => translation.stringId);
 
       const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(
-        (option) =>
+        option =>
           `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${patientFieldDefinition.id}.option.${camelCase(option)}`,
       );
 
@@ -775,9 +759,7 @@ describe('Permissions import', () => {
     await doImport({ file: 'revoke-a' });
 
     const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-    expect(initialPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
-    );
+    expect(initialPermissions).toEqual(expect.arrayContaining([{ noun: 'User', verb: 'read' }]));
     expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
@@ -796,9 +778,7 @@ describe('Permissions import', () => {
     await doImport({ file: 'revoke-a' });
 
     const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-    expect(reinstatedPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
-    );
+    expect(reinstatedPermissions).toEqual(expect.arrayContaining([{ noun: 'User', verb: 'read' }]));
     expect(reinstatedPermissions.length).toBe(1);
   });
 
