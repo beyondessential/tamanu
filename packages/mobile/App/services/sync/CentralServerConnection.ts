@@ -26,11 +26,11 @@ export class CentralServerConnection extends TamanuApi {
   #loginData: LoginResponse;
   emitter = mitt();
 
-  constructor(deviceId: string) {
+  constructor() {
     super({
       agentName: SERVER_TYPES.MOBILE,
       agentVersion: version,
-      deviceId,
+      deviceId: 'temporary-device-id',
       defaultRequestConfig: {
         timeout: 10000,
         waitForAuth: true,

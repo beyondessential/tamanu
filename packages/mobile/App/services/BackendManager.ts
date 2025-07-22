@@ -36,17 +36,17 @@ export class BackendManager {
   constructor() {
     const { models } = Database;
     this.models = models;
+    this.centralServer = new CentralServerConnection();
     this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
     this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
-    this.centralServer = new CentralServerConnection();
     this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
   }
 
-  async initialise(): Promise<void> {
+  async initialise(deviceId: string): Promise<void> {
     await Database.connect();
-    await this.auth.initialise();
+    await this.auth.initialise(deviceId);
     await this.startSyncService();
   }
 
