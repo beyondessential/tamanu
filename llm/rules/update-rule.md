@@ -4,7 +4,7 @@ Use this rule when you need to update an existing rule based on new learnings or
 
 # Process
 
-- Identify which existing rule in `llm/rules/` needs updating
+- Identify which existing rule in `llm/rules/` (generic) or `llm/rules-tamanu/` (project-specific) needs updating
 - Review what's changed or what new insights have been gained
 - Update the relevant sections while maintaining the existing structure
 - Add new process steps or avoid items based on recent experience

@@ -1,8 +1,8 @@
 # Context
 
-Use this rule when creating card descriptions for project management tools, especially when documenting changes that have already been made but need a retrospective card description.
+Use this rule when creating card descriptions for Linear or similar project management tools, especially when documenting changes that have already been made but need a retrospective card description.
 
-Focus on concise, problem-first card descriptions that explain the "why" rather than listing detailed technical changes. Use gentle, non-directive language.
+The user prefers concise, problem-first card descriptions that explain the "why" rather than listing detailed technical changes. Use gentle, non-directive language appropriate for NZ/Australian culture.
 
 # Process
 
@@ -33,5 +33,4 @@ Example structure:
 
 # Notes
 
-- Adapt language style to match team culture and communication norms
-- Focus on clarity and helpfulness over formality
+- Use Australian/NZ English spelling and terminology in card descriptions

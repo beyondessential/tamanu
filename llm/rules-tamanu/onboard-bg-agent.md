@@ -8,12 +8,12 @@ Use this rule when you are being onboarded as a background agent to work on task
 
 2. **Load essential workflow rules**: Read the following rules that you, as a background agent, commonly need:
 
-   - `llm/rules/create-branch.md` - for creating feature branches
-   - `llm/rules/create-pr.md` - for creating pull requests
+   - `llm/rules-tamanu/create-branch.md` - for creating feature branches
+   - `llm/rules-tamanu/create-pr.md` - for creating pull requests
 
 3. **Load task-specific rules as needed**:
 
-   - If the user mentions copy changes, text updates, or UI wording changes, load `llm/rules/update-copy.md`
+   - If the user mentions copy changes, text updates, or UI wording changes, load `llm/rules-tamanu/update-copy.md`
    - Load other relevant rules based on the specific task being requested
 
 # Avoid

@@ -1,32 +1,73 @@
-# 🤖 LLM Agent Collaboration Guide
+# LLM Documentation and Rules
 
-Welcome to your AI-powered development workflow! This directory helps you work more effectively with AI agents and capture valuable insights for the team.
+This directory contains documentation and rules for LLM agents working on the Tamanu project.
 
-## Quick Start
+## Structure
 
-Use AI agents to enhance your development process, then save the valuable stuff for everyone to benefit from.
+### `/rules` - Shared Generic Rules
 
-## 📋 Planning
+Contains generic LLM agent rules that can be shared across multiple projects. These rules are copied from the [llm-rules repository](TODO: Add GitHub URL when repository is hosted).
 
-For any significant work, ask your agent to create a plan using `create-plan.md`. Review it, tweak as needed, and check in as you progress.
+**To set up as a submodule (when the shared repo is hosted):**
 
-## 📚 Code Documentation
+```bash
+# Remove the copied directory
+rm -rf llm/rules
 
-Exploring a part of the codebase? After a good conversation with the AI:
+# Add as submodule
+git submodule add https://github.com/[ORG]/llm-rules.git llm/rules
+```
 
-- **New area**: Save a summary to `contexts/` using `create-context.md`
-- **Existing context**: Update it with new insights using `update-context.md`
+### `/rules-tamanu` - Tamanu-Specific Rules
 
-## 🔄 Repeatable Tasks
+Contains rules that are specific to the Tamanu project, including:
 
-Found a workflow someone else might need, or noticed something the AI regularly gets wrong and you want it to avoid? Save it as a rule using `create-rule.md` so the team can reuse it.
+- `translate-hardcoded-strings.md` - Tamanu's TranslatedText system
+- `load-initial-context.md` - Tamanu project context loading
+- `onboard-bg-agent.md` - Tamanu background agent onboarding
+- `update-copy.md` - Tamanu-specific copy update workflows
+- `commit.md` - Tamanu's CONTRIBUTING.md requirements
+- `create-branch.md` - Linear card integration
+- `create-card-description.md` - NZ/Australian culture considerations
+- `create-pr.md` - Tamanu PR template integration
 
-## 🚨 Incident Response
+### `/docs` - Project Documentation
 
-Working on a bug or outage? Chat with an agent about your debugging process and ask it to generate any SQL queries you need. When you're done, save valuable insights to `./incident-response` using `create-on-call-doc.md`.
+Contains documentation about Tamanu's codebase for LLM context.
 
-## 💡 Pro Tips
+### `/plans` - Development Plans
 
-- **Start conversations** by tagging relevant contexts
-- **Reference rules** when doing repeated tasks
-- **Actually use** the files people have generated - they're there to help!
+Contains development plans for complex features.
+
+### `/on-call` - On-Call Documentation
+
+Contains on-call and operational documentation.
+
+## Usage
+
+When an LLM agent needs to follow a rule:
+
+1. First check if there's a Tamanu-specific version in `/rules-tamanu`
+2. If not, use the generic version from `/rules`
+3. Always prioritise project-specific rules over generic ones
+
+## Shared Rules Repository
+
+The generic rules in `/rules` are maintained in a separate repository to enable sharing across multiple projects. When making changes:
+
+1. **For generic improvements**: Update the shared repository
+2. **For Tamanu-specific changes**: Update files in `/rules-tamanu`
+
+The shared repository contains these generic rules:
+
+- Documentation: `create-context.md`, `create-docs.md`, `create-plan.md`, `create-rule.md`, `create-on-call-doc.md`
+- Updates: `update-context.md`, `update-docs.md`, `update-on-call-doc.md`, `update-plan.md`, `update-rule.md`
+- Git workflows: `commit.md`, `create-branch.md`, `create-pr.md`, `create-card-description.md`, `rebase-branch.md`
+
+## Contributing
+
+When adding new rules:
+
+- **Generic/reusable rules** → Add to shared repository
+- **Tamanu-specific rules** → Add to `/rules-tamanu`
+- Always include Australian/NZ English spelling guidance in Notes sections
