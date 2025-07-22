@@ -14,7 +14,7 @@ This guide explains how to convert the copied `/common-rules` directory into a p
 cd /tmp/llm-rules
 
 # Add remote origin (replace with actual repository URL)
-git remote add origin https://github.com/[ORG]/llm-rules.git
+git remote add origin https://github.com/beyondessential/llm-rules.git
 
 # Push to main branch
 git push -u origin main
@@ -33,7 +33,7 @@ rm -rf llm/common-rules
 git rm -r --cached llm/common-rules 2>/dev/null || true
 
 # Add as submodule
-git submodule add https://github.com/[ORG]/llm-rules.git llm/common-rules
+git submodule add https://github.com/beyondessential/llm-rules.git llm/common-rules
 
 # Commit the submodule
 git add .gitmodules llm/common-rules

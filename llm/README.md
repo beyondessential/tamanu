@@ -6,7 +6,7 @@ This directory contains documentation and rules for LLM agents working on this p
 
 ### `/common-rules` - Shared Generic Rules
 
-Contains generic LLM agent rules that can be shared across multiple projects. These rules are copied from the [llm-rules repository](TODO: Add GitHub URL when repository is hosted).
+Contains generic LLM agent rules that can be shared across multiple projects. These rules are provided via git submodule from the [llm-rules repository](https://github.com/beyondessential/llm-rules).
 
 **To set up as a submodule (when the shared repo is hosted):**
 
@@ -15,7 +15,7 @@ Contains generic LLM agent rules that can be shared across multiple projects. Th
 rm -rf llm/common-rules
 
 # Add as submodule
-git submodule add https://github.com/[ORG]/llm-rules.git llm/common-rules
+git submodule add https://github.com/beyondessential/llm-rules.git llm/common-rules
 ```
 
 ### `/project-rules` - Project-Specific Rules
