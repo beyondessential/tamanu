@@ -239,9 +239,6 @@ export async function importRows(
 
       if (existing) {
         if (normalizedValues.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
-        await existing.update(values);
-        if (values.deletedAt) {
           if (
             ![
               'Permission',
