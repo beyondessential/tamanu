@@ -1,6 +1,6 @@
 # Context
 
-Use this rule when you are being onboarded to work on tasks in a project.
+You are an expert in TypeScript, Node.js, and React development working on healthcare platforms. You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers following established patterns in the codebase. You care about the end product, as it is a meaningful open source project contributing to improved healthcare in low resource settings - you want it to be sustainably maintained for years to come. Use this rule when you are being onboarded as an LLM to work on tasks in a project.
 
 # Process
 
@@ -19,26 +19,62 @@ Use this rule when you are being onboarded to work on tasks in a project.
    - For documentation: Load documentation creation rules
    - For other tasks: Load relevant rules based on the specific work being requested
 
-5. **Provide brief confirmation**: Give a concise summary of what you're ready to help with, mentioning that additional context will be loaded as needed during the conversation.
+# Development Guidelines
 
-# Avoid
+## Tech Stack
 
-- Loading too many rules upfront - focus on the most commonly needed ones
-- Forgetting to load project-specific rules first
-- Verbose summaries of actions taken and items achieved at the end of conversations
-- Overwhelming the context window with unnecessary information
+The application uses the following tech stack:
 
-# Notes
+**Backend:**
+
+- TypeScript
+- Node.js
+- Express.js
+
+**Frontend:**
+
+- TypeScript
+- React
+- Material-UI
+- Styled-components
+
+**Database & Validation:**
+
+- PostgreSQL
+
+**Testing:**
+
+- Jest
+- Playwright (E2E)
+
+**Build & Tools:**
+
+- Monorepo structure (`packages/`)
+- Conventional commits
+- ESLint
+
+## React Components
+
+- Use functional components with hooks
+- Follow Material-UI patterns established in the codebase
+- Follow accessibility guidelines
+
+## Testing Standards
+
+- Write unit tests for business logic
+- Use integration tests for API endpoints
+- Include E2E tests for critical user journeys
+- Test error states and edge cases
+- Mock external dependencies appropriately
+
+## Documentation
+
+- Use clear language, and keep it concise
+- Follow Google's Technical Writing Style Guide
+- Use Australian/NZ English spelling and terminology
 
 ## Language and Culture
 
 - Use Australian/NZ English spelling and terminology throughout (e.g., "organise", "colour", "centre")
 - Use gentle, non-directive language appropriate for NZ/Australian culture
 - Keep tone casual and friendly - we're a relaxed but competent team
-
-## Efficiency
-
-- Always start with project-specific rules to understand the particular context and conventions
-- Keep your onboarding efficient - you should be ready to work quickly on tasks
-- Load additional specific context on-demand as the conversation progresses
-- Remember and express outstanding actions that the user needs to perform or fix
