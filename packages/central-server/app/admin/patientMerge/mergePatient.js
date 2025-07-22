@@ -148,44 +148,42 @@ async function mergeRecordsForModel(
 export async function mergePatientAdditionalData(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedPAD = await models.PatientAdditionalData.findOne({
     where: { patientId: unwantedPatientId },
-    raw: true,
   });
   if (!existingUnwantedPAD) return null;
   const existingKeepPAD = await models.PatientAdditionalData.findOne({
     where: { patientId: keepPatientId },
-    raw: true,
   });
   const mergedPAD = {
-    ...getMergedFieldsForUpdate(existingKeepPAD, existingUnwantedPAD),
+    ...getMergedFieldsForUpdate(existingKeepPAD?.dataValues, existingUnwantedPAD.dataValues),
     patientId: keepPatientId,
   };
-  await models.PatientAdditionalData.destroy({
-    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
-    force: true,
-  });
+  await existingUnwantedPAD.destroy();
+  if (existingKeepPAD) {
+    return existingKeepPAD.update(mergedPAD);
+  }
   return models.PatientAdditionalData.create(mergedPAD);
 }
 
 export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedPatientBirthData = await models.PatientBirthData.findOne({
     where: { patientId: unwantedPatientId },
-    raw: true,
   });
   if (!existingUnwantedPatientBirthData) return null;
   const existingKeepPatientBirthData = await models.PatientBirthData.findOne({
     where: { patientId: keepPatientId },
-    raw: true,
   });
   const mergedPatientBirthData = {
-    ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
+    ...getMergedFieldsForUpdate(
+      existingKeepPatientBirthData?.dataValues,
+      existingUnwantedPatientBirthData.dataValues,
+    ),
     patientId: keepPatientId,
   };
 
-  // hard delete the old patient birth data, we're going to create a new one
-  await models.PatientBirthData.destroy({
-    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
-    force: true,
-  });
+  await existingUnwantedPatientBirthData.destroy();
+  if (existingKeepPatientBirthData) {
+    return existingKeepPatientBirthData.update(mergedPatientBirthData);
+  }
   return models.PatientBirthData.create(mergedPatientBirthData);
 }
 
@@ -236,16 +234,38 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
     return [];
   }
 
+  const existingKeepRegistrations = await models.PatientProgramRegistration.findAll({
+    where: { patientId: keepPatientId },
+  });
+  const keepRegistrationMap = new Map(existingKeepRegistrations.map(r => [r.programRegistryId, r]));
+
   const results = [];
 
   for (const unwantedRegistration of existingUnwantedRegistrations) {
-    // Move to keep patient
-    await unwantedRegistration.update({
-      patientId: keepPatientId,
-    });
+    // This isn't a duplicate, so we should keep this record
+    if (keepRegistrationMap.has(unwantedRegistration.programRegistryId) === false) {
+      // Create a new patient program registration and keep all previous metadata, this is
+      // needed because patient program registration conditions can be referencing the record
+      // so we cannot perform a simple update
+      const newRegistration = await models.PatientProgramRegistration.create({
+        ...unwantedRegistration.dataValues,
+        patientId: keepPatientId,
+      });
 
-    // Soft delete the registration
+      // Move conditions to the new patient program registration
+      await models.PatientProgramRegistrationCondition.update({
+        patientProgramRegistrationId: newRegistration.id,
+      }, {
+        where: {
+          patientProgramRegistrationId: unwantedRegistration.id,
+        },
+      });
+    }
+
+    // Always destroy the unwanted registration
     await unwantedRegistration.destroy();
+
+    // Include all in results to report modified records
     results.push(unwantedRegistration);
   }
 
@@ -291,7 +311,6 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
 
   await models.PatientFieldValue.destroy({
     where: { patientId: unwantedPatientId },
-    force: true,
   });
   return records;
 }
@@ -310,7 +329,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   const existingPatientFacilityRecords = await models.PatientFacility.findAll({
     where,
   });
-  await models.PatientFacility.destroy({ where, force: true }); // hard delete
+  // This is the only place where hard deletion is allowed, as we will be creating
+  // new records to replace the all the old ones and then some.
+  await models.PatientFacility.destroy({ where, force: true });
 
   if (existingPatientFacilityRecords.length === 0) return [];
 

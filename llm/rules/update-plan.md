@@ -10,6 +10,7 @@ Use this rule when you need to update an existing development plan based on new 
 - Add new steps or modify existing ones based on what you've learned
 - Update estimates and timelines if they've changed
 - Note any new risks or dependencies that have been discovered
+- Commit the modified plan to the current branch
 
 # Avoid
 
