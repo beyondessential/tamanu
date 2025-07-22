@@ -2332,7 +2332,6 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  // TODO: test goes somewhere in here?
   describe('updateLookupTable', () => {
     beforeEach(async () => {
       jest.resetModules();
@@ -2878,10 +2877,11 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll();
-      expect(lookupData.find(l => l.recordId === sensitiveEncounter.id).facilityId).toBe(
-        sensitiveFacility.id,
-      );
-      expect(lookupData.find(l => l.recordId === nonSensitiveEncounter.id).facilityId).toBeNull();
+      const sensitiveLookupRecord = lookupData.find(l => l.recordId === sensitiveEncounter.id);
+      const nonSensitiveLookupRecord = lookupData.find(l => l.recordId === nonSensitiveEncounter.id);
+
+      expect(sensitiveLookupRecord.facilityId).toBe(sensitiveFacility.id);
+      expect(nonSensitiveLookupRecord.facilityId).toBeNull();
     });
 
     it('wont sync sensitive encounters to any facility where it was not created', async () => {
@@ -3152,10 +3152,9 @@ describe('CentralSyncManager', () => {
           isSensitive: true,
         });
 
-      const { encounter: sensitiveEncounterB } =
-        await createFacilityWithEncounter({
-          isSensitive: true,
-        });
+      const { encounter: sensitiveEncounterB } = await createFacilityWithEncounter({
+        isSensitive: true,
+      });
 
       const centralSyncManager = initializeCentralSyncManager(DEFAULT_CONFIG);
       await centralSyncManager.updateLookupTable();
