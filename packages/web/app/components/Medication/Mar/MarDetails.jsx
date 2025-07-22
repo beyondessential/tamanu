@@ -13,11 +13,7 @@ import { AutocompleteField, CheckField, Field, Form, NumberField, TextField } fr
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
-import {
-  ADMINISTRATION_STATUS,
-  ADMINISTRATION_STATUS_LABELS,
-  DRUG_UNIT_SHORT_LABELS,
-} from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
@@ -35,6 +31,7 @@ import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { ConditionalTooltip } from '../../Tooltip';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -507,10 +504,10 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              {`${dose.doseAmount} ${getEnumTranslation(
-                                DRUG_UNIT_SHORT_LABELS,
-                                medication.units,
-                              )}`}
+                              {getMarDoseDisplay(
+                                { doseAmount: dose.doseAmount, units: medication.units },
+                                getEnumTranslation,
+                              )}
                             </DarkestText>
                             <MidText mt={'15px'}>
                               <TranslatedText

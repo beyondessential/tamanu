@@ -9,7 +9,7 @@ import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
 import { Colors } from '../../../constants';
 import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -86,7 +86,10 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
             <TranslatedText stringId="medication.mar.doseGiven" fallback="Dose given" />
           </MidText>
           <DarkestText mt={'3px'}>
-            {`${dose.doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, medication.units)}`}
+            {getMarDoseDisplay(
+              { doseAmount: dose.doseAmount, units: medication.units },
+              getEnumTranslation,
+            )}
           </DarkestText>
           <MidText mt={'15px'}>
             <TranslatedText stringId="medication.mar.givenBy" fallback="Given by" />
