@@ -7,6 +7,24 @@ import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { PatientTable } from './PatientTable';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { Patient } from '../../types/Patient';
+import { ERROR_RED_RGB } from '../../utils/testColors';
+import { STYLED_TABLE_CELL_PREFIX } from '../../utils/testIds';
+
+export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
+
+export interface PatientSearchCriteria {
+  NHN?: string;
+  firstName?: string;
+  lastName?: string;
+  DOB?: string;
+  culturalName?: string;
+  DOBFrom?: string;
+  DOBTo?: string;
+  sex?: string;
+  village?: string;
+  deceased?: boolean;
+  advancedSearch: boolean;
+}
 
 export class AllPatientsPage extends BasePage {
   readonly patientTable: PatientTable;
@@ -27,11 +45,11 @@ export class AllPatientsPage extends BasePage {
   readonly searchResultsPaginationOneOfOne: Locator;
   readonly nhnResultCell: Locator;
   readonly secondNHNResultCell: Locator;
-  readonly NHNTxt: Locator;
-  readonly firstNameTxt: Locator;
-  readonly lastNameTxt: Locator;
-  readonly DOBTxt: Locator;
-  readonly CulturalNameTxt: Locator;
+  readonly NHNInput: Locator;
+  readonly firstNameInput: Locator;
+  readonly lastNameInput: Locator;
+  readonly DOBInput: Locator;
+  readonly culturalNameInput: Locator;
   readonly villageSearchBox: Locator;
   readonly newPatientVillageSearchBox: Locator;
   readonly includeDeceasedChk: Locator;
@@ -77,11 +95,11 @@ export class AllPatientsPage extends BasePage {
       .filter({ hasText: '1–1 of 1' });
     this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
     this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
-    this.NHNTxt = page.getByTestId('localisedfield-dzml-input');
-    this.firstNameTxt = page.getByTestId('localisedfield-i9br-input');
-    this.lastNameTxt = page.getByTestId('localisedfield-ngsn-input');
-    this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
-    this.CulturalNameTxt = page.getByTestId('localisedfield-epbq-input');
+    this.NHNInput = page.getByTestId('localisedfield-dzml-input');
+    this.firstNameInput = page.getByTestId('localisedfield-i9br-input');
+    this.lastNameInput = page.getByTestId('localisedfield-ngsn-input');
+    this.DOBInput = page.getByTestId('field-qk60-input').locator('input[type="date"]');
+    this.culturalNameInput = page.getByTestId('localisedfield-epbq-input');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
     this.includeDeceasedChk = page.getByTestId('field-ngy7-controlcheck');
@@ -144,13 +162,13 @@ export class AllPatientsPage extends BasePage {
   async clickOnFirstRow() {
     await this.patientTable.waitForTableToLoad();
     await this.patientTable.rows.first().click();
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/${routes.patients.all}/*`);
   }
 
   async clickOnSearchResult(nhn: string) {
     //this has a short timeout to account for flakiness, in searchForAndSelectPatientByNHN it will try again if it timesout
     await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/${routes.patients.all}/*`);
   }
 
   async navigateToPatientDetailsPage(nhn: string) {
@@ -172,38 +190,27 @@ export class AllPatientsPage extends BasePage {
       await this.NewPatientMaleChk.check();
     }
   }
-   //Generic method to search with different field combinations
-   async searchTable(searchCriteria: {
-    NHN?: string;
-    firstName?: string;
-    lastName?: string;
-    DOB?: string;
-    culturalName?: string;
-    DOBFrom?: string;
-    DOBTo?: string;
-    sex?: string;
-    village?: string;
-    deceased?: boolean;
-    advancedSearch: boolean;
-  }) {
+
+  //Generic method to search with different field combinations
+  async searchTable(searchCriteria: PatientSearchCriteria) {
     if (searchCriteria.advancedSearch) {
       await this.advanceSearchIcon.click();
     }
     // Fill search fields if provided
     if (searchCriteria.NHN) {
-      await this.NHNTxt.fill(searchCriteria.NHN);
+      await this.NHNInput.fill(searchCriteria.NHN);
     }
     if (searchCriteria.firstName) {
-      await this.firstNameTxt.fill(searchCriteria.firstName);
+      await this.firstNameInput.fill(searchCriteria.firstName);
     }
     if (searchCriteria.lastName) {
-      await this.lastNameTxt.fill(searchCriteria.lastName);
+      await this.lastNameInput.fill(searchCriteria.lastName);
     }
     if (searchCriteria.DOB) {
-      await this.DOBTxt.fill(searchCriteria.DOB);
+      await this.DOBInput.fill(searchCriteria.DOB);
     }
     if (searchCriteria.culturalName) {
-      await this.CulturalNameTxt.fill(searchCriteria.culturalName);
+      await this.culturalNameInput.fill(searchCriteria.culturalName);
     }
     if (searchCriteria.village) {
       await selectAutocompleteFieldOption(
@@ -214,7 +221,7 @@ export class AllPatientsPage extends BasePage {
     }
     if (searchCriteria.sex){
       await this.sexDropDownIcon.click();
-      await this.page.getByTestId('twocolumnsfield-wg4x').getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
+      await this.page.getByTestId(TWO_COLUMNS_FIELD_TEST_ID).getByText(new RegExp(`^${searchCriteria.sex}$`, 'i')).click();
     }
     if (searchCriteria.deceased) {
       await this.includeDeceasedChk.check();
@@ -228,31 +235,35 @@ export class AllPatientsPage extends BasePage {
     
     await this.searchBtn.click();
   }
+
   async clearSearch() {
     await this.clearSearchBtn.click();
   }
-   // Validate that at least one row is displayed after search
-   async validateAtLeastOneSearchResult() {
+
+  // Validate that at least one row is displayed after search
+  async validateAtLeastOneSearchResult() {
     const rowCount = await this.tableRows.count();
     await expect(rowCount).toBeGreaterThan(0);
   }
+
   async validateAllFieldsAreEmpty() {
-    await expect(this.NHNTxt).toHaveValue('');
-    await expect(this.firstNameTxt).toHaveValue('');
-    await expect(this.lastNameTxt).toHaveValue('');
-    await expect(this.DOBTxt).toHaveValue('');
-    await expect(this.CulturalNameTxt).toHaveValue('');
+    await expect(this.NHNInput).toHaveValue('');
+    await expect(this.firstNameInput).toHaveValue('');
+    await expect(this.lastNameInput).toHaveValue('');
+    await expect(this.DOBInput).toHaveValue('');
+    await expect(this.culturalNameInput).toHaveValue('');
     await expect(this.villageSearchBox.locator('input')).toHaveValue('');
     await expect(this.sexDropDownCrossIcon).not.toBeVisible();
     await expect(this.DOBFromTxt).toHaveValue('');
     await expect(this.DOBToTxt).toHaveValue('');
   }
+
   async validateAllRowsContain(expectedText: string, columnName: string) {
     const rowCount = await this.tableRows.count();
     const lowerExpectedText = expectedText.toLowerCase();
     for (let i = 0; i < rowCount; i++) {
       const row = this.tableRows.nth(i);
-      const locatorText = "styledtablecell-2gyy-" + i + "-" + columnName;
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-" + columnName;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       const actualText = cellText || '';
@@ -272,31 +283,34 @@ export class AllPatientsPage extends BasePage {
     
     for (let i = 1; i < cellCount; i++) {
       const cell = cells.nth(i);
-      await expect(cell).toHaveCSS('color', 'rgb(237, 51, 58)');
+      await expect(cell).toHaveCSS('color', ERROR_RED_RGB);
     }
   }
+
   // Validate date in all rows for a specific column
-  async validateAllRowsDateMatches(expectedDate: string, columnName: string) {
+  async validateAllRowsDateMatches(expectedDate: string) {
     const rowCount = await this.tableRows.count();
     const convertedExpectedDate = await convertDateFormat(expectedDate);
     
     for (let i = 0; i < rowCount; i++) {
       const row = await this.tableRows.nth(i);
-      const locatorText = "styledtablecell-2gyy-" + i + "-" + columnName;
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-dateOfBirth";
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       await expect(cellLocator).toHaveText(convertedExpectedDate);
     }
   }
- // Validate that a specific row appears
- async validateFirstRowContainsNHN(expectedText: string) {
-  const firstRowNHN = this.page.locator('[data-testid="styledtablecell-2gyy-0-displayId"]');
-  await expect(firstRowNHN).toHaveText(expectedText);
-}
-    // Validate that there is only one row displayed after search
-    async validateOneSearchResult() {
-      const rowCount = await this.tableRows.count();
-      await expect(rowCount).toBe(1);
-    }
+
+  // Validate that a specific row appears
+  async validateFirstRowContainsNHN(expectedText: string) {
+    const firstRowNHN = this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}0-displayId`);
+    await expect(firstRowNHN).toHaveText(expectedText);
+  }
+
+  // Validate that there is only one row displayed after search
+  async validateOneSearchResult() {
+    const rowCount = await this.tableRows.count();
+    await expect(rowCount).toBe(1);
+  }
 
   async validateSortOrder(isAscending: boolean, columnName: string) {
     const rowCount = await this.tableRows.count();
@@ -304,7 +318,7 @@ export class AllPatientsPage extends BasePage {
     
     for (let i = 0; i < rowCount; i++) {
       const row = this.tableRows.nth(i);
-      const locatorText = "styledtablecell-2gyy-" + i + "-"+columnName;
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-"+columnName;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) Values.push(cellText);
@@ -323,7 +337,7 @@ export class AllPatientsPage extends BasePage {
     
     for (let i = 0; i < rowCount; i++) {
       const row = this.tableRows.nth(i);
-      const locatorText = "styledtablecell-2gyy-" + i + "-dateOfBirth";
+      const locatorText = STYLED_TABLE_CELL_PREFIX + i + "-dateOfBirth";
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) dateValues.push(cellText);

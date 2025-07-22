@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { STYLED_TABLE_CELL_PREFIX } from '../../../../utils/testIds';
 
 export class LabRequestPane {
   readonly page: Page;
@@ -27,27 +28,27 @@ export class LabRequestPane {
   
   // Helper methods to get specific cells
   getTestIdCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-requestId`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-requestId`);
   }
   
   getTestCategoryCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-category.name`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-category.name`);
   }
   
   getRequestedDateCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-requestedDate`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-requestedDate`);
   }
   
   getRequestedByCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-displayName`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-displayName`);
   }
   
   getPriorityCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-priority.name`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-priority.name`);
   }
   
   getStatusCell(rowIndex: number): Locator {
-    return this.page.getByTestId(`styledtablecell-2gyy-${rowIndex}-status`);
+    return this.page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${rowIndex}-status`);
   }
   
   async validateLabRequestTableContent(

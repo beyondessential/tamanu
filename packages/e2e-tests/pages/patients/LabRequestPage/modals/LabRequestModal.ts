@@ -17,4 +17,5 @@ export class LabRequestModal extends LabRequestModalBase {
     this.panelModal = new PanelLabRequestModal(page);
     this.individualModal = new IndividualLabRequestModal(page);
   }
+  
 } 

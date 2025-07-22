@@ -1,6 +1,8 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
 
+const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
+const REMOVE_ICON_BUTTON_TEST_ID = 'removeiconbutton-iwj5';
 
 export class PanelLabRequestModal extends LabRequestModalBase {
   
@@ -74,7 +76,7 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     const panelCategories: string[] = [];
     for (const panelName of panelNames) {
       const panel = this.panelsList.filter({ hasText: panelName });
-      const panelCategory = await panel.locator('..').getByTestId('categorytext-jno3').textContent();
+      const panelCategory = await panel.locator('..').getByTestId(CATEGORY_TEXT_TEST_ID).textContent();
       panelCategories.push(panelCategory || '');
       await panel.click();
     }
@@ -107,7 +109,7 @@ export class PanelLabRequestModal extends LabRequestModalBase {
       const expectedCategory = expectedCategories[i];
       const panelLabel = this.selectedPanelsList.filter({ hasText: expectedPanel });
       await expect(panelLabel).toBeVisible();
-      const categoryLabel = this.selectedPanelsList.locator('..').getByTestId('categorytext-jno3').filter({ hasText: expectedCategory });
+      const categoryLabel = this.selectedPanelsList.locator('..').getByTestId(CATEGORY_TEXT_TEST_ID).filter({ hasText: expectedCategory });
       await expect(categoryLabel).toBeVisible();
     }
   }
@@ -115,8 +117,7 @@ export class PanelLabRequestModal extends LabRequestModalBase {
   async removeSelectedPanelFromTable(panelName: string) {
     // Find the remove button for the specific panel
     const removeButton = this.selectedPanelItems
-      .filter({ hasText: panelName })
-      .locator('[data-testid="removeiconbutton-iwj5"]');
+      .filter({ hasText: panelName }).getByTestId(REMOVE_ICON_BUTTON_TEST_ID);
     
     await removeButton.click();
   }

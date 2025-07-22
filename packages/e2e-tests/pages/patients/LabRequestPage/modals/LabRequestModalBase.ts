@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
+import { format } from 'date-fns';
 
 export class LabRequestModalBase {
   readonly page: Page;
@@ -48,8 +49,7 @@ export class LabRequestModalBase {
   }
 
   async validateRequestedDateTimeIsToday() {
-    const today = new Date();
-    const todayString = today.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+    const todayString = this.getCurrentDateTime();
     await expect(this.requestDateTimeInput).toHaveValue(todayString);
     return todayString;
   }
@@ -73,9 +73,7 @@ export class LabRequestModalBase {
     return currentUser;
   }
 
-  // Helper function to get the current date and time in the format YYYY-MM-DDTHH:mm
   getCurrentDateTime(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return format(new Date(), "yyyy-MM-dd'T'HH:mm");
   }
 } 

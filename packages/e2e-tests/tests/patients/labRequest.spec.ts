@@ -55,7 +55,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.nextButton.click();
       await labRequestModal.panelModal.searchPanelAndValidate('Demo Test Panel');
     });
-    
+
     test('Clear panel selection and validate', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
@@ -136,6 +136,23 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.backButton.click();
       await labRequestModal.validateDepartment();
       await labRequestModal.validateRequestingClinician();
+    });
+  })
+  test.describe('Individual Lab Request Tests', () => {
+    test.skip('should create an individual lab request with basic details', async () => {
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.waitForModalToLoad();
+      await labRequestModal.individualRadioButton.click();
+      await labRequestModal.nextButton.click();
+      const selectedTests = await labRequestModal.individualModal.selectTestsByIndex([1,2]);
+      await labRequestModal.individualModal.validateSelectedTestsInTable(selectedTests);
+      await labRequestModal.nextButton.click();
+      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(selectedTests, selectedTests);
+      await labRequestModal.finaliseButton.click();
+      await expect(labRequestModal.panelModal.requestFinalisedHeading).toHaveText('Request finalised');
+      await labRequestModal.panelModal.closeButton.click();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
     });
   })
 });
