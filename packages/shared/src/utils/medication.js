@@ -59,6 +59,10 @@ export const getMedicationDoseDisplay = (medication, getTranslation, getEnumTran
   return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units)}`;
 };
 
+export const getMarDoseDisplay = ({ doseAmount, units }, getEnumTranslation) => {
+  return `${doseAmount} ${getEnumTranslation(DRUG_UNIT_SHORT_LABELS, units)}`;
+};
+
 export const getTranslatedFrequency = (frequency, getTranslation) => {
   return getTranslation(`medication.frequency.${camelCase(frequency)}.label`, frequency);
 };
