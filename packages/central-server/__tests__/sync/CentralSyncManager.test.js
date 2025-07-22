@@ -3197,5 +3197,8 @@ describe('CentralSyncManager', () => {
       expect(encounterIds).toContain(sensitiveEncounterA.id);
       expect(encounterIds).not.toContain(sensitiveEncounterB.id);
     });
+
+    it.todo('will sync all historical sensitive data to other facilites when the facility is changed from sensitive to non-sensitive');
+    it.todo('will delete all historical sensitive data from other facilites when the facility is changed from non-sensitive to sensitive');
   });
 });
