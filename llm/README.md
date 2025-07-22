@@ -26,10 +26,6 @@ Contains rules that are specific to the Tamanu project, including:
 - `load-initial-context.md` - Tamanu project context loading
 - `onboard-bg-agent.md` - Tamanu background agent onboarding
 - `update-copy.md` - Tamanu-specific copy update workflows
-- `commit.md` - Tamanu's CONTRIBUTING.md requirements
-- `create-branch.md` - Linear card integration
-- `create-card-description.md` - NZ/Australian culture considerations
-- `create-pr.md` - Tamanu PR template integration
 
 ### `/docs` - Project Documentation
 
@@ -58,11 +54,11 @@ The generic rules in `/rules` are maintained in a separate repository to enable 
 1. **For generic improvements**: Update the shared repository
 2. **For Tamanu-specific changes**: Update files in `/rules-tamanu`
 
-The shared repository contains these generic rules:
+The shared repository contains these rules for use across Tamanu and Tupaia:
 
 - Documentation: `create-context.md`, `create-docs.md`, `create-plan.md`, `create-rule.md`, `create-on-call-doc.md`
 - Updates: `update-context.md`, `update-docs.md`, `update-on-call-doc.md`, `update-plan.md`, `update-rule.md`
-- Git workflows: `commit.md`, `create-branch.md`, `create-pr.md`, `create-card-description.md`, `rebase-branch.md`
+- Git workflows: `commit.md`, `create-branch.md`, `create-card-description.md`, `rebase-branch.md`
 
 ## Contributing
 

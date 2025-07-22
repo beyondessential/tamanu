@@ -1,8 +1,8 @@
 # Context
 
-Use this rule when you need to create a commit for staged changes, following conventional commit format.
+Use this rule when you need to create a commit for staged changes, following the project's conventional commit format as outlined in CONTRIBUTING.md.
 
-Conventional commit format is widely used and it's good practice for individual commits and PR titles.
+The project requires conventional commit format for PR titles, and it's good practice to use it for individual commits as well.
 
 # Process
 
@@ -42,6 +42,7 @@ Example: `git commit -m "doc: restructure LLM documentation system"`
 
 # Notes
 
+- Use Australian/NZ English spelling (e.g., "organise", "colour", "centre") instead of American English (e.g., "organize", "color", "center")
 - Always stage all changes before committing to ensure consistency
 - When user says "commit and push", perform both operations in sequence
 - Commit incrementally instead of making large changesets whenever possible

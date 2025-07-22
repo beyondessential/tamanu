@@ -8,8 +8,8 @@ Use this rule when you are being onboarded as a background agent to work on task
 
 2. **Load essential workflow rules**: Read the following rules that you, as a background agent, commonly need:
 
-   - `llm/rules-tamanu/create-branch.md` - for creating feature branches
-   - `llm/rules-tamanu/create-pr.md` - for creating pull requests
+   - `llm/rules/create-branch.md` - for creating feature branches
+   - `llm/rules/create-pr.md` - for creating pull requests
 
 3. **Load task-specific rules as needed**:
 
