@@ -32,11 +32,10 @@ export class AuthService {
 
    async initialise(deviceId: string): Promise<void> {
     const server = await readConfig('syncServerLocation');
+    console.log('server', server)
     if (!server) return;
-    const url = new URL(server);
-    url.pathname = '/api';
+    this.centralServer.setServer(server);
     this.centralServer.deviceId = deviceId;
-    this.centralServer.setEndpoint(url.toString());
     await this.centralServer.connect();
     this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
@@ -118,6 +117,8 @@ export class AuthService {
     const server = syncServerLocation || params.server;
 
     console.log(`Getting token from ${server}`);
+    console.log('params', params);
+    this.centralServer.setServer(server);
     const { user, token, refreshToken, settings, localisation, permissions } =
       await this.centralServer.connect(params);
     console.log(`Signed in as ${user.displayName}`);
@@ -147,13 +148,13 @@ export class AuthService {
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { email, server } = params;
-    await this.centralServer.setEndpoint(server);
+    this.centralServer.setServer(server);
     await this.centralServer.post('resetPassword', { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
     const { server, ...rest } = params;
-    await this.centralServer.setEndpoint(server);
+    this.centralServer.setServer(server);
     await this.centralServer.post('changePassword', { ...rest });
   }
 }

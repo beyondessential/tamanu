@@ -68,6 +68,12 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
 
+  setServer(server: string) {
+    const url = new URL(server);
+    url.pathname = '/api';
+    this.setEndpoint(url.toString());
+  }
+
   async connect(params?: SyncConnectionParameters, backoff = { maxAttempts: 1 }, timeout = 10000) {
     try {
       await super.refreshToken({
