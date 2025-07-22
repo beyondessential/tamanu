@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
 import {
+  CHARTING_DATA_ELEMENT_IDS,
   PROGRAM_DATA_ELEMENT_TYPES,
   SETTING_KEYS,
   SURVEY_TYPES,
@@ -154,7 +155,9 @@ async function postSurveyResponseAnswer(req, isVital = false) {
   const surveyWhereClause = isVital
     ? { surveyType: SURVEY_TYPES.VITALS }
     : { id: body.surveyId };
-  const dateDataElementId = isVital ? VITALS_DATA_ELEMENT_IDS.dateRecorded : null;
+  const dateDataElementId = isVital
+    ? VITALS_DATA_ELEMENT_IDS.dateRecorded
+    : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
   const responseObject = await SurveyResponse.findAll({
     where: {
       encounterId: body.encounterId,
