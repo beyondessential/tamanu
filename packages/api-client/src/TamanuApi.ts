@@ -196,42 +196,51 @@ export class TamanuApi {
       await this.#ongoingAuth;
     }
 
-    return (this.#ongoingAuth = (async (): Promise<LoginResponse> => {
-      const response = (await this.post(
-        'login',
-        {
-          email,
-          password,
-          deviceId: this.deviceId,
-        },
-        { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
-      )) as Response;
+    this.#ongoingAuth = (async (): Promise<LoginResponse> => {
+      try {
+        const response = (await this.post(
+          'login',
+          {
+            email,
+            password,
+            deviceId: this.deviceId,
+          },
+          { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
+        )) as Response;
 
-      const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
-      if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new ServerResponseError(
-          `Tamanu server type '${String(serverType)}' is not supported.`,
-          response,
-        );
+        const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
+        if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
+          throw new ServerResponseError(
+            `Tamanu server type '${String(serverType)}' is not supported.`,
+            response,
+          );
+        }
+        // TODO why do I have to do this
+        let responseData: any;
+        try {
+          responseData = (await response.json()) as LoginResponseData;
+        } catch (e) {
+          responseData = response
+        }
+        const {
+          server: serverFromResponse,
+          centralHost,
+          serverType: responseServerType,
+          ...loginData
+        } = responseData;
+        const server = serverFromResponse ?? { type: '', centralHost: undefined };
+        server.type = responseServerType ?? serverType;
+        server.centralHost = centralHost;
+        this.setToken(loginData.token, loginData.refreshToken);
+
+        const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
+        return { ...loginData, user, ability, server } as LoginResponse;
+      } finally {
+        this.#ongoingAuth = null;
       }
+    })();
 
-      const responseData = (await response.json()) as LoginResponseData;
-      const {
-        server: serverFromResponse,
-        centralHost,
-        serverType: responseServerType,
-        ...loginData
-      } = responseData;
-      const server = serverFromResponse ?? { type: '', centralHost: undefined };
-      server.type = responseServerType ?? serverType;
-      server.centralHost = centralHost;
-      this.setToken(loginData.token, loginData.refreshToken);
-
-      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
-      return { ...loginData, user, ability, server } as LoginResponse;
-    })().finally(() => {
-      this.#ongoingAuth = null;
-    }));
+    return this.#ongoingAuth;
   }
 
   async fetchUserData(
@@ -414,7 +423,6 @@ export class TamanuApi {
       if (response.status === 204) {
         return null;
       }
-
       return response.json();
     }
 
