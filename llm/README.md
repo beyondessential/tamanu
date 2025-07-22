@@ -22,9 +22,8 @@ git submodule add https://github.com/[ORG]/llm-rules.git llm/common-rules
 
 Contains rules that are specific to this project, including:
 
+- `important-project-rules.md` - Essential project information and conventions
 - `translate-hardcoded-strings.md` - Project's TranslatedText system (if applicable)
-- `load-initial-context.md` - Project context loading
-- `onboard-bg-agent.md` - Background agent onboarding
 - `update-copy.md` - Project-specific copy update workflows
 
 ### `/docs` - Project Documentation
@@ -56,9 +55,9 @@ The generic rules in `/common-rules` are maintained in a separate repository to 
 
 The shared repository contains these rules for use across Tamanu and Tupaia:
 
-- Documentation: `create-context.md`, `create-docs.md`, `create-plan.md`, `create-rule.md`, `create-on-call-doc.md`
-- Updates: `update-context.md`, `update-docs.md`, `update-on-call-doc.md`, `update-plan.md`, `update-rule.md`
-- Git workflows: `commit.md`, `create-branch.md`, `create-card-description.md`, `rebase-branch.md`
+- Agent onboarding: `onboard-agent.md` - standardized onboarding flow
+- Git workflows: `commit.md`, `create-branch.md`, `rebase-branch.md`
+- Documentation: `write-docs.md`, `write-card-description.md`, `create-rule.md`
 
 ## Contributing
 
