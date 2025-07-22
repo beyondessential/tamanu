@@ -55,7 +55,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, referralSurvey),
+      answers: await getAnswersFromData(data, referralSurvey),
       facilityId,
     });
 
