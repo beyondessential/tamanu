@@ -117,11 +117,12 @@ async function putSurveyResponseAnswer(req, isVital = false) {
   await db.transaction(async () => {
     const { newValue = '', reasonForChange, date } = body;
     if (isVital) {
+      const previousValue = answerObject.body;
       await answerObject.update({ body: newValue });
       await VitalLog.create({
         date,
         reasonForChange,
-        previousValue: answerObject.body,
+        previousValue,
         newValue,
         recordedById: user.id,
         answerId: id,
