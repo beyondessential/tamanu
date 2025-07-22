@@ -6,6 +6,7 @@ import { BackendProvider } from './ui/contexts/BackendContext';
 import { RootStack } from './ui/navigation/stacks/Root';
 import { theme } from './ui/styled/theme';
 import { themeSystem } from './ui/styled/common';
+import 'react-native-url-polyfill/auto';
 
 const paperTheme = {
   ...DefaultTheme,
