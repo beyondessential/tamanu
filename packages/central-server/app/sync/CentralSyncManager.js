@@ -468,6 +468,8 @@ export class CentralSyncManager {
           facilityIds,
           deviceId,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+          this.constructor.config,
+
         );
 
         // get changes since the last successful sync for all other synced patients and independent
@@ -487,6 +489,7 @@ export class CentralSyncManager {
           facilityIds,
           deviceId,
           sessionConfig,
+          this.constructor.config,
         );
 
         // any tables for full resync from (used when mobile needs to wipe and resync tables as
@@ -503,6 +506,7 @@ export class CentralSyncManager {
             facilityIds,
             deviceId,
             sessionConfig,
+            this.constructor.config,
           );
         }
 

@@ -339,9 +339,11 @@ export const snapshotOutgoingChanges = withConfig(
     facilityIds,
     deviceId,
     sessionConfig,
+    configOverride,
     config,
   ) => {
-    return config.sync.lookupTable.enabled
+    const lookupTableEnabled = configOverride?.sync?.lookupTable?.enabled ?? config.sync.lookupTable.enabled;
+    return lookupTableEnabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
           outgoingModels,
