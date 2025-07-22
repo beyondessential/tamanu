@@ -56,6 +56,7 @@ The generic rules in `/common-rules` are maintained in a separate repository to 
 The shared repository contains these rules for use across Tamanu and Tupaia:
 
 - Agent onboarding: `onboard-agent.md` - standardized onboarding flow
+- Development: `development-guidelines.md` - comprehensive coding standards and tech stack guidance
 - Git workflows: `commit.md`, `create-branch.md`, `rebase-branch.md`
 - Documentation: `write-docs.md`, `write-card-description.md`, `create-rule.md`
 

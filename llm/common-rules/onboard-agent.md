@@ -1,6 +1,6 @@
 # Context
 
-Use this rule when you are being onboarded to work on tasks in a project. This provides a consistent onboarding flow that works for both main development sessions and background agent tasks.
+Use this rule when you are being onboarded to work on tasks in a project.
 
 # Process
 
