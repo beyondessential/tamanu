@@ -25,7 +25,7 @@ describe('Merging Patient Program Registrations', () => {
     await ctx.close();
   });
 
-  it('hard deletes all duplicate unwanted registrations', async () => {
+  it('soft deletes all duplicate unwanted registrations', async () => {
     const { PatientProgramRegistration } = models;
     const [keep, merge] = await makeTwoPatients(models);
 
@@ -46,7 +46,6 @@ describe('Merging Patient Program Registrations', () => {
       fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         patientId: merge.id,
-        primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         clinicianId: clinician.id,
         date: '2023-10-04 08:00:00',
@@ -56,7 +55,6 @@ describe('Merging Patient Program Registrations', () => {
       fake(models.PatientProgramRegistration, {
         programRegistryId: secondProgramRegistry.id,
         patientId: merge.id,
-        primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         clinicianId: clinician.id,
         date: '2023-11-04 08:00:00',
@@ -81,7 +79,7 @@ describe('Merging Patient Program Registrations', () => {
     });
 
     expect(newKeepPatientRegistrations.length).toEqual(2);
-    expect(newMergePatientRegistrations.length).toEqual(0);
+    expect(newMergePatientRegistrations.length).toEqual(2);
 
     const firstRegistration = newKeepPatientRegistrations.find(
       r => r.programRegistryId === programRegistry.id,
