@@ -33,7 +33,7 @@ Contains on-call and operational documentation.
 When an LLM agent needs to follow a rule:
 
 1. First check if there's a project-specific version in `/project-rules`
-2. If not, use the generic version from `/common-rules/rules/`
+2. If not, use the generic version from `/common-rules/`
 3. Always prioritise project-specific rules over generic ones
 
 ## Working with the Submodule
