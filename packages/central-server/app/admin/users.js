@@ -6,7 +6,7 @@ import { Op } from 'sequelize';
 
 export const usersRouter = express.Router();
 
-const createUserFilters = filterParams => {
+const createUserFilters = (filterParams, models) => {
   const filters = [
     // Text search filters
     filterParams.displayName && {
@@ -24,7 +24,14 @@ const createUserFilters = filterParams => {
     },
     // Designation filter
     filterParams.designationId && {
-      '$designations.referenceData.id$': filterParams.designationId,
+      id: {
+        [Op.in]: models.User.sequelize.literal(`(
+          SELECT "user_id" 
+          FROM "user_designations" 
+          WHERE "designation_id" = ${models.User.sequelize.escape(filterParams.designationId)} 
+          AND "deleted_at" IS NULL
+        )`),
+      },
     },
     // Exclude deactivated users filter
     filterParams.excludeDeactivated === true && {
@@ -48,7 +55,7 @@ usersRouter.get(
     req.checkPermission('list', 'User');
 
     // Create where clause from filters
-    const filters = createUserFilters(filterParams);
+    const filters = createUserFilters(filterParams, req.store.models);
     const whereClause = filters.length > 0 ? { [Op.and]: filters } : {};
 
     // Get total count for pagination
