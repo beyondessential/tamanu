@@ -106,7 +106,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   }, [selectedPatient?.id, models.PatientAllergy]);
 
   const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id);
+    const encounter = await models.Encounter.getOrCreateActiveEncounter(
+      selectedPatient.id,
+      user.id,
+    );
 
     const idealTimes =
       values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
@@ -271,28 +274,41 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     ))
                   ) : (
                     <ColumnView>
-                      {!isMarkedForSync && (
+                      {isMarkedForSync ? (
                         <StyledText
                           color={theme.colors.MAIN_SUPER_DARK}
                           fontStyle="italic"
                           fontWeight={500}
                         >
                           <TranslatedText
-                            stringId="medication.allergies.notMarkedForSync"
-                            fallback="Patient record not marked for sync."
+                            stringId="medication.allergies.noneRecorded"
+                            fallback="None recorded"
                           />
                         </StyledText>
+                      ) : (
+                        <>
+                          <StyledText
+                            color={theme.colors.MAIN_SUPER_DARK}
+                            fontStyle="italic"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="medication.allergies.notMarkedForSync"
+                              fallback="Patient record not marked for sync."
+                            />
+                          </StyledText>
+                          <StyledText
+                            color={theme.colors.MAIN_SUPER_DARK}
+                            fontStyle="italic"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="medication.allergies.unknownAllergies"
+                              fallback="Allergies unknown."
+                            />
+                          </StyledText>
+                        </>
                       )}
-                      <StyledText
-                        color={theme.colors.MAIN_SUPER_DARK}
-                        fontStyle="italic"
-                        fontWeight={500}
-                      >
-                        <TranslatedText
-                          stringId="medication.allergies.unknownAllergies"
-                          fallback="Allergies unknown."
-                        />
-                      </StyledText>
                     </ColumnView>
                   )}
                 </RowView>
