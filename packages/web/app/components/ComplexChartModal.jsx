@@ -28,7 +28,7 @@ export const ComplexChartModal = ({
         <StyledChartInstanceInfoSection
           complexChartInstance={complexChartInstance}
           fieldVisibility={fieldVisibility}
-          data-testid="styledchartinstanceinfosection-y5ji"
+          patient={patient}
         />
       ) : null}
       <ChartForm

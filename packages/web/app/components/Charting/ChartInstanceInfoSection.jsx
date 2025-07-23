@@ -6,6 +6,8 @@ import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constant
 import { InfoCard, InfoCardItem } from '../InfoCard';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
+import { FormModal } from '../FormModal';
+import { ChartForm } from '../../forms/ChartForm';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -30,91 +32,111 @@ const StyledEditIcon = styled(EditIcon)`
   color: ${Colors.primary};
 `;
 
-export const ChartInstanceInfoSection = ({ complexChartInstance = {}, fieldVisibility }) => {
-  const { chartInstanceName, chartDate, chartType, chartSubtype } = complexChartInstance;
+export const ChartInstanceInfoSection = ({
+  complexChartInstance = {},
+  fieldVisibility,
+  patient,
+}) => {
+  const {
+    chartInstanceName,
+    chartDate,
+    chartType,
+    chartSubtype,
+    chartSurveyId,
+  } = complexChartInstance;
   const isTypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
   return (
-    <StyledInfoCard
-      gridRowGap={10}
-      elevated={false}
-      contentMarginBottom={20}
-      headerContent={
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="flex-end"
-          marginTop="-1rem"
-          marginRight="-1rem"
-        >
-          <StyledIconButton
-            onClick={() => {
-              console.log('edit');
-            }}
-            data-testid="stylediconbutton-edit-fkzu"
+    <>
+      <FormModal open={true} onClose={() => {console.log('close')}}>
+        <ChartForm
+          onClose={() => {console.log('close')}}
+          onSubmit={() => {console.log('submit')}}
+          patient={patient}
+          chartSurveyId={chartSurveyId}
+        />
+      </FormModal>
+      <StyledInfoCard
+        gridRowGap={10}
+        elevated={false}
+        contentMarginBottom={20}
+        headerContent={
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="flex-end"
+            marginTop="-1rem"
+            marginRight="-1rem"
           >
-            <StyledEditIcon />
-          </StyledIconButton>
-        </Box>
-      }
-      data-testid="styledinfocard-vd5f"
-    >
-      <InfoCardItem
-        fontSize={14}
-        label={
-          <ChartInstanceInfoLabel
-            stringId="complexChartInstance.location"
-            fallback="Location:"
-            data-testid="chartinstanceinfolabel-2vmu"
-          />
+            <StyledIconButton
+              onClick={() => {
+                console.log('edit');
+              }}
+              data-testid="stylediconbutton-edit-fkzu"
+            >
+              <StyledEditIcon />
+            </StyledIconButton>
+          </Box>
         }
-        value={chartInstanceName}
-        data-testid="infocarditem-1nxo"
-      />
-      <InfoCardItem
-        fontSize={14}
-        label={
-          <ChartInstanceInfoLabel
-            stringId="complexChartInstance.date"
-            fallback="Date & time of onset:"
-            data-testid="chartinstanceinfolabel-xn1c"
-          />
-        }
-        value={chartDate || '-'}
-        data-testid="infocarditem-czi0"
-      />
-
-      {isTypeVisible ? (
+        data-testid="styledinfocard-vd5f"
+      >
         <InfoCardItem
           fontSize={14}
           label={
             <ChartInstanceInfoLabel
-              stringId="complexChartInstance.type"
-              fallback="Type:"
-              data-testid="chartinstanceinfolabel-m3or"
+              stringId="complexChartInstance.location"
+              fallback="Location:"
+              data-testid="chartinstanceinfolabel-2vmu"
             />
           }
-          value={chartType || '-'}
-          data-testid="infocarditem-ql06"
+          value={chartInstanceName}
+          data-testid="infocarditem-1nxo"
         />
-      ) : null}
-
-      {isSubtypeVisible ? (
         <InfoCardItem
           fontSize={14}
           label={
             <ChartInstanceInfoLabel
-              stringId="complexChartInstance.subtype"
-              fallback="Sub type:"
-              data-testid="chartinstanceinfolabel-p5wn"
+              stringId="complexChartInstance.date"
+              fallback="Date & time of onset:"
+              data-testid="chartinstanceinfolabel-xn1c"
             />
           }
-          value={chartSubtype || '-'}
-          data-testid="infocarditem-8nk8"
+          value={chartDate || '-'}
+          data-testid="infocarditem-czi0"
         />
-      ) : null}
-    </StyledInfoCard>
+
+        {isTypeVisible ? (
+          <InfoCardItem
+            fontSize={14}
+            label={
+              <ChartInstanceInfoLabel
+                stringId="complexChartInstance.type"
+                fallback="Type:"
+                data-testid="chartinstanceinfolabel-m3or"
+              />
+            }
+            value={chartType || '-'}
+            data-testid="infocarditem-ql06"
+          />
+        ) : null}
+
+        {isSubtypeVisible ? (
+          <InfoCardItem
+            fontSize={14}
+            label={
+              <ChartInstanceInfoLabel
+                stringId="complexChartInstance.subtype"
+                fallback="Sub type:"
+                data-testid="chartinstanceinfolabel-p5wn"
+              />
+            }
+            value={chartSubtype || '-'}
+            data-testid="infocarditem-8nk8"
+          />
+        ) : null}
+      </StyledInfoCard>
+    </>
   );
 };
