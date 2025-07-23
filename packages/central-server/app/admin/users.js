@@ -10,9 +10,7 @@ const createUserFilters = filterParams => {
   const filters = [
     // Text search filters
     filterParams.displayName && {
-      [Op.or]: [
-        { displayName: { [Op.iLike]: `%${filterParams.displayName}%` } },
-      ],
+      [Op.or]: [{ displayName: { [Op.iLike]: `%${filterParams.displayName}%` } }],
     },
     filterParams.displayId && {
       displayId: { [Op.iLike]: `%${filterParams.displayId}%` },

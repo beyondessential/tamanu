@@ -1,5 +1,5 @@
 import config from 'config';
-import { closeAllDatabases, openDatabase } from '../../src/services/database';
+import { closeAllDatabases, openDatabase } from '../src/services/database';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
