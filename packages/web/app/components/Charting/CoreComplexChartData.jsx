@@ -9,6 +9,7 @@ import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useEncounterChartsQuery } from '../../api/queries';
+import { DateDisplay } from '../DateDisplay';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -62,11 +63,12 @@ export const CoreComplexChartData = ({
     },
   ];
 
-  const isTypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubtypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-    
+  const isFieldVisible = (value, fieldId) =>
+    !!value || fieldVisibility[fieldId] === VISIBILITY_STATUSES.CURRENT;
+
+  const isTypeVisible = isFieldVisible(type, CHARTING_DATA_ELEMENT_IDS.complexChartType);
+  const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
+
   return (
     <>
       <DeleteChartModal
@@ -85,7 +87,7 @@ export const CoreComplexChartData = ({
                 data-testid="translatedtext-moh0"
               />
             </CoreComplexChartInfoHeader>
-            <>{date}</>
+            <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
 
           {isTypeVisible ? (
