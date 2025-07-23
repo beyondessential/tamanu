@@ -13,7 +13,7 @@ export const AdministeredVaccineSchema = z.object({
   batch: z.string().nullish(),
   status: z.enum(VACCINE_STATUS),
   date: z.string().nullish(),
-  location: LocationSchema,
+  location: LocationSchema.nullish(),
   // Injection details
   injectionSite: z.enum(INJECTION_SITE_VALUES).nullish(),
   // Vaccine information

@@ -4,7 +4,7 @@ import { ReferenceDataSchema } from './referenceData.schema';
 
 export const OngoingConditionSchema = z.object({
   id: z.string(),
-  note: z.string().optional(),
+  note: z.string().nullish(),
   recordedDate: z.string(),
   condition: ReferenceDataSchema,
 });

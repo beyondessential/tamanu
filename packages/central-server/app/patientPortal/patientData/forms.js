@@ -28,7 +28,7 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
     ],
   });
 
-  return res.json(
-    outstandingForms.map(form => PatientSurveyAssignmentSchema.parse(form.forResponse())),
-  );
+  return res.send({
+    data: outstandingForms.map(form => PatientSurveyAssignmentSchema.parse(form.forResponse())),
+  });
 });

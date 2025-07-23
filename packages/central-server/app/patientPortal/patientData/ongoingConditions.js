@@ -11,6 +11,7 @@ export const getOngoingConditions = asyncHandler(async (req, res) => {
   const ongoingConditions = await models.PatientCondition.findAll({
     where: {
       patientId: patient.id,
+      resolved: false, // Excluding resolved conditions for now
     },
     attributes: getAttributesFromSchema(OngoingConditionSchema),
     include: [

@@ -4,10 +4,10 @@ import { ReferenceDataSchema } from './referenceData.schema';
 
 export const AllergySchema = z.object({
   id: z.string(),
-  note: z.string().optional(),
+  note: z.string().nullish(),
   recordedDate: z.string(),
   allergy: ReferenceDataSchema,
-  reaction: ReferenceDataSchema.optional(),
+  reaction: ReferenceDataSchema.nullish(),
 });
 
 export type Allergy = z.infer<typeof AllergySchema>;
