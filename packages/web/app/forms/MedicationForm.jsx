@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
@@ -261,12 +261,12 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
-const MedicationAdministrationForm = () => {
+const MedicationAdministrationForm = ({ isEditing }) => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
-  const selectedTimeSlots = values.timeSlots;
+  const selectedTimeSlots = values.timeSlots || [];
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: values.frequency,
@@ -291,10 +291,18 @@ const MedicationAdministrationForm = () => {
     )} ${formatShort(new Date(firstStartTime))}`;
   }, [values.startDate, selectedTimeSlots]);
 
+  const prevFrequencyRef = useRef();
+
   useEffect(() => {
-    if (values.frequency) {
+    if (
+      // Only reset if the frequency has changed and skip first render when editing
+      (!isEditing || prevFrequencyRef.current !== undefined) &&
+      values.frequency &&
+      values.frequency !== prevFrequencyRef.current
+    ) {
       handleResetToDefault();
     }
+    prevFrequencyRef.current = values.frequency;
   }, [values.frequency]);
 
   const handleResetToDefault = () => {
@@ -624,8 +632,8 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
-      ...editingMedication,
       timeSlots: defaultTimeSlots,
+      ...editingMedication,
     };
   };
 
@@ -906,7 +914,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             {values.frequency ? (
-              <MedicationAdministrationForm />
+              <MedicationAdministrationForm isEditing={isEditing} />
             ) : (
               <div style={{ gridColumn: '1 / -1' }}>
                 <FieldLabel>
