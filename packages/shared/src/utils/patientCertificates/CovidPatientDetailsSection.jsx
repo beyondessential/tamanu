@@ -31,7 +31,7 @@ export const CovidPatientDetailsSection = ({
     ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
 
-  const leftWidth = vdsSrc ? 68 : 80;
+  const leftWidth = vdsSrc ? 66 : 88;
   const rightWidth = 100 - leftWidth;
 
   return (
