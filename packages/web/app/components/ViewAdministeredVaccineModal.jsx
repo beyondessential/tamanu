@@ -70,7 +70,7 @@ const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
           <DisplayField
             key={label}
             $editMode={editMode}
-            data-testid={`displayfield-jkpx-${key}-${label}`}
+            data-testid={`displayfield-jkpx-${key}-${label.props['data-testid']}`}
           >
             <Label data-testid={`label-4tcx-${key}-${label}`}>{label}</Label>
             {value}
@@ -201,7 +201,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} data-testid="datedisplay-vjag" />,
     },
     injectionSite: {
-      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" data-testid="injectsite-m8uo" />,
       value: (
         <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} enumFallback="-" />
       ),

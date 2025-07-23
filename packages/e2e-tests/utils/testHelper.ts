@@ -1,6 +1,6 @@
-import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
-import { getItemFromLocalStorage, getCurrentUser } from "./generateNewPatient";
-import { constructFacilityUrl } from "./navigation";
+import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
+import { getItemFromLocalStorage, getCurrentUser } from './generateNewPatient';
+import { constructFacilityUrl } from './navigation';
 import { Locator } from '@playwright/test';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
@@ -30,7 +30,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientData.id}`);
   console.log('Verifying patient at URL:', verifyPatientUrl);
-  
+
   const verifyResponse = await fetch(verifyPatientUrl, {
     method: 'GET',
     headers: {
@@ -45,7 +45,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientData.id}/death`);
   console.log('Recording death at URL:', apiDeathUrl);
-  
+
   const response = await fetch(apiDeathUrl, {
     method: 'POST',
     headers: {
@@ -59,7 +59,7 @@ export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage)
       causeOfDeath: null,
       mannerOfDeath: 'Disease',
       outsideHealthFacility: false,
-      isPartialWorkflow: true
+      isPartialWorkflow: true,
     }),
   });
 
@@ -82,7 +82,7 @@ export async function SelectingFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   try {
     await searchBox.fill(searchText);
@@ -93,4 +93,28 @@ export async function SelectingFromSearchBox(
   } catch (error) {
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
+}
+
+/**
+ * Utility method to offset a date by one year
+ * @param dateToOffset - The date to offset
+ * @param offset - The offset to apply ('increaseByOneYear' or 'decreaseByOneYear')
+ * @returns The date with the offset applied
+ */
+export function offsetYear(
+  dateToOffset: string,
+  offset: 'increaseByOneYear' | 'decreaseByOneYear',
+): string {
+  const [yearStr, month, day] = dateToOffset.split('-');
+  let year = Number(yearStr);
+  if (offset === 'increaseByOneYear') year++;
+  else if (offset === 'decreaseByOneYear') year--;
+  else throw new Error('Invalid offset');
+
+  // Handle Feb 29 for non-leap years
+  if (month === '02' && day === '29') {
+    const isLeap = (y: number) => y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
+    if (!isLeap(year)) return `${year}-02-28`;
+  }
+  return `${year}-${month}-${day}`;
 }
