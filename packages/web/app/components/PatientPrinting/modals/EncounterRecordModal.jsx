@@ -5,7 +5,6 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -24,7 +23,6 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { DateDisplay } from '../../DateDisplay';
 import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { useTranslation } from '../../../contexts/Translation';
 
@@ -100,24 +98,17 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
-const getDateTitleArray = date => {
-  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
-
-  return [shortestDate, timeWithSeconds.toLowerCase()];
-};
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { translations, storedLanguage, getTranslation } = useTranslation();
+  const { translations, storedLanguage } = useTranslation();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
-  const { getLocalisation } = useLocalisation();
+  const { getLocalisation, localisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientDataQuery(encounter.patientId);
   const patient = patientQuery.data;
-
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const { data: additionalData } = padDataQuery;
 
@@ -298,43 +289,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
-  const formatValue = (value, config) => {
-    const { rounding = 0, unit = '' } = config || {};
-    const float = Number.parseFloat(value);
-
-    if (isNaN(float)) {
-      return value || '—'; // em dash
-    }
-
-    const unitSuffix = unit && unit.length <= 2 ? unit : '';
-    if (rounding > 0 || rounding === 0) {
-      return `${float.toFixed(rounding)}${unitSuffix}`;
-    }
-    return `${float}${unitSuffix}`;
-  };
-
-  const getVitalsColumn = startIndex => {
-    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
-    return [
-      {
-        key: 'measure',
-        title: getTranslation('vitals.table.column.measure', 'Measure'),
-        accessor: ({ value }) => value,
-        style: { width: 140, alignItems: 'flex-end' },
-      },
-      ...dateArray
-        .sort((a, b) => b.localeCompare(a))
-        .map(date => ({
-          title: getDateTitleArray(date),
-          key: date,
-          accessor: cells => {
-            const { value, config } = cells[date];
-            return formatValue(value, config);
-          },
-          style: { width: 60, },
-        })),
-    ];
-  };
+  
 
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')} data-testid="modal-fxo5">
@@ -348,7 +303,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           encounter={encounter}
           vitalsData={vitalsData}
           recordedDates={recordedDates}
-          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
@@ -361,7 +315,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          getLocalisation={getLocalisation}
+          localisation={localisation}
           translations={translations}
           data-testid="encounterrecordprintout-yqe1"
         />
