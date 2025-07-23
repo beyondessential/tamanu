@@ -80,6 +80,8 @@ export class Triage extends Model {
     );
   }
 
+  //     return buildEncounterLinkedLookupFilter(this);
+
   static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
@@ -104,13 +106,13 @@ export class Triage extends Model {
     }
 
     const reasons = await Promise.all(
-      [data.chiefComplaintId, data.secondaryComplaintId].map((x) => ReferenceData.findByPk(x)),
+      [data.chiefComplaintId, data.secondaryComplaintId].map(x => ReferenceData.findByPk(x)),
     );
 
     // TODO: to handle translations for triage reason for encounter
     const reasonsText = reasons
-      .filter((x) => x)
-      .map((x) => x?.name)
+      .filter(x => x)
+      .map(x => x?.name)
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 

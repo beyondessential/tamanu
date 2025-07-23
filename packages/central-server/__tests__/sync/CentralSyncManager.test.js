@@ -2880,6 +2880,7 @@ describe('CentralSyncManager', () => {
         patientId: patient.id,
         locationId: location.id,
         departmentId: department.id,
+        endDate: null,
       });
 
       return { facility, encounter };
@@ -2942,7 +2943,7 @@ describe('CentralSyncManager', () => {
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
 
-    describe('check encounter linked data types', () => {
+    describe('check encounter linked data types are not syncing to', () => {
       let sensitiveEncounter;
       let nonSensitiveEncounter;
       let nonSensitiveFacility;
@@ -2981,7 +2982,7 @@ describe('CentralSyncManager', () => {
       };
 
       // Basic encounter
-      it('wont sync sensitive encounters to any facility where it was not created', async () => {
+      it('wont sync sensitive encounters', async () => {
         const encounterIds = await getOutgoingIdsForRecordType(
           nonSensitiveFacility.id,
           'encounters',
@@ -2989,14 +2990,27 @@ describe('CentralSyncManager', () => {
         expect(encounterIds).not.toContain(sensitiveEncounter.id);
         expect(encounterIds).toContain(nonSensitiveEncounter.id);
       });
-      it.todo('wont sync sensitive encounter triage to any facility where it was not created');
-      it.todo('wont sync sensitive encounter discharge to any facility where it was not created');
-      it.todo(
-        'wont sync sensitive encounter encounter history to any facility where it was not created',
-      );
+      it('wont sync sensitive encounter triage', async () => {
+        const sensitiveTriage = await models.Triage.create({
+          ...fake(models.Triage),
+          patientId: patient.id,
+          encounterId: sensitiveEncounter.id,
+        });
+        const nonSensitiveTriage = await models.Triage.create({
+          ...fake(models.Triage),
+          patientId: patient.id,
+          encounterId: nonSensitiveEncounter.id,
+        });
+
+        const triageIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'triage');
+        expect(triageIds).not.toContain(sensitiveTriage.id);
+        expect(triageIds).toContain(nonSensitiveTriage.id);
+      });
+      it.todo('wont sync sensitive encounter discharge');
+      it.todo('wont sync sensitive encounter history');
 
       // Uncategorised
-      it('wont sync sensitive encounter procedures to any facility where it was not created', async () => {
+      it('wont sync sensitive encounter procedures', async () => {
         // Create procedures linked to encounters
         const sensitiveProcedure = await models.Procedure.create(
           fake(models.Procedure, {
@@ -3017,7 +3031,7 @@ describe('CentralSyncManager', () => {
         expect(procedureIds).not.toContain(sensitiveProcedure.id);
         expect(procedureIds).toContain(nonSensitiveProcedure.id);
       });
-      it('wont sync sensitive encounter notes to any facility where it was not created', async () => {
+      it('wont sync sensitive encounter notes', async () => {
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
           fake(models.Note, {
@@ -3032,43 +3046,22 @@ describe('CentralSyncManager', () => {
           }),
         );
 
-        const centralSyncManager = initializeCentralSyncManager(testConfig);
-        await centralSyncManager.updateLookupTable();
-
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const noteChanges = outgoingChanges.filter(c => c.recordType === 'notes');
-        const noteIds = noteChanges.map(c => c.recordId);
+        const noteIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'notes');
 
         expect(noteIds).not.toContain(sensitiveNote.id);
         expect(noteIds).toContain(nonSensitiveNote.id);
       });
-      it.todo('wont sync sensitive encounter diagnoses to any facility where it was not created');
-      it.todo('wont sync sensitive encounter tasks to any facility where it was not created');
-      it.todo(
-        'wont sync sensitive encounter encounter diets to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter diagnoses');
+      it.todo('wont sync sensitive encounter tasks');
+      it.todo('wont sync sensitive encounter encounter diets');
 
       // Program/Surveys
-      it.todo(
-        'wont sync sensitive encounter survey responses to any facility where it was not created',
-      );
-      it.todo('wont sync sensitive encounter referrals to any facility where it was not created');
-      it.todo('wont sync sensitive encounter vitals to any facility where it was not created');
+      it.todo('wont sync sensitive encounter survey responses');
+      it.todo('wont sync sensitive encounter referrals');
+      it.todo('wont sync sensitive encounter vitals');
 
       // Lab-related models
-      it('wont sync sensitive encounter lab requests to any facility where it was not created', async () => {
+      it('wont sync sensitive encounter lab requests', async () => {
         // Create lab requests linked to encounters
         const sensitiveLabRequest = await models.LabRequest.create(
           fake(models.LabRequest, {
@@ -3103,33 +3096,19 @@ describe('CentralSyncManager', () => {
         expect(labRequestIds).not.toContain(sensitiveLabRequest.id);
         expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
       });
-      it.todo('wont sync sensitive encounter lab tests to any facility where it was not created');
-      it.todo(
-        'wont sync sensitive encounter lab request attachments to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter lab test panel requests to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter lab request logs to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter lab tests');
+      it.todo('wont sync sensitive encounter lab request attachments');
+      it.todo('wont sync sensitive encounter lab test panel requests');
+      it.todo('wont sync sensitive encounter lab request logs');
 
       // Imaging-related models
-      it.todo(
-        'wont sync sensitive encounter imaging requests to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter imaging results to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter imaging request areas to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter document metadata to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter imaging requests');
+      it.todo('wont sync sensitive encounter imaging results');
+      it.todo('wont sync sensitive encounter imaging request areas');
+      it.todo('wont sync sensitive encounter document metadata');
 
       // Medication-related models
-      it('wont sync sensitive encounter prescriptions to any facility where it was not created', async () => {
+      it('wont sync sensitive encounter prescriptions', async () => {
         // Create prescriptions first
         const sensitivePrescriptionData = await models.Prescription.create(
           fake(models.Prescription),
@@ -3184,47 +3163,24 @@ describe('CentralSyncManager', () => {
         expect(prescriptionIds).not.toContain(sensitivePrescription.id);
         expect(prescriptionIds).toContain(nonSensitivePrescription.id);
       });
-      it.todo(
-        'wont sync sensitive encounter pause prescriptions to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter pause prescription history to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter pause prescriptions');
+      it.todo('wont sync sensitive encounter pause prescription history');
 
       // Vaccinations
-      it.todo(
-        'wont sync sensitive encounter administered vaccines to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter administered vaccines');
 
       // Invoicing-related models
-      it.todo('wont sync sensitive encounter invoice to any facility where it was not created');
-
-      it.todo(
-        'wont sync sensitive encounter invoice items to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice payments to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice insurer payments to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice patient payments to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice item discounts to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice discounts to any facility where it was not created',
-      );
-      it.todo(
-        'wont sync sensitive encounter invoice insurers to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter invoice');
+      it.todo('wont sync sensitive encounter invoice items');
+      it.todo('wont sync sensitive encounter invoice payments');
+      it.todo('wont sync sensitive encounter invoice insurer payments');
+      it.todo('wont sync sensitive encounter invoice patient payments');
+      it.todo('wont sync sensitive encounter invoice item discounts');
+      it.todo('wont sync sensitive encounter invoice discounts');
+      it.todo('wont sync sensitive encounter invoice insurers');
 
       // Scheduling
-      it.todo(
-        'wont sync sensitive encounter appointments to any facility where it was not created',
-      );
+      it.todo('wont sync sensitive encounter appointments');
     });
 
     describe('edge cases', () => {
