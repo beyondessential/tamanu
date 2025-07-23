@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
 import { BodyText, LargeBodyText, SmallBodyText } from '../app/components';
 
 const Container = styled.div`
@@ -13,7 +12,11 @@ const Section = styled.div`
   margin-bottom: 30px;
 `;
 
-storiesOf('Typography', module).add('Text', () => (
+export default {
+  title: 'Typography',
+};
+
+export const Text = () => (
   <Container>
     <Section>
       <LargeBodyText color="textPrimary">Large Body Text</LargeBodyText>
@@ -52,4 +55,4 @@ storiesOf('Typography', module).add('Text', () => (
       </SmallBodyText>
     </Section>
   </Container>
-));
+);

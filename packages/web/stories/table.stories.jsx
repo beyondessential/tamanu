@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import Chance from 'chance';
 
 import { Table } from '../app/components/Table/Table';
@@ -65,19 +64,51 @@ const fakeFruit = () => ({
 
 const dummyData = new Array(7).fill(0).map(fakeFruit);
 
-storiesOf('Table', module)
-  .add('Plain', () => <Table columns={dummyColumns} data={dummyData} />)
-  .add('With pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />)
-  .add('In error state', () => (
-    <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
-  ))
-  .add('In loading state', () => <Table columns={dummyColumns} isLoading data={[]} />)
-  .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
-  .add('With option row', () => (
-    <Table
-      columns={dummyColumns}
-      data={dummyData}
-      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />}
-    />
-  ))
-  .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);
+export default {
+  title: 'Table',
+};
+
+export const Plain = () => <Table columns={dummyColumns} data={dummyData} />;
+export const WithPagination = () => <TableStateWrapper columns={dummyColumns} data={dummyData} />;
+
+WithPagination.story = {
+  name: 'With pagination',
+};
+
+export const InErrorState = () => (
+  <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
+);
+
+InErrorState.story = {
+  name: 'In error state',
+};
+
+export const InLoadingState = () => <Table columns={dummyColumns} isLoading data={[]} />;
+
+InLoadingState.story = {
+  name: 'In loading state',
+};
+
+export const WithNoData = () => <Table columns={dummyColumns} data={[]} />;
+
+WithNoData.story = {
+  name: 'With no data',
+};
+
+export const WithOptionRow = () => (
+  <Table
+    columns={dummyColumns}
+    data={dummyData}
+    optionRow={<CheckInput label={<small>Include citrus fruits</small>} />}
+  />
+);
+
+WithOptionRow.story = {
+  name: 'With option row',
+};
+
+export const WithSorting = () => <TableStateWrapper columns={sortableColumns} data={dummyData} />;
+
+WithSorting.story = {
+  name: 'With sorting',
+};

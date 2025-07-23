@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
 import { Box, Typography } from '@material-ui/core';
 import { Field, Form, LocationField } from '../../app/components';
 import { fakeLocations } from '../../.storybook/__mocks__/defaultEndpoints';
@@ -29,60 +28,64 @@ const OneColumn = styled.div`
   grid-row-gap: 24px;
 `;
 
-storiesOf('LocationField', module)
-  .add('One Column', () => {
-    return (
-      <Form
-        render={({ values }) => {
-          const location = fakeLocations.find(x => x.id === values.locationId);
+export default {
+  title: 'LocationField',
+};
 
-          return (
-            <Container>
-              <Typography variant="h6">One Column</Typography>
-              <OneColumn>
-                <Field
-                  component={LocationField}
-                  locationGroupLabel="Area"
-                  label="Location"
-                  name="locationId"
-                  required
-                />
-              </OneColumn>
-              <Box mt={5}>
-                <Typography>Selected location</Typography>
-                <Typography>{location && location.name}</Typography>
-              </Box>
-            </Container>
-          );
-        }}
-      />
-    );
-  })
-  .add('Two Columns', () => {
-    return (
-      <Form
-        render={({ values }) => {
-          const location = fakeLocations.find(x => x.id === values.locationId);
+export const _OneColumn = () => {
+  return (
+    <Form
+      render={({ values }) => {
+        const location = fakeLocations.find(x => x.id === values.locationId);
 
-          return (
-            <Container>
-              <Typography variant="h6">Two Columns</Typography>
-              <TwoColumns>
-                <Field
-                  component={LocationField}
-                  locationGroupLabel="Area"
-                  label="Location"
-                  name="locationId"
-                  required
-                />
-              </TwoColumns>
-              <Box mt={5}>
-                <Typography>Selected location</Typography>
-                <Typography>{location && location.name}</Typography>
-              </Box>
-            </Container>
-          );
-        }}
-      />
-    );
-  });
+        return (
+          <Container>
+            <Typography variant="h6">One Column</Typography>
+            <OneColumn>
+              <Field
+                component={LocationField}
+                locationGroupLabel="Area"
+                label="Location"
+                name="locationId"
+                required
+              />
+            </OneColumn>
+            <Box mt={5}>
+              <Typography>Selected location</Typography>
+              <Typography>{location && location.name}</Typography>
+            </Box>
+          </Container>
+        );
+      }}
+    />
+  );
+};
+
+export const _TwoColumns = () => {
+  return (
+    <Form
+      render={({ values }) => {
+        const location = fakeLocations.find(x => x.id === values.locationId);
+
+        return (
+          <Container>
+            <Typography variant="h6">Two Columns</Typography>
+            <TwoColumns>
+              <Field
+                component={LocationField}
+                locationGroupLabel="Area"
+                label="Location"
+                name="locationId"
+                required
+              />
+            </TwoColumns>
+            <Box mt={5}>
+              <Typography>Selected location</Typography>
+              <Typography>{location && location.name}</Typography>
+            </Box>
+          </Container>
+        );
+      }}
+    />
+  );
+};

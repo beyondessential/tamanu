@@ -1,6 +1,6 @@
 import React from 'react';
 import shortid from 'shortid';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 
 import {
   createDummyPatient,

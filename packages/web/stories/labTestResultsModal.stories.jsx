@@ -1,5 +1,5 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import { defaultEndpoints, fakeLabRequest } from '../.storybook/__mocks__/defaultEndpoints';
 import { MockedApi } from './utils/mockedApi';
 import { LabTestResultsModal } from '../app/views/patients/components/LabTestResultsModal';
