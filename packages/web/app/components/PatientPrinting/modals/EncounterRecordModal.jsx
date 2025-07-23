@@ -6,7 +6,6 @@ import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
@@ -21,10 +20,12 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFLoader, printPDF } from '../PDFLoader';
+import { printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { useTranslation } from '../../../contexts/Translation';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -97,7 +98,6 @@ const extractLocationHistory = (notes, encounterData) => {
     };
   });
 };
-
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
@@ -289,16 +289,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
-  
-
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')} data-testid="modal-fxo5">
-      <PDFLoader
-        isLoading={allQueries.isFetching}
-        id="encounter-record"
-        data-testid="pdfloader-d2ja"
-      >
-        <EncounterRecordPrintout
+      {allQueries.isFetching ? (
+        <LoadingIndicator height="500px" data-testid="loadingindicator-skvx" />
+      ) : (
+        <WorkerRenderedPDFViewer
+          id="encounter-record"
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           vitalsData={vitalsData}
@@ -319,7 +316,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           translations={translations}
           data-testid="encounterrecordprintout-yqe1"
         />
-      </PDFLoader>
+      )}
     </Modal>
   );
 };
