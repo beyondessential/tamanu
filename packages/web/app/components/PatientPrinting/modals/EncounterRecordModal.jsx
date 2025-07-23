@@ -103,7 +103,7 @@ const extractLocationHistory = (notes, encounterData) => {
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
   const { settings } = useSettings();
-  const { localisation } = useLocalisation();
+  const { localisation, getLocalisation } = useLocalisation();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
 
