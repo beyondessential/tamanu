@@ -63,13 +63,12 @@ export const CoreComplexChartData = ({
     },
   ];
 
-  const isTypeVisible =
-    !!type ||
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubtypeVisible =
-    !!subtype ||
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-    
+  const isFieldVisible = (value, fieldId) =>
+    !!value || fieldVisibility[fieldId] === VISIBILITY_STATUSES.CURRENT;
+
+  const isTypeVisible = isFieldVisible(type, CHARTING_DATA_ELEMENT_IDS.complexChartType);
+  const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
+
   return (
     <>
       <DeleteChartModal
