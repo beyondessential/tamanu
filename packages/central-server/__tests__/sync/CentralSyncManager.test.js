@@ -2943,16 +2943,24 @@ describe('CentralSyncManager', () => {
     });
 
     describe('check encounter linked data types', () => {
-      // Basic encounter
-      it('wont sync sensitive encounters to any facility where it was not created', async () => {
-        const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
+      let sensitiveEncounter;
+      let nonSensitiveEncounter;
+      let nonSensitiveFacility;
+
+      // TODO: i dont like how this reads
+      beforeEach(async () => {
+        const sensitiveFacilityData = await createFacilityWithEncounter({
           isSensitive: true,
         });
-        const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-          await createFacilityWithEncounter({
-            isSensitive: false,
-          });
+        sensitiveEncounter = sensitiveFacilityData.encounter;
+        const nonSensitiveFacilityData = await createFacilityWithEncounter({
+          isSensitive: false,
+        });
+        nonSensitiveEncounter = nonSensitiveFacilityData.encounter;
+        nonSensitiveFacility = nonSensitiveFacilityData.facility;
+      });
 
+      const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
         const centralSyncManager = initializeCentralSyncManager(testConfig);
         await centralSyncManager.updateLookupTable();
 
@@ -2963,15 +2971,21 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 1,
-            facilityIds: [nonSensitiveFacility.id],
+            facilityIds: [facilityId],
           },
           () => true,
         );
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const encounterChanges = outgoingChanges.filter(c => c.recordType === 'encounters');
-        const encounterIds = encounterChanges.map(c => c.recordId);
+        return outgoingChanges.filter(c => c.recordType === recordType).map(c => c.recordId);
+      };
 
+      // Basic encounter
+      it('wont sync sensitive encounters to any facility where it was not created', async () => {
+        const encounterIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'encounters',
+        );
         expect(encounterIds).not.toContain(sensitiveEncounter.id);
         expect(encounterIds).toContain(nonSensitiveEncounter.id);
       });
@@ -2983,14 +2997,6 @@ describe('CentralSyncManager', () => {
 
       // Uncategorised
       it('wont sync sensitive encounter procedures to any facility where it was not created', async () => {
-        const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-        const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-          await createFacilityWithEncounter({
-            isSensitive: false,
-          });
-
         // Create procedures linked to encounters
         const sensitiveProcedure = await models.Procedure.create(
           fake(models.Procedure, {
@@ -3002,38 +3008,16 @@ describe('CentralSyncManager', () => {
             encounterId: nonSensitiveEncounter.id,
           }),
         );
-        const centralSyncManager = initializeCentralSyncManager(testConfig);
-        await centralSyncManager.updateLookupTable();
 
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
+        const procedureIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'procedures',
         );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-
-        const procedureChanges = outgoingChanges.filter(c => c.recordType === 'procedures');
-        const procedureIds = procedureChanges.map(c => c.recordId);
 
         expect(procedureIds).not.toContain(sensitiveProcedure.id);
         expect(procedureIds).toContain(nonSensitiveProcedure.id);
       });
       it('wont sync sensitive encounter notes to any facility where it was not created', async () => {
-        const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-        const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-          await createFacilityWithEncounter({
-            isSensitive: false,
-          });
-
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
           fake(models.Note, {
@@ -3085,14 +3069,6 @@ describe('CentralSyncManager', () => {
 
       // Lab-related models
       it('wont sync sensitive encounter lab requests to any facility where it was not created', async () => {
-        const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-        const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-          await createFacilityWithEncounter({
-            isSensitive: false,
-          });
-
         // Create lab requests linked to encounters
         const sensitiveLabRequest = await models.LabRequest.create(
           fake(models.LabRequest, {
@@ -3154,14 +3130,6 @@ describe('CentralSyncManager', () => {
 
       // Medication-related models
       it('wont sync sensitive encounter prescriptions to any facility where it was not created', async () => {
-        const { encounter: sensitiveEncounter } = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-        const { facility: nonSensitiveFacility, encounter: nonSensitiveEncounter } =
-          await createFacilityWithEncounter({
-            isSensitive: false,
-          });
-
         // Create prescriptions first
         const sensitivePrescriptionData = await models.Prescription.create(
           fake(models.Prescription),
