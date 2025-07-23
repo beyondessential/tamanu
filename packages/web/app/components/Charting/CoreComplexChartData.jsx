@@ -88,7 +88,7 @@ export const CoreComplexChartData = ({
                 data-testid="translatedtext-moh0"
               />
             </CoreComplexChartInfoHeader>
-            <DateDisplay date={date} showTime id="datedisplay-hnbz" />
+            <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
 
           {isTypeVisible ? (
