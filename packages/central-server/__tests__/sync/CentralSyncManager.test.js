@@ -18,7 +18,7 @@ import {
   REPEAT_FREQUENCY,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from '../utilities';
@@ -2841,6 +2841,7 @@ describe('CentralSyncManager', () => {
 
   describe('facility sensitivity sync filtering', () => {
     let patient;
+    let practitioner;
 
     const testConfig = {
       sync: {
@@ -2854,6 +2855,7 @@ describe('CentralSyncManager', () => {
     // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
     beforeEach(async () => {
       patient = await models.Patient.create(fake(models.Patient));
+      practitioner = await models.User.create(fake(models.User));
       // Reset modules to ensure fresh imports
       jest.resetModules();
       jest.doMock('@tamanu/shared/utils/withConfig', () => ({
@@ -2880,6 +2882,7 @@ describe('CentralSyncManager', () => {
         patientId: patient.id,
         locationId: location.id,
         departmentId: department.id,
+        examinerId: practitioner.id,
         endDate: null,
       });
 
@@ -2990,23 +2993,57 @@ describe('CentralSyncManager', () => {
         expect(encounterIds).not.toContain(sensitiveEncounter.id);
         expect(encounterIds).toContain(nonSensitiveEncounter.id);
       });
+
       it('wont sync sensitive encounter triage', async () => {
+        const triagePatientA = await models.Patient.create(fake(models.Patient));
+        const triagePatientB = await models.Patient.create(fake(models.Patient));
         const sensitiveTriage = await models.Triage.create({
           ...fake(models.Triage),
-          patientId: patient.id,
-          encounterId: sensitiveEncounter.id,
+          patientId: triagePatientA.id,
+          departmentId: sensitiveEncounter.departmentId,
+          locationId: sensitiveEncounter.locationId,
+          practitionerId: sensitiveEncounter.examinerId,
+          triageTime: getCurrentDateString(),
         });
         const nonSensitiveTriage = await models.Triage.create({
           ...fake(models.Triage),
-          patientId: patient.id,
-          encounterId: nonSensitiveEncounter.id,
+          patientId: triagePatientB.id,
+          departmentId: nonSensitiveEncounter.departmentId,
+          locationId: nonSensitiveEncounter.locationId,
+          practitionerId: nonSensitiveEncounter.examinerId,
+          triageTime: getCurrentDateString(),
         });
 
-        const triageIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'triage');
+        const triageEncounterIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'encounters',
+        );
+        expect(triageEncounterIds).not.toContain(sensitiveTriage.encounterId);
+        expect(triageEncounterIds).toContain(nonSensitiveTriage.encounterId);
+        const triageIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'triages');
         expect(triageIds).not.toContain(sensitiveTriage.id);
         expect(triageIds).toContain(nonSensitiveTriage.id);
       });
-      it.todo('wont sync sensitive encounter discharge');
+
+      it('wont sync sensitive encounter discharge', async () => {
+        const sensitiveDischarge = await models.Discharge.create(
+          fake(models.Discharge, {
+            encounterId: sensitiveEncounter.id,
+          }),
+        );
+        const nonSensitiveDischarge = await models.Discharge.create(
+          fake(models.Discharge, {
+            encounterId: nonSensitiveEncounter.id,
+          }),
+        );
+        const dischargeIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'discharges',
+        );
+        expect(dischargeIds).not.toContain(sensitiveDischarge.id);
+        expect(dischargeIds).toContain(nonSensitiveDischarge.id);
+      });
+
       it.todo('wont sync sensitive encounter history');
 
       // Uncategorised
@@ -3031,6 +3068,7 @@ describe('CentralSyncManager', () => {
         expect(procedureIds).not.toContain(sensitiveProcedure.id);
         expect(procedureIds).toContain(nonSensitiveProcedure.id);
       });
+
       it('wont sync sensitive encounter notes', async () => {
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
@@ -3051,6 +3089,7 @@ describe('CentralSyncManager', () => {
         expect(noteIds).not.toContain(sensitiveNote.id);
         expect(noteIds).toContain(nonSensitiveNote.id);
       });
+
       it.todo('wont sync sensitive encounter diagnoses');
       it.todo('wont sync sensitive encounter tasks');
       it.todo('wont sync sensitive encounter encounter diets');
@@ -3096,13 +3135,34 @@ describe('CentralSyncManager', () => {
         expect(labRequestIds).not.toContain(sensitiveLabRequest.id);
         expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
       });
+
       it.todo('wont sync sensitive encounter lab tests');
       it.todo('wont sync sensitive encounter lab request attachments');
       it.todo('wont sync sensitive encounter lab test panel requests');
       it.todo('wont sync sensitive encounter lab request logs');
 
       // Imaging-related models
-      it.todo('wont sync sensitive encounter imaging requests');
+      it('wont sync sensitive encounter imaging requests', async () => {
+        const sensitiveImagingRequest = await models.ImagingRequest.create(
+          fake(models.ImagingRequest, {
+            encounterId: sensitiveEncounter.id,
+            requestedById: practitioner.id,
+          }),
+        );
+        const nonSensitiveImagingRequest = await models.ImagingRequest.create(
+          fake(models.ImagingRequest, {
+            encounterId: nonSensitiveEncounter.id,
+            requestedById: practitioner.id,
+          }),
+        );
+        const imagingRequestIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'imaging_requests',
+        );
+        expect(imagingRequestIds).not.toContain(sensitiveImagingRequest.id);
+        expect(imagingRequestIds).toContain(nonSensitiveImagingRequest.id);
+      });
+
       it.todo('wont sync sensitive encounter imaging results');
       it.todo('wont sync sensitive encounter imaging request areas');
       it.todo('wont sync sensitive encounter document metadata');
@@ -3163,6 +3223,7 @@ describe('CentralSyncManager', () => {
         expect(prescriptionIds).not.toContain(sensitivePrescription.id);
         expect(prescriptionIds).toContain(nonSensitivePrescription.id);
       });
+
       it.todo('wont sync sensitive encounter pause prescriptions');
       it.todo('wont sync sensitive encounter pause prescription history');
 
