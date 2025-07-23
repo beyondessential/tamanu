@@ -1216,7 +1216,7 @@ medication.post(
   '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
-    const { Encounter, Prescription, PatientOngoingPrescription } = models;
+    const { Encounter, Prescription, PatientOngoingPrescription, MedicationAdministrationRecord } = models;
 
     const { prescriptionIds, prescriberId, encounterId } =
       await importOngoingMedicationsSchema.parseAsync(req.body);
@@ -1273,6 +1273,8 @@ medication.post(
           },
           models,
         });
+
+        await MedicationAdministrationRecord.generateMedicationAdministrationRecords(newPrescription);
 
         newPrescriptions.push(newPrescription);
       }
