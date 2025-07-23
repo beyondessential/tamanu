@@ -102,10 +102,10 @@ const extractLocationHistory = (notes, encounterData) => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
+  const { settings } = useSettings();
+  const { localisation } = useLocalisation();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
-  const { getLocalisation, localisation } = useLocalisation();
-  const { settings } = useSettings();
 
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
