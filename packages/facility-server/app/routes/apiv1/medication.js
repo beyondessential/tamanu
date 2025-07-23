@@ -1201,7 +1201,7 @@ medication.post(
   '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
-    const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription } = models;
+    const { Encounter, Prescription, EncounterPrescription, PatientOngoingPrescription, MedicationAdministrationRecord } = models;
 
     const { prescriptionIds, prescriberId, encounterId } =
       await importOngoingMedicationsSchema.parseAsync(req.body);
@@ -1273,6 +1273,8 @@ medication.post(
         prescription.discontinuingReason = 'Imported from ongoing medications';
         prescription.discontinuedDate = getCurrentDateTimeString();
         await prescription.save({ transaction });
+
+        await MedicationAdministrationRecord.generateMedicationAdministrationRecords(newPrescription);
 
         newPrescriptions.push(newPrescription);
       }
