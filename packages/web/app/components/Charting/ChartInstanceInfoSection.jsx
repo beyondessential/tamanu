@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 import { Box, IconButton } from '@material-ui/core';
@@ -8,6 +8,11 @@ import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
+import { useEncounter } from '../../contexts/Encounter';
+import { getAnswersFromData } from '../../utils';
+import { useApi } from '../../api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '../../contexts/Translation';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -43,8 +48,15 @@ export const ChartInstanceInfoSection = ({
   complexChartInstance = {},
   fieldVisibility,
   patient,
+  selectedChartSurveyName,
 }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { encounter } = useEncounter();
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const { getTranslation } = useTranslation();
   const {
+    chartInstanceId,
     chartInstanceName,
     chartDate,
     chartType,
@@ -53,12 +65,24 @@ export const ChartInstanceInfoSection = ({
   } = complexChartInstance;
   const isTypeVisible = isVisible(fieldVisibility, chartType, true);
   const isSubtypeVisible = isVisible(fieldVisibility, chartSubtype, false);
+  const actionText = getTranslation('general.action.edit', 'Edit');
+  const title = `${selectedChartSurveyName} | ${actionText}`;
+  const handleEdit = async ({ survey, ...data }) => {
+    const responseData = {
+      answers: await getAnswersFromData(data, survey),
+    };
+
+    await api.put(`surveyResponse/complexChartInstance/${chartInstanceId}`, responseData);
+    //queryClient.invalidateQueries(['encounterCharts', encounter.id, chartSurveyId]);
+    queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
+    setIsEditModalOpen(false);
+  };
   return (
     <>
-      <FormModal open={true} onClose={() => {console.log('close')}}>
+      <FormModal title={title} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <ChartForm
-          onClose={() => {console.log('close')}}
-          onSubmit={() => {console.log('submit')}}
+          onClose={() => {setIsEditModalOpen(false)}}
+          onSubmit={handleEdit}
           patient={patient}
           chartSurveyId={chartSurveyId}
         />
@@ -76,9 +100,7 @@ export const ChartInstanceInfoSection = ({
             marginRight="-1rem"
           >
             <StyledIconButton
-              onClick={() => {
-                console.log('edit');
-              }}
+              onClick={() => setIsEditModalOpen(true)}
               data-testid="stylediconbutton-edit-fkzu"
             >
               <StyledEditIcon />
