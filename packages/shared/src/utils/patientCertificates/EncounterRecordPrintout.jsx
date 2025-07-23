@@ -370,12 +370,11 @@ const EncounterRecordPrintoutComponent = ({
   discharge,
   medications,
   localisation,
-  translations,
   vitalsData,
   recordedDates,
 }) => {
   const getLocalisation = (key) => get(localisation, key);
-  const getTranslation = (key) => get(translations, key);
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -676,7 +675,7 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
+                  columns={getVitalsColumn(start)}
                   type="vitals"
                 />
                 <Footer />
