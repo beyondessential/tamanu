@@ -1,7 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import EditIcon from '@material-ui/icons/Edit';
+import { Box, IconButton } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from '../InfoCard';
 import { TranslatedText } from '../Translation';
+import { Colors } from '../../constants';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -13,6 +16,17 @@ const StyledInfoCard = styled(InfoCard)`
 
 const ChartInstanceInfoLabel = styled(TranslatedText)`
   font-weight: 500;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
+`;
+
+const StyledEditIcon = styled(EditIcon)`
+  float: right;
+  width: 1rem;
+  height: 1rem;
+  color: ${Colors.primary};
 `;
 
 export const ChartInstanceInfoSection = ({
@@ -27,6 +41,24 @@ export const ChartInstanceInfoSection = ({
     gridRowGap={10}
     elevated={false}
     contentMarginBottom={20}
+    headerContent={
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-end"
+        marginTop="-1rem"
+        marginRight="-1rem"
+      >
+        <StyledIconButton
+          onClick={() => {
+            console.log('edit');
+          }}
+          data-testid="stylediconbutton-edit-fkzu"
+        >
+          <StyledEditIcon />
+        </StyledIconButton>
+      </Box>
+    }
     data-testid="styledinfocard-vd5f"
   >
     <InfoCardItem
