@@ -10,6 +10,7 @@ import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { PatientContact } from './PatientContact';
+import { PatientAllergy } from './PatientAllergy';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { EncounterHistory } from './EncounterHistory';
@@ -49,6 +50,7 @@ import { VitalLog } from './VitalLog';
 import { UserFacility } from './UserFacility';
 import { EncounterPrescription } from './EncounterPrescription';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -62,6 +64,7 @@ export const MODELS_MAP = {
   PatientIssue,
   PatientSecondaryId,
   PatientContact,
+  PatientAllergy,
   User,
   Encounter,
   EncounterHistory,
@@ -86,6 +89,7 @@ export const MODELS_MAP = {
   EncounterPrescription,
   Prescription,
   PatientOngoingPrescription,
+  MedicationAdministrationRecord,
   Referral,
   Attachment,
   Facility,

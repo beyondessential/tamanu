@@ -8,6 +8,7 @@ import {
   flexbox,
   flexGrow,
   fontSize,
+  fontStyle,
   fontWeight,
   height,
   justifyContent,
@@ -177,6 +178,7 @@ export const StyledText = styled.Text<StyledTextProps>`
   ${color}
   ${fontWeight}
   ${fontSize}
+  ${fontStyle}
   ${lineHeight}
   ${textAlign}
   ${size}
