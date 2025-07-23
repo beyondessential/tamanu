@@ -110,6 +110,7 @@ const getDateTitleArray = date => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage, getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
   const { getSetting } = useSettings();
@@ -334,7 +335,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             const { value, config } = cells[date];
             return formatValue(value, config);
           },
-          style: { width: 60, },
+          style: { width: 60 },
         })),
     ];
   };
@@ -365,6 +366,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           village={village}
           medications={medications}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           translations={translations}
           getSetting={getSetting}
           data-testid="encounterrecordprintout-yqe1"

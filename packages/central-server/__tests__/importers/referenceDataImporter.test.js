@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -7,7 +8,9 @@ import {
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
@@ -408,7 +411,7 @@ describe('Data definition import', () => {
 
       const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(
         (option) =>
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${patientFieldDefinition.id}.option.${camelCase(option)}`,
+          getReferenceDataOptionStringId(patientFieldDefinition.id, 'patientFieldDefinition', option),
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));

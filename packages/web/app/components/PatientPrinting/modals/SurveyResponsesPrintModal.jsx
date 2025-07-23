@@ -31,8 +31,10 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: additionalData, isLoading: isAdditionalDataLoading } =
-      usePatientAdditionalDataQuery(patient.id);
+    const {
+      data: additionalData,
+      isLoading: isAdditionalDataLoading,
+    } = usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
@@ -98,6 +100,7 @@ export const SurveyResponsesPrintModal = React.memo(
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
+            getSetting={getSetting}
             data-testid="surveyresponsesprintout-7nfz"
           />
         </PDFLoader>
