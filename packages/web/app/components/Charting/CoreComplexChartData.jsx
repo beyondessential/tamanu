@@ -9,6 +9,7 @@ import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useEncounterChartsQuery } from '../../api/queries';
+import { DateDisplay } from '../DateDisplay';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -85,7 +86,7 @@ export const CoreComplexChartData = ({
                 data-testid="translatedtext-moh0"
               />
             </CoreComplexChartInfoHeader>
-            <>{date}</>
+            <DateDisplay date={date} showTime id="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
 
           {isTypeVisible ? (
