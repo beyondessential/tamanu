@@ -32,6 +32,13 @@ const StyledEditIcon = styled(EditIcon)`
   color: ${Colors.primary};
 `;
 
+const isVisible = (fieldVisibility, fieldValue, isType) => {
+  const fieldId = isType
+    ? CHARTING_DATA_ELEMENT_IDS.complexChartType
+    : CHARTING_DATA_ELEMENT_IDS.complexChartSubtype;
+  return !!fieldValue || fieldVisibility[fieldId] === VISIBILITY_STATUSES.CURRENT;
+};
+
 export const ChartInstanceInfoSection = ({
   complexChartInstance = {},
   fieldVisibility,
@@ -44,10 +51,8 @@ export const ChartInstanceInfoSection = ({
     chartSubtype,
     chartSurveyId,
   } = complexChartInstance;
-  const isTypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubtypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
+  const isTypeVisible = isVisible(fieldVisibility, chartType, true);
+  const isSubtypeVisible = isVisible(fieldVisibility, chartSubtype, false);
   return (
     <>
       <FormModal open={true} onClose={() => {console.log('close')}}>
