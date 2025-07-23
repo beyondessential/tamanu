@@ -675,7 +675,7 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start)}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
                   type="vitals"
                 />
                 <Footer />
