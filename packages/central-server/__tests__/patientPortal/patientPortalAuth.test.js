@@ -158,7 +158,7 @@ describe('Patient Portal Auth', () => {
       // Create an expired token
       const expiredToken = jwt.sign(
         {
-          aud: JWT_TOKEN_TYPES.ACCESS,
+          aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
           iss: config.canonicalHostName,
           userId: testPatientUser.id,
           jti: 'expired-token',
