@@ -2,6 +2,7 @@
 Table of facilities.
 
 Facilities may be either or both of:
+
 - Any healthcare facility, like hospitals, clinics, mobile vaccination vans, laboratories, etc
 - A Tamanu Facility deployment.
 
@@ -43,4 +44,8 @@ Street address of the facility.
 
 {% docs facilities__catchment_id %}
 Catchment area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
+{% enddocs %}
+
+{% docs facilities__is_sensitive %}
+If set to `true`, encounters created on this facility will only be viewable when logged into this facility
 {% enddocs %}
