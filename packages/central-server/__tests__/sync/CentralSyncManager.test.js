@@ -3280,16 +3280,16 @@ describe('CentralSyncManager', () => {
       });
 
       it.todo(
-        'will sync all historical sensitive data to other facilites when the facility is changed from sensitive to non-sensitive',
+        'will sync all historical sensitive data to other facilities when the facility is changed from sensitive to non-sensitive',
       );
       it.todo(
-        'will delete all historical sensitive data from other facilites when the facility is changed from non-sensitive to sensitive',
+        'will delete all historical sensitive data from other facilities when the facility is changed from non-sensitive to sensitive',
       );
       it.todo(
-        'will not sync sensitive lab requests to other facilites even if syncAllLabRequests is true',
+        'will not sync sensitive lab requests to other facilities even if syncAllLabRequests is true',
       );
       it.todo(
-        'will not sync sensitive vaccinations to other facilites even if syncAllVaccines is true',
+        'will not sync sensitive vaccinations to other facilities even if syncAllVaccines is true',
       );
     });
   });
