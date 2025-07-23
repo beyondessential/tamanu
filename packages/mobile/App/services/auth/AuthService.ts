@@ -32,7 +32,6 @@ export class AuthService {
 
    async initialise(deviceId: string): Promise<void> {
     const server = await readConfig('syncServerLocation');
-    console.log('server', server)
     if (!server) return;
     this.centralServer.setServer(server);
     this.centralServer.deviceId = deviceId;
@@ -117,7 +116,6 @@ export class AuthService {
     const server = syncServerLocation || params.server;
 
     console.log(`Getting token from ${server}`);
-    console.log('params', params);
     this.centralServer.setServer(server);
     const { user, token, refreshToken, settings, localisation, permissions } =
       await this.centralServer.connect(params);

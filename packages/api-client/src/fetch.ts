@@ -29,10 +29,8 @@ export async function fetchOrThrowIfUnavailable(
   }
 
   try {
-    // TODO: does signal work on mobile?
-    // const result = await fetchFn(url, { signal: abort.signal, ...config })
-    const result = await fetchFn(url, { ...config })
-    return result;
+    // TODO: does abort signal work on mobile?
+    return await fetchFn(url, {  signal: abort.signal, ...config });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available
