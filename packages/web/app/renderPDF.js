@@ -2,11 +2,15 @@ import { createElement } from 'react';
 
 const idToComponent = {
   'vaccine-certificate': async () => {
-    const { VaccineCertificate } = await import('@tamanu/shared/utils/patientCertificates');
+    const { VaccineCertificate } = await import(
+      '@tamanu/shared/utils/patientCertificates/VaccineCertificate'
+    );
     return VaccineCertificate;
   },
   'encounter-record': async () => {
-    const { EncounterRecordPrintout } = await import('@tamanu/shared/utils/patientCertificates');
+    const { EncounterRecordPrintout } = await import(
+      '@tamanu/shared/utils/patientCertificates/EncounterRecordPrintout'
+    );
     return EncounterRecordPrintout;
   },
 };
