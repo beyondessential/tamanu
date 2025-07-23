@@ -33,6 +33,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     baseQueryParameters: { filterByFacility: true },
   });
   const physicianSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department');
   const anaesthetistSuggester = useSuggester('practitioner');
   const assistantSuggester = useSuggester('practitioner');
   const procedureSuggester = useSuggester('procedureType');
@@ -48,8 +49,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           replacements={{
             action: editedProcedure?.id ? (
               <TranslatedText
-                stringId="general.action.edit"
-                fallback="Edit"
+                stringId="general.action.update"
+                fallback="Update"
                 data-testid="translatedtext-l65z"
               />
             ) : (
@@ -68,7 +69,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
       data-testid="formmodal-otam"
     >
       <ProcedureForm
-        onSubmit={async (data) => {
+        onSubmit={async data => {
           const actualDateTime = getActualDateTime(data.date, data.startTime);
           const updatedData = {
             ...data,
@@ -87,6 +88,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
         }}
         onCancel={onClose}
         editedObject={editedProcedure}
+        departmentSuggester={departmentSuggester}
         locationSuggester={locationSuggester}
         physicianSuggester={physicianSuggester}
         anaesthetistSuggester={anaesthetistSuggester}
