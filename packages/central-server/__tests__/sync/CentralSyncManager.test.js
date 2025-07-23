@@ -2851,12 +2851,13 @@ describe('CentralSyncManager', () => {
       },
     };
 
+    // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
     beforeEach(async () => {
       patient = await models.Patient.create(fake(models.Patient));
       // Reset modules to ensure fresh imports
       jest.resetModules();
       jest.doMock('@tamanu/shared/utils/withConfig', () => ({
-        withConfig: (fn) => {
+        withConfig: fn => {
           const inner = function inner(...args) {
             return fn(...args, testConfig);
           };
@@ -2898,7 +2899,9 @@ describe('CentralSyncManager', () => {
 
       const lookupData = await models.SyncLookup.findAll();
       const sensitiveLookupRecord = lookupData.find(l => l.recordId === sensitiveEncounter.id);
-      const nonSensitiveLookupRecord = lookupData.find(l => l.recordId === nonSensitiveEncounter.id);
+      const nonSensitiveLookupRecord = lookupData.find(
+        l => l.recordId === nonSensitiveEncounter.id,
+      );
 
       expect(sensitiveLookupRecord.facilityId).toBe(sensitiveFacility.id);
       expect(nonSensitiveLookupRecord.facilityId).toBeNull();
@@ -2992,7 +2995,9 @@ describe('CentralSyncManager', () => {
 
       // Create prescriptions first
       const sensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
-      const nonSensitivePrescriptionData = await models.Prescription.create(fake(models.Prescription));
+      const nonSensitivePrescriptionData = await models.Prescription.create(
+        fake(models.Prescription),
+      );
 
       // Create prescriptions linked to encounters
       const sensitivePrescription = await models.EncounterPrescription.create(
@@ -3032,7 +3037,9 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const prescriptionChanges = outgoingChanges.filter(c => c.recordType === 'encounter_prescriptions');
+      const prescriptionChanges = outgoingChanges.filter(
+        c => c.recordType === 'encounter_prescriptions',
+      );
       const prescriptionIds = prescriptionChanges.map(c => c.recordId);
 
       expect(prescriptionIds).not.toContain(sensitivePrescription.id);
@@ -3198,9 +3205,17 @@ describe('CentralSyncManager', () => {
       expect(encounterIds).not.toContain(sensitiveEncounterB.id);
     });
 
-    it.todo('will sync all historical sensitive data to other facilites when the facility is changed from sensitive to non-sensitive');
-    it.todo('will delete all historical sensitive data from other facilites when the facility is changed from non-sensitive to sensitive');
-    it.todo('will not sync sensitive lab requests to other facilites even if syncAllLabRequests is true');
-    it.todo('will not sync sensitive vaccinations to other facilites even if syncAllVaccines is true');
+    it.todo(
+      'will sync all historical sensitive data to other facilites when the facility is changed from sensitive to non-sensitive',
+    );
+    it.todo(
+      'will delete all historical sensitive data from other facilites when the facility is changed from non-sensitive to sensitive',
+    );
+    it.todo(
+      'will not sync sensitive lab requests to other facilites even if syncAllLabRequests is true',
+    );
+    it.todo(
+      'will not sync sensitive vaccinations to other facilites even if syncAllVaccines is true',
+    );
   });
 });
