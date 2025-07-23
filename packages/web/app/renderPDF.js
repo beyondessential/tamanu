@@ -5,6 +5,10 @@ const idToComponent = {
     const { VaccineCertificate } = await import('@tamanu/shared/utils/patientCertificates');
     return VaccineCertificate;
   },
+  'encounter-record': async () => {
+    const { EncounterRecordPrintout } = await import('@tamanu/shared/utils/patientCertificates');
+    return EncounterRecordPrintout;
+  },
 };
 
 export const renderPDF = async ({ id, ...props }) => {
