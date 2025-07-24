@@ -9,6 +9,7 @@ import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
+  DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
@@ -171,6 +172,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
     const isValid = isCurrent ? true : Boolean(value);
     const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
 
+    console.log(component.dataElement.type, value);
     if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
       return (
         <ViewPhotoLink
@@ -179,6 +181,10 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
           chartTitle={chartTitle}
         />
       );
+    }
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
+      return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
     }
 
     return (
