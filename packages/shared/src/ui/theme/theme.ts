@@ -7,7 +7,7 @@ const themeName = 'Tamanu';
 const palette = {
   primary: {
     main: Colors.primary,
-    dark: Colors.dark,
+    dark: Colors.primaryDark,
   },
   secondary: {
     main: Colors.secondary,
