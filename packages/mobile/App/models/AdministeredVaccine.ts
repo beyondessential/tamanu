@@ -18,7 +18,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   batch?: string;
 
   @Column()
-  status: string;
+  status: VaccineStatus;
 
   @Column({ nullable: true })
   reason?: string;
@@ -41,31 +41,31 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   givenBy?: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.administeredVaccines)
+  @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
   encounter: Encounter;
 
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => ScheduledVaccine, (scheduledVaccine) => scheduledVaccine.administeredVaccines)
+  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
   scheduledVaccine: ScheduledVaccine;
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
 
-  @ManyToOne(() => User, (user) => user.recordedVaccines)
+  @ManyToOne(() => User, user => user.recordedVaccines)
   recorder: User;
 
   @RelationId(({ recorder }: AdministeredVaccine) => recorder)
   recorderId: string;
 
-  @ManyToOne(() => Location, (loc) => loc.administeredVaccines)
+  @ManyToOne(() => Location, loc => loc.administeredVaccines)
   location: Location;
 
   @RelationId(({ location }: AdministeredVaccine) => location)
   locationId: string;
 
-  @ManyToOne(() => Department, (dep) => dep.administeredVaccines)
+  @ManyToOne(() => Department, dep => dep.administeredVaccines)
   department: Department;
 
   @RelationId(({ department }: AdministeredVaccine) => department)
@@ -90,7 +90,8 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   vaccineName?: string;
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
-    return this.getRepository()
+    return (this as any)
+      .getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.examiner', 'examiner')
@@ -108,7 +109,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -123,7 +124,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };

@@ -20,18 +20,18 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   type: ReferenceDataType;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
-  @OneToMany(() => RefDataRelation, (entity) => entity.referenceDataParent)
+  @OneToMany(() => RefDataRelation, entity => entity.referenceDataParent)
   public children: RefDataRelation[];
-  @OneToMany(() => RefDataRelation, (entity) => entity.referenceData)
+  @OneToMany(() => RefDataRelation, entity => entity.referenceData)
   public parents: RefDataRelation[];
 
-  @OneToOne(() => ReferenceDrug, (referenceDrug) => referenceDrug.referenceData) // Inverse side
+  @OneToOne(() => ReferenceDrug, referenceDrug => referenceDrug.referenceData) // Inverse side
   referenceDrug?: ReferenceDrug;
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
-    const repo = this.getRepository();
+    const repo = (this as any).getRepository();
 
     return repo.findOne({
       where: {
@@ -67,10 +67,10 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     },
     relationType = ReferenceDataRelationType.AddressHierarchy,
   ) {
-    const repo = this.getRepository();
+    const repo = (this as any).getRepository();
 
     let recordWithParents = await repo.findOne({
-      where: (qb) => {
+      where: qb => {
         qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
           .where('parents_type = :relationType', {
             relationType,
@@ -85,7 +85,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       // the other option would be to write the query in raw sql but then it wouldn't be possible
       // to use an object for the where parameter
       recordWithParents = await repo.findOne({
-        where: (qb) => {
+        where: qb => {
           qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
             .where({ visibilityStatus: VisibilityStatus.Current })
             .andWhere(where);
@@ -110,7 +110,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     searchTerm: string,
     limit = 10,
   ): Promise<ReferenceData[]> {
-    const repo = this.getRepository();
+    const repo = (this as any).getRepository();
 
     return repo.find({
       where: {
@@ -126,7 +126,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   static async getSelectOptionsForType(
     referenceDataType: ReferenceDataType,
   ): Promise<{ label: string; value: string }[]> {
-    const repo = this.getRepository();
+    const repo = (this as any).getRepository();
 
     const results = await repo.find({
       where: {
@@ -135,7 +135,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       },
     });
 
-    return results.map((r) => ({ label: r.name, value: r.id }));
+    return results.map(r => ({ label: r.name, value: r.id }));
   }
 }
 
