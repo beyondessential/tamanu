@@ -2842,6 +2842,10 @@ describe('CentralSyncManager', () => {
   describe('facility sensitivity sync filtering', () => {
     let patient;
     let practitioner;
+    let sensitiveEncounter;
+    let sensitiveFacility;
+    let nonSensitiveEncounter;
+    let nonSensitiveFacility;
 
     const testConfig = {
       sync: {
@@ -2851,23 +2855,6 @@ describe('CentralSyncManager', () => {
         maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
       },
     };
-
-    // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
-    beforeEach(async () => {
-      patient = await models.Patient.create(fake(models.Patient));
-      practitioner = await models.User.create(fake(models.User));
-      // Reset modules to ensure fresh imports
-      jest.resetModules();
-      jest.doMock('@tamanu/shared/utils/withConfig', () => ({
-        withConfig: fn => {
-          const inner = function inner(...args) {
-            return fn(...args, testConfig);
-          };
-          inner.overrideConfig = fn;
-          return inner;
-        },
-      }));
-    });
 
     const createFacilityWithEncounter = async ({ isSensitive = false }) => {
       const facility = await models.Facility.create(fake(models.Facility, { isSensitive }));
@@ -2889,15 +2876,55 @@ describe('CentralSyncManager', () => {
       return { facility, encounter };
     };
 
-    it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
-      const { facility: sensitiveFacility, encounter: sensitiveEncounter } =
-        await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-      const { encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
+    beforeEach(async () => {
+      patient = await models.Patient.create(fake(models.Patient));
+      practitioner = await models.User.create(fake(models.User));
+      // Reset modules to ensure fresh imports
+      jest.resetModules();
+      // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
+      jest.doMock('@tamanu/shared/utils/withConfig', () => ({
+        withConfig: fn => {
+          const inner = function inner(...args) {
+            return fn(...args, testConfig);
+          };
+          inner.overrideConfig = fn;
+          return inner;
+        },
+      }));
+
+      const sensitiveFacilityData = await createFacilityWithEncounter({
+        isSensitive: true,
+      });
+      sensitiveFacility = sensitiveFacilityData.facility;
+      sensitiveEncounter = sensitiveFacilityData.encounter;
+      const nonSensitiveFacilityData = await createFacilityWithEncounter({
         isSensitive: false,
       });
+      nonSensitiveEncounter = nonSensitiveFacilityData.encounter;
+      nonSensitiveFacility = nonSensitiveFacilityData.facility;
+    });
 
+    const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
+      const centralSyncManager = initializeCentralSyncManager(testConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facilityId],
+        },
+        () => true,
+      );
+
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      return outgoingChanges.filter(c => c.recordType === recordType).map(c => c.recordId);
+    };
+
+    it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
       const centralSyncManager = initializeCentralSyncManager(testConfig);
       await centralSyncManager.updateLookupTable();
 
@@ -2912,86 +2939,28 @@ describe('CentralSyncManager', () => {
     });
 
     it('will sync sensitive encounters to itself', async () => {
-      const { facility: sensitiveFacility, encounter: sensitiveEncounter } =
-        await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-
-      const { encounter: nonSensitiveEncounter } = await createFacilityWithEncounter({
-        isSensitive: false,
-      });
-
-      const centralSyncManager = initializeCentralSyncManager(testConfig);
-
-      // Update the lookup table to include the encounters
-      await centralSyncManager.updateLookupTable();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await centralSyncManager.setupSnapshotForPull(
-        sessionId,
-        {
-          since: 1,
-          facilityIds: [sensitiveFacility.id],
-        },
-        () => true,
-      );
-
-      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const encounterIds = outgoingChanges
-        .filter(c => c.recordType === 'encounters')
-        .map(c => c.recordId);
+      const encounterIds = await getOutgoingIdsForRecordType(sensitiveFacility.id, 'encounters');
 
       expect(encounterIds).toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
 
-    describe('check encounter linked data types are not syncing to', () => {
-      let sensitiveEncounter;
-      let nonSensitiveEncounter;
-      let nonSensitiveFacility;
-
-      // TODO: i dont like how this reads
-      beforeEach(async () => {
-        const sensitiveFacilityData = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
-        sensitiveEncounter = sensitiveFacilityData.encounter;
-        const nonSensitiveFacilityData = await createFacilityWithEncounter({
-          isSensitive: false,
-        });
-        nonSensitiveEncounter = nonSensitiveFacilityData.encounter;
-        nonSensitiveFacility = nonSensitiveFacilityData.facility;
-      });
-
-      const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
-        const centralSyncManager = initializeCentralSyncManager(testConfig);
-        await centralSyncManager.updateLookupTable();
-
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [facilityId],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        return outgoingChanges.filter(c => c.recordType === recordType).map(c => c.recordId);
+    describe('check sensitive encounter linked data types are not syncing to any other facility', () => {
+      // Every test in this describe block should use this function to check that the sensitive record
+      // is not synced to the non-sensitive facility
+      const checkSensitiveRecordFiltering = async ({ recordType, sensitiveId, nonSensitiveId }) => {
+        const recordIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, recordType);
+        expect(recordIds).not.toContain(sensitiveId);
+        expect(recordIds).toContain(nonSensitiveId);
       };
 
       // Basic encounter
       it('wont sync sensitive encounters', async () => {
-        const encounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
-        );
-        expect(encounterIds).not.toContain(sensitiveEncounter.id);
-        expect(encounterIds).toContain(nonSensitiveEncounter.id);
+        await checkSensitiveRecordFiltering({
+          recordType: 'encounters',
+          sensitiveId: sensitiveEncounter.id,
+          nonSensitiveId: nonSensitiveEncounter.id,
+        });
       });
 
       it('wont sync sensitive encounter triage', async () => {
@@ -3014,15 +2983,17 @@ describe('CentralSyncManager', () => {
           triageTime: getCurrentDateString(),
         });
 
-        const triageEncounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
-        );
-        expect(triageEncounterIds).not.toContain(sensitiveTriage.encounterId);
-        expect(triageEncounterIds).toContain(nonSensitiveTriage.encounterId);
-        const triageIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'triages');
-        expect(triageIds).not.toContain(sensitiveTriage.id);
-        expect(triageIds).toContain(nonSensitiveTriage.id);
+        await checkSensitiveRecordFiltering({
+          recordType: 'encounters',
+          sensitiveId: sensitiveTriage.encounterId,
+          nonSensitiveId: nonSensitiveTriage.encounterId,
+        });
+
+        await checkSensitiveRecordFiltering({
+          recordType: 'triages',
+          sensitiveId: sensitiveTriage.id,
+          nonSensitiveId: nonSensitiveTriage.id,
+        });
       });
 
       it('wont sync sensitive encounter discharge', async () => {
@@ -3036,12 +3007,11 @@ describe('CentralSyncManager', () => {
             encounterId: nonSensitiveEncounter.id,
           }),
         );
-        const dischargeIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'discharges',
-        );
-        expect(dischargeIds).not.toContain(sensitiveDischarge.id);
-        expect(dischargeIds).toContain(nonSensitiveDischarge.id);
+        await checkSensitiveRecordFiltering({
+          recordType: 'discharges',
+          sensitiveId: sensitiveDischarge.id,
+          nonSensitiveId: nonSensitiveDischarge.id,
+        });
       });
 
       it.todo('wont sync sensitive encounter history');
@@ -3060,13 +3030,11 @@ describe('CentralSyncManager', () => {
           }),
         );
 
-        const procedureIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'procedures',
-        );
-
-        expect(procedureIds).not.toContain(sensitiveProcedure.id);
-        expect(procedureIds).toContain(nonSensitiveProcedure.id);
+        await checkSensitiveRecordFiltering({
+          recordType: 'procedures',
+          sensitiveId: sensitiveProcedure.id,
+          nonSensitiveId: nonSensitiveProcedure.id,
+        });
       });
 
       it('wont sync sensitive encounter notes', async () => {
@@ -3084,10 +3052,11 @@ describe('CentralSyncManager', () => {
           }),
         );
 
-        const noteIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'notes');
-
-        expect(noteIds).not.toContain(sensitiveNote.id);
-        expect(noteIds).toContain(nonSensitiveNote.id);
+        await checkSensitiveRecordFiltering({
+          recordType: 'notes',
+          sensitiveId: sensitiveNote.id,
+          nonSensitiveId: nonSensitiveNote.id,
+        });
       });
 
       it('wont sync sensitive encounter diagnoses', async () => {
@@ -3103,270 +3072,216 @@ describe('CentralSyncManager', () => {
             diagnosisId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
           }),
         );
-        const diagnosisIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounter_diagnoses',
-        );
-        expect(diagnosisIds).not.toContain(sensitiveDiagnosis.id);
-        expect(diagnosisIds).toContain(nonSensitiveDiagnosis.id);
+
+        await checkSensitiveRecordFiltering({
+          recordType: 'encounter_diagnoses',
+          sensitiveId: sensitiveDiagnosis.id,
+          nonSensitiveId: nonSensitiveDiagnosis.id,
+        });
       });
       it.todo('wont sync sensitive encounter tasks');
       it.todo('wont sync sensitive encounter encounter diets');
 
-      // Program/Surveys
-      it.todo('wont sync sensitive encounter survey responses');
-      it.todo('wont sync sensitive encounter referrals');
-      it.todo('wont sync sensitive encounter vitals');
-
-      // Lab-related models
-      it('wont sync sensitive encounter lab requests', async () => {
-        // Create lab requests linked to encounters
-        const sensitiveLabRequest = await models.LabRequest.create(
-          fake(models.LabRequest, {
-            encounterId: sensitiveEncounter.id,
-          }),
-        );
-        const nonSensitiveLabRequest = await models.LabRequest.create(
-          fake(models.LabRequest, {
-            encounterId: nonSensitiveEncounter.id,
-          }),
-        );
-
-        const centralSyncManager = initializeCentralSyncManager(testConfig);
-        await centralSyncManager.updateLookupTable();
-
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const labRequestChanges = outgoingChanges.filter(c => c.recordType === 'lab_requests');
-        const labRequestIds = labRequestChanges.map(c => c.recordId);
-
-        expect(labRequestIds).not.toContain(sensitiveLabRequest.id);
-        expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
-      });
-
-      it('wont sync sensitive encounter lab tests', async () => {
-        const sensitiveLabTest = await models.LabTest.create(
-          fake(models.LabTest, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: sensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const nonSensitiveLabTest = await models.LabTest.create(
-          fake(models.LabTest, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: nonSensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const labTestIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'lab_tests');
-        expect(labTestIds).not.toContain(sensitiveLabTest.id);
-        expect(labTestIds).toContain(nonSensitiveLabTest.id);
-      });
-
-      it('wont sync sensitive encounter lab request attachments', async () => {
-        const sensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
-          fake(models.LabRequestAttachment, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: sensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const nonSensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
-          fake(models.LabRequestAttachment, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: nonSensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const labRequestAttachmentIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'lab_request_attachments',
-        );
-        expect(labRequestAttachmentIds).not.toContain(sensitiveLabRequestAttachment.id);
-        expect(labRequestAttachmentIds).toContain(nonSensitiveLabRequestAttachment.id);
-      });
-
-      it('wont sync sensitive encounter lab test panel requests', async () => {
-        const sensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
-          fake(models.LabTestPanelRequest, {
-            encounterId: sensitiveEncounter.id,
-            labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
-          }),
-        );
-        const nonSensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
-          fake(models.LabTestPanelRequest, {
-            encounterId: nonSensitiveEncounter.id,
-            labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
-          }),
-        );
-        const labTestPanelRequestIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'lab_test_panel_requests',
-        );
-        expect(labTestPanelRequestIds).not.toContain(sensitiveLabTestPanelRequest.id);
-        expect(labTestPanelRequestIds).toContain(nonSensitiveLabTestPanelRequest.id);
-      });
-
-      it('wont sync sensitive encounter lab request logs', async () => {
-        const sensitiveLabRequestLog = await models.LabRequestLog.create(
-          fake(models.LabRequestLog, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: sensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const nonSensitiveLabRequestLog = await models.LabRequestLog.create(
-          fake(models.LabRequestLog, {
-            labRequestId: (
-              await models.LabRequest.create(
-                fake(models.LabRequest, {
-                  encounterId: nonSensitiveEncounter.id,
-                }),
-              )
-            ).id,
-          }),
-        );
-        const labRequestLogIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'lab_request_logs',
-        );
-        expect(labRequestLogIds).not.toContain(sensitiveLabRequestLog.id);
-        expect(labRequestLogIds).toContain(nonSensitiveLabRequestLog.id);
-      });
-
-      // Imaging-related models
-      it('wont sync sensitive encounter imaging requests', async () => {
-        const sensitiveImagingRequest = await models.ImagingRequest.create(
-          fake(models.ImagingRequest, {
-            encounterId: sensitiveEncounter.id,
-            requestedById: practitioner.id,
-          }),
-        );
-        const nonSensitiveImagingRequest = await models.ImagingRequest.create(
-          fake(models.ImagingRequest, {
-            encounterId: nonSensitiveEncounter.id,
-            requestedById: practitioner.id,
-          }),
-        );
-        const imagingRequestIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'imaging_requests',
-        );
-        expect(imagingRequestIds).not.toContain(sensitiveImagingRequest.id);
-        expect(imagingRequestIds).toContain(nonSensitiveImagingRequest.id);
-      });
-
-      it.todo('wont sync sensitive encounter imaging results');
-      it.todo('wont sync sensitive encounter imaging request areas');
-      it.todo('wont sync sensitive encounter document metadata');
-
-      // Medication-related models
-      it('wont sync sensitive encounter prescriptions', async () => {
-        // Create prescriptions first
-        const sensitivePrescriptionData = await models.Prescription.create(
-          fake(models.Prescription),
-        );
-        const nonSensitivePrescriptionData = await models.Prescription.create(
-          fake(models.Prescription),
-        );
-
-        // Create prescriptions linked to encounters
-        const sensitivePrescription = await models.EncounterPrescription.create(
-          fake(models.EncounterPrescription, {
-            encounterId: sensitiveEncounter.id,
-            prescriptionId: sensitivePrescriptionData.id,
-          }),
-        );
-        const nonSensitivePrescription = await models.EncounterPrescription.create(
-          fake(models.EncounterPrescription, {
-            encounterId: nonSensitiveEncounter.id,
-            prescriptionId: nonSensitivePrescriptionData.id,
-          }),
-        );
-
-        const centralSyncManager = initializeCentralSyncManager({
-          sync: {
-            lookupTable: {
-              enabled: true,
-            },
-            maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-          },
-        });
-
-        await centralSyncManager.updateLookupTable();
-
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const prescriptionChanges = outgoingChanges.filter(
-          c => c.recordType === 'encounter_prescriptions',
-        );
-        const prescriptionIds = prescriptionChanges.map(c => c.recordId);
-
-        expect(prescriptionIds).not.toContain(sensitivePrescription.id);
-        expect(prescriptionIds).toContain(nonSensitivePrescription.id);
-      });
-
-      it.todo('wont sync sensitive encounter pause prescriptions');
-      it.todo('wont sync sensitive encounter pause prescription history');
-
       // Vaccinations
       it.todo('wont sync sensitive encounter administered vaccines');
 
-      // Invoicing-related models
-      it.todo('wont sync sensitive encounter invoice');
-      it.todo('wont sync sensitive encounter invoice items');
-      it.todo('wont sync sensitive encounter invoice payments');
-      it.todo('wont sync sensitive encounter invoice insurer payments');
-      it.todo('wont sync sensitive encounter invoice patient payments');
-      it.todo('wont sync sensitive encounter invoice item discounts');
-      it.todo('wont sync sensitive encounter invoice discounts');
-      it.todo('wont sync sensitive encounter invoice insurers');
-
       // Scheduling
-      it.todo('wont sync sensitive encounter appointments');
+      // TODO: interesting case to double check as this is only sometimes encounter linked
+      it('wont sync sensitive encounter appointments regardless of linked encounter', async () => {
+        const sensitiveAppointment = await models.Appointment.create(
+          fake(models.Appointment, {
+            locationId: sensitiveEncounter.locationId,
+          }),
+        );
+        const nonSensitiveAppointment = await models.Appointment.create(
+          fake(models.Appointment, {
+            locationId: sensitiveEncounter.locationId,
+          }),
+        );
+
+        await checkSensitiveRecordFiltering({
+          recordType: 'appointments',
+          sensitiveId: sensitiveAppointment.id,
+          nonSensitiveId: nonSensitiveAppointment.id,
+        });
+      });
+
+      describe('Program/Survey clinical data', () => {
+        it.todo('wont sync sensitive encounter survey responses');
+        it.todo('wont sync sensitive encounter referrals');
+        it.todo('wont sync sensitive encounter vitals');
+      });
+
+      describe('Imaging clinical data', () => {
+        it('wont sync sensitive encounter imaging requests', async () => {
+          const sensitiveImagingRequest = await models.ImagingRequest.create(
+            fake(models.ImagingRequest, {
+              encounterId: sensitiveEncounter.id,
+              requestedById: practitioner.id,
+            }),
+          );
+          const nonSensitiveImagingRequest = await models.ImagingRequest.create(
+            fake(models.ImagingRequest, {
+              encounterId: nonSensitiveEncounter.id,
+              requestedById: practitioner.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'imaging_requests',
+            sensitiveId: sensitiveImagingRequest.id,
+            nonSensitiveId: nonSensitiveImagingRequest.id,
+          });
+        });
+        it.todo('wont sync sensitive encounter imaging results');
+        it.todo('wont sync sensitive encounter imaging request areas');
+        it.todo('wont sync sensitive encounter document metadata');
+      });
+
+      describe('Medication clinical data', () => {
+        it('wont sync sensitive encounter prescriptions', async () => {
+          // Create prescriptions first
+          const sensitivePrescriptionData = await models.Prescription.create(
+            fake(models.Prescription),
+          );
+          const nonSensitivePrescriptionData = await models.Prescription.create(
+            fake(models.Prescription),
+          );
+
+          // Create prescriptions linked to encounters
+          const sensitivePrescription = await models.EncounterPrescription.create(
+            fake(models.EncounterPrescription, {
+              encounterId: sensitiveEncounter.id,
+              prescriptionId: sensitivePrescriptionData.id,
+            }),
+          );
+          const nonSensitivePrescription = await models.EncounterPrescription.create(
+            fake(models.EncounterPrescription, {
+              encounterId: nonSensitiveEncounter.id,
+              prescriptionId: nonSensitivePrescriptionData.id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'encounter_prescriptions',
+            sensitiveId: sensitivePrescription.id,
+            nonSensitiveId: nonSensitivePrescription.id,
+          });
+        });
+        it.todo('wont sync sensitive encounter pause prescriptions');
+        it.todo('wont sync sensitive encounter pause prescription history');
+      });
+
+      describe('Invoice clinical data', () => {
+        it.todo('wont sync sensitive encounter invoice');
+        it.todo('wont sync sensitive encounter invoice items');
+        it.todo('wont sync sensitive encounter invoice payments');
+        it.todo('wont sync sensitive encounter invoice insurer payments');
+        it.todo('wont sync sensitive encounter invoice patient payments');
+        it.todo('wont sync sensitive encounter invoice item discounts');
+        it.todo('wont sync sensitive encounter invoice discounts');
+        it.todo('wont sync sensitive encounter invoice insurers');
+      });
+
+      describe('Lab clinical data', () => {
+        let sensitiveLabRequest;
+        let nonSensitiveLabRequest;
+
+        beforeEach(async () => {
+          sensitiveLabRequest = await models.LabRequest.create(
+            fake(models.LabRequest, {
+              encounterId: sensitiveEncounter.id,
+            }),
+          );
+          nonSensitiveLabRequest = await models.LabRequest.create(
+            fake(models.LabRequest, {
+              encounterId: nonSensitiveEncounter.id,
+            }),
+          );
+        });
+
+        it('wont sync sensitive encounter lab requests', async () => {
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_requests',
+            sensitiveId: sensitiveLabRequest.id,
+            nonSensitiveId: nonSensitiveLabRequest.id,
+          });
+        });
+
+        it('wont sync sensitive encounter lab tests', async () => {
+          const sensitiveLabTest = await models.LabTest.create(
+            fake(models.LabTest, {
+              labRequestId: sensitiveLabRequest.id,
+            }),
+          );
+          const nonSensitiveLabTest = await models.LabTest.create(
+            fake(models.LabTest, {
+              labRequestId: nonSensitiveLabRequest.id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_tests',
+            sensitiveId: sensitiveLabTest.id,
+            nonSensitiveId: nonSensitiveLabTest.id,
+          });
+        });
+
+        it('wont sync sensitive encounter lab request attachments', async () => {
+          const sensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
+            fake(models.LabRequestAttachment, {
+              labRequestId: sensitiveLabRequest.id,
+            }),
+          );
+          const nonSensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
+            fake(models.LabRequestAttachment, {
+              labRequestId: nonSensitiveLabRequest.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_request_attachments',
+            sensitiveId: sensitiveLabRequestAttachment.id,
+            nonSensitiveId: nonSensitiveLabRequestAttachment.id,
+          });
+        });
+
+        it('wont sync sensitive encounter lab test panel requests', async () => {
+          const sensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
+            fake(models.LabTestPanelRequest, {
+              encounterId: sensitiveEncounter.id,
+              labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
+            }),
+          );
+          const nonSensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
+            fake(models.LabTestPanelRequest, {
+              encounterId: nonSensitiveEncounter.id,
+              labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_test_panel_requests',
+            sensitiveId: sensitiveLabTestPanelRequest.id,
+            nonSensitiveId: nonSensitiveLabTestPanelRequest.id,
+          });
+        });
+
+        it('wont sync sensitive encounter lab request logs', async () => {
+          const sensitiveLabRequestLog = await models.LabRequestLog.create(
+            fake(models.LabRequestLog, {
+              labRequestId: sensitiveLabRequest.id,
+            }),
+          );
+          const nonSensitiveLabRequestLog = await models.LabRequestLog.create(
+            fake(models.LabRequestLog, {
+              labRequestId: nonSensitiveLabRequest.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_request_logs',
+            sensitiveId: sensitiveLabRequestLog.id,
+            nonSensitiveId: nonSensitiveLabRequestLog.id,
+          });
+        });
+      });
     });
 
     describe('edge cases', () => {
@@ -3412,9 +3327,6 @@ describe('CentralSyncManager', () => {
       );
       it.todo(
         'will not sync sensitive lab requests to other facilities even if syncAllLabRequests is true',
-      );
-      it.todo(
-        'will not sync sensitive vaccinations to other facilities even if syncAllVaccines is true',
       );
     });
   });
