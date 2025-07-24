@@ -17,5 +17,5 @@ const persistConfig = {
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store = createStore(persistedReducer, compose(Reactotron.createEnhancer!()));
+export const store = createStore(persistedReducer, compose(Reactotron.createEnhancer()));
 export const persistor = persistStore(store);

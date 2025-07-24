@@ -26,7 +26,7 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
   return (
     <FullView>
       <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
-      <Tabs.Navigator>
+      <Tabs.Navigator tabBarStyle={{}} contentStyle={{}} swipeEnabled={true} lazy={false}>
         <Tabs.Screen
           initialParams={{
             selectedPatient,

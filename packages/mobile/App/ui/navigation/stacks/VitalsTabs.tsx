@@ -34,7 +34,7 @@ const DumbVitalsTabs = ({
         subtitle={getPatientName(selectedPatient)}
         onGoBack={goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} lazy>
+      <Tabs.Navigator tabBarStyle={{}} contentStyle={{}} swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
             tabBarLabel: () => (

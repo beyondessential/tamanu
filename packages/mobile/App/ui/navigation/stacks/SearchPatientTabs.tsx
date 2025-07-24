@@ -33,7 +33,12 @@ export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
 
   return (
     <Tabs.Navigator
-      tabBarOptions={SearchPatientTabOptions}
+      activeTintColor={SearchPatientTabOptions.activeTintColor}
+      inactiveTintColor={SearchPatientTabOptions.inactiveTintColor}
+      labelStyle={SearchPatientTabOptions.labelStyle}
+      indicatorStyle={SearchPatientTabOptions.indicatorStyle}
+      tabBarStyle={SearchPatientTabOptions.style}
+      contentStyle={{}}
       initialRouteName={
         routingFrom === PatientFromRoute.ALL_PATIENT
           ? Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll
