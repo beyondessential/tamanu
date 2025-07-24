@@ -2947,12 +2947,15 @@ describe('CentralSyncManager', () => {
     describe('check sensitive encounter linked data types are not syncing to any other facility', () => {
       // Every test in this describe block should use this function to check that the sensitive record
       // is not synced to the non-sensitive facility
-      const checkSensitiveRecordFiltering = async ({ recordType, sensitiveId, nonSensitiveId }) => {
-        const recordIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, recordType);
+      const checkSensitiveRecordFiltering = async ({ model, sensitiveId, nonSensitiveId }) => {
+        const recordIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          model.tableName,
+        );
 
         if (recordIds.length === 0) {
           throw new Error(
-            `No records found for record type ${recordType} in lookup table, Check the test setup!`,
+            `No records found for record type ${model.tableName} in lookup table, Check the test setup!`,
           );
         }
 
@@ -2963,7 +2966,7 @@ describe('CentralSyncManager', () => {
       // Basic encounter
       it('wont sync sensitive encounters', async () => {
         await checkSensitiveRecordFiltering({
-          recordType: 'encounters',
+          model: models.Encounter,
           sensitiveId: sensitiveEncounter.id,
           nonSensitiveId: nonSensitiveEncounter.id,
         });
@@ -2990,13 +2993,13 @@ describe('CentralSyncManager', () => {
         });
 
         await checkSensitiveRecordFiltering({
-          recordType: 'encounters',
+          model: models.Encounter,
           sensitiveId: sensitiveTriage.encounterId,
           nonSensitiveId: nonSensitiveTriage.encounterId,
         });
 
         await checkSensitiveRecordFiltering({
-          recordType: 'triages',
+          model: models.Triage,
           sensitiveId: sensitiveTriage.id,
           nonSensitiveId: nonSensitiveTriage.id,
         });
@@ -3014,7 +3017,7 @@ describe('CentralSyncManager', () => {
           }),
         );
         await checkSensitiveRecordFiltering({
-          recordType: 'discharges',
+          model: models.Discharge,
           sensitiveId: sensitiveDischarge.id,
           nonSensitiveId: nonSensitiveDischarge.id,
         });
@@ -3022,7 +3025,7 @@ describe('CentralSyncManager', () => {
 
       it('wont sync sensitive encounter history', async () => {
         await checkSensitiveRecordFiltering({
-          recordType: 'encounter_history',
+          model: models.EncounterHistory,
           sensitiveId: sensitiveEncounter.id,
           nonSensitiveId: nonSensitiveEncounter.id,
         });
@@ -3042,7 +3045,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'procedures',
+          model: models.Procedure,
           sensitiveId: sensitiveProcedure.id,
           nonSensitiveId: nonSensitiveProcedure.id,
         });
@@ -3064,7 +3067,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'notes',
+          model: models.Note,
           sensitiveId: sensitiveNote.id,
           nonSensitiveId: nonSensitiveNote.id,
         });
@@ -3085,7 +3088,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'encounter_diagnoses',
+          model: models.EncounterDiagnosis,
           sensitiveId: sensitiveDiagnosis.id,
           nonSensitiveId: nonSensitiveDiagnosis.id,
         });
@@ -3106,7 +3109,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'tasks',
+          model: models.Task,
           sensitiveId: sensitiveTask.id,
           nonSensitiveId: nonSensitiveTask.id,
         });
@@ -3127,7 +3130,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'encounter_diets',
+          model: models.EncounterDiet,
           sensitiveId: sensitiveDiet.id,
           nonSensitiveId: nonSensitiveDiet.id,
         });
@@ -3152,7 +3155,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'administered_vaccines',
+          model: models.AdministeredVaccine,
           sensitiveId: sensitiveAdministeredVaccine.id,
           nonSensitiveId: nonSensitiveAdministeredVaccine.id,
         });
@@ -3173,7 +3176,7 @@ describe('CentralSyncManager', () => {
         );
 
         await checkSensitiveRecordFiltering({
-          recordType: 'appointments',
+          model: models.Appointment,
           sensitiveId: sensitiveAppointment.id,
           nonSensitiveId: nonSensitiveAppointment.id,
         });
@@ -3191,7 +3194,7 @@ describe('CentralSyncManager', () => {
           }),
         );
         await checkSensitiveRecordFiltering({
-          recordType: 'document_metadata',
+          model: models.DocumentMetadata,
           sensitiveId: sensitiveDocumentMetadata.id,
           nonSensitiveId: nonSensitiveDocumentMetadata.id,
         });
@@ -3216,7 +3219,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter survey responses', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'survey_responses',
+            model: models.SurveyResponse,
             sensitiveId: sensitiveSurveyResponse.id,
             nonSensitiveId: nonSensitiveSurveyResponse.id,
           });
@@ -3234,7 +3237,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'survey_response_answers',
+            model: models.SurveyResponseAnswer,
             sensitiveId: sensitiveSurveyResponseAnswer.id,
             nonSensitiveId: nonSensitiveSurveyResponseAnswer.id,
           });
@@ -3252,7 +3255,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'referrals',
+            model: models.Referral,
             sensitiveId: sensitiveReferral.id,
             nonSensitiveId: nonSensitiveReferral.id,
           });
@@ -3280,7 +3283,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter imaging requests', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'imaging_requests',
+            model: models.ImagingRequest,
             sensitiveId: sensitiveImagingRequest.id,
             nonSensitiveId: nonSensitiveImagingRequest.id,
           });
@@ -3297,7 +3300,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'imaging_results',
+            model: models.ImagingResult,
             sensitiveId: sensitiveImagingResult.id,
             nonSensitiveId: nonSensitiveImagingResult.id,
           });
@@ -3316,7 +3319,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'imaging_request_areas',
+            model: models.ImagingRequestArea,
             sensitiveId: sensitiveImagingRequestArea.id,
             nonSensitiveId: nonSensitiveImagingRequestArea.id,
           });
@@ -3348,7 +3351,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter prescriptions', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'encounter_prescriptions',
+            model: models.EncounterPrescription,
             sensitiveId: sensitiveEncounterPrescription.id,
             nonSensitiveId: nonSensitiveEncounterPrescription.id,
           });
@@ -3368,13 +3371,13 @@ describe('CentralSyncManager', () => {
               }),
             );
           await checkSensitiveRecordFiltering({
-            recordType: 'encounter_pause_prescriptions',
+            model: models.EncounterPausePrescription,
             sensitiveId: sensitiveEncounterPausePrescription.id,
             nonSensitiveId: nonSensitiveEncounterPausePrescription.id,
           });
 
           await checkSensitiveRecordFiltering({
-            recordType: 'encounter_pause_prescription_histories',
+            model: models.EncounterPausePrescriptionHistory,
             sensitiveId: sensitiveEncounterPausePrescription.id,
             nonSensitiveId: nonSensitiveEncounterPausePrescription.id,
           });
@@ -3414,7 +3417,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter invoice', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'invoices',
+            model: models.Invoice,
             sensitiveId: sensitiveInvoice.id,
             nonSensitiveId: nonSensitiveInvoice.id,
           });
@@ -3422,7 +3425,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter invoice items', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_items',
+            model: models.InvoiceItem,
             sensitiveId: sensitiveInvoiceItem.id,
             nonSensitiveId: nonSensitiveInvoiceItem.id,
           });
@@ -3440,7 +3443,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_payments',
+            model: models.InvoicePayment,
             sensitiveId: sensitiveInvoicePayment.id,
             nonSensitiveId: nonSensitiveInvoicePayment.id,
           });
@@ -3470,7 +3473,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_insurer_payments',
+            model: models.InvoiceInsurerPayment,
             sensitiveId: sensitiveInsurerPayment.id,
             nonSensitiveId: nonSensitiveInsurerPayment.id,
           });
@@ -3500,7 +3503,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_patient_payments',
+            model: models.InvoicePatientPayment,
             sensitiveId: sensitivePatientPayment.id,
             nonSensitiveId: nonSensitivePatientPayment.id,
           });
@@ -3519,7 +3522,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_item_discounts',
+            model: models.InvoiceItemDiscount,
             sensitiveId: sensitiveItemDiscount.id,
             nonSensitiveId: nonSensitiveItemDiscount.id,
           });
@@ -3540,7 +3543,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_discounts',
+            model: models.InvoiceDiscount,
             sensitiveId: sensitiveInvoiceDiscount.id,
             nonSensitiveId: nonSensitiveInvoiceDiscount.id,
           });
@@ -3561,7 +3564,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'invoice_insurers',
+            model: models.InvoiceInsurer,
             sensitiveId: sensitiveInvoiceInsurer.id,
             nonSensitiveId: nonSensitiveInvoiceInsurer.id,
           });
@@ -3587,7 +3590,7 @@ describe('CentralSyncManager', () => {
 
         it('wont sync sensitive encounter lab requests', async () => {
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_requests',
+            model: models.LabRequest,
             sensitiveId: sensitiveLabRequest.id,
             nonSensitiveId: nonSensitiveLabRequest.id,
           });
@@ -3606,7 +3609,7 @@ describe('CentralSyncManager', () => {
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_tests',
+            model: models.LabTest,
             sensitiveId: sensitiveLabTest.id,
             nonSensitiveId: nonSensitiveLabTest.id,
           });
@@ -3624,7 +3627,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_request_attachments',
+            model: models.LabRequestAttachment,
             sensitiveId: sensitiveLabRequestAttachment.id,
             nonSensitiveId: nonSensitiveLabRequestAttachment.id,
           });
@@ -3644,7 +3647,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_test_panel_requests',
+            model: models.LabTestPanelRequest,
             sensitiveId: sensitiveLabTestPanelRequest.id,
             nonSensitiveId: nonSensitiveLabTestPanelRequest.id,
           });
@@ -3662,7 +3665,7 @@ describe('CentralSyncManager', () => {
             }),
           );
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_request_logs',
+            model: models.LabRequestLog,
             sensitiveId: sensitiveLabRequestLog.id,
             nonSensitiveId: nonSensitiveLabRequestLog.id,
           });
@@ -3677,7 +3680,7 @@ describe('CentralSyncManager', () => {
           });
 
           await checkSensitiveRecordFiltering({
-            recordType: 'lab_requests',
+            model: models.LabRequest,
             sensitiveId: sensitiveLabRequest.id,
             nonSensitiveId: nonSensitiveLabRequest.id,
           });
