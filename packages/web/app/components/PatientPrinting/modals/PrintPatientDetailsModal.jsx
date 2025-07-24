@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { BookUser } from 'lucide-react';
+import { BookUser, QrCode } from 'lucide-react';
 
 import { Modal } from '../../Modal';
 import { Button, OutlinedButton } from '../../Button';
@@ -27,14 +27,14 @@ const PRINT_OPTIONS = {
   barcode: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.idLabels"
+        stringId="patientDetails.resources.idLabels"
         fallback="Multiple ID labels"
         data-testid="translatedtext-35ln"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.idLabels.caption"
+        stringId="patientDetails.resources.idLabels.caption"
         fallback="A4 sheet of multiple patient identification labels"
         data-testid="translatedtext-0v5t"
       />
@@ -45,14 +45,14 @@ const PRINT_OPTIONS = {
   idcard: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.idCard"
+        stringId="patientDetails.resources.idCard"
         fallback="ID Card"
         data-testid="translatedtext-nq3p"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.idCard.caption"
+        stringId="patientDetails.resources.idCard.caption"
         fallback="Patient identification card"
         data-testid="translatedtext-mxwh"
       />
@@ -63,14 +63,14 @@ const PRINT_OPTIONS = {
   covidTestCert: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.covid19TestCertificate"
+        stringId="patientDetails.resources.covid19TestCertificate"
         fallback="Test certificate - COVID-19"
         data-testid="translatedtext-bymj"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.covid19TestCertificate.caption"
+        stringId="patientDetails.resources.covid19TestCertificate.caption"
         fallback="Patient COVID-19 test certificate"
         data-testid="translatedtext-phl1"
       />
@@ -81,14 +81,14 @@ const PRINT_OPTIONS = {
   covidClearanceCert: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.covid19ClearanceCertificate"
+        stringId="patientDetails.resources.covid19ClearanceCertificate"
         fallback="Clearance certificate - COVID-19"
         data-testid="translatedtext-xyy2"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.covid19ClearanceCertificate.caption"
+        stringId="patientDetails.resources.covid19ClearanceCertificate.caption"
         fallback="Patient COVID-19 clearance certificate"
         data-testid="translatedtext-op82"
       />
@@ -100,14 +100,14 @@ const PRINT_OPTIONS = {
   birthNotification: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.birthNotification"
+        stringId="patientDetails.resources.birthNotification"
         fallback="Birth notification"
         data-testid="translatedtext-w370"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.birthNotification.caption"
+        stringId="patientDetails.resources.birthNotification.caption"
         fallback="Patient birth notification document"
         data-testid="translatedtext-3roq"
       />
@@ -118,21 +118,41 @@ const PRINT_OPTIONS = {
   ipsQrCode: {
     label: (
       <TranslatedText
-        stringId="patientDetails.print.action.internationalPatientSummary"
+        stringId="patientDetails.resources.internationalPatientSummary"
         fallback="International Patient Summary"
         data-testid="translatedtext-seoq"
       />
     ),
     caption: (
       <TranslatedText
-        stringId="patientDetails.print.action.internationalPatientSummary.caption"
+        stringId="patientDetails.resources.internationalPatientSummary.caption"
         fallback="Email International Patient Summary QR Code"
         data-testid="translatedtext-y3mu"
       />
     ),
+    // TODO: Replace with new icon
     icon: InternationalPatientSummaryIcon,
     component: IPSQRCodeModal,
     condition: (_, ability) => ability?.can('create', 'IPSRequest'),
+  },
+  patientPortalRegistration: {
+    label: (
+      <TranslatedText
+        stringId="patientDetails.resources.patientPortalRegistration"
+        fallback="Patient portal registration"
+        data-testid="translatedtext-d74f"
+      />
+    ),
+    caption: (
+      <TranslatedText
+        stringId="patientDetails.resources.patientPortalRegistration.caption"
+        fallback="Set up patient portal using the QR code"
+        data-testid="translatedtext-nvj2"
+      />
+    ),
+    // TODO: Rename to QR code icon
+    icon: InternationalPatientSummaryIcon,
+    component: null,
   },
 };
 
@@ -206,6 +226,22 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
             data-testid="printoption-ssmc"
           />
         )}
+      </StyledPrintOptionsRow>
+      <StyledDivider data-testid="styleddivider-ds12" />
+      <Header data-testid="header-kf7c">
+        <TranslatedText
+          stringId="patientDetails.resources.patientPortal.header"
+          fallback="Patient portal"
+        />
+      </Header>
+      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-wp1y">
+        <PrintOption
+          label={PRINT_OPTIONS.patientPortalRegistration.label}
+          caption={PRINT_OPTIONS.patientPortalRegistration.caption}
+          onPress={() => setCurrentlyPrinting('patientPortalRegistration')}
+          icon={PRINT_OPTIONS.patientPortalRegistration.icon}
+          data-testid="printoption-8fsa"
+        />
       </StyledPrintOptionsRow>
     </div>
   );
@@ -365,7 +401,12 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       // no selection yet -- show selection modal
       return (
         <Modal
-          title="Select item"
+          title={
+            <TranslatedText
+              stringId="patient.detailsSidebar.patientResources.modal.title"
+              fallback="Patient resources"
+            />
+          }
           open={isModalOpen}
           onClose={closeModal}
           fullWidth={false}
@@ -392,7 +433,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
           <Modal
             title={
               <TranslatedText
-                stringId="patientDetails.print.idCard.modal.submitting.title"
+                stringId="patientDetails.resources.idCard.modal.submitting.title"
                 fallback="Working"
                 data-testid="translatedtext-sqfg"
               />
@@ -402,7 +443,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
           >
             <div>
               <TranslatedText
-                stringId="patientDetails.print.idCard.modal.submitting.loading"
+                stringId="patientDetails.resources.idCard.modal.submitting.loading"
                 fallback="Preparing ID card..."
                 data-testid="translatedtext-4b5u"
               />
