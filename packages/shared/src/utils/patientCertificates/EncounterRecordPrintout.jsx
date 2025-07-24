@@ -21,7 +21,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort, formatTime } from '@tamanu/utils/dateTime';
-import { getDose, getTranslatedFrequency } from '../medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 
@@ -35,34 +35,18 @@ const pageStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
   },
   tableColumnHeader: {
-    fontFamily: 'Helvetica-Bold',
+    fontWeight: 700,
     fontSize: 10,
   },
   tableCellContent: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   tableCellFooter: {
-    fontFamily: 'Helvetica',
     fontSize: 8,
-  },
-  headerLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
-    color: '#888888',
-  },
-  headerValue: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica',
-    color: '#888888',
   },
 });
 
@@ -93,7 +77,7 @@ const tableStyles = StyleSheet.create({
     fontSize: 8,
   },
   p: {
-    fontFamily: 'Helvetica',
+    fontWeight: 400,
     fontSize: 8,
   },
   notesCell: {
@@ -111,8 +95,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = (props) => <View style={tableStyles.table} {...props} />;
-const Row = (props) => (
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => (
   <View
     style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]}
     {...props}
@@ -147,6 +131,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
+      bold
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
@@ -168,13 +153,12 @@ const DataTableHeading = ({ columns, title, width }) => {
       <Row wrap={false} width={width}>
         {columns.map(({ key, title, style }, index) => {
           if (Array.isArray(title)) {
-            const rotateStyle = index > 0 ? { transform: 'rotate(-90deg)', paddingBottom: 10, paddingTop: 10 } : {};
+            const rotateStyle =
+              index > 0 ? { transform: 'rotate(-90deg)', paddingBottom: 10, paddingTop: 10 } : {};
             return (
               <View key={key} style={[tableStyles.baseCell, style]}>
-                <View
-                  style={rotateStyle}
-                >
-                  <P bold style={{ letterSpacing: 0.3 }}>{title[0]}</P>
+                <View style={rotateStyle}>
+                  <P bold>{title[0]}</P>
                   <P>{title[1]}</P>
                 </View>
               </View>
@@ -200,7 +184,7 @@ const DataTable = ({ data, columns, title, type }) => {
   return (
     <Table>
       <DataTableHeading columns={columns} title={title} width={width} />
-      {data.map((row) => (
+      {data.map(row => (
         <Row key={row.id} wrap={false} width={width}>
           {columns.map(({ key, accessor, style }, index) => (
             <Cell key={key} style={style} bold={type === 'vitals' && index === 0}>
@@ -268,7 +252,7 @@ const NotesSection = ({ notes }) => {
       <View>
         <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
-          {notes.map((note) => (
+          {notes.map(note => (
             <>
               <View minPresenceAhead={80} />
               <View style={tableStyles.notesRow} key={note.id}>
@@ -327,6 +311,7 @@ const EncounterRecordPrintoutComponent = ({
   vitalsData,
   recordedDates,
   getVitalsColumn,
+  getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
@@ -443,9 +428,9 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'areaToBeImaged',
         title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.areas?.length
-            ? imagingRequest?.areas.map((area) => area.name).join(', ')
+            ? imagingRequest?.areas.map(area => area.name).join(', ')
             : imagingRequest?.areaNote,
         style: { width: '25%' },
       },
@@ -465,7 +450,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: (imagingRequest) =>
+        accessor: imagingRequest =>
           imagingRequest?.results[0]?.completedAt
             ? formatShort(imagingRequest?.results[0]?.completedAt)
             : '--/--/----',
@@ -482,10 +467,10 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dose',
         title: getTranslation('pdf.table.column.dose', 'Dose'),
-        accessor: (medication) => {
+        accessor: medication => {
           return (
             <Text>
-              {getDose(medication, getTranslation, getEnumTranslation)}
+              {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)}
               {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
             </Text>
           );
@@ -550,7 +535,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
         <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />
@@ -611,7 +596,7 @@ const EncounterRecordPrintoutComponent = ({
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (
         <>
-          {[0, 12, 24, 36, 48].map((start) => {
+          {[0, 12, 24, 36, 48].map(start => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <MultiPageHeader

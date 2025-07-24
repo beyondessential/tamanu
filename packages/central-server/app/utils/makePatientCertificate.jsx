@@ -115,7 +115,8 @@ export const makeVaccineCertificate = async ({
   printedDate,
   translations,
 }) => {
-  const localisation = await getLocalisation();
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
   const { healthFacility } = await settings.get('templates.vaccineCertificate');
@@ -142,6 +143,7 @@ export const makeVaccineCertificate = async ({
       language={language}
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
+      getSetting={getSettingData}
     />,
     fileName,
   );

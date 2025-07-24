@@ -8,7 +8,7 @@ import { useLanguageContext } from '../../pdf/languageContext';
 import { PrintableBarcode } from './PrintableBarcode';
 import { renderDataItems } from './renderDataItems';
 
-export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
+export const PatientDetailsWithBarcode = ({ patient, getLocalisation, getSetting }) => {
   const { getTranslation } = useLanguageContext();
   const PATIENT_FIELDS = {
     leftCol: [
@@ -34,9 +34,9 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
 
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation, getSetting)}</Col>
       <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation)}
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation, getSetting)}
         <View style={{ flexDirection: 'row' }}>
           <P style={{ marginTop: 9 }} fontSize={9} bold>
             Patient ID barcode:

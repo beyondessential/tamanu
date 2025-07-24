@@ -67,7 +67,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   };
 
   if (allQueries.isError) {
-    if (allQueries.errors.some((e) => e instanceof ForbiddenError)) {
+    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
       return (
         <Modal {...modalProps} data-testid="modal-ncf9">
           <ForbiddenErrorModalContents
@@ -91,9 +91,11 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           encounter={encounter}
           certificateData={certificateData}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
+          getSetting={getSetting}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>

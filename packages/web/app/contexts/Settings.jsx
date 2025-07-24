@@ -35,7 +35,9 @@ export const SettingsProvider = ({ children }) => {
     <SettingsContext.Provider
       value={{
         getSetting: (path) => get(settings, path),
+        settings,
         isSettingsLoaded,
+        settings,
       }}
     >
       {children}

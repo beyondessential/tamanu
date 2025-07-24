@@ -27,6 +27,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateDisplay } from '../../DateDisplay';
 import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { useTranslation } from '../../../contexts/Translation';
+import { useSettings } from '../../../contexts/Settings';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -109,7 +110,10 @@ const getDateTitleArray = date => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage, getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
+
+  const { getSetting } = useSettings();
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
@@ -331,7 +335,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
             const { value, config } = cells[date];
             return formatValue(value, config);
           },
-          style: { width: 60, },
+          style: { width: 60 },
         })),
     ];
   };
@@ -362,7 +366,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           village={village}
           medications={medications}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           translations={translations}
+          getSetting={getSetting}
           data-testid="encounterrecordprintout-yqe1"
         />
       </PDFLoader>
