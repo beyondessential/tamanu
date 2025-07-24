@@ -2940,7 +2940,6 @@ describe('CentralSyncManager', () => {
 
     it('will sync sensitive encounters to itself', async () => {
       const encounterIds = await getOutgoingIdsForRecordType(sensitiveFacility.id, 'encounters');
-
       expect(encounterIds).toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
@@ -2950,6 +2949,13 @@ describe('CentralSyncManager', () => {
       // is not synced to the non-sensitive facility
       const checkSensitiveRecordFiltering = async ({ recordType, sensitiveId, nonSensitiveId }) => {
         const recordIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, recordType);
+
+        if (recordIds.length === 0) {
+          throw new Error(
+            `No records found for record type ${recordType} in lookup table, Check the test setup!`,
+          );
+        }
+
         expect(recordIds).not.toContain(sensitiveId);
         expect(recordIds).toContain(nonSensitiveId);
       };
@@ -3014,7 +3020,13 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it.todo('wont sync sensitive encounter history');
+      it('wont sync sensitive encounter history', async () => {
+        await checkSensitiveRecordFiltering({
+          recordType: 'encounter_history',
+          sensitiveId: sensitiveEncounter.id,
+          nonSensitiveId: nonSensitiveEncounter.id,
+        });
+      });
 
       // Uncategorised
       it('wont sync sensitive encounter procedures', async () => {
@@ -3079,23 +3091,85 @@ describe('CentralSyncManager', () => {
           nonSensitiveId: nonSensitiveDiagnosis.id,
         });
       });
-      it.todo('wont sync sensitive encounter tasks');
-      it.todo('wont sync sensitive encounter encounter diets');
 
-      // Vaccinations
-      it.todo('wont sync sensitive encounter administered vaccines');
+      it('wont sync sensitive encounter tasks', async () => {
+        const sensitiveTask = await models.Task.create(
+          fake(models.Task, {
+            encounterId: sensitiveEncounter.id,
+            requestedByUserId: practitioner.id,
+          }),
+        );
+        const nonSensitiveTask = await models.Task.create(
+          fake(models.Task, {
+            encounterId: nonSensitiveEncounter.id,
+            requestedByUserId: practitioner.id,
+          }),
+        );
 
-      // Scheduling
-      // TODO: interesting case to double check as this is only sometimes encounter linked
+        await checkSensitiveRecordFiltering({
+          recordType: 'tasks',
+          sensitiveId: sensitiveTask.id,
+          nonSensitiveId: nonSensitiveTask.id,
+        });
+      });
+
+      it('wont sync sensitive encounter encounter diets', async () => {
+        const sensitiveDiet = await models.EncounterDiet.create(
+          fake(models.EncounterDiet, {
+            encounterId: sensitiveEncounter.id,
+            dietId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+          }),
+        );
+        const nonSensitiveDiet = await models.EncounterDiet.create(
+          fake(models.EncounterDiet, {
+            encounterId: nonSensitiveEncounter.id,
+            dietId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+          }),
+        );
+
+        await checkSensitiveRecordFiltering({
+          recordType: 'encounter_diets',
+          sensitiveId: sensitiveDiet.id,
+          nonSensitiveId: nonSensitiveDiet.id,
+        });
+      });
+
+      it('wont sync sensitive encounter administered vaccines', async () => {
+        const sensitiveAdministeredVaccine = await models.AdministeredVaccine.create(
+          fake(models.AdministeredVaccine, {
+            encounterId: sensitiveEncounter.id,
+            scheduledVaccineId: (
+              await models.ScheduledVaccine.create(fake(models.ScheduledVaccine))
+            ).id,
+          }),
+        );
+        const nonSensitiveAdministeredVaccine = await models.AdministeredVaccine.create(
+          fake(models.AdministeredVaccine, {
+            encounterId: nonSensitiveEncounter.id,
+            scheduledVaccineId: (
+              await models.ScheduledVaccine.create(fake(models.ScheduledVaccine))
+            ).id,
+          }),
+        );
+
+        await checkSensitiveRecordFiltering({
+          recordType: 'administered_vaccines',
+          sensitiveId: sensitiveAdministeredVaccine.id,
+          nonSensitiveId: nonSensitiveAdministeredVaccine.id,
+        });
+      });
+
       it('wont sync sensitive encounter appointments regardless of linked encounter', async () => {
         const sensitiveAppointment = await models.Appointment.create(
           fake(models.Appointment, {
+            patientId: patient.id,
             locationId: sensitiveEncounter.locationId,
           }),
         );
         const nonSensitiveAppointment = await models.Appointment.create(
           fake(models.Appointment, {
-            locationId: sensitiveEncounter.locationId,
+            patientId: patient.id,
+            locationId: nonSensitiveEncounter.locationId,
           }),
         );
 
@@ -3106,80 +3180,393 @@ describe('CentralSyncManager', () => {
         });
       });
 
+      it('wont sync sensitive encounter document metadata', async () => {
+        const sensitiveDocumentMetadata = await models.DocumentMetadata.create(
+          fake(models.DocumentMetadata, {
+            encounterId: sensitiveEncounter.id,
+          }),
+        );
+        const nonSensitiveDocumentMetadata = await models.DocumentMetadata.create(
+          fake(models.DocumentMetadata, {
+            encounterId: nonSensitiveEncounter.id,
+          }),
+        );
+        await checkSensitiveRecordFiltering({
+          recordType: 'document_metadata',
+          sensitiveId: sensitiveDocumentMetadata.id,
+          nonSensitiveId: nonSensitiveDocumentMetadata.id,
+        });
+      });
+
       describe('Program/Survey clinical data', () => {
-        it.todo('wont sync sensitive encounter survey responses');
-        it.todo('wont sync sensitive encounter referrals');
-        it.todo('wont sync sensitive encounter vitals');
+        let sensitiveSurveyResponse;
+        let nonSensitiveSurveyResponse;
+
+        beforeEach(async () => {
+          sensitiveSurveyResponse = await models.SurveyResponse.create(
+            fake(models.SurveyResponse, {
+              encounterId: sensitiveEncounter.id,
+            }),
+          );
+          nonSensitiveSurveyResponse = await models.SurveyResponse.create(
+            fake(models.SurveyResponse, {
+              encounterId: nonSensitiveEncounter.id,
+            }),
+          );
+        });
+
+        it('wont sync sensitive encounter survey responses', async () => {
+          await checkSensitiveRecordFiltering({
+            recordType: 'survey_responses',
+            sensitiveId: sensitiveSurveyResponse.id,
+            nonSensitiveId: nonSensitiveSurveyResponse.id,
+          });
+        });
+
+        it('wont sync sensitive encounter survey response answers', async () => {
+          const sensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
+            fake(models.SurveyResponseAnswer, {
+              responseId: sensitiveSurveyResponse.id,
+            }),
+          );
+          const nonSensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
+            fake(models.SurveyResponseAnswer, {
+              responseId: nonSensitiveSurveyResponse.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'survey_response_answers',
+            sensitiveId: sensitiveSurveyResponseAnswer.id,
+            nonSensitiveId: nonSensitiveSurveyResponseAnswer.id,
+          });
+        });
+
+        it('wont sync sensitive encounter referrals', async () => {
+          const sensitiveReferral = await models.Referral.create(
+            fake(models.Referral, {
+              initiatingEncounterId: sensitiveEncounter.id,
+            }),
+          );
+          const nonSensitiveReferral = await models.Referral.create(
+            fake(models.Referral, {
+              initiatingEncounterId: nonSensitiveEncounter.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'referrals',
+            sensitiveId: sensitiveReferral.id,
+            nonSensitiveId: nonSensitiveReferral.id,
+          });
+        });
       });
 
       describe('Imaging clinical data', () => {
-        it('wont sync sensitive encounter imaging requests', async () => {
-          const sensitiveImagingRequest = await models.ImagingRequest.create(
+        let sensitiveImagingRequest;
+        let nonSensitiveImagingRequest;
+
+        beforeEach(async () => {
+          sensitiveImagingRequest = await models.ImagingRequest.create(
             fake(models.ImagingRequest, {
               encounterId: sensitiveEncounter.id,
               requestedById: practitioner.id,
             }),
           );
-          const nonSensitiveImagingRequest = await models.ImagingRequest.create(
+          nonSensitiveImagingRequest = await models.ImagingRequest.create(
             fake(models.ImagingRequest, {
               encounterId: nonSensitiveEncounter.id,
               requestedById: practitioner.id,
             }),
           );
+        });
+
+        it('wont sync sensitive encounter imaging requests', async () => {
           await checkSensitiveRecordFiltering({
             recordType: 'imaging_requests',
             sensitiveId: sensitiveImagingRequest.id,
             nonSensitiveId: nonSensitiveImagingRequest.id,
           });
         });
-        it.todo('wont sync sensitive encounter imaging results');
-        it.todo('wont sync sensitive encounter imaging request areas');
-        it.todo('wont sync sensitive encounter document metadata');
+        it('wont sync sensitive encounter imaging results', async () => {
+          const sensitiveImagingResult = await models.ImagingResult.create(
+            fake(models.ImagingResult, {
+              imagingRequestId: sensitiveImagingRequest.id,
+            }),
+          );
+          const nonSensitiveImagingResult = await models.ImagingResult.create(
+            fake(models.ImagingResult, {
+              imagingRequestId: nonSensitiveImagingRequest.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'imaging_results',
+            sensitiveId: sensitiveImagingResult.id,
+            nonSensitiveId: nonSensitiveImagingResult.id,
+          });
+        });
+        it('wont sync sensitive encounter imaging request areas', async () => {
+          const sensitiveImagingRequestArea = await models.ImagingRequestArea.create(
+            fake(models.ImagingRequestArea, {
+              imagingRequestId: sensitiveImagingRequest.id,
+              areaId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            }),
+          );
+          const nonSensitiveImagingRequestArea = await models.ImagingRequestArea.create(
+            fake(models.ImagingRequestArea, {
+              imagingRequestId: nonSensitiveImagingRequest.id,
+              areaId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'imaging_request_areas',
+            sensitiveId: sensitiveImagingRequestArea.id,
+            nonSensitiveId: nonSensitiveImagingRequestArea.id,
+          });
+        });
       });
 
       describe('Medication clinical data', () => {
-        it('wont sync sensitive encounter prescriptions', async () => {
-          // Create prescriptions first
-          const sensitivePrescriptionData = await models.Prescription.create(
-            fake(models.Prescription),
-          );
-          const nonSensitivePrescriptionData = await models.Prescription.create(
-            fake(models.Prescription),
-          );
+        let sensitivePrescription;
+        let nonSensitivePrescription;
+        let sensitiveEncounterPrescription;
+        let nonSensitiveEncounterPrescription;
 
-          // Create prescriptions linked to encounters
-          const sensitivePrescription = await models.EncounterPrescription.create(
+        beforeEach(async () => {
+          sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
+          nonSensitivePrescription = await models.Prescription.create(fake(models.Prescription));
+          sensitiveEncounterPrescription = await models.EncounterPrescription.create(
             fake(models.EncounterPrescription, {
               encounterId: sensitiveEncounter.id,
-              prescriptionId: sensitivePrescriptionData.id,
+              prescriptionId: sensitivePrescription.id,
             }),
           );
-          const nonSensitivePrescription = await models.EncounterPrescription.create(
+          nonSensitiveEncounterPrescription = await models.EncounterPrescription.create(
             fake(models.EncounterPrescription, {
               encounterId: nonSensitiveEncounter.id,
-              prescriptionId: nonSensitivePrescriptionData.id,
+              prescriptionId: nonSensitivePrescription.id,
+            }),
+          );
+        });
+
+        it('wont sync sensitive encounter prescriptions', async () => {
+          await checkSensitiveRecordFiltering({
+            recordType: 'encounter_prescriptions',
+            sensitiveId: sensitiveEncounterPrescription.id,
+            nonSensitiveId: nonSensitiveEncounterPrescription.id,
+          });
+        });
+
+        it('wont sync sensitive encounter pause prescriptions', async () => {
+          const sensitiveEncounterPausePrescription =
+            await models.EncounterPausePrescription.create(
+              fake(models.EncounterPausePrescription, {
+                encounterPrescriptionId: sensitiveEncounterPrescription.id,
+              }),
+            );
+          const nonSensitiveEncounterPausePrescription =
+            await models.EncounterPausePrescription.create(
+              fake(models.EncounterPausePrescription, {
+                encounterPrescriptionId: nonSensitiveEncounterPrescription.id,
+              }),
+            );
+          await checkSensitiveRecordFiltering({
+            recordType: 'encounter_pause_prescriptions',
+            sensitiveId: sensitiveEncounterPausePrescription.id,
+            nonSensitiveId: nonSensitiveEncounterPausePrescription.id,
+          });
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'encounter_pause_prescription_histories',
+            sensitiveId: sensitiveEncounterPausePrescription.id,
+            nonSensitiveId: nonSensitiveEncounterPausePrescription.id,
+          });
+        });
+      });
+
+      describe('Invoice clinical data', () => {
+        let sensitiveInvoice;
+        let nonSensitiveInvoice;
+        let sensitiveInvoiceItem;
+        let nonSensitiveInvoiceItem;
+
+        beforeEach(async () => {
+          sensitiveInvoice = await models.Invoice.create(
+            fake(models.Invoice, {
+              encounterId: sensitiveEncounter.id,
+            }),
+          );
+          nonSensitiveInvoice = await models.Invoice.create(
+            fake(models.Invoice, {
+              encounterId: nonSensitiveEncounter.id,
+            }),
+          );
+          sensitiveInvoiceItem = await models.InvoiceItem.create(
+            fake(models.InvoiceItem, {
+              invoiceId: sensitiveInvoice.id,
+              orderedByUserId: practitioner.id,
+            }),
+          );
+          nonSensitiveInvoiceItem = await models.InvoiceItem.create(
+            fake(models.InvoiceItem, {
+              invoiceId: nonSensitiveInvoice.id,
+              orderedByUserId: practitioner.id,
+            }),
+          );
+        });
+
+        it('wont sync sensitive encounter invoice', async () => {
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoices',
+            sensitiveId: sensitiveInvoice.id,
+            nonSensitiveId: nonSensitiveInvoice.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice items', async () => {
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_items',
+            sensitiveId: sensitiveInvoiceItem.id,
+            nonSensitiveId: nonSensitiveInvoiceItem.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice payments', async () => {
+          const sensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: sensitiveInvoice.id,
+            }),
+          );
+          const nonSensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: nonSensitiveInvoice.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_payments',
+            sensitiveId: sensitiveInvoicePayment.id,
+            nonSensitiveId: nonSensitiveInvoicePayment.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice insurer payments', async () => {
+          const sensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: sensitiveInvoice.id,
+            }),
+          );
+          const nonSensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: nonSensitiveInvoice.id,
+            }),
+          );
+
+          const sensitiveInsurerPayment = await models.InvoiceInsurerPayment.create(
+            fake(models.InvoiceInsurerPayment, {
+              invoicePaymentId: sensitiveInvoicePayment.id,
+            }),
+          );
+          const nonSensitiveInsurerPayment = await models.InvoiceInsurerPayment.create(
+            fake(models.InvoiceInsurerPayment, {
+              invoicePaymentId: nonSensitiveInvoicePayment.id,
             }),
           );
 
           await checkSensitiveRecordFiltering({
-            recordType: 'encounter_prescriptions',
-            sensitiveId: sensitivePrescription.id,
-            nonSensitiveId: nonSensitivePrescription.id,
+            recordType: 'invoice_insurer_payments',
+            sensitiveId: sensitiveInsurerPayment.id,
+            nonSensitiveId: nonSensitiveInsurerPayment.id,
           });
         });
-        it.todo('wont sync sensitive encounter pause prescriptions');
-        it.todo('wont sync sensitive encounter pause prescription history');
-      });
 
-      describe('Invoice clinical data', () => {
-        it.todo('wont sync sensitive encounter invoice');
-        it.todo('wont sync sensitive encounter invoice items');
-        it.todo('wont sync sensitive encounter invoice payments');
-        it.todo('wont sync sensitive encounter invoice insurer payments');
-        it.todo('wont sync sensitive encounter invoice patient payments');
-        it.todo('wont sync sensitive encounter invoice item discounts');
-        it.todo('wont sync sensitive encounter invoice discounts');
-        it.todo('wont sync sensitive encounter invoice insurers');
+        it('wont sync sensitive encounter invoice patient payments', async () => {
+          const sensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: sensitiveInvoice.id,
+            }),
+          );
+          const nonSensitiveInvoicePayment = await models.InvoicePayment.create(
+            fake(models.InvoicePayment, {
+              invoiceId: nonSensitiveInvoice.id,
+            }),
+          );
+
+          const sensitivePatientPayment = await models.InvoicePatientPayment.create(
+            fake(models.InvoicePatientPayment, {
+              invoicePaymentId: sensitiveInvoicePayment.id,
+            }),
+          );
+          const nonSensitivePatientPayment = await models.InvoicePatientPayment.create(
+            fake(models.InvoicePatientPayment, {
+              invoicePaymentId: nonSensitiveInvoicePayment.id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_patient_payments',
+            sensitiveId: sensitivePatientPayment.id,
+            nonSensitiveId: nonSensitivePatientPayment.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice item discounts', async () => {
+          const sensitiveItemDiscount = await models.InvoiceItemDiscount.create(
+            fake(models.InvoiceItemDiscount, {
+              invoiceItemId: sensitiveInvoiceItem.id,
+            }),
+          );
+          const nonSensitiveItemDiscount = await models.InvoiceItemDiscount.create(
+            fake(models.InvoiceItemDiscount, {
+              invoiceItemId: nonSensitiveInvoiceItem.id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_item_discounts',
+            sensitiveId: sensitiveItemDiscount.id,
+            nonSensitiveId: nonSensitiveItemDiscount.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice discounts', async () => {
+          const sensitiveInvoiceDiscount = await models.InvoiceDiscount.create(
+            fake(models.InvoiceDiscount, {
+              invoiceId: sensitiveInvoice.id,
+              appliedByUserId: practitioner.id,
+            }),
+          );
+          const nonSensitiveInvoiceDiscount = await models.InvoiceDiscount.create(
+            fake(models.InvoiceDiscount, {
+              invoiceId: nonSensitiveInvoice.id,
+              appliedByUserId: practitioner.id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_discounts',
+            sensitiveId: sensitiveInvoiceDiscount.id,
+            nonSensitiveId: nonSensitiveInvoiceDiscount.id,
+          });
+        });
+
+        it('wont sync sensitive encounter invoice insurers', async () => {
+          const sensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
+            fake(models.InvoiceInsurer, {
+              invoiceId: sensitiveInvoice.id,
+              insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            }),
+          );
+          const nonSensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
+            fake(models.InvoiceInsurer, {
+              invoiceId: nonSensitiveInvoice.id,
+              insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            }),
+          );
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'invoice_insurers',
+            sensitiveId: sensitiveInvoiceInsurer.id,
+            nonSensitiveId: nonSensitiveInvoiceInsurer.id,
+          });
+        });
       });
 
       describe('Lab clinical data', () => {
