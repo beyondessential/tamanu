@@ -5,14 +5,9 @@ export async function up(query: QueryInterface): Promise<void> {
     type: DataTypes.STRING,
     allowNull: true,
     references: {
-      model: 'reference_data',
+      model: 'departments',
       key: 'id',
     },
-  });
-
-  await query.addColumn('procedures', 'assistant_clinician_ids', {
-    type: DataTypes.TEXT,
-    allowNull: true,
   });
 
   await query.addColumn('procedures', 'assistant_anaesthetist_id', {
@@ -40,6 +35,5 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.removeColumn('procedures', 'time_out');
   await query.removeColumn('procedures', 'time_in');
   await query.removeColumn('procedures', 'assistant_anaesthetist_id');
-  await query.removeColumn('procedures', 'assistant_clinician_ids');
   await query.removeColumn('procedures', 'department_id');
 }

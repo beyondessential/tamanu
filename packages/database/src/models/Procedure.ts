@@ -21,7 +21,6 @@ export class Procedure extends Model {
   declare anaesthetistId?: string;
   declare anaestheticId?: string;
   declare departmentId?: string;
-  declare assistantClinicianIds?: string;
   declare assistantAnaesthetistId?: string;
   declare timeIn?: string;
   declare timeOut?: string;
@@ -41,7 +40,6 @@ export class Procedure extends Model {
         completedNote: DataTypes.TEXT,
         timeIn: dateTimeType('timeIn'),
         timeOut: dateTimeType('timeOut'),
-        assistantClinicianIds: DataTypes.TEXT,
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
@@ -80,7 +78,7 @@ export class Procedure extends Model {
       foreignKey: 'anaestheticId',
       as: 'Anaesthetic',
     });
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'Department',
     });

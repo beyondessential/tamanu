@@ -62,15 +62,7 @@ export const ProcedureForm = React.memo(
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
           const getButtonText = isCompleted => {
-            if (isCompleted)
-              return (
-                <TranslatedText
-                  stringId="general.action.finalise"
-                  fallback="Finalise"
-                  data-testid="translatedtext-zya3"
-                />
-              );
-            if (editedObject?.id)
+            if (editedObject?.id && !isCompleted)
               return (
                 <TranslatedText
                   stringId="general.action.update"
@@ -172,7 +164,7 @@ export const ProcedureForm = React.memo(
                       fallback="Assistant clinician"
                     />
                   }
-                  component={MultiAutocompleteField}
+                  component={AutocompleteField}
                   suggester={assistantSuggester}
                   data-testid="field-f3l4"
                 />
@@ -201,7 +193,7 @@ export const ProcedureForm = React.memo(
                   data-testid="field-96eg1"
                 />
                 <Field
-                  name="anaestheticType"
+                  name="anaestheticId"
                   label={
                     <TranslatedText
                       stringId="procedure.anaesthetic.label"
@@ -327,7 +319,7 @@ export const ProcedureForm = React.memo(
               fallback="Clinician"
             />,
           ),
-          assistantId: yup.array().of(yup.string()),
+          assistantId: optionalForeignKey(),
           anaesthetistId: optionalForeignKey(),
           assistantAnaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),
