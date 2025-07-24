@@ -3090,7 +3090,26 @@ describe('CentralSyncManager', () => {
         expect(noteIds).toContain(nonSensitiveNote.id);
       });
 
-      it.todo('wont sync sensitive encounter diagnoses');
+      it('wont sync sensitive encounter diagnoses', async () => {
+        const sensitiveDiagnosis = await models.EncounterDiagnosis.create(
+          fake(models.EncounterDiagnosis, {
+            encounterId: sensitiveEncounter.id,
+            diagnosisId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+          }),
+        );
+        const nonSensitiveDiagnosis = await models.EncounterDiagnosis.create(
+          fake(models.EncounterDiagnosis, {
+            encounterId: nonSensitiveEncounter.id,
+            diagnosisId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+          }),
+        );
+        const diagnosisIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'encounter_diagnoses',
+        );
+        expect(diagnosisIds).not.toContain(sensitiveDiagnosis.id);
+        expect(diagnosisIds).toContain(nonSensitiveDiagnosis.id);
+      });
       it.todo('wont sync sensitive encounter tasks');
       it.todo('wont sync sensitive encounter encounter diets');
 
