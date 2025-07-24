@@ -44,17 +44,13 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
     },
-    assigned_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     completed_at: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: true,
     },
-    assigned_by: {
+    assigned_by_id: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'users',
         key: 'id',
@@ -70,9 +66,9 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-await query.addIndex('patient_survey_assignments', ['patient_id', 'status'], {
-  name: 'idx_patient_survey_status',
-});
+  await query.addIndex('patient_survey_assignments', ['patient_id', 'survey_id'], {
+    name: 'idx_patient_id_status',
+  });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
