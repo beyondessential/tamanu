@@ -106,14 +106,15 @@ surveyResponse.put(
       throw new InvalidOperationError('Cannot edit survey responses');
     }
 
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
     const responseAnswers = await models.SurveyResponseAnswer.findAll({
       where: { responseId: params.id },
     });
 
     await db.transaction(async () => {
       for (const [dataElementId, value] of Object.entries(body.answers)) {
-        // Ignore null values as they are not valid answers
-        if (value === null) {
+        // Ignore null values or components that are not in the survey
+        if (value === null || !components.some((c) => c.dataElementId === dataElementId)) {
           continue;
         }
 
