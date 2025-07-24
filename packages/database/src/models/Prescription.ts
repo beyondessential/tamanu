@@ -81,7 +81,7 @@ export class Prescription extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterCreate: async (prescription: Prescription) => {
-            if (prescription.durationValue && prescription.durationUnit) {
+            if (prescription.durationValue && prescription.durationUnit && prescription.startDate) {
               const { add } = await import('date-fns');
               prescription.endDate = add(new Date(prescription.startDate), {
                 [prescription.durationUnit]: prescription.durationValue,

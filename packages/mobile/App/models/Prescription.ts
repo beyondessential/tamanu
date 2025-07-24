@@ -5,12 +5,13 @@ import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { EncounterPrescription } from './EncounterPrescription';
 import { User } from './User';
+import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
 @Entity('prescriptions')
 export class Prescription extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @DateTimeStringColumn()
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   date: string;
 
   @DateTimeStringColumn({ nullable: true })
@@ -58,8 +59,8 @@ export class Prescription extends BaseModel {
   @Column()
   frequency: string;
 
-  @DateTimeStringColumn()
-  startDate: string;
+  @DateTimeStringColumn({ nullable: true, default: ISO9075_SQLITE_DEFAULT })
+  startDate?: string;
 
   @Column({ nullable: true })
   durationValue?: number;
