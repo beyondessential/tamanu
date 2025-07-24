@@ -9,6 +9,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useSettings } from '../../../contexts/Settings';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
@@ -28,6 +29,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
         encounter={encounter}
         imagingRequests={imagingRequests}
         certificateData={certificateData}
+        getSetting={getSetting}
         data-testid="multipleimagingrequestsprintout-mc0g"
       />
     </PDFLoader>

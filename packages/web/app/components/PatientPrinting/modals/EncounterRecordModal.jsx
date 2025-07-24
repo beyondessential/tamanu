@@ -113,6 +113,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { getSetting } = useSettings();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
+  const { getSetting } = useSettings();
+
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
@@ -366,6 +368,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           getLocalisation={getLocalisation}
           getSetting={getSetting}
           translations={translations}
+          getSetting={getSetting}
           data-testid="encounterrecordprintout-yqe1"
         />
       </PDFLoader>
