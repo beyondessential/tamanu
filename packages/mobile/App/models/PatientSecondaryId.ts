@@ -27,6 +27,6 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patientId);
+    await Patient.markForSync(this.patient);
   }
 }
