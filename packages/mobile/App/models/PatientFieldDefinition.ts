@@ -15,22 +15,19 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
   @Column({ nullable: false })
   fieldType: string;
 
-  @Column({ nullable: true })
-  options?: string;
+  @Column({ nullable: false })
+  options: string;
 
   @Column({ nullable: false })
   visibilityStatus: string;
 
-  @ManyToOne(
-    () => PatientFieldDefinitionCategory,
-    (patientFieldDefinitionCategory) => patientFieldDefinitionCategory.patientFieldDefinitions,
-  )
+  @ManyToOne(() => PatientFieldDefinitionCategory)
   category: PatientFieldDefinitionCategory;
   @RelationId(({ category }) => category)
   categoryId: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -44,7 +41,7 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
