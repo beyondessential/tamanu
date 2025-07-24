@@ -106,7 +106,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { localisation, getLocalisation } = useLocalisation();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
-
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
