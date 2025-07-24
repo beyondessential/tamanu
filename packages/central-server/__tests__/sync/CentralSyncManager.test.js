@@ -3028,7 +3028,6 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      // Uncategorised
       it('wont sync sensitive encounter procedures', async () => {
         // Create procedures linked to encounters
         const sensitiveProcedure = await models.Procedure.create(
@@ -3159,7 +3158,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter appointments regardless of linked encounter', async () => {
+      it('wont sync sensitive encounter appointments', async () => {
         const sensitiveAppointment = await models.Appointment.create(
           fake(models.Appointment, {
             patientId: patient.id,
@@ -3668,6 +3667,21 @@ describe('CentralSyncManager', () => {
             nonSensitiveId: nonSensitiveLabRequestLog.id,
           });
         });
+
+        it('will not sync sensitive lab requests to other facilities even if syncAllLabRequests is true', async () => {
+          await models.Setting.create({
+            facilityId: nonSensitiveFacility.id,
+            key: 'sync.syncAllLabRequests',
+            value: true,
+            scope: SETTINGS_SCOPES.FACILITY,
+          });
+
+          await checkSensitiveRecordFiltering({
+            recordType: 'lab_requests',
+            sensitiveId: sensitiveLabRequest.id,
+            nonSensitiveId: nonSensitiveLabRequest.id,
+          });
+        });
       });
     });
 
@@ -3707,13 +3721,10 @@ describe('CentralSyncManager', () => {
       });
 
       it.todo(
-        'will sync all historical sensitive data to other facilities when the facility is changed from sensitive to non-sensitive',
+        'will leave historical data unsynced when the facility changes from sensitive to non-sensitive until it is edited',
       );
       it.todo(
-        'will delete all historical sensitive data from other facilities when the facility is changed from non-sensitive to sensitive',
-      );
-      it.todo(
-        'will not sync sensitive lab requests to other facilities even if syncAllLabRequests is true',
+        'will leave historical data unsynced when the facility changes from non sensitive to sensitive',
       );
     });
   });
