@@ -31,7 +31,8 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
   const canReadProgramRegistry = ability.can(
-    'read', subject('ProgramRegistry', { id: registration.programRegistryId }),
+    'read',
+    subject('ProgramRegistry', { id: registration.programRegistryId }),
   );
   if (!canReadProgramRegistry) {
     return <PermissionErrorScreen errorMessage="You do not have access to this program registry" />;
@@ -41,13 +42,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
     <ErrorBoundary>
       <FullView>
         <EmptyStackHeader
-          title={
-            <TranslatedReferenceData
-              fallback={registration.programRegistry?.name}
-              value={registration.programRegistry?.id}
-              category="programRegistry"
-            />
-          }
+          title={registration.programRegistry?.name || 'Program Registry'}
           onGoBack={() => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index)}
           status={
             <PatientProgramRegistryRegistrationStatus

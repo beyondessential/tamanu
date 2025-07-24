@@ -48,12 +48,18 @@ export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps
   );
 }
 
-const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
-  focused: boolean;
-  focusedColor: string;
-  strokeColor: string;
-  color: string;
-}): ReactElement => <TabIcon Icon={Icon} {...props} />;
+const TabScreenIcon =
+  (Icon: FC<SvgProps>) =>
+  (props: { focused: boolean; color: string; size: number }): ReactElement =>
+    (
+      <TabIcon
+        Icon={Icon}
+        focusedColor={props.color}
+        strokeColor={props.color}
+        color={props.color}
+        focused={props.focused}
+      />
+    );
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
