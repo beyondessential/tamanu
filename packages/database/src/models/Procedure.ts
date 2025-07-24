@@ -89,6 +89,24 @@ export class Procedure extends Model {
     });
   }
 
+  forResponse() {
+    const procedureResponse = super.forResponse();
+    const assistantClinicians = this.dataValues?.AssistantClinicians;
+    if (!assistantClinicians) {
+      return procedureResponse;
+    }
+
+    // Parse the nested many to many data for assistantClinicians
+    const assistantCliniciansData = assistantClinicians.map(
+      (assistantClinician: { forResponse: () => any }) => assistantClinician.forResponse(),
+    );
+
+    return {
+      ...procedureResponse,
+      assistantClinicians: assistantCliniciansData,
+    };
+  }
+
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;

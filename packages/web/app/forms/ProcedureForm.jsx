@@ -291,6 +291,8 @@ export const ProcedureForm = React.memo(
           date: getCurrentDateTimeString(),
           startTime: getCurrentDateTimeString(),
           physicianId: currentUser.id,
+          assistantClinicianIds:
+            editedObject?.assistantClinicians?.map(clinician => clinician.id) || [],
           ...editedObject,
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
