@@ -1,5 +1,6 @@
 import { Utils } from 'sequelize';
 
+// TODO: see about replacing this sequilize
 export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: string[]) {
   return tablesToTraverse
     .slice(1)
