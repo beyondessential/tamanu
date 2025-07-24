@@ -20,6 +20,11 @@ export class Procedure extends Model {
   declare assistantId?: string;
   declare anaesthetistId?: string;
   declare anaestheticId?: string;
+  declare departmentId?: string;
+  declare assistantClinicianIds?: string;
+  declare assistantAnaesthetistId?: string;
+  declare timeIn?: string;
+  declare timeOut?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -34,13 +39,16 @@ export class Procedure extends Model {
         startTime: dateTimeType('startTime'),
         note: DataTypes.TEXT,
         completedNote: DataTypes.TEXT,
+        timeIn: dateTimeType('timeIn'),
+        timeOut: dateTimeType('timeOut'),
+        assistantClinicianIds: DataTypes.TEXT,
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
   static getListReferenceAssociations() {
-    return ['Location', 'ProcedureType', 'Anaesthetic'];
+    return ['Location', 'ProcedureType', 'Anaesthetic', 'Department'];
   }
 
   static initRelations(models: Models) {
@@ -58,11 +66,11 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
-      as: 'Physician',
+      as: 'LeadClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'assistantId',
-      as: 'Assistant',
+      as: 'AssistantClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
@@ -71,6 +79,14 @@ export class Procedure extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'anaestheticId',
       as: 'Anaesthetic',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'departmentId',
+      as: 'Department',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'assistantAnaesthetistId',
+      as: 'AssistantAnaesthetist',
     });
   }
 

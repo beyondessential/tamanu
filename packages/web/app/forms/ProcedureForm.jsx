@@ -127,7 +127,7 @@ export const ProcedureForm = React.memo(
                   data-testid="field-3a5v"
                 />
                 <Field
-                  name="department"
+                  name="departmentId"
                   label={
                     <TranslatedText stringId="procedure.department.label" fallback="Department" />
                   }
@@ -319,15 +319,19 @@ export const ProcedureForm = React.memo(
               <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
             ),
           endTime: yup.date(),
+          timeIn: yup.date(),
+          timeOut: yup.date(),
           physicianId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
             />,
           ),
-          assistantId: optionalForeignKey(),
+          assistantId: yup.array().of(yup.string()),
           anaesthetistId: optionalForeignKey(),
+          assistantAnaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),
+          departmentId: optionalForeignKey(),
           note: yup.string(),
           completed: yup.boolean(),
           completedNote: yup.string(),
