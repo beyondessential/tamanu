@@ -17,7 +17,7 @@ on:
       - labeled
 
   push:
-    # Release tags build the server/web packages only
+    # Release tags build the server/web/patient-portal packages only
     tags: ['v*.*.*']
     # All branches can potentially be controlled by special issues
     branches: ['**']
@@ -125,7 +125,7 @@ jobs:
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          for repo in central facility frontend; do
+          for repo in central facility frontend patient-portal; do
             if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }} 2>&1 >/dev/null; then
               jq -c . <<< "$desc" # check that it's valid JSON
               echo $repo image found, assuming existence
@@ -173,6 +173,9 @@ jobs:
           - name: frontend
             path: web
             target: frontend
+          - name: patient-portal
+            path: patient-portal
+            target: patient-portal
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -258,6 +261,7 @@ jobs:
           - central
           - facility
           - frontend
+          - patient-portal
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
@@ -370,10 +374,10 @@ jobs:
   # The package-* jobs below are only triggered by tags, so we can assume that
   # github.ref and github.ref_name are set and correct.
 
-  package-frontend:
+  package-frontends:
     needs: images
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    name: Package Frontend ${{ github.ref_name }}
+    name: Package Frontends (web and patient portal) ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-frontend.yml
     secrets:
       META_CERT: ${{ secrets.META_CERT }}
@@ -418,6 +422,7 @@ jobs:
             | `ghcr.io/beyondessential/tamanu-central` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-central/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-facility` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-facility/${{ github.ref_name }}) |
             | `ghcr.io/beyondessential/tamanu-frontend` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-frontend/${{ github.ref_name }}) |
+            | `ghcr.io/beyondessential/tamanu-patient-portal` | [${{ github.ref_name }}](https://github.com/beyondessential/tamanu/pkgs/container/tamanu-patient-portal/${{ github.ref_name }}) |
 
       - name: Post to meta
         continue-on-error: true
@@ -431,7 +436,7 @@ jobs:
 
           version=$(echo "${{ github.ref_name }}" | sed -E 's/^v//')
 
-          for image in central facility frontend; do
+          for image in central facility frontend patient-portal; do
             set -x
             curl -v "${{ vars.META_URL }}/artifacts/$version/$image/container" \
               -E meta.crt --key meta.key \

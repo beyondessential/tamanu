@@ -1,0 +1,40 @@
+{
+  "name": "@tamanu/patient-portal",
+  "productName": "Tamanu",
+  "version": "2.35.0",
+  "description": "Tamanu Patient Portal",
+  "private": true,
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "start-dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/core": "^10.0.9",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
+    "@mui/x-date-pickers": "^7.16.0",
+    "@tamanu/shared": "*",
+    "@tamanu/api-client": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^7.6.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "globals": "^16.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}

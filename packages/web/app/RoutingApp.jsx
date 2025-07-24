@@ -24,6 +24,7 @@ import { useSettings } from './contexts/Settings';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
+
   return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
