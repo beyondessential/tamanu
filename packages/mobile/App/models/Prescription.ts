@@ -59,8 +59,8 @@ export class Prescription extends BaseModel {
   @Column()
   frequency: string;
 
-  @DateTimeStringColumn({ nullable: true, default: ISO9075_SQLITE_DEFAULT })
-  startDate?: string;
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  startDate: string;
 
   @Column({ nullable: true })
   durationValue?: number;

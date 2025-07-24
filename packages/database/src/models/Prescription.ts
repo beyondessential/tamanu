@@ -15,7 +15,7 @@ export class Prescription extends Model {
   declare idealTimes?: string[];
   declare route: string;
   declare date: string;
-  declare startDate?: string;
+  declare startDate: string;
   declare endDate?: string;
   declare durationValue?: number | null;
   declare durationUnit?: string | null;
@@ -59,7 +59,7 @@ export class Prescription extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
         startDate: dateTimeType('startDate', {
-          allowNull: true,
+          allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
         endDate: dateTimeType('endDate'),
@@ -81,7 +81,7 @@ export class Prescription extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterCreate: async (prescription: Prescription) => {
-            if (prescription.durationValue && prescription.durationUnit && prescription.startDate) {
+            if (prescription.durationValue && prescription.durationUnit) {
               const { add } = await import('date-fns');
               prescription.endDate = add(new Date(prescription.startDate), {
                 [prescription.durationUnit]: prescription.durationValue,
