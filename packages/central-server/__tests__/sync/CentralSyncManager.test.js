@@ -3024,10 +3024,20 @@ describe('CentralSyncManager', () => {
       });
 
       it('wont sync sensitive encounter history', async () => {
+        const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
+          where: {
+            encounterId: sensitiveEncounter.id,
+          },
+        });
+        const nonSensitiveEncounterHistory = await models.EncounterHistory.findOne({
+          where: {
+            encounterId: nonSensitiveEncounter.id,
+          },
+        });
         await checkSensitiveRecordFiltering({
           model: models.EncounterHistory,
-          sensitiveId: sensitiveEncounter.id,
-          nonSensitiveId: nonSensitiveEncounter.id,
+          sensitiveId: sensitiveEncounterHistory.id,
+          nonSensitiveId: nonSensitiveEncounterHistory.id,
         });
       });
 
