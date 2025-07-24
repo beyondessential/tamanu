@@ -366,7 +366,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           getLocalisation={getLocalisation}
           getSetting={getSetting}
           translations={translations}
-          getSetting={getSetting}
           data-testid="encounterrecordprintout-yqe1"
         />
       </PDFLoader>
