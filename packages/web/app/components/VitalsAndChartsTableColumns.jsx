@@ -171,7 +171,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
     const isValid = isCurrent ? true : Boolean(value);
     const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
 
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
       return (
         <ViewPhotoLink
           imageId={value}
