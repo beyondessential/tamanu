@@ -45,7 +45,7 @@ export class Procedure extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Location', 'ProcedureType', 'Anaesthetic', 'Department'];
+    return ['Location', 'ProcedureType', 'Anaesthetic', 'Department', 'AssistantClinicians'];
   }
 
   static initRelations(models: Models) {
@@ -82,16 +82,10 @@ export class Procedure extends Model {
       as: 'AssistantAnaesthetist',
     });
 
-    this.hasMany(models.ProcedureAssistantClinician, {
-      foreignKey: 'procedureId',
-      as: 'procedureAssistantClinicians',
-    });
-
     this.belongsToMany(models.User, {
-      through: models.ProcedureAssistantClinician,
-      foreignKey: 'procedureId',
-      otherKey: 'userId',
+      through: 'ProcedureAssistantClinician',
       as: 'AssistantClinicians',
+      foreignKey: 'procedureId',
     });
   }
 
