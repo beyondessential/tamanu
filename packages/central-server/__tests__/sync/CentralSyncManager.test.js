@@ -3155,10 +3155,116 @@ describe('CentralSyncManager', () => {
         expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
       });
 
-      it.todo('wont sync sensitive encounter lab tests');
-      it.todo('wont sync sensitive encounter lab request attachments');
-      it.todo('wont sync sensitive encounter lab test panel requests');
-      it.todo('wont sync sensitive encounter lab request logs');
+      it('wont sync sensitive encounter lab tests', async () => {
+        const sensitiveLabTest = await models.LabTest.create(
+          fake(models.LabTest, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: sensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const nonSensitiveLabTest = await models.LabTest.create(
+          fake(models.LabTest, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: nonSensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const labTestIds = await getOutgoingIdsForRecordType(nonSensitiveFacility.id, 'lab_tests');
+        expect(labTestIds).not.toContain(sensitiveLabTest.id);
+        expect(labTestIds).toContain(nonSensitiveLabTest.id);
+      });
+
+      it('wont sync sensitive encounter lab request attachments', async () => {
+        const sensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
+          fake(models.LabRequestAttachment, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: sensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const nonSensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
+          fake(models.LabRequestAttachment, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: nonSensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const labRequestAttachmentIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'lab_request_attachments',
+        );
+        expect(labRequestAttachmentIds).not.toContain(sensitiveLabRequestAttachment.id);
+        expect(labRequestAttachmentIds).toContain(nonSensitiveLabRequestAttachment.id);
+      });
+
+      it('wont sync sensitive encounter lab test panel requests', async () => {
+        const sensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
+          fake(models.LabTestPanelRequest, {
+            encounterId: sensitiveEncounter.id,
+            labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
+          }),
+        );
+        const nonSensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
+          fake(models.LabTestPanelRequest, {
+            encounterId: nonSensitiveEncounter.id,
+            labTestPanelId: (await models.LabTestPanel.create(fake(models.LabTestPanel))).id,
+          }),
+        );
+        const labTestPanelRequestIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'lab_test_panel_requests',
+        );
+        expect(labTestPanelRequestIds).not.toContain(sensitiveLabTestPanelRequest.id);
+        expect(labTestPanelRequestIds).toContain(nonSensitiveLabTestPanelRequest.id);
+      });
+
+      it('wont sync sensitive encounter lab request logs', async () => {
+        const sensitiveLabRequestLog = await models.LabRequestLog.create(
+          fake(models.LabRequestLog, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: sensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const nonSensitiveLabRequestLog = await models.LabRequestLog.create(
+          fake(models.LabRequestLog, {
+            labRequestId: (
+              await models.LabRequest.create(
+                fake(models.LabRequest, {
+                  encounterId: nonSensitiveEncounter.id,
+                }),
+              )
+            ).id,
+          }),
+        );
+        const labRequestLogIds = await getOutgoingIdsForRecordType(
+          nonSensitiveFacility.id,
+          'lab_request_logs',
+        );
+        expect(labRequestLogIds).not.toContain(sensitiveLabRequestLog.id);
+        expect(labRequestLogIds).toContain(nonSensitiveLabRequestLog.id);
+      });
 
       // Imaging-related models
       it('wont sync sensitive encounter imaging requests', async () => {
