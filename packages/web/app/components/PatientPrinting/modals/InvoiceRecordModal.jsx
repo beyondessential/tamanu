@@ -95,7 +95,6 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
-          getSetting={getSetting}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>
