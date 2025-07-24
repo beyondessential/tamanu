@@ -3,7 +3,7 @@ import { OngoingConditionsSection } from '../../components/sections/OngoingCondi
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { OngoingConditionSchema } from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
+import { OngoingConditionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
 
 // TODO - ideally this could use fake data package
 const mockData = {
@@ -20,7 +20,7 @@ const meta: Meta<typeof OngoingConditionsSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/ongoing-conditions': () => mockData }}>
+      <MockedApi endpoints={{ '/me/ongoing-conditions': () => mockData }}>
         <Story />
       </MockedApi>
     ),
@@ -37,7 +37,7 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/ongoing-conditions': () => ({
+          '/me/ongoing-conditions': () => ({
             data: [],
             count: 0,
           }),
@@ -54,7 +54,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/ongoing-conditions': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/ongoing-conditions': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />

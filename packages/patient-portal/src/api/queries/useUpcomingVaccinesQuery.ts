@@ -1,28 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  UpcomingVaccinesArraySchema,
-  type UpcomingVaccine,
-} from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
-import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
-
+import { type UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
+import { UpcomingVaccinationSchema } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-const transformData = (response: unknown): UpcomingVaccine[] => {
-  const parsedResponse = ArrayResponseSchema.parse(response);
-  if (!parsedResponse.data) {
+const transformData = (response: unknown): UpcomingVaccination[] => {
+  const responseData = response as { data: unknown[] };
+  if (!responseData.data) {
     return [];
   }
-  return UpcomingVaccinesArraySchema.parse(parsedResponse.data);
+
+  return responseData.data.map(item => UpcomingVaccinationSchema.parse(item));
 };
 
 export const useUpcomingVaccinesQuery = () => {
   const api = useApi();
   const { user } = useAuth();
 
-  return useQuery<unknown, Error, UpcomingVaccine[]>({
+  return useQuery<unknown, Error, UpcomingVaccination[]>({
     queryKey: ['upcomingVaccines', user?.id],
-    queryFn: () => api.get('/patient/me/vaccinations/upcoming'),
+    queryFn: () => api.get('/me/vaccinations/upcoming'),
     enabled: !!user?.id,
     select: transformData,
   });

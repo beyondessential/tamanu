@@ -30,7 +30,7 @@ export const VaccinationsSection = () => {
             {upcomingVaccines && upcomingVaccines.length > 0 ? (
               <Stack spacing={2}>
                 {upcomingVaccines.map(vaccine => (
-                  <UpcomingVaccineCard key={vaccine.scheduledVaccineId} vaccine={vaccine} />
+                  <UpcomingVaccineCard key={vaccine.scheduledVaccine.id} vaccine={vaccine} />
                 ))}
               </Stack>
             ) : (

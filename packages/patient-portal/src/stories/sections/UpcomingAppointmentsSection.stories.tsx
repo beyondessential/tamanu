@@ -3,7 +3,7 @@ import { UpcomingAppointmentsSection } from '../../components/sections/Appointme
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AppointmentSchema } from '@tamanu/shared/schemas/responses/appointment.schema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 
 // TODO - ideally this could use fake data package
 const mockAppointments = {
@@ -25,7 +25,7 @@ const meta: Meta<typeof UpcomingAppointmentsSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/appointments': () => mockAppointments }}>
+      <MockedApi endpoints={{ '/me/appointments/upcoming': () => mockAppointments }}>
         <Story />
       </MockedApi>
     ),
@@ -40,7 +40,7 @@ export const Default: Story = {};
 export const SingleAppointment: Story = {
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/appointments': () => singleAppointment }}>
+      <MockedApi endpoints={{ '/me/appointments/upcoming': () => singleAppointment }}>
         <Story />
       </MockedApi>
     ),
@@ -52,7 +52,7 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/appointments': () => ({
+          '/me/appointments/upcoming': () => ({
             data: [],
             count: 0,
           }),
@@ -69,7 +69,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/appointments': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/appointments/upcoming': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />
@@ -83,7 +83,7 @@ export const ManyAppointments: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/appointments': () => ({
+          '/me/appointments/upcoming': () => ({
             data: [
               generateMock(AppointmentSchema as any),
               generateMock(AppointmentSchema as any),

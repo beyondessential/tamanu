@@ -3,14 +3,14 @@ import { OutstandingFormsSection } from '../../components/sections/Forms/Outstan
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { OutstandingFormSchema } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
+import { PatientSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
 
 // TODO - ideally this could use fake data package
 const mockFormsData = {
   data: [
-    generateMock(OutstandingFormSchema as any),
-    generateMock(OutstandingFormSchema as any),
-    generateMock(OutstandingFormSchema as any),
+    generateMock(PatientSurveyAssignmentSchema as any),
+    generateMock(PatientSurveyAssignmentSchema as any),
+    generateMock(PatientSurveyAssignmentSchema as any),
   ],
   count: 3,
 };
@@ -30,7 +30,7 @@ const meta: Meta<typeof OutstandingFormsSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/outstanding-forms': () => mockFormsData }}>
+      <MockedApi endpoints={{ '/me/forms/outstanding': () => mockFormsData }}>
         <Story />
       </MockedApi>
     ),
@@ -56,7 +56,7 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/outstanding-forms': () => ({
+          '/me/forms/outstanding': () => ({
             data: [],
             count: 0,
           }),
@@ -81,7 +81,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/outstanding-forms': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/forms/outstanding': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />
@@ -102,8 +102,8 @@ export const SingleForm: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/outstanding-forms': () => ({
-            data: [generateMock(OutstandingFormSchema as any)],
+          '/me/forms/outstanding': () => ({
+            data: [generateMock(PatientSurveyAssignmentSchema as any)],
             count: 1,
           }),
         }}

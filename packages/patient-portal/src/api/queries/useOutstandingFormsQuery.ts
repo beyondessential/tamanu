@@ -1,29 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  OutstandingFormArraySchema,
-  type OutstandingForm,
-} from '@tamanu/shared/schemas/responses/outstandingForm.schema';
-import { PaginatedResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
-
+import { type PatientSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
+import { PatientSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-const transformData = (response: unknown): OutstandingForm[] => {
-  const parsedResponse = PaginatedResponseSchema.parse(response);
-  if (!parsedResponse.data) {
+const transformData = (response: unknown): PatientSurveyAssignment[] => {
+  const responseData = response as { data: unknown[] };
+  if (!responseData.data) {
     return [];
   }
 
-  return OutstandingFormArraySchema.parse(parsedResponse.data);
+  return responseData.data.map(item => PatientSurveyAssignmentSchema.parse(item));
 };
 
 export const useOutstandingFormsQuery = () => {
   const api = useApi();
   const { user } = useAuth();
 
-  return useQuery<unknown, Error, OutstandingForm[]>({
+  return useQuery<unknown, Error, PatientSurveyAssignment[]>({
     queryKey: ['outstandingForms', user?.id],
-    queryFn: () => api.get('/patient/me/outstanding-forms'),
+    queryFn: () => api.get('/me/forms/outstanding'),
     enabled: !!user?.id,
     select: transformData,
   });

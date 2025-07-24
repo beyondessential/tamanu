@@ -3,19 +3,19 @@ import { MedicationsSection } from '../../components/sections/MedicationsSection
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { MedicationSchema } from '@tamanu/shared/schemas/responses/medication.schema';
+import { OngoingPrescriptionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
 
 // TODO - ideally this could use fake data package
 const mockMedicationsData = {
   data: [
-    generateMock(MedicationSchema as any),
-    generateMock(MedicationSchema as any),
-    generateMock(MedicationSchema as any),
+    generateMock(OngoingPrescriptionSchema as any),
+    generateMock(OngoingPrescriptionSchema as any),
+    generateMock(OngoingPrescriptionSchema as any),
   ],
 };
 
 const mockSingleMedicationData = {
-  data: [generateMock(MedicationSchema as any)],
+  data: [generateMock(OngoingPrescriptionSchema as any)],
 };
 
 const meta: Meta<typeof MedicationsSection> = {
@@ -33,7 +33,7 @@ const meta: Meta<typeof MedicationsSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/medications': () => mockMedicationsData }}>
+      <MockedApi endpoints={{ '/me/ongoing-prescriptions': () => mockMedicationsData }}>
         <Story />
       </MockedApi>
     ),
@@ -48,7 +48,7 @@ export const Default: Story = {};
 export const SingleMedication: Story = {
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/medications': () => mockSingleMedicationData }}>
+      <MockedApi endpoints={{ '/me/ongoing-prescriptions': () => mockSingleMedicationData }}>
         <Story />
       </MockedApi>
     ),
@@ -67,7 +67,7 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/medications': () => ({
+          '/me/ongoing-prescriptions': () => ({
             data: [],
           }),
         }}
@@ -90,7 +90,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/medications': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/ongoing-prescriptions': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />

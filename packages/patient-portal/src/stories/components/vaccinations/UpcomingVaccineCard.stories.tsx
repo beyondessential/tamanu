@@ -1,137 +1,75 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 import { UpcomingVaccineCard } from '../../../components/sections/Vaccinations/UpcomingVaccineCard';
-import type { UpcomingVaccine } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
-
 import { generateMock } from '@anatine/zod-mock';
-import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
-
-// Mock data for different upcoming vaccine scenarios
-const baseMockUpcomingVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const upcomingCovidBooster: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const overdueMmr: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const scheduledHepB: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const missedTetanus: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const travelVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
-
-const incompleteDataVaccine: UpcomingVaccine = generateMock(UpcomingVaccineSchema as any);
+import { UpcomingVaccinationSchema } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 
 const meta: Meta<typeof UpcomingVaccineCard> = {
   title: 'Components/Vaccinations/UpcomingVaccineCard',
   component: UpcomingVaccineCard,
   parameters: {
     layout: 'padded',
-    docs: {
-      description: {
-        component:
-          'A card component for displaying upcoming vaccine information, including vaccine name, dose, due date, and status with colour-coded chips.',
-      },
-    },
   },
   tags: ['autodocs'],
-  argTypes: {
-    vaccine: {
-      description: 'The upcoming vaccine data to display',
-      control: false,
-    },
-  },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const DueVaccine: Story = {
+export const Default: Story = {
   args: {
-    vaccine: baseMockUpcomingVaccine,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'An annual flu shot that is currently due for administration.',
-      },
-    },
+    vaccine: generateMock(UpcomingVaccinationSchema as any),
   },
 };
 
-export const UpcomingBooster: Story = {
+export const Overdue: Story = {
   args: {
-    vaccine: upcomingCovidBooster,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'A COVID-19 booster that is upcoming but not yet due.',
-      },
-    },
+    vaccine: generateMock(UpcomingVaccinationSchema as any, {
+      stringMap: { dueDate: () => '2023-01-15' },
+    }),
   },
 };
 
-export const OverdueVaccine: Story = {
+export const DueSoon: Story = {
   args: {
-    vaccine: overdueMmr,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'An MMR vaccine that is overdue and needs immediate attention.',
-      },
-    },
+    vaccine: generateMock(UpcomingVaccinationSchema as any, {
+      stringMap: { dueDate: () => '2024-02-15' },
+    }),
   },
 };
 
-export const ScheduledVaccine: Story = {
+export const DueLater: Story = {
   args: {
-    vaccine: scheduledHepB,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'A hepatitis B vaccine that is scheduled for the future.',
-      },
-    },
+    vaccine: generateMock(UpcomingVaccinationSchema as any, {
+      stringMap: { dueDate: () => '2024-06-15' },
+    }),
   },
 };
 
-export const MissedVaccine: Story = {
+export const WithMissingData: Story = {
   args: {
-    vaccine: missedTetanus,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'A tetanus booster that was missed and may need rescheduling.',
-      },
-    },
+    vaccine: generateMock(UpcomingVaccinationSchema as any),
   },
 };
 
-export const TravelVaccination: Story = {
-  args: {
-    vaccine: travelVaccine,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'A travel-specific vaccine (typhoid) that is due for travel preparation.',
-      },
-    },
-  },
-};
-
-export const IncompleteData: Story = {
-  args: {
-    vaccine: incompleteDataVaccine,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'A vaccine with incomplete data, demonstrating how the component handles missing information with fallback values.',
-      },
-    },
-  },
+export const MultipleVaccines: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <UpcomingVaccineCard
+        vaccine={generateMock(UpcomingVaccinationSchema as any, {
+          stringMap: { dueDate: () => '2024-01-15' },
+        })}
+      />
+      <UpcomingVaccineCard
+        vaccine={generateMock(UpcomingVaccinationSchema as any, {
+          stringMap: { dueDate: () => '2024-02-10' },
+        })}
+      />
+      <UpcomingVaccineCard
+        vaccine={generateMock(UpcomingVaccinationSchema as any, {
+          stringMap: { dueDate: () => '2024-03-20' },
+        })}
+      />
+    </div>
+  ),
 };

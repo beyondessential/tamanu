@@ -3,8 +3,8 @@ import { VaccinationsSection } from '../../components/sections/VaccinationsSecti
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
-import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
+import { UpcomingVaccinationSchema } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 
 // TODO - ideally this could use fake data package
 const mockAdministeredVaccines = {
@@ -17,8 +17,8 @@ const mockAdministeredVaccines = {
 
 const mockUpcomingVaccines = {
   data: [
-    generateMock(UpcomingVaccineSchema as any, { stringMap: { dueDate: () => '2024-01-15' } }),
-    generateMock(UpcomingVaccineSchema as any, { stringMap: { dueDate: () => '2024-02-10' } }),
+    generateMock(UpcomingVaccinationSchema as any, { stringMap: { dueDate: () => '2024-01-15' } }),
+    generateMock(UpcomingVaccinationSchema as any, { stringMap: { dueDate: () => '2024-02-10' } }),
   ],
   count: 2,
 };
@@ -34,8 +34,8 @@ const meta: Meta<typeof VaccinationsSection> = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/vaccinations/administered': () => mockAdministeredVaccines,
-          '/patient/me/vaccinations/upcoming': () => mockUpcomingVaccines,
+          '/me/vaccinations/administered': () => mockAdministeredVaccines,
+          '/me/vaccinations/upcoming': () => mockUpcomingVaccines,
         }}
       >
         <Story />
@@ -54,11 +54,11 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/vaccinations/administered': () => ({
+          '/me/vaccinations/administered': () => ({
             data: [],
             count: 0,
           }),
-          '/patient/me/vaccinations/upcoming': () => ({
+          '/me/vaccinations/upcoming': () => ({
             data: [],
             count: 0,
           }),
@@ -75,8 +75,8 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/vaccinations/administered': () => new Promise(() => {}), // Never resolves to show loading state
-          '/patient/me/vaccinations/upcoming': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/vaccinations/administered': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/vaccinations/upcoming': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />
@@ -90,8 +90,8 @@ export const OnlyAdministeredVaccines: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/vaccinations/administered': () => mockAdministeredVaccines,
-          '/patient/me/vaccinations/upcoming': () => ({
+          '/me/vaccinations/administered': () => mockAdministeredVaccines,
+          '/me/vaccinations/upcoming': () => ({
             data: [],
             count: 0,
           }),
@@ -108,11 +108,11 @@ export const OnlyUpcomingVaccines: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/vaccinations/administered': () => ({
+          '/me/vaccinations/administered': () => ({
             data: [],
             count: 0,
           }),
-          '/patient/me/vaccinations/upcoming': () => mockUpcomingVaccines,
+          '/me/vaccinations/upcoming': () => mockUpcomingVaccines,
         }}
       >
         <Story />

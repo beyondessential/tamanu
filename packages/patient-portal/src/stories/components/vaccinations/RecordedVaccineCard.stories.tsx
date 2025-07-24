@@ -1,14 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
 import { RecordedVaccineCard } from '../../../components/sections/Vaccinations/RecordedVaccineCard';
-import type { AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
-
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
-
-// Mock data for different administered vaccine scenarios
-const baseMockAdministeredVaccine: AdministeredVaccine = generateMock(
-  AdministeredVaccineSchema as any,
-);
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
 
 const meta: Meta<typeof RecordedVaccineCard> = {
   title: 'Components/Vaccinations/RecordedVaccineCard',
@@ -17,11 +11,6 @@ const meta: Meta<typeof RecordedVaccineCard> = {
     layout: 'padded',
   },
   tags: ['autodocs'],
-  argTypes: {
-    vaccine: {
-      description: 'The administered vaccine data to display',
-    },
-  },
 };
 
 export default meta;
@@ -29,35 +18,23 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    vaccine: baseMockAdministeredVaccine,
+    vaccine: generateMock(AdministeredVaccineSchema as any),
   },
 };
 
-export const CovidVaccine: Story = {
+export const WithMissingData: Story = {
   args: {
     vaccine: generateMock(AdministeredVaccineSchema as any),
   },
 };
 
-export const FluVaccine: Story = {
+export const GivenElsewhere: Story = {
   args: {
     vaccine: generateMock(AdministeredVaccineSchema as any),
   },
 };
 
-export const TravelVaccine: Story = {
-  args: {
-    vaccine: generateMock(AdministeredVaccineSchema as any),
-  },
-};
-
-export const VaccineNotGiven: Story = {
-  args: {
-    vaccine: generateMock(AdministeredVaccineSchema as any),
-  },
-};
-
-export const IncompleteData: Story = {
+export const NotGiven: Story = {
   args: {
     vaccine: generateMock(AdministeredVaccineSchema as any),
   },

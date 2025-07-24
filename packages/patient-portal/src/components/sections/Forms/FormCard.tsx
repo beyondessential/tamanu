@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
-import type { OutstandingForm } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
+import type { PatientSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
 
 interface FormCardProps {
-  form: OutstandingForm;
+  form: PatientSurveyAssignment;
   onClick?: () => void;
 }
 
@@ -13,23 +13,21 @@ export const FormCard: React.FC<FormCardProps> = ({ form, onClick }) => {
     <Card variant="outlined">
       <CardActionArea onClick={onClick} disabled={!onClick}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Stack direction="row" spacing={2} alignItems="center">
             <Stack spacing={1} sx={{ flex: 1 }}>
               <Typography variant="h4" fontWeight="bold">
-                {form.title}
+                {form.survey.name}
               </Typography>
               <Box>
                 <Chip
-                  label="To be completed"
+                  label={form.status === 'COMPLETED' ? 'Completed' : 'Outstanding'}
+                  color={form.status === 'COMPLETED' ? 'success' : 'warning'}
                   size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{ width: 'fit-content' }}
                 />
               </Box>
             </Stack>
-            <ChevronRight size={24} color="#666" />
-          </Box>
+            <ChevronRight size={20} />
+          </Stack>
         </CardContent>
       </CardActionArea>
     </Card>

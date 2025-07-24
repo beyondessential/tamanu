@@ -1,20 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  AppointmentsArraySchema,
-  type Appointment,
-} from '@tamanu/shared/schemas/responses/appointment.schema';
-
+import { type Appointment } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
-import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
 
 const transformData = (response: unknown): Appointment[] => {
-  const parsedResponse = ArrayResponseSchema.parse(response);
-  if (!parsedResponse.data) {
+  const responseData = response as { data: unknown[] };
+  if (!responseData.data) {
     return [];
   }
 
-  return AppointmentsArraySchema.parse(parsedResponse.data);
+  return responseData.data.map(item => AppointmentSchema.parse(item));
 };
 
 export const useUpcomingAppointmentsQuery = () => {
@@ -23,7 +19,7 @@ export const useUpcomingAppointmentsQuery = () => {
 
   return useQuery<unknown, Error, Appointment[]>({
     queryKey: ['upcomingAppointments', user?.id],
-    queryFn: () => api.get('/patient/me/appointments'),
+    queryFn: () => api.get('/me/appointments/upcoming'),
     enabled: !!user?.id,
     select: transformData,
   });

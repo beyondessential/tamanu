@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Card, CardContent } from '@mui/material';
-import type { AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
 import {
   formatDate,
   formatVaccineGivenBy,
@@ -15,14 +15,13 @@ export const RecordedVaccineCard: React.FC<RecordedVaccineCardProps> = ({ vaccin
   return (
     <Card variant="outlined">
       <CardContent>
-        <Typography variant="h4">{vaccine.vaccineDisplayName || '--'}</Typography>
+        <Typography variant="h4">{vaccine.vaccineName || '--'}</Typography>
         <Typography>
-          {vaccine.vaccineDisplayName || '--'} • {vaccine.date ? formatDate(vaccine.date) : '--'}
+          {vaccine.vaccineName || '--'} • {vaccine.date ? formatDate(vaccine.date) : '--'}
         </Typography>
         <Typography>
-          Given by: {formatVaccineGivenBy({ ...vaccine, status: vaccine.status || 'UNKNOWN' })}
+          Given by: {formatVaccineGivenBy(vaccine)} • {formatVaccineFacilityOrCountry(vaccine)}
         </Typography>
-        <Typography>Facility / Country: {formatVaccineFacilityOrCountry(vaccine)}</Typography>
       </CardContent>
     </Card>
   );

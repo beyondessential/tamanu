@@ -3,7 +3,7 @@ import { AllergiesSection } from '../../components/sections/AllergiesSection';
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AllergySchema } from '@tamanu/shared/schemas/responses/allergy.schema';
+import { AllergySchema } from '@tamanu/shared/schemas/patientPortal/responses/allergy.schema';
 
 // TODO - ideally this could use fake data package
 const mockData = {
@@ -24,7 +24,7 @@ const meta: Meta<typeof AllergiesSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me/allergies': () => mockData }}>
+      <MockedApi endpoints={{ '/me/allergies': () => mockData }}>
         <Story />
       </MockedApi>
     ),
@@ -41,7 +41,7 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/allergies': () => ({
+          '/me/allergies': () => ({
             data: [],
             count: 0,
           }),
@@ -58,7 +58,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/allergies': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/allergies': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />
@@ -72,7 +72,7 @@ export const SingleAllergy: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/allergies': () => ({
+          '/me/allergies': () => ({
             data: [generateMock(AllergySchema as any)],
             count: 1,
           }),
@@ -89,7 +89,7 @@ export const AllergyWithoutReaction: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me/allergies': () => ({
+          '/me/allergies': () => ({
             data: [generateMock(AllergySchema as any)],
             count: 1,
           }),

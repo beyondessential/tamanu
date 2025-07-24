@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@mui/material';
-import { type Appointment } from '@tamanu/shared/schemas/responses/appointment.schema';
+import { type Appointment } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 
 import { LabelValueList } from '../../LabelValueList';
 import {
@@ -15,29 +15,32 @@ interface AppointmentCardProps {
   appointment: Appointment;
 }
 
-export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
+export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
   return (
-    <Card variant="secondary">
+    <Card variant="outlined">
       <CardContent>
         <LabelValueList>
           <LabelValueList.ListItem
-            label="Date & time"
+            label="Date & Time"
             value={formatAppointmentDateTime(appointment.startTime)}
-          />
-          <LabelValueList.ListItem
-            label="Facility"
-            value={formatAppointmentFacility(appointment.location, appointment.locationGroup)}
-          />
-          <LabelValueList.ListItem
-            label="Area"
-            value={formatAppointmentArea(appointment.location, appointment.locationGroup)}
           />
           <LabelValueList.ListItem
             label="Clinician"
             value={formatAppointmentClinician(appointment.clinician)}
           />
           <LabelValueList.ListItem
-            label="Appt type"
+            label="Facility"
+            value={formatAppointmentFacility(
+              appointment.locationGroup?.facility,
+              appointment.locationGroup,
+            )}
+          />
+          <LabelValueList.ListItem
+            label="Area"
+            value={formatAppointmentArea(null, appointment.locationGroup)}
+          />
+          <LabelValueList.ListItem
+            label="Type"
             value={formatAppointmentType(appointment.appointmentType)}
           />
         </LabelValueList>

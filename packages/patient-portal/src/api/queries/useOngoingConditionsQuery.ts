@@ -1,21 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  OngoingConditionsArraySchema,
-  type OngoingCondition,
-} from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
-import { PaginatedResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
-
+import { type OngoingCondition } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
+import { OngoingConditionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
 const transformData = (response: unknown): OngoingCondition[] => {
-  const parsedResponse = PaginatedResponseSchema.parse(response);
-  if (!parsedResponse.data) {
+  const responseData = response as { data: unknown[] };
+  if (!responseData.data) {
     return [];
   }
 
-  const parsedData = OngoingConditionsArraySchema.parse(parsedResponse.data);
-  return parsedData.filter((condition: OngoingCondition) => !condition.resolved);
+  return responseData.data.map(item => OngoingConditionSchema.parse(item));
 };
 
 export const useOngoingConditionsQuery = () => {
@@ -23,8 +18,8 @@ export const useOngoingConditionsQuery = () => {
   const { user } = useAuth();
 
   return useQuery<unknown, Error, OngoingCondition[]>({
-    queryKey: ['ongoing-conditions', user?.id],
-    queryFn: () => api.get('/patient/me/ongoing-conditions'),
+    queryKey: ['ongoingConditions', user?.id],
+    queryFn: () => api.get('/me/ongoing-conditions'),
     enabled: !!user?.id,
     select: transformData,
   });

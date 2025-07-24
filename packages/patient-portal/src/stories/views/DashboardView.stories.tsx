@@ -3,24 +3,27 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DashboardView } from '../../views/DashboardView';
 import { MockedApi } from '../utils/mockedApi';
 import { PrivatePageLayout } from '../../components/layouts/PrivatePageLayout';
-import { type AdministeredVaccine } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
-import { type UpcomingVaccine } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
+import { type AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
+import { type UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 import { generateMock } from '@anatine/zod-mock';
-import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/responses/administeredVaccine.schema';
-import { UpcomingVaccineSchema } from '@tamanu/shared/schemas/responses/upcomingVaccine.schema';
-import { PatientSchema } from '@tamanu/shared/schemas/responses/patient.schema';
-import { OutstandingFormSchema } from '@tamanu/shared/schemas/responses/outstandingForm.schema';
-import { AppointmentSchema } from '@tamanu/shared/schemas/responses/appointment.schema';
-import { OngoingConditionSchema } from '@tamanu/shared/schemas/responses/ongoingCondition.schema';
-import { AllergySchema } from '@tamanu/shared/schemas/responses/allergy.schema';
-import { MedicationSchema } from '@tamanu/shared/schemas/responses/medication.schema';
+import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
+import { UpcomingVaccinationSchema } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
+import { PatientSchema } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { PatientSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
+import { OngoingConditionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
+import { AllergySchema } from '@tamanu/shared/schemas/patientPortal/responses/allergy.schema';
+import { OngoingPrescriptionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
 
 // Mock data for patient
 const mockPatientData = generateMock(PatientSchema as any);
 
 // Mock data for outstanding forms
 const mockFormsData = {
-  data: [generateMock(OutstandingFormSchema as any), generateMock(OutstandingFormSchema as any)],
+  data: [
+    generateMock(PatientSurveyAssignmentSchema as any),
+    generateMock(PatientSurveyAssignmentSchema as any),
+  ],
   count: 2,
 };
 
@@ -44,7 +47,10 @@ const mockAllergiesData = {
 
 // Mock data for medications (matching MedicationsSection)
 const mockMedicationsData = {
-  data: [generateMock(MedicationSchema as any), generateMock(MedicationSchema as any)],
+  data: [
+    generateMock(OngoingPrescriptionSchema as any),
+    generateMock(OngoingPrescriptionSchema as any),
+  ],
   count: 2,
 };
 
@@ -58,10 +64,10 @@ const mockAdministeredVaccinesData: { data: AdministeredVaccine[]; count: number
 };
 
 // Mock data for upcoming vaccines
-const mockUpcomingVaccinesData: { data: UpcomingVaccine[]; count: number } = {
+const mockUpcomingVaccinesData: { data: UpcomingVaccination[]; count: number } = {
   data: [
-    generateMock(UpcomingVaccineSchema as any, { stringMap: { dueDate: () => '2024-01-15' } }),
-    generateMock(UpcomingVaccineSchema as any, { stringMap: { dueDate: () => '2024-02-10' } }),
+    generateMock(UpcomingVaccinationSchema as any, { stringMap: { dueDate: () => '2024-01-15' } }),
+    generateMock(UpcomingVaccinationSchema as any, { stringMap: { dueDate: () => '2024-02-10' } }),
   ],
   count: 2,
 };
@@ -83,14 +89,14 @@ const meta: Meta<typeof DashboardView> = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => mockPatientData,
-          '/patient/me/outstanding-forms': () => mockFormsData,
-          '/patient/me/appointments': () => mockAppointmentsData,
-          '/patient/me/ongoing-conditions': () => mockConditionsData,
-          '/patient/me/allergies': () => mockAllergiesData,
-          '/patient/me/medications': () => mockMedicationsData,
-          '/patient/me/vaccinations/administered': () => mockAdministeredVaccinesData,
-          '/patient/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
+          '/me': () => mockPatientData,
+          '/me/forms/outstanding': () => mockFormsData,
+          '/me/appointments/upcoming': () => mockAppointmentsData,
+          '/me/ongoing-conditions': () => mockConditionsData,
+          '/me/allergies': () => mockAllergiesData,
+          '/me/ongoing-prescriptions': () => mockMedicationsData,
+          '/me/vaccinations/administered': () => mockAdministeredVaccinesData,
+          '/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
         }}
       >
         <PrivatePageLayout>
@@ -119,14 +125,14 @@ export const EmptyState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => mockPatientData,
-          '/patient/me/outstanding-forms': () => ({ data: [], count: 0 }),
-          '/patient/me/appointments': () => ({ data: [], count: 0 }),
-          '/patient/me/ongoing-conditions': () => ({ data: [], count: 0 }),
-          '/patient/me/allergies': () => ({ data: [], count: 0 }),
-          '/patient/me/medications': () => ({ data: [], count: 0 }),
-          '/patient/me/vaccinations/administered': () => ({ data: [], count: 0 }),
-          '/patient/me/vaccinations/upcoming': () => ({ data: [], count: 0 }),
+          '/me': () => mockPatientData,
+          '/me/forms/outstanding': () => ({ data: [], count: 0 }),
+          '/me/appointments/upcoming': () => ({ data: [], count: 0 }),
+          '/me/ongoing-conditions': () => ({ data: [], count: 0 }),
+          '/me/allergies': () => ({ data: [], count: 0 }),
+          '/me/ongoing-prescriptions': () => ({ data: [], count: 0 }),
+          '/me/vaccinations/administered': () => ({ data: [], count: 0 }),
+          '/me/vaccinations/upcoming': () => ({ data: [], count: 0 }),
         }}
       >
         <Story />
@@ -147,14 +153,14 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => new Promise(() => {}), // Never resolves to show loading state
-          '/patient/me/outstanding-forms': () => mockFormsData,
-          '/patient/me/appointments': () => mockAppointmentsData,
-          '/patient/me/ongoing-conditions': () => mockConditionsData,
-          '/patient/me/allergies': () => mockAllergiesData,
-          '/patient/me/medications': () => mockMedicationsData,
-          '/patient/me/vaccinations/administered': () => mockAdministeredVaccinesData,
-          '/patient/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
+          '/me': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me/forms/outstanding': () => mockFormsData,
+          '/me/appointments/upcoming': () => mockAppointmentsData,
+          '/me/ongoing-conditions': () => mockConditionsData,
+          '/me/allergies': () => mockAllergiesData,
+          '/me/ongoing-prescriptions': () => mockMedicationsData,
+          '/me/vaccinations/administered': () => mockAdministeredVaccinesData,
+          '/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
         }}
       >
         <Story />
@@ -175,18 +181,18 @@ export const PatientWithNoName: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => ({
+          '/me': () => ({
             ...mockPatientData,
             firstName: null,
             lastName: null,
           }),
-          '/patient/me/outstanding-forms': () => mockFormsData,
-          '/patient/me/appointments': () => mockAppointmentsData,
-          '/patient/me/ongoing-conditions': () => mockConditionsData,
-          '/patient/me/allergies': () => mockAllergiesData,
-          '/patient/me/medications': () => mockMedicationsData,
-          '/patient/me/vaccinations/administered': () => mockAdministeredVaccinesData,
-          '/patient/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
+          '/me/forms/outstanding': () => mockFormsData,
+          '/me/appointments/upcoming': () => mockAppointmentsData,
+          '/me/ongoing-conditions': () => mockConditionsData,
+          '/me/allergies': () => mockAllergiesData,
+          '/me/ongoing-prescriptions': () => mockMedicationsData,
+          '/me/vaccinations/administered': () => mockAdministeredVaccinesData,
+          '/me/vaccinations/upcoming': () => mockUpcomingVaccinesData,
         }}
       >
         <Story />

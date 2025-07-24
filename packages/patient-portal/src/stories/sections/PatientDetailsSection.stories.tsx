@@ -3,7 +3,7 @@ import { PatientDetailsSection } from '../../components/sections/PatientDetailsS
 import { MockedApi } from '../utils/mockedApi';
 
 import { generateMock } from '@anatine/zod-mock';
-import { PatientSchema } from '@tamanu/shared/schemas/responses/patient.schema';
+import { PatientSchema } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
 
 // TODO - ideally this could use fake data package
 const mockPatientData = generateMock(PatientSchema as any);
@@ -27,7 +27,7 @@ const meta: Meta<typeof PatientDetailsSection> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me': () => mockPatientData }}>
+      <MockedApi endpoints={{ '/me': () => mockPatientData }}>
         <Story />
       </MockedApi>
     ),
@@ -42,7 +42,7 @@ export const Default: Story = {};
 export const MalePatient: Story = {
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me': () => mockPatientDataMale }}>
+      <MockedApi endpoints={{ '/me': () => mockPatientDataMale }}>
         <Story />
       </MockedApi>
     ),
@@ -59,7 +59,7 @@ export const MalePatient: Story = {
 export const MinimalData: Story = {
   decorators: [
     Story => (
-      <MockedApi endpoints={{ '/patient/me': () => mockPatientDataMinimal }}>
+      <MockedApi endpoints={{ '/me': () => mockPatientDataMinimal }}>
         <Story />
       </MockedApi>
     ),
@@ -79,7 +79,7 @@ export const LoadingState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => new Promise(() => {}), // Never resolves to show loading state
+          '/me': () => new Promise(() => {}), // Never resolves to show loading state
         }}
       >
         <Story />
@@ -100,7 +100,7 @@ export const ErrorState: Story = {
     Story => (
       <MockedApi
         endpoints={{
-          '/patient/me': () => {
+          '/me': () => {
             throw new Error('Failed to fetch patient data');
           },
         }}

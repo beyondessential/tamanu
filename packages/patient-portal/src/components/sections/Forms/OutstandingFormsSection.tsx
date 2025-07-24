@@ -46,7 +46,7 @@ export const OutstandingFormsSection = () => {
                 form={form}
                 onClick={() => {
                   // TODO: Open form modal when implemented
-                  console.log('Opening form:', form.title);
+                  console.log('Opening form:', form.survey.name);
                 }}
               />
             ))}

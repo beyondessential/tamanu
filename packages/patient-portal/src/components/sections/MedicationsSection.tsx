@@ -39,14 +39,20 @@ export const MedicationsSection = () => {
                   />
                   <LabelValueList.ListItem
                     label="Dose"
-                    value={formatDose(medication.doseAmount, medication.units)}
+                    value={formatDose(medication.doseAmount, medication.units || undefined)}
                   />
                   <LabelValueList.ListItem
                     label="Frequency"
-                    value={formatFrequency(medication.frequency)}
+                    value={formatFrequency(medication.frequency || undefined)}
                   />
-                  <LabelValueList.ListItem label="Route" value={formatRoute(medication.route)} />
-                  <LabelValueList.ListItem label="Date" value={formatDate(medication.date)} />
+                  <LabelValueList.ListItem
+                    label="Route"
+                    value={formatRoute(medication.route || undefined)}
+                  />
+                  <LabelValueList.ListItem
+                    label="Start Date"
+                    value={formatDate(medication.startDate)}
+                  />
                   <LabelValueList.ListItem
                     label="Prescriber"
                     value={formatPrescriber(medication.prescriber)}

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppointmentCard } from '../../components/sections/Appointments/AppointmentCard';
 
 import { generateMock } from '@anatine/zod-mock';
-import { AppointmentSchema } from '@tamanu/shared/schemas/responses/appointment.schema';
+import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 
 const meta: Meta<typeof AppointmentCard> = {
   title: 'Components/AppointmentCard',

@@ -1,28 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  MedicationsArraySchema,
-  type Medication,
-} from '@tamanu/shared/schemas/responses/medication.schema';
-import { ArrayResponseSchema } from '@tamanu/shared/schemas/responses/commonResponse.schema';
-
+import { type OngoingPrescription } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
+import { OngoingPrescriptionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
 import { useApi } from '../useApi';
 import { useAuth } from '@auth/useAuth';
 
-const transformData = (response: unknown): Medication[] => {
-  const parsedResponse = ArrayResponseSchema.parse(response);
-  if (!parsedResponse.data) {
+const transformData = (response: unknown): OngoingPrescription[] => {
+  const responseData = response as { data: unknown[] };
+  if (!responseData.data) {
     return [];
   }
-  return MedicationsArraySchema.parse(parsedResponse.data);
+
+  return responseData.data.map(item => OngoingPrescriptionSchema.parse(item));
 };
 
 export const useMedicationsQuery = () => {
   const api = useApi();
   const { user } = useAuth();
 
-  return useQuery<unknown, Error, Medication[]>({
+  return useQuery<unknown, Error, OngoingPrescription[]>({
     queryKey: ['medications', user?.id],
-    queryFn: () => api.get('/patient/me/medications'),
+    queryFn: () => api.get('/me/ongoing-prescriptions'),
     enabled: !!user?.id,
     select: transformData,
   });
