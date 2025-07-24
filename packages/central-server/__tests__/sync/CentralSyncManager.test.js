@@ -3671,7 +3671,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('will not sync sensitive lab requests to other facilities even if syncAllLabRequests is true', async () => {
+        it('will sync sensitive lab requests to any facility with syncAllLabRequests enabled', async () => {
           await models.Setting.create({
             facilityId: nonSensitiveFacility.id,
             key: 'sync.syncAllLabRequests',
@@ -3679,11 +3679,12 @@ describe('CentralSyncManager', () => {
             scope: SETTINGS_SCOPES.FACILITY,
           });
 
-          await checkSensitiveRecordFiltering({
-            model: models.LabRequest,
-            sensitiveId: sensitiveLabRequest.id,
-            nonSensitiveId: nonSensitiveLabRequest.id,
-          });
+          const labRequestIds = await getOutgoingIdsForRecordType(
+            sensitiveFacility.id,
+            models.LabRequest.tableName,
+          );
+          expect(labRequestIds).toContain(sensitiveLabRequest.id);
+          expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
         });
       });
     });
