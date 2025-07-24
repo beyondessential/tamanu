@@ -44,12 +44,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: false })
   displayId: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.labRequests)
+  @ManyToOne(() => Encounter, encounter => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => User, (user) => user.labRequests)
+  @ManyToOne(() => User, user => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
@@ -74,7 +74,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;
 
-  @ManyToOne(() => User, (user) => user.collectedLabRequests)
+  @ManyToOne(() => User, user => user.collectedLabRequests)
   collectedBy: User;
   @RelationId(({ collectedBy }) => collectedBy)
   collectedById: string;
@@ -84,7 +84,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ specimenType }) => specimenType)
   specimenTypeId: string;
 
-  @OneToMany(() => LabTest, (labTest) => labTest.labRequest)
+  @OneToMany(() => LabTest, labTest => labTest.labRequest)
   tests: LabTest[];
 
   static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
@@ -107,17 +107,17 @@ export class LabRequest extends BaseModel implements ILabRequest {
     return query.getMany();
   }
 
-  static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<BaseModel> {
+  static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<LabRequest> {
     const { labTestTypeIds = [] } = data;
     if (!labTestTypeIds.length) {
       throw new Error('A request must have at least one test');
     }
 
-    const labRequest = await this.createAndSaveOne(data);
+    const labRequest = (await this.createAndSaveOne(data)) as LabRequest;
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map((labTestTypeId) =>
+      labTestTypeIds.map(labTestTypeId =>
         LabTest.createAndSaveOne({
           labTestType: labTestTypeId,
           labRequest: labRequest.id,

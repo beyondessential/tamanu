@@ -52,7 +52,7 @@ export abstract class BaseModel extends BaseModelWithoutId {
       columns specified with 'IdRelation' and 'RelationId' need special handling.
     */
   static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
-    const repo = (this as any).getRepository<T>();
+    const repo = (this as any).getRepository();
 
     // Find the actual instance we want to update
     const instance = await repo.findOne({ where: { id } as any });

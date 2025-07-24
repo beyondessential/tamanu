@@ -18,7 +18,7 @@ describe('findRecentlyViewed', () => {
     middleName: 'Fredby',
     lastName: 'Frederson',
     sex: 'fred',
-    dateOfBirth: new Date(1971, 5, 1),
+    dateOfBirth: '1971-06-01',
     culturalName: 'Fredde',
     village: null,
     villageId: null,
