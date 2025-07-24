@@ -57,6 +57,7 @@ export class Referral extends Model {
     `;
   }
 
+  // TODO: column name difference makes it complicated
   static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),

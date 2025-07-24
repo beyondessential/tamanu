@@ -84,6 +84,7 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
+  // TODO: column name difference makes it complicated
   static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
@@ -139,13 +140,13 @@ export class SurveyResponseAnswer extends Model {
       surveyResponse.surveyId!,
       { includeAllVitals: true },
     );
-    const calculatedScreenComponents = screenComponents.filter((c) => c.calculation);
+    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
     const updatedAnswerDataElement: ProgramDataElement = await (
       this as any
     ).getProgramDataElement();
     const answers: any[] = await (surveyResponse as any).getAnswers();
     const values: { [key: string]: any } = {};
-    answers.forEach((answer) => {
+    answers.forEach(answer => {
       values[answer.dataElementId] = answer.body;
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
@@ -165,7 +166,7 @@ export class SurveyResponseAnswer extends Model {
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
       const existingCalculatedAnswer = answers.find(
-        (answer) => answer.dataElementId === component.dataElement.id,
+        answer => answer.dataElementId === component.dataElement.id,
       );
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
