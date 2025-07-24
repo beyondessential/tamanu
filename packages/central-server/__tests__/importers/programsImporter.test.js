@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import {
@@ -5,14 +7,14 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
-import { Op } from 'sequelize';
-import { camelCase } from 'lodash';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
@@ -154,6 +156,19 @@ describe('Programs import', () => {
     });
   });
 
+  it('should properly skip surveys as obsolete', async () => {
+    await doImport({ file: 'valid', dryRun: false });
+    await doImport({ file: 'obsolete', dryRun: false });
+    const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete-clone', dryRun: true });
+    console.log('stats', stats);
+    expect(errors).toBeEmpty();
+    expect(didntSendReason).toEqual('dryRun');
+    expect(stats).toMatchObject({
+      Program: { created: 0, skipped: 1, errored: 0 },
+      Survey: { created: 0, skipped: 1, errored: 0 },
+    });
+  });
+
   it('should soft delete survey questions', async () => {
     const { Survey, SurveyScreenComponent } = ctx.store.models;
 
@@ -186,7 +201,7 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
         ProgramDataElement: { updated: 3 },
-        SurveyScreenComponent: { updated: 1, deleted: 2 },
+        SurveyScreenComponent: { skipped: 1, deleted: 2 },
       });
     }
 
@@ -454,8 +469,8 @@ describe('Programs import', () => {
         const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
         expect(errors).toBeEmpty();
         expect(stats).toMatchObject({
-          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
-          SurveyScreenComponent: { updated: 15, deleted: 1 },
+          ProgramDataElement: { skipped: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { skipped: 15, deleted: 1 },
         });
       }
 
@@ -494,10 +509,10 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
       expect(didntSendReason).toEqual('dryRun');
       expect(stats).toMatchObject({
-        Program: { created: 0, updated: 1, errored: 0 },
-        Survey: { created: 0, updated: 1, errored: 0 },
-        ProgramRegistry: { created: 0, updated: 1, errored: 0 },
-        ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+        Program: { created: 0, skipped: 1, errored: 0 },
+        Survey: { created: 0, skipped: 1, errored: 0 },
+        ProgramRegistry: { created: 0, skipped: 1, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 1, skipped: 1, updated: 2, errored: 0 },
       });
     });
 
@@ -851,7 +866,7 @@ describe('Programs import', () => {
         expect(stats).toMatchObject({
           Program: { created: 1, updated: 0, errored: 0 },
           Survey: { created: 2, updated: 0, errored: 0 },
-          ProgramDataElement: { created: 7, updated: 1, errored: 0 },
+          ProgramDataElement: { created: 7, skipped: 1, errored: 0 },
           SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
         });
       });
@@ -1134,7 +1149,7 @@ describe('Programs import', () => {
 
       const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
         option =>
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${programDataElement.id}.option.${camelCase(option)}`,
+          getReferenceDataOptionStringId(programDataElement.id, 'programDataElement', option),
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));

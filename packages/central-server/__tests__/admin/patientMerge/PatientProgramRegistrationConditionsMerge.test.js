@@ -22,7 +22,7 @@ describe('Merging Patient Program Registration Conditions', () => {
     await ctx.close();
   });
 
-  it('hard deletes all conditions from duplicate registrations', async () => {
+  it('soft deletes all conditions from duplicate registrations', async () => {
     const { PatientProgramRegistration, PatientProgramRegistrationCondition } = models;
     const [keep, merge] = await makeTwoPatients(models);
     const programRegistry = await setupProgramRegistry(models);
@@ -107,7 +107,7 @@ describe('Merging Patient Program Registration Conditions', () => {
     });
 
     expect(newKeepPatientConditions.length).toEqual(1);
-    expect(newMergePatientConditions.length).toEqual(0);
+    expect(newMergePatientConditions.length).toEqual(2);
 
     const afterMergeKeepCondition = newKeepPatientConditions[0];
     expect(afterMergeKeepCondition.id).toBe(keepCondition.id);
