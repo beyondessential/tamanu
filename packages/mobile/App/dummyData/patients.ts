@@ -1,7 +1,7 @@
 import { Chance } from 'chance';
 import { sample } from 'lodash';
 import { GenderOptions } from '/helpers/constants';
-import { bloodOptions } from '/helpers/additionalData';
+
 import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
