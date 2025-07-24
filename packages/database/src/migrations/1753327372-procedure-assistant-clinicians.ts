@@ -84,7 +84,7 @@ export async function down(query: QueryInterface): Promise<void> {
   const assistantClinicians = (await query.sequelize.query(
     `SELECT procedure_id, user_id FROM procedure_assistant_clinicians
      WHERE deleted_at IS NULL
-     GROUP BY procedure_id`,
+     GROUP BY procedure_id, user_id`,
     { type: QueryTypes.SELECT },
   )) as Array<{ procedure_id: string; user_id: string }>;
 
