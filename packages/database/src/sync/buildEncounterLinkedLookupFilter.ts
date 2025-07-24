@@ -16,13 +16,21 @@ function addSensitiveFacilityIdIfApplicable() {
   `;
 }
 
-export function buildEncounterLinkedLookupFilter(model: typeof Model, extraJoins?: string[]) {
+export function buildEncounterLinkedLookupFilter(
+  model: typeof Model,
+  options?: {
+    extraJoins?: string[]; // extra joins needed to traverse between this model and the encounters table
+    isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
+  },
+) {
+  const { extraJoins, isLabRequest } = options || {};
   return {
     select: buildSyncLookupSelect(model, {
       patientId: 'encounters.patient_id',
       // Only populate facility_id when the encounter is from a sensitive facility
       // This ensures sensitive encounters are only synced to their originating facility
       facilityId: addSensitiveFacilityIdIfApplicable(),
+      isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
     }),
     joins: buildEncounterLinkedSyncFilterJoins([
       model.tableName,

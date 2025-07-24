@@ -51,7 +51,9 @@ export class InvoicePatientPayment extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, ['invoice_payments', 'invoices']);
+    return buildEncounterLinkedLookupFilter(this, {
+      extraJoins: ['invoice_payments', 'invoices'],
+    });
   }
 
   static getListReferenceAssociations(models: Models) {

@@ -51,6 +51,6 @@ export class InvoiceItemDiscount extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, ['invoice_items', 'invoices']);
+    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['invoice_items', 'invoices'] });
   }
 }

@@ -89,6 +89,6 @@ export class ImagingResult extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, ['imaging_requests']);
+    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['imaging_requests'] });
   }
 }

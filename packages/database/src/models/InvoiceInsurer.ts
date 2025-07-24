@@ -47,6 +47,6 @@ export class InvoiceInsurer extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, ['invoices']);
+    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['invoices'] });
   }
 }

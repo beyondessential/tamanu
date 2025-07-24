@@ -96,7 +96,7 @@ export class InvoiceItem extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, ['invoices']);
+    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['invoices'] });
   }
 
   static getListReferenceAssociations(models: Models) {
