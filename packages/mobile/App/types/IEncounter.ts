@@ -5,16 +5,18 @@ import { IUser } from './IUser';
 import { IDepartment } from './IDepartment';
 import { ILocation } from './ILocation';
 
-export enum EncounterType {
-  Admission = 'admission',
-  Clinic = 'clinic',
-  Imaging = 'imaging',
-  Emergency = 'emergency',
-  Observation = 'observation',
-  Triage = 'triage',
-  SurveyResponse = 'surveyResponse',
-  Vaccination = 'vaccination',
-}
+export const EncounterType = {
+  Admission: 'admission',
+  Clinic: 'clinic',
+  Imaging: 'imaging',
+  Emergency: 'emergency',
+  Observation: 'observation',
+  Triage: 'triage',
+  SurveyResponse: 'surveyResponse',
+  Vaccination: 'vaccination',
+} as const;
+
+export type EncounterType = (typeof EncounterType)[keyof typeof EncounterType];
 
 export interface IEncounter {
   id: ID;
