@@ -34,7 +34,7 @@ import { PatientProgramRegistrationCondition } from './PatientProgramRegistratio
 
 // TypeORM expects keys without the "ID" part. i.e. patient instead of patientId
 // and here we have to extract values from the preexistent model to work
-const getValuesFromRelations = (values) => {
+const getValuesFromRelations = values => {
   if (!values) {
     return {};
   }
@@ -112,16 +112,18 @@ export class PatientProgramRegistration extends BaseModel implements IPatientPro
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patient as unknown as string);
   }
 
   @BeforeInsert()
   async assignIdAsPatientProgramRegistrationId(): Promise<void> {
-    // For patient program registrations, we use a composite 
+    // For patient program registrations, we use a composite
     // primary key of patientId plus programRegistryId
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patient.replaceAll(';', ':')};${this.programRegistry.replaceAll(';', ':')}`;
+    this.id = `${(this.patient as unknown as string).replaceAll(';', ':')};${(
+      this.programRegistry as unknown as string
+    ).replaceAll(';', ':')}`;
   }
 
   static async getRecentOne(

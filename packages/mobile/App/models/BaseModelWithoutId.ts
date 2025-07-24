@@ -106,7 +106,9 @@ export abstract class BaseModelWithoutId extends BaseEntity {
     the same column name (fieldNameId: 'some-id'). However, it will only
     work that way on creation and not edition.
   */
-  static createAndSaveOne<T extends BaseModelWithoutId>(data?: object): Promise<T> {
+  static createAndSaveOne<T extends BaseModelWithoutId>(
+    data?: object,
+  ): Promise<T & { id: string }> {
     const repo = (this as any).getRepository();
     return repo.create(sanitiseForImport<T>(repo, data || {})).save();
   }

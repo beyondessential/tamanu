@@ -124,7 +124,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patient as unknown as string);
   }
 
   @AfterInsert()

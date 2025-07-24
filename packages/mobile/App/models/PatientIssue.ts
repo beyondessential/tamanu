@@ -26,6 +26,6 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patient as unknown as string);
   }
 }

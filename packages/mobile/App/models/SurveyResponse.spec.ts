@@ -1,5 +1,5 @@
 import { Database } from '~/infra/db';
-import { SurveyTypes } from '~/types';
+import { IPatient, IUser, SurveyTypes } from '~/types';
 import { fake, fakeEncounter, fakePatient, fakeUser } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
@@ -51,7 +51,7 @@ describe('SurveyResponse', () => {
       });
 
       const encounter = fakeEncounter();
-      encounter.patient = patient;
+      encounter.patient = patient as unknown as IPatient;
       encounter.examiner = user;
       await Database.models.Encounter.insert(encounter);
 

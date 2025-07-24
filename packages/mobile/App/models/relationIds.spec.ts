@@ -3,17 +3,24 @@ import { BaseModel } from '~/models/BaseModel';
 import { MODELS_ARRAY } from '~/models/modelsMap';
 
 const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
-  const { relationIds, columns, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
+  const { relationIds, columns, manyToOneRelations, oneToOneRelations } =
+    model.getRepository().metadata;
 
-  const columnsIndex = columns.reduce((memo, column) => ({
-    ...memo,
-    [column.propertyName]: column,
-  }), {});
+  const columnsIndex = columns.reduce(
+    (memo, column) => ({
+      ...memo,
+      [column.propertyName]: column,
+    }),
+    {},
+  );
 
-  const relationIdsIndex = relationIds.reduce((memo, relationId) => ({
-    ...memo,
-    [relationId.propertyName]: relationId,
-  }), {});
+  const relationIdsIndex = relationIds.reduce(
+    (memo, relationId) => ({
+      ...memo,
+      [relationId.propertyName]: relationId,
+    }),
+    {},
+  );
 
   return [
     ...manyToOneRelations.map(relation => {
@@ -29,18 +36,16 @@ const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
       }
     }),
   ];
-}
+};
 
 const verifyModel = (model: typeof BaseModel): string[] | null => {
-  return [
-    ...verifyModelHasIdsForRelations(model),
-  ];
-}
+  return [...verifyModelHasIdsForRelations(model)];
+};
 
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toHaveRelationIdsForApplicableRelations(): R,
+      toHaveRelationIdsForApplicableRelations(): R;
     }
   }
 }
@@ -59,7 +64,7 @@ expect.extend({
         pass: true,
       };
     }
-  }
+  },
 });
 
 beforeAll(async () => {

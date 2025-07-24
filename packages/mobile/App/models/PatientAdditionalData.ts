@@ -157,7 +157,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   async assignIdAsPatientId(): Promise<void> {
-    this.id = this.patient;
+    this.id = this.patient as unknown as string;
   }
 
   @BeforeInsert()
@@ -211,7 +211,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patient as unknown as string);
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
