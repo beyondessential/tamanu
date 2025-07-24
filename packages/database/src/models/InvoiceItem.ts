@@ -97,12 +97,6 @@ export class InvoiceItem extends Model {
 
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this, ['invoices']);
-    // return {
-    //   select: buildSyncLookupSelect(this, {
-    //     patientId: 'encounters.patient_id',
-    //   }),
-    //   joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
-    // };
   }
 
   static getListReferenceAssociations(models: Models) {

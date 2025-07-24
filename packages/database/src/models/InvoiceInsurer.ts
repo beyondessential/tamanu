@@ -1,12 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../types/model';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class InvoiceInsurer extends Model {
   declare id: string;
@@ -50,11 +47,6 @@ export class InvoiceInsurer extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-      }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
-    };
+    return buildEncounterLinkedLookupFilter(this, ['invoices']);
   }
 }
