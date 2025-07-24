@@ -16,16 +16,13 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   @Column({ nullable: false })
   value: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.patientFieldValues)
+  @ManyToOne(() => Patient)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  @ManyToOne(
-    () => PatientFieldDefinition,
-    (patientFieldDefinition) => patientFieldDefinition.patientFieldValues,
-  )
+  @ManyToOne(() => PatientFieldDefinition)
   definition: PatientFieldDefinition;
 
   @RelationId(({ definition }) => definition)
@@ -35,7 +32,7 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   async assignIdAsPatientIdDefinitionId(): Promise<void> {
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patient.replaceAll(';', ':')};${this.definition.replaceAll(';', ':')}`;
+    this.id = `${this.patientId.replace(/;/g, ':')};${this.definitionId.replace(/;/g, ':')}`;
   }
 
   static async getForPatientAndDefinition(
@@ -44,7 +41,8 @@ export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   ): Promise<PatientFieldValue> {
     // use a query builder instead of find, as apparently there's some
     // misbehaviour around how typeorm traverses this relation
-    return await PatientFieldValue.getRepository()
+    return await (PatientFieldValue as any)
+      .getRepository()
       .createQueryBuilder('patient_field_value')
       .where('patient_field_value.patientId = :patientId', { patientId })
       .andWhere('patient_field_value.definitionId = :definitionId', { definitionId })

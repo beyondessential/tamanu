@@ -19,13 +19,13 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   @Column('text')
   type: PatientIssueType;
 
-  @ManyToOne(() => Patient, (patient) => patient.issues)
+  @ManyToOne(() => Patient, patient => patient.issues)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patientId);
   }
 }

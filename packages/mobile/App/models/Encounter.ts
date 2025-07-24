@@ -242,8 +242,8 @@ export class Encounter extends BaseModel implements IEncounter {
     return encounter;
   }
 
-  static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const repo = this.getRepository();
+  static async getForPatient(patientId: string): Promise<(Encounter & { notes: Note[] })[]> {
+    const repo = (this as any).getRepository();
 
     const encounters = await repo.find({
       where: { patient: { id: patientId } },

@@ -17,7 +17,7 @@ describe('Encounter', () => {
       const encounter = fakeEncounter();
       encounter.patient = patient;
       encounter.examiner = user;
-      await Database.models.Encounter.insert(encounter);
+      await Database.models.Encounter.insert(encounter as any);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
       delete encounter.examiner; // examiner is not eager-loaded from db
