@@ -20,14 +20,6 @@ Contains rules that are specific to this project, including:
 
 Contains documentation about the project's codebase for LLM context.
 
-### `/plans` - Development Plans
-
-Contains development plans for complex features.
-
-### `/on-call` - On-Call Documentation
-
-Contains on-call and operational documentation.
-
 ## Usage
 
 When an LLM agent needs to follow a rule:
@@ -38,53 +30,7 @@ When an LLM agent needs to follow a rule:
 
 ## Working with the Submodule
 
-### First Time Setup
-
-If you see an empty `llm/common-rules/` folder after pulling:
-
-```bash
-# Run this in your main repo directory
-git submodule update --init --recursive
-```
-
-### Keeping Rules Updated
-
-**Manual updates (run occasionally):**
-
-```bash
-git pull --recurse-submodules
-```
-
-**Make it completely automatic (optional):**
-
-```bash
-# Set up a post-merge hook to auto-update submodules after every pull
-echo "git submodule update --remote --merge" > .git/hooks/post-merge
-chmod +x .git/hooks/post-merge
-```
-
-After setting up the hook, submodules will update automatically whenever you `git pull`.
-
-### Updating Shared Rules
-
-**To update a rule and sync it everywhere:**
-Tell the AI: "use the `update-submodule.md` rule to update [rule name]" - it will handle the submodule workflow for you.
-
-**Manual process:**
-
-```bash
-# Make changes in the submodule
-cd llm/common-rules
-# ... make changes ...
-git add . && git commit -m "feat: improve rule X"
-git push
-
-# Update main project to use the latest
-cd ../../
-git submodule update --remote llm/common-rules
-git add llm/common-rules
-git commit -m "deps: update shared LLM rules"
-```
+For detailed submodule usage instructions (setup, updating, contributing), see the [common-rules README](./common-rules/README.md).
 
 ### Adding New Rules
 
