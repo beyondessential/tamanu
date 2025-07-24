@@ -157,14 +157,14 @@ export const ProcedureForm = React.memo(
                   data-testid="field-lit6"
                 />
                 <Field
-                  name="assistantId"
+                  name="assistantClinicianIds"
                   label={
                     <TranslatedText
-                      stringId="procedure.assistant.label"
-                      fallback="Assistant clinician"
+                      stringId="procedure.assistantClinicians.label"
+                      fallback="Assistant clinicians"
                     />
                   }
-                  component={AutocompleteField}
+                  component={MultiAutocompleteField}
                   suggester={assistantSuggester}
                   data-testid="field-f3l4"
                 />
@@ -319,7 +319,7 @@ export const ProcedureForm = React.memo(
               fallback="Clinician"
             />,
           ),
-          assistantId: optionalForeignKey(),
+          assistantClinicianIds: yup.array().of(yup.string()),
           anaesthetistId: optionalForeignKey(),
           assistantAnaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),
@@ -338,7 +338,6 @@ ProcedureForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
-
   anaestheticSuggester: suggesterType.isRequired,
   procedureSuggester: suggesterType.isRequired,
   physicianSuggester: suggesterType.isRequired,

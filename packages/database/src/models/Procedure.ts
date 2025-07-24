@@ -17,7 +17,6 @@ export class Procedure extends Model {
   declare locationId?: string;
   declare procedureTypeId?: string;
   declare physicianId?: string;
-  declare assistantId?: string;
   declare anaesthetistId?: string;
   declare anaestheticId?: string;
   declare departmentId?: string;
@@ -67,10 +66,6 @@ export class Procedure extends Model {
       as: 'LeadClinician',
     });
     this.belongsTo(models.User, {
-      foreignKey: 'assistantId',
-      as: 'AssistantClinician',
-    });
-    this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
       as: 'Anaesthetist',
     });
@@ -85,6 +80,18 @@ export class Procedure extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'assistantAnaesthetistId',
       as: 'AssistantAnaesthetist',
+    });
+
+    this.hasMany(models.ProcedureAssistantClinician, {
+      foreignKey: 'procedureId',
+      as: 'procedureAssistantClinicians',
+    });
+
+    this.belongsToMany(models.User, {
+      through: models.ProcedureAssistantClinician,
+      foreignKey: 'procedureId',
+      otherKey: 'userId',
+      as: 'AssistantClinicians',
     });
   }
 
