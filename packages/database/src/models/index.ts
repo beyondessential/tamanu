@@ -2,6 +2,7 @@ export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
+export * from './PatientUser';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -69,6 +70,7 @@ export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
+export * from './PatientSurveyAssignment';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
