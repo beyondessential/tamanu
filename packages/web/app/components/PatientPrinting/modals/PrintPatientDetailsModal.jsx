@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { BookUser } from 'lucide-react';
 
 import { Modal } from '../../Modal';
-import { Button } from '../../Button';
+import { Button, OutlinedButton } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
@@ -94,7 +95,7 @@ const PRINT_OPTIONS = {
     ),
     icon: ClearanceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
-    condition: (getSetting) => getSetting('features.enableCovidClearanceCertificate'),
+    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: (
@@ -139,7 +140,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
 
-  const isVisible = (condition) => !condition || condition(getSetting, ability);
+  const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (
     <div className={className}>
@@ -335,7 +336,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   const api = useApi();
 
   const setCurrentlyPrinting = useCallback(
-    async (type) => {
+    async type => {
       setPrintType(type);
       setImageData('');
       if (type === 'idcard') {
@@ -416,13 +417,14 @@ export const PrintPatientDetailsModal = ({ patient }) => {
 
   return (
     <>
-      <Button size="small" onClick={openModal} data-testid="button-kdtv">
+      <OutlinedButton onClick={openModal} data-testid="button-kdtv">
+        <BookUser size={20} style={{ marginRight: 8 }} />
         <TranslatedText
-          stringId="patient.detailsSidebar.action.printIdForms"
-          fallback="ID forms"
+          stringId="patient.detailsSidebar.action.patientResources"
+          fallback="Patient resources"
           data-testid="translatedtext-wcdb"
         />
-      </Button>
+      </OutlinedButton>
       {mainComponent}
     </>
   );
