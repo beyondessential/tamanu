@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 
 export const usersRouter = express.Router();
 
@@ -100,6 +100,11 @@ usersRouter.post(
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
 
+    const today = getCurrentDateString();
+    if (endDate < today) {
+      throw new InvalidOperationError('Cannot create leave in the past');
+    }
+
     if (new Date(startDate) > new Date(endDate)) {
       throw new InvalidOperationError('startDate must be before or equal to endDate');
     }
@@ -134,11 +139,12 @@ usersRouter.post(
 
 /**
  * Get all leaves for a user
+ * If all is false, only upcoming leaves are returned
  */
 usersRouter.get(
   '/:id/leaves',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { id: userId } = params;
 
     req.checkPermission('list', 'User');
@@ -147,6 +153,12 @@ usersRouter.get(
       userId,
       removedAt: null
     };
+
+    if (query.all !== 'true') {
+      where.endDate = {
+        [Op.gte]: getCurrentDateString()
+      };
+    }
 
     const leaves = await models.UserLeave.findAll({
       where,
@@ -157,5 +169,30 @@ usersRouter.get(
   })
 );
 
+usersRouter.delete(
+  '/:id/leaves/:leaveId',
+  asyncHandler(async (req, res) => {
+    const { models, params, user: currentUser } = req;
+    const { id: userId, leaveId } = params;
 
+    req.checkPermission('write', 'User');
 
+    const leave = await models.UserLeave.findOne({
+      where: { id: leaveId, userId } 
+    });
+
+    if (!leave) {
+      throw new NotFoundError('Leave not found');
+    }
+
+    if (leave.removedAt) {
+      throw new InvalidOperationError('Leave already removed');
+    }
+
+    leave.removedBy = currentUser.id;
+    leave.removedAt = getCurrentDateTimeString();
+    await leave.save();
+
+    res.send(leave);
+  })
+);
