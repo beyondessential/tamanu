@@ -97,15 +97,17 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  if (!error || typeof error.status !== 'number') {
+  const status = error?.response?.status;
+  if (!status || typeof status !== 'number') {
     return true;
   }
   // we don't want to show toast for 403 (no permission) errors
-  return error.status >= 400 && error.status != 403;
+  return status >= 400 && status != 403;
 }
 
 export function isErrorUnknownAllow404s(error) {
-  if (error?.status === 404) {
+  const status = error?.response?.status;
+  if (status === 404) {
     return false;
   }
   return isErrorUnknownDefault(error);

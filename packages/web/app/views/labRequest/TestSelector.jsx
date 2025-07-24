@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, capitalize, FormHelperText } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
@@ -12,7 +13,6 @@ import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 import {
-  getReferenceDataStringId,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components/Translation';
