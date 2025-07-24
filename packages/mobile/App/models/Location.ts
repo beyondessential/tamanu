@@ -19,7 +19,7 @@ export class Location extends BaseModel implements ILocation {
   name: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: VisibilityStatus.Current;
+  visibilityStatus: 'current';
 
   @ManyToOne(() => Facility)
   facility: Facility;

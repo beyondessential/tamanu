@@ -17,7 +17,7 @@ export class Department extends BaseModel implements IDepartment {
   name: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: VisibilityStatus.Current;
+  visibilityStatus: 'current';
 
   @ManyToOne(() => Facility)
   facility: Facility;
