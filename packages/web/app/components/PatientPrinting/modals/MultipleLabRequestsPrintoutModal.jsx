@@ -14,7 +14,6 @@ import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { useSettings } from '../../../contexts/Settings';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const api = useApi();
@@ -28,10 +27,8 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
     () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
   );
 
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(encounter.patientId);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(encounter.patientId);
 
   const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
     ['village', encounter.patientId],
