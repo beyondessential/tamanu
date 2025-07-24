@@ -16,7 +16,7 @@ function addSensitiveFacilityIdIfApplicable() {
   `;
 }
 
-export function buildEncounterLinkedLookupFilter(model: typeof Model) {
+export function buildEncounterLinkedLookupFilter(model: typeof Model, joins?: string[]) {
   return {
     select: buildSyncLookupSelect(model, {
       patientId: 'encounters.patient_id',
@@ -24,6 +24,12 @@ export function buildEncounterLinkedLookupFilter(model: typeof Model) {
       // This ensures sensitive encounters are only synced to their originating facility
       facilityId: addSensitiveFacilityIdIfApplicable(),
     }),
-    joins: buildEncounterLinkedSyncFilterJoins([model.tableName, 'encounters', 'locations', 'facilities']),
+    joins: buildEncounterLinkedSyncFilterJoins([
+      model.tableName,
+      ...(joins || []),
+      'encounters',
+      'locations',
+      'facilities',
+    ]),
   };
 }
