@@ -70,9 +70,9 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex('patient_survey_assignments', ['patient_id', 'survey_id'], {
-    name: 'idx_patient_id_status',
-  });
+await query.addIndex('patient_survey_assignments', ['patient_id', 'status'], {
+  name: 'idx_patient_survey_status',
+});
 }
 
 export async function down(query: QueryInterface): Promise<void> {
