@@ -38,25 +38,44 @@ When an LLM agent needs to follow a rule:
 
 ## Working with the Submodule
 
-### Initial Setup (for new clones)
+### First Time Setup
+
+If you see an empty `llm/common-rules/` folder after pulling:
 
 ```bash
-# Clone with submodules
-git clone --recursive https://github.com/beyondessential/tamanu.git
-
-# Or if already cloned, initialize submodules
-git submodule init
-git submodule update
+# Run this in your main repo directory
+git submodule update --init --recursive
 ```
+
+### Keeping Rules Updated
+
+**Manual updates (run occasionally):**
+
+```bash
+git pull --recurse-submodules
+```
+
+**Make it completely automatic (optional):**
+
+```bash
+# Set up a post-merge hook to auto-update submodules after every pull
+echo "git submodule update --remote --merge" > .git/hooks/post-merge
+chmod +x .git/hooks/post-merge
+```
+
+After setting up the hook, submodules will update automatically whenever you `git pull`.
 
 ### Updating Shared Rules
 
-**To update rules in the shared repository:**
+**To update a rule and sync it everywhere:**
+Tell the AI: "use the `update-submodule.md` rule to update [rule name]" - it will handle the submodule workflow for you.
+
+**Manual process:**
 
 ```bash
 # Make changes in the submodule
 cd llm/common-rules
-# ... make changes to rules/ ...
+# ... make changes ...
 git add . && git commit -m "feat: improve rule X"
 git push
 
@@ -65,15 +84,6 @@ cd ../../
 git submodule update --remote llm/common-rules
 git add llm/common-rules
 git commit -m "deps: update shared LLM rules"
-```
-
-**To pull latest shared rules:**
-
-```bash
-# Update submodule to latest
-git submodule update --remote llm/common-rules
-git add llm/common-rules
-git commit -m "deps: update to latest shared LLM rules"
 ```
 
 ### Adding New Rules
@@ -88,6 +98,7 @@ The shared repository contains these rules for use across Tamanu and Tupaia:
 - Agent onboarding: `onboard-agent.md` - standardized onboarding flow
 - Git workflows: `commit.md`, `create-branch.md`, `rebase-branch.md`
 - Documentation: `write-docs.md`, `write-card-description.md`, `create-rule.md`
+- Submodule management: `update-submodule.md`, `get-latest-rules.md`
 
 ## Contributing
 
