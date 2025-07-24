@@ -2,9 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
-import { NotFoundError } from '@tamanu/api-client';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 
 export const surveyResponse = express.Router();
 
