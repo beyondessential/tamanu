@@ -15,7 +15,7 @@ export class Prescription extends Model {
   declare idealTimes?: string[];
   declare route: string;
   declare date: string;
-  declare startDate: string;
+  declare startDate?: string;
   declare endDate?: string;
   declare durationValue?: number | null;
   declare durationUnit?: string | null;
@@ -59,7 +59,7 @@ export class Prescription extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
         startDate: dateTimeType('startDate', {
-          allowNull: false,
+          allowNull: true,
           defaultValue: getCurrentDateTimeString,
         }),
         endDate: dateTimeType('endDate'),
