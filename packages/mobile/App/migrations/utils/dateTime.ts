@@ -9,7 +9,7 @@ import { getTable } from './queryRunner';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
-async function createDateTimeStringUpMigration(
+export async function createDateTimeStringUpMigration(
   queryRunner: QueryRunner,
   tableName: string,
   columnName: string,
@@ -50,7 +50,7 @@ async function createDateTimeStringUpMigration(
   );
 }
 
-async function createDateTimeStringDownMigration(
+export async function createDateTimeStringDownMigration(
   queryRunner: QueryRunner,
   tableName: string,
   columnName: string,
@@ -59,5 +59,7 @@ async function createDateTimeStringDownMigration(
   await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.query(
+    `ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`,
+  );
 }

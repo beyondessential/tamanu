@@ -85,12 +85,12 @@ export abstract class BaseModelWithoutId extends BaseEntity {
     this: ObjectType<T>,
     options?: FindManyOptions<T>,
   ): Promise<T[]> {
-    const repo = this.getRepository<T>();
+    const repo = (this as any).getRepository();
 
-    if (repo.metadata.columns.find((col) => col.propertyName === 'visibilityStatus')) {
+    if (repo.metadata.columns.find(col => col.propertyName === 'visibilityStatus')) {
       return repo.find({
         ...options,
-        where: { ...options.where, visibilityStatus: VisibilityStatus.Current },
+        where: { ...options?.where, visibilityStatus: VisibilityStatus.Current } as any,
       });
     }
     return repo.find(options);
@@ -107,8 +107,8 @@ export abstract class BaseModelWithoutId extends BaseEntity {
     work that way on creation and not edition.
   */
   static createAndSaveOne<T extends BaseModelWithoutId>(data?: object): Promise<T> {
-    const repo = this.getRepository<T>();
-    return repo.create(sanitiseForImport<T>(repo, data)).save();
+    const repo = (this as any).getRepository();
+    return repo.create(sanitiseForImport<T>(repo, data || {})).save();
   }
 
   static syncDirection = null;
@@ -120,6 +120,6 @@ export abstract class BaseModelWithoutId extends BaseEntity {
   static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
   static getTableName(): string {
-    return this.getRepository().metadata.tableName;
+    return (this as any).getRepository().metadata.tableName;
   }
 }

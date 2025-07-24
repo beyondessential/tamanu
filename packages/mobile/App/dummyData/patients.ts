@@ -32,8 +32,7 @@ export const generatePatient = (generator = defaultGenerator): IPatient => {
     middleName,
     lastName,
     culturalName: generator.bool() ? '' : generator.name(),
-    bloodType: generator.pickone(bloodOptions).value,
     sex: gender,
-    dateOfBirth: generator.birthday(),
+    dateOfBirth: generator.birthday().toISOString().split('T')[0],
   };
 };

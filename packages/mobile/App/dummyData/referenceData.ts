@@ -1,6 +1,7 @@
 import { Chance } from 'chance';
 import { IReferenceData, ReferenceDataType } from '~/types';
-import { SyncRecord } from '~/services/sync/source';
+import { SyncRecord } from '~/services/sync/types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 // for dummy data generation
 import { generatePatient } from '~/dummyData/patients';
@@ -20,8 +21,10 @@ const dummyPatients = new Array(DUMMY_PATIENT_COUNT)
 const sortByModified = (a: SyncRecord, b: SyncRecord) => a.data.lastModified - b.data.lastModified;
 
 const dummyPatientRecords: SyncRecord[] = dummyPatients.map(p => ({
+  id: p.id + '_sync',
+  recordId: p.id,
   data: p,
-  recordType: 'patient',
+  recordType: 'Patient',
 }));
 
 const makeRefRecords = (referenceDataType: ReferenceDataType, values: string): IReferenceData[] =>
@@ -29,6 +32,7 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string): I
     ...record,
     type: referenceDataType,
     lastModified: generator.date({ year: 1971, month: 1, day: 0 }),
+    visibilityStatus: VisibilityStatus.Current,
   }));
 
 const villageRefData = makeRefRecords(
@@ -51,8 +55,10 @@ const villageRefData = makeRefRecords(
 const diagnosisRefData = makeRefRecords(ReferenceDataType.Diagnosis, DIAGNOSES);
 
 const dummyReferenceData: SyncRecord[] = [...villageRefData, ...diagnosisRefData].map(data => ({
+  id: data.id + '_sync',
+  recordId: data.id,
   data,
-  recordType: 'referenceData',
+  recordType: 'ReferenceData',
 }));
 
 export const dummyReferenceRecords = [...dummyPatientRecords, ...dummyReferenceData].sort(
