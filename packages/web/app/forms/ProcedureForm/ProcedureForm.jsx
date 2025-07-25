@@ -281,7 +281,7 @@ export const ProcedureForm = React.memo(
                 </Collapse>
               </FormGrid>
               <Divider style={{ margin: '10px 0 20px' }} />
-              <AdditionalData />
+              <AdditionalData procedureTypeId={values?.procedureTypeId} />
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { useParams } from 'react-router-dom';
@@ -6,6 +6,7 @@ import {
   AutocompleteField,
   Field,
   Paper,
+  SelectInput,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
@@ -17,6 +18,8 @@ import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries
 import { getAnswersFromData } from '../../utils';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 import { Colors } from '../../constants/index.js';
+import { useQuery } from '@tanstack/react-query';
+import { SURVEY_TYPES } from '@tamanu/constants';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -53,12 +56,22 @@ const SurveyHeading = styled(Typography)`
   margin-bottom: 10px;
 `;
 
-export const AdditionalData = () => {
+const useProcedureSurveys = procedureTypeId => {
+  const api = useApi();
+  const { data } = useQuery(
+    ['survey', 'procedure', procedureTypeId],
+    () => api.get(`survey/procedureType/${procedureTypeId}`),
+    { enabled: !!procedureTypeId },
+  );
+  return data?.map(survey => ({ label: survey.name, value: survey.id }));
+};
+
+export const AdditionalData = ({ procedureTypeId }) => {
   const api = useApi();
   const { patientId } = useParams();
   const { currentUser, facilityId } = useAuth();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
-  const surveySuggester = useSuggester('survey');
+  const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
   const {
     data: [patient, patientAdditionalData],
@@ -76,11 +89,7 @@ export const AdditionalData = () => {
     });
   };
 
-  console.log('selectedSurveyId: ', selectedSurveyId);
-
-  const onFormSelect = (event, arg) => {
-    console.log('select', event.target.value);
-    console.log('select', arg);
+  const onFormSelect = event => {
     setSelectedSurveyId(event.target.value);
   };
 
@@ -99,18 +108,17 @@ export const AdditionalData = () => {
           fallback="Add any additional data to the procedure record by selecting a form below."
         />
       </LeadText>
-      <Field
-        name="formId"
+      <SelectInput
+        name="survey"
         label={
           <TranslatedText
             stringId="procedure.form.additionalDataForm.label"
             fallback="Select form"
           />
         }
-        component={AutocompleteField}
-        suggester={surveySuggester}
+        options={surveys}
+        value={selectedSurveyId ?? ''}
         onChange={onFormSelect}
-        data-testid="field-87c2z"
       />
       {survey && (
         <SurveyBox>
