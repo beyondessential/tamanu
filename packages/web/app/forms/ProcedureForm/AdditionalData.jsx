@@ -2,14 +2,21 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { useParams } from 'react-router-dom';
-import { AutocompleteField, Field, TranslatedText } from '../../components';
+import {
+  AutocompleteField,
+  Field,
+  Paper,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
 import { useApi, useSuggester, combineQueries } from '../../api';
-import { SurveyView } from '../../views/programs/SurveyView';
+import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
 import { getAnswersFromData } from '../../utils';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
+import { Colors } from '../../constants/index.js';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -30,6 +37,20 @@ const LeadText = styled(Typography)`
   line-height: 18px;
   margin-bottom: 10px;
   color: ${props => props.theme.palette.text.tertiary};
+`;
+
+const SurveyBox = styled.div`
+  background: ${Colors.white};
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 3px;
+  border: 1px solid ${Colors.outline};
+`;
+
+const SurveyHeading = styled(Typography)`
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 10px;
 `;
 
 export const AdditionalData = () => {
@@ -91,9 +112,12 @@ export const AdditionalData = () => {
         onChange={onFormSelect}
         data-testid="field-87c2z"
       />
-      <div>
-        {survey && (
-          <SurveyView
+      {survey && (
+        <SurveyBox>
+          <SurveyHeading variant="h6" data-testid="surveypaneheading-b5sc">
+            <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
+          </SurveyHeading>
+          <SurveyViewForm
             onSubmit={submitSurveyResponse}
             survey={survey}
             onCancel={onCancel}
@@ -101,8 +125,8 @@ export const AdditionalData = () => {
             patientAdditionalData={patientAdditionalData}
             currentUser={currentUser}
           />
-        )}
-      </div>
+        </SurveyBox>
+      )}
     </Container>
   );
 };
