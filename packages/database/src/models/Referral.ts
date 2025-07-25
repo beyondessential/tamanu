@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Referral extends Model {
   declare id: string;
@@ -58,9 +58,14 @@ export class Referral extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',
-    };
+    return buildEncounterLinkedLookupFilter(this, {
+      extraJoins: [
+        {
+          tableName: 'encounters',
+          columnName: 'initiating_encounter_id',
+          joinType: 'INNER',
+        },
+      ],
+    });
   }
 }
