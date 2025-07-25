@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { STYLED_TABLE_CELL_PREFIX } from '../../../../utils/testIds';
+import { STYLED_TABLE_CELL_PREFIX } from '../../../../utils/testHelper';
+import { format } from 'date-fns';
 
 export class LabRequestPane {
   readonly page: Page;
@@ -52,7 +53,7 @@ export class LabRequestPane {
   }
   
   async validateLabRequestTableContent(
-    panelCategories: string[],
+    categories: string[],
     requestedDate: string,
     requestedBy: string,
     priority: string,
@@ -62,20 +63,20 @@ export class LabRequestPane {
     await this.labRequestTable.waitFor({ state: 'visible' });
     
     // Sort panel categories alphabetically
-    const sortedPanelCategories = [...panelCategories].sort();
+    const sortedCategories = [...categories].sort();
     
     // Validate each lab request row
-    for (let i = 0; i < sortedPanelCategories.length; i++) {
+    for (let i = 0; i < sortedCategories.length; i++) {
       // Validate test category
       const categoryCell = this.getTestCategoryCell(i);
-      await expect(categoryCell).toHaveText(sortedPanelCategories[i]);
+      await expect(categoryCell).toHaveText(sortedCategories[i]);
       
       // Validate requested date
       const dateCell = this.getRequestedDateCell(i);
       const actualDate = await dateCell.textContent();
       // Convert ISO date format to MM/DD/YYYY format for comparison
       const date = new Date(requestedDate);
-      const expectedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+      const expectedDate = format(date, 'MM/dd/yyyy');
       await expect(actualDate).toBe(expectedDate);
       
       // Validate requested by

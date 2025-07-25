@@ -1,4 +1,6 @@
-import { Locator } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-'; 
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
@@ -41,4 +43,16 @@ export async function SelectingFromSearchBox(
   } catch (error) {
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
+}
+
+export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
+  const items: string[] = [];
+  for (let i = 0; i < tableRowCount; i++) {
+    const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
+    const itemText = await itemLocator.textContent();
+    if (itemText) {
+      items.push(itemText);
+    }
+  }
+  return items;
 }

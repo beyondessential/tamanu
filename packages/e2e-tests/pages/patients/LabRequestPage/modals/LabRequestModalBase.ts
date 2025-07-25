@@ -2,6 +2,9 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { format } from 'date-fns';
+import { getTableItems } from '../../../../utils/testHelper';
+
+const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
 
 export class LabRequestModalBase {
   readonly page: Page;
@@ -22,6 +25,47 @@ export class LabRequestModalBase {
   readonly cancelButton: Locator;
   readonly nextButton: Locator;
   readonly finaliseButton: Locator;
+  
+  // Generic locators for selected items (shared across all modals)
+  readonly selectedItemsList: Locator;
+  readonly selectedItems: Locator;
+  readonly listItems: Locator;
+  readonly selectedCategoryList: Locator;
+  readonly clearAllButton: Locator;
+  readonly testSelectionError: Locator;
+  
+  // Page 3: Sample details (shared across all modals)
+  readonly dateTimeCollectedInputs: Locator;
+  readonly collectedByInputs: Locator;
+  readonly collectedBySuggestionsList: Locator;
+  readonly specimenTypeInputs: Locator;
+  readonly specimenTypeSuggestionsList: Locator;
+  readonly siteInputs: Locator;
+  readonly siteSuggestionsList: Locator;
+  readonly sampleDetailsPanels: Locator;
+  readonly sampleDetailsCategories: Locator;
+  
+  // Page 4: Request Finalised (shared across all modals)
+  readonly requestingClinicianLabel: Locator;
+  readonly requestingClinicianValue: Locator;
+  readonly requestDateTimeLabel: Locator;
+  readonly requestDateTimeValue: Locator;
+  readonly departmentLabel: Locator;
+  readonly departmentValue: Locator;
+  readonly priorityLabel: Locator;
+  readonly priorityValue: Locator;
+  readonly selectAllCheckbox: Locator;
+  readonly testIdColumnHeader: Locator;
+  readonly tableRowCheckboxes: Locator;
+  readonly tableRowTestIds: Locator;
+  readonly tableRowPanels: Locator;
+  readonly tableRowCategories: Locator;
+  readonly tableRowSampleDates: Locator;
+  readonly printLabelButton: Locator;
+  readonly printRequestButton: Locator;
+  readonly closeButton: Locator;
+  readonly notesTextarea: Locator;
+  readonly searchInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -31,7 +75,7 @@ export class LabRequestModalBase {
     
     // Page 1: Basic lab request details
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('formgrid-wses').getByTestId('field-y6ku-input').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     this.prioritySelect = page.getByTestId('selectinput-phtg-select');
     this.panelRadioButton = page.getByTestId('radio-il3t-panel');
@@ -42,6 +86,46 @@ export class LabRequestModalBase {
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');
     this.nextButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
     this.finaliseButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
+    
+    // Generic locators for selected items
+    this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');
+    this.selectedItems = page.getByTestId('testitemwrapper-o7ha');
+    this.listItems = page.getByTestId('selectortable-dwrp').getByTestId('labeltext-6stl');
+    this.selectedCategoryList = page.getByTestId('testitemwrapper-o7ha').getByTestId('categorytext-jno3');
+    this.clearAllButton = page.getByTestId('clearallbutton-ao0r');
+    this.testSelectionError = page.getByTestId('formhelpertext-198r');
+    // Page 3: Sample details
+    this.dateTimeCollectedInputs = page.getByTestId('styledfield-ratc-input');
+    this.collectedByInputs = page.getByTestId('styledfield-wifm-input').locator('input');
+    this.collectedBySuggestionsList = page.getByTestId('styledfield-wifm-suggestionslist');
+    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input').locator('input');
+    this.specimenTypeSuggestionsList = page.getByTestId('styledfield-8g4b-suggestionslist');
+    this.siteInputs = page.getByTestId('styledfield-mog8-input').locator('input');
+    this.siteSuggestionsList = page.getByTestId('styledfield-mog8-option-typography');
+    this.sampleDetailsPanels = page.getByTestId('typography-ex0x');
+    this.sampleDetailsCategories = page.getByTestId('typography-772r');
+    
+    // Page 4: Request Finalised
+    this.requestingClinicianLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Requesting clinician' });
+    this.requestingClinicianValue = page.getByTestId('cardvalue-lcni').filter({ hasText: 'Initial Admin' });
+    this.requestDateTimeLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Request date & time' });
+    this.requestDateTimeValue = page.getByTestId('cardvalue-lcni').getByTestId('tooltip-b4e8');
+    this.departmentLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Department' });
+    this.departmentValue = page.getByTestId('cardvalue-lcni').filter({ hasText: 'Cardiology' });
+    this.priorityLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Priority' });
+    this.priorityValue = this.priorityLabel.locator('..').getByTestId('cardvalue-lcni');
+    this.selectAllCheckbox = page.getByTestId('checkinput-irky-controlcheck');
+    this.testIdColumnHeader = page.getByTestId('tablelabel-0eff-displayId');
+    this.tableRowCheckboxes = page.getByTestId('checkinput-83pj-controlcheck');
+    this.tableRowTestIds = page.getByTestId('styledtablecell-2gyy-0-displayId');
+    this.tableRowPanels = page.getByTestId('styledtablecell-2gyy-0-panelId');
+    this.tableRowCategories = page.getByTestId('styledtablecell-2gyy-0-labTestCategory');
+    this.tableRowSampleDates = page.getByTestId('styledtablecell-2gyy-0-sampleDate');
+    this.printLabelButton = page.getByTestId('outlinedbutton-skm0');
+    this.printRequestButton = page.getByTestId('outlinedbutton-01eu');
+    this.closeButton = page.getByTestId('button-9vga');
+    this.notesTextarea = page.getByTestId('field-3t0x-input');
+    this.searchInput = page.getByTestId('styledsearchfield-92y3-input');
   }
 
   async waitForModalToLoad() {
@@ -76,4 +160,96 @@ export class LabRequestModalBase {
   getCurrentDateTime(): string {
     return format(new Date(), "yyyy-MM-dd'T'HH:mm");
   }
+
+  // Generic method to select items by text and return their categories
+  async selectItemsByText(itemNames: string[]) {
+    const itemCategories: string[] = [];
+    for (const itemName of itemNames) {
+      const item = this.listItems.filter({ hasText: itemName }).nth(0);
+      const itemCategory = await item.locator('..').getByTestId(CATEGORY_TEXT_TEST_ID).nth(0).textContent();
+      itemCategories.push(itemCategory || '');
+      await item.click();
+    }
+    return itemCategories; 
+  }
+
+  // Generic method to validate selected items and their categories in a table
+  async validateSelectedItemsAndCategoriesInTable(
+    expectedItems: string[], 
+    expectedCategories: string[]
+  ) {
+    // Wait for the selected items table to be visible
+    await this.selectedItemsList.first().waitFor({ state: 'visible' });
+    
+    // Get all selected items in the table
+    const actualCount = await this.selectedItems.count();
+    
+    // Verify the count matches
+    await expect(actualCount).toBe(expectedItems.length);
+    
+    // Verify each expected item is present in the table
+    for (let i = 0; i < expectedItems.length; i++) {
+      const expectedItem = expectedItems[i];
+      const expectedCategory = expectedCategories[i];
+      const itemLabel = this.selectedItemsList.nth(i);
+      await expect(itemLabel).toHaveText(expectedItem);
+      const categoryLabel = this.selectedCategoryList.nth(i);
+      await expect(categoryLabel).toHaveText(expectedCategory);
+    }
+  }
+
+  // Sample details methods (shared across all modals)
+  async validateSelectedItemInSampleDetailsPage(itemName: string) {
+    // Wait for the sample details page to load
+    await this.dateTimeCollectedInputs.first().waitFor({ state: 'visible' });
+    
+    // Look for the item name in the sample details typography element
+    const itemInSampleDetails = this.sampleDetailsPanels.filter({ hasText: itemName });
+    await expect(itemInSampleDetails).toBeVisible();
+  }
+
+  async setDateTimeCollected(dateTime: string,index: number = 0) {
+    const input = this.dateTimeCollectedInputs.locator('input').nth(index);
+    await input.click();
+    await input.waitFor({ state: 'visible' });
+    await input.fill(dateTime);
+  }
+  
+  async selectFirstCollectedBy(index: number) {
+    const input = this.collectedByInputs.nth(index);
+    await input.click();
+    const firstOptionLocator = this.collectedBySuggestionsList.locator('ul').locator('li').first();
+    await firstOptionLocator.click();
+    return await firstOptionLocator.textContent();
+  }
+
+  async selectFirstSpecimenType(index: number) {
+    const input = this.specimenTypeInputs.nth(index);
+    await input.click();
+    await this.specimenTypeSuggestionsList.locator('ul').locator('li').first().click();
+  }
+
+  async selectFirstSite(index: number) {
+    const input = this.siteInputs.nth(index);
+    await input.click();
+    await this.siteSuggestionsList.first().click();
+  }
+
+  async addNotes(notes: string) {
+    await this.notesTextarea.fill(notes);
+  }
+
+  // Page 4: Request Finalised methods
+  async getRequestFinalisedTableItems(tableRowCount: number, columnName: string){
+    return await getTableItems(this.page, tableRowCount, columnName);
+  }
+
+  async searchItemAndValidate(itemName: string) {
+    await this.searchInput.fill(itemName);
+    const listItemCount = await this.listItems.count();
+    await expect(listItemCount).toBe(1);
+    const item = this.listItems.first();
+    await expect(item).toHaveText(itemName);
+  }
+  
 } 
