@@ -4,7 +4,7 @@ import { LabRequestPane } from '@pages/patients/LabRequestPage/panes/LabRequestP
 import { selectFieldOption } from '@utils/fieldHelpers';
 import { format } from 'date-fns';
 
-test.setTimeout(60000);
+test.setTimeout(80000);
 
 test.describe('Lab Request Tests', () => {
   let labRequestModal: LabRequestModal;

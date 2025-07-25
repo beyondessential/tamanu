@@ -75,7 +75,7 @@ export class LabRequestModalBase {
     
     // Page 1: Basic lab request details
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
-    this.requestDateTimeInput = page.getByTestId('formgrid-wses').getByTestId('field-y6ku-input').locator('input');
+    this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
     this.prioritySelect = page.getByTestId('selectinput-phtg-select');
     this.panelRadioButton = page.getByTestId('radio-il3t-panel');
@@ -107,11 +107,11 @@ export class LabRequestModalBase {
     
     // Page 4: Request Finalised
     this.requestingClinicianLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Requesting clinician' });
-    this.requestingClinicianValue = page.getByTestId('cardvalue-lcni').filter({ hasText: 'Initial Admin' });
+    this.requestingClinicianValue = this.requestingClinicianLabel.locator('..').getByTestId('cardvalue-lcni');
     this.requestDateTimeLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Request date & time' });
-    this.requestDateTimeValue = page.getByTestId('cardvalue-lcni').getByTestId('tooltip-b4e8');
+    this.requestDateTimeValue = this.requestDateTimeLabel.locator('..').getByTestId('cardvalue-lcni');
     this.departmentLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Department' });
-    this.departmentValue = page.getByTestId('cardvalue-lcni').filter({ hasText: 'Cardiology' });
+    this.departmentValue = this.departmentLabel.locator('..').getByTestId('cardvalue-lcni');
     this.priorityLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Priority' });
     this.priorityValue = this.priorityLabel.locator('..').getByTestId('cardvalue-lcni');
     this.selectAllCheckbox = page.getByTestId('checkinput-irky-controlcheck');
@@ -246,6 +246,7 @@ export class LabRequestModalBase {
 
   async searchItemAndValidate(itemName: string) {
     await this.searchInput.fill(itemName);
+    await this.listItems.first().waitFor({ state: 'visible' });
     const listItemCount = await this.listItems.count();
     await expect(listItemCount).toBe(1);
     const item = this.listItems.first();
