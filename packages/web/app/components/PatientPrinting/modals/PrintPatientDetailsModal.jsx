@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { BookUser, QrCode } from 'lucide-react';
+import { BookUser } from 'lucide-react';
 
 import { Modal } from '../../Modal';
 import { Button, OutlinedButton } from '../../Button';
@@ -15,6 +15,7 @@ import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
+import { PatientPortalRegistrationModal } from './PatientPortalRegistrationModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
 import { MultilabelIdIcon } from '../icons/MultilabelIdIcon';
 import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon';
@@ -152,7 +153,7 @@ const PRINT_OPTIONS = {
     ),
     // TODO: Rename to QR code icon
     icon: InternationalPatientSummaryIcon,
-    component: null,
+    component: PatientPortalRegistrationModal,
   },
 };
 
