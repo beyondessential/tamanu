@@ -26,30 +26,29 @@ export function addSensitiveFacilityIdIfApplicable() {
 export function buildEncounterLinkedLookupFilter(
   model: typeof Model,
   options?: {
+    patientId?: string; // override the default patient_id relationship (encounters.patient_id)
     extraJoins?: (string | JoinConfig)[]; // extra joins needed to traverse between this model and the encounters table
     isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
-    patientIdOverride?: string;
   },
 ) {
-  const { extraJoins, isLabRequest, patientIdOverride } = options || {};
+  const { extraJoins, isLabRequest, patientId = 'encounters.patient_id' } = options ?? {};
+
+  const select = buildSyncLookupSelect(model, {
+    patientId,
+    facilityId: addSensitiveFacilityIdIfApplicable(),
+    isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
+  });
+
   const isEncounterJoinOverridden = extraJoins?.find(
     join => isObject(join) && join.tableName === 'encounters',
   );
+  const joins = buildEncounterLinkedSyncFilterJoins([
+    model.tableName,
+    ...(extraJoins || []),
+    ...(isEncounterJoinOverridden ? [] : ['encounters']),
+    'locations',
+    'facilities',
+  ]);
 
-  return {
-    select: buildSyncLookupSelect(model, {
-      patientId: patientIdOverride || 'encounters.patient_id',
-      // Only populate facility_id when the encounter is from a sensitive facility
-      // This ensures sensitive encounters are only synced to their originating facility
-      facilityId: addSensitiveFacilityIdIfApplicable(),
-      isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
-    }),
-    joins: buildEncounterLinkedSyncFilterJoins([
-      model.tableName,
-      ...(extraJoins || []),
-      ...(isEncounterJoinOverridden ? [] : ['encounters']),
-      'locations',
-      'facilities',
-    ]),
-  };
+  return { select, joins };
 }
