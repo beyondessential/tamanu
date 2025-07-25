@@ -3380,6 +3380,20 @@ describe('CentralSyncManager', () => {
                 encounterPrescriptionId: nonSensitiveEncounterPrescription.id,
               }),
             );
+
+          const sensitiveEncounterPausePrescriptionHistory =
+            await models.EncounterPausePrescriptionHistory.findOne({
+              where: {
+                encounterPrescriptionId: sensitiveEncounterPrescription.id,
+              },
+            });
+          const nonSensitiveEncounterPausePrescriptionHistory =
+            await models.EncounterPausePrescriptionHistory.findOne({
+              where: {
+                encounterPrescriptionId: nonSensitiveEncounterPrescription.id,
+              },
+            });
+
           await checkSensitiveRecordFiltering({
             model: models.EncounterPausePrescription,
             sensitiveId: sensitiveEncounterPausePrescription.id,
@@ -3388,8 +3402,8 @@ describe('CentralSyncManager', () => {
 
           await checkSensitiveRecordFiltering({
             model: models.EncounterPausePrescriptionHistory,
-            sensitiveId: sensitiveEncounterPausePrescription.id,
-            nonSensitiveId: nonSensitiveEncounterPausePrescription.id,
+            sensitiveId: sensitiveEncounterPausePrescriptionHistory.id,
+            nonSensitiveId: nonSensitiveEncounterPausePrescriptionHistory.id,
           });
         });
       });
