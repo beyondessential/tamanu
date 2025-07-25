@@ -84,20 +84,13 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  // TODO: column name difference makes it complicated
   static buildSyncLookupQueryDetails() {
-    // return {
-    //   select: buildEncounterPatientIdSelect(this),
-    //   joins: `
-    //     JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
-    //     JOIN encounters ON survey_responses.encounter_id = encounters.id
-    //   `,
-    // };
     return buildEncounterLinkedLookupFilter(this, {
       extraJoins: [
         {
           tableName: 'survey_responses',
           columnName: 'response_id',
+          joinType: 'INNER',
         },
       ],
     });

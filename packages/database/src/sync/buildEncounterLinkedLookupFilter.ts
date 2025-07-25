@@ -6,6 +6,7 @@ import { isObject } from 'lodash';
 export type JoinConfig = {
   tableName: string;
   columnName: string;
+  joinType?: 'LEFT' | 'INNER';
 };
 
 /**

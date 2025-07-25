@@ -1,5 +1,5 @@
 import { Utils } from 'sequelize';
-import { isString } from 'lodash';
+import { isObject, isString } from 'lodash';
 import type { JoinConfig } from './buildEncounterLinkedLookupFilter';
 
 export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | JoinConfig)[]) {
@@ -12,9 +12,10 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | 
 
       const joinTable = isString(table) ? table : table.tableName;
       const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.columnName;
+      const joinType = isObject(table) ? table.joinType : 'LEFT';
 
       return `
-        LEFT JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
+        ${joinType} JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
       `;
     })
     .join('\n');
