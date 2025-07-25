@@ -2,13 +2,12 @@ import { Locator, Page } from '@playwright/test';
 import { routes } from '../../config/routes';
 import { BasePage } from '../BasePage';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat } from '../../utils/testHelper';
+import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { PatientTable } from './PatientTable';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { Patient } from '../../types/Patient';
 import { ERROR_RED_RGB } from '../../utils/testColors';
-import { STYLED_TABLE_CELL_PREFIX } from '../../utils/testIds';
 
 export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
 

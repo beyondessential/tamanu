@@ -1,9 +1,8 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, SelectingFromSearchBox } from '../../utils/testHelper';
+import { convertDateFormat, SelectingFromSearchBox ,STYLED_TABLE_CELL_PREFIX} from '../../utils/testHelper';
 import { routes } from '../../config/routes';
-import { Patient } from '../../types/Patient';
-import { STYLED_TABLE_CELL_PREFIX } from '../../utils/testIds';
+import { Patient } from '../../types/Patient'; 
 import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
 type PatientTableRow = Locator & {
   getPatientInfo(): Promise<Patient>;
