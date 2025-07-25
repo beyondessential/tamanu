@@ -9,9 +9,11 @@ import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constan
 import { useAppointmentMutation } from '../../../api/mutations';
 import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
+import { useTranslation } from '../../../contexts/Translation';
+import { getEnumStringId } from '../../Translation/TranslatedEnum';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
-  (status) => status !== APPOINTMENT_STATUSES.CANCELLED,
+  status => status !== APPOINTMENT_STATUSES.CANCELLED,
 );
 
 const ChipGroup = styled(ToggleButtonGroup)`
@@ -25,7 +27,7 @@ const ChipGroup = styled(ToggleButtonGroup)`
 
 const PlaceholderStatusSelector = () => (
   <ChipGroup exclusive role="radiogroup" data-testid="chipgroup-2hf3">
-    {NONCANCELLED_APPOINTMENT_STATUSES.map((status) => (
+    {NONCANCELLED_APPOINTMENT_STATUSES.map(status => (
       <AppointmentStatusChip
         appointmentStatus={status}
         disabled
@@ -38,6 +40,7 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
+  const { getTranslation } = useTranslation();
   const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () =>
       toast.success(
@@ -61,7 +64,7 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
     return <PlaceholderStatusSelector data-testid="placeholderstatusselector-j033" />;
 
   const updateAppointmentStatus = debounce(
-    async (newStatus) => await updateAppointment({ status: newStatus }),
+    async newStatus => await updateAppointment({ status: newStatus }),
     200,
   );
 
@@ -77,11 +80,12 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
       {...props}
       data-testid="chipgroup-ldt5"
     >
-      {NONCANCELLED_APPOINTMENT_STATUSES.map((status) => {
+      {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
         const isSelected = status === appointment.status;
+        const statusStringId = getEnumStringId(status, APPOINTMENT_STATUSES);
         return (
           <AppointmentStatusChip
-            appointmentStatus={status}
+            appointmentStatus={getTranslation(statusStringId, status)}
             disabled={disabled || isSelected}
             key={status}
             selected={isSelected}

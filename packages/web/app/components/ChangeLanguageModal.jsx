@@ -6,7 +6,6 @@ import { useTranslationLanguagesQuery } from '../api/queries';
 import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
-import { mapValues, keyBy } from 'lodash';
 import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
 
@@ -41,7 +40,7 @@ const customStyles = {
     ...(state.isSelected && { borderColor: Colors.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: (provided) => ({
+  menu: provided => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -63,12 +62,9 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
   const [language, setLanguage] = useState(storedLanguage);
   const { data = {}, error } = useTranslationLanguagesQuery();
 
-  const { languageNames = [], languagesInDb = [], countryCodes = [] } = data;
+  const { languageDisplayNames, languageCountryCodes, languagesInDb = [] } = data;
 
-  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-  const languageCountryCodes = mapValues(keyBy(countryCodes, 'language'), 'text');
-
-  const languageOptions = languagesInDb.map(({ language }) => {
+  const languageOptions = languagesInDb.map(language => {
     const countryCode = languageCountryCodes[language];
     return {
       label: (
@@ -83,7 +79,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     };
   });
 
-  const handleLanguageChange = (event) => {
+  const handleLanguageChange = event => {
     setLanguage(event.target.value);
   };
 
