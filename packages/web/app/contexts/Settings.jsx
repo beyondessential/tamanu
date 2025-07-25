@@ -37,7 +37,6 @@ export const SettingsProvider = ({ children }) => {
         getSetting: (path) => get(settings, path),
         settings,
         isSettingsLoaded,
-        settings,
       }}
     >
       {children}
