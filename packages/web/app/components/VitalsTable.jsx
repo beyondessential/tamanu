@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { SETTING_KEYS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 
 import { DynamicColumnTable } from './Table';
@@ -27,9 +27,9 @@ export const VitalsTable = React.memo(() => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const { getSetting } = useSettings();
-  const isVitalEditEnabled = getSetting('features.enableVitalEdit');
-  const showFooterLegend = data.some(entry =>
-    recordedDates.some(date => entry[date].historyLogs.length > 1),
+  const isVitalEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_VITAL_EDIT);
+  const showFooterLegend = data.some((entry) =>
+    recordedDates.some((date) => entry[date].historyLogs.length > 1),
   );
 
   const onCellClick = useCallback((clickedCell) => {
@@ -84,6 +84,7 @@ export const VitalsTable = React.memo(() => {
     <>
       <EditVitalCellModal
         open={openEditModal}
+        isVital
         dataPoint={selectedCell}
         onClose={() => {
           setOpenEditModal(false);
