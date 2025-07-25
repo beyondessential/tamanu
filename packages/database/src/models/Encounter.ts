@@ -21,6 +21,7 @@ import type { Discharge } from './Discharge';
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
+import { addSensitiveFacilityIdIfApplicable } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Encounter extends Model {
   declare id: string;
@@ -387,12 +388,7 @@ export class Encounter extends Model {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
         isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
-        facilityId: `
-          CASE
-            WHEN facilities.is_sensitive = TRUE THEN facilities.id
-            ELSE NULL
-          END
-        `,
+        facilityId: addSensitiveFacilityIdIfApplicable(),
       }),
       joins: `
         LEFT JOIN (
