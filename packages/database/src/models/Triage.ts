@@ -4,11 +4,8 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
@@ -83,10 +80,7 @@ export class Triage extends Model {
   //     return buildEncounterLinkedLookupFilter(this);
 
   static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-    };
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static async create(data: any): Promise<any> {
