@@ -18,6 +18,7 @@ export class ChangeLog extends Model {
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
   declare recordData: string;
+  declare reason: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -63,6 +64,10 @@ export class ChangeLog extends Model {
         recordData: {
           type: DataTypes.JSONB,
           allowNull: false,
+        },
+        reason: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
 

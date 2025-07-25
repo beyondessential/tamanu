@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
@@ -32,7 +32,12 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   />
 );
 
-export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, currentInstanceId }) => {
+export const ChartsTable = React.memo(({
+  selectedSurveyId,
+  selectedChartSurveyName,
+  noDataMessage,
+  currentInstanceId,
+}) => {
   const patient = useSelector((state) => state.patient);
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
@@ -46,15 +51,14 @@ export const ChartsTable = React.memo(({ selectedSurveyId, noDataMessage, curren
     recordedDates.some((date) => entry[date].historyLogs.length > 1),
   );
 
-  const onCellClick = (clickedCell) => {
+  const onCellClick = useCallback((clickedCell) => {
     setOpenEditModal(true);
     setSelectedCell(clickedCell);
-  };
+  }, []);
 
   // create a column for each reading
   const columns = getChartsTableColumns(
-    'painChart',
-    'Pain Chart',
+    selectedChartSurveyName,
     patient,
     recordedDates,
     onCellClick,

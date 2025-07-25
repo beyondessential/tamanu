@@ -21,6 +21,7 @@ import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
@@ -102,7 +103,7 @@ const MeasureCell = React.memo(({ value, data }) => {
   );
 });
 
-const TitleCell = React.memo(({ value }) => {
+const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   const {
     allGraphedChartKeys,
     setChartKeys,
@@ -143,7 +144,7 @@ const TitleCell = React.memo(({ value }) => {
           onClick={() => {
             setChartKeys(chartKeys);
             setIsInMultiChartsView(true);
-            setModalTitle('Vitals');
+            setModalTitle(selectedChartSurveyName);
             setVitalChartModalOpen(true);
           }}
           data-testid="iconbutton-u6iz"
@@ -156,9 +157,46 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
+  return (cells) => {
+    const { value, config, validationCriteria, historyLogs, component } = cells[date];
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const isMultiSelect =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const handleCellClick = () => {
+      onCellClick(cells[date]);
+    };
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+      return (
+        <ViewPhotoLink
+          imageId={value}
+          data-testid="viewphotolink-chrt"
+          chartTitle={chartTitle}
+        />
+      );
+    }
+
+    return (
+      <RangeValidatedCell
+        value={isMultiSelect ? parseMultiselectValue(value) : value}
+        config={config}
+        validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+        isEdited={historyLogs.length > 1}
+        onClick={shouldBeClickable ? handleCellClick : null}
+        ValueWrapper={VitalsLimitedLinesCell}
+        data-testid={`rangevalidatedcell-${date}`}
+      />
+    );
+  };
+};
+
 export const getChartsTableColumns = (
-  firstColKey,
-  firstColTitle,
+  selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
@@ -166,8 +204,12 @@ export const getChartsTableColumns = (
 ) => {
   return [
     {
-      key: firstColKey,
-      title: firstColTitle,
+      key: 'measure',
+      title: <TranslatedText
+        stringId="general.table.column.measure"
+        fallback="Measure"
+        data-testid="translatedtext-l9f5"
+      />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -178,7 +220,9 @@ export const getChartsTableColumns = (
         />
       ),
       CellComponent: MeasureCell,
-      TitleCellComponent: TitleCell,
+      TitleCellComponent: ({ value }) => (
+        <TitleCell value={value} selectedChartSurveyName={selectedChartSurveyName} />
+      ),
     },
     // create a column for each reading
     ...recordedDates
@@ -187,31 +231,13 @@ export const getChartsTableColumns = (
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: (cells) => {
-          const { value, config, validationCriteria, historyLogs, component } = cells[date];
-          const isCalculatedQuestion =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-          const isMultiSelect =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-          const handleCellClick = () => {
-            onCellClick(cells[date]);
-          };
-          const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-          const isValid = isCurrent ? true : Boolean(value);
-          const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-
-          return (
-            <RangeValidatedCell
-              value={isMultiSelect ? parseMultiselectValue(value) : value}
-              config={config}
-              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
-              isEdited={historyLogs.length > 1}
-              onClick={shouldBeClickable ? handleCellClick : null}
-              ValueWrapper={VitalsLimitedLinesCell}
-              data-testid={`rangevalidatedcell-${date}`}
-            />
-          );
-        },
+        accessor: getRecordedDateAccessor(
+          date,
+          patient,
+          onCellClick,
+          isEditEnabled,
+          selectedChartSurveyName,
+        ),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },
@@ -221,12 +247,7 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
-    'measure',
-    <TranslatedText
-      stringId="encounter.vitals.table.column.measure"
-      fallback="Measure"
-      data-testid="translatedtext-l9f5"
-    />,
+    <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,
     onCellClick,
