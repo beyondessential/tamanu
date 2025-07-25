@@ -3064,7 +3064,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it.only('wont sync sensitive encounter notes', async () => {
+      it('wont sync sensitive encounter notes', async () => {
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
           fake(models.Note, {
