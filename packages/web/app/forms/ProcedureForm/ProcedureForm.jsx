@@ -14,14 +14,16 @@ import {
   LocationField,
   TextField,
   TimeField,
-} from '../components/Field';
-import { MultiAutocompleteField } from '../components/Field/MultiAutocompleteField';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
+} from '../../components/Field/index.js';
+import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
+import { FormGrid } from '../../components/FormGrid';
+import { FormSubmitCancelRow } from '../../components/ButtonRow';
+import { foreignKey, optionalForeignKey } from '../../utils/validation';
+import { FORM_TYPES } from '../../constants/index.js';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
+import { AdditionalData } from './AdditionalData';
+import { Divider } from '@material-ui/core';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -277,13 +279,15 @@ export const ProcedureForm = React.memo(
                     data-testid="field-qrv7"
                   />
                 </Collapse>
-                <FormSubmitCancelRow
-                  onCancel={handleCancel}
-                  onConfirm={submitForm}
-                  confirmText={buttonText}
-                  data-testid="formsubmitcancelrow-8gtl"
-                />
               </FormGrid>
+              <Divider style={{ margin: '10px 0 20px' }} />
+              <AdditionalData />
+              <FormSubmitCancelRow
+                onCancel={handleCancel}
+                onConfirm={submitForm}
+                confirmText={buttonText}
+                data-testid="formsubmitcancelrow-8gtl"
+              />
             </div>
           );
         }}
