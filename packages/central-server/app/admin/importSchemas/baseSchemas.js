@@ -408,6 +408,7 @@ export const ReferenceMedicationTemplate = yup
       .nullable(),
     notes: yup.string().optional().nullable(),
     dischargeQuantity: yup.number().optional().nullable().positive(),
+    ongoingMedication: yup.boolean().default(false),
   })
   .test('duration-paired', null, function ({ durationValue, durationUnit }) {
     if (durationValue && !durationUnit) {

@@ -82,3 +82,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in reference_medication_templates."
             data_tests:
               - not_null
+          - name: ongoing_medication
+            data_type: boolean
+            description: "{{ doc('reference_medication_templates__ongoing_medication') }}"
+            data_tests:
+              - not_null

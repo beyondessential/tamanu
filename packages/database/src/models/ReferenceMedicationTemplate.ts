@@ -17,6 +17,7 @@ export class ReferenceMedicationTemplate extends Model {
   declare notes?: string;
   declare dischargeQuantity?: number;
   declare medicationId: string;
+  declare ongoingMedication: boolean;
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
@@ -48,6 +49,11 @@ export class ReferenceMedicationTemplate extends Model {
         durationUnit: DataTypes.STRING,
         notes: DataTypes.STRING,
         dischargeQuantity: DataTypes.INTEGER,
+        ongoingMedication: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
