@@ -1,6 +1,7 @@
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
+import { isObject } from 'lodash';
 
 export type JoinConfig = {
   tableName: string;
@@ -21,6 +22,7 @@ export function addSensitiveFacilityIdIfApplicable() {
   `;
 }
 
+// TODO: a bit hacky for my liking. have moved all the weird logic here but now i need to polish a bit
 export function buildEncounterLinkedLookupFilter(
   model: typeof Model,
   options?: {
@@ -30,8 +32,9 @@ export function buildEncounterLinkedLookupFilter(
   },
 ) {
   const { extraJoins, isLabRequest, patientIdOverride } = options || {};
-
-  // make array of joins that overrides any default strings with the extraJoins
+  const isEncounterJoinOverridden = extraJoins?.find(
+    join => isObject(join) && join.tableName === 'encounters',
+  );
 
   return {
     select: buildSyncLookupSelect(model, {
@@ -44,7 +47,7 @@ export function buildEncounterLinkedLookupFilter(
     joins: buildEncounterLinkedSyncFilterJoins([
       model.tableName,
       ...(extraJoins || []),
-      'encounters',
+      ...(isEncounterJoinOverridden ? [] : ['encounters']),
       'locations',
       'facilities',
     ]),
