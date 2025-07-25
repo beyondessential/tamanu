@@ -39,13 +39,14 @@ export function buildEncounterLinkedLookupFilter(
     isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
   });
 
-  const isEncounterJoinOverridden = extraJoins?.find(
+  const includeDefaultEncounterJoin = !extraJoins?.find(
     join => isObject(join) && join.tableName === 'encounters',
   );
+
   const joins = buildEncounterLinkedSyncFilterJoins([
     model.tableName,
     ...(extraJoins || []),
-    ...(isEncounterJoinOverridden ? [] : ['encounters']),
+    ...(includeDefaultEncounterJoin ? ['encounters'] : []),
     'locations',
     'facilities',
   ]);
