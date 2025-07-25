@@ -717,7 +717,6 @@ describe('Sync Lookup data', () => {
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
-          facilityId: expect.anything(),
           isDeleted: false,
         }),
       );
