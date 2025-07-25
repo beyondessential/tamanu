@@ -173,9 +173,6 @@ jobs:
           - name: frontend
             path: web
             target: frontend
-          - name: toolbox
-            path: none
-            target: toolbox
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -261,7 +258,6 @@ jobs:
           - central
           - facility
           - frontend
-          - toolbox
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}
