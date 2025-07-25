@@ -3064,7 +3064,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter notes', async () => {
+      it.only('wont sync sensitive encounter notes', async () => {
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
           fake(models.Note, {
@@ -3754,6 +3754,7 @@ describe('CentralSyncManager', () => {
       it.todo(
         'will leave historical data unsynced when the facility changes from sensitive to non-sensitive until it is edited',
       );
+
       it.todo(
         'will leave historical data unsynced when the facility changes from non sensitive to sensitive',
       );

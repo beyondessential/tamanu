@@ -15,6 +15,7 @@ import {
 } from '../sync/buildNoteLinkedSyncFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { addSensitiveFacilityIdIfApplicable } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Note extends Model {
   declare id: string;
@@ -76,7 +77,7 @@ export class Note extends Model {
   }
 
   static initRelations(models: Models) {
-    NOTE_RECORD_TYPE_VALUES.forEach((modelName) => {
+    NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName as keyof Models] as typeof Model, {
         foreignKey: 'recordId',
         as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
@@ -127,11 +128,28 @@ export class Note extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
+    // For Notes, we need to handle the polymorphic relationships
+    // Use the original note-linked joins but add sensitive facility logic
+    const noteJoins = buildNoteLinkedJoins();
+
+    // Add joins to get to facilities for sensitive facility filtering
+    // Use the existing aliased encounters joins and add locations/facilities
+    const facilityJoins = `
+      LEFT JOIN locations ON (
+        (notes.record_type = 'Encounter' AND encounters.location_id = locations.id) OR
+        (notes.record_type = 'Triage' AND triages_encounters.location_id = locations.id) OR
+        (notes.record_type = 'LabRequest' AND lab_requests_encounters.location_id = locations.id) OR
+        (notes.record_type = 'ImagingRequest' AND imaging_requests_encounters.location_id = locations.id)
+      )
+      LEFT JOIN facilities ON locations.facility_id = facilities.id
+    `;
+
     return {
       select: buildSyncLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
+        facilityId: addSensitiveFacilityIdIfApplicable(),
       }),
-      joins: buildNoteLinkedJoins().join('\n'),
+      joins: noteJoins.join('\n') + '\n' + facilityJoins,
     };
   }
 
