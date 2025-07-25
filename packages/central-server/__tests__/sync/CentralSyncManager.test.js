@@ -18,7 +18,7 @@ import {
   REPEAT_FREQUENCY,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
-import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from '../utilities';
@@ -2984,7 +2984,7 @@ describe('CentralSyncManager', () => {
           departmentId: sensitiveEncounter.departmentId,
           locationId: sensitiveEncounter.locationId,
           practitionerId: sensitiveEncounter.examinerId,
-          triageTime: getCurrentDateString(),
+          triageTime: getCurrentDateTimeString(),
         });
         const nonSensitiveTriage = await models.Triage.create({
           ...fake(models.Triage),
@@ -2992,7 +2992,7 @@ describe('CentralSyncManager', () => {
           departmentId: nonSensitiveEncounter.departmentId,
           locationId: nonSensitiveEncounter.locationId,
           practitionerId: nonSensitiveEncounter.examinerId,
-          triageTime: getCurrentDateString(),
+          triageTime: getCurrentDateTimeString(),
         });
 
         await checkSensitiveRecordFiltering({
