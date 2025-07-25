@@ -14,7 +14,6 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PermissionErrorScreen } from '~/ui/components/PermissionErrorScreen';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const Stack = createStackNavigator();
 export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: BaseAppProps) => {

@@ -1,9 +1,7 @@
 import React, { ReactElement } from 'react';
-import { MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs';
 // Components
 import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearch/PatientSearchTabs';
 // Helpers
-import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
@@ -12,29 +10,11 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const Tabs = createSearchPatientNavigator();
 
-const SearchPatientTabOptions: MaterialTopTabBarOptions = {
-  activeTintColor: theme.colors.PRIMARY_MAIN,
-  inactiveTintColor: theme.colors.TEXT_DARK,
-  labelStyle: {
-    fontSize: 12,
-    textTransform: 'none',
-  },
-  indicatorStyle: {
-    backgroundColor: theme.colors.PRIMARY_MAIN,
-  },
-  style: {
-    height: 50,
-    backgroundColor: theme.colors.WHITE,
-  },
-};
-
 export const SearchPatientTabs = ({ routingFrom }): ReactElement => {
   const { getTranslation } = useTranslation();
 
   return (
     <Tabs.Navigator
-      tabBarStyle={{}}
-      contentStyle={{}}
       initialRouteName={
         routingFrom === PatientFromRoute.ALL_PATIENT
           ? Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll
