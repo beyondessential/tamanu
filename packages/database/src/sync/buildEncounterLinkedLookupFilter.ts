@@ -40,7 +40,7 @@ export function buildEncounterLinkedLookupFilter(model: typeof Model, options?: 
   });
 
   const includeDefaultEncounterJoin = !extraJoins?.find(
-    join => isObject(join) && join.tableName === 'encounters',
+    join => join === 'encounters' || (isObject(join) && join.tableName === 'encounters'),
   );
 
   const joins = buildEncounterLinkedSyncFilterJoins([
