@@ -40,6 +40,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
   const facilitySuggester = new Suggester({
     model: models.Facility,
     options: {
+      column: 'name',
       where: {
         visibilityStatus: VisibilityStatus.Current,
       },
@@ -55,7 +56,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
         },
       });
 
-      return statuses.map((status) => {
+      return statuses.map(status => {
         const translatedName = getTranslation(
           getReferenceDataStringId(status.id, 'programRegistryClinicalStatus'),
           status.name,
@@ -102,13 +103,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
     <FullView>
       <StyledScrollView>
         <EmptyStackHeader
-          title={
-            <TranslatedReferenceData
-              fallback={programRegistry.name}
-              value={programRegistry.id}
-              category="programRegistry"
-            />
-          }
+          title={programRegistry.name || 'Program Registry'}
           onGoBack={() => {
             navigation.goBack();
           }}
@@ -201,7 +196,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     component={Dropdown}
                     name="clinicalStatusId"
                     options={
-                      clinicalStatusOptions?.map((x) => ({
+                      clinicalStatusOptions?.map(x => ({
                         label: x.translatedName,
                         value: x.id,
                       })) || []
@@ -210,15 +205,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <PatientProgramRegistrationConditionsField
-                    label={
-                      <TranslatedText
-                        stringId="programRegistry.relatedConditions.label"
-                        fallback="Related conditions"
-                      />
-                    }
+                    label="Related conditions"
                     programRegistryId={programRegistry.id}
                     values={values.conditions}
-                    onChange={(newValue) => {
+                    onChange={newValue => {
                       values.conditions = newValue;
                     }}
                   />
