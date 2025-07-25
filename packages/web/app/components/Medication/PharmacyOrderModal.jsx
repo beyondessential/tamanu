@@ -4,27 +4,17 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { Table } from '../Table';
-import {
-  AutocompleteInput,
-  NumberInput,
-  OuterLabelFieldWrapper,
-  TextField,
-  TextInput,
-  CheckInput,
-} from '../Field';
+import { AutocompleteInput, TextField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { pharmacyIcon } from '../../constants/images';
 
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { useTranslation } from '../../contexts/Translation';
-import { formatShortest } from '@tamanu/utils/dateTime';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { TranslatedText } from '../Translation';
 import { BaseModal } from '../BaseModal';
 import { notifyError } from '../../utils';
+import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -38,179 +28,10 @@ const PharmacyIcon = styled.img`
   margin-bottom: 30px;
 `;
 
-const COLUMN_KEYS = {
-  SELECT: 'select',
-  DATE: 'date',
-  MEDICATION: 'medication',
-  DOSE: 'dose',
-  FREQUENCY: 'frequency',
-  QUANTITY: 'quantity',
-  REPEATS: 'repeats',
-};
-
-const COLUMNS = (getTranslation, getEnumTranslation, onSelectAll, selectAllChecked) => [
-  {
-    key: COLUMN_KEYS.SELECT,
-    title: (
-      <CheckInput
-        value={selectAllChecked}
-        onChange={onSelectAll}
-        style={{ margin: 'auto' }}
-        data-testid="select-all-checkbox"
-      />
-    ),
-    sortable: false,
-    maxWidth: 50,
-    accessor: ({ selected, onSelect }) => (
-      <CheckInput
-        value={selected}
-        onChange={onSelect}
-        style={{ margin: 'auto' }}
-        data-testid="prescription-checkbox"
-      />
-    ),
-  },
-
-  {
-    key: COLUMN_KEYS.MEDICATION,
-    title: (
-      <TranslatedText
-        stringId="medication.medication.label"
-        fallback="Medication"
-        data-testid="translatedtext-fmmr"
-      />
-    ),
-    sortable: false,
-    maxWidth: 300,
-    accessor: ({ medication }) => (
-      <TranslatedReferenceData
-        fallback={medication.name}
-        value={medication.id}
-        category={medication.type}
-        data-testid="translatedreferencedata-sv6j"
-      />
-    ),
-  },
-  {
-    key: COLUMN_KEYS.DOSE,
-    title: (
-      <TranslatedText
-        stringId="medication.dose.label"
-        fallback="Dose"
-        data-testid="translatedtext-dose"
-      />
-    ),
-    sortable: false,
-    accessor: ({ doseAmount, units, isVariableDose }) =>
-      getDose({ doseAmount, units, isVariableDose }, getTranslation, getEnumTranslation),
-  },
-  {
-    key: COLUMN_KEYS.FREQUENCY,
-    title: (
-      <TranslatedText
-        stringId="medication.frequency.label"
-        fallback="Frequency"
-        data-testid="translatedtext-frequency"
-      />
-    ),
-    sortable: false,
-    accessor: ({ frequency }) =>
-      frequency ? getTranslatedFrequency(frequency, getTranslation) : '',
-  },
-  {
-    key: COLUMN_KEYS.DATE,
-    title: (
-      <TranslatedText
-        stringId="general.date.label"
-        fallback="Date"
-        data-testid="translatedtext-xv2x"
-      />
-    ),
-    sortable: false,
-    accessor: ({ date }) => formatShortest(date),
-  },
-  {
-    key: COLUMN_KEYS.QUANTITY,
-    title: (
-      <OuterLabelFieldWrapper
-        label={
-          <TranslatedText
-            stringId="pharmacyOrder.table.column.quantity"
-            fallback="Quantity"
-            data-testid="translatedtext-3j93"
-          />
-        }
-        required
-      />
-    ),
-    sortable: false,
-    maxWidth: 100,
-    accessor: ({ quantity, onChange, hasError, selected }) => (
-      <TextInput
-        type="number"
-        InputProps={{
-          inputProps: {
-            min: 1,
-          },
-        }}
-        value={quantity}
-        onChange={onChange}
-        required
-        error={hasError}
-        disabled={!selected}
-        data-testid="textinput-rxbh"
-      />
-    ),
-  },
-  {
-    key: COLUMN_KEYS.REPEATS,
-    title: (
-      <TranslatedText
-        stringId="pharmacyOrder.table.column.repeats"
-        fallback="Repeats"
-        data-testid="translatedtext-psdf"
-      />
-    ),
-    sortable: false,
-    accessor: ({ repeats, onChange, selected }) => (
-      <Box width="89px">
-        <NumberInput
-          value={repeats || ''}
-          onChange={onChange}
-          InputProps={{
-            inputProps: {
-              min: 0,
-            },
-          }}
-          disabled={!selected}
-          data-testid="selectinput-ld3p"
-        />
-      </Box>
-    ),
-  },
-];
-
 const OrderingClinicianWrapper = styled.div`
   width: 25%;
   margin-bottom: 20px;
   margin-top: 20px;
-`;
-
-const StyledTable = styled(Table)`
-  .MuiTableCell-root {
-    &.MuiTableCell-head {
-      height: 50px;
-    }
-    height: 65px;
-    padding: 0 15px;
-  }
-  .MuiTableRow-root {
-    &:last-child {
-      .MuiTableCell-body {
-        border-bottom: none;
-      }
-    }
-  }
 `;
 
 const HorizontalDivider = styled(Divider)`
@@ -246,8 +67,6 @@ const SuccessContent = styled.div`
 `;
 
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
-  const { getTranslation, getEnumTranslation } = useTranslation();
-
   const [orderingClinicianId, setOrderingClinicianId] = useState(null);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -316,10 +135,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
     (event, key, rowIndex) => {
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
         const newMedicationData = [...prescriptions];
-        const value =
-          key === COLUMN_KEYS.QUANTITY
-            ? parseInt(event.target.value, 10) || undefined
-            : parseInt(event.target.value, 10) || undefined;
+        const value = parseInt(event.target.value, 10) || undefined;
 
         newMedicationData[rowIndex] = {
           ...newMedicationData[rowIndex],
@@ -461,23 +277,13 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
         />
       </OrderingClinicianWrapper>
 
-      <StyledTable
-        headerColor={Colors.white}
-        columns={COLUMNS(getTranslation, getEnumTranslation, handleSelectAll, selectAllChecked)}
-        data={tableData || []}
-        elevated={false}
+      <PharmacyOrderMedicationTable
+        data={tableData}
+        error={error}
         isLoading={isLoading}
-        errorMessage={error?.message}
-        noDataMessage={
-          <TranslatedText
-            stringId="pharmacyOrder.table.noData"
-            fallback="No medications found for this encounter"
-            data-testid="translatedtext-mj0s"
-          />
-        }
-        allowExport={false}
         cellOnChange={cellOnChange}
-        data-testid="table-3r2b"
+        handleSelectAll={handleSelectAll}
+        selectAllChecked={selectAllChecked}
       />
 
       <CommentsWrapper>
