@@ -10,6 +10,8 @@ import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery'
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
+import { useSettings } from '../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
 
 const StyledDynamicColumnTable = styled(DynamicColumnTable)`
   overflow-y: scroll;
@@ -47,6 +49,8 @@ export const ChartsTable = React.memo(({
   );
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
+  const { getSetting } = useSettings();
+  const isChartingEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
   const showFooterLegend = data.some((entry) =>
     recordedDates.some((date) => entry[date].historyLogs.length > 1),
   );
@@ -62,6 +66,7 @@ export const ChartsTable = React.memo(({
     patient,
     recordedDates,
     onCellClick,
+    isChartingEditEnabled,
   );
 
   // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
