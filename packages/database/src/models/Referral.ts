@@ -63,6 +63,7 @@ export class Referral extends Model {
         {
           tableName: 'encounters',
           columnName: 'initiating_encounter_id',
+          joinType: 'INNER',
         },
       ],
     });
