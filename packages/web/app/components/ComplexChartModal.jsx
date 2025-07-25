@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { FormModal } from './FormModal';
 import { ChartForm } from '../forms/ChartForm';
 import { ChartInstanceInfoSection } from './Charting/ChartInstanceInfoSection';
-import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { COMPLEX_CHART_FORM_MODES } from './Charting/constants';
 
 const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
@@ -22,24 +21,16 @@ export const ComplexChartModal = ({
   complexChartInstance,
   complexChartFormMode,
   fieldVisibility,
+  selectedChartSurveyName,
 }) => {
-  const { chartInstanceName, chartDate, chartType, chartSubtype } = complexChartInstance || {};
-  const isTypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
-  const isSubtypeVisible =
-    fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-
   return (
     <FormModal title={title} open={open} onClose={onClose} data-testid="formmodal-mbvq">
       {complexChartFormMode === COMPLEX_CHART_FORM_MODES.RECORD_CHART_ENTRY ? (
         <StyledChartInstanceInfoSection
-          location={chartInstanceName}
-          date={chartDate}
-          type={chartType}
-          subtype={chartSubtype}
-          isTypeVisible={isTypeVisible}
-          isSubtypeVisible={isSubtypeVisible}
-          data-testid="styledchartinstanceinfosection-y5ji"
+          complexChartInstance={complexChartInstance}
+          fieldVisibility={fieldVisibility}
+          patient={patient}
+          selectedChartSurveyName={selectedChartSurveyName}
         />
       ) : null}
       <ChartForm
