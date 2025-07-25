@@ -2856,6 +2856,9 @@ describe('CentralSyncManager', () => {
       },
     };
 
+    // TODO: move data seeding into a shared function to reduce number of syncs for performance
+    const prepareData = async () => {};
+
     const createFacilityWithEncounter = async ({ isSensitive = false }) => {
       const facility = await models.Facility.create(fake(models.Facility, { isSensitive }));
       const department = await models.Department.create(
