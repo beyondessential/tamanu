@@ -4,11 +4,12 @@ import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { CrossIcon } from './Icons';
 
-export enum AlertSeverity {
-  Info = 'info',
-  Error = 'error',
-  Warning = 'warning',
-}
+export const AlertSeverity = {
+  Info: 'info',
+  Error: 'error',
+  Warning: 'warning',
+} as const;
+export type AlertSeverity = (typeof AlertSeverity)[keyof typeof AlertSeverity];
 
 type SyncInactiveBannerProps = {
   severity?: AlertSeverity;

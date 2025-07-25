@@ -1,33 +1,41 @@
 import { ID } from './ID';
 
-export enum AVPUType {
-  Alert = 'alert',
-  Verbal = 'verbal',
-  Pain = 'pain',
-  Unresponsive = 'unresponsive',
-}
+export const AVPUType = {
+  Alert: 'alert',
+  Verbal: 'verbal',
+  Pain: 'pain',
+  Unresponsive: 'unresponsive',
+} as const;
 
-export enum DetectedPresenceType {
-  None = 'none',
-  Trace = 'trace',
-  Small = 'small',
-  Moderate = 'moderate',
-  Large = 'large',
-}
+export type AVPUType = (typeof AVPUType)[keyof typeof AVPUType];
 
-export enum UrineNitritesType {
-  Negative = 'negative',
-  Positive = 'positive',
-}
+export const DetectedPresenceType = {
+  None: 'none',
+  Trace: 'trace',
+  Small: 'small',
+  Moderate: 'moderate',
+  Large: 'large',
+} as const;
 
-export enum UrineProteinType {
-  Negative = 'negative',
-  Trace = 'trace',
-  Thirty = '30',
-  Hundred = '100',
-  ThreeHundred = '300',
-  TwoThousandPlus = '2000+',
-}
+export type DetectedPresenceType = (typeof DetectedPresenceType)[keyof typeof DetectedPresenceType];
+
+export const UrineNitritesType = {
+  Negative: 'negative',
+  Positive: 'positive',
+} as const;
+
+export type UrineNitritesType = (typeof UrineNitritesType)[keyof typeof UrineNitritesType];
+
+export const UrineProteinType = {
+  Negative: 'negative',
+  Trace: 'trace',
+  Thirty: '30',
+  Hundred: '100',
+  ThreeHundred: '300',
+  TwoThousandPlus: '2000+',
+} as const;
+
+export type UrineProteinType = (typeof UrineProteinType)[keyof typeof UrineProteinType];
 
 export interface IVitals {
   id: ID;

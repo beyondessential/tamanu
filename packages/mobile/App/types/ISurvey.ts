@@ -15,12 +15,14 @@ export interface ISurvey {
   visibilityStatus: VisibilityStatus;
 }
 
-export enum SurveyTypes {
-  Programs = 'programs',
-  Referral = 'referral',
-  Obsolete = 'obsolete',
-  Vitals = 'vitals',
-}
+export const SurveyTypes = {
+  Programs: 'programs',
+  Referral: 'referral',
+  Obsolete: 'obsolete',
+  Vitals: 'vitals',
+} as const;
+
+export type SurveyTypes = (typeof SurveyTypes)[keyof typeof SurveyTypes];
 
 export type ValidationCriteriaNormalRange = {
   min: number;
@@ -78,45 +80,47 @@ export interface IVitalsSurvey {
   programId: string;
 }
 
-export enum DataElementType {
+export const DataElementType = {
   // For later versions
   // Meditrak-specific
-  Arithmetic = 'Arithmetic',
-  Autocomplete = 'Autocomplete',
-  Binary = 'Binary',
-  Calculated = 'CalculatedQuestion',
-  Checkbox = 'Checkbox',
-  CodeGenerator = 'CodeGenerator',
-  ComplexChartInstanceName = 'ComplexChartInstanceName',
-  ComplexChartDate = 'ComplexChartDate',
-  ComplexChartType = 'ComplexChartType',
-  ComplexChartSubtype = 'ComplexChartSubtype',
-  Condition = 'Condition',
-  ConditionQuestion = 'ConditionQuestion',
-  Date = 'Date',
-  DaysSince = 'DaysSince',
-  Entity = 'Entity',
-  FreeText = 'FreeText',
-  Geolocate = 'Geolocate',
-  Instruction = 'Instruction',
-  MonthsSince = 'MonthsSince',
-  Multiline = 'Multiline',
-  MultiSelect = 'MultiSelect',
-  Number = 'Number',
-  Photo = 'Photo',
-  PrimaryEntity = 'PrimaryEntity',
-  Radio = 'Radio',
-  Result = 'Result',
-  Select = 'Select',
-  SubmissionDate = 'SubmissionDate',
-  YearsSince = 'YearsSince',
-  SurveyAnswer = 'SurveyAnswer',
-  SurveyResult = 'SurveyResult',
-  SurveyLink = 'SurveyLink',
-  UserData = 'UserData',
-  PatientData = 'PatientData',
-  PatientIssueGenerator = 'PatientIssueGenerator',
-}
+  Arithmetic: 'Arithmetic',
+  Autocomplete: 'Autocomplete',
+  Binary: 'Binary',
+  Calculated: 'CalculatedQuestion',
+  Checkbox: 'Checkbox',
+  CodeGenerator: 'CodeGenerator',
+  ComplexChartInstanceName: 'ComplexChartInstanceName',
+  ComplexChartDate: 'ComplexChartDate',
+  ComplexChartType: 'ComplexChartType',
+  ComplexChartSubtype: 'ComplexChartSubtype',
+  Condition: 'Condition',
+  ConditionQuestion: 'ConditionQuestion',
+  Date: 'Date',
+  DaysSince: 'DaysSince',
+  Entity: 'Entity',
+  FreeText: 'FreeText',
+  Geolocate: 'Geolocate',
+  Instruction: 'Instruction',
+  MonthsSince: 'MonthsSince',
+  Multiline: 'Multiline',
+  MultiSelect: 'MultiSelect',
+  Number: 'Number',
+  Photo: 'Photo',
+  PrimaryEntity: 'PrimaryEntity',
+  Radio: 'Radio',
+  Result: 'Result',
+  Select: 'Select',
+  SubmissionDate: 'SubmissionDate',
+  YearsSince: 'YearsSince',
+  SurveyAnswer: 'SurveyAnswer',
+  SurveyResult: 'SurveyResult',
+  SurveyLink: 'SurveyLink',
+  UserData: 'UserData',
+  PatientData: 'PatientData',
+  PatientIssueGenerator: 'PatientIssueGenerator',
+} as const;
+
+export type DataElementType = (typeof DataElementType)[keyof typeof DataElementType];
 
 export interface IProgramDataElement {
   id: ID;
