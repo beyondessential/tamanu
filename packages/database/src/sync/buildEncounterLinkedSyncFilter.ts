@@ -12,7 +12,7 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | 
 
       const joinTable = isString(table) ? table : table.tableName;
       const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.columnName;
-      const joinType = isObject(table) ? table.joinType : 'LEFT';
+      const joinType = isObject(table) && table.joinType ? table.joinType : 'LEFT';
 
       return `
         ${joinType} JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
