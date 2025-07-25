@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: procedure_assistant_clinicians
-        description: "{{ doc('table__procedure_assistant_clinicians') }}"
+        description: '{{ doc("table__procedure_assistant_clinicians") }}'
         config:
           tags: []
         columns:
@@ -27,23 +27,19 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              procedure_assistant_clinicians."
+            description: "{{ doc('generic__created_at') }} in procedure_assistant_clinicians."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              procedure_assistant_clinicians."
+            description: "{{ doc('generic__updated_at') }} in procedure_assistant_clinicians."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              procedure_assistant_clinicians."
+            description: "{{ doc('generic__deleted_at') }} in procedure_assistant_clinicians."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              procedure_assistant_clinicians."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in procedure_assistant_clinicians."
             data_tests:
               - not_null

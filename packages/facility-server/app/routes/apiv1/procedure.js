@@ -13,8 +13,6 @@ procedure.get('/:id', async (req, res) => {
     where: { procedureId: procedure.id },
   });
 
-  console.log('assistantClinicians', assistantClinicians.length);
-
   const assistantClinicianIds = assistantClinicians.map(assistant => assistant.userId);
 
   // Add assistant clinician IDs to the response
