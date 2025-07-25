@@ -98,7 +98,7 @@ export class DocumentMetadata extends Model {
 
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this, {
-      patientIdOverride: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
+      patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
     });
   }
 }
