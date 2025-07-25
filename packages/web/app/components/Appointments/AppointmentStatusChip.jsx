@@ -6,6 +6,8 @@ import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { ToggleButton } from '../Button';
+import { TranslatedEnum } from '../Translation';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 const Toggle = styled(ToggleButton)`
   &&&&&& {
@@ -65,6 +67,10 @@ export const AppointmentStatusChip = ({
     {...props}
     data-testid="chip-poiu"
   >
-    {appointmentStatus ?? <>&mdash;</>}
+    <TranslatedEnum
+      enumValues={APPOINTMENT_STATUSES}
+      value={appointmentStatus}
+      enumFallback={appointmentStatus}
+    />
   </Chip>
 );
