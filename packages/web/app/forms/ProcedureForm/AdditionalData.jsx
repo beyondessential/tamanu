@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
+import { useParams } from 'react-router-dom';
 import { AutocompleteField, Field, TranslatedText } from '../../components';
-import { useSuggester } from '../../api/index.js';
+import { useApi, useSuggester, combineQueries } from '../../api';
+import { SurveyView } from '../../views/programs/SurveyView';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useAuth } from '../../contexts/Auth';
+import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
+import { getAnswersFromData } from '../../utils';
+import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -26,11 +33,38 @@ const LeadText = styled(Typography)`
 `;
 
 export const AdditionalData = () => {
-  const [selectedForm, setSelectedForm] = useState(null);
+  const api = useApi();
+  const { patientId } = useParams();
+  const { currentUser, facilityId } = useAuth();
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const surveySuggester = useSuggester('survey');
-  const onFormSelect = formId => {
-    console.log('select');
-    setSelectedForm(formId);
+  const [startTime] = useState(getCurrentDateTimeString());
+  const {
+    data: [patient, patientAdditionalData],
+  } = combineQueries([usePatientDataQuery(patientId), usePatientAdditionalDataQuery(patientId)]);
+  const { data: survey } = useSurveyQuery(selectedSurveyId);
+
+  const submitSurveyResponse = async data => {
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
+      startTime,
+      patientId: patient.id,
+      facilityId,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, survey),
+    });
+  };
+
+  console.log('selectedSurveyId: ', selectedSurveyId);
+
+  const onFormSelect = (event, arg) => {
+    console.log('select', event.target.value);
+    console.log('select', arg);
+    setSelectedSurveyId(event.target.value);
+  };
+
+  const onCancel = () => {
+    console.log('cancel');
   };
 
   return (
@@ -57,6 +91,18 @@ export const AdditionalData = () => {
         onChange={onFormSelect}
         data-testid="field-87c2z"
       />
+      <div>
+        {survey && (
+          <SurveyView
+            onSubmit={submitSurveyResponse}
+            survey={survey}
+            onCancel={onCancel}
+            patient={patient}
+            patientAdditionalData={patientAdditionalData}
+            currentUser={currentUser}
+          />
+        )}
+      </div>
     </Container>
   );
 };
