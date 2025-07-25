@@ -38,10 +38,6 @@ Reference to the anaesthetic ([Reference Data](#!/source/source.tamanu.tamanu.re
 Reference to the [physician](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}
 
-{% docs procedures__assistant_id %}
-Reference to the [assistant](#!/source/source.tamanu.tamanu.users).
-{% enddocs %}
-
 {% docs procedures__anaesthetist_id %}
 Reference to the [anaesthetist](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}
@@ -56,4 +52,20 @@ When the procedure started.
 
 {% docs procedures__end_time_legacy %}
 [Deprecated] When the procedure ended.
+{% enddocs %}
+
+{% docs procedures__department_id %}
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) where the procedure is performed.
+{% enddocs %}
+
+{% docs procedures__assistant_anaesthetist_id %}
+Reference to the assistant [anaesthetist](#!/source/source.tamanu.tamanu.users).
+{% enddocs %}
+
+{% docs procedures__time_in %}
+The time when the patient entered the procedure room or when the procedure setup began.
+{% enddocs %}
+
+{% docs procedures__time_out %}
+The time when the patient left the procedure room or when the procedure cleanup was completed.
 {% enddocs %}

@@ -244,7 +244,7 @@ export async function importRows(
               'Permission',
               'SurveyScreenComponent',
               'UserFacility',
-              'ProcedureSurveyType',
+              'ProcedureTypeSurvey',
             ].includes(model)
           ) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
