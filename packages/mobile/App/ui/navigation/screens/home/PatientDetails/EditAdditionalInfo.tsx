@@ -6,9 +6,14 @@ import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDa
 import { theme } from '/styled/theme';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { ADDITIONAL_DATA_SECTIONS } from './fields';
+import {
+  ADDITIONAL_DATA_SECTIONS,
+  ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY,
+} from './fields';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
+  const { getSetting } = useSettings();
   const {
     patientName,
     patient,
@@ -27,6 +32,8 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
     navigation.goBack();
   }, [navigation]);
 
+  const isUsingAddressHierarchy = getSetting<boolean>('features.patientDetailsLocationHierarchy');
+
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
@@ -44,7 +51,11 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       <PatientAdditionalDataForm
         patient={patient}
         additionalData={additionalData}
-        additionalDataSections={ADDITIONAL_DATA_SECTIONS}
+        additionalDataSections={
+          isUsingAddressHierarchy
+            ? ADDITIONAL_DATA_SECTIONS_WITH_ADDRESS_HIERARCHY
+            : ADDITIONAL_DATA_SECTIONS
+        }
         navigation={navigation}
         sectionTitle={sectionTitle}
         sectionKey={sectionKey}

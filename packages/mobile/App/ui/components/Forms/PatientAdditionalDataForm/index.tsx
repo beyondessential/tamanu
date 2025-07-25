@@ -17,6 +17,9 @@ import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
+import { compose } from 'redux';
+import { withPatient } from '~/ui/containers/Patient';
+import { mapValues } from 'lodash';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;
@@ -28,9 +31,10 @@ interface PatientAdditionalDataFormProps {
   isCustomSection?: boolean;
   customSectionFields?: any[];
   sectionKey: Element;
+  setSelectedPatient: (patient: Patient) => void;
 }
 
-export const PatientAdditionalDataForm = ({
+export const PatientAdditionalDataForm = compose(withPatient)(({
   patient,
   additionalData,
   additionalDataSections,
@@ -39,12 +43,13 @@ export const PatientAdditionalDataForm = ({
   customPatientFieldValues,
   isCustomSection = false,
   customSectionFields,
+  setSelectedPatient,
 }: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
-    async values => {
+    async (values) => {
       const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
         relations: ['category'],
         order: {
@@ -54,16 +59,20 @@ export const PatientAdditionalDataForm = ({
         },
       });
 
-      await Patient.updateValues(patient.id, values);
+      // Specific handling for the case where village is within a hierarchy field in the PAD form
+      const updatedPatient = await Patient.updateValues(patient.id, {
+        villageId: values?.villageId || null,
+      });
 
-      await PatientAdditionalData.updateForPatient(patient.id, values);
+      const sanitizedValues = mapValues(values, (value) => (value === '' ? null : value));
+      await PatientAdditionalData.updateForPatient(patient.id, sanitizedValues);
 
       // Update any custom field definitions contained in this form
-      const customValuesToUpdate = Object.keys(values).filter(key =>
+      const customValuesToUpdate = Object.keys(values).filter((key) =>
         customPatientFieldDefinitions.map(({ id }) => id).includes(key),
       );
       await Promise.all(
-        customValuesToUpdate.map(definitionId =>
+        customValuesToUpdate.map((definitionId) =>
           PatientFieldValue.updateOrCreateForPatientAndDefinition(
             patient.id,
             definitionId,
@@ -72,14 +81,16 @@ export const PatientAdditionalDataForm = ({
         ),
       );
 
+      setSelectedPatient(updatedPatient);
+
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, patient.id],
+    [navigation, patient.id, setSelectedPatient],
   );
 
   // Get the field group for this section of the additional data template
-  const { fields, dataFields = null } = isCustomSection
+  const { fields } = isCustomSection
     ? {
         fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
           id,
@@ -89,7 +100,7 @@ export const PatientAdditionalDataForm = ({
         })),
       }
     : additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
-  const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
+  const initialAdditionalData = getInitialAdditionalValues(additionalData, fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 
   return (
@@ -119,4 +130,4 @@ export const PatientAdditionalDataForm = ({
       )}
     </Form>
   );
-};
+});
