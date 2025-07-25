@@ -9,6 +9,12 @@ export type JoinConfig = {
   joinType?: 'LEFT' | 'INNER';
 };
 
+export type Options = {
+  patientId?: string; // override the default patient_id relationship (encounters.patient_id)
+  extraJoins?: (string | JoinConfig)[]; // extra joins needed to traverse between this model and the encounters table
+  isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
+};
+
 /**
  * Helper function to determine if a facility_id should be populated in sync lookup
  * Only populates facility_id when the encounter is from a sensitive facility
@@ -24,14 +30,7 @@ export function addSensitiveFacilityIdIfApplicable() {
 }
 
 // TODO: a bit hacky for my liking. have moved all the weird logic here but now i need to polish a bit
-export function buildEncounterLinkedLookupFilter(
-  model: typeof Model,
-  options?: {
-    patientId?: string; // override the default patient_id relationship (encounters.patient_id)
-    extraJoins?: (string | JoinConfig)[]; // extra joins needed to traverse between this model and the encounters table
-    isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
-  },
-) {
+export function buildEncounterLinkedLookupFilter(model: typeof Model, options?: Options) {
   const { extraJoins, isLabRequest, patientId = 'encounters.patient_id' } = options ?? {};
 
   const select = buildSyncLookupSelect(model, {
