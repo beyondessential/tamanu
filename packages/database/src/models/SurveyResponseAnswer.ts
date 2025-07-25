@@ -5,12 +5,12 @@ import { Model } from './Model';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;
@@ -86,13 +86,21 @@ export class SurveyResponseAnswer extends Model {
 
   // TODO: column name difference makes it complicated
   static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: `
-        JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
-        JOIN encounters ON survey_responses.encounter_id = encounters.id
-      `,
-    };
+    // return {
+    //   select: buildEncounterPatientIdSelect(this),
+    //   joins: `
+    //     JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+    //     JOIN encounters ON survey_responses.encounter_id = encounters.id
+    //   `,
+    // };
+    return buildEncounterLinkedLookupFilter(this, {
+      extraJoins: [
+        {
+          tableName: 'survey_responses',
+          columnName: 'response_id',
+        },
+      ],
+    });
   }
 
   // eslint-disable-next-line no-unused-vars

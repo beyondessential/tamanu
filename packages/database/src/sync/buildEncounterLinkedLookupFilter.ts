@@ -2,12 +2,17 @@ import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncF
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
 
+export type JoinConfig = {
+  tableName: string;
+  columnName: string;
+};
+
 /**
  * Helper function to determine if a facility_id should be populated in sync lookup
  * Only populates facility_id when the encounter is from a sensitive facility
  * This ensures sensitive encounters are only synced to their originating facility
  */
-function addSensitiveFacilityIdIfApplicable() {
+export function addSensitiveFacilityIdIfApplicable() {
   return `
     CASE
       WHEN facilities.is_sensitive = TRUE THEN facilities.id
@@ -19,14 +24,18 @@ function addSensitiveFacilityIdIfApplicable() {
 export function buildEncounterLinkedLookupFilter(
   model: typeof Model,
   options?: {
-    extraJoins?: string[]; // extra joins needed to traverse between this model and the encounters table
+    extraJoins?: (string | JoinConfig)[]; // extra joins needed to traverse between this model and the encounters table
     isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
+    patientIdOverride?: string;
   },
 ) {
-  const { extraJoins, isLabRequest } = options || {};
+  const { extraJoins, isLabRequest, patientIdOverride } = options || {};
+
+  // make array of joins that overrides any default strings with the extraJoins
+
   return {
     select: buildSyncLookupSelect(model, {
-      patientId: 'encounters.patient_id',
+      patientId: patientIdOverride || 'encounters.patient_id',
       // Only populate facility_id when the encounter is from a sensitive facility
       // This ensures sensitive encounters are only synced to their originating facility
       facilityId: addSensitiveFacilityIdIfApplicable(),

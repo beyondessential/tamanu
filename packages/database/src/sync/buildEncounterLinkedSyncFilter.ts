@@ -1,14 +1,22 @@
 import { Utils } from 'sequelize';
+import { isString } from 'lodash';
+import type { JoinConfig } from './buildEncounterLinkedLookupFilter';
 
-// TODO: see about replacing this sequilize
-export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: string[]) {
+export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | JoinConfig)[]) {
   return tablesToTraverse
     .slice(1)
-    .map(
-      (table, i) => `
-      LEFT JOIN ${table} ON ${tablesToTraverse[i]}.${Utils.singularize(table)}_id = ${table}.id
-    `,
-    )
+    .map((table, i) => {
+      const currentTable = isString(tablesToTraverse[i])
+        ? tablesToTraverse[i]
+        : tablesToTraverse[i]?.tableName;
+
+      const joinTable = isString(table) ? table : table.tableName;
+      const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.columnName;
+
+      return `
+        LEFT JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
+      `;
+    })
     .join('\n');
 }
 
