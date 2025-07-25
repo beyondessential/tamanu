@@ -2,17 +2,14 @@ import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Value } from 'react-native-reanimated';
 import { Keyboard } from 'react-native';
 //Protocols
-import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignUpStack/RegisterAccountStep1Props';
+import { RegisterAccountScreenProps } from '../../../../interfaces/Screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
 import {
   RegisterAccountContext,
   RegisterAccountFormStep2FormValues,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
-import {
-  onKeyboardCloseListener,
-  onKeyboardOpenListener,
-} from '/helpers/keyboard';
+import { onKeyboardCloseListener, onKeyboardOpenListener } from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
@@ -24,23 +21,16 @@ export const RegisterAccountStep2Container: FC<any> = ({
 }: RegisterAccountScreenProps) => {
   const { registerFormState, updateForm } = useContext(RegisterAccountContext);
 
-  const [iconSize] = useState(
-    new Value(screenPercentageToDP('7.29', Orientation.Height)),
-  );
-  const [titleFont] = useState(
-    new Value(screenPercentageToDP('2.55', Orientation.Height)),
-  );
-  const [viewTopPosition] = useState(
-    new Value(screenPercentageToDP(4.43, Orientation.Height)),
-  );
+  const [iconSize] = useState(new Value(screenPercentageToDP('7.29', Orientation.Height)));
+  const [titleFont] = useState(new Value(screenPercentageToDP('2.55', Orientation.Height)));
+  const [viewTopPosition] = useState(new Value(screenPercentageToDP(4.43, Orientation.Height)));
 
   const step2FormValues = useMemo<RegisterAccountFormStep2FormValues>(
     () => ({
       role: registerFormState.role,
       homeFacility: registerFormState.homeFacility,
       profession: registerFormState.profession,
-      professionalRegistrationNumber:
-        registerFormState.professionalRegistrationNumber,
+      professionalRegistrationNumber: registerFormState.professionalRegistrationNumber,
       firstYearOfRegistration: registerFormState.firstYearOfRegistration,
     }),
     [],
@@ -49,24 +39,12 @@ export const RegisterAccountStep2Container: FC<any> = ({
   onKeyboardOpenListener(() => {
     animateState(viewTopPosition, 5, 300);
     animateState(iconSize, 30, 300);
-    animateState(
-      titleFont,
-      screenPercentageToDP('1.55', Orientation.Height),
-      300,
-    );
+    animateState(titleFont, screenPercentageToDP('1.55', Orientation.Height), 300);
   });
   onKeyboardCloseListener(() => {
     animateState(viewTopPosition, 20, 300);
-    animateState(
-      iconSize,
-      screenPercentageToDP('7.29', Orientation.Height),
-      300,
-    );
-    animateState(
-      titleFont,
-      screenPercentageToDP('2.55', Orientation.Height),
-      300,
-    );
+    animateState(iconSize, screenPercentageToDP('7.29', Orientation.Height), 300);
+    animateState(titleFont, screenPercentageToDP('2.55', Orientation.Height), 300);
   });
 
   const navigateToIntro = useCallback(() => {

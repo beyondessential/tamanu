@@ -177,6 +177,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           components={components}
           onSubmit={onSubmit}
           onCancel={openExitModal}
+          openExitModal={openExitModal}
           setCurrentScreenIndex={setCurrentScreenIndex}
           currentScreenIndex={currentScreenIndex}
           onGoBack={onGoBack}

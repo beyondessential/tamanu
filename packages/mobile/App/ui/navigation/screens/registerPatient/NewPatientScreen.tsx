@@ -7,7 +7,7 @@ import { CrossIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
-import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
+import { NewPatientScreenProps } from '/interfaces/Screens/RegisterPatientStack/NewPatientScreenProps';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
 import { useSettings } from '/contexts/SettingsContext';

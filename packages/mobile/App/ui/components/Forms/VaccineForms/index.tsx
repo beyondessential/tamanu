@@ -13,7 +13,7 @@ import { SubmitButton } from '../SubmitButton';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { InjectionSiteType } from '~/types';
+import { InjectionSiteType, IScheduledVaccine } from '~/types';
 import { Form } from '../Form';
 import { Button } from '/components/Button';
 import { LoadingScreen } from '/components/LoadingScreen';
@@ -49,8 +49,10 @@ export type VaccineFormValues = {
   recorderId?: string;
   status: string | VaccineStatus;
   consent?: boolean;
-  scheduledVaccine?: ScheduledVaccine;
+  scheduledVaccine?: string | IScheduledVaccine;
   notGivenReasonId?: string;
+  encounter?: string;
+  administeredVaccine?: any;
 };
 
 interface VaccineFormProps {

@@ -55,7 +55,11 @@ export const ReferralFormListScreen = (): ReactElement => {
           data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton title={item.name} onPress={(): void => onNavigateToSurvey(item)} />
+            <MenuOptionButton
+              key={item.id}
+              title={item.name}
+              onPress={(): void => onNavigateToSurvey(item)}
+            />
           )}
           ItemSeparatorComponent={Separator}
         />
