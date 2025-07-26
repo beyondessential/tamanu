@@ -17,6 +17,7 @@ import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
 import { useUpdateUserMutation } from '../../../api/mutations';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../../../contexts/Translation';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -66,6 +67,7 @@ const validationSchema = yup.object().shape({
 
 export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const { mutate: updateUser } = useUpdateUserMutation(user.id);
+  const { getTranslation } = useTranslation();
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
@@ -90,6 +92,9 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       {
         onSuccess: () => {
           handleRefresh();
+          toast.success(
+            getTranslation('admin.users.profile.success', 'User updated successfully!'),
+          );
           onClose();
         },
         onError: error => {
