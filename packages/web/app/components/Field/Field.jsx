@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   connect as formikConnect,
   Field as FormikField,
@@ -35,12 +35,23 @@ export const Field = formikConnect(
     const [field] = useField(name);
     const fieldValue = getIn(values, name);
 
+    const isFormSubmitted = useRef(false);
+
+    // Set a flag to indicate that the form has been submitted
+    useEffect(() => {
+      if (submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED) {
+        setTimeout(() => {
+          isFormSubmitted.current = true;
+        });
+      }
+    }, [submitStatus]);
+
     // Validate field when its value changes (only after submit attempt and if there is an error)
     useEffect(() => {
-      if (error) {
+      if (error && isFormSubmitted.current) {
         validateField(name);
       }
-    }, [fieldValue, validateField, name]);
+    }, [fieldValue]);
 
     const baseOnChange = (...args) => {
       setFieldTouched(name, true);
