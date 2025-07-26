@@ -86,8 +86,8 @@ const ReportIdField = ({ onValueChange, ...props }) => {
   );
 };
 
-const buildParameterFieldValidation = ({ name, required }) => {
-  if (required) return Yup.mixed().required(`${name} is a required field`);
+const buildParameterFieldValidation = ({ required }) => {
+  if (required) return Yup.mixed().required();
 
   return Yup.mixed();
 };

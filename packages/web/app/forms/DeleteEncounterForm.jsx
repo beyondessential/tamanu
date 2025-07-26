@@ -121,7 +121,7 @@ export const DeleteEncounterForm = ({ onSubmit, onCancel, encounterToDelete, pat
           .matches(`^${patient.displayId}$`, {
             message: `${shortLabel} does not match patient record`,
           })
-          .required(`${shortLabel} is required`),
+          .required(),
       })}
       onSubmit={onSubmit}
       data-testid="form-g0r3"
