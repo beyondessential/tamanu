@@ -17,3 +17,7 @@ Units of the drug
 {% docs reference_drugs__notes %}
 Notes of the drug
 {% enddocs %}
+
+{% docs reference_drugs__is_sensitive %}
+Whether the drug is sensitive and requires special handling
+{% enddocs %}
