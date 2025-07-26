@@ -437,4 +437,17 @@ export const ReferenceMedicationTemplate = yup
       }
       return true;
     },
+  )
+  .test(
+    'forbid-duration-when-medication-is-ongoing',
+    null,
+    function ({ isOngoing, durationValue, durationUnit }) {
+      if (isOngoing && (durationValue || durationUnit)) {
+        return this.createError({
+          path: 'durationValue',
+          message: 'Duration is not allowed when medication is ongoing.',
+        });
+      }
+      return true;
+    },
   );
