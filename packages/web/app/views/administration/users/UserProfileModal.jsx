@@ -261,7 +261,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     component={TextField}
                     type="password"
                     required
-                    autoComplete="username"
+                    autoComplete="new-password"
                   />
                   <Field
                     name="confirmPassword"
@@ -278,7 +278,6 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     component={TextField}
                     type="password"
                     required
-                    autoComplete="new-password"
                   />
                 </FormGrid>
               </Container>
