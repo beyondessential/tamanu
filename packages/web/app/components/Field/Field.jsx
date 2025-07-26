@@ -40,7 +40,7 @@ export const Field = formikConnect(
       if (error) {
         validateField(name);
       }
-    }, [fieldValue, error, validateField, name]);
+    }, [fieldValue, validateField, name]);
 
     const baseOnChange = (...args) => {
       setFieldTouched(name, true);
