@@ -15,7 +15,7 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
         doseAmount,
         durationUnit,
         referenceDataId,
-        ongoingMedication,
+        isOngoing,
         ...otherDataValues
       } = object.dataValues;
       return {
@@ -28,7 +28,7 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
         prnMedication: isPrn,
         doseAmount: isVariableDose ? 'variable' : doseAmount,
         duration: durationValue ? `${durationValue} ${durationUnit}` : '',
-        ongoingMedication,
+        ongoingMedication: isOngoing,
       };
     });
   }

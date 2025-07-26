@@ -200,7 +200,6 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
         ...(medicationTemplate.durationValue && {
           durationValue: Number(medicationTemplate.durationValue),
         }),
-        isOngoing: medicationTemplate.ongoingMedication,
       }))
       .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
     setSelectedMedicationSet({

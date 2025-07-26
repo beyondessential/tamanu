@@ -502,7 +502,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     dischargeQuantity,
     ongoingMedication,
   } = item;
-  
+
   const rows = [];
 
   const drug = await models.ReferenceData.findOne({
@@ -536,7 +536,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
-    ongoingMedication,
+    isOngoing: ongoingMedication,
   };
 
   rows.push({
