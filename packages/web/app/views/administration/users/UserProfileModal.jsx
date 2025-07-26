@@ -16,6 +16,7 @@ import { Colors, FORM_TYPES } from '../../../constants';
 import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
 import { useUpdateUserMutation } from '../../../api/mutations';
+import { toast } from 'react-toastify';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -90,6 +91,9 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
         onSuccess: () => {
           handleRefresh();
           onClose();
+        },
+        onError: error => {
+          toast.error(error.message);
         },
       },
     );

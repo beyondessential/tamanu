@@ -4,6 +4,7 @@ import { pick } from 'lodash';
 import * as yup from 'yup';
 import { Op } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ResourceConflictError, NotFoundError } from '@tamanu/shared/errors';
 
 export const usersRouter = express.Router();
 
@@ -162,11 +163,11 @@ const UPDATE_VALIDATION = yup
       .string()
       .required()
       .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
-    displayName: yup.string().required(),
-    displayId: yup.string().nullable().optional(),
+    displayName: yup.string().trim().required(),
+    displayId: yup.string().trim().nullable().optional(),
     role: yup.string().required(),
-    phoneNumber: yup.string().nullable().optional(),
-    email: yup.string().email().required(),
+    phoneNumber: yup.string().trim().nullable().optional(),
+    email: yup.string().trim().email().required(),
     designations: yup.array().of(yup.string()).nullable().optional(),
   })
   .noUnknown();
@@ -187,12 +188,12 @@ usersRouter.put(
 
     const user = await User.findByPk(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundError('User not found');
     }
 
     const role = await Role.findByPk(fields.role);
     if (!role) {
-      throw new Error('Role not found');
+      throw new NotFoundError('Role not found');
     }
 
     // Check if email is unique (excluding current user)
@@ -205,7 +206,7 @@ usersRouter.put(
       });
 
       if (existingUser) {
-        throw new Error('Email must be unique across all users');
+        throw new ResourceConflictError('Email must be unique across all users');
       }
     }
 
