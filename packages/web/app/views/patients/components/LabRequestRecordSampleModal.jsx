@@ -20,27 +20,27 @@ import { useSettings } from '../../../contexts/Settings';
 const validationSchema = yup.object().shape({
   sampleTime: yup
     .date()
-    .required()
     .translatedLabel(
       <TranslatedText
         stringId="lab.modal.recordSample.sampleTime.label"
         fallback="Date & time collected"
         data-testid="translatedtext-c3v8"
       />,
-    ),
+    )
+    .required(),
   labSampleSiteId: yup.string(),
   specimenTypeId: yup.string().when('mandateSpecimenType', {
     is: true,
     then: (schema) =>
       schema
-        .required()
         .translatedLabel(
           <TranslatedText
             stringId="lab.modal.recordSample.specimenType.label"
             fallback="Specimen type"
             data-testid="translatedtext-nd1u"
           />,
-        ),
+        )
+        .required(),
   }),
 });
 
