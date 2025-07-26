@@ -16,7 +16,6 @@ import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/da
 import { useAuth } from '../../contexts/Auth';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -176,16 +175,11 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
-  const queryClient = useQueryClient();
-
   const {
     mutateAsync: createMedicationSet,
     isLoading: isCreatingMedicationSet,
   } = useCreateMedicationSetMutation({
-    onSuccess: () => {
-      queryClient.invalidateQueries(['encounterMedication', encounter.id]);
-      onReloadTable();
-    },
+    onSuccess: () => onReloadTable(),
   });
   const [selectedMedicationSet, setSelectedMedicationSet] = useState(null);
   const [editingMedication, setEditingMedication] = useState(null);

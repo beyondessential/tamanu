@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import { Box } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
@@ -67,7 +68,7 @@ const TableContainer = styled.div`
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { ability } = useAuth();
-
+  const queryClient = useQueryClient();
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
   const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
@@ -113,6 +114,11 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     navigateToMar();
   };
 
+  const handleReloadTable = () => {
+    queryClient.invalidateQueries(['encounterMedication', encounter.id]);
+    setRefreshEncounterMedications(prev => prev + 1);
+  };
+
   return (
     <TabPane data-testid="tabpane-u787">
       <TableContainer>
@@ -128,7 +134,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             open
             onClose={() => setPrescriptionType(null)}
             openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
-            onReloadTable={() => setRefreshEncounterMedications(prev => prev + 1)}
+            onReloadTable={handleReloadTable}
           />
         )}
         <MedicationModal
