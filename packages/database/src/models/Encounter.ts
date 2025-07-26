@@ -404,7 +404,7 @@ export class Encounter extends Model {
   }
 
   static async adjustDataPostSyncPush(recordIds: string[]) {
-    await dischargeOutpatientEncounters(this.sequelize.models, this.sequelize, recordIds);
+    await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
   static async create(...args: any): Promise<any> {

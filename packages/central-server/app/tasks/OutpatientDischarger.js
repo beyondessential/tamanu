@@ -23,7 +23,6 @@ export class OutpatientDischarger extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.models = context.store.models;
-    this.sequelize = context.store.sequelize; 
 
     // run once on startup (in case the server was down when it was scheduled)
     if (!conf.suppressInitialRun) {
@@ -45,7 +44,6 @@ export class OutpatientDischarger extends ScheduledTask {
 
     await dischargeOutpatientEncounters(
       this.models,
-      this.sequelize,
       null,
       batchSize,
       batchSleepAsyncDurationInMilliseconds,

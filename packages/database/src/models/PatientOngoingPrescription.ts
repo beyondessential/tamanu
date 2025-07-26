@@ -4,6 +4,7 @@ import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilt
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 import type { Prescription } from './Prescription';
+import { Op } from 'sequelize';
 
 export class PatientOngoingPrescription extends Model {
   declare id: string;
@@ -39,7 +40,10 @@ export class PatientOngoingPrescription extends Model {
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
-  static findPatientOngoingMedicationWithSameDetails(patientId: string, prescription: Prescription) {
+  static findPatientOngoingPrescriptionWithSameDetails(
+    patientId: string,
+    prescription: Prescription,
+  ) {
     const { models } = this.sequelize;
 
     return this.findOne({
@@ -56,6 +60,9 @@ export class PatientOngoingPrescription extends Model {
             units: prescription.units,
             route: prescription.route,
             frequency: prescription.frequency,
+            discontinued: {
+              [Op.not]: true,
+            },
           },
         },
       ],

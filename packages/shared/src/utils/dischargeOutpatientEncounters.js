@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import {  SYSTEM_USER_UUID } from '@tamanu/constants';
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {
   const today = getCurrentDateString();
@@ -20,7 +20,6 @@ export const getDischargeOutPatientEncountersWhereClause = () => {
 
 export const dischargeOutpatientEncounters = async (
   models,
-  sequelize,
   ids,
   batchSize = 1000,
   batchSleepAsyncDurationInMilliseconds = 50,
@@ -46,20 +45,17 @@ export const dischargeOutpatientEncounters = async (
     });
 
     for (const oldEncounter of oldEncounters) {
-
-      await sequelize.transaction(async (transaction) => {
-        const justBeforeMidnight = endOfDay(parseISO(oldEncounter.startDate));
-        await oldEncounter.update({
-          endDate: justBeforeMidnight,
-          systemNote: 'Automatically discharged',
-          discharge: {
-            note: 'Automatically discharged by outpatient discharger',
-          },
-        }, { transaction });
-
-        await handleOngoingPrescriptions(models, oldEncounter, justBeforeMidnight, transaction);
+      const justBeforeMidnight = endOfDay(parseISO(oldEncounter.startDate));
+      await oldEncounter.update({
+        endDate: justBeforeMidnight,
+        systemNote: 'Automatically discharged',
+        discharge: {
+          note: 'Automatically discharged by outpatient discharger',
+        },
       });
-      
+
+      await handleOngoingPrescriptions(models, oldEncounter, justBeforeMidnight);
+
       log.info(`Auto-closed encounter with id ${oldEncounter.id}`);
     }
 
@@ -67,10 +63,10 @@ export const dischargeOutpatientEncounters = async (
   }
 };
 
-const handleOngoingPrescriptions = async (models, oldEncounter, justBeforeMidnight, transaction) => {
+const handleOngoingPrescriptions = async (models, encounter, justBeforeMidnight) => {
   const prescriptions = await models.Prescription.findAll({
     where: {
-      '$encounterPrescription.encounter_id$': oldEncounter.id,
+      '$encounterPrescription.encounter_id$': encounter.id,
       isOngoing: true,
       discontinued: null,
     },
@@ -85,19 +81,22 @@ const handleOngoingPrescriptions = async (models, oldEncounter, justBeforeMidnig
             as: 'encounter',
             attributes: ['patientId'],
           },
-        ]
+        ],
       },
     ],
-    transaction,
   });
 
   for (const prescription of prescriptions) {
     const patientId = prescription.encounterPrescription.encounter.patientId;
-    const ongoingMedicationWithSameDetails = await models.PatientOngoingPrescription.findPatientOngoingMedicationWithSameDetails(patientId, prescription);
-    
-    if (ongoingMedicationWithSameDetails) continue;
+    const ongoingPrescriptionWithSameDetails =
+      await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+        patientId,
+        prescription,
+      );
 
-    const ongoingMedication = await models.PatientOngoingPrescription.findOne({
+    if (ongoingPrescriptionWithSameDetails) continue;
+
+    const ongoingPrescription = await models.PatientOngoingPrescription.findOne({
       where: {
         patientId: patientId,
       },
@@ -107,32 +106,35 @@ const handleOngoingPrescriptions = async (models, oldEncounter, justBeforeMidnig
           as: 'prescription',
           where: {
             medicationId: prescription.medicationId,
-            discontinued: null,
+            discontinued: {
+              [Op.not]: true,
+            },
           },
           attributes: ['id'],
         },
       ],
       attributes: ['id', 'prescriptionId', 'patientId'],
-      transaction,
     });
 
-    if (ongoingMedication && ongoingMedication.prescriptionId) {
-      await models.Prescription.update({
-        discontinuingClinicianId: SYSTEM_USER_UUID,
-        discontinued: true,
-        discontinuedDate: toDateTimeString(justBeforeMidnight),
-        discontinuingReason: 'Discontinued by automatic discharging outpatient encounter',
-      }, {
-        where: {
-          id: ongoingMedication.prescriptionId,
+    if (ongoingPrescription && ongoingPrescription.prescriptionId) {
+      await models.Prescription.update(
+        {
+          discontinuingClinicianId: SYSTEM_USER_UUID,
+          discontinued: true,
+          discontinuedDate: toDateTimeString(justBeforeMidnight),
+          discontinuingReason: 'Discontinued by automatic discharging outpatient encounter',
         },
-        transaction,
-      });
+        {
+          where: {
+            id: ongoingPrescription.prescriptionId,
+          },
+        },
+      );
     }
 
     await models.PatientOngoingPrescription.create({
       patientId: patientId,
       prescriptionId: prescription.id,
-    }, { transaction });
+    });
   }
-}
+};

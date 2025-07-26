@@ -113,8 +113,12 @@ encounter.put(
           );
           // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
           if (prescription.isOngoing && prescription.encounterPrescription?.encounterId === id) {
-            const existingPatientOngoingPrescription = await models.PatientOngoingPrescription.findPatientOngoingMedicationWithSameDetails(encounterObject.patientId, prescription);
-            
+            const existingPatientOngoingPrescription =
+              await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+                encounterObject.patientId,
+                prescription,
+              );
+
             if (existingPatientOngoingPrescription) continue;
             await models.PatientOngoingPrescription.create({
               patientId: encounterObject.patientId,

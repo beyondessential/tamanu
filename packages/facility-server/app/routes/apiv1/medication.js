@@ -310,10 +310,12 @@ medication.post(
       const encounter = await Encounter.findByPk(encounterId);
       // if the encounter is not found or the encounter is ended, we don't need to remove the prescription from the patient's ongoing medications
       if (!encounter || encounter.endDate) return;
-      
-      const existingPatientOngoingPrescription = await models.PatientOngoingPrescription.findPatientOngoingMedicationWithSameDetails(
-        encounter.patientId, prescription
-      );
+
+      const existingPatientOngoingPrescription =
+        await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+          encounter.patientId,
+          prescription,
+        );
 
       if (existingPatientOngoingPrescription) {
         const existingOngoingPrescription = existingPatientOngoingPrescription.prescription;
