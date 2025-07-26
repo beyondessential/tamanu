@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
-import { DataFetchingTable, TranslatedText, UserSearchBar } from '../../components';
-import { USERS_ENDPOINT } from './constants';
-import { Colors } from '../../constants';
-import { ThemedTooltip } from '../../components/Tooltip';
-import { AdminViewContainer } from './components/AdminViewContainer';
-import { LimitedLinesCell } from '../../components/FormattedTableCell';
+import { DataFetchingTable, TranslatedText, UserSearchBar } from '../../../components';
+import { USERS_ENDPOINT } from '../constants';
+import { Colors } from '../../../constants';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { AdminViewContainer } from '../components/AdminViewContainer';
+import { LimitedLinesCell } from '../../../components/FormattedTableCell';
+import { UserProfileModal } from './UserProfileModal';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -34,6 +35,12 @@ const TableContainer = styled.div`
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   box-shadow: none;
+  .MuiTableBody-root .MuiTableRow-root {
+    cursor: pointer;
+    &:hover {
+      background-color: ${Colors.veryLightBlue};
+    }
+  }
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -88,7 +95,9 @@ const COLUMNS = [
     title: <TranslatedText stringId="admin.users.designation.column" fallback="Designation" />,
     sortable: true,
     accessor: ({ designations }) =>
-      displayFieldOrHyphen(designations?.length > 0 ? designations.join(', ') : null),
+      displayFieldOrHyphen(
+        designations?.length > 0 ? designations.map(d => d.referenceData?.name).join(', ') : null,
+      ),
     CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
   },
   {
@@ -105,22 +114,25 @@ const COLUMNS = [
   },
 ];
 
-const UserTable = React.memo(({ ...props }) => (
-  <StyledDataFetchingTable
-    endpoint={USERS_ENDPOINT}
-    columns={COLUMNS}
-    noDataMessage={
-      <TranslatedText stringId="admin.users.noData.message" fallback="No users found" />
-    }
-    defaultRowsPerPage={10}
-    initialSort={{ orderBy: 'displayName', order: 'asc' }}
-    {...props}
-    data-testid="datafetchingtable-3ziq"
-  />
-));
-
 export const UserAdminView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  const handleRowClick = user => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleRefresh = () => {
+    setRefreshCount(prev => prev + 1);
+  };
 
   return (
     <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
@@ -130,8 +142,29 @@ export const UserAdminView = React.memo(() => {
           searchParameters={searchParameters}
           data-testid="usersearchbar-admin"
         />
-        <UserTable fetchOptions={searchParameters} data-testid="usertable-mpss" />
+        <StyledDataFetchingTable
+          endpoint={USERS_ENDPOINT}
+          columns={COLUMNS}
+          noDataMessage={
+            <TranslatedText stringId="admin.users.noData.message" fallback="No users found" />
+          }
+          defaultRowsPerPage={10}
+          initialSort={{ orderBy: 'displayName', order: 'asc' }}
+          fetchOptions={searchParameters}
+          onRowClick={handleRowClick}
+          data-testid="usertable-mpss"
+          refreshCount={refreshCount}
+        />
       </TableContainer>
+
+      {isModalOpen && (
+        <UserProfileModal
+          open
+          onClose={handleCloseModal}
+          handleRefresh={handleRefresh}
+          user={selectedUser}
+        />
+      )}
     </AdminViewContainer>
   );
 });
