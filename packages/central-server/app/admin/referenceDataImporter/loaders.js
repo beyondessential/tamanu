@@ -500,6 +500,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     duration,
     notes,
     dischargeQuantity,
+    ongoingMedication,
   } = item;
 
   const rows = [];
@@ -535,6 +536,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
+    isOngoing: ongoingMedication,
   };
 
   rows.push({
