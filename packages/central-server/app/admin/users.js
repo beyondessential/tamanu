@@ -3,6 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import { Op } from 'sequelize';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ResourceConflictError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
 
 export const usersRouter = express.Router();
 
@@ -26,9 +28,9 @@ const createUserFilters = (filterParams, models) => {
     filterParams.designationId && {
       id: {
         [Op.in]: models.User.sequelize.literal(`(
-          SELECT "user_id" 
-          FROM "user_designations" 
-          WHERE "designation_id" = ${models.User.sequelize.escape(filterParams.designationId)} 
+          SELECT "user_id"
+          FROM "user_designations"
+          WHERE "designation_id" = ${models.User.sequelize.escape(filterParams.designationId)}
           AND "deleted_at" IS NULL
         )`),
       },
@@ -57,36 +59,28 @@ usersRouter.get(
     // Create where clause from filters
     const filters = createUserFilters(filterParams, req.store.models);
     const whereClause = filters.length > 0 ? { [Op.and]: filters } : {};
+    const userInclude = [
+      'facilities',
+      {
+        model: UserDesignation,
+        as: 'designations',
+        include: {
+          model: ReferenceData,
+          as: 'referenceData',
+        },
+      },
+    ];
 
     // Get total count for pagination
     const count = await User.count({
       where: whereClause,
-      include: [
-        {
-          model: UserDesignation,
-          as: 'designations',
-          include: {
-            model: ReferenceData,
-            as: 'referenceData',
-          },
-        },
-      ],
+      include: userInclude,
       distinct: true,
     });
 
     const users = await User.findAll({
       where: whereClause,
-      include: [
-        'facilities',
-        {
-          model: UserDesignation,
-          as: 'designations',
-          include: {
-            model: ReferenceData,
-            as: 'referenceData',
-          },
-        },
-      ],
+      include: userInclude,
       order: [[orderBy, order.toUpperCase()]],
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
@@ -105,8 +99,7 @@ usersRouter.get(
         users.map(async user => {
           const allowedFacilities = await user.allowedFacilityIds();
           const obj = user.get({ plain: true });
-          const designations =
-            user.designations?.map(d => d.referenceData?.name).filter(Boolean) || [];
+          const designations = user.designations || [];
           const roleName = roleMap.get(user.role) || null;
           return {
             ...pick(obj, [
@@ -158,6 +151,112 @@ usersRouter.post(
     }
 
     await User.create(fields);
+
+    res.send({ ok: true });
+  }),
+);
+
+const UPDATE_VALIDATION = yup
+  .object()
+  .shape({
+    visibilityStatus: yup
+      .string()
+      .required()
+      .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
+    displayName: yup.string().trim().required(),
+    displayId: yup.string().trim().nullable().optional(),
+    role: yup.string().required(),
+    phoneNumber: yup.string().trim().nullable().optional(),
+    email: yup.string().trim().email().required(),
+    designations: yup.array().of(yup.string()).nullable().optional(),
+  })
+  .noUnknown();
+usersRouter.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      store: {
+        models: { Role, User, UserDesignation, ReferenceData },
+      },
+      params: { id },
+      db,
+    } = req;
+
+    req.checkPermission('write', 'User');
+
+    const fields = await UPDATE_VALIDATION.validate(req.body);
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    const role = await Role.findByPk(fields.role);
+    if (!role) {
+      throw new NotFoundError('Role not found');
+    }
+
+    // Check if email is unique (excluding current user)
+    if (fields.email) {
+      const existingUser = await User.findOne({
+        where: {
+          email: fields.email,
+          id: { [Op.ne]: id },
+        },
+      });
+
+      if (existingUser) {
+        throw new ResourceConflictError('Email must be unique across all users');
+      }
+    }
+
+    // Validate designations if provided
+    if (fields.designations && fields.designations.length > 0) {
+      // Check if all designation IDs exist and are of type 'designation'
+      const existingDesignations = await ReferenceData.findAll({
+        where: {
+          id: { [Op.in]: fields.designations },
+          type: REFERENCE_TYPES.DESIGNATION,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingDesignationIds = existingDesignations.map(d => d.id);
+      const invalidDesignationIds = fields.designations.filter(
+        id => !existingDesignationIds.includes(id),
+      );
+
+      if (invalidDesignationIds.length > 0) {
+        throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
+      }
+    }
+
+    const updateFields = {
+      displayName: fields.displayName,
+      role: fields.role,
+      email: fields.email,
+      visibilityStatus: fields.visibilityStatus,
+      displayId: fields.displayId,
+      phoneNumber: fields.phoneNumber,
+    };
+
+    await db.transaction(async () => {
+      await user.update(updateFields);
+      // Remove existing designations
+      await UserDesignation.destroy({
+        where: { userId: id },
+      });
+
+      // Add new designations
+      if (fields.designations && fields.designations.length > 0) {
+        const designationRecords = fields.designations.map(designationId => ({
+          userId: id,
+          designationId,
+        }));
+        await UserDesignation.bulkCreate(designationRecords);
+      }
+    });
 
     res.send({ ok: true });
   }),
