@@ -408,6 +408,7 @@ export const ReferenceMedicationTemplate = yup
       .nullable(),
     notes: yup.string().optional().nullable(),
     dischargeQuantity: yup.number().optional().nullable().positive(),
+    isOngoing: yup.boolean().default(false),
   })
   .test('duration-paired', null, function ({ durationValue, durationUnit }) {
     if (durationValue && !durationUnit) {
@@ -432,6 +433,19 @@ export const ReferenceMedicationTemplate = yup
         return this.createError({
           path: 'durationValue',
           message: 'Duration is not allowed when frequency is Immediately.',
+        });
+      }
+      return true;
+    },
+  )
+  .test(
+    'forbid-duration-when-medication-is-ongoing',
+    null,
+    function ({ isOngoing, durationValue, durationUnit }) {
+      if (isOngoing && (durationValue || durationUnit)) {
+        return this.createError({
+          path: 'durationValue',
+          message: 'Duration is not allowed when medication is ongoing.',
         });
       }
       return true;
