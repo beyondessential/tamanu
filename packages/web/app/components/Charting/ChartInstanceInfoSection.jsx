@@ -49,7 +49,7 @@ export const ChartInstanceInfoSection = ({
   fieldVisibility,
   patient,
   selectedChartSurveyName,
-  coreComplexChartSurvey,
+  coreComplexDataElements,
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { encounter } = useEncounter();
@@ -78,18 +78,12 @@ export const ChartInstanceInfoSection = ({
     setIsEditModalOpen(false);
   };
 
-  const instanceNameDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
-  )?.dataElement;
-  const dateDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartDate,
-  )?.dataElement;
-  const typeDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartType,
-  )?.dataElement;
-  const subtypeDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
-  )?.dataElement;
+  const {
+    instanceNameDataElement,
+    dateDataElement,
+    typeDataElement,
+    subtypeDataElement,
+  } = coreComplexDataElements;
 
   return (
     <>
