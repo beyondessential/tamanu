@@ -188,14 +188,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     selectedChartTypeId,
   ]);
 
-  const { data: fullChartSurvey } = useChartSurveyQuery(coreComplexChartSurveyId);
+  const { data: coreComplexChartSurvey } = useChartSurveyQuery(coreComplexChartSurveyId);
 
   const fieldVisibility = useMemo(
     () =>
       Object.fromEntries(
-        fullChartSurvey?.components.map(c => [c.dataElementId, c.visibilityStatus]) || [],
+        coreComplexChartSurvey?.components.map(c => [c.dataElementId, c.visibilityStatus]) || [],
       ),
-    [fullChartSurvey?.components],
+    [coreComplexChartSurvey?.components],
   );
 
   const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
