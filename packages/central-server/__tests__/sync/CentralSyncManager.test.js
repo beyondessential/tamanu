@@ -2847,7 +2847,7 @@ describe('CentralSyncManager', () => {
     let nonSensitiveEncounter;
     let nonSensitiveFacility;
 
-    const testConfig = {
+    const lookupEnabledConfig = {
       sync: {
         lookupTable: {
           enabled: true,
@@ -2865,7 +2865,7 @@ describe('CentralSyncManager', () => {
       jest.doMock('@tamanu/shared/utils/withConfig', () => ({
         withConfig: fn => {
           const inner = function inner(...args) {
-            return fn(...args, testConfig);
+            return fn(...args, lookupEnabledConfig);
           };
           inner.overrideConfig = fn;
           return inner;
@@ -2909,7 +2909,7 @@ describe('CentralSyncManager', () => {
     });
 
     const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
-      const centralSyncManager = initializeCentralSyncManager(testConfig);
+      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       const { sessionId } = await centralSyncManager.startSession();
@@ -2929,7 +2929,7 @@ describe('CentralSyncManager', () => {
     };
 
     it('will populate the lookup table with a facility id appropriately for sensitive encounters', async () => {
-      const centralSyncManager = initializeCentralSyncManager(testConfig);
+      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll();
@@ -3740,7 +3740,7 @@ describe('CentralSyncManager', () => {
           }),
         );
 
-        const centralSyncManager = initializeCentralSyncManager(testConfig);
+        const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
         const { sessionId } = await centralSyncManager.startSession();
