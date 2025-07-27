@@ -5,7 +5,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging/log';
 
 import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
+import { findSyncSnapshotRecordsByRecordType } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
@@ -19,7 +19,7 @@ const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds
 
 export const saveChangesForModel = async (
   model: typeof Model,
-  changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
+  changes: Awaited<ReturnType<typeof findSyncSnapshotRecordsByRecordType>>,
   isCentralServer: boolean,
   log: Logger,
 ) => {
@@ -141,7 +141,7 @@ const saveChangesForModelInBatches = async (
 
   let fromId;
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    const batchRecords = await findSyncSnapshotRecords(
+    const batchRecords = await findSyncSnapshotRecordsByRecordType(
       { sequelize },
       sessionId,
       SYNC_SESSION_DIRECTION.INCOMING,

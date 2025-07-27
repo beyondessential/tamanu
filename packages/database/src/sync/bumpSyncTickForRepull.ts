@@ -24,12 +24,11 @@ export const bumpSyncTickForRepull = async (
 ) => {
   // No need to load records in batches for memory issue as
   // the number of records that require repull should be small
+  // TODO: What are we doing here? which func to use
   const records = await findSyncSnapshotRecords(
-    // TODO do we wanna order by priority?
-    { sequelize },
+    { sequelize, models: persistedModels },
     sessionId,
     SYNC_SESSION_DIRECTION.INCOMING,
-    undefined,
     undefined,
     undefined,
     'requires_repull IS TRUE',
