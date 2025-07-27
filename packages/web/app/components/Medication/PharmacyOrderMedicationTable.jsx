@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { formatShortest } from '@tamanu/utils/dateTime';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { NumberInput, OuterLabelFieldWrapper, TextInput, CheckInput } from '../Field';
 import { Colors } from '../../constants';
@@ -92,7 +92,11 @@ const COLUMNS = (getTranslation, getEnumTranslation, onSelectAll, selectAllCheck
     ),
     sortable: false,
     accessor: ({ doseAmount, units, isVariableDose }) =>
-      getDose({ doseAmount, units, isVariableDose }, getTranslation, getEnumTranslation),
+      getMedicationDoseDisplay(
+        { doseAmount, units, isVariableDose },
+        getTranslation,
+        getEnumTranslation,
+      ),
   },
   {
     key: COLUMN_KEYS.FREQUENCY,
