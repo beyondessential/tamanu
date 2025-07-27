@@ -22,7 +22,7 @@ export const ComplexChartModal = ({
   complexChartFormMode,
   fieldVisibility,
   selectedChartSurveyName,
-  coreComplexChartSurvey,
+  coreComplexDataElements,
 }) => {
   return (
     <FormModal title={title} open={open} onClose={onClose} data-testid="formmodal-mbvq">
@@ -32,7 +32,7 @@ export const ComplexChartModal = ({
           fieldVisibility={fieldVisibility}
           patient={patient}
           selectedChartSurveyName={selectedChartSurveyName}
-          coreComplexChartSurvey={coreComplexChartSurvey}
+          coreComplexDataElements={coreComplexDataElements}
         />
       ) : null}
       <ChartForm

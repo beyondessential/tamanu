@@ -42,7 +42,7 @@ export const CoreComplexChartData = ({
   type,
   subtype,
   fieldVisibility,
-  coreComplexChartSurvey,
+  coreComplexDataElements,
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
@@ -69,16 +69,7 @@ export const CoreComplexChartData = ({
 
   const isTypeVisible = isFieldVisible(type, CHARTING_DATA_ELEMENT_IDS.complexChartType);
   const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
-
-  const dateDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartDate,
-  )?.dataElement;
-  const typeDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartType,
-  )?.dataElement;
-  const subtypeDataElement = coreComplexChartSurvey?.components?.find(
-    c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
-  )?.dataElement;
+  const { dateDataElement, typeDataElement, subtypeDataElement } = coreComplexDataElements;
 
   return (
     <>

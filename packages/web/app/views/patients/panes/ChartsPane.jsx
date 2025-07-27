@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
 
 import { TabPane } from '../components';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
@@ -196,6 +196,26 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       ),
     [coreComplexChartSurvey?.components],
   );
+  const coreComplexDataElements = useMemo(() => {
+    const instanceNameDataElement = coreComplexChartSurvey?.components?.find(
+      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+    )?.dataElement;
+    const dateDataElement = coreComplexChartSurvey?.components?.find(
+      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartDate,
+    )?.dataElement;
+    const typeDataElement = coreComplexChartSurvey?.components?.find(
+      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartType,
+    )?.dataElement;
+    const subtypeDataElement = coreComplexChartSurvey?.components?.find(
+      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
+    )?.dataElement;
+    return {
+      instanceNameDataElement,
+      dateDataElement,
+      typeDataElement,
+      subtypeDataElement,
+    };
+  }, [coreComplexChartSurvey]);
 
   const isInstancesQueryEnabled = !!coreComplexChartSurveyId;
   const {
@@ -343,7 +363,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
-            coreComplexChartSurvey={coreComplexChartSurvey}
+            coreComplexDataElements={coreComplexDataElements}
             data-testid="complexchartmodal-aldg"
           />
         ) : (
@@ -423,7 +443,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             date={currentComplexChartInstance.chartDate}
             type={currentComplexChartInstance.chartType}
             subtype={currentComplexChartInstance.chartSubtype}
-            coreComplexChartSurvey={coreComplexChartSurvey}
+            coreComplexDataElements={coreComplexDataElements}
             fieldVisibility={fieldVisibility}
             data-testid="corecomplexchartdata-tepa"
           />
