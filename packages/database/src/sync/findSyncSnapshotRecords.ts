@@ -29,8 +29,8 @@ const executeSnapshotQuery = async (
   const records = await sequelize.query(
     `
       ${priorityQuery}
-      SELECT * FROM ${tableName}
-      ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
+      SELECT ${tableName}.* FROM ${tableName}
+      ${priorityQuery ? `LEFT JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
       WHERE id > :fromId
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
