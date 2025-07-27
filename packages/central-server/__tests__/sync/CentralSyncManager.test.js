@@ -2856,26 +2856,6 @@ describe('CentralSyncManager', () => {
       },
     };
 
-    const createFacilityWithEncounter = async ({ isSensitive = false }) => {
-      const facility = await models.Facility.create(fake(models.Facility, { isSensitive }));
-      const department = await models.Department.create(
-        fake(models.Department, { facilityId: facility.id }),
-      );
-      const location = await models.Location.create(
-        fake(models.Location, { facilityId: facility.id }),
-      );
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-        locationId: location.id,
-        departmentId: department.id,
-        examinerId: practitioner.id,
-        endDate: null,
-      });
-
-      return { facility, encounter };
-    };
-
     beforeEach(async () => {
       patient = await models.Patient.create(fake(models.Patient));
       practitioner = await models.User.create(fake(models.User));
@@ -2892,16 +2872,40 @@ describe('CentralSyncManager', () => {
         },
       }));
 
-      const sensitiveFacilityData = await createFacilityWithEncounter({
-        isSensitive: true,
+      sensitiveFacility = await models.Facility.create(
+        fake(models.Facility, { isSensitive: true }),
+      );
+      const sensitiveDepartment = await models.Department.create(
+        fake(models.Department, { facilityId: sensitiveFacility.id }),
+      );
+      const sensitiveLocation = await models.Location.create(
+        fake(models.Location, { facilityId: sensitiveFacility.id }),
+      );
+      sensitiveEncounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: sensitiveLocation.id,
+        departmentId: sensitiveDepartment.id,
+        examinerId: practitioner.id,
+        endDate: null,
       });
-      sensitiveFacility = sensitiveFacilityData.facility;
-      sensitiveEncounter = sensitiveFacilityData.encounter;
-      const nonSensitiveFacilityData = await createFacilityWithEncounter({
-        isSensitive: false,
+      nonSensitiveFacility = await models.Facility.create(
+        fake(models.Facility, { isSensitive: false }),
+      );
+      const nonSensitiveDepartment = await models.Department.create(
+        fake(models.Department, { facilityId: nonSensitiveFacility.id }),
+      );
+      const nonSensitiveLocation = await models.Location.create(
+        fake(models.Location, { facilityId: nonSensitiveFacility.id }),
+      );
+      nonSensitiveEncounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: nonSensitiveLocation.id,
+        departmentId: nonSensitiveDepartment.id,
+        examinerId: practitioner.id,
+        endDate: null,
       });
-      nonSensitiveEncounter = nonSensitiveFacilityData.encounter;
-      nonSensitiveFacility = nonSensitiveFacilityData.facility;
     });
 
     const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
@@ -3715,14 +3719,26 @@ describe('CentralSyncManager', () => {
 
     describe('edge cases', () => {
       it('wont sync between facilities just because they are both sensitive', async () => {
-        const { facility: sensitiveFacilityA, encounter: sensitiveEncounterA } =
-          await createFacilityWithEncounter({
+        const sensitiveFacilityA = await models.Facility.create(
+          fake(models.Facility, {
             isSensitive: true,
-          });
-
-        const { encounter: sensitiveEncounterB } = await createFacilityWithEncounter({
-          isSensitive: true,
-        });
+          }),
+        );
+        const sensitiveFacilityB = await models.Facility.create(
+          fake(models.Facility, {
+            isSensitive: true,
+          }),
+        );
+        const sensitiveEncounterA = await models.Encounter.create(
+          fake(models.Encounter, {
+            facilityId: sensitiveFacilityA.id,
+          }),
+        );
+        const sensitiveEncounterB = await models.Encounter.create(
+          fake(models.Encounter, {
+            facilityId: sensitiveFacilityB.id,
+          }),
+        );
 
         const centralSyncManager = initializeCentralSyncManager(testConfig);
         await centralSyncManager.updateLookupTable();
