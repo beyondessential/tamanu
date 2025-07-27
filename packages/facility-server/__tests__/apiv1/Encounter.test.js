@@ -1,10 +1,7 @@
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import config from 'config';
 
-import {
-  createDummyEncounter,
-  createDummyPatient,
-} from '@tamanu/database/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   DOCUMENT_SOURCES,
   EncounterChangeType,
@@ -79,17 +76,17 @@ describe('Encounter', () => {
     const result = await app.get(`/api/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
-    expect(result.body.data.some((x) => x.id === v.id)).toEqual(true);
-    expect(result.body.data.some((x) => x.id === c.id)).toEqual(true);
+    expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
+    expect(result.body.data.some(x => x.id === c.id)).toEqual(true);
 
-    expect(result.body.data.find((x) => x.id === v.id)).toMatchObject({
+    expect(result.body.data.find(x => x.id === v.id)).toMatchObject({
       id: v.id,
       endDate: expect.any(String),
     });
-    expect(result.body.data.find((x) => x.id === c.id)).toMatchObject({
+    expect(result.body.data.find(x => x.id === c.id)).toMatchObject({
       id: c.id,
     });
-    expect(result.body.data.find((x) => x.id === c.id)).not.toHaveProperty('endDate');
+    expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
   });
 
   it('should fail to get an encounter that does not exist', async () => {
@@ -149,7 +146,7 @@ describe('Encounter', () => {
     const result = await app.get(`/api/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every((x) => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
     expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
@@ -167,7 +164,7 @@ describe('Encounter', () => {
     const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every((x) => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
@@ -735,16 +732,18 @@ describe('Encounter', () => {
       });
 
       it('should record a medication', async () => {
-        const result = await app.post(`/api/medication/encounterPrescription/${medicationEncounter.id}`).send({
-          medicationId: testMedication.id,
-          prescriberId: app.user.id,
-          doseAmount: 1,
-          units: '%',
-          frequency: 'Immediately',
-          route: 'dermal',
-          date: '2025-01-01',
-          startDate: getCurrentDateTimeString(),
-        });
+        const result = await app
+          .post(`/api/medication/encounterPrescription/${medicationEncounter.id}`)
+          .send({
+            medicationId: testMedication.id,
+            prescriberId: app.user.id,
+            doseAmount: 1,
+            units: '%',
+            frequency: 'Immediately',
+            route: 'dermal',
+            date: '2025-01-01',
+            startDate: getCurrentDateTimeString(),
+          });
         expect(result).toHaveSucceeded();
         expect(result.body.date).toBeTruthy();
       });
@@ -764,6 +763,62 @@ describe('Encounter', () => {
         expect(body.count).toBeGreaterThan(0);
         expect(body.data[0].medication.name).toEqual('Checkizol');
         expect(body.data[0].medication.code).toEqual('check');
+      });
+    });
+
+    describe('pharmacyOrder', () => {
+      let pharmacyOrderEncounter = null;
+      let testPrescription = null;
+
+      beforeAll(async () => {
+        pharmacyOrderEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'medication test',
+        });
+
+        const testMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'Checkizol',
+          code: 'check',
+        });
+
+        testPrescription = await models.Prescription.create(
+          fake(models.Prescription, {
+            patientId: patient.id,
+            prescriberId: app.user.id,
+            medicationId: testMedication.id,
+          }),
+        );
+      });
+
+      it('should record a pharmacy order', async () => {
+        const comments = 'test comments';
+        const result = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            comments,
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 1,
+                repeats: 1,
+              },
+            ],
+          });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        expect(result.body.comments).toBe(comments);
+        expect(result.body.orderingClinicianId).toBe(app.user.id);
+        const pharmacyOrderId = result.body.id;
+        const pharmacyOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId },
+        });
+        expect(pharmacyOrderPrescriptions).toHaveLength(1);
+        expect(pharmacyOrderPrescriptions[0].prescriptionId).toBe(testPrescription.id);
+        expect(pharmacyOrderPrescriptions[0].quantity).toBe(1);
+        expect(pharmacyOrderPrescriptions[0].repeats).toBe(1);
       });
     });
 
@@ -961,7 +1016,7 @@ describe('Encounter', () => {
           const startDateString = formatISO9075(addHours(new Date(), -4));
           const endDateString = formatISO9075(new Date());
           const expectedAnswers = answers.filter(
-            (answer) => answer.value !== '' && answer.value !== nullAnswer.value,
+            answer => answer.value !== '' && answer.value !== nullAnswer.value,
           );
 
           const result = await app.get(
@@ -974,7 +1029,7 @@ describe('Encounter', () => {
           expect(body).toHaveProperty('data');
           expect(body.data).toEqual(
             expect.arrayContaining(
-              expectedAnswers.map((answer) =>
+              expectedAnswers.map(answer =>
                 expect.objectContaining({
                   dataElementId: patientVitalSbpKey,
                   body: answer.value.toString(),
@@ -986,8 +1041,8 @@ describe('Encounter', () => {
 
           const expectedRecordedDate = [...expectedAnswers]
             .sort((a, b) => (a.submissionDate > b.submissionDate ? 1 : -1))
-            .map((answer) => answer.submissionDate);
-          const resultRecordedDate = body.data.map((data) => data.recordedDate);
+            .map(answer => answer.submissionDate);
+          const resultRecordedDate = body.data.map(data => data.recordedDate);
           expect(resultRecordedDate).toEqual(expectedRecordedDate);
         });
 
@@ -1083,7 +1138,7 @@ describe('Encounter', () => {
         });
 
         // Mock function gets called inside api route
-        uploadAttachment.mockImplementationOnce((req) => ({
+        uploadAttachment.mockImplementationOnce(req => ({
           metadata: { ...req.body },
           type: 'application/pdf',
           attachmentId: '123456789',
