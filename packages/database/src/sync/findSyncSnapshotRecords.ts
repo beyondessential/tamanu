@@ -88,7 +88,7 @@ export const findSyncSnapshotRecords = async (
   const sortedModels = sortInDependencyOrder(models);
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
-        ${sortedModels.map(({ tableName }, index) => `('${tableName}', ${index + 1})`).join(',\n')}
+        ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
     )`;
 
   return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'priority.sort_order', {
