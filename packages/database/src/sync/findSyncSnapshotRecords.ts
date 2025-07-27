@@ -95,7 +95,7 @@ export const findSyncSnapshotRecords = async (
     sequelize,
     tableName,
     priorityQuery,
-    'priority.sort_order NULLS LAST',
+    'priority.sort_order',
     {
       fromId,
       direction,
