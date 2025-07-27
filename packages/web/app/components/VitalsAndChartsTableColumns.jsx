@@ -9,6 +9,7 @@ import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
+  DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
@@ -164,14 +165,15 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
     const isMultiSelect =
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
     const handleCellClick = () => {
       onCellClick(cells[date]);
     };
     const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
     const isValid = isCurrent ? true : Boolean(value);
-    const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
+    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid;
 
-    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+    if (isPhoto && value) {
       return (
         <ViewPhotoLink
           imageId={value}
@@ -179,6 +181,10 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
           chartTitle={chartTitle}
         />
       );
+    }
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
+      return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
     }
 
     return (
