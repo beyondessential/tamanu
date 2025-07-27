@@ -1,4 +1,3 @@
-import { QueryTypes } from 'sequelize';
 import { getMarkedForSyncPatientsTableName } from '@tamanu/database/sync';
 
 export const createMarkedForSyncPatientsTable = async (
@@ -27,7 +26,7 @@ export const createMarkedForSyncPatientsTable = async (
         facilityIds,
         since,
       },
-      type: QueryTypes.SELECT,
+      type: sequelize.QueryTypes.SELECT,
     },
   );
 

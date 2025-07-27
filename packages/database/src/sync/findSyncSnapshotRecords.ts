@@ -30,7 +30,7 @@ const executeSnapshotQuery = async (
     `
       ${priorityQuery}
       SELECT * FROM ${tableName}
-      ${priorityQuery ? `LEFT JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
+      ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
       WHERE id > :fromId
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
@@ -91,7 +91,7 @@ export const findSyncSnapshotRecords = async (
   const uniqueModels = sortedModels.filter((model, index, arr) => 
     arr.findIndex(m => m.tableName === model.tableName) === index
   );
-  
+
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
         ${uniqueModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}

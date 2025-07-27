@@ -127,7 +127,7 @@ describe('snapshotOutgoingChanges', () => {
 
   it("returns records with updated_at_sync_tick higher than 'since'", async () => {
     const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
-      ctx.store,
+      ctx.store.sequelize,
       sessionId,
       true,
       [facility.id],
