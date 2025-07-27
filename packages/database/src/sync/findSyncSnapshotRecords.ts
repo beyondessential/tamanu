@@ -4,8 +4,12 @@ import { QueryTypes, Sequelize } from 'sequelize';
 import { getSnapshotTableName } from './manageSnapshotTable';
 import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
 
-import type { RecordType, Store, SyncSessionDirectionValues, SyncSnapshotAttributes } from '../types/sync';
-
+import type {
+  RecordType,
+  Store,
+  SyncSessionDirectionValues,
+  SyncSnapshotAttributes,
+} from '../types/sync';
 
 const executeSnapshotQuery = async (
   sequelize: Sequelize,
@@ -62,7 +66,7 @@ export const findSyncSnapshotRecordsByRecordType = async (
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
-  return executeSnapshotQuery(sequelize, tableName, '', 'id', {
+  return executeSnapshotQuery(sequelize, tableName, '', 'id ASC', {
     fromId,
     direction,
     limit,
@@ -72,7 +76,7 @@ export const findSyncSnapshotRecordsByRecordType = async (
 };
 
 export const findSyncSnapshotRecords = async (
-  { sequelize, models}: Store,
+  { sequelize, models }: Store,
   sessionId: string,
   direction: SyncSessionDirectionValues,
   fromId = 0,
@@ -82,27 +86,15 @@ export const findSyncSnapshotRecords = async (
   const tableName = getSnapshotTableName(sessionId);
 
   const sortedModels = await sortInDependencyOrder(models);
-  const valuesSQL = sortedModels
-    .map(({ tableName }, index) => `('${tableName}', ${index + 1})`)
-    .join(',\n');
-
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
-        ${valuesSQL}
+        ${sortedModels.map(({ tableName }, index) => `('${tableName}', ${index + 1})`).join(',\n')}
     )`;
 
-  return executeSnapshotQuery(
-    sequelize,
-    tableName,
-    priorityQuery,
-    'priority.sort_order',
-    {
-      fromId,
-      direction,
-      limit,
-      additionalWhere,
-    },
-  );
+  return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'priority.sort_order', {
+    fromId,
+    direction,
+    limit,
+    additionalWhere,
+  });
 };
-
-
