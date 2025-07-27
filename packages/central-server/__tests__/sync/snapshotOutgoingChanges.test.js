@@ -105,7 +105,7 @@ describe('snapshotOutgoingChanges', () => {
       expect(result).toEqual(1);
 
       const [syncRecord] = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -499,7 +499,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -549,7 +549,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -583,7 +583,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );

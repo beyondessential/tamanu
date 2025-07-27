@@ -729,7 +729,7 @@ describe('Sync Lookup data', () => {
     }
 
     const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -789,7 +789,7 @@ describe('Sync Lookup data', () => {
     );
 
     const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -920,7 +920,7 @@ describe('Sync Lookup data', () => {
         );
 
         const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -969,7 +969,7 @@ describe('Sync Lookup data', () => {
         );
 
         const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1017,7 +1017,7 @@ describe('Sync Lookup data', () => {
         );
 
         const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1077,7 +1077,7 @@ describe('Sync Lookup data', () => {
     );
 
     const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -1217,7 +1217,7 @@ describe('Sync Lookup data', () => {
       }
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1303,7 +1303,7 @@ describe('Sync Lookup data', () => {
       }
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1440,7 +1440,7 @@ describe('Sync Lookup data', () => {
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );

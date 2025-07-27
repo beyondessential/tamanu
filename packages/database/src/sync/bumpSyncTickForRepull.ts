@@ -13,9 +13,9 @@ import type { SyncSnapshotAttributes } from 'types/sync';
  * Records generally require repull when they are changed by some side effect
  * of incoming sync, e.g. deduplicating patient display ids in the incomingSyncHook,
  * or field-wise merge of patient additional data records
- * @param sequelize 
- * @param persistedModels 
- * @param sessionId 
+ * @param sequelize
+ * @param persistedModels
+ * @param sessionId
  */
 export const bumpSyncTickForRepull = async (
   sequelize: Sequelize,
@@ -25,7 +25,8 @@ export const bumpSyncTickForRepull = async (
   // No need to load records in batches for memory issue as
   // the number of records that require repull should be small
   const records = await findSyncSnapshotRecords(
-    sequelize,
+    // TODO do we wanna order by priority?
+    { sequelize },
     sessionId,
     SYNC_SESSION_DIRECTION.INCOMING,
     undefined,
@@ -38,7 +39,7 @@ export const bumpSyncTickForRepull = async (
 
   for (const [recordType, records] of Object.entries(recordsByType)) {
     const typedRecords = records as SyncSnapshotAttributes[];
-    const model = Object.values(persistedModels).find((model) => model.tableName === recordType);
+    const model = Object.values(persistedModels).find(model => model.tableName === recordType);
     await model?.sequelize.query(
       `
         UPDATE ${model.tableName}
@@ -48,7 +49,7 @@ export const bumpSyncTickForRepull = async (
       `,
       {
         replacements: {
-          ids: typedRecords.map((r) => (r as SyncSnapshotAttributes).recordId),
+          ids: typedRecords.map(r => (r as SyncSnapshotAttributes).recordId),
         },
       },
     );
