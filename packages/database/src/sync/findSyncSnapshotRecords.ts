@@ -88,7 +88,7 @@ export const findSyncSnapshotRecords = async (
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
         ${valuesSQL}
-    ),`;
+    )`;
 
   return executeSnapshotQuery(
     sequelize,

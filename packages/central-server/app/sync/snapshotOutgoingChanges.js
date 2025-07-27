@@ -233,17 +233,17 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
-        WITH inserted AS (
-          INSERT INTO ${snapshotTableName} (
-            sync_lookup_id,
-            direction,
-            is_deleted,
-            record_type,
-            record_id,
-            saved_at_sync_tick,
-            updated_at_by_field_sum,
-            data
-        ) 
+      WITH inserted AS (
+        INSERT INTO ${snapshotTableName} (
+          sync_lookup_id,
+          direction,
+          is_deleted,
+          record_type,
+          record_id,
+          saved_at_sync_tick,
+          updated_at_by_field_sum,
+          data
+      ) 
         SELECT
           id,
           '${SYNC_SESSION_DIRECTION.OUTGOING}',
