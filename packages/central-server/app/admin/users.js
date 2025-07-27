@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import { Op } from 'sequelize';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { ResourceConflictError, NotFoundError } from '@tamanu/shared/errors';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ResourceConflictError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
 
 export const usersRouter = express.Router();
 
@@ -190,7 +190,7 @@ usersRouter.put(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { Role, User, UserDesignation },
+        models: { Role, User, UserDesignation, ReferenceData },
       },
       params: { id },
       db,
@@ -221,6 +221,28 @@ usersRouter.put(
 
       if (existingUser) {
         throw new ResourceConflictError('Email must be unique across all users');
+      }
+    }
+
+    // Validate designations if provided
+    if (fields.designations && fields.designations.length > 0) {
+      // Check if all designation IDs exist and are of type 'designation'
+      const existingDesignations = await ReferenceData.findAll({
+        where: {
+          id: { [Op.in]: fields.designations },
+          type: REFERENCE_TYPES.DESIGNATION,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingDesignationIds = existingDesignations.map(d => d.id);
+      const invalidDesignationIds = fields.designations.filter(
+        id => !existingDesignationIds.includes(id),
+      );
+
+      if (invalidDesignationIds.length > 0) {
+        throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
       }
     }
 
