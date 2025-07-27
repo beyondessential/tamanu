@@ -26,6 +26,7 @@ const executeSnapshotQuery = async (
     `
       ${priorityQuery}
       SELECT * FROM ${tableName}
+      ${priorityQuery ? 'JOIN priority ON sync_snapshots.record_type = priority.record_type' : ''}
       WHERE id > :fromId
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
