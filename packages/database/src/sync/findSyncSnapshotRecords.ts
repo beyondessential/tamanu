@@ -29,7 +29,7 @@ const executeSnapshotQuery = async (
   const records = await sequelize.query(
     `
       ${priorityQuery}
-      SELECT ${tableName}.* FROM ${tableName}
+      SELECT * FROM ${tableName}
       ${priorityQuery ? `LEFT JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
       WHERE id > :fromId
       AND direction = :direction
@@ -86,9 +86,15 @@ export const findSyncSnapshotRecords = async (
   const tableName = getSnapshotTableName(sessionId);
 
   const sortedModels = sortInDependencyOrder(models);
+  
+  // TODO: SO this was the culprit I need to look into this
+  const uniqueModels = sortedModels.filter((model, index, arr) => 
+    arr.findIndex(m => m.tableName === model.tableName) === index
+  );
+  
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
-        ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
+        ${uniqueModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
     )`;
 
   return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'priority.sort_order', {
