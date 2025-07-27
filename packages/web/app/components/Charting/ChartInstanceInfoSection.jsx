@@ -73,7 +73,6 @@ export const ChartInstanceInfoSection = ({
     };
 
     await api.put(`surveyResponse/complexChartInstance/${chartInstanceId}`, responseData);
-    //queryClient.invalidateQueries(['encounterCharts', encounter.id, chartSurveyId]);
     queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
     setIsEditModalOpen(false);
   };
