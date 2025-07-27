@@ -204,7 +204,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             >
               <TranslatedText
                 stringId="general.action.changeStatus"
-                fallback="Change status"
+                fallback="Update"
                 data-testid="translatedtext-hexl"
               />
             </OutlinedButton>
