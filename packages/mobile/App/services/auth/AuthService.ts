@@ -29,7 +29,7 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', (err) => {
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -89,6 +89,7 @@ export class AuthService {
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
     const canLogIntoAllFacilities = ability.can('login', 'Facility');
     const linkedFacility = await readConfig('facilityId', '');
+    // TODO: check if facility is sensitive here?
     if (
       restrictUsersToFacilities &&
       !canLogIntoAllFacilities &&
