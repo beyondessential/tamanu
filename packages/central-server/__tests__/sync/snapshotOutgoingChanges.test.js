@@ -503,7 +503,6 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      console.log(outgoingSnapshotRecords.map((r) => r.recordId).sort())
       expect(outgoingSnapshotRecords.map((r) => r.recordId).sort()).toEqual(
         [
           labTest1.id,
