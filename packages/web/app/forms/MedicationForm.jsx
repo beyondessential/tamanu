@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
@@ -261,12 +261,12 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
-const MedicationAdministrationForm = ({ isEditing }) => {
+const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
-  const selectedTimeSlots = values.timeSlots || [];
+  const selectedTimeSlots = values.timeSlots;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: values.frequency,
@@ -291,19 +291,11 @@ const MedicationAdministrationForm = ({ isEditing }) => {
     )} ${formatShort(new Date(firstStartTime))}`;
   }, [values.startDate, selectedTimeSlots]);
 
-  const prevFrequencyRef = useRef();
-
   useEffect(() => {
-    if (
-      // Only reset if the frequency has changed and skip first render when editing
-      (!isEditing || prevFrequencyRef.current !== undefined) &&
-      values.frequency &&
-      values.frequency !== prevFrequencyRef.current
-    ) {
+    if (frequencyChanged) {
       handleResetToDefault();
     }
-    prevFrequencyRef.current = values.frequency;
-  }, [values.frequency]);
+  }, [frequencyChanged]);
 
   const handleResetToDefault = () => {
     if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
@@ -550,6 +542,7 @@ export const MedicationForm = ({
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
+  const [frequencyChanged, setFrequencyChanged] = useState(0);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -594,6 +587,10 @@ export const MedicationForm = ({
       durationUnit: data.durationUnit || undefined,
       idealTimes,
     };
+    if (onConfirmEdit) {
+      onConfirmEdit(payload);
+      return;
+    }
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
@@ -646,7 +643,7 @@ export const MedicationForm = ({
     <>
       <Form
         suppressErrorDialog
-        onSubmit={onConfirmEdit || onSubmit}
+        onSubmit={onSubmit}
         onSuccess={() => {
           if (isEditing) return;
           if (encounterId) {
@@ -810,6 +807,7 @@ export const MedicationForm = ({
                 if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
                   setValues({ ...values, durationValue: '', durationUnit: '' });
                 }
+                setFrequencyChanged(prev => prev + 1);
               }}
             />
             <Field
@@ -914,7 +912,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             {values.frequency ? (
-              <MedicationAdministrationForm isEditing={isEditing} />
+              <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
               <div style={{ gridColumn: '1 / -1' }}>
                 <FieldLabel>

@@ -313,14 +313,11 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
 
-    const idealTimes = data.timeSlots.map(slot => slot.value);
-
     const medicationIndex = selectedMedicationSet.children.findIndex(
       child => child.id === editingMedication.id,
     );
     selectedMedicationSet.children[medicationIndex] = {
       ...data,
-      idealTimes
     };
     setSelectedMedicationSet(selectedMedicationSet);
   };
