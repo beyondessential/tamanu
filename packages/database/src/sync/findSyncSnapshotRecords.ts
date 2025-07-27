@@ -85,7 +85,7 @@ export const findSyncSnapshotRecords = async (
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
-  const sortedModels = await sortInDependencyOrder(models);
+  const sortedModels = sortInDependencyOrder(models);
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
         ${sortedModels.map(({ tableName }, index) => `('${tableName}', ${index + 1})`).join(',\n')}
