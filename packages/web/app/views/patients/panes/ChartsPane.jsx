@@ -345,6 +345,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
+            coreComplexChartSurvey={coreComplexChartSurvey}
             data-testid="complexchartmodal-aldg"
           />
         ) : (
@@ -425,6 +426,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             date={currentComplexChartInstance.chartDate}
             type={currentComplexChartInstance.chartType}
             subtype={currentComplexChartInstance.chartSubtype}
+            coreComplexChartSurvey={coreComplexChartSurvey}
             fieldVisibility={fieldVisibility}
             data-testid="corecomplexchartdata-tepa"
           />
