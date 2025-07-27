@@ -316,6 +316,11 @@ export const globalSettings = {
             },
           },
         },
+        useGlobalPdfFont: {
+          description: 'Use the global PDF font for all PDFs',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
     customisations: {

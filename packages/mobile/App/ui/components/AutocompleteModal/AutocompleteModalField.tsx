@@ -16,7 +16,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 interface AutocompleteModalFieldProps {
   value?: string;
   placeholder?: TranslatedTextElement;
-  onChange: (newValue: string) => void;
+  onChange: (newValue: string, selectedItem: any) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
@@ -25,8 +25,10 @@ interface AutocompleteModalFieldProps {
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  labelColor?: string;
   labelFontSize?: string | number;
   fieldFontSize?: string | number;
+  showSearchIcon?: boolean;
 }
 
 export const AutocompleteModalField = ({
@@ -42,6 +44,8 @@ export const AutocompleteModalField = ({
   disabled = false,
   readOnly = false,
   labelFontSize,
+  labelColor,
+  showSearchIcon = true,
   fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
@@ -49,7 +53,7 @@ export const AutocompleteModalField = ({
   const { language } = useTranslation();
 
   const onPress = (selectedItem): void => {
-    onChange(selectedItem.value);
+    onChange(selectedItem.value, selectedItem);
     setLabel(selectedItem.label);
   };
 
@@ -82,7 +86,7 @@ export const AutocompleteModalField = ({
           fontSize={labelFontSize}
           fontWeight={600}
           marginBottom={2}
-          color={theme.colors.TEXT_SUPER_DARK}
+          color={labelColor || theme.colors.TEXT_SUPER_DARK}
         >
           {fieldLabel}
           {required && <RequiredIndicator />}
@@ -96,7 +100,7 @@ export const AutocompleteModalField = ({
           label ||
           placeholder || <TranslatedText stringId="general.action.select" fallback="Select" />
         }
-        height={screenPercentageToDP(6.68, Orientation.Height)}
+        height={screenPercentageToDP(6, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
         borderStyle="solid"
@@ -104,11 +108,11 @@ export const AutocompleteModalField = ({
         borderWidth={1}
         fontWeight={400}
         fontSize={fieldFontSize}
-        padding={10}
+        padding={screenPercentageToDP(3, Orientation.Width)}
         onPress={openModal}
         disabled={disabled}
       >
-        {!label && (
+        {showSearchIcon && !label && (
           <StyledView marginRight={5}>
             <SearchIcon fill={theme.colors.TEXT_SOFT} />
           </StyledView>
