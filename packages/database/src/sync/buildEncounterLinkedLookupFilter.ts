@@ -29,7 +29,6 @@ export function addSensitiveFacilityIdIfApplicable() {
   `;
 }
 
-// TODO: a bit hacky for my liking. have moved all the weird logic here but now i need to polish a bit
 export function buildEncounterLinkedLookupFilter(model: typeof Model, options?: Options) {
   const { extraJoins, isLabRequest, patientId = 'encounters.patient_id' } = options ?? {};
 
@@ -39,6 +38,7 @@ export function buildEncounterLinkedLookupFilter(model: typeof Model, options?: 
     isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
   });
 
+  // We need to allow an object override for the encounter join if the column name is not encounter_id
   const includeDefaultEncounterJoin = !extraJoins?.find(
     join => join === 'encounters' || (isObject(join) && join.tableName === 'encounters'),
   );

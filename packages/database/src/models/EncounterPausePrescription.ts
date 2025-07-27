@@ -130,7 +130,6 @@ export class EncounterPausePrescription extends Model {
     );
   }
 
-  // TODO: why is this not working like the others
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this, { extraJoins: ['encounter_prescriptions'] });
   }
