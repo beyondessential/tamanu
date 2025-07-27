@@ -3729,16 +3729,42 @@ describe('CentralSyncManager', () => {
             isSensitive: true,
           }),
         );
-        const sensitiveEncounterA = await models.Encounter.create(
-          fake(models.Encounter, {
+        const sensitiveLocationA = await models.Location.create(
+          fake(models.Location, {
             facilityId: sensitiveFacilityA.id,
           }),
         );
-        const sensitiveEncounterB = await models.Encounter.create(
-          fake(models.Encounter, {
+        const sensitiveDepartmentA = await models.Department.create(
+          fake(models.Department, {
+            facilityId: sensitiveFacilityA.id,
+          }),
+        );
+        const sensitiveLocationB = await models.Location.create(
+          fake(models.Location, {
             facilityId: sensitiveFacilityB.id,
           }),
         );
+        const sensitiveDepartmentB = await models.Department.create(
+          fake(models.Department, {
+            facilityId: sensitiveFacilityB.id,
+          }),
+        );
+        const sensitiveEncounterA = await models.Encounter.create({
+          ...fake(models.Encounter),
+          patientId: patient.id,
+          locationId: sensitiveLocationA.id,
+          departmentId: sensitiveDepartmentA.id,
+          examinerId: practitioner.id,
+          endDate: null,
+        });
+        const sensitiveEncounterB = await models.Encounter.create({
+          ...fake(models.Encounter),
+          patientId: patient.id,
+          locationId: sensitiveLocationB.id,
+          departmentId: sensitiveDepartmentB.id,
+          examinerId: practitioner.id,
+          endDate: null,
+        });
 
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
