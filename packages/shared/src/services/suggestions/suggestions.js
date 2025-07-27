@@ -434,9 +434,16 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
   );
 });
 
-createSuggester('role', 'Role', () => true, {
-  mapper: ({ name, id }) => ({ name, id }),
-});
+createSuggester(
+  'role',
+  'Role',
+  ({ search }) => ({
+    name: { [Op.iLike]: search },
+  }),
+  {
+    mapper: ({ name, id }) => ({ name, id }),
+  },
+);
 
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
