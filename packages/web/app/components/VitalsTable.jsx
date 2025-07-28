@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useVitalsQuery } from '../api/queries/useVitalsQuery';
@@ -9,8 +12,6 @@ import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
 import { TranslatedReferenceData } from './Translation';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getReferenceDataOptionStringId } from './Translation/TranslatedReferenceData';
 import { useTranslation } from '../contexts/Translation';
 
 const StyledDynamicColumnTable = styled(DynamicColumnTable)`
@@ -63,7 +64,7 @@ export const VitalsTable = React.memo(() => {
         PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
       ].includes(type);
 
-      if (isTranslatableOption) {
+      if (isTranslatableOption && value) {
         const optionStringId = getReferenceDataOptionStringId(
           dataElementId,
           'programDataElement',
