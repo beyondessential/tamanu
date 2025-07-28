@@ -2,10 +2,12 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
 
-export enum Certainty {
-  Suspected = 'suspected',
-  Confirmed = 'confirmed',
-}
+export const Certainty = {
+  Suspected: 'suspected',
+  Confirmed: 'confirmed',
+} as const;
+
+export type Certainty = (typeof Certainty)[keyof typeof Certainty];
 
 export const CERTAINTY_OPTIONS = createDropdownOptionsFromObject(Certainty);
 
