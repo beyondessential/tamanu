@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { subject } from '@casl/ability';
 
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation';
@@ -58,7 +59,7 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return ability?.can('delete', 'Charting');
+        return ability?.can('delete', subject('Charting', { id: selectedSurveyId }));
       },
     },
   ];
