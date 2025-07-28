@@ -29,7 +29,6 @@ export async function fetchOrThrowIfUnavailable(
   }
 
   try {
-    // TODO: does abort signal work on mobile?
     return await fetchFn(url, {  signal: abort.signal, ...config });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
