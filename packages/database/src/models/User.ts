@@ -266,21 +266,17 @@ export class User extends Model {
   }
 
   async checkCanAccessAllFacilities() {
-    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToFacilities',
-    );
-    if (!restrictUsersToFacilities) return true;
+    // Superusers always have access
     if (this.isSuperUser()) return true;
-    // Allow for roles that have access to all facilities configured via permissions
-    // (e.g. a custom "AdminICT" role)
+    // Users with 'login' permission on 'Facility' have access
     if (await this.hasPermission('login', 'Facility')) return true;
     return false;
   }
 
   async allowedFacilities() {
-    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
-    if (canAccessAllFacilities) {
-      return CAN_ACCESS_ALL_FACILITIES;
+    const hasUniversalAccess = await this.checkCanAccessAllFacilities();
+    if (hasUniversalAccess) {
+      return CAN_ACCESS_ALL_FACILITIES; // Special key allows access to all facilities
     }
 
     if (!this.facilities) {
@@ -292,27 +288,44 @@ export class User extends Model {
 
   async allowedFacilityIds() {
     const allowedFacilities = await this.allowedFacilities();
+
     if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
+
     return allowedFacilities.map(f => f.id);
   }
 
+  /**
+   * Check if user can access a specific facility
+   *
+   * Access rules:
+   * 1. Superusers can access all facilities
+   * 2. If global restriction is enabled OR facility is sensitive: check user's linked facilities
+   * 3. Otherwise: allow access (no restrictions)
+   */
   async canAccessFacility(id: string) {
     const facility = await this.sequelize.models.Facility.findByPk(id);
-    const settingEnabled = await this.sequelize.models.Setting.get(
+    const globalRestrictionEnabled = await this.sequelize.models.Setting.get(
       'auth.restrictUsersToFacilities',
     );
+    const userLinkedFacilities = await this.allowedFacilityIds();
 
-    const allowed = await this.allowedFacilityIds();
-
-    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
-    // Check linked facilities if global setting is enabled OR facility is sensitive
-    if (settingEnabled || facility?.isSensitive) {
-      return allowed.includes(id);
+    // Special key means user has access to all facilities
+    if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return true;
     }
 
-    return true; // No restrictions
+    // Check the users linked facilities if:
+    // - Global restriction is enabled, OR
+    // - Facility is marked as sensitive
+    const requiresPermissionCheck = globalRestrictionEnabled || facility?.isSensitive;
+    if (requiresPermissionCheck) {
+      return userLinkedFacilities.includes(id);
+    }
+
+    // No restrictions apply since the setting is disabled and the facility is not sensitive
+    return true;
   }
 
   static async filterAllowedFacilities(
