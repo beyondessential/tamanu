@@ -32,8 +32,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
     const [practitioner, patient, drug1, drug2, facility] = await Promise.all([
       User.create(fake(User)),
       Patient.create(fake(Patient)),
-      ReferenceData.create({ ...fakeReferenceData(), type: 'drug' }),
-      ReferenceData.create({ ...fakeReferenceData(), type: 'drug' }),
+      ReferenceData.create(fakeReferenceData('drug')),
+      ReferenceData.create(fakeReferenceData('drug')),
       Facility.create(fake(Facility)),
     ]);
 

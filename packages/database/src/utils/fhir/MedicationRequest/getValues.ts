@@ -79,7 +79,7 @@ async function requesterRef(pharmacyOrder: PharmacyOrder, models: Models) {
   const facility = await models.Facility.findOne({
     where: { id: location?.facilityId },
   });
-  return FhirReference.to(models.FhirOrganization, location?.facilityId, {
+  return FhirReference.to(models.FhirOrganization, facility?.id, {
     display: facility?.name,
   });
 }
@@ -102,7 +102,7 @@ async function recorderRef(pharmacyOrder: PharmacyOrder, models: Models) {
   const orderedByUser = await models.User.findOne({
     where: { id: pharmacyOrder.orderingClinicianId },
   });
-  return FhirReference.to(models.FhirPractitioner, pharmacyOrder.orderingClinicianId, {
+  return FhirReference.to(models.FhirPractitioner, orderedByUser?.id, {
     display: orderedByUser?.displayName,
   });
 }
