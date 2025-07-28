@@ -300,13 +300,12 @@ export class User extends Model {
 
   async canAccessFacility(id: string) {
     const facility = await this.sequelize.models.Facility.findByPk(id);
+    const allowed = await this.allowedFacilityIds();
 
-    if (facility?.isSensitive && !(await this.checkCanAccessAllFacilities())) {
-      const allowed = await this.allowedFacilityIds();
-      if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
-
+    if (facility?.isSensitive && allowed !== CAN_ACCESS_ALL_FACILITIES) {
       return allowed?.includes(id) ?? false;
     }
+    return true;
   }
 
   static async filterAllowedFacilities(
