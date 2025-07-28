@@ -93,10 +93,25 @@ export class Survey extends Model {
   }
 
   static async getResponsePermissionCheck(id: string) {
-    const vitalsSurvey = await this.getVitalsSurvey();
-    if (vitalsSurvey && id === vitalsSurvey.id) {
+    const survey = await this.findByPk(id);
+    if (!survey || survey.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('Survey not found');
+    }
+
+    if (survey.surveyType === SURVEY_TYPES.VITALS) {
       return 'Vitals';
     }
+
+    if (
+      [
+        SURVEY_TYPES.SIMPLE_CHART,
+        SURVEY_TYPES.COMPLEX_CHART_CORE,
+        SURVEY_TYPES.COMPLEX_CHART,
+      ].includes(survey.surveyType)
+    ) {
+      return 'Charting';
+    }
+
     return 'SurveyResponse';
   }
 
