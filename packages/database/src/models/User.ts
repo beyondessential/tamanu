@@ -265,17 +265,8 @@ export class User extends Model {
     return false;
   }
 
-  async checkCanAccessAllFacilities() {
-    // Superusers always have access
-    if (this.isSuperUser()) return true;
-    // Users with 'login' permission on 'Facility' have access
-    if (await this.hasPermission('login', 'Facility')) return true;
-    return false;
-  }
-
   async allowedFacilities() {
-    const hasUniversalAccess = await this.checkCanAccessAllFacilities();
-    if (hasUniversalAccess) {
+    if (this.isSuperUser()) {
       return CAN_ACCESS_ALL_FACILITIES; // Special key allows access to all facilities
     }
 
@@ -319,9 +310,15 @@ export class User extends Model {
     // Check the users linked facilities if:
     // - Global restriction is enabled, OR
     // - Facility is marked as sensitive
-    const requiresPermissionCheck = globalRestrictionEnabled || facility?.isSensitive;
-    if (requiresPermissionCheck) {
-      return userLinkedFacilities.includes(id);
+    const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
+
+    if (facility?.isSensitive) {
+      return userIsLinkedToThisFacility;
+    }
+
+    if (globalRestrictionEnabled) {
+      if (await this.hasPermission('login', 'Facility')) return true;
+      return userIsLinkedToThisFacility;
     }
 
     // No restrictions apply since the setting is disabled and the facility is not sensitive
