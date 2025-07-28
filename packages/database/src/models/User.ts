@@ -10,7 +10,7 @@ import {
 
 import { Model } from './Model';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
@@ -296,27 +296,31 @@ export class User extends Model {
    * 3. Otherwise: allow access (no restrictions)
    */
   async canAccessFacility(id: string) {
-    const facility = await this.sequelize.models.Facility.findByPk(id);
-    const globalRestrictionEnabled = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToFacilities',
-    );
+    const { Facility, Setting } = this.sequelize.models;
+
+    const facility = await Facility.findByPk(id, {
+      attributes: ['isSensitive'],
+    });
+
+    if (!facility) {
+      throw new NotFoundError(`Facility with id ${id} not found`);
+    }
+
     const userLinkedFacilities = await this.allowedFacilityIds();
 
-    // Special key means user has access to all facilities
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) {
       return true;
     }
 
-    // Check the users linked facilities if:
-    // - Global restriction is enabled, OR
-    // - Facility is marked as sensitive
     const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
 
-    if (facility?.isSensitive) {
+    if (facility.isSensitive) {
       return userIsLinkedToThisFacility;
     }
 
-    if (globalRestrictionEnabled) {
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+
+    if (restrictUsersToFacilities) {
       if (await this.hasPermission('login', 'Facility')) return true;
       return userIsLinkedToThisFacility;
     }
