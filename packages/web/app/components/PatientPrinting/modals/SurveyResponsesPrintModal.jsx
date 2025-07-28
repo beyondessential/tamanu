@@ -31,8 +31,10 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: additionalData, isLoading: isAdditionalDataLoading } =
-      usePatientAdditionalDataQuery(patient.id);
+    const {
+      data: additionalData,
+      isLoading: isAdditionalDataLoading,
+    } = usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],

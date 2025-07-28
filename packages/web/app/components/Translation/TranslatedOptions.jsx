@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { getReferenceDataOptionStringId } from './TranslatedReferenceData';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../../contexts/Translation';
 import { SelectField } from '../Field/SelectField';
 import { TranslatedText } from './TranslatedText';

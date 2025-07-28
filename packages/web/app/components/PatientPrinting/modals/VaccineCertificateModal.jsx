@@ -120,11 +120,11 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
           localisation={localisation}
+          settings={settings}
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
           data-testid="workerrenderedpdfviewer-e076"
-          settings={settings}
         />
       )}
     </Modal>

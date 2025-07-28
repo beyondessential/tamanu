@@ -23,11 +23,11 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
     <PDFLoader isLoading={isLoading} id="imaging-request-printout" data-testid="pdfloader-fwti">
       <MultipleImagingRequestsPrintout
         getLocalisation={getLocalisation}
+        getSetting={getSetting}
         patient={{ ...patient, village }}
         encounter={encounter}
         imagingRequests={imagingRequests}
         certificateData={certificateData}
-        getSetting={getSetting}
         data-testid="multipleimagingrequestsprintout-mc0g"
       />
     </PDFLoader>
