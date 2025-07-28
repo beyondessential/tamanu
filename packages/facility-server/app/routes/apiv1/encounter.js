@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
+import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
@@ -762,7 +763,7 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/graphData/charts/:dataElementId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Charting');
+    req.checkPermission('read', 'Charting');
     const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
@@ -855,9 +856,8 @@ encounterRelations.get(
   '/:id/charts/:chartSurveyId/chartInstances',
   asyncHandler(async (req, res) => {
     const { db, params } = req;
-    req.checkPermission('list', 'Charting');
-
     const { id: encounterId, chartSurveyId } = params;
+    req.checkPermission('list', subject('Charting', { id: chartSurveyId }));
 
     const results = await db.query(
       `
@@ -912,13 +912,14 @@ encounterRelations.delete(
   '/:id/chartInstances/:chartInstanceResponseId',
   asyncHandler(async (req, res) => {
     const { db, params, models } = req;
-    req.checkPermission('delete', 'Charting');
-
     const { chartInstanceResponseId } = params;
+
+    const surveyResponse = await models.SurveyResponse.findByPk(chartInstanceResponseId);
+    req.checkPermission('delete', subject('Charting', { id: surveyResponse?.surveyId }));
 
     // all answers will also be soft deleted automatically
     await db.transaction(async () => {
-      await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
+      await surveyResponse.destroy();
 
       await models.SurveyResponse.destroy({
         where: { 'metadata.chartInstanceResponseId': chartInstanceResponseId },
