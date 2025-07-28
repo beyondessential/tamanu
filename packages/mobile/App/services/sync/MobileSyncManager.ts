@@ -402,7 +402,7 @@ export class MobileSyncManager {
       };
 
       await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal, syncSettings, pullUntil },
+        { centralServer: this.centralServer, sessionId, recordTotal },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
@@ -432,8 +432,6 @@ export class MobileSyncManager {
         centralServer,
         sessionId,
         recordTotal,
-        syncSettings,
-        pullUntil,
         progressCallback: pullProgressCallback,
       },
       processStreamedDataFunction,

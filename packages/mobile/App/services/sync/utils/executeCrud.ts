@@ -38,7 +38,7 @@ export const executeInserts = async (
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
-      await repository.save(batchOfRows, { listeners: false })
+      await repository.insert(batchOfRows)
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error

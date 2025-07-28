@@ -1,9 +1,16 @@
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
-import { PullParams } from '../MobileSyncManager';
+import { CentralServerConnection } from '../CentralServerConnection';
+
+type PullRecordsInBatchesParams = {
+  centralServer: CentralServerConnection;
+  sessionId: string;
+  recordTotal: number;
+  progressCallback?: (incrementalPulled: number) => void;
+};
 
 export const pullRecordsInBatches = async (
-  { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
+  { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullRecordsInBatchesParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
   let fromId;
