@@ -703,7 +703,7 @@ async function getGraphData(req, dateDataElementId) {
     .sort((a, b) => {
       return a.recordedDate > b.recordedDate ? 1 : -1;
     });
-  return data;
+  return { data, surveyId: dateAnswers[0]?.surveyResponse.surveyId };
 }
 
 encounterRelations.get(
@@ -723,7 +723,7 @@ encounterRelations.get(
   '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Vitals');
-    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
+    const { data } = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -763,8 +763,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/graphData/charts/:dataElementId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Charting');
-    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    const { data, surveyId } = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
 
     res.send({
       count: data.length,
