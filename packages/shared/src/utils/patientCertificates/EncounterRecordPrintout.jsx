@@ -532,7 +532,7 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'route',
-        title: getTranslation('medication.route.label', 'Route'),
+        title: getTranslation('medication.route.label', 'Route of administration'),
         accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
         style: { width: '10%' },
       },
