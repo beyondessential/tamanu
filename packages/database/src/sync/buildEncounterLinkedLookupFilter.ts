@@ -5,9 +5,9 @@ import type { Model } from '../models/Model';
 export type JoinConfig =
   | string
   | {
-      tableName: string;
-      columnName: string;
-      joinType?: 'LEFT' | 'INNER';
+      model: typeof Model;
+      joinColumn: string;
+      required?: boolean;
     };
 
 export type Options = {

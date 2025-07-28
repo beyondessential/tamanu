@@ -92,9 +92,9 @@ export class SurveyResponseAnswer extends Model {
       select: buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, [
         {
-          tableName: 'survey_responses',
+          model: this.sequelize.models.SurveyResponse,
           columnName: 'response_id',
-          joinType: 'INNER',
+          required: true,
         },
         'encounters',
       ]),

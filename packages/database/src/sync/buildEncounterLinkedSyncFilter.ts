@@ -8,11 +8,11 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: JoinConfig
     .map((table, i) => {
       const currentTable = isString(tablesToTraverse[i])
         ? tablesToTraverse[i]
-        : tablesToTraverse[i]?.tableName;
+        : tablesToTraverse[i]?.model.tableName;
 
-      const joinTable = isString(table) ? table : table.tableName;
-      const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.columnName;
-      const joinType = isObject(table) && table.joinType ? table.joinType : 'LEFT';
+      const joinTable = isString(table) ? table : table.model.tableName;
+      const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.joinColumn;
+      const joinType = isObject(table) && table.required ? 'INNER' : 'LEFT';
 
       return `
         ${joinType} JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
