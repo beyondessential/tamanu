@@ -11,8 +11,8 @@ export type JoinConfig =
     };
 
 export type Options = {
+  extraSelects?: Record<string, string>; // extra selects to attach to the lookup select
   extraJoins?: JoinConfig[]; // extra joins needed to traverse between this model and the encounters table
-  extraSelects?: string[]; // extra selects needed to traverse between this model and the encounters table
 };
 
 /**
