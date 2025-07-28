@@ -10,6 +10,7 @@ import { Colors } from '../../constants';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
+import { format } from 'date-fns';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -26,6 +27,10 @@ const StyledTable = styled(Table)`
       }
     }
   }
+`;
+
+const NoWrapCell = styled(Box)`
+  white-space: nowrap;
 `;
 
 export const COLUMN_KEYS = {
@@ -122,6 +127,33 @@ const COLUMNS = (getTranslation, getEnumTranslation, onSelectAll, selectAllCheck
     ),
     sortable: false,
     accessor: ({ date }) => formatShortest(date),
+  },
+  {
+    key: 'lastOrderedAt',
+    title: (
+      <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
+    ),
+    accessor: ({ lastOrderedAt }) => {
+      if (!lastOrderedAt) {
+        return (
+          <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+            &nbsp;
+          </NoWrapCell>
+        );
+      }
+
+      const orderDate = new Date(lastOrderedAt);
+      return (
+        <NoWrapCell color={'inherit'} fontStyle={'normal'}>
+          <Box>
+            {formatShortest(orderDate)}
+            <Box fontSize="12px" color={Colors.softText}>
+              {format(orderDate, 'h:mma').toLowerCase()}
+            </Box>
+          </Box>
+        </NoWrapCell>
+      );
+    },
   },
   {
     key: COLUMN_KEYS.QUANTITY,
