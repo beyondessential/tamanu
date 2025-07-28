@@ -127,27 +127,11 @@ export class Note extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    // For Notes, we need to handle the polymorphic relationships
-    // Use the original note-linked joins but add sensitive facility logic
-    const noteJoins = buildNoteLinkedJoins();
-
-    // Add joins to get to facilities for sensitive facility filtering
-    // Use the existing aliased encounters joins and add locations/facilities
-    const facilityJoins = `
-      LEFT JOIN locations ON (
-        (notes.record_type = 'Encounter' AND encounters.location_id = locations.id) OR
-        (notes.record_type = 'Triage' AND triages_encounters.location_id = locations.id) OR
-        (notes.record_type = 'LabRequest' AND lab_requests_encounters.location_id = locations.id) OR
-        (notes.record_type = 'ImagingRequest' AND imaging_requests_encounters.location_id = locations.id)
-      )
-      LEFT JOIN facilities ON locations.facility_id = facilities.id
-    `;
-
     return {
       select: buildEncounterLinkedLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
       }),
-      joins: noteJoins.join('\n') + '\n' + facilityJoins,
+      joins: buildNoteLinkedJoins().join('\n'),
     };
   }
 
