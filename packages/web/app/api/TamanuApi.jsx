@@ -1,6 +1,6 @@
 import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -97,15 +97,17 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  if (!error || typeof error.status !== 'number') {
+  const status = error?.response?.status;
+  if (!status || typeof status !== 'number') {
     return true;
   }
   // we don't want to show toast for 403 (no permission) errors
-  return error.status >= 400 && error.status != 403;
+  return status >= 400 && status != 403;
 }
 
 export function isErrorUnknownAllow404s(error) {
-  if (error?.status === 404) {
+  const status = error?.response?.status;
+  if (status === 404) {
     return false;
   }
   return isErrorUnknownDefault(error);
@@ -205,39 +207,32 @@ export class TamanuApi extends ApiClient {
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
-        // TODO: this is a hack to get the language from the browser
         const language = localStorage.getItem(LANGUAGE);
-        if (language === 'en') {
-          notifyError([
-            <b key="general.api.notification.requestFailed">
-              <TranslatedText
-                stringId="general.api.notification.requestFailed"
-                fallback="Network request failed"
-              />
-            </b>,
+        notifyError([
+          <b key="general.api.notification.requestFailed">
             <TranslatedText
-              key="general.api.notification.path"
-              stringId="general.api.notification.path"
-              fallback="Path: :path"
-              replacements={{ path: err.path ?? endpoint }}
-            />,
-            <TranslatedText
-              key="general.api.notification.message"
-              stringId="general.api.notification.message"
-              fallback="Message: :message"
-              replacements={{ message }}
-            />,
-          ]);
-        } else {
-          notifyError([
-            <b key="general.api.notification.requestFailed.generic">
-              <TranslatedText
-                stringId="general.api.notification.requestFailed.generic"
-                fallback="Network request failed. Please contact your administrator."
-              />
-            </b>,
-          ]);
-        }
+              stringId="general.api.notification.requestFailed"
+              fallback="Network request failed"
+            />
+          </b>,
+          // Only show full server messages in English
+          ...(!language || language === ENGLISH_LANGUAGE_CODE
+            ? [
+                <TranslatedText
+                  key="general.api.notification.path"
+                  stringId="general.api.notification.path"
+                  fallback="Path: :path"
+                  replacements={{ path: err.path ?? endpoint }}
+                />,
+                <TranslatedText
+                  key="general.api.notification.message"
+                  stringId="general.api.notification.message"
+                  fallback="Message: :message"
+                  replacements={{ message }}
+                />,
+              ]
+            : []),
+        ]);
       }
 
       throw new Error(message);

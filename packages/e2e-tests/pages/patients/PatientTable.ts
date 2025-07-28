@@ -1,6 +1,13 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
 import { convertDateFormat, SelectingFromSearchBox } from '../../utils/testHelper';
+import { routes } from '../../config/routes';
+import { Patient } from '../../types/Patient';
+import { STYLED_TABLE_CELL_PREFIX } from '../../utils/testIds';
+import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
+type PatientTableRow = Locator & {
+  getPatientInfo(): Promise<Patient>;
+};
 
 export class PatientTable {
   readonly page: Page;
@@ -35,6 +42,7 @@ export class PatientTable {
   readonly patientPageRecordCount50: Locator;
   readonly patientPage2: Locator;
   readonly pageRecordCount: Locator;
+  readonly pageRecordCountDropDownOptions: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -70,6 +78,8 @@ export class PatientTable {
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
     this.downloadBtn = page.getByTestId('download-data-button');
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
+    this.pageRecordCountDropDownOptions = page
+      .getByTestId('styledmenuitem-fkrw-undefined');
     this.patientPageRecordCount25 = page
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('25');
@@ -82,10 +92,10 @@ export class PatientTable {
 
   async waitForTableToLoad() {
     try {
+      await this.loadingCell.waitFor({ state: 'detached' });
       await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-      await this.loadingCell.waitFor({ state: 'hidden' });
     } catch (error) {
-      throw new Error(`Failed to wait for table to load: ${error.message}`);
+      throw new Error(`Failed to wait for table to load: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -103,7 +113,7 @@ export class PatientTable {
       );
     } catch (error) {
       throw new Error(
-        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`,
+        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -111,12 +121,12 @@ export class PatientTable {
   async clickOnFirstRow() {
     await this.waitForTableToLoad();
     await this.table.locator('tbody tr').first().click();
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
   }
 
   async clickOnSearchResult(nhn: string) {
     await this.nhnResultCell.filter({ hasText: nhn }).click({ timeout: 5000 });
-    await this.page.waitForURL('**/#/patients/all/*');
+    await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
   }
 
   async validateAtLeastOneSearchResult() {
@@ -129,7 +139,7 @@ export class PatientTable {
     const lowerExpectedText = expectedText.toLowerCase();
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       const actualText = cellText || '';
@@ -159,7 +169,7 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = await this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       await expect(cellLocator).toHaveText(convertedExpectedDate);
     }
@@ -180,7 +190,7 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) Values.push(cellText);
@@ -199,18 +209,23 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-dateOfBirth`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-dateOfBirth`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) dateValues.push(cellText);
     }
 
     const sortedValues = [...dateValues].sort((a, b) => {
-      const dateA = new Date(a.split('/').reverse().join('-')).getTime();
-      const dateB = new Date(b.split('/').reverse().join('-')).getTime();
+      const [month, day, year] = a.split('/');
+      const dateA = new Date(`${year}-${month}-${day}`).getTime();
+      const [monthB, dayB, yearB] = b.split('/');
+      const dateB = new Date(`${yearB}-${monthB}-${dayB}`).getTime();
       return isAscending ? dateA - dateB : dateB - dateA;
     });
+    console.log('result', dateValues);
+    console.log('expected', sortedValues);
     expect(dateValues).toEqual(sortedValues);
+    
   }
 
   async searchTable(searchCriteria: {
@@ -255,7 +270,7 @@ export class PatientTable {
     if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
       await this.page
-        .getByTestId('twocolumnsfield-wg4x')
+        .getByTestId(TWO_COLUMNS_FIELD_TEST_ID)
         .getByText(new RegExp(`^${searchCriteria.sex}$`, 'i'))
         .click();
     }
@@ -286,5 +301,85 @@ export class PatientTable {
     await expect(this.sexDropDownCrossIcon).not.toBeVisible();
     await expect(this.DOBFromTxt).toHaveValue('');
     await expect(this.DOBToTxt).toHaveValue('');
+  }
+
+  async changePageSize(recordsPerPage: number) {
+    try {
+      // Click on the page record count dropdown
+      await this.pageRecordCountDropDown.click();
+      
+      // Select the specified number of records per page
+      await this.pageRecordCountDropDownOptions
+        .getByText(recordsPerPage.toString())
+        .click();
+      
+      // Wait for the table to reload with the new page size
+      await this.waitForTableToLoad();
+      // Verify the page size has been changed by checking the page record count
+      await expect(this.pageRecordCount).toContainText(recordsPerPage.toString());
+      
+    } catch (error) {
+      throw new Error(`Failed to change page size to ${recordsPerPage}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async getTotalRowCount(): Promise<number> {
+    await this.waitForTableToLoad();
+    return await this.rows.count();
+  }
+
+  getRow(index: number): PatientTableRow {
+    const rowLocator = this.rows.nth(index);
+    return Object.assign(rowLocator, {
+      async getPatientInfo(): Promise<Patient> {
+        const firstName = await rowLocator.locator('[data-testid*="-firstName"]').textContent() || '';
+        const lastName = await rowLocator.locator('[data-testid*="-lastName"]').textContent() || '';
+        const nhn = await rowLocator.locator('[data-testid*="-displayId"]').textContent() || '';
+        const sex = await rowLocator.locator('[data-testid*="-sex"]').textContent() || '';
+        const dateOfBirth = await rowLocator.locator('[data-testid*="-dateOfBirth"]').textContent() || '';
+        
+        return {
+          firstName,
+          lastName,
+          nhn,
+          sex,
+          dateOfBirth
+        };
+      }
+    }) as PatientTableRow;
+  }
+
+  async getAllPatientInfo(): Promise<Patient[]> {
+    const rowCount = await this.getTotalRowCount();
+    const patients: Patient[] = [];
+    
+    for (let i = 0; i < rowCount; i++) {
+      const row = this.getRow(i);
+      const patientInfo = await row.getPatientInfo();
+      patients.push(patientInfo);
+    }
+    
+    return patients;
+  }
+
+  async clickOnRow(rowIndex: number) {
+    try {
+      await this.waitForTableToLoad();
+      
+      // Get the row at the specified index (0-based)
+      const targetRow = this.rows.nth(rowIndex);
+      
+      // Wait for the row to be visible
+      await targetRow.waitFor({ state: 'visible' });
+      
+      // Click on the row
+      await targetRow.click();
+      
+      // Wait for navigation to patient details page
+      await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
+      
+    } catch (error) {
+      throw new Error(`Failed to click on row ${rowIndex}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }
