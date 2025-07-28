@@ -66,7 +66,7 @@ export class Referral extends Model {
       joins: buildEncounterLinkedLookupJoins(this, [
         {
           model: this.sequelize.models.Encounter,
-          columnName: 'initiating_encounter_id',
+          joinColumn: 'initiating_encounter_id',
           required: true,
         },
       ]),
