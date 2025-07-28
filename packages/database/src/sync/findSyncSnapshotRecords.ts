@@ -95,7 +95,7 @@ export const findSyncSnapshotRecords = async (
         ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
     )`;
 
-  return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'priority.sort_order', {
+  return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'id, priority.sort_order', {
     fromId,
     direction,
     limit,
