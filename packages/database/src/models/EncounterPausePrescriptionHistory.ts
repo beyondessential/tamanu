@@ -3,7 +3,10 @@ import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class EncounterPausePrescriptionHistory extends Model {
   declare id: string;
@@ -69,8 +72,9 @@ export class EncounterPausePrescriptionHistory extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: ['encounter_prescriptions'],
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['encounter_prescriptions', 'encounters']),
+    };
   }
 }

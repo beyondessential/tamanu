@@ -77,8 +77,6 @@ export class Triage extends Model {
     );
   }
 
-  //     return buildEncounterLinkedLookupFilter(this);
-
   static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }

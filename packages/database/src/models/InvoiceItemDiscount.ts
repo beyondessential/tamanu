@@ -3,7 +3,10 @@ import { INVOICE_ITEMS_DISCOUNT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 const INVOICE_ITEMS_DISCOUNT_TYPE_VALUES = Object.values(INVOICE_ITEMS_DISCOUNT_TYPES);
 
@@ -51,6 +54,9 @@ export class InvoiceItemDiscount extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['invoice_items', 'invoices'] });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['invoice_items', 'invoices', 'encounters']),
+    };
   }
 }

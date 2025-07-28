@@ -1,18 +1,13 @@
-import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilterJoins,
+  type JoinConfig,
+} from './buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
-import { isObject } from 'lodash';
-
-export type JoinConfig = {
-  tableName: string;
-  columnName: string;
-  joinType?: 'LEFT' | 'INNER';
-};
 
 export type Options = {
-  patientId?: string; // override the default patient_id relationship (encounters.patient_id)
-  extraJoins?: (string | JoinConfig)[]; // extra joins needed to traverse between this model and the encounters table
-  isLabRequest?: boolean; // If the model should sync down with syncAllLabRequests setting
+  extraSelects?: Record<string, string>; // extra selects to attach to the lookup select
+  extraJoins?: JoinConfig[]; // extra joins needed to traverse between this model and the encounters table
 };
 
 /**
@@ -29,27 +24,32 @@ export function addSensitiveFacilityIdIfApplicable() {
   `;
 }
 
-export function buildEncounterLinkedLookupFilter(model: typeof Model, options?: Options) {
-  const { extraJoins, isLabRequest, patientId = 'encounters.patient_id' } = options ?? {};
-
-  const select = buildSyncLookupSelect(model, {
-    patientId,
+export function buildEncounterLinkedLookupSelect(
+  model: typeof Model,
+  extraSelects?: Record<string, string>,
+) {
+  return buildSyncLookupSelect(model, {
+    patientId: 'encounters.patient_id',
     facilityId: addSensitiveFacilityIdIfApplicable(),
-    isLabRequestValue: isLabRequest ? 'TRUE' : 'FALSE',
+    ...extraSelects,
   });
+}
 
-  // We need to allow an object override for the encounter join if the column name is not encounter_id
-  const includeDefaultEncounterJoin = !extraJoins?.find(
-    join => join === 'encounters' || (isObject(join) && join.tableName === 'encounters'),
-  );
-
-  const joins = buildEncounterLinkedSyncFilterJoins([
+export function buildEncounterLinkedLookupJoins(
+  model: typeof Model,
+  joinsToEncounters?: JoinConfig[],
+) {
+  return buildEncounterLinkedSyncFilterJoins([
     model.tableName,
-    ...(extraJoins || []),
-    ...(includeDefaultEncounterJoin ? ['encounters'] : []),
+    ...(joinsToEncounters || ['encounters']),
     'locations',
     'facilities',
   ]);
+}
 
-  return { select, joins };
+export function buildEncounterLinkedLookupFilter(model: typeof Model) {
+  return {
+    select: buildEncounterLinkedLookupSelect(model),
+    joins: buildEncounterLinkedLookupJoins(model),
+  };
 }

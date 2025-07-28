@@ -4,7 +4,10 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;
@@ -131,7 +134,10 @@ export class EncounterPausePrescription extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['encounter_prescriptions'] });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['encounter_prescriptions', 'encounters']),
+    };
   }
 
   /**

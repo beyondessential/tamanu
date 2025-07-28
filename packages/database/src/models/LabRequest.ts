@@ -13,7 +13,10 @@ import type { Encounter } from './Encounter';
 import type { User } from './User';
 import type { Note } from './Note';
 import type { LabTestPanelRequest } from './LabTestPanelRequest';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 interface LabRequestData {
   labTestTypeIds?: string[];
@@ -288,7 +291,12 @@ export class LabRequest extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, { isLabRequest: true });
+    return {
+      select: buildEncounterLinkedLookupSelect(this, {
+        isLabRequestValue: 'TRUE',
+      }),
+      joins: buildEncounterLinkedLookupJoins(this),
+    };
   }
 
   getTests() {

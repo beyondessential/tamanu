@@ -41,6 +41,27 @@ export function buildNoteLinkedJoins() {
     ),
   );
 
+  // Add facility joins for encounter-linked record types
+  const ENCOUNTER_LINKED_RECORD_TYPES = [
+    NOTE_RECORD_TYPES.ENCOUNTER,
+    NOTE_RECORD_TYPES.TRIAGE,
+    NOTE_RECORD_TYPES.LAB_REQUEST,
+    NOTE_RECORD_TYPES.IMAGING_REQUEST,
+  ];
+
+  const joinsToLocation = ENCOUNTER_LINKED_RECORD_TYPES.map(recordType => {
+    const tableAlias =
+      recordType === NOTE_RECORD_TYPES.ENCOUNTER
+        ? 'encounters'
+        : `${recordTypesToTables[recordType]}_encounters`;
+    return `(notes.record_type = '${recordType}' AND ${tableAlias}.location_id = locations.id)`;
+  }).join(' OR ');
+
+  joins = joins.concat([
+    `LEFT JOIN locations ON (${joinsToLocation})`,
+    `LEFT JOIN facilities ON locations.facility_id = facilities.id`,
+  ]);
+
   return joins;
 }
 

@@ -1,18 +1,26 @@
 import { Utils } from 'sequelize';
 import { isObject, isString } from 'lodash';
-import type { JoinConfig } from './buildEncounterLinkedLookupFilter';
+import { Model } from '../models/Model';
 
-export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | JoinConfig)[]) {
+export type JoinConfig =
+  | string
+  | {
+      model: typeof Model;
+      joinColumn: string;
+      required?: boolean;
+    };
+
+export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: JoinConfig[]) {
   return tablesToTraverse
     .slice(1)
     .map((table, i) => {
       const currentTable = isString(tablesToTraverse[i])
         ? tablesToTraverse[i]
-        : tablesToTraverse[i]?.tableName;
+        : tablesToTraverse[i]?.model.tableName;
 
-      const joinTable = isString(table) ? table : table.tableName;
-      const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.columnName;
-      const joinType = isObject(table) && table.joinType ? table.joinType : 'LEFT';
+      const joinTable = isString(table) ? table : table.model.tableName;
+      const joinColumn = isString(table) ? `${Utils.singularize(table)}_id` : table.joinColumn;
+      const joinType = isObject(table) && table.required ? 'INNER' : 'LEFT';
 
       return `
         ${joinType} JOIN ${joinTable} ON ${currentTable}.${joinColumn} = ${joinTable}.id
@@ -22,7 +30,7 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: (string | 
 }
 
 export function buildEncounterLinkedSyncFilter(
-  tablesToTraverse: string[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
+  tablesToTraverse: JoinConfig[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
   markedForSyncPatientsTable: string,
 ) {
   const joins = buildEncounterLinkedSyncFilterJoins(tablesToTraverse);

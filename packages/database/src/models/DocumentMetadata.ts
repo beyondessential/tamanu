@@ -4,7 +4,10 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class DocumentMetadata extends Model {
   declare id: string;
@@ -97,8 +100,11 @@ export class DocumentMetadata extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this, {
+        patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
+      }),
+      joins: buildEncounterLinkedLookupJoins(this),
+    };
   }
 }

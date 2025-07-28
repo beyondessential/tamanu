@@ -6,7 +6,10 @@ import { dateTimeType, dateType, type InitOptions, type Models } from '../types/
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import type { SessionConfig } from '../types/sync';
 import type { LabTestType } from './LabTestType';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class LabTest extends Model {
   declare id: string;
@@ -87,9 +90,11 @@ export class LabTest extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: ['lab_requests'],
-      isLabRequest: true,
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this, {
+        isLabRequestValue: 'TRUE',
+      }),
+      joins: buildEncounterLinkedLookupJoins(this, ['lab_requests', 'encounters']),
+    };
   }
 }

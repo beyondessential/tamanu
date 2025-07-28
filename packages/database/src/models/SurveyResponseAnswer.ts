@@ -10,7 +10,10 @@ import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;
@@ -85,15 +88,17 @@ export class SurveyResponseAnswer extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: [
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, [
         {
-          tableName: 'survey_responses',
-          columnName: 'response_id',
-          joinType: 'INNER',
+          model: this.sequelize.models.SurveyResponse,
+          joinColumn: 'response_id',
+          required: true,
         },
-      ],
-    });
+        'encounters',
+      ]),
+    };
   }
 
   // eslint-disable-next-line no-unused-vars

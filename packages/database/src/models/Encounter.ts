@@ -13,7 +13,6 @@ import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOut
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import type { Location } from './Location';
 import type { Patient } from './Patient';
@@ -21,7 +20,7 @@ import type { Discharge } from './Discharge';
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
-import { addSensitiveFacilityIdIfApplicable } from '../sync/buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Encounter extends Model {
   declare id: string;
@@ -384,11 +383,8 @@ export class Encounter extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-        encounterId: 'encounters.id',
+      select: buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
-        facilityId: addSensitiveFacilityIdIfApplicable(),
       }),
       joins: `
         LEFT JOIN (
