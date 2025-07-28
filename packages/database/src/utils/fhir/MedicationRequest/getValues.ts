@@ -12,7 +12,7 @@ import {
 } from '@tamanu/shared/services/fhirTypes';
 import type { Models } from '../../../types/model';
 import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 
 export async function getValues(upstream: PharmacyOrderPrescription, models: Models) {
@@ -142,7 +142,7 @@ async function dosageInstruction(
   );
 
   return new FhirDosageInstruction({
-    text: `${getDose(prescription, getTranslation, getEnumTranslation)} - ${getTranslatedFrequency(prescription.frequency, getTranslation)}`,
+    text: `${getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)} - ${getTranslatedFrequency(prescription.frequency, getTranslation)}`,
     timing: new FhirTiming({
       repeat: {
         ...getFrequencyPeriodUnit(prescription),
