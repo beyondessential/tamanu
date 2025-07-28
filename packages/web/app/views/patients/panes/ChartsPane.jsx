@@ -197,24 +197,21 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       ),
     [coreComplexChartSurvey?.components],
   );
+
   const coreComplexDataElements = useMemo(() => {
-    const instanceNameDataElement = coreComplexChartSurvey?.components?.find(
-      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
-    )?.dataElement;
-    const dateDataElement = coreComplexChartSurvey?.components?.find(
-      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartDate,
-    )?.dataElement;
-    const typeDataElement = coreComplexChartSurvey?.components?.find(
-      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartType,
-    )?.dataElement;
-    const subtypeDataElement = coreComplexChartSurvey?.components?.find(
-      c => c.dataElementId === CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
-    )?.dataElement;
+    if (!coreComplexChartSurvey?.components) {
+      return {};
+    }
+    const componentsByDataElementId = keyBy(coreComplexChartSurvey.components, 'dataElementId');
+    const findDataElement = id => componentsByDataElementId[id]?.dataElement;
+
     return {
-      instanceNameDataElement,
-      dateDataElement,
-      typeDataElement,
-      subtypeDataElement,
+      instanceNameDataElement: findDataElement(
+        CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName
+      ),
+      dateDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartDate),
+      typeDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartType),
+      subtypeDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartSubtype)
     };
   }, [coreComplexChartSurvey]);
 
