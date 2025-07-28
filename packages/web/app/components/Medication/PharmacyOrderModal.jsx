@@ -18,7 +18,7 @@ import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedica
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: 900px;
+    max-width: 1000px;
   }
 `;
 

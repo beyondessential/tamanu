@@ -290,6 +290,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}
           onImportOngoingPrescriptions={() => setMedicationImportModalOpen(true)}
+          isPharmacyOrdersEnabled={pharmacyOrderEnabled}
         />
       </TableContainer>
     </TabPane>
