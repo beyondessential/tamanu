@@ -6,7 +6,6 @@ const certificateMargins = '0 18px';
 
 export const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
     position: 'relative',
     padding: '30 30 0 30',
     color: '#222222',
@@ -32,8 +31,6 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
     width: 100,
   },
   line: {
@@ -117,7 +114,9 @@ export const Box = ({ mt, mb, ...props }) => (
 
 export const Signature = ({ text, fontSize = 12, lineThickness = 1 }) => (
   <View style={styles.signature}>
-    <Text style={{ ...styles.signatureText, fontSize: fontSize }}>{text}:</Text>
+    <Text bold style={{ ...styles.signatureText, fontSize: fontSize }}>
+      {text}:
+    </Text>
     <View style={{ ...styles.line, borderBottomWidth: lineThickness }} />
   </View>
 );

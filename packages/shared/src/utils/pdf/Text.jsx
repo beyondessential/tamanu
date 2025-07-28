@@ -4,17 +4,12 @@ import { useLanguageContext } from './languageContext';
 import { flatten } from './flattenStyles';
 
 export const Text = ({ style, bold, ...props }) => {
-  const { makeIntlStyleSheet } = useLanguageContext();
+  const { makeIntlStyleSheet, pdfFont, pdfFontBold } = useLanguageContext();
   const mergedStyle = flatten(style);
   const newStyles = makeIntlStyleSheet(
     {
       ...mergedStyle,
-      ...(bold && {
-        fontFamily:
-          mergedStyle.fontFamily === 'Helvetica-Oblique'
-            ? 'Helvetica-BoldOblique'
-            : 'Helvetica-Bold',
-      }),
+      ...(bold ? { fontFamily: pdfFontBold, fontWeight: 700 } : { fontFamily: pdfFont }),
     },
     bold,
   );
