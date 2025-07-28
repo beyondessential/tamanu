@@ -284,8 +284,6 @@ patientRelations.get(
       });
     }
 
-    console.log('TESTING', procedureId);
-
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,

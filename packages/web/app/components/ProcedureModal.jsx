@@ -37,8 +37,6 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
 
-  console.log('EDITED PROCEDURE', editedProcedure);
-
   return (
     <FormModal
       width="md"

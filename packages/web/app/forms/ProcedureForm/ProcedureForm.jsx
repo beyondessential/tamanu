@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { useParams } from 'react-router-dom';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
@@ -24,7 +25,8 @@ import { FORM_TYPES } from '../../constants/index.js';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { AdditionalData } from './AdditionalData';
-import { SurveyResponsesTable } from './SurveyResponsesTable';
+import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
+import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -58,6 +60,8 @@ export const ProcedureForm = React.memo(
     assistantSuggester,
   }) => {
     const { currentUser } = useAuth();
+    const { patientId } = useParams();
+    const { data: patient } = usePatientDataQuery(patientId);
     const procedureId = editedObject?.id;
 
     return (
@@ -283,9 +287,18 @@ export const ProcedureForm = React.memo(
                 </Collapse>
               </FormGrid>
               <Divider style={{ margin: '10px 0 20px' }} />
-              <AdditionalData procedureId={procedureId} procedureTypeId={values?.procedureTypeId} />
+              <AdditionalData
+                procedureId={procedureId}
+                patient={patient}
+                procedureTypeId={values?.procedureTypeId}
+              />
               <Divider style={{ margin: '10px 0 20px' }} />
-              <SurveyResponsesTable procedureId={procedureId} />
+              <DataFetchingProgramsTable
+                endpoint={`patient/${patientId}/programResponses`}
+                patient={patient}
+                fetchOptions={{ procedureId }}
+                tableOptions={{ disablePagination: true, allowExport: false }}
+              />
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}
