@@ -1,4 +1,5 @@
 import config from 'config';
+import { isNaN } from 'lodash';
 
 import {
   FhirReference,
@@ -141,6 +142,9 @@ async function dosageInstruction(
     config.language,
   );
 
+  const doseAmount = isNaN(parseFloat(prescription.doseAmount))
+    ? null
+    : parseFloat(prescription.doseAmount);
   return new FhirDosageInstruction({
     text: `${getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)} - ${getTranslatedFrequency(prescription.frequency, getTranslation)}`,
     timing: new FhirTiming({
@@ -155,7 +159,7 @@ async function dosageInstruction(
       new FhirDoseAndRate({
         dose: {
           doseQuantity: {
-            value: prescription.doseAmount,
+            value: doseAmount,
             unit: prescription.units,
           },
         },
