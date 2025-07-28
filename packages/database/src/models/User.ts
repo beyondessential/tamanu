@@ -68,7 +68,7 @@ export class User extends Model {
   }
 
   static async bulkCreate(records: any[], ...args: any[]): Promise<any> {
-    const sanitizedRecords = await Promise.all(records.map((r) => this.sanitizeForInsert(r)));
+    const sanitizedRecords = await Promise.all(records.map(r => this.sanitizeForInsert(r)));
     return super.bulkCreate(sanitizedRecords, ...args);
   }
 
@@ -295,14 +295,18 @@ export class User extends Model {
     if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
-    return allowedFacilities.map((f) => f.id);
+    return allowedFacilities.map(f => f.id);
   }
 
   async canAccessFacility(id: string) {
-    const allowed = await this.allowedFacilityIds();
-    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+    const facility = await this.sequelize.models.Facility.findByPk(id);
 
-    return allowed?.includes(id) ?? false;
+    if (facility?.isSensitive && !(await this.checkCanAccessAllFacilities())) {
+      const allowed = await this.allowedFacilityIds();
+      if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+
+      return allowed?.includes(id) ?? false;
+    }
   }
 
   static async filterAllowedFacilities(
@@ -310,7 +314,7 @@ export class User extends Model {
     facilityIds: string[],
   ) {
     if (Array.isArray(allowedFacilities)) {
-      return allowedFacilities.filter((f) => facilityIds.includes(f.id));
+      return allowedFacilities.filter(f => facilityIds.includes(f.id));
     } else {
       if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
         const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
