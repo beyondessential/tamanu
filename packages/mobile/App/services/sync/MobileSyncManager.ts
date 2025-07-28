@@ -242,6 +242,8 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
+    
+    console.log('MobileSyncManager.runSync(): Sync started');
 
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
 

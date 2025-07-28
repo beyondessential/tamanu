@@ -3,15 +3,8 @@ import { SYNC_SESSION_DIRECTION } from '../constants';
 import { PullParams } from '../MobileSyncManager';
 
 export const pullRecordsInBatches = async (
-  {
-    centralServer,
-    sessionId,
-    recordTotal,
-    progressCallback = () => {},
-  }: PullParams,
-  processRecords: (
-    records: any
-  ) => Promise<void>,
+  { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
+  processRecords: (records: any) => Promise<void>,
 ) => {
   let fromId;
   let limit = calculatePageLimit();
@@ -31,7 +24,8 @@ export const pullRecordsInBatches = async (
 
     await processRecords(recordsToSave);
 
-    fromId = records[records.length - 1].id;
+    const { id, recordTypeOrder } = records[records.length - 1];
+    fromId = btoa(JSON.stringify({ recordTypeOrder, id }));
     totalPulled += records.length;
     limit = calculatePageLimit(limit, pullTime);
 

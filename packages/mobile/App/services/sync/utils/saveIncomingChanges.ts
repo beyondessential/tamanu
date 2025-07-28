@@ -135,10 +135,7 @@ export const saveChangesFromMemory = async (
     } else {
       await executeInserts(
         model.getTransactionalRepository(),
-        recordsForModel.map(({ isDeleted, data }) => ({
-          ...buildFromSyncRecord(model, data),
-          isDeleted,
-        })),
+        recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
         syncSettings.maxRecordsPerInsertBatch,
         progressCallback,
       );

@@ -37,7 +37,8 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       fromId,
       limit,
     });
-    fromId = records[records.length - 1]?.id;
+    const { id, recordTypeOrder } = records[records.length - 1];
+    fromId = btoa(JSON.stringify({ recordTypeOrder, id }));
     totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 

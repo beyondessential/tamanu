@@ -65,7 +65,7 @@ describe('sanitize binary data', () => {
             expect(result).toBeGreaterThan(0);
 
             const results = await findSyncSnapshotRecords(
-              ctx.store.sequelize,
+              ctx.store,
               syncSession.id,
               SYNC_SESSION_DIRECTION.OUTGOING,
             );

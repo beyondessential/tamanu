@@ -41,7 +41,7 @@ const mockSessionId = 'xxx';
 const mockSyncTick = 5;
 
 describe('MobileSyncManager', () => {
-  const centralServerConnection = new CentralServerConnection('test-device-id');
+  const centralServerConnection = new CentralServerConnection();
   const mockSettingsService = {
     getSetting: jest.fn().mockReturnValue({
       maxBatchesToKeepInMemory: 10,

@@ -4,6 +4,7 @@ import { Root } from './Root';
 import 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
+import "@react-native-anywhere/polyfill-base64";
 
 LogBox.ignoreLogs([
   'to contain units',
