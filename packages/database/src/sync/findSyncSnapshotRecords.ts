@@ -105,6 +105,6 @@ export const findSyncSnapshotRecords = async (
       additionalWhere,
     },
     priorityQuery,
-    'id ASC, priority.sort_order',
+    'priority.sort_order',
   );
 };
