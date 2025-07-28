@@ -17,7 +17,7 @@ const executeSnapshotQuery = async (
   sequelize: Sequelize,
   tableName: string,
   params: {
-    fromId: number;
+    fromId: string;
     direction: SyncSessionDirectionValues;
     limit: number;
     recordType?: RecordType;
@@ -28,12 +28,14 @@ const executeSnapshotQuery = async (
 ) => {
   const { fromId, direction, limit, recordType, additionalWhere } = params;
 
+  const { recordTypeOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
   const records = await sequelize.query(
     `
       ${priorityQuery || ''}
-      SELECT * FROM ${tableName}
+      SELECT *, priority.sort_order as recordTypeOrder FROM ${tableName}
       ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
-      WHERE id > :fromId
+      WHERE true
+      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
@@ -42,7 +44,8 @@ const executeSnapshotQuery = async (
     `,
     {
       replacements: {
-        fromId,
+        lastRecordTypeOrder,
+        lastId,
         recordType,
         direction,
         limit,
@@ -69,7 +72,7 @@ export const findSyncSnapshotRecordsByRecordType = async (
   const tableName = getSnapshotTableName(sessionId);
 
   return executeSnapshotQuery(sequelize, tableName, {
-    fromId,
+    fromId: fromId?.toString(),
     direction,
     limit,
     recordType,
@@ -81,7 +84,7 @@ export const findSyncSnapshotRecords = async (
   { sequelize, models }: Store,
   sessionId: string,
   direction: SyncSessionDirectionValues,
-  fromId = 0,
+  fromId = '',
   limit = Number.MAX_SAFE_INTEGER,
   additionalWhere?: string,
 ) => {
@@ -105,6 +108,6 @@ export const findSyncSnapshotRecords = async (
       additionalWhere,
     },
     priorityQuery,
-    'priority.sort_order',
+    'priority.sort_order, id',
   );
 };
