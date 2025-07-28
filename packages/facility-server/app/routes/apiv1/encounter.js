@@ -735,7 +735,6 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/initialChart$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Survey');
     const { models, params } = req;
     const { id: encounterId } = params;
     const chartSurvey = await models.SurveyResponse.findOne({
@@ -753,6 +752,7 @@ encounterRelations.get(
       order: [['survey', 'name', 'ASC']],
       group: [['survey.id']],
     });
+    req.checkPermission('list', subject('Charting', { id: chartSurvey?.surveyId }));
 
     res.send({
       data: chartSurvey,
@@ -776,7 +776,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/charts/:surveyId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'SurveyResponse');
+    const { surveyId } = req.params;
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
     const { count, data } = await getAnswersWithHistory(req);
 
     res.send({

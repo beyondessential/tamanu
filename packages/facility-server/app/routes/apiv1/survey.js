@@ -10,6 +10,7 @@ import {
   permissionCheckingRouter,
   getResourceList,
 } from '@tamanu/shared/utils/crudHelpers';
+import { subject } from '@casl/ability';
 
 export const survey = express.Router();
 
@@ -38,15 +39,17 @@ survey.get(
 survey.get(
   '/charts',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Survey');
-
+    req.flagPermissionChecked();
     const {
       models: { Survey },
     } = req;
 
     const chartSurveys = await Survey.getChartSurveys();
+    const permittedChartSurveys = chartSurveys.filter((survey) =>
+      req.ability.can('list', subject('Charting', { id: survey.id })),
+    );
 
-    res.send(chartSurveys);
+    res.send(permittedChartSurveys);
   }),
 );
 
