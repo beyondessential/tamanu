@@ -13,9 +13,8 @@ import {
   buildNoteLinkedSyncFilter,
   getPatientIdColumnOfNotes,
 } from '../sync/buildNoteLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { addSensitiveFacilityIdIfApplicable } from '../sync/buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Note extends Model {
   declare id: string;
@@ -145,9 +144,8 @@ export class Note extends Model {
     `;
 
     return {
-      select: buildSyncLookupSelect(this, {
+      select: buildEncounterLinkedLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
-        facilityId: addSensitiveFacilityIdIfApplicable(),
       }),
       joins: noteJoins.join('\n') + '\n' + facilityJoins,
     };
