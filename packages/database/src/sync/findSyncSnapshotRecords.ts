@@ -23,8 +23,8 @@ const executeSnapshotQuery = async (
     recordType?: RecordType;
     additionalWhere?: string;
   },
-  priorityQuery?: string,
-  orderBy?: string,
+  priorityQuery: string = '',
+  orderBy: string = 'id',
 ) => {
   const { fromId, direction, limit, recordType, additionalWhere } = params;
 
@@ -37,7 +37,7 @@ const executeSnapshotQuery = async (
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
-      ORDER BY id${orderBy ? `, ${orderBy}` : ''}
+      ORDER BY ${orderBy}
       LIMIT :limit;
     `,
     {
