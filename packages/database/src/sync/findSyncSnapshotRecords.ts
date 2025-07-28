@@ -23,21 +23,21 @@ const executeSnapshotQuery = async (
     recordType?: RecordType;
     additionalWhere?: string;
   },
-  priorityQuery: string = '',
+  priorityQuery?: string,
   orderBy?: string,
 ) => {
   const { fromId, direction, limit, recordType, additionalWhere } = params;
 
   const records = await sequelize.query(
     `
-      ${priorityQuery}
+      ${priorityQuery || ''}
       SELECT * FROM ${tableName}
       ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
       WHERE id > :fromId
       AND direction = :direction
       ${recordType ? 'AND record_type = :recordType' : ''}
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
-      ORDER BY id ASC${orderBy ? `, ${orderBy}` : ''}
+      ORDER BY id${orderBy ? `, ${orderBy}` : ''}
       LIMIT :limit;
     `,
     {
