@@ -300,12 +300,20 @@ export class User extends Model {
 
   async canAccessFacility(id: string) {
     const facility = await this.sequelize.models.Facility.findByPk(id);
+    const settingEnabled = await this.sequelize.models.Setting.get(
+      'auth.restrictUsersToFacilities',
+    );
     const allowed = await this.allowedFacilityIds();
+    const userIsLinkedToFacility = allowed.includes(id) ?? false;
 
-    if (facility?.isSensitive && allowed !== CAN_ACCESS_ALL_FACILITIES) {
-      return allowed?.includes(id) ?? false;
+    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+
+    // Check permissions if global setting is enabled OR facility is sensitive
+    if (settingEnabled || facility?.isSensitive) {
+      return userIsLinkedToFacility;
     }
-    return true;
+
+    return true; // No restrictions
   }
 
   static async filterAllowedFacilities(
