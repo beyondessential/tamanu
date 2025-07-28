@@ -34,7 +34,8 @@ describe('User', () => {
   const facility1 = { id: 'balwyn', name: 'Balwyn' };
   const facility2 = { id: 'kerang', name: 'Kerang' };
   const facility3 = { id: 'lake-charm', name: 'Lake Charm' };
-  const configFacilities = [facility1, facility2, facility3];
+  const facility4 = { id: 'fitzroy', name: 'Fitzroy', isSensitive: true }; // TODO: this actually doesnt make a facility seemingly?
+  const configFacilities = [facility1, facility2, facility3, facility4];
   const configFacilityIds = configFacilities.map(f => f.id);
 
   beforeAll(async () => {
@@ -428,20 +429,49 @@ describe('User', () => {
         expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
+        expect(await superUser.canAccessFacility(facility4.id)).toBe(true);
       });
 
-      it('should only return true if valid facility linked through user table', async () => {
+      it('should return true if valid facility linked through user table and the setting is enabled', async () => {
         jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => validUserFacilityIds);
         expect(await user.canAccessFacility(facility1.id)).toBe(true);
         expect(await user.canAccessFacility(facility2.id)).toBe(true);
         expect(await user.canAccessFacility(facility3.id)).toBe(false);
+        expect(await user.canAccessFacility(facility4.id)).toBe(false);
       });
 
-      it('should only always return false if no facility links', async () => {
+      it('should return false if no facility links and the setting is enabled', async () => {
         jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => []);
         expect(await user.canAccessFacility(facility1.id)).toBe(false);
         expect(await user.canAccessFacility(facility2.id)).toBe(false);
         expect(await user.canAccessFacility(facility3.id)).toBe(false);
+        expect(await user.canAccessFacility(facility4.id)).toBe(false);
+      });
+
+      it('should return true if facility is sensitive and the setting is disable but the user is linked to the facility', async () => {
+        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => [facility4.id]);
+        expect(await user.canAccessFacility(facility1.id)).toBe(false);
+        expect(await user.canAccessFacility(facility2.id)).toBe(false);
+        expect(await user.canAccessFacility(facility3.id)).toBe(false);
+        expect(await user.canAccessFacility(facility4.id)).toBe(true);
+      });
+
+      it('should return false if facility is sensitive and the setting is disabled without any linked facilities', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => []);
+        expect(await user.canAccessFacility(facility1.id)).toBe(false);
+        expect(await user.canAccessFacility(facility2.id)).toBe(false);
+        expect(await user.canAccessFacility(facility3.id)).toBe(false);
+        expect(await user.canAccessFacility(facility4.id)).toBe(false);
+      });
+
+      it('should always return true if facility is not sensitive and the setting is disabled', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => []);
+        expect(await user.canAccessFacility(facility1.id)).toBe(true);
+        expect(await user.canAccessFacility(facility2.id)).toBe(true);
+        expect(await user.canAccessFacility(facility3.id)).toBe(true);
+        expect(await user.canAccessFacility(facility4.id)).toBe(true);
       });
     });
 
@@ -461,10 +491,6 @@ describe('User', () => {
         );
         expect(userAllowedFacilities).toStrictEqual(validUserFacilities);
       });
-    });
-
-    describe('sensitivity login logic', () => {
-      it.todo('should apply checking logic if facility is sensitive');
     });
   });
 
