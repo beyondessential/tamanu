@@ -17,12 +17,16 @@ import {
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
+import { SYNC_EVENT_ACTIONS, SyncRecord } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import {
+  saveChangesFromSnapshot,
+  saveChangesFromMemory,
+  TransactingModelMap,
+} from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -242,7 +246,7 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    
+
     console.log('MobileSyncManager.runSync(): Sync started');
 
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
@@ -388,8 +392,13 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+      const processStreamedDataFunction = async (records: SyncRecord[]) => {
+        await saveChangesFromMemory(
+          records,
+          incomingModels as TransactingModelMap,
+          syncSettings,
+          progressCallback,
+        );
       };
 
       await pullRecordsInBatches(
@@ -408,7 +417,7 @@ export class MobileSyncManager {
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
-    const processStreamedDataFunction = async (records: any) => {
+    const processStreamedDataFunction = async (records: SyncRecord[]) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
 
@@ -419,7 +428,14 @@ export class MobileSyncManager {
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, syncSettings, pullUntil, progressCallback: pullProgressCallback },
+      {
+        centralServer,
+        sessionId,
+        recordTotal,
+        syncSettings,
+        pullUntil,
+        progressCallback: pullProgressCallback,
+      },
       processStreamedDataFunction,
     );
 
@@ -435,7 +451,11 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(incomingModels, syncSettings, saveProgressCallback);
+      await saveChangesFromSnapshot(
+        incomingModels,
+        syncSettings,
+        saveProgressCallback,
+      );
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
