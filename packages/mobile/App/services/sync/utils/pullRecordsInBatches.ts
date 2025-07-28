@@ -1,7 +1,6 @@
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { PullParams } from '../MobileSyncManager';
-import { btoa } from 'react-native-quick-base64';
 
 export const pullRecordsInBatches = async (
   { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,

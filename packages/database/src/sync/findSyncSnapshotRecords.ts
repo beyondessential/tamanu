@@ -32,7 +32,7 @@ const executeSnapshotQuery = async (
   const records = await sequelize.query(
     `
       ${priorityQuery || ''}
-      SELECT *, priority.sort_order as recordTypeOrder FROM ${tableName}
+      SELECT *, priority.sort_order as "recordTypeOrder" FROM ${tableName}
       ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
       WHERE true
       ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
