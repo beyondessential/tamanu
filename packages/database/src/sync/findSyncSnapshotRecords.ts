@@ -13,39 +13,31 @@ import type {
 } from '../types/sync';
 import type { Models } from 'types/model';
 
-const executeSnapshotQuery = async (
-  sequelize: Sequelize,
-  tableName: string,
-  params: {
-    fromId: string;
-    direction: SyncSessionDirectionValues;
-    limit: number;
-    recordType?: RecordType;
-    additionalWhere?: string;
-  },
-  priorityQuery: string = '',
-  orderBy: string = 'id',
+export const findSyncSnapshotRecordsByRecordType = async (
+  { sequelize }: { sequelize: Sequelize },
+  sessionId: string,
+  direction: SyncSessionDirectionValues,
+  fromId = 0,
+  limit = Number.MAX_SAFE_INTEGER,
+  recordType: RecordType,
+  additionalWhere?: string,
 ) => {
-  const { fromId, direction, limit, recordType, additionalWhere } = params;
+  const tableName = getSnapshotTableName(sessionId);
 
-  const { recordTypeOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
   const records = await sequelize.query(
     `
-      ${priorityQuery || ''}
-      SELECT *, priority.sort_order as "recordTypeOrder" FROM ${tableName}
-      ${priorityQuery ? `JOIN priority ON ${tableName}.record_type = priority.record_type` : ''}
+      SELECT * FROM ${tableName}
       WHERE true
-      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
+      ${fromId ? 'AND id > :fromId' : ''}
       AND direction = :direction
-      ${recordType ? 'AND record_type = :recordType' : ''}
+      AND record_type = :recordType
       ${additionalWhere ? `AND ${additionalWhere}` : ''}
-      ORDER BY ${orderBy}
+      ORDER BY id
       LIMIT :limit;
     `,
     {
       replacements: {
-        lastRecordTypeOrder,
-        lastId,
+        fromId,
         recordType,
         direction,
         limit,
@@ -58,26 +50,6 @@ const executeSnapshotQuery = async (
   return records.map(r =>
     Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
   ) as SyncSnapshotAttributes[];
-};
-
-export const findSyncSnapshotRecordsByRecordType = async (
-  { sequelize }: { sequelize: Sequelize },
-  sessionId: string,
-  direction: SyncSessionDirectionValues,
-  fromId = 0,
-  limit = Number.MAX_SAFE_INTEGER,
-  recordType: RecordType,
-  additionalWhere?: string,
-) => {
-  const tableName = getSnapshotTableName(sessionId);
-
-  return executeSnapshotQuery(sequelize, tableName, {
-    fromId: fromId?.toString(),
-    direction,
-    limit,
-    recordType,
-    additionalWhere,
-  });
 };
 
 export const findSyncSnapshotRecords = async (
@@ -98,16 +70,33 @@ export const findSyncSnapshotRecords = async (
         ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
     )`;
 
-  return executeSnapshotQuery(
-    sequelize,
-    tableName,
+  const { recordTypeOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
+
+  const records = await sequelize.query(
+    `
+      ${priorityQuery}
+      SELECT *, priority.sort_order as "recordTypeOrder" FROM ${tableName}
+      JOIN priority ON ${tableName}.record_type = priority.record_type
+      WHERE true
+      ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
+      AND direction = :direction
+      ${additionalWhere ? `AND ${additionalWhere}` : ''}
+      ORDER BY priority.sort_order, id
+      LIMIT :limit;
+    `,
     {
-      fromId,
-      direction,
-      limit,
-      additionalWhere,
+      replacements: {
+        lastRecordTypeOrder,
+        lastId,
+        direction,
+        limit,
+      },
+      type: QueryTypes.SELECT,
+      raw: true,
     },
-    priorityQuery,
-    'priority.sort_order, id',
   );
+
+  return records.map(r =>
+    Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
+  ) as SyncSnapshotAttributes[];
 };
