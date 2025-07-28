@@ -3,7 +3,10 @@ import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
 
@@ -53,9 +56,9 @@ export class LabRequestLog extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: ['lab_requests'],
-      isLabRequest: true,
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['lab_requests', 'encounters']),
+    };
   }
 }

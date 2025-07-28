@@ -4,7 +4,10 @@ import { DataTypes } from 'sequelize';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class LabRequestAttachment extends Model {
   declare id: string;
@@ -64,9 +67,9 @@ export class LabRequestAttachment extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: ['lab_requests'],
-      isLabRequest: true,
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['lab_requests', 'encounters']),
+    };
   }
 }

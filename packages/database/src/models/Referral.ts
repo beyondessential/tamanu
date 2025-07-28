@@ -2,7 +2,10 @@ import { DataTypes } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Referral extends Model {
   declare id: string;
@@ -58,14 +61,15 @@ export class Referral extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      extraJoins: [
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, [
         {
           tableName: 'encounters',
           columnName: 'initiating_encounter_id',
           joinType: 'INNER',
         },
-      ],
-    });
+      ]),
+    };
   }
 }

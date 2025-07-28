@@ -2,7 +2,10 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class ImagingRequestArea extends Model {
   declare id: string;
@@ -43,6 +46,9 @@ export class ImagingRequestArea extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['imaging_requests'] });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
+    };
   }
 }

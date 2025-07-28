@@ -4,7 +4,10 @@ import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSync
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class LabTestPanelRequest extends Model {
   declare id: string;
@@ -53,8 +56,9 @@ export class LabTestPanelRequest extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, {
-      isLabRequest: true,
-    });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['encounters']),
+    };
   }
 }

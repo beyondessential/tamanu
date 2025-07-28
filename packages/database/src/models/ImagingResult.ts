@@ -7,7 +7,10 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class ImagingResult extends Model {
   declare id: string;
@@ -89,6 +92,9 @@ export class ImagingResult extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this, { extraJoins: ['imaging_requests'] });
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
+    };
   }
 }
