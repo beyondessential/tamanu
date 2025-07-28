@@ -1,6 +1,14 @@
 import { Utils } from 'sequelize';
 import { isObject, isString } from 'lodash';
-import type { JoinConfig } from './buildEncounterLinkedLookupFilter';
+import { Model } from '../models/Model';
+
+export type JoinConfig =
+  | string
+  | {
+      model: typeof Model;
+      joinColumn: string;
+      required?: boolean;
+    };
 
 export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: JoinConfig[]) {
   return tablesToTraverse

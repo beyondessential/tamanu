@@ -1,14 +1,9 @@
-import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilterJoins,
+  type JoinConfig,
+} from './buildEncounterLinkedSyncFilter';
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
-
-export type JoinConfig =
-  | string
-  | {
-      model: typeof Model;
-      joinColumn: string;
-      required?: boolean;
-    };
 
 export type Options = {
   extraSelects?: Record<string, string>; // extra selects to attach to the lookup select
