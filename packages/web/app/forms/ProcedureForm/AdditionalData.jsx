@@ -1,25 +1,17 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { useParams } from 'react-router-dom';
-import {
-  AutocompleteField,
-  Field,
-  Paper,
-  SelectInput,
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components';
-import { useApi, useSuggester, combineQueries } from '../../api';
-import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { SelectInput, TranslatedReferenceData, TranslatedText } from '../../components';
+import { useApi, combineQueries } from '../../api';
+import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
-import { getAnswersFromData } from '../../utils';
+import { getAnswersFromData, notifyError } from '../../utils';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
-import { Colors } from '../../constants/index.js';
-import { useQuery } from '@tanstack/react-query';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -66,7 +58,7 @@ const useProcedureSurveys = procedureTypeId => {
   return data?.map(survey => ({ label: survey.name, value: survey.id }));
 };
 
-export const AdditionalData = ({ procedureTypeId }) => {
+export const AdditionalData = ({ procedureId, procedureTypeId }) => {
   const api = useApi();
   const { patientId } = useParams();
   const { currentUser, facilityId } = useAuth();
@@ -77,17 +69,22 @@ export const AdditionalData = ({ procedureTypeId }) => {
     data: [patient, patientAdditionalData],
   } = combineQueries([usePatientDataQuery(patientId), usePatientAdditionalDataQuery(patientId)]);
   const { data: survey } = useSurveyQuery(selectedSurveyId);
+  console.log('TEST', procedureId);
 
-  const submitSurveyResponse = async data => {
-    await api.post('surveyResponse', {
-      surveyId: survey.id,
-      startTime,
-      patientId: patient.id,
-      facilityId,
-      endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
-    });
-  };
+  const { mutate: submitSurveyResponse } = useMutation({
+    mutationFn: async body => {
+      return api.post('surveyResponse', {
+        surveyId: survey.id,
+        startTime,
+        patientId: patient.id,
+        facilityId,
+        endTime: getCurrentDateTimeString(),
+        answers: getAnswersFromData(body, survey),
+        procedureId,
+      });
+    },
+    onError: error => notifyError(error.message),
+  });
 
   const onFormSelect = event => {
     setSelectedSurveyId(event.target.value);

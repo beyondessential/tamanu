@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
+import { Divider } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
@@ -14,7 +15,7 @@ import {
   LocationField,
   TextField,
   TimeField,
-} from '../../components/Field/index.js';
+} from '../../components/Field';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 import { FormGrid } from '../../components/FormGrid';
 import { FormSubmitCancelRow } from '../../components/ButtonRow';
@@ -23,7 +24,7 @@ import { FORM_TYPES } from '../../constants/index.js';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { AdditionalData } from './AdditionalData';
-import { Divider } from '@material-ui/core';
+import { SurveyResponsesTable } from './SurveyResponsesTable';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -57,6 +58,7 @@ export const ProcedureForm = React.memo(
     assistantSuggester,
   }) => {
     const { currentUser } = useAuth();
+    const procedureId = editedObject?.id;
 
     return (
       <Form
@@ -281,7 +283,9 @@ export const ProcedureForm = React.memo(
                 </Collapse>
               </FormGrid>
               <Divider style={{ margin: '10px 0 20px' }} />
-              <AdditionalData procedureTypeId={values?.procedureTypeId} />
+              <AdditionalData procedureId={procedureId} procedureTypeId={values?.procedureTypeId} />
+              <Divider style={{ margin: '10px 0 20px' }} />
+              <SurveyResponsesTable procedureId={procedureId} />
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}

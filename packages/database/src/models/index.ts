@@ -36,6 +36,7 @@ export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './ProcedureAssistantClinician';
+export * from './ProcedureSurveyResponse';
 
 export * from './EncounterDiagnosis';
 export * from './Prescription';

@@ -1,8 +1,6 @@
 import React from 'react';
 import { addDays, parseISO } from 'date-fns';
-
 import { useApi, useSuggester } from '../api';
-
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -38,6 +36,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const assistantSuggester = useSuggester('practitioner');
   const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
+
+  console.log('EDITED PROCEDURE', editedProcedure);
 
   return (
     <FormModal

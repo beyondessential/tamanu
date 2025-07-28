@@ -38,8 +38,8 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map((answer) => {
-        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
+      answers: answers.map(answer => {
+        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
@@ -56,7 +56,7 @@ surveyResponse.post(
   asyncHandler(async (req, res) => {
     const {
       models,
-      body: { facilityId, ...body },
+      body: { facilityId, procedureId, ...body },
       db,
       settings,
     } = req;
@@ -65,7 +65,7 @@ surveyResponse.post(
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const getDefaultId = async (type) =>
+    const getDefaultId = async type =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
@@ -78,6 +78,30 @@ surveyResponse.post(
     const responseRecord = await db.transaction(async () => {
       return models.SurveyResponse.createWithAnswers(updatedBody);
     });
+
+    console.log('procedureId', procedureId);
+    console.log('responseRecord', responseRecord.id);
+
+    if (procedureId) {
+      console.log('SAVING');
+
+      // Find or create the Procedure based on procedureId
+      const procedure = await models.Procedure.findOrCreate({
+        where: { id: procedureId },
+        defaults: {
+          // Add any default values needed for creating a new Procedure
+          // These are just examples - adjust based on your requirements
+          completed: false,
+          date: new Date(),
+        },
+      });
+
+      await models.ProcedureSurveyResponse.create({
+        surveyResponseId: responseRecord.id,
+        procedureId: procedure[0].id, // procedure[0] is the found/created instance
+      });
+      console.log('SAVED');
+    }
     res.send(responseRecord);
   }),
 );
