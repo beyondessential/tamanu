@@ -60,7 +60,7 @@ export class LabRequestLog extends Model {
       select: buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'TRUE',
       }),
-      joins: buildEncounterLinkedLookupJoins(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['lab_requests', 'encounters']),
     };
   }
 }
