@@ -10,11 +10,12 @@ import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
 import {
-  getReferenceDataStringId,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
 } from './Translation';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../contexts/Translation.jsx';
 
 const Container = styled.div`
