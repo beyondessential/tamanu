@@ -2,6 +2,7 @@ import { camel } from 'case';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getSnapshotTableName } from './manageSnapshotTable';
+import { getModelsForPull } from './getModelsForDirection';
 import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
 
 import type {
@@ -10,6 +11,7 @@ import type {
   SyncSessionDirectionValues,
   SyncSnapshotAttributes,
 } from '../types/sync';
+import type { Models } from 'types/model';
 
 const executeSnapshotQuery = async (
   sequelize: Sequelize,
@@ -85,16 +87,12 @@ export const findSyncSnapshotRecords = async (
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
-  const sortedModels = sortInDependencyOrder(models);
-  
-  // TODO: SO this was the culprit I need to look into this
-  const uniqueModels = sortedModels.filter((model, index, arr) => 
-    arr.findIndex(m => m.tableName === model.tableName) === index
-  );
+  const modelsForPull = getModelsForPull(models);
+  const sortedModels = sortInDependencyOrder(modelsForPull as Models);
 
   const priorityQuery = `WITH priority(record_type, sort_order) AS (
       VALUES
-        ${uniqueModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
+        ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
     )`;
 
   return executeSnapshotQuery(sequelize, tableName, priorityQuery, 'priority.sort_order', {
