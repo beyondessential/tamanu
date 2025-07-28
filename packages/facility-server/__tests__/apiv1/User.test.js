@@ -62,9 +62,6 @@ describe('User', () => {
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
         }),
       );
-      configFacilities.forEach(async facility =>
-        models.Facility.create(fake(models.Facility, facility)),
-      );
       await models.UserFacility.create({
         facilityId: facility1.id,
         userId: authUser.id,
