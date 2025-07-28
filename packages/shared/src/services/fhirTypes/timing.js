@@ -38,10 +38,12 @@ export class FhirTiming extends FhirBaseType {
 
   static fake() {
     return new this({
-      frequency: random(1, 10),
-      period: random(1, 10),
-      periodUnit: PERIOD_UNITS[random(0, PERIOD_UNITS.length - 1)],
-      timeOfDay: null,
+      repeat: {
+        frequency: random(1, 10),
+        period: random(1, 10),
+        periodUnit: PERIOD_UNITS[random(0, PERIOD_UNITS.length - 1)],
+        timeOfDay: null,
+      },
     });
   }
 }
