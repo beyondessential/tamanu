@@ -24,8 +24,8 @@ export const pullRecordsInBatches = async (
 
     await processRecords(recordsToSave);
 
-    const { id, recordTypeOrder } = records[records.length - 1];
-    fromId = btoa(JSON.stringify({ recordTypeOrder, id }));
+    const { id, sortOrder } = records[records.length - 1];
+    fromId = btoa(JSON.stringify({ sortOrder, id }));
     totalPulled += records.length;
     limit = calculatePageLimit(limit, pullTime);
 

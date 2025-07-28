@@ -65,7 +65,7 @@ export const findSyncSnapshotRecords = async (
   const modelsForPull = getModelsForPull(models);
   const sortedModels = sortInDependencyOrder(modelsForPull as Models);
 
-  const { recordTypeOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
+  const { sortOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
 
   const records = await sequelize.query(
     `
@@ -73,7 +73,7 @@ export const findSyncSnapshotRecords = async (
         VALUES
           ${sortedModels.map((model, index) => `('${model.tableName}', ${index + 1})`).join(',\n')}
       )
-      SELECT *, priority.sort_order as "recordTypeOrder" FROM ${tableName}
+      SELECT * FROM ${tableName}
       JOIN priority ON ${tableName}.record_type = priority.record_type
       WHERE true
       ${lastRecordTypeOrder && lastId ? `AND (priority.sort_order, id) > (:lastRecordTypeOrder, :lastId)` : ''}
