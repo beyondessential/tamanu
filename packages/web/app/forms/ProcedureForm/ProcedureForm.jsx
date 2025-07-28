@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
-import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
+import MuiDivider from '@material-ui/core/Divider';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
@@ -47,6 +47,21 @@ const SubHeading = styled(Typography)`
   color: ${props => props.theme.palette.text.tertiary};
 `;
 
+const ProgramsTable = styled(DataFetchingProgramsTable)`
+  margin-bottom: 20px;
+  .MuiTableRow-root {
+    &:last-child {
+      .MuiTableCell-body {
+        border-bottom: none;
+      }
+    }
+  }
+`;
+
+const Divider = styled(MuiDivider)`
+  margin: 10px 0 20px;
+`;
+
 export const ProcedureForm = React.memo(
   ({
     onCancel,
@@ -69,28 +84,10 @@ export const ProcedureForm = React.memo(
         onSubmit={onSubmit}
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
-          const getButtonText = isCompleted => {
-            if (editedObject?.id && !isCompleted)
-              return (
-                <TranslatedText
-                  stringId="general.action.update"
-                  fallback="Update"
-                  data-testid="translatedtext-q6jp"
-                />
-              );
-            return (
-              <TranslatedText
-                stringId="general.action.submit"
-                fallback="Save procedure"
-                data-testid="translatedtext-162m"
-              />
-            );
-          };
 
           const isCompleted = !!values.completed;
-          const buttonText = getButtonText(isCompleted);
           return (
-            <div>
+            <>
               <Heading>
                 <TranslatedText stringId="procedure.form.heading" fallback="Procedure details" />
               </Heading>
@@ -286,26 +283,33 @@ export const ProcedureForm = React.memo(
                   />
                 </Collapse>
               </FormGrid>
-              <Divider style={{ margin: '10px 0 20px' }} />
+              <Divider />
               <AdditionalData
                 procedureId={procedureId}
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}
               />
-              <Divider style={{ margin: '10px 0 20px' }} />
-              <DataFetchingProgramsTable
+              <Divider />
+              <ProgramsTable
                 endpoint={`patient/${patientId}/programResponses`}
                 patient={patient}
                 fetchOptions={{ procedureId }}
                 tableOptions={{ disablePagination: true, allowExport: false }}
               />
+              <Divider />
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}
-                confirmText={buttonText}
+                confirmText={
+                  <TranslatedText
+                    stringId="general.action.submit"
+                    fallback="Save procedure"
+                    data-testid="translatedtext-162m"
+                  />
+                }
                 data-testid="formsubmitcancelrow-8gtl"
               />
-            </div>
+            </>
           );
         }}
         initialValues={{

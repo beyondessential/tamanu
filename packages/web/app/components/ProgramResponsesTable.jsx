@@ -23,8 +23,9 @@ const getResults = ({ resultText }) => (
 export const DataFetchingProgramsTable = ({
   endpoint,
   patient,
-  fetchOptions,
-  tableOptions = ({} = {}),
+  fetchOptions = {},
+  tableOptions = {},
+  className,
 }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -179,6 +180,7 @@ export const DataFetchingProgramsTable = ({
         refreshCount={refreshCount}
         fetchOptions={fetchOptions}
         {...tableOptions}
+        className={className}
         data-testid="datafetchingtable-58ck"
       />
       <DeleteProgramResponseModal
