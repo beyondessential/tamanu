@@ -67,6 +67,7 @@ import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-ad
 import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from './1744754327000-removeIsMostRecentFromPatientProgramRegistrations';
 import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
 import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
+import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -137,4 +138,5 @@ export const migrationList = [
   removeIsMostRecentFromPatientProgramRegistrations1744754327000,
   addPatientProgramRegistrationInactiveFields1744234389088,
   updateMedicationsDBSchema1750786972719,
+  correctPrescriptionStartDates1753393877000,
 ];
