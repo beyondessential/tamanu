@@ -1,7 +1,7 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { log } from '../services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -63,12 +63,14 @@ export const dischargeOutpatientEncounters = async (
   }
 };
 
-const handleOngoingPrescriptions = async (models, encounter, justBeforeMidnight) => {
+const handleOngoingPrescriptions = async (models, encounter) => {
   const prescriptions = await models.Prescription.findAll({
     where: {
       '$encounterPrescription.encounter_id$': encounter.id,
       isOngoing: true,
-      discontinued: null,
+      discontinued: {
+        [Op.not]: true,
+      },
     },
     include: [
       {
@@ -88,48 +90,51 @@ const handleOngoingPrescriptions = async (models, encounter, justBeforeMidnight)
 
   for (const prescription of prescriptions) {
     const patientId = prescription.encounterPrescription.encounter.patientId;
-    const ongoingPrescriptionWithSameDetails =
+    const existingOngoingPrescriptionWithSameDetails =
       await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
         patientId,
         prescription,
       );
 
-    if (ongoingPrescriptionWithSameDetails) continue;
+    if (existingOngoingPrescriptionWithSameDetails) continue;
 
-    const ongoingPrescription = await models.PatientOngoingPrescription.findOne({
-      where: {
-        patientId: patientId,
-      },
-      include: [
-        {
-          model: models.Prescription,
-          as: 'prescription',
-          where: {
-            medicationId: prescription.medicationId,
-            discontinued: {
-              [Op.not]: true,
+    const existingOngoingPrescriptionsWithDifferentDetails =
+      await models.PatientOngoingPrescription.findAll({
+        where: {
+          patientId,
+        },
+        include: [
+          {
+            model: models.Prescription,
+            as: 'prescription',
+            where: {
+              medicationId: prescription.medicationId,
+              discontinued: {
+                [Op.not]: true,
+              },
+            },
+            attributes: ['id'],
+          },
+        ],
+        attributes: ['id', 'prescriptionId', 'patientId'],
+      });
+
+    if (existingOngoingPrescriptionsWithDifferentDetails.length) {
+      for (const existingOngoingPrescription of existingOngoingPrescriptionsWithDifferentDetails) {
+        await models.Prescription.update(
+          {
+            discontinuingClinicianId: SYSTEM_USER_UUID,
+            discontinued: true,
+            discontinuedDate: encounter.endDate,
+            discontinuingReason: 'Discontinued by automatic discharging outpatient encounter',
+          },
+          {
+            where: {
+              id: existingOngoingPrescription.prescriptionId,
             },
           },
-          attributes: ['id'],
-        },
-      ],
-      attributes: ['id', 'prescriptionId', 'patientId'],
-    });
-
-    if (ongoingPrescription && ongoingPrescription.prescriptionId) {
-      await models.Prescription.update(
-        {
-          discontinuingClinicianId: SYSTEM_USER_UUID,
-          discontinued: true,
-          discontinuedDate: toDateTimeString(justBeforeMidnight),
-          discontinuingReason: 'Discontinued by automatic discharging outpatient encounter',
-        },
-        {
-          where: {
-            id: ongoingPrescription.prescriptionId,
-          },
-        },
-      );
+        );
+      }
     }
 
     await models.PatientOngoingPrescription.create({
