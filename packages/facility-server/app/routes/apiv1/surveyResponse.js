@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { subject } from '@casl/ability';
 
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 import { SURVEY_TYPES } from '@tamanu/constants';
@@ -93,12 +94,13 @@ surveyResponse.put(
       params,
       db,
     } = req;
-    req.checkPermission('write', 'Charting');
 
     const responseRecord = await models.SurveyResponse.findByPk(params.id);
     if (!responseRecord) {
       throw new NotFoundError('Response record not found');
     }
+
+    req.checkPermission('write', subject('Charting', { id: responseRecord.surveyId }));
 
     const survey = await responseRecord.getSurvey();
     if (survey.surveyType !== SURVEY_TYPES.COMPLEX_CHART_CORE) {
