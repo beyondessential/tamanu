@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { SendHorizontal } from 'lucide-react';
 
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BodyText } from '../../Typography';
 import { Button, OutlinedButton } from '../..';
 import { Colors } from '../../../constants';
+import { SendIcon } from '../../Icons/SendIcon';
 
 const StyledButtonRow = styled('div')`
   display: flex;
@@ -27,8 +27,11 @@ const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
         data-testid="translatedtext-patient-portal-print"
       />
     </OutlinedButton>
-    <OutlinedButton style={{ marginLeft: 'auto' }} onClick={onSendToPatient}>
-      <SendHorizontal size={16} fill={Colors.primary} />
+    <OutlinedButton
+      startIcon={<SendIcon htmlColor={Colors.primary} width={16} height={16} />}
+      style={{ marginLeft: 'auto' }}
+      onClick={onSendToPatient}
+    >
       <TranslatedText
         stringId="patientDetails.resources.patientPortalRegistration.modal.action.sendToPatient"
         fallback="Send to patient"
