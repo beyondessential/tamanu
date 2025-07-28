@@ -703,6 +703,8 @@ async function getGraphData(req, dateDataElementId) {
     .sort((a, b) => {
       return a.recordedDate > b.recordedDate ? 1 : -1;
     });
+  // Survey ID will be the same for all answers because the
+  // data element ID is unique to the survey
   return { data, surveyId: dateAnswers[0]?.surveyResponse.surveyId };
 }
 
@@ -920,7 +922,7 @@ encounterRelations.delete(
 
     // all answers will also be soft deleted automatically
     await db.transaction(async () => {
-      await surveyResponse.destroy();
+      await models.SurveyResponse.destroy({ where: { id: chartInstanceResponseId } });
 
       await models.SurveyResponse.destroy({
         where: { 'metadata.chartInstanceResponseId': chartInstanceResponseId },
