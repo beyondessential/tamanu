@@ -14,6 +14,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
   SURVEY_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -746,7 +747,10 @@ encounterRelations.get(
           required: true,
           model: models.Survey,
           as: 'survey',
-          where: { surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] },
+          where: {
+            surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
         },
       ],
       order: [['survey', 'name', 'ASC']],
