@@ -203,7 +203,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
               data-testid="outlinedbutton-ixex"
             >
               <TranslatedText
-                stringId="general.action.changeStatus"
+                stringId="programRegistry.action.update"
                 fallback="Update"
                 data-testid="translatedtext-hexl"
               />
