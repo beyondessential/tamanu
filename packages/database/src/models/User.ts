@@ -307,12 +307,9 @@ export class User extends Model {
     const allowed = await this.allowedFacilityIds();
 
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
-
-    const userIsLinkedToFacility = allowed.includes(id) ?? false;
-
     // Check permissions if global setting is enabled OR facility is sensitive
     if (settingEnabled || facility?.isSensitive) {
-      return userIsLinkedToFacility;
+      return allowed.includes(id);
     }
 
     return true; // No restrictions
