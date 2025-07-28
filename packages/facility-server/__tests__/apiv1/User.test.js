@@ -10,7 +10,7 @@ import { centralServerLogin, buildToken, comparePassword } from '../../dist/midd
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
-const createUser = (overrides) => ({
+const createUser = overrides => ({
   email: chance.email(),
   displayName: chance.name(),
   password: chance.word(),
@@ -35,7 +35,7 @@ describe('User', () => {
   const facility2 = { id: 'kerang', name: 'Kerang' };
   const facility3 = { id: 'lake-charm', name: 'Lake Charm' };
   const configFacilities = [facility1, facility2, facility3];
-  const configFacilityIds = configFacilities.map((f) => f.id);
+  const configFacilityIds = configFacilities.map(f => f.id);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -296,7 +296,7 @@ describe('User', () => {
         );
         chPwApp = await baseApp.asUser(chPwUser);
       });
-      const doesPwMatch = async (pw) => {
+      const doesPwMatch = async pw => {
         const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
         return comparePassword(user, pw);
       };
@@ -345,7 +345,7 @@ describe('User', () => {
     let noFacilityUser = null;
 
     const validUserFacilities = [facility1, facility2];
-    const validUserFacilityIds = validUserFacilities.map((f) => f.id);
+    const validUserFacilityIds = validUserFacilities.map(f => f.id);
 
     beforeAll(async () => {
       await models.Setting.set('auth.restrictUsersToFacilities', true);
@@ -366,7 +366,7 @@ describe('User', () => {
       );
 
       await Promise.all(
-        validUserFacilities.map(async (facility) => {
+        validUserFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
             userId: user.id,
@@ -462,6 +462,10 @@ describe('User', () => {
         expect(userAllowedFacilities).toStrictEqual(validUserFacilities);
       });
     });
+
+    describe('sensitivity login logic', () => {
+      it.todo('should apply checking logic if facility is sensitive');
+    });
   });
 
   describe('Recently viewed patients', () => {
@@ -469,7 +473,7 @@ describe('User', () => {
     let app = null;
     let patients = [];
 
-    const viewPatient = async (patient) => {
+    const viewPatient = async patient => {
       const result = await app.post(`/api/user/recently-viewed-patients/${patient.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -545,9 +549,9 @@ describe('User', () => {
       expect(result.body.data).toHaveLength(12);
 
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
+      const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patients
-        .map((x) => x.id)
+        .map(x => x.id)
         .reverse()
         .slice(0, 12);
       expect(resultIds).toEqual(sourceIds);
@@ -581,8 +585,8 @@ describe('User', () => {
       const result = await app.get('/api/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
-      const sourceIds = patientsToView.map((x) => x.id).reverse();
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
 
@@ -618,8 +622,8 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
 
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
-      const sourceIds = patientsToView.map((x) => x.id).reverse();
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
   });
