@@ -274,7 +274,8 @@ export const buildSyncRoutes = ctx => {
         if (changes.length === 0) {
           break;
         }
-        startId = changes[changes.length - 1].id;
+        const { id, sortOrder } = changes[changes.length - 1];
+        startId = btoa(JSON.stringify({ sortOrder, id }));
 
         log.info(`STREAM /pull : returning ${changes.length} changes`);
         for (const change of changes) {
