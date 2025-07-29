@@ -27,6 +27,7 @@ import { useAuth } from '../../contexts/Auth';
 import { AdditionalData } from './AdditionalData';
 import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -74,6 +75,7 @@ export const ProcedureForm = React.memo(
     anaesthetistSuggester,
     assistantSuggester,
   }) => {
+    const [refreshCount, updateRefreshCount] = useRefreshCount();
     const { currentUser } = useAuth();
     const { patientId } = useParams();
     const { data: patient } = usePatientDataQuery(patientId);
@@ -288,13 +290,19 @@ export const ProcedureForm = React.memo(
                 procedureId={procedureId}
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}
+                updateRefreshCount={updateRefreshCount}
               />
               <Divider />
               <ProgramsTable
                 endpoint={`patient/${patientId}/programResponses`}
                 patient={patient}
                 fetchOptions={{ procedureId }}
-                tableOptions={{ disablePagination: true, allowExport: false }}
+                tableOptions={{
+                  disablePagination: true,
+                  allowExport: false,
+                  refreshTable: updateRefreshCount,
+                  refreshCount,
+                }}
               />
               <Divider />
               <FormSubmitCancelRow

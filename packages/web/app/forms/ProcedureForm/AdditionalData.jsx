@@ -56,7 +56,7 @@ const useProcedureSurveys = procedureTypeId => {
   return data?.map(survey => ({ label: survey.name, value: survey.id }));
 };
 
-export const AdditionalData = ({ patient, procedureId, procedureTypeId }) => {
+export const AdditionalData = ({ patient, procedureId, procedureTypeId, updateRefreshCount }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
@@ -78,6 +78,10 @@ export const AdditionalData = ({ patient, procedureId, procedureTypeId }) => {
       });
     },
     onError: error => notifyError(error.message),
+    onSuccess: () => {
+      updateRefreshCount();
+      setSelectedSurveyId(null);
+    },
   });
 
   const onFormSelect = event => {
@@ -85,7 +89,7 @@ export const AdditionalData = ({ patient, procedureId, procedureTypeId }) => {
   };
 
   const onCancel = () => {
-    console.log('cancel');
+    setSelectedSurveyId(null);
   };
 
   return (
