@@ -1,5 +1,6 @@
 import config from 'config';
-import { DataTypes, QueryInterface } from 'sequelize';
+import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_facilities', 'last_interacted_time', {
@@ -11,7 +12,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_facilities', 'created_at_sync_tick', {
     type: DataTypes.BIGINT,
     allowNull: false,
-    defaultValue: 0,
+    defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, 0),
   });
 
   await query.sequelize.query(`
