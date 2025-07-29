@@ -1,4 +1,4 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
@@ -7,34 +7,24 @@ import {
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
-const fakeResponse = (response, body, headers) => {
+const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
   return Promise.resolve({
     ...response,
     json: () => Promise.resolve(validBody),
+    text: () => Promise.resolve(JSON.stringify(validBody)),
     headers: {
-      get: key => headers[key],
+      get: key =>
+        headers[key] ??
+        {
+          'x-tamanu-server': SERVER_TYPES.CENTRAL,
+        }[key],
     },
   });
 };
 const fakeSuccess = body => fakeResponse({ status: 200, ok: true }, body);
 const fakeFailure = (status, body = {}, headers = {}) =>
   fakeResponse({ status, ok: false }, body, headers);
-
-const fakeTimeout = message => (url, opts) =>
-  new Promise((resolve, reject) => {
-    // TODO: import AbortError from node-fetch once we're on v3.0
-    class AbortError extends Error {}
-    opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
-  });
-
-const fetch = jest.fn();
-
-const createCentralServerConnection = () => {
-  const centralServer = new CentralServerConnection({ deviceId: 'test' });
-  centralServer.fetchImplementation = fetch;
-  return centralServer;
-};
 
 describe('CentralServerConnection', () => {
   const authSuccess = fakeSuccess({
@@ -44,6 +34,11 @@ describe('CentralServerConnection', () => {
       displayName: 'Not Real',
       email: 'notreal@example.com',
     },
+  });
+  const meSuccess = fakeSuccess({
+    id: 'not-real',
+    displayName: 'Not Real',
+    email: 'notreal@example.com',
   });
   const authInvalid = fakeFailure(401);
   const authFailure = fakeFailure(503);
@@ -75,23 +70,33 @@ describe('CentralServerConnection', () => {
   );
 
   describe('authentication', () => {
+    let fetch;
+    let centralServer;
+    beforeEach(() => {
+      fetch = jest.spyOn(global, 'fetch');
+      centralServer = new CentralServerConnection({ deviceId: 'test' });
+      centralServer.fetchImplementation = fetch;
+    });
+    afterEach(() => {
+      fetch.mockReset();
+      fetch.mockRestore();
+    });
+
     it('authenticates against a central server', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(authSuccess);
-      await centralServer.connect();
-      expect(centralServer.token).toEqual('this-is-not-real');
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+      const { token, user } = await centralServer.connect();
+      expect(token).toEqual('this-is-not-real');
+      expect(user).toMatchObject({ id: 'not-real' });
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authInvalid);
       await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/is out of date/i);
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
@@ -99,9 +104,8 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(centralServer.connect()).rejects.toThrow(
         FacilityAndSyncVersionIncompatibleError,
@@ -109,34 +113,38 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a RemoteCallFailedError if any other server error is returned', async () => {
-      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authFailure);
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
     it('retrieves user data', async () => {
-      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
+        .mockReturnValueOnce(meSuccess)
+        .mockReturnValueOnce(meSuccess);
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Not Real' });
     });
 
     it('retries if a token is invalid', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch
-        .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(authInvalid)
-        .mockReturnValueOnce(authSuccess)
-        .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess); // first auth
+      fetch.mockReturnValueOnce(authInvalid); // first whoami call
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess); // second auth
+      fetch.mockReturnValueOnce(meSuccess); // second whoami call
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Not Real' });
     });
 
     it('times out requests', async () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
-      const centralServer = createCentralServerConnection();
-      fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
+      fetch.mockReturnValue(
+        Promise.reject(
+          new (class extends Error {
+            get name() {
+              return 'AbortError';
+            }
+          })('fake timeout'),
+        ),
+      );
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');

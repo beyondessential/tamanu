@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
 import { Colors, FORM_TYPES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
@@ -15,7 +16,6 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { getReferenceDataStringId } from '../../components';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`

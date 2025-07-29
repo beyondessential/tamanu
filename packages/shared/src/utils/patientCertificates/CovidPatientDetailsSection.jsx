@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
-import { getDob, getNationality, getPassportNumber } from '../patientAccessors';
+import { getDobWithAge, getNationality, getPassportNumber } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const PATIENT_FIELDS = [
@@ -10,7 +10,7 @@ const PATIENT_FIELDS = [
   {
     key: 'dateOfBirth',
     label: 'Date of birth',
-    accessor: getDob,
+    accessor: getDobWithAge,
   },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },
@@ -31,7 +31,7 @@ export const CovidPatientDetailsSection = ({
     ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
 
-  const leftWidth = vdsSrc ? 68 : 80;
+  const leftWidth = vdsSrc ? 66 : 88;
   const rightWidth = 100 - leftWidth;
 
   return (
@@ -40,7 +40,7 @@ export const CovidPatientDetailsSection = ({
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value =
-              accessor?.(patient, { getLocalisation, getTranslation }) ?? (patient[key] || '');
+              accessor?.(patient, { getLocalisation, getTranslation, getSetting }) ?? (patient[key] || '');
             const label =
               getTranslation(`general.localisedField.${key}.label.short`) ||
               getTranslation(`general.localisedField.${key}.label`) ||

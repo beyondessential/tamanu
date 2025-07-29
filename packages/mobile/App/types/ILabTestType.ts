@@ -3,11 +3,13 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 
-export enum LabTestResultType {
-  NUMBER = 'Number',
-  FREE_TEXT = 'FreeText',
-  SELECT = 'Select'
-}
+export const LabTestResultType = {
+  NUMBER: 'Number',
+  FREE_TEXT: 'FreeText',
+  SELECT: 'Select',
+} as const;
+
+export type LabTestResultType = (typeof LabTestResultType)[keyof typeof LabTestResultType];
 
 export interface ILabTestType {
   id: ID;
@@ -24,8 +26,8 @@ export interface ILabTestType {
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
-  isSensitive: boolean,
-  visibilityStatus: VisibilityStatus.Current,
+  isSensitive: boolean;
+  visibilityStatus: VisibilityStatus.Current;
 
   labTestPanels?: LabTestPanel[];
 }

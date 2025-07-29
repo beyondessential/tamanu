@@ -32,6 +32,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
           measures={measures}
           patient={patient}
           getTranslation={getTranslation}
+          getSetting={getSetting}
           data-testid="idcardprintout-gj3h"
         />
       </PDFLoader>

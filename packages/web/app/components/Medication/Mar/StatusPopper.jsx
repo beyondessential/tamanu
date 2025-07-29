@@ -20,6 +20,7 @@ import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
 import { isWithinTimeSlot } from '../../../utils/medications';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const StyledPaper = styled(Paper)`
   box-shadow: 0px 8px 32px 0px #00000026;
@@ -204,13 +205,17 @@ const ErrorMessage = styled.div`
 const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
     <PopperContent>
-      <StyledButton onClick={onGivenClick} variant="outlined" $color={Colors.green}>
-        <TranslatedText stringId="medication.status.given" fallback="Given" />
-      </StyledButton>
+      <NoteModalActionBlocker>
+        <StyledButton onClick={onGivenClick} variant="outlined" $color={Colors.green}>
+          <TranslatedText stringId="medication.status.given" fallback="Given" />
+        </StyledButton>
+      </NoteModalActionBlocker>
       <Divider color={Colors.outline} />
-      <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
-        <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
-      </StyledButton>
+      <NoteModalActionBlocker>
+        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
+          <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
+        </StyledButton>
+      </NoteModalActionBlocker>
     </PopperContent>
   );
 };

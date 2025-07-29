@@ -27,3 +27,15 @@ export const useProgramRegistryConditionsQuery = (programRegistryId) => {
     { enabled: Boolean(programRegistryId) },
   );
 };
+
+export const useProgramRegistryConditionCategoriesQuery = (programRegistryId) => {
+  const api = useApi();
+  return useQuery(
+    ['programRegistry', programRegistryId, 'conditionCategories'],
+    () =>
+      api
+        .get(`programRegistry/${programRegistryId}/conditionCategories`)
+        .then(response => response.data),
+    { enabled: Boolean(programRegistryId) },
+  );
+};

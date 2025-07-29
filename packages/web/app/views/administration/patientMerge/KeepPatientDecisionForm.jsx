@@ -25,8 +25,9 @@ const SelectInstructions = () => (
     </p>
     <p>
       Program registry information including registration details, program statuses and related
-      conditions will only be retained for the kept patient. Program form responses will be
-      retained for both patients.
+      conditions will be retained for both patients. If a duplicate registration exists, only the
+      registration and all associated data will only be retained for the kept patient. Program
+      form responses will be retained for both patients.
     </p>
   </div>
 );

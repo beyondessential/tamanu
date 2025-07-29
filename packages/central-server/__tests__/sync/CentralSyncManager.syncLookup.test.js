@@ -2,6 +2,8 @@ import waitForExpect from 'wait-for-expect';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
   REPORT_DB_SCHEMAS,
@@ -72,6 +74,7 @@ describe('Sync Lookup data', () => {
       ProgramRegistry,
       ProgramRegistryClinicalStatus,
       ProgramRegistryCondition,
+      ProgramRegistryConditionCategory,
       ReferenceData,
       ReferenceDataRelation,
       ReportDefinition,
@@ -121,6 +124,8 @@ describe('Sync Lookup data', () => {
       EncounterHistory,
       EncounterPrescription,
       PatientOngoingPrescription,
+      PharmacyOrder,
+      PharmacyOrderPrescription,
       Prescription,
       ImagingRequest,
       ImagingRequestArea,
@@ -305,6 +310,21 @@ describe('Sync Lookup data', () => {
         prescriptionId: prescription.id,
       }),
     );
+
+    const pharmacyOrder = await PharmacyOrder.create(
+      fake(PharmacyOrder, {
+        encounterId: encounter1.id,
+        orderingClinicianId: examiner.id,
+      }),
+    );
+
+    await PharmacyOrderPrescription.create(
+      fake(PharmacyOrderPrescription, {
+        pharmacyOrderId: pharmacyOrder.id,
+        prescriptionId: prescription.id,
+      }),
+    );
+
     const imagingRequest = await ImagingRequest.create(
       fake(ImagingRequest, {
         encounterId: encounter1.id,
@@ -457,11 +477,6 @@ describe('Sync Lookup data', () => {
         programId: program.id,
       }),
     );
-    await ProgramRegistryCondition.create(
-      fake(ProgramRegistryCondition, {
-        programRegistryId: programRegistry.id,
-      }),
-    );
     await ProgramRegistryClinicalStatus.create(
       fake(ProgramRegistryClinicalStatus, {
         programRegistryId: programRegistry.id,
@@ -474,9 +489,25 @@ describe('Sync Lookup data', () => {
         programRegistryId: programRegistry.id,
       }),
     );
+    const condition = await ProgramRegistryCondition.create(
+      fake(ProgramRegistryCondition, {
+        programRegistryId: programRegistry.id,
+      }),
+    );
+    const categoryCode = PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN;
+    const conditionCategory = await ProgramRegistryConditionCategory.create(
+      fake(ProgramRegistryConditionCategory, {
+        id: `program-registry-condition-category-${programRegistry.id}-${categoryCode}`,
+        code: categoryCode,
+        name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[categoryCode],
+        programRegistryId: programRegistry.id,
+      }),
+    );
     await PatientProgramRegistrationCondition.create(
       fake(PatientProgramRegistrationCondition, {
         patientProgramRegistrationId: registration.id,
+        programRegistryConditionId: condition.id,
+        programRegistryConditionCategoryId: conditionCategory.id,
       }),
     );
     await PatientAllergy.create(
@@ -689,7 +720,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const syncLookupRecord = syncLookupData.find(
-        (d) => d.dataValues.recordType === model.tableName,
+        d => d.dataValues.recordType === model.tableName,
       );
 
       if (!syncLookupRecord) {
@@ -722,7 +753,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(patientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        (r) => r.recordType === model.tableName,
+        r => r.recordType === model.tableName,
       );
 
       if (!outgoingSnapshotRecord) {
@@ -782,7 +813,7 @@ describe('Sync Lookup data', () => {
 
     for (const model of Object.values(nonPatientLinkedModels)) {
       const outgoingSnapshotRecord = outgoingSnapshotRecords.find(
-        (r) => r.recordType === model.tableName,
+        r => r.recordType === model.tableName,
       );
 
       if (outgoingSnapshotRecord) {
@@ -911,7 +942,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
       });
 
       it('Does not snapshot settings linked to a facility other than the current facility', async () => {
@@ -960,7 +991,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).not.toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).not.toBeDefined();
       });
 
       it('Snapshots settings with global scope', async () => {
@@ -1008,7 +1039,7 @@ describe('Sync Lookup data', () => {
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
 
-        expect(outgoingSnapshotRecords.find((r) => r.recordId === setting.id)).toBeDefined();
+        expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
       });
     });
   });
@@ -1068,9 +1099,7 @@ describe('Sync Lookup data', () => {
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
 
-    expect(
-      outgoingSnapshotRecords.find((r) => r.recordId === patientFacility.id),
-    ).not.toBeDefined();
+    expect(outgoingSnapshotRecords.find(r => r.recordId === patientFacility.id)).not.toBeDefined();
   });
 
   describe('syncAllLabRequest', () => {
@@ -1185,7 +1214,7 @@ describe('Sync Lookup data', () => {
 
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          (d) => d.dataValues.recordType === model.tableName,
+          d => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
@@ -1209,23 +1238,23 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'encounters')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'encounters')
+        .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_requests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_requests')
+        .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_attachments')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_request_attachments')
+        .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_logs')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_request_logs')
+        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_tests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_tests')
+        .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_test_panel_requests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_test_panel_requests')
+        .map(r => r.recordId);
 
       expect(labEncounterIds.sort()).toEqual([encounter1.id, encounter2.id].sort());
       expect(labRequestIds.sort()).toEqual([labRequest1.id, labRequest2.id].sort());
@@ -1271,7 +1300,7 @@ describe('Sync Lookup data', () => {
       const syncLookupData = await models.SyncLookup.findAll({});
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
-          (d) => d.dataValues.recordType === model.tableName,
+          d => d.dataValues.recordType === model.tableName,
         );
 
         if (!syncLookupRecord) {
@@ -1295,23 +1324,23 @@ describe('Sync Lookup data', () => {
       );
 
       const labEncounterIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'encounters')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'encounters')
+        .map(r => r.recordId);
       const labRequestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_requests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_requests')
+        .map(r => r.recordId);
       const labRequestAttachmentIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_attachments')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_request_attachments')
+        .map(r => r.recordId);
       const labRequestLogIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_request_logs')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_request_logs')
+        .map(r => r.recordId);
       const labTestIds = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_tests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_tests')
+        .map(r => r.recordId);
       const labTestPanelRequests = outgoingSnapshotRecords
-        .filter((r) => r.recordType === 'lab_test_panel_requests')
-        .map((r) => r.recordId);
+        .filter(r => r.recordType === 'lab_test_panel_requests')
+        .map(r => r.recordId);
 
       expect(labEncounterIds).toEqual([encounter1.id]);
       expect(labRequestIds).toEqual([labRequest1.id]);
@@ -1365,7 +1394,7 @@ describe('Sync Lookup data', () => {
   });
 
   describe('avoidRepull', () => {
-    const snapshotOutgoingRecordsForFacility = async (avoidRepull) => {
+    const snapshotOutgoingRecordsForFacility = async avoidRepull => {
       const deviceId = 'facility-a';
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 4);
       const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
@@ -1444,10 +1473,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(true);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === patientFromAnotherFacility.id,
+        r => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).not.toBeDefined();
@@ -1461,10 +1490,10 @@ describe('Sync Lookup data', () => {
         patientFromAnotherFacility,
       } = await snapshotOutgoingRecordsForFacility(false);
       const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === pushedPatientFromCurrentFacility.id,
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
       );
       const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
-        (r) => r.recordId === patientFromAnotherFacility.id,
+        r => r.recordId === patientFromAnotherFacility.id,
       );
 
       expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();

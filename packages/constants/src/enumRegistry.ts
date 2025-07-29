@@ -12,7 +12,7 @@ import {
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
-import { ENCOUNTER_TYPE_LABELS } from './encounters';
+import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -53,7 +53,7 @@ import {
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
 import {
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  DEPRECATED_PRCC_LABELS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
 } from './programRegistry';
 
@@ -80,6 +80,7 @@ export const registeredEnums = {
   DRUG_UNIT_SHORT_LABELS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   ENCOUNTER_TYPE_LABELS,
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -96,7 +97,7 @@ export const registeredEnums = {
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
+  DEPRECATED_PRCC_LABELS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPEAT_FREQUENCY_LABELS,
@@ -136,6 +137,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DRUG_UNIT_SHORT_LABELS: 'medication.property.unitShort',
   EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   ENCOUNTER_TYPE_LABELS: 'encounter.property.type',
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS: 'encounter.property.typeAbbreviation',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
@@ -152,7 +154,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
-  PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS: 'programRegistry.property.conditionCategory',
+  DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPEAT_FREQUENCY_LABELS: 'scheduling.property.repeatFrequency',

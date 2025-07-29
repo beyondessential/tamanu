@@ -9,6 +9,7 @@ import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
 import { TaskModal } from '../../../components/Tasks/TaskModal';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -55,19 +56,19 @@ export const TasksPane = React.memo(({ encounter }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
 
-  const onFilterByDesignation = (e) => {
+  const onFilterByDesignation = e => {
     const { value: designationId } = e.target;
-    setSearchParameters((prevParams) =>
+    setSearchParameters(prevParams =>
       designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
     );
   };
 
   const refreshTaskTable = useCallback(() => {
-    setRefreshCount((prev) => prev + 1);
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   useEffect(() => {
-    setRefreshCount((prev) => prev + 1);
+    setRefreshCount(prev => prev + 1);
   }, [searchParameters]);
 
   useEffect(() => {
@@ -130,18 +131,20 @@ export const TasksPane = React.memo(({ encounter }) => {
           data-testid="autocompleteinput-mzs4"
         />
         {canCreate && (
-          <Button
-            onClick={() => setTaskModalOpen(true)}
-            variant="outlined"
-            color="primary"
-            data-testid="button-a1te"
-          >
-            <TranslatedText
-              stringId="encounter.tasks.action.newTask"
-              fallback="+ New task"
-              data-testid="translatedtext-22p0"
-            />
-          </Button>
+          <NoteModalActionBlocker>
+            <Button
+              onClick={() => setTaskModalOpen(true)}
+              variant="outlined"
+              color="primary"
+              data-testid="button-a1te"
+            >
+              <TranslatedText
+                stringId="encounter.tasks.action.newTask"
+                fallback="+ New task"
+                data-testid="translatedtext-22p0"
+              />
+            </Button>
+          </NoteModalActionBlocker>
         )}
       </ActionRow>
       <TasksTable

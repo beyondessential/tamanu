@@ -61,6 +61,7 @@ export * from './Program';
 export * from './ProgramRegistry';
 export * from './ProgramRegistryClinicalStatus';
 export * from './ProgramRegistryCondition';
+export * from './ProgramRegistryConditionCategory';
 export * from './PatientProgramRegistration';
 export * from './PatientProgramRegistrationCondition';
 export * from './Survey';
@@ -114,6 +115,9 @@ export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
 export * from './ReferenceMedicationTemplate';
+
+export * from './PharmacyOrder';
+export * from './PharmacyOrderPrescription';
 
 export * from './Notification';
 

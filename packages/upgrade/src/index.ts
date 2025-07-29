@@ -75,7 +75,10 @@ export async function upgrade({
       continue;
     }
 
-    if (id.endsWith(START) || id.endsWith(END)) continue;
+    if (id.endsWith(START) || id.endsWith(END)) {
+      // virtual step, skip
+      continue;
+    }
 
     if (id.startsWith(MIGRATION_PREFIX)) {
       const target = pendingMigrations.find((mig) =>

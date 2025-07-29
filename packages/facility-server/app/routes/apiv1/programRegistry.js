@@ -97,6 +97,15 @@ programRegistry.get(
 );
 
 programRegistry.get(
+  '/:id/conditionCategories',
+  simpleGetList('ProgramRegistryConditionCategory', 'programRegistryId', {
+    additionalFilters: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  }),
+);
+
+programRegistry.get(
   '/:id/registrations',
   asyncHandler(async (req, res) => {
     const {
@@ -188,6 +197,7 @@ programRegistry.get(
               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
             FROM patient_program_registrations
             WHERE program_registry_id = :programRegistryId
+            AND deleted_at IS NULL
           ) n
           WHERE n.row_num = 1
         ),
@@ -196,9 +206,10 @@ programRegistry.get(
           FROM patient_program_registration_conditions pprc
           JOIN program_registry_conditions prc ON pprc.program_registry_condition_id = prc.id
           JOIN patient_program_registrations ppr ON ppr.id = pprc.patient_program_registration_id
+          JOIN program_registry_condition_categories prcc ON prcc.id = pprc.program_registry_condition_category_id
           WHERE ppr.program_registry_id = :programRegistryId
           AND pprc.deleted_at IS NULL
-          AND pprc.condition_category NOT IN (:excludedCategories)
+          AND prcc.code NOT IN (:excludedCategories)
           GROUP BY patient_program_registration_id
         )
     `;

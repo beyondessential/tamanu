@@ -10,6 +10,7 @@ import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { PatientContact } from './PatientContact';
+import { PatientAllergy } from './PatientAllergy';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { EncounterHistory } from './EncounterHistory';
@@ -17,6 +18,7 @@ import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { ProgramRegistryConditionCategory } from './ProgramRegistryConditionCategory';
 import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -48,6 +50,7 @@ import { VitalLog } from './VitalLog';
 import { UserFacility } from './UserFacility';
 import { EncounterPrescription } from './EncounterPrescription';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -61,15 +64,17 @@ export const MODELS_MAP = {
   PatientIssue,
   PatientSecondaryId,
   PatientContact,
+  PatientAllergy,
   User,
   Encounter,
   EncounterHistory,
   Program,
   ProgramRegistry,
   ProgramRegistryCondition,
+  ProgramRegistryClinicalStatus,
+  ProgramRegistryConditionCategory,
   PatientProgramRegistration,
   PatientProgramRegistrationCondition,
-  ProgramRegistryClinicalStatus,
   ReferenceDataRelation,
   ProgramDataElement,
   Survey,
@@ -84,6 +89,7 @@ export const MODELS_MAP = {
   EncounterPrescription,
   Prescription,
   PatientOngoingPrescription,
+  MedicationAdministrationRecord,
   Referral,
   Attachment,
   Facility,
@@ -99,7 +105,7 @@ export const MODELS_MAP = {
   PatientFacility,
   Setting,
   Note,
-  UserFacility
+  UserFacility,
 };
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;

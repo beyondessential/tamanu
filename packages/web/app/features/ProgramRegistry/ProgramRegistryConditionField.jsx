@@ -1,11 +1,12 @@
 import React from 'react';
+
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../../contexts/Translation';
 import { useProgramRegistryConditionsQuery } from '../../api/queries';
 import {
-  BaseSelectField,
+  AutocompleteField,
   FieldWithTooltip,
-  getReferenceDataStringId,
-  TranslatedReferenceData,
 } from '../../components';
 
 export const ProgramRegistryConditionField = ({
@@ -20,17 +21,12 @@ export const ProgramRegistryConditionField = ({
   const { data: conditions } = useProgramRegistryConditionsQuery(programRegistryId);
   const options = conditions?.filter(optionsFilter).map?.(condition => ({
     label: (
-      <TranslatedReferenceData
-        fallback={condition.name}
-        value={condition.id}
-        category="programRegistryCondition"
-      />
+      getTranslation(
+        getReferenceDataStringId(condition.id, 'programRegistryCondition'),
+        condition.name,
+      )
     ),
     value: condition.id,
-    searchString: getTranslation(
-      getReferenceDataStringId(condition.id, 'programRegistryCondition'),
-      condition.name,
-    ),
   }));
 
   const onChange = event => {
@@ -57,7 +53,7 @@ export const ProgramRegistryConditionField = ({
       name={name}
       label={label}
       placeholder={getTranslation('general.placeholder.select', 'Select')}
-      component={BaseSelectField}
+      component={AutocompleteField}
       options={options}
       disabled={!conditions || conditions.length === 0}
       aria-labelledby={ariaLabelledby}

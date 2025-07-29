@@ -139,10 +139,8 @@ export async function migrate(log, sequelize, direction) {
   throw new Error(`Unrecognised migrate direction: ${direction}`);
 }
 
-export function createMigrateCommand(Command, migrateCallback) {
-  const migrateCommand = new Command('migrate').description(
-    'Apply or roll back database migrations',
-  );
+export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
+  const migrateCommand = new Command(name).description('Apply or roll back database migrations');
 
   migrateCommand
     .command('up', { isDefault: true })

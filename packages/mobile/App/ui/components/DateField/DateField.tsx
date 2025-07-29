@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
 type DatePickerProps = {
   onDateChange: (event: any, selectedDate: any) => void;
   isVisible: boolean;
-  mode: 'date' | 'time';
+  mode: 'date' | 'time' | 'datetime';
   value: Date;
   min?: Date;
   max?: Date;
@@ -41,8 +41,10 @@ const DatePicker = ({
   value,
   min,
   max,
-}: DatePickerProps): ReactElement =>
-  isVisible ? (
+}: DatePickerProps): ReactElement => {
+  if (!isVisible) return null;
+
+  return (
     <DateTimePicker
       value={value}
       mode={mode}
@@ -52,18 +54,20 @@ const DatePicker = ({
       maximumDate={max}
       minimumDate={min}
     />
-  ) : null;
+  );
+};
 
 export interface DateFieldProps extends BaseInputProps {
   value: Date | string;
   onChange: (date: Date) => void;
   placeholder?: '' | string;
-  mode?: 'date' | 'time';
+  mode?: 'date' | 'time' | 'datetime';
   disabled?: boolean;
   min?: Date;
   max?: Date;
   labelFontSize?: number | string;
   fieldFontSize?: number | string;
+  labelColor?: string;
 }
 
 export const DateField = React.memo(
@@ -77,21 +81,54 @@ export const DateField = React.memo(
     mode = 'date',
     disabled = false,
     required = false,
-    placeholder = 'dd/mm/yyyy',
+    placeholder,
     labelFontSize = screenPercentageToDP(2.1, Orientation.Height),
+    labelColor = theme.colors.TEXT_SUPER_DARK,
     fieldFontSize = screenPercentageToDP(2.18, Orientation.Height),
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-    const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
+    const [currentPickerMode, setCurrentPickerMode] = useState<'date' | 'time'>('date');
+    const [tempDate, setTempDate] = useState<Date | null>(null);
+
+    const showDatePicker = useCallback(() => {
+      setDatePickerVisible(true);
+      if (mode === 'datetime') {
+        setCurrentPickerMode('date');
+      } else {
+        setCurrentPickerMode(mode as 'date' | 'time');
+      }
+    }, [mode]);
+
     const onAndroidDateChange = useCallback(
       (event, selectedDate) => {
         if (selectedDate) {
+          if (mode === 'datetime') {
+            if (currentPickerMode === 'date') {
+              // Store the selected date and switch to time picker
+              setTempDate(selectedDate);
+              setCurrentPickerMode('time');
+              setDatePickerVisible(true);
+              return;
+            } else {
+              // Combine the stored date with the selected time
+              const combinedDateTime = new Date(tempDate!);
+              combinedDateTime.setHours(selectedDate.getHours());
+              combinedDateTime.setMinutes(selectedDate.getMinutes());
+              combinedDateTime.setSeconds(selectedDate.getSeconds());
+              setDatePickerVisible(false);
+              setTempDate(null);
+              onChange(combinedDateTime);
+              return;
+            }
+          }
           setDatePickerVisible(false);
           onChange(selectedDate);
+        } else {
+          setDatePickerVisible(false);
+          setTempDate(null);
         }
-        setDatePickerVisible(false);
       },
-      [onChange],
+      [onChange, mode, currentPickerMode, tempDate],
     );
 
     const dateValue = value && (value instanceof Date ? value : parseISO(value));
@@ -99,24 +136,28 @@ export const DateField = React.memo(
     const formatValue = useCallback(() => {
       if (value) {
         if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
-        return formatDate(dateValue, DateFormats.TIME);
+        if (mode === 'time') return formatDate(dateValue, DateFormats.TIME);
+        if (mode === 'datetime')
+          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
       }
       return null;
     }, [mode, value]);
 
-    const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
+    const IconComponent = mode === 'time' ? Icons.ClockIcon : Icons.CalendarIcon;
 
     const formattedValue = formatValue();
+
+    const getPlaceholder = () => {
+      if (placeholder) return placeholder;
+      if (mode === 'datetime') return 'dd/mm/yyyy hh:mm';
+      if (mode === 'time') return 'hh:mm';
+      return 'dd/mm/yyyy';
+    };
 
     return (
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
         {!!label && (
-          <StyledText
-            fontSize={labelFontSize}
-            fontWeight={600}
-            marginBottom={2}
-            color={theme.colors.TEXT_SUPER_DARK}
-          >
+          <StyledText fontSize={labelFontSize} fontWeight={600} marginBottom={2} color={labelColor}>
             {label}
             {required && <RequiredIndicator />}
           </StyledText>
@@ -129,6 +170,7 @@ export const DateField = React.memo(
               error={error}
               flexDirection="row"
               justifyContent="space-between"
+              alignItems="center"
               paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
               backgroundColor={theme.colors.WHITE}
               borderWidth={1}
@@ -138,9 +180,8 @@ export const DateField = React.memo(
               <StyledText
                 fontSize={fieldFontSize}
                 color={formattedValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT}
-                marginTop={screenPercentageToDP(1.5, Orientation.Height)}
               >
-                {formattedValue || placeholder}
+                {formattedValue || getPlaceholder()}
               </StyledText>
               <StyledView
                 marginRight={10}
@@ -156,20 +197,24 @@ export const DateField = React.memo(
             </InputContainer>
           </TouchableWithoutFeedback>
         </StyledView>
-        {// see: https://github.com/react-native-datetimepicker/datetimepicker/issues/182#issuecomment-643156239
-        React.useMemo(
-          () => (
-            <DatePicker
-              onDateChange={onAndroidDateChange}
-              mode={mode}
-              isVisible={isDatePickerVisible}
-              value={dateValue || new Date()}
-              min={min}
-              max={max}
-            />
-          ),
-          [isDatePickerVisible],
-        )}
+        {
+          // see: https://github.com/react-native-datetimepicker/datetimepicker/issues/182#issuecomment-643156239
+          React.useMemo(
+            () => (
+              <DatePicker
+                onDateChange={onAndroidDateChange}
+                mode={mode === 'datetime' ? currentPickerMode : mode}
+                isVisible={isDatePickerVisible}
+                value={
+                  currentPickerMode === 'time' && tempDate ? tempDate : dateValue || new Date()
+                }
+                min={min}
+                max={max}
+              />
+            ),
+            [isDatePickerVisible, currentPickerMode, tempDate],
+          )
+        }
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>
     );

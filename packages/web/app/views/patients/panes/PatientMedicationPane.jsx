@@ -14,12 +14,13 @@ import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { Button } from '../../../components';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -190,7 +191,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
       <CellText discontinued={data?.discontinued}>
-        {getDose(data, getTranslation, getEnumTranslation)}
+        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </CellText>
     ),
@@ -272,7 +273,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
       <>
-        {getDose(data, getTranslation, getEnumTranslation)}
+        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </>
     ),
@@ -372,15 +373,17 @@ export const PatientMedicationPane = ({ patient }) => {
                 },
               }}
             >
-              <Button
-                disabled={!!currentEncounter}
-                onClick={() => setCreateMedicationModalOpen(true)}
-              >
-                <TranslatedText
-                  stringId="patient.medication.ongoing.add"
-                  fallback="Add ongoing medication"
-                />
-              </Button>
+              <NoteModalActionBlocker>
+                <Button
+                  disabled={!!currentEncounter}
+                  onClick={() => setCreateMedicationModalOpen(true)}
+                >
+                  <TranslatedText
+                    stringId="patient.medication.ongoing.add"
+                    fallback="Add ongoing medication"
+                  />
+                </Button>
+              </NoteModalActionBlocker>
             </StyledConditionalTooltip>
           )}
         </TableTitle>

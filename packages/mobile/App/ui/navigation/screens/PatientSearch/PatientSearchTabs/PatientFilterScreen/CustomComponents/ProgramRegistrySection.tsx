@@ -32,7 +32,7 @@ export const ProgramRegistrySection = (): ReactElement => {
         visibilityStatus: VisibilityStatus.Current,
       },
     },
-    filter: ({ id }) => ability.can('read', subject('ProgramRegistry', { id })),
+    filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
   });
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(

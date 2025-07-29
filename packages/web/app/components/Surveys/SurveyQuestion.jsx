@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import {
   checkMandatory,
   getComponentForQuestionType,
@@ -12,8 +13,9 @@ import { Field, FieldWithTooltip } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
 import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
+
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -86,22 +88,51 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
+  const { encounter } = useEncounter();
+  const { getTranslation } = useTranslation();
+
   const {
-    dataElement,
-    detail,
+    id: componentId,
+    detail: componentDetail,
     config: componentConfig,
     options: componentOptions,
     text: componentText,
+    dataElement,
     validationCriteria,
   } = component;
-  const { encounter } = useEncounter();
-  const { getTranslation } = useTranslation();
   const { defaultText, type, defaultOptions, id } = dataElement;
-  const configObject = getConfigObject(id, componentConfig);
-  const text = componentText || defaultText;
-  const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const FieldComponent = getComponentForQuestionType(type, configObject);
 
+  const text = componentText ? (
+    <TranslatedReferenceData
+      category="surveyScreenComponent.text"
+      value={componentId}
+      fallback={componentText}
+    />
+  ) : (
+    <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
+  );
+  const helperText = (
+    <TranslatedReferenceData
+      category="surveyScreenComponent.detail"
+      value={componentId}
+      fallback={componentDetail}
+    />
+  );
+  const options = mapOptionsToValues(componentOptions || defaultOptions);
+  const translatedOptions = useMemo(
+    () =>
+      options?.map(({ value }) => {
+        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', value);
+        return {
+          label: getTranslation(stringId, value),
+          value,
+        };
+      }),
+    [getTranslation, id, options],
+  );
+
+  const configObject = getConfigObject(id, componentConfig);
+  const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
     encounterType: encounterType || encounter?.encounterType,
@@ -121,9 +152,9 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       component={FieldComponent}
       patient={patient}
       name={id}
-      options={options}
+      options={translatedOptions}
       config={configObject}
-      helperText={detail}
+      helperText={helperText}
       required={required}
       disabled={disabled}
       data-testid="wrapperfieldcomponent-mkjr"

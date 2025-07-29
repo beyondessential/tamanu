@@ -15,7 +15,7 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
   components
     .filter(shouldShow)
     .map(component => {
-      const { dataElement, id, screenIndex } = component;
+      const { dataElement, id, screenIndex, config } = component;
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
@@ -27,6 +27,9 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
         name,
         screenIndex,
         sourceType,
+        dataElementId: dataElement.id,
+        config,
+        originalBody: answerObject?.originalBody,
       };
     })
     .filter(r => r.answer !== undefined);

@@ -8,14 +8,18 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText } from '../../Translation';
+import { useSettings } from '../../../contexts/Settings';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
+  const { getSetting } = useSettings();
 
-  const { data: additionalData, isFetching: isAdditionalDataFetching } =
-    usePatientAdditionalDataQuery(patient.id);
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -52,6 +56,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             patientData={patientData}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
+            getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
             data-testid="deathcertificateprintout-l7w8"

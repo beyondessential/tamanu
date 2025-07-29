@@ -57,4 +57,31 @@ describe('Ongoing conditions', () => {
     });
     expect(result).toHaveRequestError();
   });
+
+  it('should delete an ongoing condition', async () => {
+    // First create a condition
+    const createResult = await app.post('/api/ongoingCondition').send({
+      conditionId: await randomReferenceId(models, 'diagnosis'),
+      patientId: patient.id,
+      examinerId: await randomUser(models),
+      note: 'Test condition for deletion',
+    });
+    expect(createResult).toHaveSucceeded();
+    
+    const conditionId = createResult.body.id;
+
+    // Then delete it
+    const deleteResult = await app.delete(`/api/ongoingCondition/${conditionId}`);
+    expect(deleteResult).toHaveSucceeded();
+    expect(deleteResult.body.message).toBe('Ongoing condition deleted successfully');
+
+    // Verify it's soft deleted (should not be found in normal queries)
+    const getResult = await app.get(`/api/ongoingCondition/${conditionId}`);
+    expect(getResult).toHaveRequestError();
+  });
+
+  it('should return error when trying to delete non-existent condition', async () => {
+    const result = await app.delete('/api/ongoingCondition/non-existent-id');
+    expect(result).toHaveRequestError();
+  });
 });

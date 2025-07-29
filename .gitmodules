@@ -1,0 +1,3 @@
+[submodule "llm/common-rules"]
+	path = llm/common-rules
+	url = https://github.com/beyondessential/llm-rules.git

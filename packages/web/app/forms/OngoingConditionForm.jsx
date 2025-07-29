@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import {
   AutocompleteField,
   CheckField,
@@ -13,10 +15,41 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormCancelButton, FormSubmitButton } from '../components/Button';
 import { foreignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
+import { Colors, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';
+
+const Link = styled.span`
+  text-decoration: underline;
+  cursor: pointer;
+  color: ${Colors.darkText};
+  font-size: 12px;
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  ${props => !props.$resolving && 'margin-top: -1.2rem;'}
+`;
+
+const StyledFormCancelButton = styled(FormCancelButton)`
+  min-width: 61px;
+  max-width: 61px;
+  padding: 10px 12px;
+  height: 35px;
+`;
+
+const StyledFormSubmitButton = styled(FormSubmitButton)`
+  min-width: 50px;
+  max-width: 50px;
+  padding: 10px 12px;
+  height: 35px;
+`;
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -24,7 +57,10 @@ export const OngoingConditionForm = ({
   onCancel,
   practitionerSuggester,
   diagnosisSuggester,
+  onDelete,
 }) => {
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? (
@@ -40,6 +76,18 @@ export const OngoingConditionForm = ({
         data-testid="translatedtext-rx6s"
       />
     );
+
+    const handleDeleteClick = () => {
+      setDeleteModalOpen(true);
+    };
+
+    const handleDeleteSuccess = () => {
+      if (onDelete) {
+        onDelete();
+      }
+      onCancel();
+    };
+
     return (
       <FormGrid columns={1} data-testid="formgrid-lqds">
         <NoteModalActionBlocker>
@@ -162,11 +210,37 @@ export const OngoingConditionForm = ({
               />
             </FormGrid>
           </Collapse>
-          <FormSubmitCancelRow
-            onCancel={onCancel}
-            onConfirm={submitForm}
-            confirmText={buttonText}
-            data-testid="formsubmitcancelrow-2r80"
+
+          {editedObject ? (
+            <ButtonRow $resolving={resolving} data-testid="buttonrow-with-delete">
+              <Link
+                onClick={handleDeleteClick}
+                color="secondary"
+                data-testid="delete-condition-button"
+              >
+                <TranslatedText stringId="general.action.delete" fallback="Delete" />
+              </Link>
+              <Box style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <StyledFormCancelButton onClick={onCancel}>
+                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                </StyledFormCancelButton>
+                <StyledFormSubmitButton onSubmit={submitForm}>{buttonText}</StyledFormSubmitButton>
+              </Box>
+            </ButtonRow>
+          ) : (
+            <FormSubmitCancelRow
+              onCancel={onCancel}
+              onConfirm={submitForm}
+              confirmText={buttonText}
+              data-testid="formsubmitcancelrow-2r80"
+            />
+          )}
+
+          <DeleteOngoingConditionModal
+            open={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            conditionToDelete={editedObject}
+            onDeleteSuccess={handleDeleteSuccess}
           />
         </NoteModalActionBlocker>
       </FormGrid>
@@ -222,8 +296,10 @@ OngoingConditionForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
+  onDelete: PropTypes.func,
 };
 
 OngoingConditionForm.defaultProps = {
   editedObject: null,
+  onDelete: null,
 };

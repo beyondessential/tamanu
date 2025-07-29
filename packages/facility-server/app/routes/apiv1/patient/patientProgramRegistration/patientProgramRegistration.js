@@ -74,7 +74,7 @@ patientProgramRegistration.post(
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
             programRegistryConditionId: condition.conditionId,
-            conditionCategory: condition.category,
+            programRegistryConditionCategoryId: condition.conditionCategoryId,
           })),
         { transaction },
       );
@@ -113,7 +113,9 @@ patientProgramRegistration.put(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+    const existingRegistration = await PatientProgramRegistration.findOne({
+      where: { id },
+    });
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
@@ -125,7 +127,7 @@ patientProgramRegistration.put(
       clinicianId: registrationData.clinicianId,
       date: condition.date,
       programRegistryConditionId: condition.conditionId,
-      conditionCategory: condition.conditionCategory,
+      programRegistryConditionCategoryId: condition.conditionCategoryId,
       reasonForChange: condition.reasonForChange,
     }));
 
@@ -146,7 +148,7 @@ patientProgramRegistration.put(
       return Promise.all([
         existingRegistration.update(updatedRegistrationData),
         models.PatientProgramRegistrationCondition.bulkCreate(conditionsData, {
-          updateOnDuplicate: ['date', 'conditionCategory', 'reasonForChange'],
+          updateOnDuplicate: ['date', 'programRegistryConditionCategoryId', 'reasonForChange'],
         }),
       ]);
     });
@@ -168,7 +170,9 @@ patientProgramRegistration.delete(
 
     req.checkPermission('delete', 'PatientProgramRegistration');
 
-    const existingRegistration = await PatientProgramRegistration.findByPk(id);
+    const existingRegistration = await PatientProgramRegistration.findOne({
+      where: { id },
+    });
 
     if (!existingRegistration) {
       throw new NotFoundError('PatientProgramRegistration not found');
