@@ -23,7 +23,7 @@ function generate(tables) {
 
       to_jsonb(t) as record_data
     from ${table} t;
-  `.trim().replaceAll(/^    /gm, '')).join('\n\n');
+  `.trim().replaceAll(/^ {4}/gm, '')).join('\n\n');
 }
 
 const TABLES = [
