@@ -17,7 +17,7 @@ export const useChartSurveysQuery = () => {
           (s) =>
             s.programId === survey.programId && s.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE,
         );
-        complexToCoreSurveysMap[survey.id] = coreSurvey.id;
+        complexToCoreSurveysMap[survey.id] = coreSurvey?.id;
       });
 
       return {
