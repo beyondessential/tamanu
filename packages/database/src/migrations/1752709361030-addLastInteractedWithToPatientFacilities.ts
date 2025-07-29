@@ -13,7 +13,7 @@ export async function up(query: QueryInterface): Promise<void> {
     type: DataTypes.BIGINT,
     allowNull: false,
     defaultValue: Sequelize.cast(
-      Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '1'),
+      Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'),
       'bigint',
     ),
   });

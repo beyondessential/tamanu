@@ -45,7 +45,10 @@ export class PatientFacility extends Model {
         createdAtSyncTick: {
           type: DataTypes.BIGINT,
           allowNull: false,
-          defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, 0),
+          defaultValue: Sequelize.cast(
+            Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'),
+            'bigint',
+          ),
         },
       },
       {
