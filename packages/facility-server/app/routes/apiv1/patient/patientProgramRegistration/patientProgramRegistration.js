@@ -85,7 +85,6 @@ patientProgramRegistration.post(
           facilityId: registeringFacilityId,
           lastInteractedTime: new Date(),
         },
-        { transaction, returning: true, conflictFields: ['patient_id', 'facility_id'] },
       );
 
       return [newRegistration, newConditions];
