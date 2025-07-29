@@ -42,7 +42,7 @@ export const pullRecordsInBatches = async (
 };
 
 export const streamRecordsInBatches = async (
-  params: Omit<PullRecordsInBatchesParams, 'recordTotal'>,
+  params: PullRecordsInBatchesParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
   const { centralServer, sessionId, progressCallback = () => {} } = params;

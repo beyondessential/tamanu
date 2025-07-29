@@ -21,7 +21,7 @@ import { SYNC_EVENT_ACTIONS, SyncRecord } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
-import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
+import { pullRecordsInBatches, streamRecordsInBatches } from './utils/pullRecordsInBatches';
 import {
   saveChangesFromSnapshot,
   saveChangesFromMemory,
@@ -363,6 +363,7 @@ export class MobileSyncManager {
       syncSettings,
       pullUntil,
     };
+
     if (isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
@@ -401,8 +402,11 @@ export class MobileSyncManager {
         );
       };
 
-      await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal },
+      const pull = (await this.centralServer.streaming())
+        ? streamRecordsInBatches
+        : pullRecordsInBatches;
+      await pull(
+        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
@@ -427,7 +431,10 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
     };
     await createSnapshotTable();
-    await pullRecordsInBatches(
+    const pull = (await this.centralServer.streaming())
+      ? streamRecordsInBatches
+      : pullRecordsInBatches;
+    await pull(
       {
         centralServer,
         sessionId,
@@ -436,7 +443,6 @@ export class MobileSyncManager {
       },
       processStreamedDataFunction,
     );
-
     this.setSyncStage(3);
     let totalSaved = 0;
     const saveProgressCallback = (incrementalPulled: number) => {
@@ -449,11 +455,7 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(
-        incomingModels,
-        syncSettings,
-        saveProgressCallback,
-      );
+      await saveChangesFromSnapshot(incomingModels, syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
