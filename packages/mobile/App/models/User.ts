@@ -81,33 +81,37 @@ export class User extends BaseModel implements IUser {
     return userFacilities.map(f => f.facilityId);
   }
 
+  /**
+   * Check if user can access a specific facility based on the configuration
+   *
+   * Access rules:
+   * 1. Superusers can always access all facilities
+   * 2. [login Facility] permission overrides any linked facilities UNLESS the facility is sensitive
+   * 3. If restrictUsersToFacilities is enabled OR facility is sensitive: check against user's linked facilities
+   * 4. Otherwise: allow access (no restrictions)
+   */
   async canAccessFacility(id: string, ability: PureAbility) {
-    const allowed = await this.allowedFacilityIds();
-    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
+    const facility = await Facility.getRepository().findOne({ where: { id } });
+    if (!facility) throw new Error(`Facility with id ${id} not found`);
 
-    // Check if the facility is sensitive using TypeORM's findOne
-    const facility = await Facility.getRepository().findOne({
-      where: { id },
-    });
+    const userLinkedFacilities = await this.allowedFacilityIds();
 
-    if (!facility) {
-      throw new Error(`Facility with id ${id} not found`);
-    }
+    // Superuser bypasses all restrictions
+    if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
 
-    // If facility is sensitive, user must be linked to it
-    if (facility.isSensitive) {
-      return allowed.includes(id);
-    }
+    // User is specifically linked to this facility so allow access
+    const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
+    if (userIsLinkedToThisFacility) return true;
 
-    // Check if global restriction is enabled by getting the setting directly
+    // The facility is sensitive and the user is not linked to it so deny access
+    if (facility.isSensitive) return false;
+
+    // The facility is not sensitive and the user has login permission
+    if (ability.can('login', 'Facility')) return true;
+
+    // The setting is enabled and the user is not linked to this facility so deny access
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    if (restrictUsersToFacilities) {
-      // Check if user has login permission for Facility using ability.can
-      const hasLoginPermission = ability.can('login', 'Facility');
-
-      if (hasLoginPermission) return true;
-      return allowed.includes(id);
-    }
+    if (restrictUsersToFacilities) return false;
 
     // No restrictions apply since the setting is disabled and the facility is not sensitive
     return true;

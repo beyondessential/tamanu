@@ -296,33 +296,27 @@ export class User extends Model {
    */
   async canAccessFacility(id: string) {
     const { Facility, Setting } = this.sequelize.models;
-
-    const facility = await Facility.findByPk(id, {
-      attributes: ['isSensitive'],
-    });
-
-    if (!facility) {
-      throw new NotFoundError(`Facility with id ${id} not found`);
-    }
+    const facility = await Facility.findByPk(id, { attributes: ['isSensitive'] });
+    if (!facility) throw new NotFoundError(`Facility with id ${id} not found`);
 
     const userLinkedFacilities = await this.allowedFacilityIds();
 
-    if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) {
-      return true;
-    }
+    // Superuser bypasses all restrictions
+    if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
 
+    // User is specifically linked to this facility so allow access
     const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
+    if (userIsLinkedToThisFacility) return true;
 
-    if (facility.isSensitive) {
-      return userIsLinkedToThisFacility;
-    }
+    // The facility is sensitive and the user is not linked to it so deny access
+    if (facility.isSensitive) return false;
 
+    // The facility is not sensitive and the user has login permission
+    if (await this.hasPermission('login', 'Facility')) return true;
+
+    // The setting is enabled and the user is not linked to this facility so deny access
     const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
-
-    if (restrictUsersToFacilities) {
-      if (await this.hasPermission('login', 'Facility')) return true;
-      return userIsLinkedToThisFacility;
-    }
+    if (restrictUsersToFacilities) return false;
 
     // No restrictions apply since the setting is disabled and the facility is not sensitive
     return true;
