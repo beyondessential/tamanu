@@ -146,23 +146,24 @@ export class CentralServerConnection extends TamanuApi {
       return { status };
     }
 
-    if (await this.streaming()) {
-      for await (const { kind, message } of this.stream(() => ({
-        endpoint: `sync/${sessionId}/ready/stream`,
-      }))) {
-        handler: switch (kind) {
-          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
-            // still waiting
-            break handler;
-          case SYNC_STREAM_MESSAGE_KIND.END:
-            // includes the new tick from starting the session
-            return { sessionId, ...message };
-          default:
-            console.warn(`Unexpected message kind: ${kind}`);
-        }
-      }
-      throw new Error('Unexpected end of stream');
-    }
+    // Not working
+    // if (await this.streaming()) {
+    //   for await (const { kind, message } of this.stream(() => ({
+    //     endpoint: `sync/${sessionId}/ready/stream`,
+    //   }))) {
+    //     handler: switch (kind) {
+    //       case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
+    //         // still waiting
+    //         break handler;
+    //       case SYNC_STREAM_MESSAGE_KIND.END:
+    //         // includes the new tick from starting the session
+    //         return { sessionId, ...message };
+    //       default:
+    //         console.warn(`Unexpected message kind: ${kind}`);
+    //     }
+    //   }
+    //   throw new Error('Unexpected end of stream');
+    // }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
@@ -194,23 +195,24 @@ export class CentralServerConnection extends TamanuApi {
     };
     await this.post(`sync/${sessionId}/pull/initiate`, body);
 
-    if (await this.streaming()) {
-      for await (const { kind, message } of this.stream(() => ({
-        endpoint: `sync/${sessionId}/pull/ready/stream`,
-      }))) {
-        handler: switch (kind) {
-          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
-            // still waiting
-            break handler;
-          case SYNC_STREAM_MESSAGE_KIND.END:
-            // includes the metadata for the changes we're about to pull
-            return { sessionId, ...message };
-          default:
-            console.warn(`Unexpected message kind: ${kind}`);
-        }
-      }
-      throw new Error('Unexpected end of stream');
-    }
+    // TODO: Not working
+    // if (await this.streaming()) {
+    //   for await (const { kind, message } of this.stream(() => ({
+    //     endpoint: `sync/${sessionId}/pull/ready/stream`,
+    //   }))) {
+    //     handler: switch (kind) {
+    //       case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
+    //         // still waiting
+    //         break handler;
+    //       case SYNC_STREAM_MESSAGE_KIND.END:
+    //         // includes the metadata for the changes we're about to pull
+    //         return { sessionId, ...message };
+    //       default:
+    //         console.warn(`Unexpected message kind: ${kind}`);
+    //     }
+    //   }
+    //   throw new Error('Unexpected end of stream');
+    // }
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes

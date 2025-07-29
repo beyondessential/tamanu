@@ -21,7 +21,7 @@ import { SYNC_EVENT_ACTIONS, SyncRecord } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
-import { pullRecordsInBatches, streamRecordsInBatches } from './utils/pullRecordsInBatches';
+import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import {
   saveChangesFromSnapshot,
   saveChangesFromMemory,
@@ -401,11 +401,7 @@ export class MobileSyncManager {
           progressCallback,
         );
       };
-
-      const pull = (await this.centralServer.streaming())
-        ? streamRecordsInBatches
-        : pullRecordsInBatches;
-      await pull(
+      await pullRecordsInBatches(
         { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
@@ -431,10 +427,8 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
     };
     await createSnapshotTable();
-    const pull = (await this.centralServer.streaming())
-      ? streamRecordsInBatches
-      : pullRecordsInBatches;
-    await pull(
+
+    await pullRecordsInBatches(
       {
         centralServer,
         sessionId,
