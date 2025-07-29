@@ -401,8 +401,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                   }}
                   disabled={!recordButtonEnabled}
                   verb="create"
-                  noun="Charting"
-                  objectId={selectedChartTypeId}
+                  subject={subject('Charting', { id: selectedChartTypeId })}
                   data-testid="styledbuttonwithpermissioncheck-ruv4"
                 >
                   <TranslatedText
