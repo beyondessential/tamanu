@@ -11,6 +11,14 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
+  const onCreateNewProcedure = () => {
+    // generate an id for the procedure upfront so that one is available if a procedure survey is submitted
+    // before the procedure is submitted
+    setEditedProcedure({
+      id: uuidv4(),
+    });
+  };
+
   return (
     <TabPane data-testid="tabpane-q1xp">
       <ProcedureModal
@@ -26,11 +34,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <TableButtonRow variant="small" data-testid="tablebuttonrow-o76z">
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
-            onClick={() =>
-              setEditedProcedure({
-                id: uuidv4(),
-              })
-            }
+            onClick={onCreateNewProcedure}
             disabled={readonly}
             verb="create"
             noun="Procedure"

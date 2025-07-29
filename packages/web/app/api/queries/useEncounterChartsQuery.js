@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
 import { getConfigObject } from '../../utils';
-import { useChartSurveyQuery } from './useChartSurveyQuery';
+import { useSurveyQuery } from './useSurveyQuery';
 
 function hasHistoricalData(answer) {
   if (!answer) return false;
   const { records } = answer;
-  return Object.values(records).some((record) => record.body);
+  return Object.values(records).some(record => record.body);
 }
 
 function getSortedLogsByDate(logs) {
@@ -21,23 +21,23 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   }
 
   const recordedDates = Object.keys(
-    data.find((record) => record.dataElementId === dateElementId).records,
+    data.find(record => record.dataElementId === dateElementId).records,
   );
 
   const elementIdToAnswer = {};
-  data.forEach((answer) => {
+  data.forEach(answer => {
     elementIdToAnswer[answer.dataElementId] = answer;
   });
 
   const records = surveyData.components
-    .filter((component) => component.dataElementId !== dateElementId)
+    .filter(component => component.dataElementId !== dateElementId)
     // Show current components or ones that have historical data in them
     .filter(
-      (component) =>
+      component =>
         component.visibilityStatus === VISIBILITY_STATUSES.CURRENT ||
         hasHistoricalData(elementIdToAnswer[component.dataElementId]),
     )
-    .map((component) => {
+    .map(component => {
       const { id, config, validationCriteria, dataElement } = component;
       const { records = {} } = elementIdToAnswer[dataElement.id] || {};
       const configs = {
@@ -79,7 +79,7 @@ export const useEncounterChartsQuery = (encounterId, surveyId, instanceId) => {
       ),
     { enabled: Boolean(surveyId) },
   );
-  const surveyQuery = useChartSurveyQuery(surveyId);
+  const surveyQuery = useSurveyQuery(surveyId);
 
   const {
     data: [chartData, surveyData],
