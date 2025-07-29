@@ -267,7 +267,7 @@ export class User extends Model {
 
   async allowedFacilities() {
     if (this.isSuperUser()) {
-      return CAN_ACCESS_ALL_FACILITIES; // Special key allows access to all facilities
+      return CAN_ACCESS_ALL_FACILITIES;
     }
 
     if (!this.facilities) {
