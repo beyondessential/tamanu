@@ -100,6 +100,7 @@ export const SurveyResponsesPrintModal = React.memo(
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
+            getSetting={getSetting}
             data-testid="surveyresponsesprintout-7nfz"
           />
         </PDFLoader>
