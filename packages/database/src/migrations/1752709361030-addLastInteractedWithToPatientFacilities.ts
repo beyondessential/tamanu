@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
@@ -25,7 +24,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
   await query.addIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
-  
+
   await query.sequelize.query(`
     WITH calculated_interaction_times AS (
       SELECT 
