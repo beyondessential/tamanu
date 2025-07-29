@@ -87,6 +87,7 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     try {
+      // #TODO: get a failure here after session is timed out or somthing
       return await this.login(params.email, params.password, {
         backoff,
         timeout,
