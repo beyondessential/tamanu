@@ -739,7 +739,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { id: encounterId } = params;
-    const chartSurvey = await models.SurveyResponse.findOne({
+    const chartSurvey = await models.SurveyResponse.findAll({
       attributes: ['survey.*'],
       where: { encounterId },
       include: [
@@ -754,10 +754,13 @@ encounterRelations.get(
       order: [['survey', 'name', 'ASC']],
       group: [['survey.id']],
     });
-    req.checkPermission('list', subject('Charting', { id: chartSurvey?.surveyId }));
+    req.flagPermissionChecked();
+    const allowedSurvey = chartSurvey.find((response) =>
+      req.ability.can('list', subject('Charting', { id: response.survey.id })),
+    );
 
     res.send({
-      data: chartSurvey,
+      data: allowedSurvey,
     });
   }),
 );
