@@ -67,7 +67,7 @@ export class AuthService {
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
     console.log('Signing in locally as', email);
-    const { User, Setting } = this.models;
+    const { User } = this.models;
     const user = await User.findOne({
       where: {
         email,
@@ -87,8 +87,9 @@ export class AuthService {
 
     const ability = generateAbilityForUser(user);
     const linkedFacility = await readConfig('facilityId', '');
-    // TODO: check if facility is sensitive here?
-    if (!(await user.canAccessFacility(linkedFacility, ability))) {
+    const canAccessFacility = await user.canAccessFacility(linkedFacility, ability);
+
+    if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
