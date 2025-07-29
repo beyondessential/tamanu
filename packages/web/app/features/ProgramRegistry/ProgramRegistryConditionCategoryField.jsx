@@ -1,15 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
+
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../../contexts/Translation';
 import {
   BaseSelectField,
   FieldWithTooltip,
   TranslatedReferenceData,
-  getReferenceDataStringId,
 } from '../../components';
 import { Colors } from '../../constants';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 
 const StyledBaseSelectField = styled(BaseSelectField)`
   .Mui-disabled {
