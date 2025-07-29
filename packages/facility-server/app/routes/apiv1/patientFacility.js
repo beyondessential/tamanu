@@ -26,7 +26,7 @@ patientFacility.post('/$', async (req, res) => {
     },
     {
       returning: true,
-      conflictFields: ['patientId', 'facilityId'],
+      conflictFields: ['patient_id', 'facility_id'],
     },
   );
 
