@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
   },
   detailsKey: {
     width: '18mm',
-    fontFamily: 'Helvetica-Bold',
+    fontWeight: 700,
   },
   detailsValue: {
     maxWidth: '35mm',
     overflow: 'hidden',
-    fontFamily: 'Helvetica-Bold',
+    fontWeight: 700,
   },
   barcodeRow: {
     height: '6.3mm',
@@ -73,8 +73,8 @@ const PhotoContainer = props => <View style={styles.photoContainer} {...props} /
 const PhotoFrame = props => <View style={styles.photoFrame} {...props} />;
 const Details = props => <View style={styles.details} {...props} />;
 const InfoRow = props => <View style={styles.infoRow} {...props} />;
-const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
-const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
+const DetailsKey = props => <Text bold style={styles.detailsKey} {...props} />;
+const DetailsValue = props => <Text bold style={styles.detailsValue} {...props} />;
 const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
 
 const DetailsRow = ({ value, label }) => (
