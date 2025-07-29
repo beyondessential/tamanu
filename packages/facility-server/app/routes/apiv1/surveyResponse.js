@@ -113,8 +113,12 @@ surveyResponse.put(
 
     await db.transaction(async () => {
       for (const [dataElementId, value] of Object.entries(body.answers)) {
-        // Ignore null values or components that are not in the survey
-        if (value === null || !components.some((c) => c.dataElementId === dataElementId)) {
+        if (!components.some((c) => c.dataElementId === dataElementId)) {
+          throw new InvalidOperationError('Some components are missing from the survey');
+        }
+
+        // Ignore null values
+        if (value === null) {
           continue;
         }
 
