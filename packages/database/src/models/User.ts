@@ -279,11 +279,9 @@ export class User extends Model {
 
   async allowedFacilityIds() {
     const allowedFacilities = await this.allowedFacilities();
-
     if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
-
     return allowedFacilities.map(f => f.id);
   }
 
