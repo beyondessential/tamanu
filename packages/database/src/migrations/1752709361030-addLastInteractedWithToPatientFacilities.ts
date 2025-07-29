@@ -25,10 +25,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
   await query.addIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
-
-  const isFacility = config.serverFacilityId || config.serverFacilityIds;
-  if (isFacility) return;
-
+  
   await query.sequelize.query(`
     WITH calculated_interaction_times AS (
       SELECT 
