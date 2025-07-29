@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -41,6 +41,11 @@ export class PatientFacility extends Model {
           type: DataTypes.DATE,
           allowNull: false,
           defaultValue: Sequelize.fn('now'),
+        },
+        createdAtSyncTick: {
+          type: DataTypes.BIGINT,
+          allowNull: false,
+          defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, 0),
         },
       },
       {
