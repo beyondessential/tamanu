@@ -23,6 +23,7 @@ export async function up(query: QueryInterface): Promise<void> {
   const isFacility = config.serverFacilityId || config.serverFacilityIds;
   if (isFacility) return;
 
+  // TODO: come back to indexes
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
   
   await query.sequelize.query(`
