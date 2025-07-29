@@ -12,7 +12,7 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
-import { getDose, getTranslatedFrequency } from '../medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 import { Footer } from './printComponents/Footer';
 
 const columns = (getTranslation, getEnumTranslation) => [
@@ -33,7 +33,7 @@ const columns = (getTranslation, getEnumTranslation) => [
     accessor: (medication) => {
       return (
         <Text>
-          {getDose(medication, getTranslation, getEnumTranslation)}
+          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)}
           {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
         </Text>
       );
@@ -141,7 +141,7 @@ const PrescriptionPrintoutComponent = ({
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent style={{ margin: 0 }}>
