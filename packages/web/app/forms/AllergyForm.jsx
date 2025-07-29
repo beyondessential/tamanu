@@ -16,7 +16,6 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
@@ -30,7 +29,6 @@ export const AllergyForm = ({
   const { ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
-  const { getTranslation } = useTranslation();
   return (
     <Form
       onSubmit={onSubmit}
