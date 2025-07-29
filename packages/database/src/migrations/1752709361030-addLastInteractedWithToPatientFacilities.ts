@@ -8,6 +8,19 @@ export async function up(query: QueryInterface): Promise<void> {
     defaultValue: DataTypes.NOW,
   });
 
+  
+  // Create created_at_sync_tick column and set to updated_at_sync_tick
+  await query.addColumn('patient_facilities', 'created_at_sync_tick', {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    defaultValue: 0,
+  });
+  
+  await query.sequelize.query(`
+    UPDATE patient_facilities pf
+    SET created_at_sync_tick = updated_at_sync_tick;
+  `);
+
   const isFacility = config.serverFacilityId || config.serverFacilityIds;
   if (isFacility) return;
 
