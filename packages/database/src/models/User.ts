@@ -1,8 +1,10 @@
 import { hash } from 'bcrypt';
 import { DataTypes, Sequelize } from 'sequelize';
+import { isString } from 'lodash';
 
 import {
   CAN_ACCESS_ALL_FACILITIES,
+  CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
@@ -270,6 +272,15 @@ export class User extends Model {
       return CAN_ACCESS_ALL_FACILITIES;
     }
 
+    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
+      'auth.restrictUsersToFacilities',
+    );
+    const hasLoginPermission = await this.hasPermission('login', 'Facility');
+
+    if (!restrictUsersToFacilities || hasLoginPermission) {
+      return CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES;
+    }
+
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
@@ -279,9 +290,7 @@ export class User extends Model {
 
   async allowedFacilityIds() {
     const allowedFacilities = await this.allowedFacilities();
-    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
-      return CAN_ACCESS_ALL_FACILITIES;
-    }
+    if (isString(allowedFacilities)) return allowedFacilities; // Pass through any special keys
     return allowedFacilities.map(f => f.id);
   }
 
@@ -295,7 +304,7 @@ export class User extends Model {
    * 4. Otherwise: allow access (no restrictions)
    */
   async canAccessFacility(id: string) {
-    const { Facility, Setting } = this.sequelize.models;
+    const { Facility } = this.sequelize.models;
     const facility = await Facility.findByPk(id, { attributes: ['isSensitive'] });
     if (!facility) throw new NotFoundError(`Facility with id ${id} not found`);
 
@@ -310,16 +319,6 @@ export class User extends Model {
 
     // The facility is sensitive and the user is not linked to it so deny access
     if (facility.isSensitive) return false;
-
-    // The facility is not sensitive and the user has login permission
-    if (await this.hasPermission('login', 'Facility')) return true;
-
-    // The setting is enabled and the user is not linked to this facility so deny access
-    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
-    if (restrictUsersToFacilities) return false;
-
-    // No restrictions apply since the setting is disabled and the facility is not sensitive
-    return true;
   }
 
   static async filterAllowedFacilities(
@@ -332,6 +331,13 @@ export class User extends Model {
       if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
         const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
           where: { id: facilityIds },
+        });
+        return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
+      }
+
+      if (allowedFacilities === CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES) {
+        const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
+          where: { id: facilityIds, isSensitive: false },
         });
         return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
       }
