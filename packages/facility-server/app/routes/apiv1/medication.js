@@ -240,8 +240,7 @@ medication.post(
   '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
-    const { Encounter, Prescription, PatientOngoingPrescription, MedicationAdministrationRecord } =
-      models;
+    const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
     const { prescriptionIds, prescriberId, encounterId } =
       await importOngoingMedicationsSchema.parseAsync(req.body);
@@ -258,6 +257,7 @@ medication.post(
 
     const ongoingPrescriptions = await Prescription.findAll({
       where: {
+        id: { [Op.in]: prescriptionIds },
         discontinued: { [Op.not]: true },
       },
       include: [
@@ -271,16 +271,17 @@ medication.post(
       ],
     });
 
-    const importPrescriptions = [];
-    for (const prescriptionId of prescriptionIds) {
-      const prescription = ongoingPrescriptions.find(p => p.id === prescriptionId);
-      if (!prescription) {
-        throw new InvalidOperationError(
-          `Prescription with id ${prescriptionId} not found or has been discontinued`,
-        );
-      }
-      importPrescriptions.push(prescription);
+    if (ongoingPrescriptions.length !== prescriptionIds.length) {
+      const foundIds = new Set(ongoingPrescriptions.map(p => p.id));
+      const missingIds = prescriptionIds.filter(id => !foundIds.has(id));
+      throw new InvalidOperationError(
+        `Prescription(s) with id(s) ${missingIds.join(
+          ', ',
+        )} not found, have been discontinued, or do not belong to this patient.`,
+      );
     }
+
+    const importPrescriptions = ongoingPrescriptions;
 
     const result = await db.transaction(async () => {
       const newPrescriptions = [];
@@ -298,10 +299,6 @@ medication.post(
           },
           models,
         });
-
-        await MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-          newPrescription,
-        );
 
         newPrescriptions.push(newPrescription);
       }
