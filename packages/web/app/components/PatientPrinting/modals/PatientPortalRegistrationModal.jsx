@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BodyText } from '../../Typography';
-import { Button, OutlinedButton } from '../..';
+import {
+  Button,
+  FormModal,
+  FormSubmitCancelRow,
+  ModalGenericButtonRow,
+  OutlinedButton,
+} from '../..';
 import { Colors } from '../../../constants';
 import { SendIcon } from '../../Icons/SendIcon';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
 const StyledButtonRow = styled('div')`
   display: flex;
@@ -17,6 +24,26 @@ const StyledButtonRow = styled('div')`
   background-color: ${Colors.background};
   border-top: 1px solid ${Colors.outline};
 `;
+
+const SendToPatientModal = React.memo(({ open, onClose }) => {
+  const handleSubmit = useCallback(async ({ email }) => {
+    console.log(email);
+  }, []);
+
+  return (
+    <FormModal open={open} onClose={onClose}>
+      <EmailAddressConfirmationForm
+        onSubmit={handleSubmit}
+        onCancel={onClose}
+        renderButtons={submitForm => (
+          <ModalGenericButtonRow>
+            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onClose} />
+          </ModalGenericButtonRow>
+        )}
+      />
+    </FormModal>
+  );
+});
 
 const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
   <StyledButtonRow>
@@ -50,8 +77,16 @@ const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
 
 export const PatientPortalRegistrationModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
+  const [openSendToPatientModal, setOpenSendToPatientModal] = useState(false);
 
-  console.log('patient', patient);
+  if (openSendToPatientModal) {
+    return (
+      <SendToPatientModal
+        open={openSendToPatientModal}
+        onClose={() => setOpenSendToPatientModal(false)}
+      />
+    );
+  }
 
   return (
     <Modal
@@ -68,7 +103,11 @@ export const PatientPortalRegistrationModal = React.memo(({ patient }) => {
       data-testid="modal-patient-portal-registration"
       fixedBottomRow
       bottomRowContent={
-        <BottomRow onPrint={() => {}} onSendToPatient={() => {}} onClose={() => setOpen(false)} />
+        <BottomRow
+          onPrint={() => {}}
+          onSendToPatient={() => setOpenSendToPatientModal(true)}
+          onClose={() => setOpen(false)}
+        />
       }
     >
       <BodyText>
