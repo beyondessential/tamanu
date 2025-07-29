@@ -202,6 +202,7 @@ const StyledIcon = styled.i`
   font-size: 1rem;
   line-height: 0.875rem;
   margin: 0.0625rem 0;
+  ${props => props.$color && `color: ${props.$color};`}
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -753,6 +754,7 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
+                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
               />
               <Field
                 name="isPrn"
