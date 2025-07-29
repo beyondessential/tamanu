@@ -6,7 +6,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_facilities', 'last_interacted_time', {
     type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: DataTypes.NOW,
+    defaultValue: Sequelize.fn('now')
   });
 
   await query.addColumn('patient_facilities', 'created_at_sync_tick', {
@@ -29,10 +29,12 @@ export async function up(query: QueryInterface): Promise<void> {
     WITH calculated_interaction_times AS (
       SELECT 
         pf.id,
-        GREATEST(
-          MAX(e.created_at),
-          MAX(pr.created_at),
-          pf.created_at
+        COALESCE(
+          GREATEST(
+            MAX(e.created_at),
+            MAX(pr.created_at),
+            pf.created_at
+          )
         ) as calculated_last_interacted_time
       FROM patient_facilities pf
       LEFT JOIN patients p ON p.id = pf.patient_id
