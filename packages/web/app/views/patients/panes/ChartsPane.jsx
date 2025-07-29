@@ -400,8 +400,9 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                     setModalOpen(true);
                   }}
                   disabled={!recordButtonEnabled}
-                  verb="submit"
-                  noun="SurveyResponse"
+                  verb="create"
+                  noun="Charting"
+                  objectId={selectedChartTypeId}
                   data-testid="styledbuttonwithpermissioncheck-ruv4"
                 >
                   <TranslatedText
