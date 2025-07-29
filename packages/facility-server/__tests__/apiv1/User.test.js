@@ -431,11 +431,6 @@ describe('User', () => {
       });
 
       describe('restrictUsersToFacilities disabled', () => {
-        // Superuser = everything
-        // user with login permission = everything but sensitive facilities
-        // user linked to facility = log in to that facility
-        // user not linked to facility with no permission = nothing
-
         beforeAll(async () => {
           await models.Setting.set('auth.restrictUsersToFacilities', false);
         });
@@ -490,11 +485,6 @@ describe('User', () => {
       });
 
       describe('restrictUsersToFacilities enabled', () => {
-        // Superuser = everything
-        // user with login permission = everything but sensitive facilities
-        // user linked to facility = log in to that facility
-        // user not linked to facility with no permission = nothing
-
         beforeAll(async () => {
           await models.Setting.set('auth.restrictUsersToFacilities', true);
         });
