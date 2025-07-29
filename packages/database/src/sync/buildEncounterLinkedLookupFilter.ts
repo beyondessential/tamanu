@@ -5,11 +5,6 @@ import {
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
 
-export type Options = {
-  extraSelects?: Record<string, string>; // extra selects to attach to the lookup select
-  extraJoins?: JoinConfig[]; // extra joins needed to traverse between this model and the encounters table
-};
-
 /**
  * Helper function to determine if a facility_id should be populated in sync lookup
  * Only populates facility_id when the encounter is from a sensitive facility
