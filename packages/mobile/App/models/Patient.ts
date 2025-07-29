@@ -17,6 +17,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { PatientAllergy } from './PatientAllergy';
 
 const TIME_OFFSET = 3;
 
@@ -77,6 +78,9 @@ export class Patient extends BaseModel implements IPatient {
     patientOngoingPrescription => patientOngoingPrescription.patient,
   )
   patientOngoingPrescriptions: PatientOngoingPrescription[];
+
+  @OneToMany(() => PatientAllergy, (allergy) => allergy.patient)
+  allergies: PatientAllergy[];
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');

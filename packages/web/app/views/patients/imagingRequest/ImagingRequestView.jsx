@@ -12,6 +12,7 @@ import {
   NOTE_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
@@ -35,13 +36,13 @@ import {
   TranslatedSelectField,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
-
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
+import { TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
+
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();

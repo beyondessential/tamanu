@@ -18,13 +18,13 @@ const PATIENT_FIELDS = {
   ],
 };
 
-export const PatientDetails = ({ patient, getLocalisation }) => {
+export const PatientDetails = ({ patient, getLocalisation, getSetting }) => {
   const { getTranslation } = useLanguageContext();
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation, getSetting)}</Col>
       <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation)}
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation, getSetting)}
       </Col>
     </DataSection>
   );
