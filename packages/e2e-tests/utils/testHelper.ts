@@ -44,6 +44,29 @@ export async function SelectingFromSearchBox(
 }
 
 /**
+ * Utility function for sorting alphabetically
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two strings alphabetically
+ */
+export function compareAlphabetically(order: 'asc' | 'desc') {
+  return (a: string, b: string) =>
+    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+}
+
+/**
+ * Utility function for sorting by date
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two dates
+ */
+export function compareByDate(order: 'asc' | 'desc') {
+  return (a: { dateGiven: string }, b: { dateGiven: string }) => {
+    const dateA = new Date(a.dateGiven).getTime();
+    const dateB = new Date(b.dateGiven).getTime();
+    return order === 'asc' ? dateA - dateB : dateB - dateA;
+  };
+}
+
+/**
  * Utility method to offset a date by one year
  * @param dateToOffset - The date to offset
  * @param offset - The offset to apply ('increaseByOneYear' or 'decreaseByOneYear')

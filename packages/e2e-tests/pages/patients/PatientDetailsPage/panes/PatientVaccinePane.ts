@@ -1,7 +1,11 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from './BasePatientPane';
 import { RecordVaccineModal } from '../modals/RecordVaccineModal';
-import { convertDateFormat } from '../../../../utils/testHelper';
+import {
+  convertDateFormat,
+  compareAlphabetically,
+  compareByDate,
+} from '../../../../utils/testHelper';
 import { ViewVaccineModal } from '../modals/ViewVaccineModal';
 import { EditVaccineModal } from '../modals/EditVaccineModal';
 import { Vaccine } from 'types/vaccine/Vaccine';
@@ -331,22 +335,14 @@ export class PatientVaccinePane extends BasePatientPane {
       const filteredVaccineNames = vaccines
         .map(vaccine => vaccine.vaccineName)
         .filter((name): name is string => name !== undefined);
-      sortedVaccineNames = [...filteredVaccineNames].sort((a, b) =>
-        order === 'asc' ? a.localeCompare(b) : b.localeCompare(a),
-      );
+      sortedVaccineNames = [...filteredVaccineNames].sort(compareAlphabetically(order));
     } else if (sortBy === 'date') {
       sortedVaccineNames = vaccines
         .filter(
           (vaccine): vaccine is Vaccine =>
             vaccine.vaccineName !== undefined && vaccine.dateGiven !== undefined,
         )
-        .sort((a, b) => {
-          const dateA = new Date(a.dateGiven);
-          const dateB = new Date(b.dateGiven);
-          return order === 'asc'
-            ? dateA.getTime() - dateB.getTime()
-            : dateB.getTime() - dateA.getTime();
-        })
+        .sort(compareByDate(order))
         .map(vaccine => vaccine.vaccineName);
     }
 
