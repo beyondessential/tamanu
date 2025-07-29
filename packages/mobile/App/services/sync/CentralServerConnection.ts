@@ -66,10 +66,10 @@ export class CentralServerConnection extends TamanuApi {
     }
   }
 
-  setServer(server: string) {
+  setServer(server: string, deviceId?: string) {
     const url = new URL(server);
     url.pathname = '/api';
-    this.setEndpoint(url.toString());
+    this.setEndpoint(url.toString(), deviceId);
   }
 
   async connect(params?: SyncConnectionParameters, backoff = { maxAttempts: 1 }, timeout = 10000) {
@@ -85,6 +85,7 @@ export class CentralServerConnection extends TamanuApi {
     const facilityId = await readConfig('facilityId', '');
 
     try {
+      console.log('params')
       // #TODO: get a failure here after session is timed out or something
       return await this.login(params.email, params.password, {
         backoff,
@@ -103,6 +104,7 @@ export class CentralServerConnection extends TamanuApi {
         return (this.#loginData = loginData);
       });
     } catch (error) {
+      console.log('an error', error)
       if (error instanceof AuthInvalidError) {
         throw new BadAuthenticationError(error.message);
       }
