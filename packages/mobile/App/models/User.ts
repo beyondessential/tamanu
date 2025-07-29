@@ -12,6 +12,7 @@ import { UserFacility } from './UserFacility';
 import { Setting } from './Setting';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { Facility } from './Facility';
+import { type PureAbility } from '@casl/ability';
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -80,7 +81,7 @@ export class User extends BaseModel implements IUser {
     return userFacilities.map(f => f.facilityId);
   }
 
-  async canAccessFacility(id: string, ability?: any) {
+  async canAccessFacility(id: string, ability: PureAbility) {
     const allowed = await this.allowedFacilityIds();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
@@ -89,10 +90,12 @@ export class User extends BaseModel implements IUser {
       where: { id },
     });
 
-    const isSensitive = facility?.facility?.isSensitive || false;
+    if (!facility) {
+      throw new Error(`Facility with id ${id} not found`);
+    }
 
     // If facility is sensitive, user must be linked to it
-    if (isSensitive) {
+    if (facility.isSensitive) {
       return allowed.includes(id);
     }
 
@@ -100,7 +103,7 @@ export class User extends BaseModel implements IUser {
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
     if (restrictUsersToFacilities) {
       // Check if user has login permission for Facility using ability.can
-      const hasLoginPermission = ability?.can('login', 'Facility') || false;
+      const hasLoginPermission = ability.can('login', 'Facility');
 
       if (hasLoginPermission) return true;
       return allowed.includes(id);
