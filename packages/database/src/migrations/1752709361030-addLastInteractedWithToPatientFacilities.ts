@@ -57,8 +57,6 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // Remove indexes in reverse order
-  await query.removeIndex('patient_facilities', ['facility_id', 'patient_id']);
   await query.removeIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
   await query.removeIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
 
