@@ -319,6 +319,9 @@ export class User extends Model {
 
     // The facility is sensitive and the user is not linked to it so deny access
     if (facility.isSensitive) return false;
+
+    // No restrictions apply since the setting is disabled and the facility is not sensitive
+    return true;
   }
 
   static async filterAllowedFacilities(

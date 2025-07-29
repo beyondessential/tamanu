@@ -10,7 +10,11 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
 import { Setting } from './Setting';
-import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
+  SYSTEM_USER_UUID,
+} from '~/constants';
 import { Facility } from './Facility';
 import { type PureAbility } from '@casl/ability';
 @Entity('users')
@@ -66,10 +70,17 @@ export class User extends BaseModel implements IUser {
     return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
   }
 
-  async allowedFacilityIds() {
+  async allowedFacilityIds(ability: PureAbility) {
     const canAccessAllFacilities = this.isSuperUser();
     if (canAccessAllFacilities) {
       return CAN_ACCESS_ALL_FACILITIES;
+    }
+
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    const hasLoginPermission = ability.can('login', 'Facility');
+
+    if (!restrictUsersToFacilities || hasLoginPermission) {
+      return CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES;
     }
 
     const userFacilities = await UserFacility.getRepository().find({
@@ -94,7 +105,7 @@ export class User extends BaseModel implements IUser {
     const facility = await Facility.getRepository().findOne({ where: { id } });
     if (!facility) throw new Error(`Facility with id ${id} not found`);
 
-    const userLinkedFacilities = await this.allowedFacilityIds();
+    const userLinkedFacilities = await this.allowedFacilityIds(ability);
 
     // Superuser bypasses all restrictions
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
@@ -105,13 +116,6 @@ export class User extends BaseModel implements IUser {
 
     // The facility is sensitive and the user is not linked to it so deny access
     if (facility.isSensitive) return false;
-
-    // The facility is not sensitive and the user has login permission
-    if (ability.can('login', 'Facility')) return true;
-
-    // The setting is enabled and the user is not linked to this facility so deny access
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    if (restrictUsersToFacilities) return false;
 
     // No restrictions apply since the setting is disabled and the facility is not sensitive
     return true;
