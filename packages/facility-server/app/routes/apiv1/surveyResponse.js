@@ -79,12 +79,7 @@ surveyResponse.post(
       return models.SurveyResponse.createWithAnswers(updatedBody);
     });
 
-    console.log('procedureId', procedureId);
-    console.log('responseRecord', responseRecord.id);
-
     if (procedureId) {
-      console.log('SAVING');
-
       // Find or create the Procedure based on procedureId
       const procedure = await models.Procedure.findOrCreate({
         where: { id: procedureId },
@@ -100,7 +95,6 @@ surveyResponse.post(
         surveyResponseId: responseRecord.id,
         procedureId: procedure[0].id, // procedure[0] is the found/created instance
       });
-      console.log('SAVED');
     }
     res.send(responseRecord);
   }),

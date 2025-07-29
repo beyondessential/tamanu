@@ -53,7 +53,7 @@ survey.get(
 survey.get(
   '/procedureType/:procedureTypeId',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, ability, params } = req;
     const { procedureTypeId } = params;
     const { ProcedureTypeSurvey } = models;
 
@@ -77,11 +77,9 @@ survey.get(
 
     // Extract the surveys from the join results
     const surveys = procedureTypeSurveys.map(pts => pts.survey);
+    const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
 
-    // todo: permission checks
-    // const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
-
-    res.send(surveys);
+    res.send(filteredSurveys);
   }),
 );
 
