@@ -169,6 +169,20 @@ const UPDATE_VALIDATION = yup
     phoneNumber: yup.string().trim().nullable().optional(),
     email: yup.string().trim().email().required(),
     designations: yup.array().of(yup.string()).nullable().optional(),
+    newPassword: yup.string().nullable().optional(),
+    confirmPassword: yup.string().nullable().optional(),
+  })
+  .test('passwords-match', 'Passwords must match', function (value) {
+    const { newPassword, confirmPassword } = value;
+    // If both passwords are provided, they must match
+    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+      return this.createError({ message: 'Passwords must match' });
+    }
+    // If only one password is provided, it's an error
+    if ((newPassword && !confirmPassword) || (!newPassword && confirmPassword)) {
+      return this.createError({ message: 'Both password fields must be filled' });
+    }
+    return true;
   })
   .noUnknown();
 usersRouter.put(
@@ -240,6 +254,11 @@ usersRouter.put(
       displayId: fields.displayId,
       phoneNumber: fields.phoneNumber,
     };
+
+    // Add password to update fields if provided
+    if (fields.newPassword && fields.confirmPassword) {
+      updateFields.password = fields.newPassword;
+    }
 
     await db.transaction(async () => {
       await user.update(updateFields);
