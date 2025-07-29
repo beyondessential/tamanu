@@ -29,7 +29,6 @@ export class CentralServerConnection extends TamanuApi {
     super({
       agentName: SERVER_TYPES.MOBILE,
       agentVersion: version,
-      deviceId: 'temporary-device-id',
       defaultRequestConfig: {
         timeout: 10000,
         waitForAuth: true,

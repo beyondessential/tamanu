@@ -33,8 +33,7 @@ export class AuthService {
    async initialise(deviceId: string): Promise<void> {
     const server = await readConfig('syncServerLocation');
     if (!server) return;
-    this.centralServer.setServer(server);
-    this.centralServer.deviceId = deviceId;
+    this.centralServer.setServer(server, deviceId);
     await this.centralServer.connect();
     this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {

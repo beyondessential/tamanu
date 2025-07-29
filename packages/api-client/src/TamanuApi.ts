@@ -162,7 +162,9 @@ export class TamanuApi {
     
     this.agentName = agentName;
     this.agentVersion = agentVersion;
-    this.deviceId = deviceId;
+    if (deviceId) {
+      this.deviceId = deviceId;
+    }
     this.interceptors = {
       request: new InterceptorManager<RequestInterceptorFulfilled, RequestInterceptorRejected>(),
       response: new InterceptorManager<ResponseInterceptorFulfilled, ResponseInterceptorRejected>(),
@@ -176,8 +178,11 @@ export class TamanuApi {
     return this.#host;
   }
 
-  setEndpoint(endpoint: string): void {
+  setEndpoint(endpoint: string, deviceId?: string): void {
     this.clearToken();
+    if (deviceId) {
+      this.deviceId = deviceId;
+    }
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
     this.#host = endpointUrl.origin;
@@ -203,7 +208,7 @@ export class TamanuApi {
           {
             email,
             password,
-            deviceId: this.deviceId,
+            deviceId: this.deviceId ?? '',
           },
           { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
         )) as Response;
