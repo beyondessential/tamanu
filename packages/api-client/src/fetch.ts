@@ -29,9 +29,7 @@ export async function fetchOrThrowIfUnavailable(
   }
 
   try {
-    return await fetchFn(url, { signal: abort.signal, ...config }).finally(() => {
-      clearTimeout(timer);
-    });
+    return await fetchFn(url, {  signal: abort.signal, ...config });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available
@@ -41,6 +39,8 @@ export async function fetchOrThrowIfUnavailable(
     }
 
     throw e; // some other unhandled error
+  } finally {
+    clearTimeout(timer);
   }
 }
 

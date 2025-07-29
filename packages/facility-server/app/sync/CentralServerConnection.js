@@ -56,7 +56,6 @@ export class CentralServerConnection extends TamanuApi {
       query = options;
       config = upOptions;
     }
-
     if (['login', 'refresh'].includes(endpoint)) {
       retryAuth = false;
     }

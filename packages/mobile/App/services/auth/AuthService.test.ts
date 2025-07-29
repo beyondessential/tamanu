@@ -37,7 +37,7 @@ describe('AuthService', () => {
   describe('endSession', () => {
     it('should end a session', () => {
       authService.endSession();
-      expect(centralServerConnection.clearToken).toHaveBeenCalled();
+    expect(centralServerConnection.clearToken).toHaveBeenCalled();
       expect(centralServerConnection.clearRefreshToken).toHaveBeenCalled();
     });
   });

@@ -1,4 +1,4 @@
-import { In } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
@@ -6,7 +6,6 @@ import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
-import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
@@ -17,6 +16,11 @@ const forceGC = () => {
   }
 };
 
+export type TransactingModel = (typeof MODELS_MAP)[keyof typeof MODELS_MAP] & {
+  getTransactionalRepository: () => Repository<any>;
+};
+export type TransactingModelMap = Partial<Record<string, TransactingModel>>;
+
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
  * @param model
@@ -26,7 +30,7 @@ const forceGC = () => {
  * @returns
  */
 export const saveChangesForModel = async (
-  model: typeof BaseModel,
+  model: TransactingModel,
   changes: SyncRecord[],
   { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
@@ -96,7 +100,7 @@ export const saveChangesForModel = async (
 
 const prepareChangesForModels = (
   records: SyncRecord[],
-  sortedModels: typeof MODELS_MAP,
+  sortedModels: TransactingModel[],
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
   const changesByModel: Record<string, SyncRecord[]> = {};
@@ -117,7 +121,7 @@ const prepareChangesForModels = (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  incomingModels: Partial<typeof MODELS_MAP>,
+  incomingModels: TransactingModelMap,
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
@@ -140,7 +144,7 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  incomingModels: Partial<typeof MODELS_MAP>,
+  incomingModels: TransactingModelMap,
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {

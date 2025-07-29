@@ -1,9 +1,11 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import RnBgTask from 'react-native-bg-thread';
-import { BackendManager } from '../../services/BackendManager';
+import { v4 as uuidv4 } from 'uuid';
 
+import { BackendManager } from '../../services/BackendManager';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
+import { readConfig, writeConfig } from '~/services/config';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
@@ -17,15 +19,21 @@ export const BackendProvider = ({ Component }): ReactElement => {
       backendManager.stopSyncService();
       setInitialised(false);
 
+      const deviceId = await readConfig('deviceId');
+      if (!deviceId) {
+        const newDeviceId = `mobile-${uuidv4()}`;
+        await writeConfig('deviceId', newDeviceId);
+      }
+
       RnBgTask.runInBackground(async () => {
-        await backendManager.initialise();
+        await backendManager.initialise(deviceId);
         setInitialised(true);
       });
     })();
     return () => {
       backendManager.stopSyncService();
     };
-  }, [backendManager]);
+  }, []);
 
   if (!initialised) {
     return <LoadingScreen />;

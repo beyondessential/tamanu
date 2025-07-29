@@ -1,6 +1,6 @@
 import { getManager } from 'typeorm';
 
-import { MODELS_MAP, ArrayOfModels } from '../../../models/modelsMap';
+import { TransactingModelMap, TransactingModel } from './saveIncomingChanges';
 
 type DependencyMap = {
   [tableName: string]: string[];
@@ -15,7 +15,7 @@ type DependencyMap = {
  * }
  * @returns
  */
-const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<DependencyMap> => {
+const getDependencyMap = async (models: TransactingModelMap): Promise<DependencyMap> => {
   const entityManager = getManager();
   const dependencyMap = {};
   const tableNameToModelName = getTableNameToModelName(models);
@@ -27,7 +27,7 @@ const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<Dep
     const dependencies = await entityManager.query(
       `PRAGMA foreign_key_list(${model.getRepository().metadata.tableName})`,
     );
-    dependencyMap[modelName] = dependencies.map((d) => tableNameToModelName[d.table]);
+    dependencyMap[modelName] = dependencies.map(d => tableNameToModelName[d.table]);
   }
 
   return dependencyMap;
@@ -44,10 +44,10 @@ const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<Dep
  * @param models
  * @returns
  */
-const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: string]: string } => {
+const getTableNameToModelName = (models: TransactingModelMap): { [key: string]: string } => {
   const tableNameToModelName = {};
 
-  Object.values(models).forEach((model) => {
+  Object.values(models).forEach(model => {
     const tableName = model.getRepository().metadata.tableName;
     const modelName = model.name;
     tableNameToModelName[tableName] = modelName;
@@ -63,17 +63,17 @@ const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: st
  * @returns
  */
 export const sortInDependencyOrder = async (
-  models: Partial<typeof MODELS_MAP>,
-): Promise<ArrayOfModels> => {
+  models: TransactingModelMap,
+): Promise<TransactingModel[]> => {
   const dependencyMap = await getDependencyMap(models);
   const sorted = [];
   const stillToSort = { ...models };
 
   while (Object.keys(stillToSort).length > 0) {
-    Object.values(stillToSort).forEach((model) => {
+    Object.values(stillToSort).forEach(model => {
       const modelName = model.name;
       const dependsOn = dependencyMap[modelName] || [];
-      const dependenciesStillToSort = dependsOn.filter((d) => !!stillToSort[d]);
+      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[d]);
 
       if (dependenciesStillToSort.length === 0) {
         sorted.push(model);

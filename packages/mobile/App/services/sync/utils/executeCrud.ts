@@ -2,7 +2,7 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS  } from '../../../infra/db/limits';
+import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -40,7 +40,10 @@ export const executeInserts = async (
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
       await repository
         .createQueryBuilder()
-        .insert({ listeners: false })
+        // TODO: what to do about set listeners
+        // although I am sure it was working before
+        // As its only available on save
+        .insert()
         .values(batchOfRows)
         .execute();
     } catch (e) {

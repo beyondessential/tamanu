@@ -17,12 +17,16 @@ import {
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
 import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
+import { SYNC_EVENT_ACTIONS, SyncRecord } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import {
+  saveChangesFromSnapshot,
+  saveChangesFromMemory,
+  TransactingModelMap,
+} from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -56,6 +60,7 @@ export interface PullParams {
   centralServer: CentralServerConnection;
   syncSettings: MobileSyncSettings;
   pullUntil: number;
+  progressCallback?: (incrementalPulled: number) => void;
 }
 
 export class MobileSyncManager {
@@ -241,7 +246,7 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    
+
     console.log('MobileSyncManager.runSync(): Sync started');
 
     const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
@@ -307,13 +312,13 @@ export class MobileSyncManager {
 
   /**
    * Syncing incoming changes follows two different paths:
-   * 
+   *
    * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
    * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
-   * 
+   *
    * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
-   * @param syncSettings - the sync settings for the sync session 
+   * @param syncSettings - the sync settings for the sync session
    */
   async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
@@ -327,7 +332,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    
+
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -358,6 +363,7 @@ export class MobileSyncManager {
       syncSettings,
       pullUntil,
     };
+
     if (isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
@@ -387,12 +393,16 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+      const processStreamedDataFunction = async (records: SyncRecord[]) => {
+        await saveChangesFromMemory(
+          records,
+          incomingModels as TransactingModelMap,
+          syncSettings,
+          progressCallback,
+        );
       };
-
       await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal },
+        { centralServer: this.centralServer, sessionId, recordTotal, progressCallback },
         processStreamedDataFunction,
       );
       await this.postPull(transactionEntityManager, pullUntil);
@@ -407,7 +417,7 @@ export class MobileSyncManager {
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
-    const processStreamedDataFunction = async (records: any) => {
+    const processStreamedDataFunction = async (records: SyncRecord[]) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
 
@@ -417,11 +427,16 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
     };
     await createSnapshotTable();
+
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback: pullProgressCallback },
+      {
+        centralServer,
+        sessionId,
+        recordTotal,
+        progressCallback: pullProgressCallback,
+      },
       processStreamedDataFunction,
     );
-
     this.setSyncStage(3);
     let totalSaved = 0;
     const saveProgressCallback = (incrementalPulled: number) => {

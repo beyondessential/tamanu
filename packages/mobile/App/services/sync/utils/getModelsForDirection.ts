@@ -1,5 +1,6 @@
 import { SYNC_DIRECTIONS } from '../../../models/types';
 import { MODELS_MAP } from '~/models/modelsMap';
+import { TransactingModelMap } from './saveIncomingChanges';
 
 export const getModelsForDirection = (
   models: typeof MODELS_MAP,
@@ -15,7 +16,7 @@ export const getTransactingModelsForDirection = (
   models: typeof MODELS_MAP,
   direction: SYNC_DIRECTIONS,
   entityManager: any,
-): Partial<typeof MODELS_MAP> => {
+): TransactingModelMap => {
   const modelsForDirection = getModelsForDirection(models, direction);
 
   // Create a model map with getTransactionalRepository method bound to the transactional entity manager

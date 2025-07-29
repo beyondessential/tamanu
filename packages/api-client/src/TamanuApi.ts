@@ -1,6 +1,10 @@
 import qs from 'qs';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import {
+  SERVER_TYPES,
+  SYNC_STREAM_MESSAGE_KIND,
+  CAN_ACCESS_ALL_FACILITIES,
+} from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -44,12 +48,15 @@ interface LoginData {
   permissions?: string[];
 }
 
-interface LoginResponse extends LoginData {
+export interface LoginResponse extends LoginData {
   user: User;
   ability: {
     can: (action: string, subject: string, field?: string) => boolean;
   };
   server: ServerInfo;
+  allowedFacilities: { id: string }[] | typeof CAN_ACCESS_ALL_FACILITIES;
+  settings: Record<string, any>;
+  localisation: Record<string, any>;
 }
 
 interface ServerInfo {
@@ -58,11 +65,11 @@ interface ServerInfo {
 }
 
 interface TamanuApiConfig {
-  endpoint: string;
+  endpoint?: string;
   agentName: string;
   agentVersion: string;
-  deviceId: string;
-  defaultRequestConfig?: RequestInit;
+  deviceId?: string;
+  defaultRequestConfig?: FetchOptions;
   logger?: LoggerType;
 }
 
@@ -146,14 +153,18 @@ export class TamanuApi {
     defaultRequestConfig = {},
     logger,
   }: TamanuApiConfig) {
-    this.#prefix = endpoint;
-    const endpointUrl = new URL(endpoint);
-    this.#host = endpointUrl.origin;
+    if (endpoint) {
+      this.#prefix = endpoint;
+      const endpointUrl = new URL(endpoint);
+      this.#host = endpointUrl.origin;
+    }
     this.#defaultRequestConfig = defaultRequestConfig;
-
+    
     this.agentName = agentName;
     this.agentVersion = agentVersion;
-    this.deviceId = deviceId;
+    if (deviceId) {
+      this.deviceId = deviceId;
+    }
     this.interceptors = {
       request: new InterceptorManager<RequestInterceptorFulfilled, RequestInterceptorRejected>(),
       response: new InterceptorManager<ResponseInterceptorFulfilled, ResponseInterceptorRejected>(),
@@ -165,6 +176,16 @@ export class TamanuApi {
 
   get host(): string {
     return this.#host;
+  }
+
+  setEndpoint(endpoint: string, deviceId?: string): void {
+    this.clearToken();
+    if (deviceId) {
+      this.deviceId = deviceId;
+    }
+    this.#prefix = endpoint;
+    const endpointUrl = new URL(endpoint);
+    this.#host = endpointUrl.origin;
   }
 
   setAuthFailureHandler(handler: (message: string) => void): void {
@@ -180,42 +201,51 @@ export class TamanuApi {
       await this.#ongoingAuth;
     }
 
-    return (this.#ongoingAuth = (async (): Promise<LoginResponse> => {
-      const response = (await this.post(
-        'login',
-        {
-          email,
-          password,
-          deviceId: this.deviceId,
-        },
-        { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
-      )) as Response;
+    this.#ongoingAuth = (async (): Promise<LoginResponse> => {
+      try {
+        const response = (await this.post(
+          'login',
+          {
+            email,
+            password,
+            deviceId: this.deviceId ?? '',
+          },
+          { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
+        )) as Response;
 
-      const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
-      if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new ServerResponseError(
-          `Tamanu server type '${String(serverType)}' is not supported.`,
-          response,
-        );
+        const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
+        if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
+          throw new ServerResponseError(
+            `Tamanu server type '${String(serverType)}' is not supported.`,
+            response,
+          );
+        }
+        // TODO why do I have to do this
+        let responseData: any;
+        try {
+          responseData = (await response.json()) as LoginResponseData;
+        } catch (e) {
+          responseData = response
+        }
+        const {
+          server: serverFromResponse,
+          centralHost,
+          serverType: responseServerType,
+          ...loginData
+        } = responseData;
+        const server = serverFromResponse ?? { type: '', centralHost: undefined };
+        server.type = responseServerType ?? serverType;
+        server.centralHost = centralHost;
+        this.setToken(loginData.token, loginData.refreshToken);
+
+        const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
+        return { ...loginData, user, ability, server } as LoginResponse;
+      } finally {
+        this.#ongoingAuth = null;
       }
+    })();
 
-      const responseData = (await response.json()) as LoginResponseData;
-      const {
-        server: serverFromResponse,
-        centralHost,
-        serverType: responseServerType,
-        ...loginData
-      } = responseData;
-      const server = serverFromResponse ?? { type: '', centralHost: undefined };
-      server.type = responseServerType ?? serverType;
-      server.centralHost = centralHost;
-      this.setToken(loginData.token, loginData.refreshToken);
-
-      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
-      return { ...loginData, user, ability, server };
-    })().finally(() => {
-      this.#ongoingAuth = null;
-    }));
+    return this.#ongoingAuth;
   }
 
   async fetchUserData(
@@ -258,7 +288,12 @@ export class TamanuApi {
 
   setToken(token: string, refreshToken: string | null = null): void {
     this.#authToken = token;
-    this.#refreshToken = refreshToken || undefined;
+    this.#refreshToken = refreshToken;
+  }
+
+  clearToken(): void {
+    this.#authToken = null;
+    this.#refreshToken = null;
   }
 
   hasToken(): boolean {
@@ -393,7 +428,6 @@ export class TamanuApi {
       if (response.status === 204) {
         return null;
       }
-
       return response.json();
     }
 

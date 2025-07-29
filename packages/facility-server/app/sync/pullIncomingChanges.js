@@ -52,11 +52,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     const recordsToSave = records.map(r => {
       delete r.sortOrder;
       return {
-      ...r,
-      data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    };
-  });
+        ...r,
+        data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
+        direction: SYNC_SESSION_DIRECTION.INCOMING,
+      };
+    });
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -123,7 +123,7 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
       case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
         records.push(message);
         totalPulled += 1;
-        fromId = message.id;
+        fromId = btoa(JSON.stringify({ sortOrder: message.sortOrder, id: message.id }));
         break handler;
       case SYNC_STREAM_MESSAGE_KIND.END:
         log.debug(`FacilitySyncManager.pull.noMoreChanges`);

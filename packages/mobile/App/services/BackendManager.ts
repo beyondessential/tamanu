@@ -44,13 +44,13 @@ export class BackendManager {
     this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
   }
 
-  async initialise(): Promise<void> {
+  async initialise(deviceId: string): Promise<void> {
     await Database.connect();
-    await this.auth.initialise();
+    await this.auth.initialise(deviceId);
     await this.startSyncService();
   }
 
-  async startSyncService(): Promise<void> {
+  async startSyncService(): Promise<void> { 
     if (this.interval) {
       return; // already started
     }
