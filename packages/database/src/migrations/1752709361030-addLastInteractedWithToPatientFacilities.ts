@@ -6,13 +6,16 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('patient_facilities', 'last_interacted_time', {
     type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: Sequelize.fn('now')
+    defaultValue: Sequelize.fn('now'),
   });
 
   await query.addColumn('patient_facilities', 'created_at_sync_tick', {
     type: DataTypes.BIGINT,
     allowNull: false,
-    defaultValue: Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, 0),
+    defaultValue: Sequelize.cast(
+      Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '1'),
+      'bigint',
+    ),
   });
 
   await query.sequelize.query(`
@@ -22,7 +25,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
   await query.addIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
-  
+
   const isFacility = config.serverFacilityId || config.serverFacilityIds;
   if (isFacility) return;
 
@@ -58,7 +61,7 @@ export async function down(query: QueryInterface): Promise<void> {
   await query.removeIndex('patient_facilities', ['facility_id', 'patient_id']);
   await query.removeIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
   await query.removeIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
-  
+
   await query.removeColumn('patient_facilities', 'last_interacted_time');
   await query.removeColumn('patient_facilities', 'created_at_sync_tick');
 }
