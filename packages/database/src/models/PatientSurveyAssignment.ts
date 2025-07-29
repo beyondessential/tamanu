@@ -9,9 +9,8 @@ export class PatientSurveyAssignment extends Model {
   declare patientId: string;
   declare surveyId: string;
   declare status: string;
-  declare assignedAt?: string;
   declare completedAt?: string;
-  declare assignedBy?: string;
+  declare assignedById?: string;
   declare surveyResponseId?: string;
 
   forResponse() {
@@ -43,11 +42,10 @@ export class PatientSurveyAssignment extends Model {
           allowNull: false,
           defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
         },
-        assignedAt: dateTimeType('assignedAt'),
         completedAt: dateTimeType('completedAt'),
-        assignedBy: {
+        assignedById: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
           references: {
             model: 'users',
             key: 'id',
@@ -64,7 +62,7 @@ export class PatientSurveyAssignment extends Model {
       },
       {
         ...options,
-        indexes: [{ fields: ['patientId', 'status'], name: 'idx_patient_survey_status' }],
+        indexes: [{ fields: ['patientId', 'status'], name: 'idx_patient_id_status' }],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
@@ -82,8 +80,8 @@ export class PatientSurveyAssignment extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'assignedBy',
-      as: 'assignedByUser',
+      foreignKey: 'assignedById',
+      as: 'assignedBy',
     });
 
     this.belongsTo(models.SurveyResponse, {
