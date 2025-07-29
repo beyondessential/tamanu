@@ -35,9 +35,9 @@ export const Field = ({
     !validateOnChange || status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED || submitCount;
   const error = showError ? meta.error : null;
 
-  const combinedOnChange = (newValue: any): any => {
+  const combinedOnChange = (newValue: any, selectedItem: any): any => {
     if (onChange) {
-      onChange(newValue);
+      onChange(newValue, selectedItem);
     }
     return field.onChange({ target: { name, value: newValue } });
   };

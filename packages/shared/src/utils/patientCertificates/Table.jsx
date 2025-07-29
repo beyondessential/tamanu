@@ -14,9 +14,8 @@ const tableStyles = StyleSheet.create({
   },
   th: {
     flex: 1,
-    fontFamily: 'Helvetica-Bold',
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 700,
     padding: 3,
     borderRight: basicBorder,
     margin: 0,
@@ -32,7 +31,7 @@ const tableStyles = StyleSheet.create({
 
 const TR = props => <View {...props} style={tableStyles.tr} />;
 const TH = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.th, customStyles]} />
+  <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />

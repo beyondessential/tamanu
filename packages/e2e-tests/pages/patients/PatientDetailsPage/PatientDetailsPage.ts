@@ -4,6 +4,7 @@ import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
@@ -59,6 +60,10 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
+  readonly labsTab: Locator;
+  readonly encountersList: Locator;
+  readonly departmentLabel: Locator;
+  labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
 
@@ -196,6 +201,9 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
       .first();
+    this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
+    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -204,6 +212,19 @@ export class PatientDetailsPage extends BasePatientPage {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
     return this.patientVaccinePane;
+  }
+
+ 
+
+    async navigateToLabsTab(): Promise<LabRequestPane> {
+    // Navigate to the top encounter
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.labsTab.click();
+    if (!this.labRequestPane) {
+      this.labRequestPane = new LabRequestPane(this.page);
+    }
+    return this.labRequestPane;
   }
 
   async goToPatient(patient: Patient) {
