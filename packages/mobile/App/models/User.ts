@@ -9,7 +9,9 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
+import { Setting } from './Setting';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
+import { Facility } from './Facility';
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -35,25 +37,25 @@ export class User extends BaseModel implements IUser {
   @Column()
   role: string;
 
-  @OneToMany(() => Referral, (referral) => referral.practitioner)
+  @OneToMany(() => Referral, referral => referral.practitioner)
   referrals: Referral[];
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
+  @OneToMany(() => LabRequest, labRequest => labRequest.requestedBy)
   labRequests: LabRequest[];
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.collectedBy)
+  @OneToMany(() => LabRequest, labRequest => labRequest.collectedBy)
   collectedLabRequests: LabRequest[];
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
-  @OneToMany(() => Note, (note) => note.author)
+  @OneToMany(() => Note, note => note.author)
   authoredNotes: Note[];
 
-  @OneToMany(() => Note, (note) => note.onBehalfOf)
+  @OneToMany(() => Note, note => note.onBehalfOf)
   onBehalfOfNotes: Note[];
 
-  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.recordedBy)
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.recordedBy)
   recordedVitalLogs: VitalLog[];
 
   @Column({ default: VisibilityStatus.Current })
@@ -75,14 +77,37 @@ export class User extends BaseModel implements IUser {
       },
     });
 
-    return userFacilities.map((f) => f.facilityId);
+    return userFacilities.map(f => f.facilityId);
   }
 
-  async canAccessFacility(id: string) {
+  async canAccessFacility(id: string, ability?: any) {
     const allowed = await this.allowedFacilityIds();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
-    return allowed.includes(id);
+    // Check if the facility is sensitive using TypeORM's findOne
+    const facility = await Facility.getRepository().findOne({
+      where: { id },
+    });
+
+    const isSensitive = facility?.facility?.isSensitive || false;
+
+    // If facility is sensitive, user must be linked to it
+    if (isSensitive) {
+      return allowed.includes(id);
+    }
+
+    // Check if global restriction is enabled by getting the setting directly
+    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
+    if (restrictUsersToFacilities) {
+      // Check if user has login permission for Facility using ability.can
+      const hasLoginPermission = ability?.can('login', 'Facility') || false;
+
+      if (hasLoginPermission) return true;
+      return allowed.includes(id);
+    }
+
+    // No restrictions apply since the setting is disabled and the facility is not sensitive
+    return true;
   }
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];

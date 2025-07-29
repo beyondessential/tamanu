@@ -86,15 +86,9 @@ export class AuthService {
     }
 
     const ability = generateAbilityForUser(user);
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    const canLogIntoAllFacilities = ability.can('login', 'Facility');
     const linkedFacility = await readConfig('facilityId', '');
     // TODO: check if facility is sensitive here?
-    if (
-      restrictUsersToFacilities &&
-      !canLogIntoAllFacilities &&
-      !(await user.canAccessFacility(linkedFacility))
-    ) {
+    if (!(await user.canAccessFacility(linkedFacility, ability))) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
