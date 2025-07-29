@@ -58,6 +58,14 @@ export class PatientFacility extends Model {
     );
   }
 
+  static async createOrUpdate(values: Partial<PatientFacility>) {
+    const [record] = await super.upsert(values, {
+      returning: true,
+      conflictFields: ['patient_id', 'facility_id'],
+    });
+    return record;
+  }
+
   static initRelations(models: Models) {
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',

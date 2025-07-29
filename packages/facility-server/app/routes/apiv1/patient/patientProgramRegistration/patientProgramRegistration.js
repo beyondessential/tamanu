@@ -79,13 +79,12 @@ patientProgramRegistration.post(
         { transaction },
       );
 
-      await models.PatientFacility.upsert(
+      await models.PatientFacility.createOrUpdate(
         {
           patientId,
           facilityId: registeringFacilityId,
           lastInteractedTime: new Date(),
         },
-        { transaction, returning: true, conflictFields: ['patient_id', 'facility_id'] },
       );
 
       return [newRegistration, newConditions];
