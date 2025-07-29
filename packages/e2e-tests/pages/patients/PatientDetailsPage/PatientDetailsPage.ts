@@ -5,6 +5,7 @@ import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
+import { format } from 'date-fns';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
@@ -363,12 +364,7 @@ export class PatientDetailsPage extends BasePatientPage {
    * Gets current browser date in the YYYY-MM-DD format in the browser timezone
    */
   getCurrentBrowserDateISOFormat() {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
+    return format(new Date(), 'yyyy-MM-dd');
   }
 
   // Helper methods for handling multiple buttons with the same test ID

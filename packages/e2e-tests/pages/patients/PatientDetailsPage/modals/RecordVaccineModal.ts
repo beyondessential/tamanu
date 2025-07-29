@@ -7,6 +7,30 @@ import {
   returnAllOptionsFromDropdown,
 } from '@utils/fieldHelpers';
 
+interface RecordVaccineOptions {
+  specificVaccine?: string;
+  fillOptionalFields?: boolean;
+  isFollowUpVaccine?: boolean;
+  specificScheduleOption?: string;
+  specificDate?: string;
+}
+
+interface OptionalVaccineFields {
+  givenBy?: string;
+  vaccineBatch?: string;
+  injectionSite?: string;
+  consentGivenBy?: string;
+  brand?: string;
+  disease?: string;
+  notGivenReason?: string;
+  notGivenClinician?: string;
+}
+
+const givenBy = 'Test Doctor';
+const batch = 'A12B3C';
+const consentGivenBy = 'Recipient';
+const notGivenClinician = 'Test Clinician';
+
 export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
   readonly categoryRadioGroup: Locator;
@@ -174,31 +198,14 @@ export class RecordVaccineModal extends BasePatientModal {
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
       specificDate = undefined,
-    }: {
-      specificVaccine?: string;
-      fillOptionalFields?: boolean;
-      isFollowUpVaccine?: boolean;
-      specificScheduleOption?: string;
-      specificDate?: string;
-    } = {},
+    }: RecordVaccineOptions = {},
   ) {
     const givenStatus = await this.selectIsVaccineGiven(given);
     await this.selectCategory(category);
 
     let vaccineName: string | undefined;
     let scheduleOption: string | undefined;
-    let optionalFields:
-      | {
-          givenBy?: string;
-          vaccineBatch?: string;
-          injectionSite?: string;
-          consentGivenBy?: string;
-          brand?: string;
-          disease?: string;
-          notGivenReason?: string;
-          notGivenClinician?: string;
-        }
-      | undefined;
+    let optionalFields: OptionalVaccineFields | undefined;
 
     if (specificDate) {
       await this.dateField.fill(specificDate);
@@ -248,10 +255,6 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async recordOptionalVaccineFieldsGiven(category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
-    const givenBy = 'Test Doctor';
-    const batch = 'A12B3C';
-    const consentGivenBy = 'Recipient';
-
     let brand: string | undefined;
     let disease: string | undefined;
 
@@ -274,7 +277,6 @@ export class RecordVaccineModal extends BasePatientModal {
     category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
   ) {
     let disease: string | undefined;
-    const notGivenClinician = 'Test Clinician';
 
     const notGivenReason = await this.selectNotGivenReason();
 
