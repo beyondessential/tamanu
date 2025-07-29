@@ -417,6 +417,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         {currentComplexChartInstance ? (
           <CoreComplexChartData
+            coreComplexChartSurveyId={coreComplexChartSurveyId}
             handleDeleteChart={handleDeleteChart}
             selectedSurveyId={selectedChartTypeId}
             currentInstanceId={currentComplexChartInstance?.chartInstanceId}

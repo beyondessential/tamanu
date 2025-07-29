@@ -36,6 +36,7 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
 `;
 
 export const CoreComplexChartData = ({
+  coreComplexChartSurveyId,
   handleDeleteChart,
   selectedSurveyId,
   currentInstanceId,
@@ -59,7 +60,7 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return ability?.can('delete', subject('Charting', { id: selectedSurveyId }));
+        return ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
       },
     },
   ].filter(({ permissionCheck }) => {
