@@ -111,6 +111,7 @@ export const FileChooserInput = ({
   const inputRef = useRef(null);
 
   const showFileDialog = () => {
+    if (!inputRef.current) return;
     inputRef.current.click();
   };
 
@@ -136,7 +137,10 @@ export const FileChooserInput = ({
 
   const onClear = () => {
     onChange({ target: { name, value: '' } });
-    inputRef.current.value = '';
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   return (
