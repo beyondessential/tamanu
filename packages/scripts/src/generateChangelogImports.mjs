@@ -44,10 +44,14 @@ async function getTables() {
   }
 }
 
+const START = 'select now() as started;\n\n';
+const END = '\n\nselect now() as ended; select count(*) from logs.changes;';
+
 async function generate() {
-  return (await getTables())
+  return START + (await getTables())
     .map(table =>
       `
+      \echo ${table}
       insert into logs.changes (
         table_oid, table_schema, table_name,
         logged_at, record_created_at, record_updated_at, record_deleted_at,
@@ -74,7 +78,7 @@ async function generate() {
         .trim()
         .replaceAll(/^ {4}/gm, ''),
     )
-    .join('\n\n');
+    .join('\n\n') + END;
 }
 
 const sql = await generate();
