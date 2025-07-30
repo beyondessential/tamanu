@@ -69,7 +69,7 @@ async function generate() {
         t.id::text as record_id,
 
         to_jsonb(t) as record_data
-      from ${table} t;
+      from public.${table} t;
       `
         .trim()
         .replaceAll(/^ {4}/gm, ''),
