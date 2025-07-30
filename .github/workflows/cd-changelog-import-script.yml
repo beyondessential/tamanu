@@ -97,5 +97,5 @@ jobs:
           url: ${{ vars.META_URL }}
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/any
+          api: /artifacts/${{ steps.version.outputs.version }}/import-changelogs/any
           arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/import-changelogs.sql'
