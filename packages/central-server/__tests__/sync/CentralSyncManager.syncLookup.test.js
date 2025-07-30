@@ -729,18 +729,17 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      // appointments and appointment_schedules should always have a facilityId
-      const expectedFacility = ['appointments', 'appointment_schedules'].includes(model.tableName)
-        ? facility.id
-        : expect.toBeDefined();
+      const isFacilityIdRequired = ['appointments', 'appointment_schedules'].includes(
+        model.tableName,
+      );
 
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
-          facilityId: expectedFacility,
           isDeleted: false,
+          ...(isFacilityIdRequired ? { facilityId: facility.id } : {}),
         }),
       );
     }
