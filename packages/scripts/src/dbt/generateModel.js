@@ -5,7 +5,7 @@ const path = require('node:path');
 const YAML = require('yaml');
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
-const { dbConfig } = require('./dbConfig.js');
+const { dbConfig } = require('../dbConfig.js');
 
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
