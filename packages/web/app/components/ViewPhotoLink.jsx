@@ -85,12 +85,12 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
 };
 
 export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
-  const [showModal, setShowModal] = useState(false);
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useApi();
   const openModalCallback = useCallback(async () => {
-    setShowModal(true);
+    setIsPhotoModalOpen(true);
     if (!navigator.onLine) {
       setImageData(null);
       setErrorMessage(
@@ -118,8 +118,8 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
       </TextButton>
       <Modal
         title={title}
-        open={showModal}
-        onClose={() => setShowModal(false)}
+        open={isPhotoModalOpen}
+        onClose={() => setIsPhotoModalOpen(false)}
         data-testid="modal-zpy7"
       >
         <ImageModalContent imageData={imageData} errorMessage={errorMessage} />
@@ -127,7 +127,7 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
           <Footer
             hasError={!!errorMessage}
             onDelete={() => {}}
-            onClose={() => setShowModal(false)}
+            onClose={() => setIsPhotoModalOpen(false)}
           />
         )}
       </Modal>
