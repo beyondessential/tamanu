@@ -1,45 +1,30 @@
-import { dirname, join, resolve } from 'path';
+import { createRequire } from "node:module";
+import { dirname, resolve, join } from 'path';
+import { fileURLToPath } from 'url';
 import { mergeConfig } from 'vite';
 
-// This file needs to support both ESM and CJS, so we can't use `import.meta` or `__dirname` without checking
-let dir;
-try {
-  dir = __dirname;
-} catch (e) {
-  dir = import.meta.dirname;
-}
+const require = createRequire(import.meta.url);
 
-function getNodeModulePath(workspace, packageName) {
-  return dirname(resolve(dir, join(workspace, 'node_modules/', packageName, 'package.json')));
-}
-
-function getRootNodeModulePath(packageName) {
-  return getNodeModulePath('../../../', packageName);
-}
-
-function getWorkspaceNodeModulePath(packageName) {
-  return getNodeModulePath('../', packageName);
-}
+// __dirname equivalent for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
-export default {
-  framework: getRootNodeModulePath('@storybook/react-vite'),
+const config = {
+  framework: {
+    name: getAbsolutePath("@storybook/react-vite"),
+    options: {},
+  },
+
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+
   typescript: {
     reactDocgen: false,
   },
-  features: {
-    storyStoreV7: false,
-  },
-  addons: [
-    {
-      name: getWorkspaceNodeModulePath('@storybook/addon-links'),
-      options: { docs: false }, // no mdx
-    },
-    '@storybook/addon-links',
-  ],
+
+  addons: [getAbsolutePath("@storybook/addon-docs")],
+
   async viteFinal(config) {
-    // Merge custom configuration into the default config
     return mergeConfig(config, {
       define: {
         process: JSON.stringify({
@@ -53,14 +38,20 @@ export default {
       },
       resolve: {
         alias: {
-          buffer: resolve(dir, './__mocks__/buffer.js'),
-          sequelize: resolve(dir, './__mocks__/sequelize.js'),
-          config: resolve(dir, './__mocks__/config.js'),
-          yargs: resolve(dir, './__mocks__/module.js'),
-          child_process: resolve(dir, './__mocks__/module.js'),
-          crypto: resolve(dir, './__mocks__/crypto.js'),
+          buffer: resolve(__dirname, './__mocks__/buffer.js'),
+          sequelize: resolve(__dirname, './__mocks__/sequelize.js'),
+          config: resolve(__dirname, './__mocks__/config.js'),
+          yargs: resolve(__dirname, './__mocks__/module.js'),
+          child_process: resolve(__dirname, './__mocks__/module.js'),
+          crypto: resolve(__dirname, './__mocks__/crypto.js'),
         },
       },
     });
-  },
+  }
 };
+
+export default config;
+
+function getAbsolutePath(value) {
+  return dirname(require.resolve(join(value, "package.json")));
+}

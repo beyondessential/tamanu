@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
 import { PatientInfoPane } from '../app/components/PatientInfoPane';
@@ -37,10 +36,16 @@ const Container = styled.div`
   width: 330px;
 `;
 
-storiesOf('PatientInfoPane', module)
-  .addDecorator(story => (
-    <Container>
-      <MockedApi endpoints={endpoints}>{story()}</MockedApi>
-    </Container>
-  ))
-  .add('Basic Example', () => <PatientInfoPane />);
+export default {
+  title: 'PatientInfoPane',
+
+  decorators: [
+    story => (
+      <Container>
+        <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      </Container>
+    ),
+  ],
+};
+
+export const BasicExample = () => <PatientInfoPane />;

@@ -10,6 +10,7 @@ import { TranslationProvider } from '../app/contexts/Translation';
 import { LocalisationProvider } from '../app/contexts/Localisation';
 import { history, store } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';
+import { MockSettingsProvider } from '../stories/utils/mockSettingsProvider';
 import { defaultEndpoints } from './__mocks__/defaultEndpoints';
 
 const queryClient = new QueryClient({
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 
 const preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>
@@ -34,7 +35,9 @@ const preview = {
                   <LocalisationProvider>
                     <TranslationProvider>
                       <MockedApi endpoints={defaultEndpoints}>
-                        <Story />
+                        <MockSettingsProvider mockSettings={{}}>
+                          <Story />
+                        </MockSettingsProvider>
                       </MockedApi>
                     </TranslationProvider>
                   </LocalisationProvider>
@@ -46,6 +49,8 @@ const preview = {
       </Provider>
     ),
   ],
+
+  tags: ['autodocs']
 };
 
 export default preview;
