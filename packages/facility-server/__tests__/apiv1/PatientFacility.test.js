@@ -1,4 +1,4 @@
-import { fake } from "@tamanu/fake-data";
+import {fake} from "@tamanu/fake-data/fake";
 import { createTestContext } from "../utilities";
 
 describe('PatientFacility', () => {
