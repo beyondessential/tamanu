@@ -1,0 +1,101 @@
+name: CD Changelog Import Script
+
+on:
+  push:
+    tags: ['v*.*.*']
+    branches:
+      - main
+      - release/*
+
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # to update the release notes
+  id-token: write # OIDC token for AWS
+
+jobs:
+  config:
+    name: Build and deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+         ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm i
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 17
+
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+
+      - name: Build
+        run: |
+          npm run build-shared
+          npm run --workspace @tamanu/central-server build
+
+      - name: Configure Tamanu
+        run: |
+          echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+
+      - run: npm run --workspace @tamanu/central-server start upgrade
+      - run: packages/scripts/generateChangelogImports.mjs | tee import-changelogs.sql
+
+      - name: Upload final output
+        uses: actions/upload-artifact@v4
+        with:
+          name: import-changelogs.sql
+          path: import-changelogs.sql
+          retention-days: 15
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Configure AWS Credentials
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+          role-session-name: GHA@Tamanu=ChangelogScript
+
+      - name: Get version
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: version
+        run: echo "version=$(echo $GITHUB_REF | cut -d '/' -f 3 | tr -d 'v')" >> $GITHUB_OUTPUT
+
+      - name: Push to S3
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: aws s3 cp $file s3://bes-tamanu-release-servers/${{ steps.version.outputs.version }}/import-changelogs.sql --no-progress
+
+      - name: Post to meta
+        if: startsWith(github.ref, 'refs/tags/v')
+        continue-on-error: true
+        uses: ./.github/actions/meta-api
+        with:
+          url: ${{ vars.META_URL }}
+          crt: ${{ secrets.META_CERT }}
+          key: ${{ secrets.META_KEY }}
+          api: /artifacts/${{ steps.version.outputs.version }}/${{ matrix.package }}/any
+          arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.version.outputs.version }}/import-changelogs.sql'
