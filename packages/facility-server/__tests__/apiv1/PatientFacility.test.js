@@ -34,10 +34,13 @@ describe('PatientFacility', () => {
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
 
+    const patientFacilityAfterCreate = await PatientFacility.findOne({ where: { patientId, facilityId } });
+    const lastInteractedTime = patientFacilityAfterCreate.lastInteractedTime;
+
     const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
     expect(result).toHaveSucceeded();
 
     const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
-    expect(patientFacility.lastInteractedTime).toBeInstanceOf(Date);
+    expect(patientFacility.lastInteractedTime).toBeGreaterThan(lastInteractedTime);
   });
 });
