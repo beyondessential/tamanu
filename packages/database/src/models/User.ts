@@ -192,6 +192,11 @@ export class User extends Model {
       foreignKey: 'userId',
       as: 'designationData',
     });
+
+    this.hasMany(models.UserLeave, {
+      foreignKey: 'userId',
+      as: 'leaves',
+    });
   }
 
   static buildSyncFilter() {
