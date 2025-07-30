@@ -2856,7 +2856,7 @@ describe('CentralSyncManager', () => {
       },
     };
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       patient = await models.Patient.create(fake(models.Patient));
       practitioner = await models.User.create(fake(models.User));
       // Reset modules to ensure fresh imports
