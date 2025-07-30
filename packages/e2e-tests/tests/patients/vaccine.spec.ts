@@ -207,7 +207,7 @@ test.describe('Vaccines', () => {
   });
 
   test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
 
@@ -218,8 +218,8 @@ test.describe('Vaccines', () => {
 
   test('Add vaccine with custom date given', async ({ patientDetailsPage }) => {
     //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
-    const dateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const dateGiven = offsetYear(currentBrowserDate, 'decrease', 1);
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
       specificDate: dateGiven,
@@ -235,7 +235,7 @@ test.describe('Vaccines', () => {
     patientDetailsPage,
     newPatient,
   }) => {
-    const dateBeforePatientDob = await offsetYear(newPatient.dateOfBirth!, 'decreaseByOneYear');
+    const dateBeforePatientDob = offsetYear(newPatient.dateOfBirth!, 'decrease', 1);
     const expectedErrorMessage = 'Date cannot be prior to patient date of birth';
 
     //Attempt to submit a date before the patient's date of birth and assert the expected error message appears
@@ -243,8 +243,8 @@ test.describe('Vaccines', () => {
   });
 
   test('Date given cannot be in the future', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
-    const futureDateGiven = await offsetYear(currentBrowserDate, 'increaseByOneYear');
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const futureDateGiven = offsetYear(currentBrowserDate, 'increase', 1);
     const expectedErrorMessage = 'Date cannot be in the future';
 
     //Attempt to submit a future date and assert the expected error message appears
@@ -297,10 +297,10 @@ test.describe('Vaccines', () => {
     const category = 'Routine';
     const fillOptionalFields = true;
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     //The vaccine is created with today's date and this edits it to be one year ago
     //A patient is always 18+ years old so one year ago avoids any validation errors
-    const editedDateGiven = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
+    const editedDateGiven = offsetYear(currentBrowserDate, 'decrease', 1);
 
     const vaccine = await addVaccineAndAssert(patientDetailsPage, given, category, 1, {
       fillOptionalFields: fillOptionalFields,
@@ -555,9 +555,9 @@ test.describe('Vaccines', () => {
   test('Recorded vaccines table can be sorted by clicking column headers', async ({
     patientDetailsPage,
   }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
-    const dateOneYearAgo = await offsetYear(currentBrowserDate, 'decreaseByOneYear');
-    const dateTwoYearsAgo = await offsetYear(dateOneYearAgo, 'decreaseByOneYear');
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const dateOneYearAgo = offsetYear(currentBrowserDate, 'decrease', 1);
+    const dateTwoYearsAgo = offsetYear(currentBrowserDate, 'decrease', 2);
 
     const vaccines = [
       await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1, {

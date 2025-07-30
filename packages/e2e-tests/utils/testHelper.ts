@@ -1,4 +1,5 @@
 import { Locator } from '@playwright/test';
+import { subYears, addYears, format } from 'date-fns';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
@@ -67,25 +68,24 @@ export function compareByDate(order: 'asc' | 'desc') {
 }
 
 /**
- * Utility method to offset a date by one year
+ * Utility method to offset a date by a given amount of years and return in YYYY-MM-DD format
  * @param dateToOffset - The date to offset
- * @param offset - The offset to apply ('increaseByOneYear' or 'decreaseByOneYear')
- * @returns The date with the offset applied
+ * @param offset - The offset to apply ('increase' or 'decrease')
+ * @param amountToOffset - The amount of years to offset
+ * @returns The date with the offset applied in YYYY-MM-DD format
  */
 export function offsetYear(
   dateToOffset: string,
-  offset: 'increaseByOneYear' | 'decreaseByOneYear',
+  offset: 'increase' | 'decrease',
+  amountToOffset: number
 ): string {
-  const [yearStr, month, day] = dateToOffset.split('-');
-  let year = Number(yearStr);
-  if (offset === 'increaseByOneYear') year++;
-  else if (offset === 'decreaseByOneYear') year--;
+  //Convert to date format so utility functions can be used
+  const formattedDateToOffset = new Date(dateToOffset);
+  let newDate = undefined;
+
+  if (offset === 'increase') newDate = addYears(formattedDateToOffset, amountToOffset);
+  else if (offset === 'decrease') newDate = subYears(formattedDateToOffset, amountToOffset);
   else throw new Error('Invalid offset');
 
-  // Handle Feb 29 for non-leap years
-  if (month === '02' && day === '29') {
-    const isLeap = (y: number) => y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
-    if (!isLeap(year)) return `${year}-02-28`;
-  }
-  return `${year}-${month}-${day}`;
+  return format(newDate, 'yyyy-MM-dd');
 }
