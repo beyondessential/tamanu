@@ -66,7 +66,7 @@ test.describe('All patient table search', () => {
 
   test("Search by filling all the fields", async ({ newPatient,allPatientsPage }) => {
     await allPatientsPage.searchTable({NHN:newPatient.displayId,firstName:newPatient.firstName,
-      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.villageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
+      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.village,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
       DOBTo: newPatient.dateOfBirth, advancedSearch: true });
       await allPatientsPage.validateOneSearchResult();
       await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
@@ -83,7 +83,7 @@ test.describe('All patient table search', () => {
 
   test("Clear search", async ({ newPatient,allPatientsPage }) => {
     await allPatientsPage.searchTable({NHN:newPatient.displayId,firstName:newPatient.firstName,
-      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.villageID,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
+      lastName:newPatient.lastName,DOB:newPatient.dateOfBirth,culturalName:newPatient.culturalName,village:testData.village,sex:newPatient.sex, DOBFrom: newPatient.dateOfBirth,
       DOBTo: newPatient.dateOfBirth, advancedSearch: true });
     await allPatientsPage.clearSearch();
     await allPatientsPage.validateAllFieldsAreEmpty();

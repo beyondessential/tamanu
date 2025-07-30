@@ -27,28 +27,18 @@ export const selectOptionFromPopper = async (
     throw new Error(`No options found for ${baseTestId}`);
   }
 
+  const optionTexts = await Promise.all(options.map(option => option.innerText()));
+  
   let selectedOption: Locator | undefined;
 
   if (optionToSelect) {
-    for (const option of options) {
-      const optionText = await option.innerText();
-      if (optionText === optionToSelect) {
-        selectedOption = option;
-        break;
-      }
-    }
-
-    if (!selectedOption) {
+    const selectedIndex = optionTexts.findIndex(text => text === optionToSelect);
+    if (selectedIndex === -1) {
       throw new Error(`Option "${optionToSelect}" not found in popper`);
     }
+    selectedOption = options[selectedIndex];
   } else if (optionToAvoid) {
-    const filteredOptions = [];
-    for (const option of options) {
-      const optionText = await option.innerText();
-      if (optionText !== optionToAvoid) {
-        filteredOptions.push(option);
-      }
-    }
+    const filteredOptions = options.filter((_, i) => optionTexts[i] !== optionToAvoid);
     if (filteredOptions.length === 0) {
       throw new Error(`No options found that are not "${optionToAvoid}"`);
     }
