@@ -1,0 +1,43 @@
+import { fake } from "@tamanu/fake-data";
+import { createTestContext } from "../utilities";
+
+describe('PatientFacility', () => {
+  let app = null;
+  let baseApp = null;
+  let models = null;
+  let ctx;
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    app = await baseApp.asRole('practitioner');
+    models = ctx.models;
+  });
+
+  it('should create a patient facility when none exists', async () => {
+    const { Patient, Facility, PatientFacility } = models;
+    const { id: patientId } = await Patient.create(fake(Patient));
+    const { id: facilityId } = await Facility.create(fake(Facility));
+
+    const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
+    expect(result).toHaveSucceeded();
+
+    const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
+    expect(patientFacility).toBeDefined();
+    expect(patientFacility.lastInteractedTime).toBeInstanceOf(Date);
+  });
+
+  it('should update a patient facility when it already exists', async () => {
+    const { Patient, Facility, PatientFacility } = models;
+    const { id: patientId } = await Patient.create(fake(Patient));
+    const { id: facilityId } = await Facility.create(fake(Facility));
+
+    await app.post(`/api/patientFacility`).send({ patientId, facilityId });
+
+    const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
+    expect(result).toHaveSucceeded();
+
+    const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
+    expect(patientFacility.lastInteractedTime).toBeInstanceOf(Date);
+  });
+});
