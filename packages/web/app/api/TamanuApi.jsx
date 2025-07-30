@@ -131,7 +131,11 @@ export class TamanuApi extends ApiClient {
   }
 
   setToken(token, refreshToken) {
-    localStorage.setItem(TOKEN, refreshToken);
+    if (refreshToken) {
+      localStorage.setItem(TOKEN, refreshToken);
+    } else {
+      localStorage.removeItem(TOKEN);
+    }
     return super.setToken(token, refreshToken);
   }
 
