@@ -1,35 +1,57 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
-import { NotFoundError } from '@tamanu/shared/errors';
 import {
-  COMMUNICATION_STATUSES,
-  PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  COMMUNICATION_STATUSES,
 } from '@tamanu/constants';
 
 export const patientPortal = express.Router();
 
-const sendRegistrationEmail = async ({ patientId, patientEmail, models, settings, facilityId }) => {
+const constructRegistrationLink = () => {
+  // TODO - construct the registration link for the patient portal
+  return `http://localhost:5173/`;
+};
+
+const registerPatient = async ({ patient, models }) => {
+  // eslint-disable-next-line no-unused-vars
+  const [patientUser] = await models.PatientUser.findOrCreate({
+    where: { patientId: patient.id },
+  });
+
+  // TODO - Check if an **unexpired** token exists for patient user - if so, return it, else create a new one
+
+  return constructRegistrationLink();
+};
+
+const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
+  const patientUser = await models.PatientUser.findOne({
+    where: { patientId: patient.id },
+  });
+
+  if (!patientUser) {
+    throw new NotFoundError(
+      'Patient has not been registered for portal access. Please register the patient first.',
+    );
+  }
+
+  // TODO - fetch the **unexpired** token for the patient user, throw if none exists
+
   const patientPortalRegistrationTemplate = await settings[facilityId].get(
     'templates.patientPortalRegistrationEmail',
   );
 
-  const patient = await models.Patient.findByPk(patientId);
-  if (!patient) {
-    throw new NotFoundError('Patient not found');
-  }
-
   const content = replaceInTemplate(patientPortalRegistrationTemplate.body, {
     firstName: patient.firstName,
     lastName: patient.lastName,
-    // TODO - get registration link for patient portal
-    registrationLink: `https://facility-1.main.cd.tamanu.app/`,
+    registrationLink: constructRegistrationLink(),
   });
 
-  return await models.PatientCommunication.create({
-    patientId,
+  await models.PatientCommunication.create({
+    patientId: patient.id,
     type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION,
     channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
@@ -39,18 +61,42 @@ const sendRegistrationEmail = async ({ patientId, patientEmail, models, settings
   });
 };
 
+// Soft registers the patient for portal access.
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
-    const { models, settings, facilityId } = req;
+    const { models } = req;
     const { id: patientId } = req.params;
 
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) {
+      throw new NotFoundError('Patient not found');
+    }
+
+    const registrationLink = await registerPatient({ patient, models });
+
+    res.send({ registrationLink });
+  }),
+);
+
+patientPortal.post(
+  '/:id/portal/send-registration-email',
+  asyncHandler(async (req, res) => {
+    const { models, settings, facilityId } = req;
+    const { id: patientId } = req.params;
     const { email: patientEmail } = req.body;
 
-    // TODO - actually register patient
+    if (!patientEmail) {
+      throw new ValidationError('Email is required');
+    }
 
-    await sendRegistrationEmail({ patientId, patientEmail, models, settings, facilityId });
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) {
+      throw new NotFoundError('Patient not found');
+    }
 
-    res.send({ message: 'Registration email sent' });
+    await sendRegistrationEmail({ patient, patientEmail, models, settings, facilityId });
+
+    res.send({ message: 'Registration email successfully sent' });
   }),
 );

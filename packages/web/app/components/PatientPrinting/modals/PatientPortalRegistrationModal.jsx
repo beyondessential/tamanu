@@ -1,22 +1,17 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
+import QRCode from 'qrcode';
+import { useSelector } from 'react-redux';
 
-import { useSendPatientPortalRegistrationEmail } from '../../../api/mutations/useSendPatientPortalRegistrationEmail';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BodyText } from '../../Typography';
-import {
-  Button,
-  FormModal,
-  FormSubmitCancelRow,
-  ModalGenericButtonRow,
-  OutlinedButton,
-} from '../..';
+import { Button, OutlinedButton } from '../..';
 import { Colors } from '../../../constants';
 import { SendIcon } from '../../Icons/SendIcon';
-import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { useRegisterPatientPortal } from '../../../api/mutations/useRegisterPatientPortal';
+import { SendToPatientModal } from './SendToPatientModal';
+import { Box, Link } from '@mui/material';
 
 const StyledButtonRow = styled('div')`
   display: flex;
@@ -28,54 +23,17 @@ const StyledButtonRow = styled('div')`
   border-top: 1px solid ${Colors.outline};
 `;
 
-const SendToPatientModal = React.memo(({ open, onClose, patient }) => {
-  const { mutate: sendPatientPortalRegistrationEmail } = useSendPatientPortalRegistrationEmail({
-    onSuccess: () => {
-      toast.success(
-        <TranslatedText
-          stringId="patientDetails.resources.patientPortalRegistration.modal.sendToPatient.success"
-          fallback="Patient portal link successfully sent to patient"
-        />,
-      );
-      onClose();
-    },
-  });
+const StyledQrCodeContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+`;
 
-  const handleSubmit = useCallback(
-    async ({ email }) => {
-      sendPatientPortalRegistrationEmail({ patientId: patient.id, email });
-    },
-    [patient.id, sendPatientPortalRegistrationEmail],
-  );
-
-  return (
-    <FormModal
-      title={
-        <TranslatedText
-          stringId="patientDetails.resources.patientPortalRegistration.modal.sendToPatient.title"
-          fallback="Send to patient"
-          data-testid="translatedtext-patient-portal-title"
-        />
-      }
-      open={open}
-      onClose={onClose}
-    >
-      <EmailAddressConfirmationForm
-        onSubmit={handleSubmit}
-        onCancel={onClose}
-        renderButtons={submitForm => (
-          <ModalGenericButtonRow>
-            <FormSubmitCancelRow
-              onConfirm={submitForm}
-              onCancel={onClose}
-              confirmText={<TranslatedText stringId="general.action.send" fallback="Send" />}
-            />
-          </ModalGenericButtonRow>
-        )}
-      />
-    </FormModal>
-  );
-});
+const generateQrCode = async registrationLink => {
+  return await QRCode.toDataURL(registrationLink);
+};
 
 const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
   <StyledButtonRow>
@@ -107,11 +65,41 @@ const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
   </StyledButtonRow>
 );
 
+const QrCodeDisplay = ({ qrCode, registrationLink }) => {
+  if (!qrCode || !registrationLink) {
+    return null;
+  }
+
+  return (
+    <StyledQrCodeContainer>
+      <img src={qrCode} alt="Patient portal registration QR code" style={{ width: '11.5rem' }} />
+      <Link href={registrationLink} target="_blank">
+        {registrationLink}
+      </Link>
+    </StyledQrCodeContainer>
+  );
+};
+
 export const PatientPortalRegistrationModal = React.memo(() => {
   const patient = useSelector(state => state.patient);
 
   const [open, setOpen] = useState(true);
   const [openSendToPatientModal, setOpenSendToPatientModal] = useState(false);
+  const [registrationLink, setRegistrationLink] = useState(null);
+  const [qrCode, setQrCode] = useState(null);
+
+  const { mutate: registerPatientPortal } = useRegisterPatientPortal({
+    onSuccess: data => {
+      setRegistrationLink(data?.registrationLink);
+      generateQrCode(data?.registrationLink).then(setQrCode);
+    },
+  });
+
+  useEffect(() => {
+    if (patient?.id) {
+      registerPatientPortal({ patientId: patient.id });
+    }
+  }, [patient?.id, registerPatientPortal]);
 
   if (openSendToPatientModal) {
     return (
@@ -145,7 +133,7 @@ export const PatientPortalRegistrationModal = React.memo(() => {
         />
       }
     >
-      <BodyText>
+      <BodyText style={{ marginBottom: '1.25rem' }}>
         <TranslatedText
           stringId="patientDetails.resources.patientPortalRegistration.modal.instructionsMessage"
           fallback="Please ask the patient to scan the QR code using their camera app and follow the prompts to create a Tamanu patient portal account. "
@@ -161,6 +149,7 @@ export const PatientPortalRegistrationModal = React.memo(() => {
           />
         </span>
       </BodyText>
+      <QrCodeDisplay qrCode={qrCode} registrationLink={registrationLink} />
     </Modal>
   );
 });

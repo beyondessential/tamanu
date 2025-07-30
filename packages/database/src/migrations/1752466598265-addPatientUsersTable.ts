@@ -1,5 +1,5 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, PATIENT_USER_STATUSES } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('patient_users', {
@@ -38,12 +38,17 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     email: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     visibility_status: {
       type: DataTypes.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
+    },
+    status: {
+      type: DataTypes.TEXT,
+      defaultValue: PATIENT_USER_STATUSES.PENDING,
+      allowNull: false,
     },
   });
 }
