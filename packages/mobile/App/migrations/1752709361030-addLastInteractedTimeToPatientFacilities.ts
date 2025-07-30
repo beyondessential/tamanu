@@ -19,24 +19,31 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
       SET createdAtSyncTick = updatedAtSyncTick;
     `);
 
+    // Cannot use GREATEST on sqlite, so we need to use a CASE statement
     await queryRunner.query(`
-    UPDATE patient_facilities
-      SET lastInteractedTime = (
-    SELECT GREATEST(
-        COALESCE(MAX(e.createdAt), '0'),
-        COALESCE(MAX(pr.createdAt), '0'),
-        patient_facilities.createdAt
-    )
-    FROM patients p
-    LEFT JOIN patient_program_registrations pr 
-        ON p.id = pr.patientId 
-        AND pr.registeringFacilityId = patient_facilities.facilityId
-    LEFT JOIN encounters e 
-        ON p.id = e.patientId
-    LEFT JOIN locations l 
-        ON e.locationId = l.id 
-        AND l.facilityId = patient_facilities.facilityId
-    WHERE p.id = patient_facilities.patientId
+      UPDATE patient_facilities
+      SET last_interacted_time = (
+        SELECT MAX(
+          CASE 
+            WHEN COALESCE(MAX(e.createdAt), '0') > COALESCE(MAX(pr.createdAt), '0') 
+              AND COALESCE(MAX(e.createdAt), '0') > patient_facilities.createdAt 
+            THEN COALESCE(MAX(e.createdAt), '0')
+            WHEN COALESCE(MAX(pr.createdAt), '0') > patient_facilities.createdAt 
+            THEN COALESCE(MAX(pr.createdAt), '0')
+            ELSE patient_facilities.createdAt
+          END
+        )
+        FROM patients p
+        LEFT JOIN patient_program_registrations pr 
+          ON p.id = pr.patientId 
+          AND pr.registeringFacilityId = patient_facilities.facilityId
+        LEFT JOIN encounters e 
+          ON p.id = e.patientId
+        LEFT JOIN locations l 
+          ON e.locationId = l.id 
+          AND l.facilityId = patient_facilities.facilityId
+        WHERE p.id = patient_facilities.patientId
+      );
     `);
   }
 
