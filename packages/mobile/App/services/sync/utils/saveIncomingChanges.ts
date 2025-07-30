@@ -121,7 +121,8 @@ export const saveChangesFromMemory = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = prepareChangesForModels(records, Object.values(incomingModels));
+  const sortedModels = await sortInDependencyOrder(incomingModels);
+  const preparedRecordByModel = prepareChangesForModels(records, sortedModels);
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
     // For initial sync the database is empty beyond the user model
