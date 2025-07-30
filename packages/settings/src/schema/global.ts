@@ -325,6 +325,13 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            medicationAlreadyOrderedWarningTimeout: {
+              description:
+                'Warn users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
           },
         },
         useGlobalPdfFont: {
