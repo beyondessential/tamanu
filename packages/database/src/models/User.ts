@@ -294,15 +294,6 @@ export class User extends Model {
     return allowedFacilities.map(f => f.id);
   }
 
-  /**
-   * Check if user can access a specific facility based on the configuration
-   *
-   * Access rules:
-   * 1. Superusers can always access all facilities
-   * 2. [login Facility] permission overrides any linked facilities UNLESS the facility is sensitive
-   * 3. If restrictUsersToFacilities is enabled OR facility is sensitive: check against user's linked facilities
-   * 4. Otherwise: allow access (no restrictions)
-   */
   async canAccessFacility(id: string) {
     const { Facility } = this.sequelize.models;
     const facility = await Facility.findByPk(id, { attributes: ['isSensitive'] });
