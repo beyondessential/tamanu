@@ -39,11 +39,9 @@ export class PatientFacility extends BaseModel {
   }
 
   static async createOrUpdate(values: Partial<PatientFacility>) {
+    const { patientId, facilityId } = values;
     const record = await super.findOne({
-      where: {
-        patientId: values.patientId,
-        facilityId: values.facilityId,
-      },
+      where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
     if (record) {
       return record.update(values);
