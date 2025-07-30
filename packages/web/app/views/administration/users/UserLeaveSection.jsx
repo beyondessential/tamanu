@@ -95,6 +95,9 @@ export const UserLeaveSection = ({ user }) => {
     api
       .delete(`admin/users/${user.id}/leaves/${leaveId}`)
       .then(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['userLeaves', user.id],
+        });
         toast.success(
           getTranslation('admin.users.leave.deleteSuccess', 'Leave removed successfully!'),
         );
