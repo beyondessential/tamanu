@@ -351,7 +351,6 @@ describe('User', () => {
   describe('User facility methods', () => {
     let superUser = null;
     let user = null;
-    let user = null;
 
     const validUserFacilities = [facility1, facility2];
     const validUserFacilityIds = validUserFacilities.map(f => f.id);
