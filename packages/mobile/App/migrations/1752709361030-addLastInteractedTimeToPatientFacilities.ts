@@ -19,7 +19,7 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
       SET createdAtSyncTick = updatedAtSyncTick;
     `);
 
-    // Cannot use GREATEST on sqlite, so we need to use a CASE statement
+    // Query differs from postgres version because of sqlite limitations
     await queryRunner.query(`
       WITH max_dates AS (
         SELECT 
