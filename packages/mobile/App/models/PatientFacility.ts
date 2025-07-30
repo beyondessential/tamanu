@@ -1,6 +1,6 @@
 import { BeforeInsert, Entity, ManyToOne, PrimaryColumn, RelationId, Column } from 'typeorm';
 
-import { Database } from '~/services/database';
+import { Database } from '../infra/db';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Patient } from './Patient';
@@ -55,11 +55,10 @@ export class PatientFacility extends BaseModel {
     const record = await super.findOne({
       where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
-    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    const payload = { ...values, createdAtSyncTick: syncTick };
     if (record) {
-      return record.update(payload);
+      return record.update(values);
     }
-    return super.create(payload);
+    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
+    return super.create({ ...values, createdAtSyncTick: syncTick });
   }
 }
