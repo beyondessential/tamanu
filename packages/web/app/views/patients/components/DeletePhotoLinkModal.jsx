@@ -3,14 +3,16 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useEncounter } from '../../../contexts/Encounter';
 
 export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
   const api = useApi();
+  const { encounter } = useEncounter();
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     await api.put(`surveyResponseAnswer/photo/${answerId}`);
-    queryClient.invalidateQueries({ queryKey: ['encounterCharts'] });
+    queryClient.invalidateQueries(['encounterCharts', encounter.id]);
     onClose();
   };
 

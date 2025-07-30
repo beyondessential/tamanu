@@ -177,6 +177,7 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       return (
         <ViewPhotoLink
           answerId={answerId}
+          surveyId={component.surveyId}
           imageId={value}
           data-testid="viewphotolink-chrt"
           chartTitle={chartTitle}
