@@ -2861,7 +2861,7 @@ describe('CentralSyncManager', () => {
       practitioner = await models.User.create(fake(models.User));
       // Reset modules to ensure fresh imports
       jest.resetModules();
-      // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
+      // The config override actually doesn't apply to snapshotOutgoingChanges which uses the test.json, so we need to mock it directly here
       jest.doMock('@tamanu/shared/utils/withConfig', () => ({
         withConfig: fn => {
           const inner = function inner(...args) {
