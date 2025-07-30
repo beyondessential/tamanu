@@ -9,7 +9,9 @@ export interface IPatientIssue {
   patientId: string;
 }
 
-export enum PatientIssueType {
-  Issue = 'issue',
-  Warning = 'warning',
-}
+export const PatientIssueType = {
+  Issue: 'issue',
+  Warning: 'warning',
+} as const;
+
+export type PatientIssueType = (typeof PatientIssueType)[keyof typeof PatientIssueType];
