@@ -316,14 +316,14 @@ surveyResponseAnswer.put(
       ],
     });
 
-    req.checkPermission(
-      'delete',
-      subject('Charting', { id: answerObject?.surveyResponse?.surveyId }),
-    );
-
     if (!answerObject) {
       throw new InvalidParameterError('Invalid answer ID.');
     }
+
+    req.checkPermission(
+      'delete',
+      subject('Charting', { id: answerObject.surveyResponse.surveyId }),
+    );
 
     await db.transaction(async () => {
       // Blank out the attachment. We need to upsert because the record
