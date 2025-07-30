@@ -50,7 +50,6 @@ function restoreFromLocalStorage() {
 }
 
 function saveToLocalStorage({
-  token,
   localisation,
   server,
   availableFacilities,
@@ -59,9 +58,6 @@ function saveToLocalStorage({
   role,
   settings,
 }) {
-  if (token) {
-    localStorage.setItem(TOKEN, token);
-  }
   if (facilityId) {
     localStorage.setItem(FACILITY_ID, facilityId);
   }
@@ -135,6 +131,11 @@ export class TamanuApi extends ApiClient {
     });
   }
 
+  setToken(token, refreshToken) {
+    localStorage.setItem(TOKEN, refreshToken);
+    return super.setToken(token, refreshToken);
+  }
+
   async restoreSession() {
     const {
       token,
@@ -149,10 +150,11 @@ export class TamanuApi extends ApiClient {
     if (!token) {
       throw new Error('No stored session found.');
     }
-    this.setToken(token);
-    const user = await this.get('user/me');
-    this.user = user;
-    const ability = buildAbilityForUser(user, permissions);
+
+    this.setToken(null, token);
+    const config = { showUnknownErrorToast: false };
+    await this.refreshToken(config);
+    const { user, ability } = await this.fetchUserData(permissions, config);
 
     return {
       user,
@@ -169,9 +171,8 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { token, localisation, server, availableFacilities, permissions, role } = output;
+    const { localisation, server, availableFacilities, permissions, role } = output;
     saveToLocalStorage({
-      token,
       localisation,
       server,
       availableFacilities,
@@ -182,14 +183,12 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { token, settings } = await this.post('setFacility', { facilityId });
-    this.setToken(token);
+    const { settings } = await this.post('setFacility', { facilityId });
     saveToLocalStorage({
-      token,
       facilityId,
       settings,
     });
-    return { settings, token };
+    return { settings };
   }
 
   async fetch(endpoint, query, config) {
