@@ -12,6 +12,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
+import { patientPortalModule } from './patientPortal/patientPortalRoutes';
 
 import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
@@ -112,6 +113,9 @@ export async function createApi(ctx) {
       index: true,
     });
   });
+
+  // Patient Portal - must go before main API to avoid main authentication
+  express.use('/api/portal', patientPortalModule);
 
   // API
   express.use('/api', api(ctx));
