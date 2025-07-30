@@ -351,10 +351,24 @@ describe('SurveyResponse', () => {
       const newValue1 = 'New answer 1';
       const newValue2 = 'New answer 2';
 
+      // Also create a missing answer
+      const newAnswerDataElement = await ProgramDataElement.create({
+        ...fake(ProgramDataElement),
+        type: PROGRAM_DATA_ELEMENT_TYPES.TEXT,
+      });
+      await SurveyScreenComponent.create({
+        ...fake(SurveyScreenComponent),
+        dataElementId: newAnswerDataElement.id,
+        surveyId: response.surveyId,
+        calculation: '',
+      });
+      const newAnswerValue = 'New answer value';
+
       const result = await app.put(`/api/surveyResponse/complexChartInstance/${response.id}`).send({
         answers: {
           [answer1.dataElementId]: newValue1,
           [answer2.dataElementId]: newValue2,
+          [newAnswerDataElement.id]: newAnswerValue,
         },
       });
       await answer1.reload();
