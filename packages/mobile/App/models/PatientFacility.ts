@@ -1,9 +1,12 @@
-import { BeforeInsert, Entity, ManyToOne, PrimaryColumn, RelationId } from 'typeorm';
+import { BeforeInsert, Entity, ManyToOne, PrimaryColumn, RelationId, Column } from 'typeorm';
 
+import { Database } from '~/services/database';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
+import { CURRENT_SYNC_TIME } from '~/services/sync/constants';
+import { getSyncTick } from '~/services/sync/utils';
 
 @Entity('patient_facilities')
 export class PatientFacility extends BaseModel {
@@ -11,6 +14,15 @@ export class PatientFacility extends BaseModel {
 
   @PrimaryColumn()
   id: string;
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  lastInteractedTime: Date;
+
+  @Column({
+    type: 'bigint',
+    default: '0',
+  })
+  createdAtSyncTick: string;
 
   @ManyToOne(() => Patient)
   patient: Patient;
@@ -43,9 +55,11 @@ export class PatientFacility extends BaseModel {
     const record = await super.findOne({
       where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
+    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
+    const payload = { ...values, createdAtSyncTick: syncTick };
     if (record) {
-      return record.update(values);
+      return record.update(payload);
     }
-    return super.create(values);
+    return super.create(payload);
   }
 }

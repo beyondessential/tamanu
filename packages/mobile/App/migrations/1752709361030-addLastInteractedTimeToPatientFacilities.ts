@@ -2,17 +2,23 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class addLastInteractedTimeToPatientFacilities1752709361030 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.addColumn('patient_facilities', new TableColumn({
-      name: 'lastInteractedTime',
-      type: 'datetime',
-      default: "datetime('now')",
-    }));
+    await queryRunner.addColumn(
+      'patient_facilities',
+      new TableColumn({
+        name: 'lastInteractedTime',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+      }),
+    );
 
-    await queryRunner.addColumn('patient_facilities', new TableColumn({
-      name: 'createdAtSyncTick',
-      type: 'bigint',
-      default: -999,
-    }));
+    await queryRunner.addColumn(
+      'patient_facilities',
+      new TableColumn({
+        name: 'createdAtSyncTick',
+        type: 'bigint',
+        default: '0',
+      }),
+    );
 
     await queryRunner.query(`
       UPDATE patient_facilities
