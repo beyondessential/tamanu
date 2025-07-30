@@ -37,4 +37,17 @@ export class PatientFacility extends BaseModel {
     //patient actually stores the patientId in @BeforeInsert
     this.id = `${this.patient.replaceAll(';', ':')};${this.facility.replaceAll(';', ':')}`;
   }
+
+  static async createOrUpdate(values: Partial<PatientFacility>) {
+    const record = await super.findOne({
+      where: {
+        patientId: values.patientId,
+        facilityId: values.facilityId,
+      },
+    });
+    if (record) {
+      return record.update(values);
+    }
+    return super.create(values);
+  }
 }
