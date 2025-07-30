@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider } from '@mui/material';
@@ -21,18 +21,9 @@ const SectionSubtitle = styled(Box)`
 `;
 
 const DateFieldsContainer = styled(Box)`
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
-`;
-
-const DateFieldWrapper = styled(Box)`
-  flex: 1;
-`;
-
-const ButtonWrapper = styled(Box)`
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr 135px;
+  column-gap: 16px;
 `;
 
 const LeaveListContainer = styled(Box)`
@@ -59,6 +50,11 @@ const LeaveDates = styled(Box)`
   font-weight: 500;
 `;
 
+const StyledButton = styled(Button)`
+  height: 40px;
+  margin-top: auto;
+`;
+
 const RemoveLink = styled(Box)`
   color: ${Colors.darkestText};
   font-size: 14px;
@@ -67,14 +63,19 @@ const RemoveLink = styled(Box)`
 `;
 
 const validationSchema = yup.object().shape({
-  startDate: yup.string().required('Start date is required'),
-  endDate: yup.string().required('End date is required'),
+  startDate: yup
+    .string()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+  endDate: yup
+    .string()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
 
 export const UserLeaveSection = ({ user }) => {
   const { getTranslation } = useTranslation();
   const api = useApi();
   const queryClient = useQueryClient();
+  const [isDeletingLeave, setIsDeletingLeave] = useState(false);
 
   const { mutate: createLeave, isLoading: isCreatingLeave } = useCreateUserLeaveMutation(user.id, {
     onSuccess: () => {
@@ -89,18 +90,20 @@ export const UserLeaveSection = ({ user }) => {
   });
 
   const handleDeleteLeave = leaveId => {
+    if (isDeletingLeave) return;
+    setIsDeletingLeave(true);
     api
       .delete(`admin/users/${user.id}/leaves/${leaveId}`)
       .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: ['userLeaves', user.id],
-        });
         toast.success(
           getTranslation('admin.users.leave.deleteSuccess', 'Leave removed successfully!'),
         );
       })
       .catch(error => {
         toast.error(error.message);
+      })
+      .finally(() => {
+        setIsDeletingLeave(false);
       });
   };
 
@@ -109,7 +112,12 @@ export const UserLeaveSection = ({ user }) => {
 
   const handleSubmit = async values => {
     if (new Date(values.endDate) < new Date(values.startDate)) {
-      toast.error('End date must be greater than or equal to start date');
+      toast.error(
+        getTranslation(
+          'admin.users.leave.endDate.error',
+          'End date must be greater than or equal to start date',
+        ),
+      );
       return;
     }
     createLeave(values);
@@ -149,44 +157,35 @@ export const UserLeaveSection = ({ user }) => {
         render={({ submitForm, dirty, values }) => {
           return (
             <DateFieldsContainer>
-              <DateFieldWrapper>
-                <Field
-                  name="startDate"
-                  label={
-                    <TranslatedText
-                      stringId="admin.users.leave.startDate.label"
-                      fallback="Start date"
-                    />
-                  }
-                  component={DateField}
-                  saveDateAsString
-                  required
-                />
-              </DateFieldWrapper>
-              <DateFieldWrapper>
-                <Field
-                  name="endDate"
-                  label={
-                    <TranslatedText
-                      stringId="admin.users.leave.endDate.label"
-                      fallback="End date"
-                    />
-                  }
-                  component={DateField}
-                  saveDateAsString
-                  min={values.startDate}
-                  required
-                />
-              </DateFieldWrapper>
-              <ButtonWrapper>
-                <Button
-                  onClick={submitForm}
-                  disabled={!dirty || isCreatingLeave}
-                  isSubmitting={isCreatingLeave}
-                >
-                  <TranslatedText stringId="admin.users.leave.schedule" fallback="Schedule leave" />
-                </Button>
-              </ButtonWrapper>
+              <Field
+                name="startDate"
+                label={
+                  <TranslatedText
+                    stringId="admin.users.leave.startDate.label"
+                    fallback="Start date"
+                  />
+                }
+                component={DateField}
+                saveDateAsString
+                required
+              />
+              <Field
+                name="endDate"
+                label={
+                  <TranslatedText stringId="admin.users.leave.endDate.label" fallback="End date" />
+                }
+                component={DateField}
+                saveDateAsString
+                min={values.startDate}
+                required
+              />
+              <StyledButton
+                onClick={submitForm}
+                disabled={!dirty || isCreatingLeave}
+                isSubmitting={isCreatingLeave}
+              >
+                <TranslatedText stringId="admin.users.leave.schedule" fallback="Schedule leave" />
+              </StyledButton>
             </DateFieldsContainer>
           );
         }}
