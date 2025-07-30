@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+import { subject } from '@casl/ability';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
 import {
   CHARTING_DATA_ELEMENT_IDS,
@@ -297,12 +298,31 @@ surveyResponseAnswer.put(
     const { db, models, params } = req;
     const { SurveyResponseAnswer, Attachment } = models;
     const { id } = params;
-    req.flagPermissionChecked();
 
     // Find answer
-    const answerObject = await SurveyResponseAnswer.findByPk(id);
+    const answerObject = await SurveyResponseAnswer.findByPk(id, {
+      include: [
+        {
+          // Ensure answer is photo type
+          required: true,
+          model: models.ProgramDataElement,
+          where: { type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO },
+        },
+        {
+          required: true,
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+        },
+      ],
+    });
+
+    req.checkPermission(
+      'delete',
+      subject('Charting', { id: answerObject?.surveyResponse?.surveyId }),
+    );
+
     if (!answerObject) {
-      throw new NotFoundError('Answer not found');
+      throw new InvalidParameterError('Invalid answer ID.');
     }
 
     await db.transaction(async () => {
