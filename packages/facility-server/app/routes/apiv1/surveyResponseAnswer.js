@@ -290,3 +290,35 @@ surveyResponseAnswer.post(
     res.send(newAnswer);
   }),
 );
+
+surveyResponseAnswer.put(
+  '/photo/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, params } = req;
+    const { SurveyResponseAnswer, Attachment } = models;
+    const { id } = params;
+    req.flagPermissionChecked();
+
+    // Find answer
+    const answerObject = await SurveyResponseAnswer.findByPk(id);
+    if (!answerObject) {
+      throw new NotFoundError('Answer not found');
+    }
+
+    await db.transaction(async () => {
+      // Blank out the attachment. We need to upsert because the record
+      // might not exist on facility server.
+      await Attachment.upsert({
+        id: answerObject.body,
+        data: Buffer.from([]),
+        type: 'image/jpeg',
+        size: 0,
+      });
+
+      // Update answer to empty string (needed for logs and table display)
+      await answerObject.update({ body: '' });
+    });
+
+    res.send(answerObject);
+  }),
+);
