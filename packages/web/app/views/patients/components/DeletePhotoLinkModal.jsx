@@ -32,6 +32,13 @@ export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
           data-testid="translatedtext-kd99"
         />
       }
+      confirmButtonText={
+        <TranslatedText
+          stringId="photo.modal.delete.confirmText"
+          fallback="Delete image"
+          data-testid="translatedtext-1000"
+        />
+      }
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
