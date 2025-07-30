@@ -8,6 +8,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
+import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';
 
 const Image = styled.img`
   display: block;
@@ -84,8 +85,9 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
   return <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />;
 };
 
-export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
+export const ViewPhotoLink = ({ answerId, imageId, chartTitle = null }) => {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useApi();
@@ -126,11 +128,16 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
         {isChartView && (
           <Footer
             hasError={!!errorMessage}
-            onDelete={() => {}}
+            onDelete={() => setIsDeleteModalOpen(true)}
             onClose={() => setIsPhotoModalOpen(false)}
           />
         )}
       </Modal>
+      <DeletePhotoLinkModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        answerId={answerId}
+      />
     </>
   );
 };
