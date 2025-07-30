@@ -31,9 +31,10 @@ describe('PatientFacility', () => {
   });
 
   it('should update a patient facility when it already exists', async () => {
-    const { Patient, Facility, PatientFacility } = models;
+    const { Patient, Facility, PatientFacility, LocalSystemFact } = models;
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
+    await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '2345');
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
 
@@ -41,6 +42,7 @@ describe('PatientFacility', () => {
       where: { patientId, facilityId },
     });
     const lastInteractedTime = patientFacilityAfterCreate.lastInteractedTime;
+    const createdAtSyncTick = patientFacilityAfterCreate.createdAtSyncTick;
 
     const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
     expect(result).toHaveSucceeded();
@@ -49,5 +51,6 @@ describe('PatientFacility', () => {
     expect(patientFacility.lastInteractedTime.getTime()).toBeGreaterThan(
       lastInteractedTime.getTime(),
     );
+    expect(patientFacility.createdAtSyncTick).toBe(createdAtSyncTick);
   });
 });
