@@ -39,7 +39,7 @@ patientRoute.post(
     const { models, body: patient } = req;
 
     const potentialDuplicates = await models.Patient.sequelize.query(
-      `SELECT 
+      `SELECT
         p.*,
         reference_data.name AS "villageName"
       FROM find_potential_patient_duplicates(:patient) p
@@ -508,7 +508,8 @@ patientRoute.get(
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
 
     const medicationFilter = {};
-    if (!req.ability.can('list', 'SensitiveMedication')) {
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
       medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
     }
 
@@ -605,7 +606,8 @@ patientRoute.get(
     }
 
     const medicationFilter = {};
-    if (!req.ability.can('list', 'SensitiveMedication')) {
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
       medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
     }
 

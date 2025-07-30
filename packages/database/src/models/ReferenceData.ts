@@ -1,5 +1,5 @@
-import { DataTypes, ValidationError, Op } from 'sequelize';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { DataTypes, ValidationError } from 'sequelize';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -199,34 +199,5 @@ export class ReferenceData extends Model {
 
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
-  }
-
-  /**
-   * Check if any medications in the given list are sensitive
-   * @param medicationIds - Array of medication IDs to check
-   * @returns Promise<boolean> - True if any medication is sensitive, false otherwise
-   */
-  static async hasSensitiveMedication(medicationIds: string[]): Promise<boolean> {
-    if (!medicationIds || medicationIds.length === 0) {
-      return false;
-    }
-
-    const { ReferenceDrug } = this.sequelize.models;
-    const sensitiveMedication = await this.findOne({
-      where: {
-        id: { [Op.in]: medicationIds },
-        type: REFERENCE_TYPES.DRUG,
-      },
-      include: {
-        model: ReferenceDrug,
-        as: 'referenceDrug',
-        attributes: ['isSensitive'],
-        where: { isSensitive: true },
-        required: true,
-      },
-      attributes: ['id'],
-    });
-
-    return !!sensitiveMedication;
   }
 }

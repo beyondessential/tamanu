@@ -8,7 +8,6 @@ import {
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
-import { paginatedGetList, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { NotFoundError, InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
@@ -26,6 +25,15 @@ import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes } from 'sequelize';
 
 export const medication = express.Router();
+
+const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
+  if (!medicationIds?.length) return true;
+
+  const isSensitive = await req.models.ReferenceDrug.hasSensitiveMedication(medicationIds);
+  if (isSensitive) {
+    req.checkPermission(action, 'SensitiveMedication');
+  }
+};
 
 medication.get(
   '/:id',
@@ -146,15 +154,6 @@ medication.post(
     res.send(result.forResponse());
   }),
 );
-
-const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
-  if (!medicationIds?.length) return true;
-
-  const isSensitive = await req.models.ReferenceData.hasSensitiveMedication(medicationIds);
-  if (isSensitive) {
-    req.checkPermission(action, 'SensitiveMedication');
-  }
-};
 
 const createEncounterPrescription = async ({ encounter, data, models }) => {
   const { Prescription, EncounterPrescription, MedicationAdministrationRecord } = models;
@@ -367,6 +366,8 @@ medication.put(
     if (prescription.pharmacyNotes && prescription.pharmacyNotes !== pharmacyNotes) {
       req.checkPermission('write', 'MedicationPharmacyNote');
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
 
     prescription.pharmacyNotes = pharmacyNotes;
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
@@ -1427,44 +1428,3 @@ medication.get(
     res.send(transformedResults);
   }),
 );
-
-const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
-globalMedicationRequests.get('/$', (req, res, next) =>
-  paginatedGetList('Prescription', '', {
-    additionalFilters: {
-      '$encounter.location.facility.id$': req.query.facilityId,
-    },
-    include: [
-      {
-        model: req.models.Encounter,
-        as: 'encounter',
-        include: [
-          {
-            model: req.models.Patient,
-            as: 'patient',
-          },
-          {
-            model: req.models.Department,
-            as: 'department',
-          },
-          {
-            model: req.models.Location,
-            as: 'location',
-            include: [
-              {
-                model: req.models.Facility,
-                as: 'facility',
-              },
-              {
-                model: req.models.LocationGroup,
-                as: 'locationGroup',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  })(req, res, next),
-);
-
-medication.use(globalMedicationRequests);

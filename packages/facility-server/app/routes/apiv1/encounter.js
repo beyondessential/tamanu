@@ -239,7 +239,8 @@ encounterRelations.get(
     const associations = Prescription.getListReferenceAssociations() || [];
 
     const medicationFilter = {};
-    if (!req.ability.can('list', 'SensitiveMedication')) {
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
       medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
     }
 
@@ -281,7 +282,7 @@ encounterRelations.get(
           include: {
             model: models.ReferenceDrug,
             as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive']
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],
