@@ -1,5 +1,6 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 describe('PatientFacility', () => {
   let app = null;
@@ -15,16 +16,18 @@ describe('PatientFacility', () => {
   });
 
   it('should create a patient facility when none exists', async () => {
-    const { Patient, Facility, PatientFacility } = models;
+    const { Patient, Facility, PatientFacility, LocalSystemFact } = models;
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
+
+    await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '1234');
 
     const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
     expect(result).toHaveSucceeded();
 
     const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
     expect(patientFacility).toBeDefined();
-    expect(patientFacility.lastInteractedTime).toBeInstanceOf(Date);
+    expect(patientFacility.createdAtSyncTick).toBe('1234');
   });
 
   it('should update a patient facility when it already exists', async () => {
