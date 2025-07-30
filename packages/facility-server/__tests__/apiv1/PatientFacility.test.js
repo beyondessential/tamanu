@@ -43,6 +43,8 @@ describe('PatientFacility', () => {
     expect(result).toHaveSucceeded();
 
     const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
-    expect(patientFacility.lastInteractedTime).toBeGreaterThan(lastInteractedTime);
+    expect(patientFacility.lastInteractedTime.getTime()).toBeGreaterThan(
+      lastInteractedTime.getTime(),
+    );
   });
 });
