@@ -8,7 +8,6 @@ import {
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
-import { paginatedGetList, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { NotFoundError, InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
@@ -26,6 +25,15 @@ import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes } from 'sequelize';
 
 export const medication = express.Router();
+
+const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
+  if (!medicationIds?.length) return true;
+
+  const isSensitive = await req.models.ReferenceDrug.hasSensitiveMedication(medicationIds);
+  if (isSensitive) {
+    req.checkPermission(action, 'SensitiveMedication');
+  }
+};
 
 medication.get(
   '/:id',
@@ -127,6 +135,8 @@ medication.post(
 
     const data = await medicationInputSchema.parseAsync(req.body);
 
+    await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
+
     const patient = await Patient.findByPk(patientId);
     if (!patient) {
       throw new InvalidOperationError(`Patient with id ${patientId} not found`);
@@ -165,6 +175,8 @@ medication.post(
     const { Encounter } = models;
     req.checkPermission('create', 'Medication');
     const data = await medicationInputSchema.parseAsync(req.body);
+
+    await checkSensitiveMedicationPermission([data.medicationId], req, 'create');
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -210,6 +222,12 @@ medication.post(
         );
       }
     }
+
+    await checkSensitiveMedicationPermission(
+      medicationSet.map(m => m.medicationId),
+      req,
+      'create',
+    );
 
     const result = await req.db.transaction(async () => {
       const prescriptions = [];
@@ -282,6 +300,11 @@ medication.post(
     }
 
     const importPrescriptions = ongoingPrescriptions;
+    await checkSensitiveMedicationPermission(
+      importPrescriptions.map(prescription => prescription.medicationId),
+      req,
+      'create',
+    );
 
     const result = await db.transaction(async () => {
       const newPrescriptions = [];
@@ -344,6 +367,8 @@ medication.put(
       req.checkPermission('write', 'MedicationPharmacyNote');
     }
 
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
+
     prescription.pharmacyNotes = pharmacyNotes;
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
     await prescription.save();
@@ -381,6 +406,9 @@ medication.post(
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
+
     if (prescription.discontinued) {
       throw new ResourceConflictError('Prescription already discontinued');
     }
@@ -463,6 +491,8 @@ medication.post(
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
 
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
+
     if (prescription.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
       throw new InvalidOperationError(
         `Medication with frequency ${ADMINISTRATION_FREQUENCIES.IMMEDIATELY} cannot be paused`,
@@ -544,6 +574,8 @@ medication.post(
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
     }
+
+    await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
 
     // Find the encounter prescription link
     const encounterPrescription = await EncounterPrescription.findOne({
@@ -1396,44 +1428,3 @@ medication.get(
     res.send(transformedResults);
   }),
 );
-
-const globalMedicationRequests = permissionCheckingRouter('list', 'Prescription');
-globalMedicationRequests.get('/$', (req, res, next) =>
-  paginatedGetList('Prescription', '', {
-    additionalFilters: {
-      '$encounter.location.facility.id$': req.query.facilityId,
-    },
-    include: [
-      {
-        model: req.models.Encounter,
-        as: 'encounter',
-        include: [
-          {
-            model: req.models.Patient,
-            as: 'patient',
-          },
-          {
-            model: req.models.Department,
-            as: 'department',
-          },
-          {
-            model: req.models.Location,
-            as: 'location',
-            include: [
-              {
-                model: req.models.Facility,
-                as: 'facility',
-              },
-              {
-                model: req.models.LocationGroup,
-                as: 'locationGroup',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  })(req, res, next),
-);
-
-medication.use(globalMedicationRequests);
