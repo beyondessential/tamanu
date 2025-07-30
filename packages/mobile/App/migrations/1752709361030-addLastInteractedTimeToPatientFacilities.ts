@@ -20,27 +20,23 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
     `);
 
     await queryRunner.query(`
-      WITH calculated_interaction_times AS (
-        SELECT 
-          pf.id,
-          GREATEST(
-            MAX(e.createdAt),
-            MAX(pr.createdAt),
-            pf.createdAt
-          ) as calculated_last_interacted_time
-        FROM patient_facilities pf
-        LEFT JOIN patients p ON p.id = pf.patientId
-        LEFT JOIN patient_program_registrations pr ON p.id = pr.patientId 
-          AND pr.registering_facility_id = pf.facilityId
-        LEFT JOIN encounters e ON p.id = e.patientId
-        LEFT JOIN locations l ON e.locationId = l.id 
-          AND l.facilityId = pf.facilityId
-        GROUP BY pf.id, pf.createdAt
-      )
-      UPDATE patient_facilities pf
-      SET last_interacted_time = cit.calculated_last_interacted_time
-      FROM calculated_interaction_times cit
-      WHERE pf.id = cit.id;
+    UPDATE patient_facilities
+      SET lastInteractedTime = (
+    SELECT GREATEST(
+        COALESCE(MAX(e.createdAt), '0'),
+        COALESCE(MAX(pr.createdAt), '0'),
+        patient_facilities.createdAt
+    )
+    FROM patients p
+    LEFT JOIN patient_program_registrations pr 
+        ON p.id = pr.patientId 
+        AND pr.registeringFacilityId = patient_facilities.facilityId
+    LEFT JOIN encounters e 
+        ON p.id = e.patientId
+    LEFT JOIN locations l 
+        ON e.locationId = l.id 
+        AND l.facilityId = patient_facilities.facilityId
+    WHERE p.id = patient_facilities.patientId
     `);
   }
 
