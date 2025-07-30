@@ -1,5 +1,5 @@
-import {fake} from "@tamanu/fake-data/fake";
-import { createTestContext } from "../utilities";
+import { fake } from '@tamanu/fake-data/fake';
+import { createTestContext } from '../utilities';
 
 describe('PatientFacility', () => {
   let app = null;
@@ -34,7 +34,9 @@ describe('PatientFacility', () => {
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
 
-    const patientFacilityAfterCreate = await PatientFacility.findOne({ where: { patientId, facilityId } });
+    const patientFacilityAfterCreate = await PatientFacility.findOne({
+      where: { patientId, facilityId },
+    });
     const lastInteractedTime = patientFacilityAfterCreate.lastInteractedTime;
 
     const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
