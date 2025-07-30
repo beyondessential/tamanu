@@ -64,7 +64,7 @@ export const VitalsTable = React.memo(() => {
         PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT,
       ].includes(type);
 
-      if (isTranslatableOption) {
+      if (isTranslatableOption && value) {
         const optionStringId = getReferenceDataOptionStringId(
           dataElementId,
           'programDataElement',
