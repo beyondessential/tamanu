@@ -96,10 +96,11 @@ surveyResponse.put(
     } = req;
 
     const responseRecord = await models.SurveyResponse.findByPk(params.id);
-    req.checkPermission('write', subject('Charting', { id: responseRecord?.surveyId }));
     if (!responseRecord) {
       throw new NotFoundError('Response record not found');
     }
+
+    req.checkPermission('write', subject('Charting', { id: responseRecord.surveyId }));
 
     const survey = await responseRecord.getSurvey();
     if (survey.surveyType !== SURVEY_TYPES.COMPLEX_CHART_CORE) {
