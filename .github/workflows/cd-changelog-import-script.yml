@@ -20,7 +20,6 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write # to update the release notes
   id-token: write # OIDC token for AWS
 
 jobs:
