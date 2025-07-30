@@ -1,7 +1,6 @@
 import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
