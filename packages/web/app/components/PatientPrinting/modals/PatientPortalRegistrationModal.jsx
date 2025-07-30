@@ -9,7 +9,7 @@ import { BodyText } from '../../Typography';
 import { Button, OutlinedButton } from '../..';
 import { Colors } from '../../../constants';
 import { SendIcon } from '../../Icons/SendIcon';
-import { useRegisterPatientPortal } from '../../../api/mutations/useRegisterPatientPortal';
+import { useRegisterPatientPortal } from '../../../api/mutations/useRegisterPatientPortalMutation';
 import { SendToPatientModal } from './SendToPatientModal';
 import { Box, Link } from '@mui/material';
 

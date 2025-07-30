@@ -61,6 +61,35 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
   });
 };
 
+patientPortal.get(
+  '/:id/portal/status',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { id: patientId } = req.params;
+
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) {
+      throw new NotFoundError('Patient not found');
+    }
+
+    const patientUser = await models.PatientUser.findOne({
+      where: { patientId },
+    });
+
+    if (!patientUser) {
+      return res.send({
+        hasPortalAccount: false,
+        status: null,
+      });
+    }
+
+    res.send({
+      hasPortalAccount: true,
+      status: patientUser.status,
+    });
+  }),
+);
+
 // Soft registers the patient for portal access.
 patientPortal.post(
   '/:id/portal/register',
