@@ -114,7 +114,7 @@ export async function createApi(ctx) {
     });
   });
 
-  // Patient Portal - separate from main API auth
+  // Patient Portal - must go before main API to avoid main authentication
   express.use('/api/portal', patientPortalModule);
 
   // API

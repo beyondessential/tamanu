@@ -128,12 +128,11 @@ describe('Patient Portal Auth', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', testPatient.id);
-      expect(response.body.data).toHaveProperty('displayId', 'TEST001');
-      expect(response.body.data).toHaveProperty('firstName', 'John');
-      expect(response.body.data).toHaveProperty('lastName', 'Doe');
-      expect(response.body.data).toHaveProperty('sex', 'male');
+      expect(response.body).toHaveProperty('id', testPatient.id);
+      expect(response.body).toHaveProperty('displayId', 'TEST001');
+      expect(response.body).toHaveProperty('firstName', 'John');
+      expect(response.body).toHaveProperty('lastName', 'Doe');
+      expect(response.body).toHaveProperty('sex', 'male');
     });
 
     it('Should reject request without authorization header', async () => {
@@ -161,7 +160,7 @@ describe('Patient Portal Auth', () => {
         {
           aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
           iss: config.canonicalHostName,
-          userId: testPatientUser.id,
+          patientUserId: testPatientUser.id,
           jti: 'expired-token',
         },
         config.auth.secret,

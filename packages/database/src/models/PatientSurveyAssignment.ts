@@ -9,9 +9,8 @@ export class PatientSurveyAssignment extends Model {
   declare patientId: string;
   declare surveyId: string;
   declare status: string;
-  declare assignedAt?: string;
   declare completedAt?: string;
-  declare assignedBy?: string;
+  declare assignedById?: string;
   declare surveyResponseId?: string;
 
   forResponse() {
@@ -63,7 +62,7 @@ export class PatientSurveyAssignment extends Model {
       },
       {
         ...options,
-        indexes: [{ fields: ['patientId', 'status'], name: 'idx_patient_survey_status' }],
+        indexes: [{ fields: ['patientId', 'status'], name: 'idx_patient_id_status' }],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
