@@ -1,6 +1,7 @@
 name: CD Changelog Import Script
 
 on:
+  workflow_dispatch:
   push:
     tags: ['v*.*.*']
     branches:
