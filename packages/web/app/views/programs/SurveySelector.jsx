@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Button } from '../../components/Button';
 import { ButtonRow } from '../../components/ButtonRow';
 import { SelectInput } from '../../components/Field/SelectField';
-import { SendFormToPortalButton } from '../patients/components/SendFormToPortalModal';
+import { SendFormToPatientPortalButton } from '../patients/components/SendFormToPatientPortalModal';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -33,7 +33,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <SendFormToPortalButton disabled={!value} onSendToPatientPortal={() => {}} />
+        <SendFormToPatientPortalButton disabled={!value} formId={value} />
         <Button
           onClick={handleSubmit}
           disabled={!value}

@@ -129,3 +129,32 @@ patientPortal.post(
     res.send({ message: 'Registration email successfully sent' });
   }),
 );
+
+patientPortal.post(
+  '/:id/portal/forms',
+  asyncHandler(async (req, res) => {
+    const { models, user } = req;
+    const { id: patientId } = req.params;
+    const { formId } = req.body;
+
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) {
+      throw new NotFoundError('Patient not found');
+    }
+
+    const survey = await models.Survey.findByPk(formId);
+    if (!survey) {
+      throw new NotFoundError('Survey not found');
+    }
+
+    const patientSurveyAssignment = await models.PatientSurveyAssignment.create({
+      patientId,
+      surveyId: survey.id,
+      assignedById: user.id,
+    });
+
+    // TODO - send an email to patient if they have registered for the portal
+
+    res.send({ patientSurveyAssignment });
+  }),
+);

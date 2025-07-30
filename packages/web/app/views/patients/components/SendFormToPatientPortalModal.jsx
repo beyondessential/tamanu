@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import {
   ConfirmCancelRow,
@@ -9,8 +10,9 @@ import {
   TextButton,
 } from '../../../components';
 import { SendIcon } from '../../../components/Icons/SendIcon';
+import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientPortalFormMutation';
 
-export const SendFormToPortalModal = ({ open, onClose, patient }) => {
+export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPortal }) => {
   return (
     <Modal
       open={open}
@@ -25,7 +27,7 @@ export const SendFormToPortalModal = ({ open, onClose, patient }) => {
       <ModalGenericButtonRow>
         <ConfirmCancelRow
           onConfirm={() => {
-            console.log(patient);
+            onSendToPatientPortal();
           }}
           onCancel={onClose}
           confirmText={
@@ -40,9 +42,19 @@ export const SendFormToPortalModal = ({ open, onClose, patient }) => {
   );
 };
 
-export const SendFormToPortalButton = ({ disabled }) => {
+export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
   const [open, setOpen] = useState(false);
   const patient = useSelector(state => state.patient);
+
+  const { mutate: sendPatientPortalForm } = useSendPatientPortalForm({
+    onSuccess: () => {
+      toast.success('Form sent to patient portal');
+    },
+  });
+
+  const handleSendToPatientPortal = () => {
+    sendPatientPortalForm({ patientId: patient.id, formId });
+  };
 
   return (
     <>
@@ -57,7 +69,11 @@ export const SendFormToPortalButton = ({ disabled }) => {
           fallback="Send to patient portal"
         />
       </TextButton>
-      <SendFormToPortalModal open={open} onClose={() => setOpen(false)} patient={patient} />
+      <SendFormToPatientPortalModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSendToPatientPortal={handleSendToPatientPortal}
+      />
     </>
   );
 };
