@@ -136,6 +136,7 @@ export const FileChooserInput = ({
 
   const onClear = () => {
     onChange({ target: { name, value: '' } });
+    inputRef.current.value = '';
   };
 
   return (
