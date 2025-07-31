@@ -213,13 +213,13 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
           <SuccessText>
             <TranslatedText
               stringId="pharmacyOrder.success.message"
-              fallback="Your order has been sent to the pharmacy"
+              fallback="Your order has been sent to pharmacy."
             />
           </SuccessText>
           <SuccessDescription>
             <TranslatedText
               stringId="pharmacyOrder.success.description"
-              fallback="Please do not send additional requests for this item/s until the original request has been filled by the pharmacy."
+              fallback="Please do not send additional requests for these item/s until the original request has been filled by pharmacy."
             />
           </SuccessDescription>
         </SuccessContent>
@@ -247,7 +247,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
     >
       <TranslatedText
         stringId="pharmacyOrder.description"
-        fallback="Select the prescriptions you would like to send to the pharmacy (via mSupply)"
+        fallback="Select the prescriptions you would like to send to pharmacy (via mSupply)"
         data-testid="translatedtext-rnjt"
       />
       <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
