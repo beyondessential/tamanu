@@ -62,10 +62,11 @@ export const ProcedureAdditionalData = ({
   procedureId,
   procedureTypeId,
   updateRefreshCount,
+  selectedSurveyId,
+  setSelectedSurveyId,
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
-  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());

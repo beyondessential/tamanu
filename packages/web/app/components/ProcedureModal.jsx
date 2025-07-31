@@ -5,7 +5,10 @@ import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { UnSavedChangesModal } from '../forms/ProcedureForm/ProcedureFormModals';
+import {
+  UnSavedChangesModal,
+  UnSavedProcedureProgramModal,
+} from '../forms/ProcedureForm/ProcedureFormModals';
 
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.
@@ -28,7 +31,9 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
+  const [unSavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -40,7 +45,11 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const anaestheticSuggester = useSuggester('drug');
 
   const onCloseClick = () => {
-    setUnSavedChangesModalOpen(true);
+    if (selectedSurveyId) {
+      setUnSavedProgramFormOpen(true);
+    } else {
+      setUnSavedChangesModalOpen(true);
+    }
   };
 
   return (
@@ -96,9 +105,21 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           assistantSuggester={assistantSuggester}
           procedureSuggester={procedureSuggester}
           anaestheticSuggester={anaestheticSuggester}
+          selectedSurveyId={selectedSurveyId}
+          setSelectedSurveyId={setSelectedSurveyId}
           data-testid="procedureform-euca"
         />
       </FormModal>
+      <UnSavedProcedureProgramModal
+        open={unSavedProgramFormOpen}
+        onCancel={() => {
+          setUnSavedProgramFormOpen(false);
+        }}
+        onConfirm={() => {
+          setUnSavedProgramFormOpen(false);
+          onClose();
+        }}
+      />
       <UnSavedChangesModal
         open={unSavedChangesModalOpen}
         onCancel={() => {

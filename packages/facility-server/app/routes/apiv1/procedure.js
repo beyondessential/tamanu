@@ -26,6 +26,36 @@ procedure.get('/:id', async (req, res) => {
   res.send(procedureData);
 });
 
+procedure.post('/surveyResponse', async (req, res) => {
+  const {
+    models,
+    body: { procedureId },
+  } = req;
+
+  const responseRecord = await req.db.transaction(async () => {
+    const newSurveyResponse = await createSurveyResponse(req, res);
+
+    if (procedureId) {
+      const date = getCurrentDateTimeString();
+      const procedure = await models.Procedure.findOrCreate({
+        where: { id: procedureId },
+        defaults: {
+          completed: false,
+          date,
+        },
+      });
+
+      await models.ProcedureSurveyResponse.create({
+        surveyResponseId: newSurveyResponse.id,
+        procedureId: procedure[0].id, // procedure[0] is the found/created instance
+      });
+    }
+    return newSurveyResponse;
+  });
+
+  res.send(responseRecord);
+});
+
 const createNewProcedure = async (requestBody, models) => {
   const { assistantClinicianIds, ...procedureData } = requestBody;
 
@@ -100,36 +130,4 @@ procedure.post('/:id?', async (req, res) => {
     procedure = await createNewProcedure(req.body, models);
   }
   res.send(procedure);
-});
-
-procedure.post('/surveyResponse', async (req, res) => {
-  const {
-    models,
-    body: { procedureId },
-  } = req;
-
-  const responseRecord = await req.db.transaction(async () => {
-    const newSurveyResponse = await createSurveyResponse(req, res);
-
-    if (procedureId) {
-      // Find or create the Procedure based on procedureId
-      const procedure = await models.Procedure.findOrCreate({
-        where: { id: procedureId },
-        defaults: {
-          // Add any default values needed for creating a new Procedure
-          // These are just examples - adjust based on your requirements
-          completed: false,
-          date: getCurrentDateTimeString(),
-        },
-      });
-
-      await models.ProcedureSurveyResponse.create({
-        surveyResponseId: newSurveyResponse.id,
-        procedureId: procedure[0].id, // procedure[0] is the found/created instance
-      });
-    }
-    return newSurveyResponse;
-  });
-
-  res.send(responseRecord);
 });

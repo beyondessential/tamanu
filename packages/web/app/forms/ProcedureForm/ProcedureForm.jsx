@@ -74,6 +74,8 @@ export const ProcedureForm = React.memo(
     physicianSuggester,
     anaesthetistSuggester,
     assistantSuggester,
+    selectedSurveyId,
+    setSelectedSurveyId,
   }) => {
     const [refreshCount, updateRefreshCount] = useRefreshCount();
     const { currentUser } = useAuth();
@@ -291,6 +293,8 @@ export const ProcedureForm = React.memo(
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}
                 updateRefreshCount={updateRefreshCount}
+                selectedSurveyId={selectedSurveyId}
+                setSelectedSurveyId={setSelectedSurveyId}
               />
               <Divider />
               <ProgramsTable
