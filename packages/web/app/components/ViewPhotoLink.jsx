@@ -8,6 +8,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
+import { useTranslation } from '../contexts/Translation';
 
 const Image = styled.img`
   display: block;
@@ -89,13 +90,16 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const openModalCallback = useCallback(async () => {
     setShowModal(true);
     if (!navigator.onLine) {
       setImageData(null);
-      setErrorMessage(
+      const noInternetMessage = getTranslation(
+        'program.modal.view.action.viewImage.noInternet',
         'You do not currently have an internet connection. Images require live internet for viewing.',
       );
+      setErrorMessage(noInternetMessage);
       return;
     }
 
@@ -105,9 +109,13 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
       setErrorMessage(null);
     } catch (error) {
       setImageData(null);
-      setErrorMessage('Image cannot be viewed at this time. Please try again in a few minutes or contact your system administrator.');
+      const genericErrorMessage = getTranslation(
+        'program.modal.view.action.viewImage.error',
+        'Image cannot be viewed at this time. Please try again in a few minutes or contact your system administrator.',
+      );
+      setErrorMessage(genericErrorMessage);
     }
-  }, [api, imageId]);
+  }, [api, imageId, getTranslation]);
   const isChartView = !!chartTitle;
   const title = isChartView ? `${chartTitle} | View image` : 'Image';
 
