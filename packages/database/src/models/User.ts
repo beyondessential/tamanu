@@ -1,10 +1,9 @@
 import { hash } from 'bcrypt';
 import { DataTypes, Sequelize } from 'sequelize';
-import { isString } from 'lodash';
+import { unionBy } from 'lodash';
 
 import {
   CAN_ACCESS_ALL_FACILITIES,
-  CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
@@ -12,7 +11,7 @@ import {
 
 import { Model } from './Model';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/shared/errors';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
@@ -268,51 +267,48 @@ export class User extends Model {
   }
 
   async allowedFacilities() {
-    if (this.isSuperUser()) {
-      return CAN_ACCESS_ALL_FACILITIES;
-    }
+    const { Facility, Setting } = this.sequelize.models;
 
-    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToFacilities',
-    );
+    if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
+
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
     const hasLoginPermission = await this.hasPermission('login', 'Facility');
 
-    if (!restrictUsersToFacilities || hasLoginPermission) {
-      return CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES;
-    }
-
+    // Get user's linked facilities
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
 
-    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+    const userLinkedFacilities = this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+
+    // If setting is false or user has login permission, combine linked facilities with all non-sensitive ones
+    if (!restrictUsersToFacilities || hasLoginPermission) {
+      const allNonSensitiveFacilities = await Facility.findAll({
+        where: { isSensitive: false },
+        attributes: ['id', 'name'],
+        raw: true,
+      });
+
+      const combinedFacilities = unionBy(userLinkedFacilities, allNonSensitiveFacilities, 'id');
+      return combinedFacilities;
+    }
+
+    // Otherwise return only the facilities the user is linked to (including sensitive ones)
+    return userLinkedFacilities;
   }
 
   async allowedFacilityIds() {
     const allowedFacilities = await this.allowedFacilities();
-    if (isString(allowedFacilities)) return allowedFacilities; // Pass through any special keys
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
     return allowedFacilities.map(f => f.id);
   }
 
   async canAccessFacility(id: string) {
-    const { Facility } = this.sequelize.models;
-    const facility = await Facility.findByPk(id, { attributes: ['isSensitive'] });
-    if (!facility) throw new NotFoundError(`Facility with id ${id} not found`);
-
     const userLinkedFacilities = await this.allowedFacilityIds();
-
-    // Superuser bypasses all restrictions
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
-
-    // User is specifically linked to this facility so allow access
-    const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
-    if (userIsLinkedToThisFacility) return true;
-
-    // The facility is sensitive and the user is not linked to it so deny access
-    if (facility.isSensitive) return false;
-
-    // No restrictions apply since the setting is disabled and the facility is not sensitive
-    return true;
+    return userLinkedFacilities.includes(id);
   }
 
   static async filterAllowedFacilities(
@@ -325,13 +321,6 @@ export class User extends Model {
       if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
         const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
           where: { id: facilityIds },
-        });
-        return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
-      }
-
-      if (allowedFacilities === CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES) {
-        const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({
-          where: { id: facilityIds, isSensitive: false },
         });
         return facilitiesMatchingIds?.map(({ id, name }) => ({ id, name })) ?? [];
       }

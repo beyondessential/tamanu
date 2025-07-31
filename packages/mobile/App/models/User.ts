@@ -10,13 +10,10 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
 import { Setting } from './Setting';
-import {
-  CAN_ACCESS_ALL_FACILITIES,
-  CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-  SYSTEM_USER_UUID,
-} from '~/constants';
+import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { Facility } from './Facility';
 import { type PureAbility } from '@casl/ability';
+import { union } from 'lodash';
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -79,17 +76,30 @@ export class User extends BaseModel implements IUser {
     const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
     const hasLoginPermission = ability.can('login', 'Facility');
 
-    if (!restrictUsersToFacilities || hasLoginPermission) {
-      return CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES;
-    }
-
+    // Get user's linked facilities (including sensitive ones)
     const userFacilities = await UserFacility.getRepository().find({
       where: {
         user: { id: this.id },
       },
     });
+    const userLinkedFacilityIds = userFacilities.map(f => f.facilityId);
 
-    return userFacilities.map(f => f.facilityId);
+    // If restrictions are disabled or user has login permission, combine linked facilities with all non-sensitive ones
+    if (!restrictUsersToFacilities || hasLoginPermission) {
+      const allNonSensitiveFacilities = await Facility.getRepository().find({
+        where: { isSensitive: false },
+        select: ['id'],
+      });
+      const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);
+
+      // Combine and deduplicate facility IDs
+      const combinedFacilityIds = union(userLinkedFacilityIds, allNonSensitiveFacilityIds);
+
+      return combinedFacilityIds;
+    }
+
+    // Otherwise return only the facilities the user is linked to (including sensitive ones)
+    return userLinkedFacilityIds;
   }
 
   /**
@@ -97,9 +107,9 @@ export class User extends BaseModel implements IUser {
    *
    * Access rules:
    * 1. Superusers can always access all facilities
-   * 2. [login Facility] permission overrides any linked facilities UNLESS the facility is sensitive
-   * 3. If restrictUsersToFacilities is enabled OR facility is sensitive: check against user's linked facilities
-   * 4. Otherwise: allow access (no restrictions)
+   * 2. Users can access facilities they are linked to (including sensitive ones)
+   * 3. Users can access non-sensitive facilities when restrictions are disabled or they have login permission
+   * 4. Otherwise: deny access
    */
   async canAccessFacility(id: string, ability: PureAbility) {
     const facility = await Facility.getRepository().findOne({ where: { id } });
@@ -110,14 +120,15 @@ export class User extends BaseModel implements IUser {
     // Superuser bypasses all restrictions
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
 
-    // User is specifically linked to this facility so allow access
-    const userIsLinkedToThisFacility = userLinkedFacilities.includes(id);
-    if (userIsLinkedToThisFacility) return true;
+    // Check if user is linked to this facility
+    const isUserLinked = userLinkedFacilities.includes(id);
+    if (isUserLinked) return true;
 
-    // The facility is sensitive and the user is not linked to it so deny access
+    // User is not linked to the facility
+    // Deny access if facility is sensitive
     if (facility.isSensitive) return false;
 
-    // No restrictions apply since the setting is disabled and the facility is not sensitive
+    // Allow access for non-sensitive facilities when no restrictions apply
     return true;
   }
 

@@ -1,8 +1,4 @@
-import {
-  CAN_ACCESS_ALL_FACILITIES,
-  CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
@@ -353,8 +349,8 @@ describe('User', () => {
     let linkedUser = null;
     let unlinkedUser = null;
 
-    const validUserFacilities = [facility1, facility2];
-    const validUserFacilityIds = validUserFacilities.map(f => f.id);
+    const linkedUserFacilities = [facility1, sensitiveFacility];
+    const linkedUserFacilityIds = linkedUserFacilities.map(f => f.id);
 
     const mockLoginFacilityPermission = async (user, hasPermission) => {
       jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
@@ -382,7 +378,7 @@ describe('User', () => {
       );
 
       await Promise.all(
-        validUserFacilities.map(async facility => {
+        linkedUserFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
             userId: linkedUser.id,
@@ -398,22 +394,37 @@ describe('User', () => {
         const superUserFacilities = await superUser.allowedFacilities();
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
-      it('should get special "ALL_NON_SENSITIVE" key when user has login permission', async () => {
+
+      // ===== NON_SENSITIVE_OVERRIDE =====
+
+      it('login permission should return all non-sensitive facilities plus linked facilities', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', true);
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilities = await linkedUser.allowedFacilities();
-        expect(userFacilities).toBe(CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES);
+        expect(userFacilities).toContainEqual(facility1);
+        expect(userFacilities).toContainEqual(facility2);
+        expect(userFacilities).toContainEqual(facility3);
+        expect(userFacilities).toContainEqual(sensitiveFacility);
       });
-      it('should get special "ALL_NON_SENSITIVE" key when setting is disabled', async () => {
+
+      it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilities = await linkedUser.allowedFacilities();
-        expect(userFacilities).toBe(CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES);
+        expect(userFacilities).toContainEqual(facility1);
+        expect(userFacilities).toContainEqual(facility2);
+        expect(userFacilities).toContainEqual(facility3);
+        expect(userFacilities).toContainEqual(sensitiveFacility);
       });
+
+      // SETTING ENABLED
+
       it('should return linked facilities from user_facilities table', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', true);
         mockLoginFacilityPermission(linkedUser, false);
         const userFacilities = await linkedUser.allowedFacilities();
-        expect(userFacilities).toStrictEqual(validUserFacilities);
+        expect(userFacilities).toStrictEqual(linkedUserFacilities);
       });
+
       it('should return empty array if no linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', true);
         const userFacilities = await unlinkedUser.allowedFacilities();
@@ -429,20 +440,30 @@ describe('User', () => {
         const superUserFacilityIds = await superUser.allowedFacilityIds();
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
-      it('should get special "ALL_NON_SENSITIVE" key when user has login permission', async () => {
+
+      it('login permission should return all non-sensitive facilities plus linked facilities', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', true);
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilityIds = await linkedUser.allowedFacilityIds();
-        expect(userFacilityIds).toBe(CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES);
+        expect(userFacilityIds).toContainEqual(facility1.id);
+        expect(userFacilityIds).toContainEqual(facility2.id);
+        expect(userFacilityIds).toContainEqual(facility3.id);
+        expect(userFacilityIds).toContainEqual(sensitiveFacility.id);
       });
-      it('should get special "ALL_NON_SENSITIVE" key when setting is disabled', async () => {
+
+      it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilityIds = await linkedUser.allowedFacilityIds();
-        expect(userFacilityIds).toBe(CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES);
+        expect(userFacilityIds).toContainEqual(facility1.id);
+        expect(userFacilityIds).toContainEqual(facility2.id);
+        expect(userFacilityIds).toContainEqual(facility3.id);
+        expect(userFacilityIds).toContainEqual(sensitiveFacility.id);
       });
+
       it('should return linked facility ids from user_facilities table', async () => {
-        jest.spyOn(linkedUser, 'allowedFacilities').mockImplementation(() => validUserFacilities);
+        jest.spyOn(linkedUser, 'allowedFacilities').mockImplementation(() => linkedUserFacilities);
         const userFacilityIds = await linkedUser.allowedFacilityIds();
-        expect(userFacilityIds).toStrictEqual(validUserFacilityIds);
+        expect(userFacilityIds).toStrictEqual(linkedUserFacilityIds);
       });
       it('should return empty array if no linked facilities', async () => {
         jest.spyOn(unlinkedUser, 'allowedFacilities').mockImplementation(() => []);
@@ -453,169 +474,114 @@ describe('User', () => {
     });
 
     describe('canAccessFacility', () => {
-      const mockLinkedFacilityIdsForUser = async (user, facilityIds) => {
-        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => facilityIds);
-      };
+      const nonSensitiveFacilities = [facility1, facility2, facility3];
+      const combinedFacilities = [...nonSensitiveFacilities, sensitiveFacility];
 
-      const testUserAccess = async ({
-        testUser,
-        loginPermission = false,
-        allowedFacilityIds = [],
-        facilityId,
-        expectAccess = false,
+      const testFacilityAccess = async ({
+        user,
+        hasLoginPermission = false,
+        settingEnabled = false,
+        expectedAccess = [],
+        expectedDenied = [],
       }) => {
-        mockLinkedFacilityIdsForUser(testUser, allowedFacilityIds);
-        mockLoginFacilityPermission(testUser, loginPermission);
-        expect(await testUser.canAccessFacility(facilityId)).toBe(expectAccess);
+        await models.Setting.set('auth.restrictUsersToFacilities', settingEnabled);
+        mockLoginFacilityPermission(user, hasLoginPermission);
+        expectedAccess.forEach(async facility => {
+          expect(await user.canAccessFacility(facility.id)).toBe(true);
+        });
+        expectedDenied.forEach(async facility => {
+          expect(await user.canAccessFacility(facility.id)).toBe(false);
+        });
       };
 
-      describe('restrictUsersToFacilities disabled', () => {
-        beforeAll(async () => {
-          await models.Setting.set('auth.restrictUsersToFacilities', false);
-        });
-
-        it('should return true for every facility if superuser', async () => {
-          mockLinkedFacilityIdsForUser(superUser, CAN_ACCESS_ALL_FACILITIES);
-          expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
-          expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
-          expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
-          expect(await superUser.canAccessFacility(sensitiveFacility.id)).toBe(true);
-        });
-
-        // ===== Sensitive facilities =====
-        // User linked to facility
-        it('should return true if a facility is sensitive and the user is linked to it', async () => {
-          await testUserAccess({
-            testUser: linkedUser,
-            allowedFacilityIds: [sensitiveFacility.id],
-            facilityId: sensitiveFacility.id,
-            expectAccess: true,
-          });
-        });
-        // User not linked to facility
-        it('should return false if a facility is sensitive and the user is not linked to it', async () => {
-          await testUserAccess({
-            testUser: unlinkedUser,
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            facilityId: sensitiveFacility.id,
-            expectAccess: false,
-          });
-        });
-        // Permission override
-        it('should return false if a facility is sensitive and the user has login permission but no links', async () => {
-          await testUserAccess({
-            testUser: unlinkedUser,
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            facilityId: sensitiveFacility.id,
-            expectAccess: false,
-            loginPermission: true,
-          });
-        });
-
-        // ===== Non-sensitive facilities =====
-        // User linked to facility
-        it('should return true if a facility is not sensitive and the user is linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: [facility1.id],
-            facilityId: facility1.id,
-            expectAccess: true,
-            testUser: linkedUser,
-          });
-        });
-        // User not linked to facility
-        it('should return true if a facility is not sensitive and the user is not linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            facilityId: facility1.id,
-            expectAccess: true,
-            testUser: unlinkedUser,
-          });
-        });
-        // Permission check
-        it('should return true if a facility is not sensitive and the user has login permission but no links', async () => {
-          await testUserAccess({
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            facilityId: facility1.id,
-            expectAccess: true,
-            testUser: unlinkedUser,
-            loginPermission: true,
-          });
+      it('should return true for every facility if superuser', async () => {
+        await testFacilityAccess({
+          user: superUser,
+          expectedAccess: combinedFacilities,
         });
       });
 
-      describe('restrictUsersToFacilities enabled', () => {
-        beforeAll(async () => {
-          await models.Setting.set('auth.restrictUsersToFacilities', true);
+      // SENSITIVE_FACILITY
+      it('should return true if a facility is sensitive and the user is linked to it', async () => {
+        await testFacilityAccess({
+          user: linkedUser,
+          expectedAccess: [facility1, sensitiveFacility],
+          expectedDenied: [facility2, facility3],
         });
+      });
 
-        it('should return true for every facility if superuser', async () => {
-          jest
-            .spyOn(superUser, 'allowedFacilityIds')
-            .mockImplementation(() => CAN_ACCESS_ALL_FACILITIES);
-          expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
-          expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
-          expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
-          expect(await superUser.canAccessFacility(sensitiveFacility.id)).toBe(true);
+      it('should return false if a facility is sensitive and the user is not linked to it', async () => {
+        await testFacilityAccess({
+          user: unlinkedUser,
+          expectedDenied: [facility1, facility2, facility3, sensitiveFacility],
         });
+      });
 
-        // ===== Sensitive facilities =====
-        // User linked to facility
-        it('should return true if a facility is sensitive and the user is linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: [sensitiveFacility.id],
-            facilityId: sensitiveFacility.id,
-            expectAccess: true,
-            testUser: linkedUser,
-          });
+      // SETTING ENABLED
+      it('should return true if the setting is enabled and the user is linked to the facility', async () => {
+        await testFacilityAccess({
+          settingEnabled: true,
+          user: linkedUser,
+          expectedAccess: [facility1],
+          expectedDenied: [facility2, facility3, sensitiveFacility],
         });
-        // User not linked to facility
-        it('should return false if a facility is sensitive and the user is not linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: [],
-            facilityId: sensitiveFacility.id,
-            expectAccess: false,
-            testUser: unlinkedUser,
-          });
-        });
-        // Permission override
-        it('should return false if a facility is sensitive and the user has login permission but no links', async () => {
-          await testUserAccess({
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            facilityId: sensitiveFacility.id,
-            expectAccess: false,
-            loginPermission: true,
-            testUser: unlinkedUser,
-          });
-        });
+      });
 
-        // ===== Non-sensitive facilities =====
-        // User linked to facility
-        it('should return true if a facility is not sensitive and the user is linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: [facility1.id],
-            facilityId: facility1.id,
-            expectAccess: true,
-            testUser: linkedUser,
-          });
+      it('should return false if the setting is enabled and the user is not linked to the facility', async () => {
+        await testFacilityAccess({
+          settingEnabled: true,
+          user: unlinkedUser,
+          expectedDenied: [facility1, facility2, facility3, sensitiveFacility],
         });
-        // User not linked to facility
-        it('should return false if a facility is not sensitive and the user is not linked to it', async () => {
-          await testUserAccess({
-            allowedFacilityIds: [],
-            facilityId: facility1.id,
-            expectAccess: false,
-            testUser: unlinkedUser,
-          });
+      });
+
+      // SETTING DISABLED
+      it('should return true if the setting is disabled and the user is linked to the facility (not sensitive)', async () => {
+        await testFacilityAccess({
+          settingEnabled: false,
+          user: linkedUser,
+          expectedAccess: [facility1],
+          expectedDenied: [facility2, facility3, sensitiveFacility],
         });
-        // Permission check
-        it('should return true if a facility is not sensitive and the user has login permission but no links', async () => {
-          await testUserAccess({
-            allowedFacilityIds: CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-            loginPermission: true,
-            facilityId: facility1.id,
-            expectAccess: true,
-            testUser: unlinkedUser,
-          });
+      });
+
+      it('should return true if the setting is disabled and the user is not linked to the facility (not sensitive)', async () => {
+        await testFacilityAccess({
+          settingEnabled: false,
+          user: unlinkedUser,
+          expectedAccess: [facility1, facility2, facility3],
+          expectedDenied: [sensitiveFacility],
+        });
+      });
+
+      // LOGIN_PERMISSION
+      it('should return true for any non sensitive facility if the user has login permission', async () => {
+        await testFacilityAccess({
+          settingEnabled: true,
+          user: linkedUser,
+          hasLoginPermission: true,
+          expectedAccess: [facility1, facility2, facility3],
+          expectedDenied: [sensitiveFacility],
+        });
+      });
+
+      it('should return true if the user has login permission and the sensitive facility is linked', async () => {
+        await testFacilityAccess({
+          settingEnabled: true,
+          user: linkedUser,
+          hasLoginPermission: true,
+          expectedAccess: [facility1, facility2, facility3, sensitiveFacility],
+          expectedDenied: [],
+        });
+      });
+
+      it('should return false if the user has login permission and the sensitive facility is not linked', async () => {
+        await testFacilityAccess({
+          settingEnabled: true,
+          user: unlinkedUser,
+          hasLoginPermission: true,
+          expectedAccess: [facility1, facility2, facility3],
+          expectedDenied: [sensitiveFacility],
         });
       });
     });
@@ -634,21 +600,12 @@ describe('User', () => {
         ]);
       });
 
-      it('should return all non-sensitive facilities that match facilityIds argument user with login permission', async () => {
-        mockLoginFacilityPermission(linkedUser, true);
-        const superUserAllowedFacilities = await models.User.filterAllowedFacilities(
-          CAN_ACCESS_ALL_NON_SENSITIVE_FACILITIES,
-          configFacilityIds,
-        );
-        expect(superUserAllowedFacilities).toStrictEqual([facility1, facility2, facility3]);
-      });
-
       it('should filter allowed facilities by facilityIds argument if normal user', async () => {
         const userAllowedFacilities = await models.User.filterAllowedFacilities(
-          validUserFacilities,
+          linkedUserFacilities,
           configFacilityIds,
         );
-        expect(userAllowedFacilities).toStrictEqual(validUserFacilities);
+        expect(userAllowedFacilities).toStrictEqual(linkedUserFacilities);
       });
     });
   });
