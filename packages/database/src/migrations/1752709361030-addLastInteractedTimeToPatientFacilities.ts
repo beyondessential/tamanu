@@ -45,6 +45,7 @@ export async function up(query: QueryInterface): Promise<void> {
       LEFT JOIN locations l 
         ON e.location_id = l.id 
         AND l.facility_id = pf.facility_id
+      WHERE l.id IS NOT NULL
       GROUP BY pf.id, pf.created_at
     )
     UPDATE patient_facilities pf
