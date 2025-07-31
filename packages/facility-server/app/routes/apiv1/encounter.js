@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
@@ -385,23 +385,26 @@ encounterRelations.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const prescriptionIds = prescriptions.map(p => p.id);
-    const [pharmacyOrderPrescriptions] = await db.query(
-      `
+    let responseData = prescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [pharmacyOrderPrescriptions] = await db.query(
+        `
         SELECT prescription_id as prescription_id, max(created_at) as last_ordered_at 
         FROM pharmacy_order_prescriptions 
         WHERE prescription_id IN (:prescriptionIds) GROUP BY prescription_id
       `,
-      { replacements: { prescriptionIds } },
-    );
-    const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
 
-    const prescriptionWithLastOrderedAt = prescriptions.map(p => ({
-      ...p.forResponse(),
-      lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
-    }));
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: toDateTimeString(lastOrderedAts[p.id]?.last_ordered_at),
+      }));
+    }
 
-    res.send({ count, data: prescriptionWithLastOrderedAt });
+    res.send({ count, data: responseData });
   }),
 );
 
