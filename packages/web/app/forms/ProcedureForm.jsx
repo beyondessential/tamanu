@@ -72,7 +72,7 @@ export const ProcedureForm = React.memo(
               );
             return (
               <TranslatedText
-                stringId="general.action.submit"
+                stringId="procedure.form.submit"
                 fallback="Save procedure"
                 data-testid="translatedtext-162m"
               />

@@ -4,6 +4,10 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { Department } from './Department';
+import type { User } from './User';
+import type { Location } from './Location';
+import type { Encounter } from './Encounter';
 
 export class Procedure extends Model {
   declare id: string;
@@ -23,6 +27,13 @@ export class Procedure extends Model {
   declare assistantAnaesthetistId?: string;
   declare timeIn?: string;
   declare timeOut?: string;
+
+  declare encounter?: Encounter;
+  declare Location?: Location;
+  declare Department?: Department;
+  declare LeadClinician?: User;
+  declare Anaesthetist?: User;
+  declare AssistantAnaesthetist?: User;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
