@@ -1,11 +1,11 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import type { InitOptions, Models } from '../types/model';
 import {
-  buildEncounterLinkedLookupJoins,
-  buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import type { InitOptions, Models } from '../types/model';
 
 export class ImagingRequestArea extends Model {
   declare id: string;
@@ -47,8 +47,12 @@ export class ImagingRequestArea extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'imaging_requests',
+        'encounters',
+      ]),
     };
   }
 }

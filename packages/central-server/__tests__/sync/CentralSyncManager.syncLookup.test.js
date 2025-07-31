@@ -729,17 +729,18 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const isFacilityIdRequired = ['appointments', 'appointment_schedules'].includes(
-        model.tableName,
-      );
+      // except for appointments and appointment_schedules, patient linked models should not spit out facilityId;
+      const expectedFacility = ['appointments', 'appointment_schedules'].includes(model.tableName)
+        ? facility.id
+        : null;
 
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
+          facilityId: expectedFacility,
           isDeleted: false,
-          ...(isFacilityIdRequired ? { facilityId: facility.id } : {}),
         }),
       );
     }
