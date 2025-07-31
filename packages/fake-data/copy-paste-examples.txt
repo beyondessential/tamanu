@@ -1,0 +1,15 @@
+({ generateEachDataType } = require('@tamanu/fake-data/populateDb'))
+console.time('generate-10000-sets');
+for (let i = 0; i < 10000; i++) {
+  console.log(`Generating set ${i + 1}/10000...`);
+  await generateEachDataType(models);
+}
+console.timeEnd('generate-10000-sets');
+
+
+Baseline debug log
+{"startedAt":"2025-07-31T21:42:40.002Z",
+"since":-1,"changesCount":356408,"
+completedAt":"2025-07-31T21:42:52.057Z"}
+
+Changes debug log
