@@ -395,9 +395,7 @@ describe('User', () => {
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      // ===== NON_SENSITIVE_OVERRIDE =====
-
-      it('login permission should return all non-sensitive facilities plus linked facilities', async () => {
+      it('user with login permission should return all non-sensitive facilities plus linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', true);
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilities = await linkedUser.allowedFacilities();
@@ -416,11 +414,8 @@ describe('User', () => {
         expect(userFacilities).toContainEqual(sensitiveFacility);
       });
 
-      // SETTING ENABLED
-
       it('should return linked facilities from user_facilities table', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', true);
-        mockLoginFacilityPermission(linkedUser, false);
         const userFacilities = await linkedUser.allowedFacilities();
         expect(userFacilities).toStrictEqual(linkedUserFacilities);
       });
