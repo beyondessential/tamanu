@@ -19,7 +19,8 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.sequelize.query(`
     UPDATE patient_facilities
-    SET created_at_sync_tick = updated_at_sync_tick;
+    SET created_at_sync_tick = updated_at_sync_tick
+    WHERE updated_at_sync_tick <> -999;
   `);
 
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
