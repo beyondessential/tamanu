@@ -10,7 +10,7 @@ import type { Model } from '../models/Model';
  * Only populates facility_id when the encounter is from a sensitive facility
  * This ensures sensitive encounters are only synced to their originating facility
  */
-const addSensitiveFacilityIdIfApplicable = `
+const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
     CASE
       WHEN facilities.is_sensitive = TRUE THEN facilities.id
       ELSE NULL
@@ -23,7 +23,7 @@ export function buildEncounterLinkedLookupSelect(
 ) {
   return buildSyncLookupSelect(model, {
     patientId: 'encounters.patient_id',
-    facilityId: addSensitiveFacilityIdIfApplicable,
+    facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
     ...extraSelects,
   });
 }
