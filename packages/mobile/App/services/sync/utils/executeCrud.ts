@@ -19,6 +19,7 @@ export const executeInserts = async (
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
+  const repository = model.getTransactionalRepository();
   const deduplicated = [];
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);

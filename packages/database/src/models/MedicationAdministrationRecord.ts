@@ -11,7 +11,10 @@ import {
   startOfDay,
 } from 'date-fns';
 import config from 'config';
-import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
+import {
+  getFirstAdministrationDate,
+  areDatesInSameTimeSlot,
+} from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
@@ -115,6 +118,8 @@ export class MedicationAdministrationRecord extends Model {
    * skips generation if the calculated due date falls outside the valid prescription period
    * or before the last generated MAR.
    *
+   * IMPORTANT: keep it in sync with the mobile app's MedicationAdministrationRecord model
+   *
    * @param prescription The prescription object for which to generate MARs.
    */
   static async generateMedicationAdministrationRecords(prescription: Prescription) {
@@ -149,17 +154,10 @@ export class MedicationAdministrationRecord extends Model {
     // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
     if (prescription.idealTimes && prescription.idealTimes.length > 0) {
-      try {
-        firstAdministrationDate = getFirstAdministrationDate(
-          new Date(prescription.startDate),
-          prescription.idealTimes,
-        );
-      } catch (error) {
-        console.error(
-          `Error calculating first administration date for prescription ${prescription.id}:`,
-          error,
-        );
-      }
+      firstAdministrationDate = getFirstAdministrationDate(
+        new Date(prescription.startDate),
+        prescription.idealTimes,
+      );
     }
 
     // Get the upcoming records should be generated time frame
@@ -195,10 +193,13 @@ export class MedicationAdministrationRecord extends Model {
           minutes,
           0,
         );
-        // Skip if the next due date is before the start date, after the end date, or after the prescription was discontinued
+
+        const prescriptionStartDate = new Date(prescription.startDate);
+        // Skip if the next due date is after the end date, or after the prescription was discontinued
         // For cron job, skip if the next due date is before the last due date (to avoid creating duplicate records)
         if (
-          nextDueDate < new Date(prescription.startDate) ||
+          (nextDueDate < prescriptionStartDate &&
+            !areDatesInSameTimeSlot(prescriptionStartDate, nextDueDate)) ||
           nextDueDate > endDate ||
           (lastMedicationAdministrationRecord &&
             nextDueDate <= new Date(lastMedicationAdministrationRecord.dueAt)) ||
@@ -225,8 +226,8 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          // If the due date of the first administration is the 29th or 30th, then set the next due date to the 1st of the next month
           const lastDueDay = getDate(lastDueDate);
+          // If the due date of the first administration is the 29th or 30th or 31st, then set the next due date to the 1st of the second next month
           if (lastDueDay >= 29) {
             lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));
           } else {
@@ -299,7 +300,7 @@ export class MedicationAdministrationRecord extends Model {
     await this.destroy({
       where: {
         id: {
-          [Op.in]: marsToRemove.map((mar) => mar.id),
+          [Op.in]: marsToRemove.map(mar => mar.id),
         },
       },
       transaction,

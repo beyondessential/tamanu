@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation } from 'react-router-dom';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
@@ -165,7 +165,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) 
           color={isPausing ? Colors.softText : 'inherit'}
           fontStyle={isPausing ? 'italic' : 'normal'}
         >
-          {getDose(data, getTranslation, getEnumTranslation)}
+          {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
           {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
         </NoWrapCell>
       );

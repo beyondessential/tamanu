@@ -182,8 +182,9 @@ export const SelectInput = ({
   if (disabled || isReadonly || !options || options.length === 0) {
     const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
     const valueText =
-      isValidElement(selectedOptionLabel) && selectedOptionLabel.type.name === 'TranslatedText'
-        ? selectedOptionLabel.props.fallback // temporary workaround to stop [object Object] from being displayed
+      isValidElement(selectedOptionLabel) &&
+      ['TranslatedText', 'TranslatedReferenceData'].includes(selectedOptionLabel.type.name)
+        ? selectedOptionLabel.props.fallback // TODO temporary workaround to stop [object Object] from being displayed
         : selectedOptionLabel;
     return (
       <OuterLabelFieldWrapper label={label} {...props}>

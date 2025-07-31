@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { BodyText, Heading4, SmallBodyText, TranslatedText } from '..';
 import { Colors } from '../../constants';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -178,7 +178,7 @@ export const MedicationSetMedicationsList = ({
                 </CheckedLabel>
               )}
               <BodyText>
-                {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+                {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
                 {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
                 {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
               </BodyText>

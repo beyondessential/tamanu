@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { CheckSharp } from '@material-ui/icons';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
@@ -50,7 +50,7 @@ export const MedicationSummary = ({ medication }) => {
           />
         </DarkestText>
         <DarkestText>
-          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
           {getTranslatedFrequency(medication.frequency, getTranslation)},{' '}
           <TranslatedEnum value={medication.route} enumValues={DRUG_ROUTE_LABELS} />
         </DarkestText>
