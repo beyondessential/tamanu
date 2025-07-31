@@ -92,6 +92,13 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 export const FILTER_PHOTOS = { name: 'Photos (.jpg, .jpeg)', extensions: ['jpg', 'jpeg'] };
 
+const getFilterNames = (filters) => {
+  if (filters.length === 1 && filters[0].name === FILTER_PHOTOS.name) {
+    return filters[0].extensions.join(' or ');
+  }
+  return filters.map((filter) => filter.name).join(', ');
+};
+
 export const FileChooserInput = ({
   value = '',
   label,
@@ -192,7 +199,7 @@ export const FileChooserInput = ({
                   fallback="Supported file types"
                   data-testid="translatedtext-k2w3"
                 />
-                : {filters.map((filter) => filter.name).join(', ')}
+                : {getFilterNames(filters)}
               </HintText>
             </>
           )}
