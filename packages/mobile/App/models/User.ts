@@ -68,8 +68,7 @@ export class User extends BaseModel implements IUser {
   }
 
   async allowedFacilityIds(ability: PureAbility) {
-    const canAccessAllFacilities = this.isSuperUser();
-    if (canAccessAllFacilities) {
+    if (this.isSuperUser()) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
 
@@ -92,9 +91,7 @@ export class User extends BaseModel implements IUser {
       });
       const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);
 
-      // Combine and deduplicate facility IDs
       const combinedFacilityIds = union(userLinkedFacilityIds, allNonSensitiveFacilityIds);
-
       return combinedFacilityIds;
     }
 
@@ -102,34 +99,10 @@ export class User extends BaseModel implements IUser {
     return userLinkedFacilityIds;
   }
 
-  /**
-   * Check if user can access a specific facility based on the configuration
-   *
-   * Access rules:
-   * 1. Superusers can always access all facilities
-   * 2. Users can access facilities they are linked to (including sensitive ones)
-   * 3. Users can access non-sensitive facilities when restrictions are disabled or they have login permission
-   * 4. Otherwise: deny access
-   */
   async canAccessFacility(id: string, ability: PureAbility) {
-    const facility = await Facility.getRepository().findOne({ where: { id } });
-    if (!facility) throw new Error(`Facility with id ${id} not found`);
-
     const userLinkedFacilities = await this.allowedFacilityIds(ability);
-
-    // Superuser bypasses all restrictions
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
-
-    // Check if user is linked to this facility
-    const isUserLinked = userLinkedFacilities.includes(id);
-    if (isUserLinked) return true;
-
-    // User is not linked to the facility
-    // Deny access if facility is sensitive
-    if (facility.isSensitive) return false;
-
-    // Allow access for non-sensitive facilities when no restrictions apply
-    return true;
+    return userLinkedFacilities.includes(id);
   }
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
