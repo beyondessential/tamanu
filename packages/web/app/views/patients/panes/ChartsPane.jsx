@@ -5,6 +5,7 @@ import { keyBy } from 'lodash';
 import { ButtonGroup } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
@@ -140,7 +141,7 @@ const getTooltipMessage = (selectedSurveyId) => {
 export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { facilityId } = useAuth();
+  const { facilityId, ability } = useAuth();
   const { loadEncounter } = useEncounter();
   const {
     isLoading: isLoadingChartData,
@@ -305,6 +306,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
   const hasNoCharts = chartTypes.length === 0;
   const isWaitingForInstances = isInstancesQueryEnabled && isLoadingInstances;
+  const canCreateCoreComplexInstance = ability.can('create', subject('Charting', { id: coreComplexChartSurveyId }));
 
   const baseChartModalProps = {
     open: modalOpen,
@@ -362,7 +364,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 chartTypes={chartTypes}
                 data-testid="chartdropdown-eox5"
               />
-              {isComplexChart ? (
+              {isComplexChart && canCreateCoreComplexInstance? (
                 <AddComplexChartButton
                   onClick={() => {
                     setChartSurveyIdToSubmit(coreComplexChartSurveyId);
@@ -398,8 +400,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                     setModalOpen(true);
                   }}
                   disabled={!recordButtonEnabled}
-                  verb="submit"
-                  noun="SurveyResponse"
+                  verb="create"
+                  subject={subject('Charting', { id: selectedChartTypeId })}
                   data-testid="styledbuttonwithpermissioncheck-ruv4"
                 >
                   <TranslatedText
@@ -415,6 +417,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
         {currentComplexChartInstance ? (
           <CoreComplexChartData
+            coreComplexChartSurveyId={coreComplexChartSurveyId}
             handleDeleteChart={handleDeleteChart}
             selectedSurveyId={selectedChartTypeId}
             currentInstanceId={currentComplexChartInstance?.chartInstanceId}

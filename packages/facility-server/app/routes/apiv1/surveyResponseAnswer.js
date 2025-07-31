@@ -256,9 +256,9 @@ surveyResponseAnswer.put(
   asyncHandler(async (req, res) => {
     const {
       settings,
-      body: { facilityId },
+      body: { facilityId, surveyId },
     } = req;
-    req.checkPermission('write', 'Charting');
+    req.checkPermission('write', subject('Charting', { id: surveyId }));
 
     const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
     if (!enableChartEdit) {
@@ -275,9 +275,9 @@ surveyResponseAnswer.post(
   asyncHandler(async (req, res) => {
     const {
       settings,
-      body: { facilityId },
+      body: { facilityId, surveyId },
     } = req;
-    req.checkPermission('create', 'Charting');
+    req.checkPermission('create', subject('Charting', { id: surveyId }));
 
     // Even though this wouldn't technically be editing a chart
     // we will not allow the creation of a single chart answer if its not enabled
