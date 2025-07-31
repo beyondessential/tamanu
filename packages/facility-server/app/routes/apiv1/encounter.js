@@ -386,16 +386,14 @@ encounterRelations.get(
     });
 
     const prescriptionIds = prescriptions.map(p => p.id);
-    const pharmacyOrderPrescriptions = (
-      await db.query(
-        `
+    const [pharmacyOrderPrescriptions] = await db.query(
+      `
         SELECT prescription_id as prescription_id, max(created_at) as last_ordered_at 
         FROM pharmacy_order_prescriptions 
         WHERE prescription_id IN (:prescriptionIds) GROUP BY prescription_id
       `,
-        { replacements: { prescriptionIds } },
-      )
-    )[0];
+      { replacements: { prescriptionIds } },
+    );
     const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
 
     const prescriptionWithLastOrderedAt = prescriptions.map(p => ({
