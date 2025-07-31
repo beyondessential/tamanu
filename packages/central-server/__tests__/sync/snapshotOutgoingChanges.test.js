@@ -7,7 +7,7 @@ import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   getModelsForPull,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
@@ -104,7 +104,7 @@ describe('snapshotOutgoingChanges', () => {
       );
       expect(result).toEqual(1);
 
-      const [syncRecord] = await findSyncSnapshotRecords(
+      const [syncRecord] = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
@@ -498,7 +498,7 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
@@ -548,7 +548,7 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
@@ -582,7 +582,7 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: false },
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,

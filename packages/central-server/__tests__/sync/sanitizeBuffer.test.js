@@ -5,7 +5,7 @@ import { Transaction } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import {
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 
@@ -64,7 +64,7 @@ describe('sanitize binary data', () => {
 
             expect(result).toBeGreaterThan(0);
 
-            const results = await findSyncSnapshotRecords(
+            const results = await findSyncSnapshotRecordsOrderByDependency(
               ctx.store,
               syncSession.id,
               SYNC_SESSION_DIRECTION.OUTGOING,

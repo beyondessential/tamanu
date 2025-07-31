@@ -2,7 +2,7 @@ import { groupBy } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { SYNC_SESSION_DIRECTION } from './constants';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
+import { findSyncSnapshotRecordsOrderByDependency } from './findSyncSnapshotRecordsOrderByDependency';
 
 import type { Models } from '../types/model';
 import type { SyncSnapshotAttributes } from 'types/sync';
@@ -24,7 +24,7 @@ export const bumpSyncTickForRepull = async (
 ) => {
   // No need to load records in batches for memory issue as
   // the number of records that require repull should be small
-  const records = await findSyncSnapshotRecords(
+  const records = await findSyncSnapshotRecordsOrderByDependency(
     { sequelize, models: persistedModels },
     sessionId,
     SYNC_SESSION_DIRECTION.INCOMING,

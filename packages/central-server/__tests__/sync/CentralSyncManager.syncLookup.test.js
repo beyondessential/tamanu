@@ -15,7 +15,7 @@ import {
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   getModelsForPull,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
@@ -728,7 +728,7 @@ describe('Sync Lookup data', () => {
       );
     }
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
       ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
@@ -788,7 +788,7 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
       ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
@@ -919,7 +919,7 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
           ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
@@ -968,7 +968,7 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
           ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1016,7 +1016,7 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
           ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1076,7 +1076,7 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
       ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1216,7 +1216,7 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1302,7 +1302,7 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1439,7 +1439,7 @@ describe('Sync Lookup data', () => {
         config,
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
         ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,

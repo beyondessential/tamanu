@@ -27,13 +27,14 @@ import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
- */
-const STAGE_MAX_PROGRESS_INCREMENTAL = {
+*/
+type StageMaxProgress = Record<number, number>;
+const STAGE_MAX_PROGRESS_INCREMENTAL: StageMaxProgress = {
   1: 33,
   2: 66,
   3: 100,
 };
-const STAGE_MAX_PROGRESS_INITIAL = {
+const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
   1: 33,
   2: 100,
 };
@@ -60,7 +61,9 @@ export interface PullParams {
 }
 
 export class MobileSyncManager {
-  progressMaxByStage: Record<number, number> = STAGE_MAX_PROGRESS_INCREMENTAL;
+  progressMaxByStage = STAGE_MAX_PROGRESS_INCREMENTAL;
+
+  isInitialSync = false;
 
   isQueuing = false;
 
@@ -220,6 +223,13 @@ export class MobileSyncManager {
 
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     // the first step of sync is to start a session and retrieve the session id
+
+    this.isInitialSync = pullSince === -1;
+
+    this.progressMaxByStage = this.isInitialSync
+      ? STAGE_MAX_PROGRESS_INITIAL
+      : STAGE_MAX_PROGRESS_INCREMENTAL;
+
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
@@ -319,11 +329,6 @@ export class MobileSyncManager {
   async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-    const isInitialSync = pullSince === -1;
-
-    this.progressMaxByStage = isInitialSync
-      ? STAGE_MAX_PROGRESS_INITIAL
-      : STAGE_MAX_PROGRESS_INCREMENTAL;
 
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
@@ -359,7 +364,7 @@ export class MobileSyncManager {
       syncSettings,
       pullUntil,
     };
-    if (isInitialSync) {
+    if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
       await this.pullIncrementalSync(pullParams);

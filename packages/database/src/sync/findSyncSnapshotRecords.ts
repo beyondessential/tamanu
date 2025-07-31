@@ -13,7 +13,7 @@ import type {
 } from '../types/sync';
 import type { Models } from 'types/model';
 
-export const findSyncSnapshotRecordsByRecordType = async (
+export const findSyncSnapshotRecords = async (
   { sequelize }: { sequelize: Sequelize },
   sessionId: string,
   direction: SyncSessionDirectionValues,
@@ -52,7 +52,7 @@ export const findSyncSnapshotRecordsByRecordType = async (
   ) as SyncSnapshotAttributes[];
 };
 
-export const findSyncSnapshotRecords = async (
+export const findSyncSnapshotRecordsOrderByDependency = async (
   { sequelize, models }: Store,
   sessionId: string,
   direction: SyncSessionDirectionValues,
