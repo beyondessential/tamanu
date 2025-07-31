@@ -1,5 +1,5 @@
 import { utils } from 'xlsx';
-import { SURVEY_TYPES } from '@tamanu/constants';
+import { CHARTING_SURVEY_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 
 import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importer/importRows';
@@ -52,13 +52,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
     await validateVitalsSurvey(context, surveyInfo);
   }
 
-  if (
-    [
-      SURVEY_TYPES.SIMPLE_CHART,
-      SURVEY_TYPES.COMPLEX_CHART,
-      SURVEY_TYPES.COMPLEX_CHART_CORE,
-    ].includes(surveyType)
-  ) {
+  if (CHARTING_SURVEY_TYPES.includes(surveyType)) {
     await validateChartingSurvey(context, surveyInfo);
   }
 

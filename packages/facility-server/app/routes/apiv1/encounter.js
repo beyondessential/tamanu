@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
+import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
@@ -702,7 +703,9 @@ async function getGraphData(req, dateDataElementId) {
     .sort((a, b) => {
       return a.recordedDate > b.recordedDate ? 1 : -1;
     });
-  return data;
+  // Survey ID will be the same for all answers because the
+  // data element ID is unique to the survey
+  return { data, surveyId: dateAnswers[0]?.surveyResponse.surveyId };
 }
 
 encounterRelations.get(
@@ -722,7 +725,7 @@ encounterRelations.get(
   '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Vitals');
-    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
+    const { data } = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -734,10 +737,9 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/initialChart$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Survey');
     const { models, params } = req;
     const { id: encounterId } = params;
-    const chartSurvey = await models.SurveyResponse.findOne({
+    const chartSurvey = await models.SurveyResponse.findAll({
       attributes: ['survey.*'],
       where: { encounterId },
       include: [
@@ -752,9 +754,13 @@ encounterRelations.get(
       order: [['survey', 'name', 'ASC']],
       group: [['survey.id']],
     });
+    req.flagPermissionChecked();
+    const allowedSurvey = chartSurvey.find((response) =>
+      req.ability.can('list', subject('Charting', { id: response.survey.id })),
+    );
 
     res.send({
-      data: chartSurvey,
+      data: allowedSurvey,
     });
   }),
 );
@@ -762,8 +768,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/graphData/charts/:dataElementId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Charting');
-    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    const { data, surveyId } = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
 
     res.send({
       count: data.length,
@@ -775,7 +781,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/charts/:surveyId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'SurveyResponse');
+    const { surveyId } = req.params;
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
     const { count, data } = await getAnswersWithHistory(req);
 
     res.send({
@@ -855,9 +862,8 @@ encounterRelations.get(
   '/:id/charts/:chartSurveyId/chartInstances',
   asyncHandler(async (req, res) => {
     const { db, params } = req;
-    req.checkPermission('list', 'Charting');
-
     const { id: encounterId, chartSurveyId } = params;
+    req.checkPermission('list', subject('Charting', { id: chartSurveyId }));
 
     const results = await db.query(
       `
@@ -912,9 +918,10 @@ encounterRelations.delete(
   '/:id/chartInstances/:chartInstanceResponseId',
   asyncHandler(async (req, res) => {
     const { db, params, models } = req;
-    req.checkPermission('delete', 'Charting');
-
     const { chartInstanceResponseId } = params;
+
+    const surveyResponse = await models.SurveyResponse.findByPk(chartInstanceResponseId);
+    req.checkPermission('delete', subject('Charting', { id: surveyResponse?.surveyId }));
 
     // all answers will also be soft deleted automatically
     await db.transaction(async () => {

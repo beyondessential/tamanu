@@ -1,5 +1,10 @@
 import { DataTypes, Op } from 'sequelize';
-import { SURVEY_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CHARTING_SURVEY_TYPES,
+  SURVEY_TYPES,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -80,11 +85,7 @@ export class Survey extends Model {
     return this.findAll({
       where: {
         surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART_CORE,
-            SURVEY_TYPES.COMPLEX_CHART,
-          ],
+          [Op.in]: CHARTING_SURVEY_TYPES,
         },
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
@@ -93,10 +94,19 @@ export class Survey extends Model {
   }
 
   static async getResponsePermissionCheck(id: string) {
-    const vitalsSurvey = await this.getVitalsSurvey();
-    if (vitalsSurvey && id === vitalsSurvey.id) {
+    const survey = await this.findByPk(id);
+    if (!survey || survey.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('Survey not found');
+    }
+
+    if (survey.surveyType === SURVEY_TYPES.VITALS) {
       return 'Vitals';
     }
+
+    if (CHARTING_SURVEY_TYPES.includes(survey.surveyType)) {
+      return 'Charting';
+    }
+
     return 'SurveyResponse';
   }
 
