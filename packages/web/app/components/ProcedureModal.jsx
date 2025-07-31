@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
-
 import { useApi, useSuggester } from '../api';
-
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -29,6 +27,7 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -40,63 +39,63 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const anaestheticSuggester = useSuggester('drug');
 
   return (
-    <FormModal
-      width="md"
-      title={
-        <TranslatedText
-          stringId="procedure.modal.title"
-          fallback=":action procedure"
-          replacements={{
-            action: editedProcedure?.id ? (
-              <TranslatedText
-                stringId="general.action.update"
-                fallback="Update"
-                data-testid="translatedtext-l65z"
-              />
-            ) : (
-              <TranslatedText
-                stringId="general.action.new"
-                fallback="New"
-                data-testid="translatedtext-c8x5"
-              />
-            ),
-          }}
-          data-testid="translatedtext-om64"
-        />
-      }
-      open={!!editedProcedure}
-      onClose={onClose}
-      data-testid="formmodal-otam"
-    >
-      <ProcedureForm
-        onSubmit={async data => {
-          const actualDateTime = getActualDateTime(data.date, data.startTime);
-          const updatedData = {
-            ...data,
-            date: actualDateTime,
-            startTime: actualDateTime,
-            endTime: getEndDateTime(data),
-            encounterId,
-          };
+    <>
+      <FormModal
+        width="md"
+        title={
+          <TranslatedText
+            stringId="procedure.modal.title"
+            fallback=":action procedure"
+            replacements={{
+              action: editedProcedure?.id ? (
+                <TranslatedText
+                  stringId="general.action.update"
+                  fallback="Update"
+                  data-testid="translatedtext-l65z"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="general.action.new"
+                  fallback="New"
+                  data-testid="translatedtext-c8x5"
+                />
+              ),
+            }}
+            data-testid="translatedtext-om64"
+          />
+        }
+        open={!!editedProcedure}
+        onClose={onClose}
+        data-testid="formmodal-otam"
+      >
+        <ProcedureForm
+          onSubmit={async data => {
+            const actualDateTime = getActualDateTime(data.date, data.startTime);
+            const updatedData = {
+              ...data,
+              date: actualDateTime,
+              startTime: actualDateTime,
+              endTime: getEndDateTime(data),
+              encounterId,
+            };
 
-          if (updatedData.id) {
-            await api.put(`procedure/${updatedData.id}`, updatedData);
-          } else {
-            await api.post('procedure', updatedData);
-          }
-          onSaved();
-        }}
-        onCancel={onClose}
-        editedObject={editedProcedure}
-        departmentSuggester={departmentSuggester}
-        locationSuggester={locationSuggester}
-        physicianSuggester={physicianSuggester}
-        anaesthetistSuggester={anaesthetistSuggester}
-        assistantSuggester={assistantSuggester}
-        procedureSuggester={procedureSuggester}
-        anaestheticSuggester={anaestheticSuggester}
-        data-testid="procedureform-euca"
-      />
-    </FormModal>
+            await api.post(`procedure/${updatedData.id}`, updatedData);
+            onSaved();
+          }}
+          onCancel={onCloseClick}
+          editedObject={editedProcedure}
+          departmentSuggester={departmentSuggester}
+          locationSuggester={locationSuggester}
+          physicianSuggester={physicianSuggester}
+          anaesthetistSuggester={anaesthetistSuggester}
+          assistantSuggester={assistantSuggester}
+          procedureSuggester={procedureSuggester}
+          anaestheticSuggester={anaestheticSuggester}
+          selectedSurveyId={selectedSurveyId}
+          setSelectedSurveyId={setSelectedSurveyId}
+          data-testid="procedureform-euca"
+        />
+      </FormModal>
+    </>
   );
 };

@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
-import styled from 'styled-components';
+import MuiDivider from '@material-ui/core/Divider';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
@@ -14,14 +16,18 @@ import {
   LocationField,
   TextField,
   TimeField,
-} from '../components/Field';
-import { MultiAutocompleteField } from '../components/Field/MultiAutocompleteField';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
+} from '../../components/Field';
+import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
+import { FormGrid } from '../../components/FormGrid';
+import { FormSubmitCancelRow } from '../../components/ButtonRow';
+import { foreignKey, optionalForeignKey } from '../../utils/validation';
+import { FORM_TYPES } from '../../constants/index.js';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
+import { ProcedureAdditionalData } from './ProcedureAdditionalData';
+import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
+import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -42,6 +48,21 @@ const SubHeading = styled(Typography)`
   color: ${props => props.theme.palette.text.tertiary};
 `;
 
+const ProgramsTable = styled(DataFetchingProgramsTable)`
+  margin-bottom: 20px;
+  .MuiTableRow-root {
+    &:last-child {
+      .MuiTableCell-body {
+        border-bottom: none;
+      }
+    }
+  }
+`;
+
+const Divider = styled(MuiDivider)`
+  margin: 10px 0 20px;
+`;
+
 export const ProcedureForm = React.memo(
   ({
     onCancel,
@@ -53,36 +74,24 @@ export const ProcedureForm = React.memo(
     physicianSuggester,
     anaesthetistSuggester,
     assistantSuggester,
+    selectedSurveyId,
+    setSelectedSurveyId,
   }) => {
+    const [refreshCount, updateRefreshCount] = useRefreshCount();
     const { currentUser } = useAuth();
+    const { patientId } = useParams();
+    const { data: patient } = usePatientDataQuery(patientId);
+    const procedureId = editedObject?.id;
 
     return (
       <Form
         onSubmit={onSubmit}
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
-          const getButtonText = isCompleted => {
-            if (editedObject?.id && !isCompleted)
-              return (
-                <TranslatedText
-                  stringId="general.action.update"
-                  fallback="Update"
-                  data-testid="translatedtext-q6jp"
-                />
-              );
-            return (
-              <TranslatedText
-                stringId="procedure.form.submit"
-                fallback="Save procedure"
-                data-testid="translatedtext-162m"
-              />
-            );
-          };
 
           const isCompleted = !!values.completed;
-          const buttonText = getButtonText(isCompleted);
           return (
-            <div>
+            <>
               <Heading>
                 <TranslatedText stringId="procedure.form.heading" fallback="Procedure details" />
               </Heading>
@@ -277,14 +286,42 @@ export const ProcedureForm = React.memo(
                     data-testid="field-qrv7"
                   />
                 </Collapse>
-                <FormSubmitCancelRow
-                  onCancel={handleCancel}
-                  onConfirm={submitForm}
-                  confirmText={buttonText}
-                  data-testid="formsubmitcancelrow-8gtl"
-                />
               </FormGrid>
-            </div>
+              <Divider />
+              <ProcedureAdditionalData
+                procedureId={procedureId}
+                patient={patient}
+                procedureTypeId={values?.procedureTypeId}
+                updateRefreshCount={updateRefreshCount}
+                selectedSurveyId={selectedSurveyId}
+                setSelectedSurveyId={setSelectedSurveyId}
+              />
+              <Divider />
+              <ProgramsTable
+                endpoint={`patient/${patientId}/programResponses`}
+                patient={patient}
+                fetchOptions={{ procedureId }}
+                tableOptions={{
+                  disablePagination: true,
+                  allowExport: false,
+                  refreshTable: updateRefreshCount,
+                  refreshCount,
+                }}
+              />
+              <Divider />
+              <FormSubmitCancelRow
+                onCancel={handleCancel}
+                onConfirm={submitForm}
+                confirmText={
+                  <TranslatedText
+                    stringId="general.action.submit"
+                    fallback="Save procedure"
+                    data-testid="translatedtext-162m"
+                  />
+                }
+                data-testid="formsubmitcancelrow-8gtl"
+              />
+            </>
           );
         }}
         initialValues={{

@@ -27,7 +27,7 @@ import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
-import { useChartSurveyQuery } from '../../../api/queries/useChartSurveyQuery';
+import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
 import { SimpleChartModal } from '../../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
@@ -116,7 +116,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
   );
 };
 
-const getTooltipMessage = (selectedSurveyId) => {
+const getTooltipMessage = selectedSurveyId => {
   if (!selectedSurveyId) {
     return (
       <TranslatedText
@@ -126,7 +126,7 @@ const getTooltipMessage = (selectedSurveyId) => {
       />
     );
   }
-  
+
   return (
     <TranslatedText
       stringId="chart.action.record.disabledTooltip"
@@ -185,7 +185,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     selectedChartTypeId,
   ]);
 
-  const { data: fullChartSurvey } = useChartSurveyQuery(coreComplexChartSurveyId);
+  const { data: fullChartSurvey } = useSurveyQuery(coreComplexChartSurveyId);
 
   const fieldVisibility = useMemo(
     () =>

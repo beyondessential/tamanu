@@ -21,7 +21,7 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-export const SurveyView = ({
+export const SurveyViewForm = ({
   survey,
   onSubmit,
   onCancel,
@@ -46,7 +46,6 @@ export const SurveyView = ({
     survey,
     getTranslation,
   ]);
-
   const renderSurvey = props => {
     const {
       submitForm,
@@ -98,21 +97,28 @@ export const SurveyView = ({
   };
 
   return (
+    <Form
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      render={renderSurvey}
+      validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
+      data-testid="form-12o2"
+    />
+  );
+};
+
+export const SurveyView = props => {
+  const { survey } = props;
+  return (
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
         <SurveyPaneHeading variant="h6" data-testid="surveypaneheading-b5sc">
           <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
-      <Form
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        render={renderSurvey}
-        validationSchema={validationSchema}
-        validateOnChange
-        validateOnBlur
-        data-testid="form-12o2"
-      />
+      <SurveyViewForm {...props} />
     </ProgramsPane>
   );
 };

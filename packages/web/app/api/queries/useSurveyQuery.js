@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-
 import { isErrorUnknownAllow404s, useApi } from '../index';
 
-export const useChartSurveyQuery = (surveyId) => {
+export const useSurveyQuery = surveyId => {
   const api = useApi();
-  const chartSurvey = useQuery(
-    ['chartSurvey', surveyId],
+  return useQuery(
+    ['survey', surveyId],
     () => api.get(`survey/${surveyId}`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
     { enabled: Boolean(surveyId) },
   );
-
-  return chartSurvey;
 };
