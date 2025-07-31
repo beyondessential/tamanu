@@ -207,7 +207,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       };
 
       await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
-      await queryClient.invalidateQueries([`encounter/${encounter.id}/medications`]);
+      await queryClient.invalidateQueries(['encounterMedication', encounter.id]);
       refetchEncounterMedications();
       onSubmit();
       setShowSuccess(true);
@@ -325,10 +325,9 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           <DialogPrimaryText>
             <TranslatedText
               stringId="pharmacyOrder.orderConfirmation.message"
-              fallback="The above medications have already been ordered within the past"
+              fallback="The above medications have already been ordered within the past :medicationAlreadyOrderedWarningTimeout hours"
+              replacements={{ medicationAlreadyOrderedWarningTimeout }}
             />
-            {` ${medicationAlreadyOrderedWarningTimeout} `}
-            <TranslatedText stringId="general.time.hours" fallback="hours" />
           </DialogPrimaryText>
           <DialogSecondaryText>
             <TranslatedText
