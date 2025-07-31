@@ -9,6 +9,7 @@ export class PatientSurveyAssignment extends Model {
   declare patientId: string;
   declare surveyId: string;
   declare status: string;
+  declare assignedAt: string;
   declare completedAt?: string;
   declare assignedById?: string;
   declare surveyResponseId?: string;
@@ -42,6 +43,7 @@ export class PatientSurveyAssignment extends Model {
           allowNull: false,
           defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
         },
+        assignedAt: dateTimeType('assignedAt'),
         completedAt: dateTimeType('completedAt'),
         assignedById: {
           type: DataTypes.STRING,
