@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { findSyncSnapshotRecordsByRecordType } from './findSyncSnapshotRecords';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
 
 import type { Models } from '../types/model';
@@ -36,7 +36,7 @@ export const incomingSyncHook = async (
     let fromId;
 
     for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-      const batchRecords = await findSyncSnapshotRecordsByRecordType(
+      const batchRecords = await findSyncSnapshotRecords(
         { sequelize },
         sessionId,
         SYNC_SESSION_DIRECTION.INCOMING,

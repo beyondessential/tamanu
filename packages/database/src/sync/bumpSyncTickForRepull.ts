@@ -2,7 +2,7 @@ import { groupBy } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { SYNC_SESSION_DIRECTION } from './constants';
-import { findSyncSnapshotRecordsOrderByDependency } from './findSyncSnapshotRecordsOrderByDependency';
+import { findSyncSnapshotRecordsOrderByDependency } from './findSyncSnapshotRecords';
 
 import type { Models } from '../types/model';
 import type { SyncSnapshotAttributes } from 'types/sync';
