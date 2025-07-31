@@ -10,7 +10,8 @@ import {
   TextButton,
 } from '../../../components';
 import { SendIcon } from '../../../components/Icons/SendIcon';
-import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientPortalFormMutation';
+import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
+import { usePatientSurveyAssignmentsQuery } from '../../../api/queries/usePatientSurveyAssignmentsQuery';
 
 export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPortal }) => {
   return (
@@ -45,6 +46,11 @@ export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPor
 export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
   const [open, setOpen] = useState(false);
   const patient = useSelector(state => state.patient);
+  const { data: patientSurveyAssignments } = usePatientSurveyAssignmentsQuery({
+    patientId: patient.id,
+  });
+
+  console.log('patientSurveyAssignments', patientSurveyAssignments);
 
   const { mutate: sendPatientPortalForm } = useSendPatientPortalForm({
     onSuccess: () => {

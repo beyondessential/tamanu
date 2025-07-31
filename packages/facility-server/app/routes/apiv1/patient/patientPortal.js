@@ -7,9 +7,19 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
   COMMUNICATION_STATUSES,
+  PATIENT_SURVEY_ASSIGNMENTS_STATUSES,
 } from '@tamanu/constants';
+import { PatientSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/patientSurveyAssignments.schema';
 
 export const patientPortal = express.Router();
+
+const getPatientOrThrow = async ({ models, patientId }) => {
+  const patient = await models.Patient.findByPk(patientId);
+  if (!patient) {
+    throw new NotFoundError('Patient not found');
+  }
+  return patient;
+};
 
 const constructRegistrationLink = () => {
   // TODO - construct the registration link for the patient portal
@@ -67,13 +77,10 @@ patientPortal.get(
     const { models } = req;
     const { id: patientId } = req.params;
 
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) {
-      throw new NotFoundError('Patient not found');
-    }
+    const patient = await getPatientOrThrow({ models, patientId });
 
     const patientUser = await models.PatientUser.findOne({
-      where: { patientId },
+      where: { patientId: patient.id },
     });
 
     if (!patientUser) {
@@ -97,10 +104,7 @@ patientPortal.post(
     const { models } = req;
     const { id: patientId } = req.params;
 
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) {
-      throw new NotFoundError('Patient not found');
-    }
+    const patient = await getPatientOrThrow({ models, patientId });
 
     const registrationLink = await registerPatient({ patient, models });
 
@@ -119,10 +123,7 @@ patientPortal.post(
       throw new ValidationError('Email is required');
     }
 
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) {
-      throw new NotFoundError('Patient not found');
-    }
+    const patient = await getPatientOrThrow({ models, patientId });
 
     await sendRegistrationEmail({ patient, patientEmail, models, settings, facilityId });
 
@@ -137,10 +138,7 @@ patientPortal.post(
     const { id: patientId } = req.params;
     const { formId } = req.body;
 
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) {
-      throw new NotFoundError('Patient not found');
-    }
+    const patient = await getPatientOrThrow({ models, patientId });
 
     const survey = await models.Survey.findByPk(formId);
     if (!survey) {
@@ -148,7 +146,7 @@ patientPortal.post(
     }
 
     const patientSurveyAssignment = await models.PatientSurveyAssignment.create({
-      patientId,
+      patientId: patient.id,
       surveyId: survey.id,
       assignedById: user.id,
     });
@@ -156,5 +154,40 @@ patientPortal.post(
     // TODO - send an email to patient if they have registered for the portal
 
     res.send({ patientSurveyAssignment });
+  }),
+);
+
+patientPortal.get(
+  '/:id/portal/forms',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { id: patientId } = req.params;
+
+    const patient = await getPatientOrThrow({ models, patientId });
+
+    const patientSurveyAssignments = await models.PatientSurveyAssignment.findAll({
+      where: { patientId: patient.id, status: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING },
+      include: [
+        {
+          model: models.Survey,
+          as: 'survey',
+          include: [{ model: models.Program, as: 'program' }],
+        },
+        {
+          model: models.User,
+          as: 'assignedBy',
+        },
+        {
+          model: models.Patient,
+          as: 'patient',
+        },
+      ],
+    });
+
+    res.send({
+      data: patientSurveyAssignments.map(assignment =>
+        PatientSurveyAssignmentsSchema.parse(assignment.forResponse()),
+      ),
+    });
   }),
 );
