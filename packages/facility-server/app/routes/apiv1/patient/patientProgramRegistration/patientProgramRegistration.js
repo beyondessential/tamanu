@@ -83,7 +83,6 @@ patientProgramRegistration.post(
         {
           patientId,
           facilityId: registeringFacilityId,
-          lastInteractedTime: new Date(),
         },
         { transaction },
       );
