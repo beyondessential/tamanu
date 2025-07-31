@@ -44,6 +44,10 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
     },
+    assigned_at: {
+      type: DataTypes.DATETIMESTRING,
+      allowNull: false,
+    },
     completed_at: {
       type: DataTypes.DATETIMESTRING,
       allowNull: true,
