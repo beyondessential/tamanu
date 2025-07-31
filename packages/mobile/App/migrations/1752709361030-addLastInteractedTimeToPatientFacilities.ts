@@ -27,32 +27,31 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
 
     // Query differs from postgres version because of sqlite limitations
     await queryRunner.query(`
-      WITH max_dates AS (
-        SELECT 
-          pf.id as patient_facility_id,
-          MAX(e.createdAt) as max_encounter_date,
-          pf.createdAt as facility_created_at
-        FROM patient_facilities pf
-        LEFT JOIN encounters e
-          ON pf.id = e.patientId
-        LEFT JOIN locations l
-          ON e.locationId = l.id
-          AND l.facilityId = pf.facilityId
-        WHERE (e.id IS NULL OR l.id IS NOT NULL)
-        GROUP BY pf.id, pf.createdAt
-      )
-      UPDATE patient_facilities
-      SET lastInteractedTime = (
-        SELECT 
-          CASE
-            WHEN md.max_encounter_date IS NOT NULL
-              AND md.max_encounter_date > md.facility_created_at
-            THEN md.max_encounter_date
-            ELSE md.facility_created_at
+   WITH calculated_interaction_times AS (
+      SELECT 
+        pf.id,
+        MAX(
+          CASE 
+            WHEN e.createdAt IS NULL THEN pf.createdAt
+            WHEN pf.createdAt > e.createdAt THEN pf.createdAt
+            ELSE e.createdAt
           END
-        FROM max_dates md
-        WHERE md.patient_facility_id = patient_facilities.id
-      );
+        ) as calculated_last_interacted_time
+      FROM patient_facilities pf
+      LEFT JOIN encounters e 
+        ON pf.patientId = e.patientId
+      LEFT JOIN locations l 
+        ON e.locationId = l.id 
+        AND l.facilityId = pf.facilityId
+      WHERE (e.id IS NULL OR l.id IS NOT NULL)
+      GROUP BY pf.id, pf.createdAt
+    )
+    UPDATE patient_facilities 
+    SET lastInteractedTime = (
+      SELECT calculated_last_interacted_time 
+      FROM calculated_interaction_times 
+      WHERE calculated_interaction_times.id = patient_facilities.id;
+    );
     `);
   }
 
