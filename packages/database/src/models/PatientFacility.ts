@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, Sequelize, type UpsertOptions } from 'sequelize';
 import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -58,11 +58,12 @@ export class PatientFacility extends Model {
     );
   }
 
-  static async createOrUpdate(values: Partial<PatientFacility>) {
+  static async createOrUpdate(values: Partial<PatientFacility>, options: UpsertOptions) {
     const [record] = await super.upsert(values, {
       returning: true,
       conflictFields: ['patient_id', 'facility_id'],
-    });
+      ...options,
+    } as UpsertOptions);
     return record;
   }
 
