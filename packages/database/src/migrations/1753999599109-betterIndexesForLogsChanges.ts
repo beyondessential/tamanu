@@ -1,7 +1,5 @@
 import { QueryInterface } from 'sequelize';
 
-const TABLE = { schema: 'logs', tableName: 'changes' };
-
 export async function up(query: QueryInterface): Promise<void> {
   // Drop existing indexes if they exist
   await query.sequelize.query(`DROP INDEX IF EXISTS logs.changes_device_id;`);
