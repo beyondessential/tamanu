@@ -7,6 +7,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { DeletePatientSurveyAssignmentModal } from '../views/patients/components/DeletePatientSurveyAssignmentModal';
 
 const getDateRequested = ({ assignedAt }) => <DateDisplay date={assignedAt} />;
 const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
@@ -15,16 +16,14 @@ const getForm = ({ survey }) => survey?.name || '';
 
 export const PatientSurveyAssignmentsTable = ({ patient }) => {
   const { ability } = useAuth();
-  const [refreshCount] = useRefreshCount();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedAssignment, setSelectedAssignment] = useState(null);
 
   const actions = [
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-      action: () => {
-        // TODO: Implement delete functionality
-        console.log('Delete assignment:', selectedAssignment);
-      },
+      action: () => setDeleteModalOpen(true),
       permissionCheck: () => ability?.can('delete', 'PatientSurveyAssignment'),
       wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
     },
@@ -85,21 +84,32 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
   }
 
   return (
-    <DataFetchingTable
-      endpoint={`patient/${patient.id}/portal/forms`}
-      columns={columns}
-      initialSort={{
-        orderBy: 'createdAt',
-        order: 'desc',
-      }}
-      noDataMessage={
-        <TranslatedText
-          stringId="patientSurveyAssignment.table.noData"
-          fallback="No survey assignments found"
-        />
-      }
-      elevated={false}
-      refreshCount={refreshCount}
-    />
+    <>
+      <DataFetchingTable
+        endpoint={`patient/${patient.id}/portal/forms`}
+        columns={columns}
+        initialSort={{
+          orderBy: 'createdAt',
+          order: 'desc',
+        }}
+        noDataMessage={
+          <TranslatedText
+            stringId="patientSurveyAssignment.table.noData"
+            fallback="No survey assignments found"
+          />
+        }
+        elevated={false}
+        refreshCount={refreshCount}
+      />
+      <DeletePatientSurveyAssignmentModal
+        open={deleteModalOpen}
+        patientSurveyAssignmentToDelete={selectedAssignment}
+        patient={patient}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          updateRefreshCount();
+        }}
+      />
+    </>
   );
 };

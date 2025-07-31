@@ -1,8 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { mapQueryFilters } from '../../../database/utils';
 import {
   PATIENT_COMMUNICATION_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
@@ -138,8 +140,6 @@ patientPortal.post(
     const { id: patientId } = req.params;
     const { formId, assignedAt } = req.body;
 
-    console.log('assignedAt', assignedAt);
-
     const patient = await getPatientOrThrow({ models, patientId });
 
     const survey = await models.Survey.findByPk(formId);
@@ -165,16 +165,29 @@ patientPortal.get(
   asyncHandler(async (req, res) => {
     const { models, query } = req;
     const { id: patientId } = req.params;
-    const { page = 0, rowsPerPage = 25, order = 'ASC', orderBy = 'assignedAt' } = query;
+
+    // Handle both `params` object and query params
+    const params = query.params || query;
+
+    const {
+      page = 0,
+      rowsPerPage = 25,
+      order = 'ASC',
+      orderBy = 'assignedAt',
+      status = PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      all = false,
+      ...filterParams
+    } = params;
 
     const patient = await getPatientOrThrow({ models, patientId });
 
-    const offset = page * rowsPerPage;
+    const offset = all ? undefined : page * rowsPerPage;
+
+    const filters = mapQueryFilters(filterParams, [{ key: 'surveyId', operator: Op.eq }]);
 
     const baseQueryOptions = {
       where: {
-        patientId: patient.id,
-        status: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+        [Op.and]: [{ patientId: patient.id }, { status }, filters],
       },
       include: [
         {
@@ -209,7 +222,7 @@ patientPortal.get(
     const patientSurveyAssignments = await models.PatientSurveyAssignment.findAll({
       ...baseQueryOptions,
       order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
-      limit: rowsPerPage,
+      limit: all ? undefined : rowsPerPage,
       offset,
     });
 
@@ -219,5 +232,20 @@ patientPortal.get(
         PatientSurveyAssignmentsSchema.parse(assignment.forResponse()),
       ),
     });
+  }),
+);
+
+patientPortal.delete(
+  '/:id/portal/forms/:assignmentId',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { id: patientId, assignmentId } = req.params;
+
+    const patient = await getPatientOrThrow({ models, patientId });
+    await models.PatientSurveyAssignment.destroy({
+      where: { id: assignmentId, patientId: patient.id },
+    });
+
+    res.send({ message: 'Patient survey assignments deleted' });
   }),
 );

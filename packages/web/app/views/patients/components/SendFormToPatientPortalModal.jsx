@@ -47,11 +47,13 @@ export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPor
 export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
   const [open, setOpen] = useState(false);
   const patient = useSelector(state => state.patient);
-  const { data: patientSurveyAssignments } = usePatientSurveyAssignmentsQuery({
+  const { data: duplicateSurveyAssignments } = usePatientSurveyAssignmentsQuery({
     patientId: patient.id,
+    surveyId: formId,
+    enabled: !!formId,
   });
 
-  console.log('patientSurveyAssignments', patientSurveyAssignments);
+  console.log('duplicateSurveyAssignments', duplicateSurveyAssignments);
 
   const { mutate: sendPatientPortalForm } = useSendPatientPortalForm({
     onSuccess: () => {
