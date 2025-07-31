@@ -2861,7 +2861,7 @@ describe('CentralSyncManager', () => {
       practitioner = await models.User.create(fake(models.User));
       // Reset modules to ensure fresh imports
       jest.resetModules();
-      // The config override actually doesnt apply to snapshotOutgoingChanges which uses the default.json
+      // The config override actually doesn't apply to snapshotOutgoingChanges which uses the test.json, so we need to mock it directly here
       jest.doMock('@tamanu/shared/utils/withConfig', () => ({
         withConfig: fn => {
           const inner = function inner(...args) {
@@ -2968,7 +2968,7 @@ describe('CentralSyncManager', () => {
       };
 
       // Basic encounter
-      it('wont sync sensitive encounters', async () => {
+      it("won't sync sensitive encounters", async () => {
         await checkSensitiveRecordFiltering({
           model: models.Encounter,
           sensitiveId: sensitiveEncounter.id,
@@ -2976,7 +2976,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter triage', async () => {
+      it("won't sync sensitive encounter triage", async () => {
         const triagePatientA = await models.Patient.create(fake(models.Patient));
         const triagePatientB = await models.Patient.create(fake(models.Patient));
         const sensitiveTriage = await models.Triage.create({
@@ -3009,7 +3009,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter discharge', async () => {
+      it("won't sync sensitive encounter discharge", async () => {
         const sensitiveDischarge = await models.Discharge.create(
           fake(models.Discharge, {
             encounterId: sensitiveEncounter.id,
@@ -3027,7 +3027,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter history', async () => {
+      it("won't sync sensitive encounter history", async () => {
         const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
           where: {
             encounterId: sensitiveEncounter.id,
@@ -3045,7 +3045,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter procedures', async () => {
+      it("won't sync sensitive encounter procedures", async () => {
         // Create procedures linked to encounters
         const sensitiveProcedure = await models.Procedure.create(
           fake(models.Procedure, {
@@ -3065,7 +3065,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter notes', async () => {
+      it("won't sync sensitive encounter notes", async () => {
         // Create notes linked to encounters
         const sensitiveNote = await models.Note.create(
           fake(models.Note, {
@@ -3087,7 +3087,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter diagnoses', async () => {
+      it("won't sync sensitive encounter diagnoses", async () => {
         const sensitiveDiagnosis = await models.EncounterDiagnosis.create(
           fake(models.EncounterDiagnosis, {
             encounterId: sensitiveEncounter.id,
@@ -3108,7 +3108,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter tasks', async () => {
+      it("won't sync sensitive encounter tasks", async () => {
         const sensitiveTask = await models.Task.create(
           fake(models.Task, {
             encounterId: sensitiveEncounter.id,
@@ -3129,7 +3129,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter encounter diets', async () => {
+      it("won't sync sensitive encounter encounter diets", async () => {
         const sensitiveDiet = await models.EncounterDiet.create(
           fake(models.EncounterDiet, {
             encounterId: sensitiveEncounter.id,
@@ -3150,7 +3150,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter administered vaccines', async () => {
+      it("won't sync sensitive encounter administered vaccines", async () => {
         const sensitiveAdministeredVaccine = await models.AdministeredVaccine.create(
           fake(models.AdministeredVaccine, {
             encounterId: sensitiveEncounter.id,
@@ -3175,7 +3175,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter appointments', async () => {
+      it("won't sync sensitive encounter appointments", async () => {
         const sensitiveAppointment = await models.Appointment.create(
           fake(models.Appointment, {
             patientId: patient.id,
@@ -3196,7 +3196,7 @@ describe('CentralSyncManager', () => {
         });
       });
 
-      it('wont sync sensitive encounter document metadata', async () => {
+      it("won't sync sensitive encounter document metadata", async () => {
         const sensitiveDocumentMetadata = await models.DocumentMetadata.create(
           fake(models.DocumentMetadata, {
             encounterId: sensitiveEncounter.id,
@@ -3231,7 +3231,7 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('wont sync sensitive encounter survey responses', async () => {
+        it("won't sync sensitive encounter survey responses", async () => {
           await checkSensitiveRecordFiltering({
             model: models.SurveyResponse,
             sensitiveId: sensitiveSurveyResponse.id,
@@ -3239,7 +3239,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter survey response answers', async () => {
+        it("won't sync sensitive encounter survey response answers", async () => {
           const sensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
             fake(models.SurveyResponseAnswer, {
               responseId: sensitiveSurveyResponse.id,
@@ -3257,7 +3257,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter referrals', async () => {
+        it("won't sync sensitive encounter referrals", async () => {
           const sensitiveReferral = await models.Referral.create(
             fake(models.Referral, {
               initiatingEncounterId: sensitiveEncounter.id,
@@ -3295,14 +3295,14 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('wont sync sensitive encounter imaging requests', async () => {
+        it("won't sync sensitive encounter imaging requests", async () => {
           await checkSensitiveRecordFiltering({
             model: models.ImagingRequest,
             sensitiveId: sensitiveImagingRequest.id,
             nonSensitiveId: nonSensitiveImagingRequest.id,
           });
         });
-        it('wont sync sensitive encounter imaging results', async () => {
+        it("won't sync sensitive encounter imaging results", async () => {
           const sensitiveImagingResult = await models.ImagingResult.create(
             fake(models.ImagingResult, {
               imagingRequestId: sensitiveImagingRequest.id,
@@ -3319,7 +3319,7 @@ describe('CentralSyncManager', () => {
             nonSensitiveId: nonSensitiveImagingResult.id,
           });
         });
-        it('wont sync sensitive encounter imaging request areas', async () => {
+        it("won't sync sensitive encounter imaging request areas", async () => {
           const sensitiveImagingRequestArea = await models.ImagingRequestArea.create(
             fake(models.ImagingRequestArea, {
               imagingRequestId: sensitiveImagingRequest.id,
@@ -3363,7 +3363,7 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('wont sync sensitive encounter prescriptions', async () => {
+        it("won't sync sensitive encounter prescriptions", async () => {
           await checkSensitiveRecordFiltering({
             model: models.EncounterPrescription,
             sensitiveId: sensitiveEncounterPrescription.id,
@@ -3371,7 +3371,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter pause prescriptions', async () => {
+        it("won't sync sensitive encounter pause prescriptions", async () => {
           const sensitiveEncounterPausePrescription =
             await models.EncounterPausePrescription.create(
               fake(models.EncounterPausePrescription, {
@@ -3443,7 +3443,7 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('wont sync sensitive encounter invoice', async () => {
+        it("won't sync sensitive encounter invoice", async () => {
           await checkSensitiveRecordFiltering({
             model: models.Invoice,
             sensitiveId: sensitiveInvoice.id,
@@ -3451,7 +3451,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice items', async () => {
+        it("won't sync sensitive encounter invoice items", async () => {
           await checkSensitiveRecordFiltering({
             model: models.InvoiceItem,
             sensitiveId: sensitiveInvoiceItem.id,
@@ -3459,7 +3459,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice payments', async () => {
+        it("won't sync sensitive encounter invoice payments", async () => {
           const sensitiveInvoicePayment = await models.InvoicePayment.create(
             fake(models.InvoicePayment, {
               invoiceId: sensitiveInvoice.id,
@@ -3477,7 +3477,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice insurer payments', async () => {
+        it("won't sync sensitive encounter invoice insurer payments", async () => {
           const sensitiveInvoicePayment = await models.InvoicePayment.create(
             fake(models.InvoicePayment, {
               invoiceId: sensitiveInvoice.id,
@@ -3507,7 +3507,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice patient payments', async () => {
+        it("won't sync sensitive encounter invoice patient payments", async () => {
           const sensitiveInvoicePayment = await models.InvoicePayment.create(
             fake(models.InvoicePayment, {
               invoiceId: sensitiveInvoice.id,
@@ -3537,7 +3537,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice item discounts', async () => {
+        it("won't sync sensitive encounter invoice item discounts", async () => {
           const sensitiveItemDiscount = await models.InvoiceItemDiscount.create(
             fake(models.InvoiceItemDiscount, {
               invoiceItemId: sensitiveInvoiceItem.id,
@@ -3556,7 +3556,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice discounts', async () => {
+        it("won't sync sensitive encounter invoice discounts", async () => {
           const sensitiveInvoiceDiscount = await models.InvoiceDiscount.create(
             fake(models.InvoiceDiscount, {
               invoiceId: sensitiveInvoice.id,
@@ -3577,7 +3577,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter invoice insurers', async () => {
+        it("won't sync sensitive encounter invoice insurers", async () => {
           const sensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
             fake(models.InvoiceInsurer, {
               invoiceId: sensitiveInvoice.id,
@@ -3616,7 +3616,7 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('wont sync sensitive encounter lab requests', async () => {
+        it("won't sync sensitive encounter lab requests", async () => {
           await checkSensitiveRecordFiltering({
             model: models.LabRequest,
             sensitiveId: sensitiveLabRequest.id,
@@ -3624,7 +3624,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter lab tests', async () => {
+        it("won't sync sensitive encounter lab tests", async () => {
           const sensitiveLabTest = await models.LabTest.create(
             fake(models.LabTest, {
               labRequestId: sensitiveLabRequest.id,
@@ -3643,7 +3643,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter lab request attachments', async () => {
+        it("won't sync sensitive encounter lab request attachments", async () => {
           const sensitiveLabRequestAttachment = await models.LabRequestAttachment.create(
             fake(models.LabRequestAttachment, {
               labRequestId: sensitiveLabRequest.id,
@@ -3661,7 +3661,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter lab test panel requests', async () => {
+        it("won't sync sensitive encounter lab test panel requests", async () => {
           const sensitiveLabTestPanelRequest = await models.LabTestPanelRequest.create(
             fake(models.LabTestPanelRequest, {
               encounterId: sensitiveEncounter.id,
@@ -3681,7 +3681,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('wont sync sensitive encounter lab request logs', async () => {
+        it("won't sync sensitive encounter lab request logs", async () => {
           const sensitiveLabRequestLog = await models.LabRequestLog.create(
             fake(models.LabRequestLog, {
               labRequestId: sensitiveLabRequest.id,
@@ -3718,7 +3718,7 @@ describe('CentralSyncManager', () => {
     });
 
     describe('edge cases', () => {
-      it('wont sync between facilities just because they are both sensitive', async () => {
+      it("won't sync between facilities just because they are both sensitive", async () => {
         const sensitiveFacilityA = await models.Facility.create(
           fake(models.Facility, {
             isSensitive: true,

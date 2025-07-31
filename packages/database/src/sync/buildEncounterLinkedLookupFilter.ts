@@ -5,24 +5,17 @@ import {
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
 
-export type Options = {
-  extraSelects?: Record<string, string>; // extra selects to attach to the lookup select
-  extraJoins?: JoinConfig[]; // extra joins needed to traverse between this model and the encounters table
-};
-
 /**
- * Helper function to determine if a facility_id should be populated in sync lookup
+ * Helper to determine if a facility_id should be populated in sync lookup
  * Only populates facility_id when the encounter is from a sensitive facility
  * This ensures sensitive encounters are only synced to their originating facility
  */
-export function addSensitiveFacilityIdIfApplicable() {
-  return `
+const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
     CASE
       WHEN facilities.is_sensitive = TRUE THEN facilities.id
       ELSE NULL
     END
   `;
-}
 
 export function buildEncounterLinkedLookupSelect(
   model: typeof Model,
@@ -30,7 +23,7 @@ export function buildEncounterLinkedLookupSelect(
 ) {
   return buildSyncLookupSelect(model, {
     patientId: 'encounters.patient_id',
-    facilityId: addSensitiveFacilityIdIfApplicable(),
+    facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
     ...extraSelects,
   });
 }

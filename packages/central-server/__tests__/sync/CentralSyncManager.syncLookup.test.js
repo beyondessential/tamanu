@@ -729,12 +729,17 @@ describe('Sync Lookup data', () => {
         );
       }
 
+      const isFacilityIdRequired = ['appointments', 'appointment_schedules'].includes(
+        model.tableName,
+      );
+
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
           isDeleted: false,
+          ...(isFacilityIdRequired ? { facilityId: facility.id } : {}),
         }),
       );
     }
