@@ -56,9 +56,9 @@ export class PatientFacility extends BaseModel {
       where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
     if (record) {
-      return record.update(values);
+      return record.update({patient: patientId, facility: facilityId, lastInteractedTime: new Date ()});
     }
     const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    return super.create({ ...values, createdAtSyncTick: syncTick });
+    return super.create({ patient: patientId, facility: facilityId, createdAtSyncTick: syncTick });
   }
 }
