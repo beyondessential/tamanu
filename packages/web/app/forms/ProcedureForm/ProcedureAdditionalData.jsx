@@ -10,7 +10,6 @@ import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
 import { getAnswersFromData, notifyError } from '../../utils';
 import { Colors } from '../../constants';
-import { CancelAdditionalDataModal, UnSavedChangesModal } from './ProcedureFormModals.jsx';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -67,7 +66,6 @@ export const ProcedureAdditionalData = ({
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
-  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
@@ -97,7 +95,7 @@ export const ProcedureAdditionalData = ({
   };
 
   const onCancel = () => {
-    setUnSavedChangesModalOpen(true);
+    setSelectedSurveyId(null);
   };
 
   return (
@@ -143,16 +141,6 @@ export const ProcedureAdditionalData = ({
           </SurveyBox>
         )}
       </Container>
-      <CancelAdditionalDataModal
-        open={unSavedChangesModalOpen}
-        onCancel={() => {
-          setUnSavedChangesModalOpen(false);
-        }}
-        onConfirm={() => {
-          setUnSavedChangesModalOpen(false);
-          setSelectedSurveyId(null);
-        }}
-      />
     </>
   );
 };
