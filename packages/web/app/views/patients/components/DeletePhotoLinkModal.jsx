@@ -4,6 +4,7 @@ import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
+import { notifyError } from '../../../utils';
 
 export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
   const api = useApi();
@@ -11,8 +12,12 @@ export const DeletePhotoLinkModal = ({ open, onClose, answerId }) => {
   const queryClient = useQueryClient();
 
   const onSubmit = async () => {
-    await api.put(`surveyResponseAnswer/photo/${answerId}`);
-    queryClient.invalidateQueries(['encounterCharts', encounter.id]);
+    try {
+      await api.put(`surveyResponseAnswer/photo/${answerId}`);
+      queryClient.invalidateQueries(['encounterCharts', encounter.id]);
+    } catch (error) {
+      notifyError(error);
+    }
     onClose();
   };
 
