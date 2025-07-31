@@ -418,7 +418,6 @@ describe('User', () => {
       it('user with login permission should return all non-sensitive facilities plus linked facilities', async () => {
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilities = await linkedUser.allowedFacilities();
-        // TODO: would be great to not include all the facilities from db not in config
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
 
