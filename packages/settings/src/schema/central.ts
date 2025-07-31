@@ -96,6 +96,11 @@ export const centralSettings = {
             'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
           type: yup.boolean(),
           defaultValue: false,
+        lastInteractedThreshold: {
+          name: 'Last interacted threshold',
+          description: 'tbd',
+          type: yup.number().positive().integer().nullable(),
+          defaultValue: null,
         },
       },
     },
