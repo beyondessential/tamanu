@@ -56,7 +56,14 @@ export class Procedure extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Location', 'ProcedureType', 'Anaesthetic', 'Department', 'AssistantClinicians'];
+    return [
+      'Location',
+      'ProcedureType',
+      'Anaesthetic',
+      'Department',
+      'AssistantClinicians',
+      'SurveyResponses',
+    ];
   }
 
   static initRelations(models: Models) {

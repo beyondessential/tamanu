@@ -5,6 +5,10 @@ import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  UnSavedChangesModal,
+  UnSavedProcedureProgramModal,
+} from '../forms/ProcedureForm/ProcedureFormModals';
 
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.
@@ -38,6 +42,14 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
 
+  const onCloseClick = () => {
+    if (selectedSurveyId) {
+      setUnSavedProgramFormOpen(true);
+    } else {
+      setUnSavedChangesModalOpen(true);
+    }
+  };
+
   return (
     <>
       <FormModal
@@ -65,7 +77,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           />
         }
         open={!!editedProcedure}
-        onClose={onClose}
+        onClose={onCloseClick}
         data-testid="formmodal-otam"
       >
         <ProcedureForm
@@ -96,6 +108,26 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           data-testid="procedureform-euca"
         />
       </FormModal>
+      <UnSavedProcedureProgramModal
+        open={unSavedProgramFormOpen}
+        onCancel={() => {
+          setUnSavedProgramFormOpen(false);
+        }}
+        onConfirm={() => {
+          setUnSavedProgramFormOpen(false);
+          onClose();
+        }}
+      />
+      <UnSavedChangesModal
+        open={unSavedChangesModalOpen}
+        onCancel={() => {
+          setUnSavedChangesModalOpen(false);
+        }}
+        onConfirm={() => {
+          setUnSavedChangesModalOpen(false);
+          onClose();
+        }}
+      />
     </>
   );
 };
