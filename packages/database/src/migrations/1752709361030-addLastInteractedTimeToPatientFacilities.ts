@@ -19,19 +19,38 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.sequelize.query(`
     UPDATE patient_facilities
-    SET created_at_sync_tick = updated_at_sync_tick
+    SET created_at_sync_tick = updated_at_sync_tick;
   `);
 
   await query.addIndex('patient_facilities', ['facility_id', 'last_interacted_time']);
   await query.addIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
 
+  // Query uses limited syntax to match mobile sqlite migration query
   await query.sequelize.query(`
     WITH calculated_interaction_times AS (
       SELECT 
         pf.id,
-        GREATEST(
-          MAX(e.created_at),
-          pf.created_at
+        MAX(
+          CASE 
+            WHEN (e.created_at IS NULL OR l.id IS NULL) AND ppr.created_at IS NULL THEN 
+              pf.created_at
+            WHEN (e.created_at IS NULL OR l.id IS NULL) AND ppr.created_at IS NOT NULL THEN 
+              CASE 
+                WHEN pf.created_at > ppr.created_at THEN pf.created_at
+                ELSE ppr.created_at
+              END
+            WHEN e.created_at IS NOT NULL AND l.id IS NOT NULL AND ppr.created_at IS NULL THEN
+              CASE 
+                WHEN pf.created_at > e.created_at THEN pf.created_at
+                ELSE e.created_at
+              END
+            ELSE 
+              CASE 
+                WHEN pf.created_at > e.created_at AND pf.created_at > ppr.created_at THEN pf.created_at
+                WHEN e.created_at > pf.created_at AND e.created_at > ppr.created_at THEN e.created_at
+                ELSE ppr.created_at
+              END
+          END
         ) as calculated_last_interacted_time
       FROM patient_facilities pf
       LEFT JOIN encounters e 
@@ -39,13 +58,18 @@ export async function up(query: QueryInterface): Promise<void> {
       LEFT JOIN locations l 
         ON e.location_id = l.id 
         AND l.facility_id = pf.facility_id
-      WHERE (e.id IS NULL OR l.id IS NOT NULL)
+      LEFT JOIN patient_program_registrations ppr
+        ON pf.patient_id = ppr.patient_id
+        AND pf.facility_id = ppr.registering_facility_id
+      WHERE (e.id IS NULL OR l.id IS NOT NULL OR ppr.id IS NOT NULL)
       GROUP BY pf.id, pf.created_at
     )
-    UPDATE patient_facilities pf
-    SET last_interacted_time = cit.calculated_last_interacted_time
-    FROM calculated_interaction_times cit
-    WHERE pf.id = cit.id;
+    UPDATE patient_facilities 
+    SET last_interacted_time = (
+      SELECT calculated_last_interacted_time 
+      FROM calculated_interaction_times 
+      WHERE calculated_interaction_times.id = patient_facilities.id
+    );
   `);
 }
 

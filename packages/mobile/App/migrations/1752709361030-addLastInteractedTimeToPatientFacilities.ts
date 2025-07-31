@@ -32,9 +32,23 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
           pf.id,
           MAX(
             CASE 
-              WHEN e.createdAt IS NULL THEN pf.createdAt
-              WHEN pf.createdAt > e.createdAt THEN pf.createdAt
-              ELSE e.createdAt
+              WHEN (e.createdAt IS NULL OR l.id IS NULL) AND ppr.createdAt IS NULL THEN pf.createdAt
+              WHEN (e.createdAt IS NULL OR l.id IS NULL) AND ppr.createdAt IS NOT NULL THEN 
+                CASE 
+                  WHEN pf.createdAt > ppr.createdAt THEN pf.createdAt
+                  ELSE ppr.createdAt
+                END
+              WHEN e.createdAt IS NOT NULL AND l.id IS NOT NULL AND ppr.createdAt IS NULL THEN
+                CASE 
+                  WHEN pf.createdAt > e.createdAt THEN pf.createdAt
+                  ELSE e.createdAt
+                END
+              ELSE 
+                CASE 
+                  WHEN pf.createdAt > e.createdAt AND pf.createdAt > ppr.createdAt THEN pf.createdAt
+                  WHEN e.createdAt > pf.createdAt AND e.createdAt > ppr.createdAt THEN e.createdAt
+                  ELSE ppr.createdAt
+                END
             END
           ) as calculated_last_interacted_time
         FROM patient_facilities pf
@@ -43,7 +57,10 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
         LEFT JOIN locations l 
           ON e.locationId = l.id 
           AND l.facilityId = pf.facilityId
-        WHERE (e.id IS NULL OR l.id IS NOT NULL)
+        LEFT JOIN patient_program_registrations ppr
+          ON pf.patientId = ppr.patientId
+          AND pf.facilityId = ppr.registeringFacilityId
+        WHERE (e.id IS NULL OR l.id IS NOT NULL OR ppr.id IS NOT NULL)
         GROUP BY pf.id, pf.createdAt
       )
       UPDATE patient_facilities 
