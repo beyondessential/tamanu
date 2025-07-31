@@ -23,6 +23,8 @@ describe('PatientFacility', () => {
 
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '1234');
 
+    ctx.syncConnection.runSync = jest.fn().mockResolvedValueOnce({});
+
     const result = await app.post(`/api/patientFacility`).send({ patientId, facilityId });
     expect(result).toHaveSucceeded();
 
@@ -36,6 +38,8 @@ describe('PatientFacility', () => {
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
     await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '2345');
+
+    ctx.syncConnection.runSync = jest.fn().mockResolvedValue({});
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
 
