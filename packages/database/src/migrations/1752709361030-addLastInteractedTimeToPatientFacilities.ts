@@ -29,19 +29,21 @@ export async function up(query: QueryInterface): Promise<void> {
     WITH calculated_interaction_times AS (
       SELECT 
         pf.id,
-        COALESCE(
-          GREATEST(
-            MAX(e.created_at),
-            MAX(pr.created_at),
-            pf.created_at
-          )
+        GREATEST(
+          MAX(e.created_at),
+          MAX(pr.created_at), 
+          pf.created_at
         ) as calculated_last_interacted_time
       FROM patient_facilities pf
-      LEFT JOIN patients p ON p.id = pf.patient_id
-      LEFT JOIN patient_program_registrations pr ON p.id = pr.patient_id 
+      LEFT JOIN patients p 
+        ON p.id = pf.patient_id
+      LEFT JOIN patient_program_registrations pr 
+        ON p.id = pr.patient_id 
         AND pr.registering_facility_id = pf.facility_id
-      LEFT JOIN encounters e ON p.id = e.patient_id
-      LEFT JOIN locations l ON e.location_id = l.id 
+      LEFT JOIN encounters e 
+        ON p.id = e.patient_id
+      LEFT JOIN locations l 
+        ON e.location_id = l.id 
         AND l.facility_id = pf.facility_id
       GROUP BY pf.id, pf.created_at
     )
