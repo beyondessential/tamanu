@@ -20,6 +20,11 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
       }),
     );
 
+    await queryRunner.query(`
+      UPDATE patient_facilities
+      SET createdAtSyncTick = updatedAtSyncTick;
+    `);
+
     // Query differs from postgres version because of sqlite limitations
     // Calculate last interaction time based on:
     // - Encounters in that facility for that patient
