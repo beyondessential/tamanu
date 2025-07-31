@@ -85,6 +85,7 @@ patientProgramRegistration.post(
           facilityId: registeringFacilityId,
           lastInteractedTime: new Date(),
         },
+        { transaction },
       );
 
       return [newRegistration, newConditions];
