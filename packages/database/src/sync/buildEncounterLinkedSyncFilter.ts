@@ -30,7 +30,7 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: JoinConfig
 }
 
 export function buildEncounterLinkedSyncFilter(
-  tablesToTraverse: JoinConfig[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
+  tablesToTraverse: string[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
   markedForSyncPatientsTable: string,
 ) {
   const joins = buildEncounterLinkedSyncFilterJoins(tablesToTraverse);
