@@ -138,11 +138,13 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
           />
         )}
       </Modal>
-      <DeletePhotoLinkModal
-        open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        answerId={answerId}
-      />
+      {canDelete && (
+        <DeletePhotoLinkModal
+          open={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          answerId={answerId}
+        />
+      )}
     </>
   );
 };
