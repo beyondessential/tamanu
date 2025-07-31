@@ -30,7 +30,7 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: "source('tamanu', 'patients')"
+                  to: source('tamanu', 'patients')
                   field: id
           - name: birth_weight
             data_type: numeric
@@ -88,7 +88,7 @@ sources:
             description: "{{ doc('patient_birth_data__birth_facility_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'facilities')"
+                  to: source('tamanu', 'facilities')
                   field: id
           - name: registered_birth_place
             data_type: character varying(255)

@@ -40,7 +40,7 @@ sources:
             description: "{{ doc('surveys__program_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'programs')"
+                  to: source('tamanu', 'programs')
                   field: id
           - name: survey_type
             data_type: character varying(255)

@@ -35,7 +35,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'lab_test_panels')"
+                  to: source('tamanu', 'lab_test_panels')
                   field: id
           - name: encounter_id
             data_type: character varying(255)
@@ -43,7 +43,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'encounters')"
+                  to: source('tamanu', 'encounters')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

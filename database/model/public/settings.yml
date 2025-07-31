@@ -42,7 +42,7 @@ sources:
             description: "{{ doc('settings__facility_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'facilities')"
+                  to: source('tamanu', 'facilities')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

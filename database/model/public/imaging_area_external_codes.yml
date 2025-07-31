@@ -41,7 +41,7 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
           - name: code
             data_type: text

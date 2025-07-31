@@ -22,7 +22,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'invoices')"
+                  to: source('tamanu', 'invoices')
                   field: id
           - name: percentage
             data_type: numeric
@@ -43,7 +43,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: applied_time
             data_type: character(19)

@@ -43,14 +43,14 @@ sources:
             description: "{{ doc('survey_responses__survey_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'surveys')"
+                  to: source('tamanu', 'surveys')
                   field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('survey_responses__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'encounters')"
+                  to: source('tamanu', 'encounters')
                   field: id
           - name: result_text
             data_type: text
@@ -60,7 +60,7 @@ sources:
             description: "{{ doc('survey_responses__user_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: start_time_legacy
             data_type: timestamp with time zone

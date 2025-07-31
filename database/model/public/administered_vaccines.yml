@@ -59,14 +59,14 @@ sources:
             description: "{{ doc('administered_vaccines__scheduled_vaccine_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'scheduled_vaccines')"
+                  to: source('tamanu', 'scheduled_vaccines')
                   field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'encounters')"
+                  to: source('tamanu', 'encounters')
                   field: id
           - name: injection_site
             data_type: character varying(255)
@@ -108,9 +108,9 @@ sources:
             description: "{{ doc('administered_vaccines__not_given_reason_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
-                  to_condition: "type = 'vaccineNotGivenReason'"
+                  to_condition: type = 'vaccineNotGivenReason'
           - name: given_elsewhere
             data_type: boolean
             description: "{{ doc('administered_vaccines__given_elsewhere') }}"

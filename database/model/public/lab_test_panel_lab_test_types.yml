@@ -29,7 +29,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'lab_test_panels')"
+                  to: source('tamanu', 'lab_test_panels')
                   field: id
           - name: lab_test_type_id
             data_type: character varying(255)
@@ -37,7 +37,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'lab_test_types')"
+                  to: source('tamanu', 'lab_test_types')
                   field: id
           - name: id
             data_type: text

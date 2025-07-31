@@ -36,28 +36,28 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'note_pages')"
+                  to: source('tamanu', 'note_pages')
                   field: id
           - name: revised_by_id
             data_type: character varying(255)
             description: "{{ doc('note_items__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'note_items')"
+                  to: source('tamanu', 'note_items')
                   field: id
           - name: author_id
             data_type: character varying(255)
             description: "{{ doc('note_items__author_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
             description: "{{ doc('note_items__on_behalf_of_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: content
             data_type: text

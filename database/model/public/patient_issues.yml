@@ -49,7 +49,7 @@ sources:
             description: "{{ doc('patient_issues__patient_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'patients')"
+                  to: source('tamanu', 'patients')
                   field: id
           - name: recorded_date_legacy
             data_type: timestamp with time zone

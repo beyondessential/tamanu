@@ -36,21 +36,21 @@ sources:
             description: "{{ doc('appointments__patient_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'patients')"
+                  to: source('tamanu', 'patients')
                   field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('appointments__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('appointments__location_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'locations')"
+                  to: source('tamanu', 'locations')
                   field: id
           - name: type_legacy
             data_type: character varying(255)
@@ -81,7 +81,7 @@ sources:
             description: "{{ doc('appointments__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'location_groups')"
+                  to: source('tamanu', 'location_groups')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
@@ -93,17 +93,17 @@ sources:
             description: "{{ doc('appointments__booking_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
-                  to_condition: "type = 'bookingType'"
+                  to_condition: type = 'bookingType'
           - name: appointment_type_id
             data_type: character varying(255)
             description: "{{ doc('appointments__appointment_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
-                  to_condition: "type = 'appointmentType'"
+                  to_condition: type = 'appointmentType'
           - name: is_high_priority
             data_type: boolean
             description: "{{ doc('appointments__is_high_priority') }}"

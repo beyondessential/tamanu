@@ -66,9 +66,9 @@ sources:
             description: "{{ doc('facilities__catchment_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
-                  to_condition: "type = 'catchment'"
+                  to_condition: type = 'catchment'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in facilities."

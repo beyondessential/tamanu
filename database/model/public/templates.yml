@@ -47,7 +47,7 @@ sources:
             description: "{{ doc('templates__created_by_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

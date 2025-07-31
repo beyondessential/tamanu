@@ -32,7 +32,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: expires_at
             data_type: timestamp with time zone

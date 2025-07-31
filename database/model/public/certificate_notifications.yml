@@ -46,7 +46,7 @@ sources:
             description: "{{ doc('certificate_notifications__patient_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'patients')"
+                  to: source('tamanu', 'patients')
                   field: id
           - name: forward_address
             data_type: character varying(255)
@@ -56,7 +56,7 @@ sources:
             description: "{{ doc('certificate_notifications__lab_test_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'lab_tests')"
+                  to: source('tamanu', 'lab_tests')
                   field: id
           - name: status
             data_type: character varying(255)
@@ -80,7 +80,7 @@ sources:
             description: "{{ doc('certificate_notifications__lab_request_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'lab_requests')"
+                  to: source('tamanu', 'lab_requests')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

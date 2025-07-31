@@ -27,7 +27,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'patient_death_data')"
+                  to: source('tamanu', 'patient_death_data')
                   field: id
           - name: condition_id
             data_type: character varying(255)
@@ -35,9 +35,9 @@ sources:
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
-                  to_condition: "type = 'diagnosis'"
+                  to_condition: type = 'diagnosis'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in contributing_death_causes."

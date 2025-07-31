@@ -22,7 +22,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'invoices')"
+                  to: source('tamanu', 'invoices')
                   field: id
           - name: date
             data_type: character(10)
@@ -55,7 +55,7 @@ sources:
             description: "{{ doc('invoice_payments__updated_by_user_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

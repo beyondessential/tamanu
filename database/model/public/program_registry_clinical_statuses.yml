@@ -52,7 +52,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'program_registries')"
+                  to: source('tamanu', 'program_registries')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

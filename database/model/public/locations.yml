@@ -41,7 +41,7 @@ sources:
             description: "{{ doc('locations__facility_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'facilities')"
+                  to: source('tamanu', 'facilities')
                   field: id
           - name: visibility_status
             data_type: text
@@ -56,7 +56,7 @@ sources:
             description: "{{ doc('locations__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'location_groups')"
+                  to: source('tamanu', 'location_groups')
                   field: id
           - name: max_occupancy
             data_type: integer

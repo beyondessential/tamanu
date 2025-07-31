@@ -35,7 +35,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'imaging_requests')"
+                  to: source('tamanu', 'imaging_requests')
                   field: id
           - name: area_id
             data_type: character varying(255)
@@ -43,7 +43,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'reference_data')"
+                  to: source('tamanu', 'reference_data')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

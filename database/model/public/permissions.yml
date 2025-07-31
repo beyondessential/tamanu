@@ -31,7 +31,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'roles')"
+                  to: source('tamanu', 'roles')
                   field: id
           - name: noun
             data_type: character varying(255)

@@ -42,7 +42,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'encounters')"
+                  to: source('tamanu', 'encounters')
                   field: id
           - name: created_at
             data_type: timestamp with time zone

@@ -57,7 +57,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: "source('tamanu', 'users')"
+                  to: source('tamanu', 'users')
                   field: id
           - name: error
             data_type: text
@@ -70,7 +70,7 @@ sources:
             description: "{{ doc('report_requests__facility_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'facilities')"
+                  to: source('tamanu', 'facilities')
                   field: id
           - name: export_format
             data_type: character varying(255)
@@ -86,7 +86,7 @@ sources:
             description: "{{ doc('report_requests__report_definition_version_id') }}"
             data_tests:
               - relationships:
-                  to: "source('tamanu', 'report_definition_versions')"
+                  to: source('tamanu', 'report_definition_versions')
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint
