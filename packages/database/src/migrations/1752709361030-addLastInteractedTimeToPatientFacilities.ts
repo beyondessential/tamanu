@@ -31,21 +31,15 @@ export async function up(query: QueryInterface): Promise<void> {
         pf.id,
         GREATEST(
           MAX(e.created_at),
-          MAX(pr.created_at), 
           pf.created_at
         ) as calculated_last_interacted_time
       FROM patient_facilities pf
-      LEFT JOIN patients p 
-        ON p.id = pf.patient_id
-      LEFT JOIN patient_program_registrations pr 
-        ON p.id = pr.patient_id 
-        AND pr.registering_facility_id = pf.facility_id
       LEFT JOIN encounters e 
-        ON p.id = e.patient_id
+        ON pf.patient_id = e.patient_id
       LEFT JOIN locations l 
         ON e.location_id = l.id 
         AND l.facility_id = pf.facility_id
-      WHERE l.id IS NOT NULL
+      WHERE (e.id IS NULL OR l.id IS NOT NULL)
       GROUP BY pf.id, pf.created_at
     )
     UPDATE patient_facilities pf
