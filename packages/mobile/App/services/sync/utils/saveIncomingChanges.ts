@@ -123,7 +123,7 @@ export const saveChangesFromMemory = async (
   const preparedRecordByModel = prepareChangesForModels(records, sortedModels);
   for (const model of sortedModels) {
     const recordsForModel = preparedRecordByModel[model.name];
-    if (recordsForModel.length > 0) {
+    if (recordsForModel) {
       if (model.name === 'User') {
         await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
       } else {
@@ -150,7 +150,7 @@ export const saveChangesFromSnapshot = async (
     const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
     for (const model of sortedModels) {
       const recordsForModel = preparedRecordByModel[model.name];
-      if (recordsForModel.length > 0) {
+      if (recordsForModel) {
         await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
       }
     }
