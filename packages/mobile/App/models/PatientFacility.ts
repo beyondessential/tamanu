@@ -5,8 +5,8 @@ import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME } from '~/services/sync/constants';
-import { getSyncTick } from '~/services/sync/utils';
+import { CURRENT_SYNC_TIME } from '../services/sync/constants';
+import { getSyncTick } from '../services/sync/utils';
 
 @Entity('patient_facilities')
 export class PatientFacility extends BaseModel {
