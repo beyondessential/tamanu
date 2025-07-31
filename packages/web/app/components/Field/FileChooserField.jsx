@@ -99,6 +99,13 @@ export const FileChooserInput = ({
   filters,
   onChange,
   smallDisplay = false,
+  buttonText = (
+    <TranslatedText
+      stringId="chooseFile.button.label"
+      fallback="Choose file"
+      data-testid="translatedtext-9peo"
+    />
+  ),
   ...props
 }) => {
   const { getSetting } = useSettings();
@@ -170,11 +177,7 @@ export const FileChooserInput = ({
                 color="primary"
                 data-testid="button-1mo9"
               >
-                <TranslatedText
-                  stringId="chooseFile.button.label"
-                  fallback="Choose file"
-                  data-testid="translatedtext-9peo"
-                />
+                {buttonText}
               </Button>
               <HintText data-testid="hinttext-oxv8">
                 <TranslatedText
