@@ -43,7 +43,7 @@ export class PatientSurveyAssignment extends Model {
           allowNull: false,
           defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
         },
-        assignedAt: dateTimeType('assignedAt'),
+        assignedAt: dateTimeType('assignedAt', { allowNull: false }),
         completedAt: dateTimeType('completedAt'),
         assignedById: {
           type: DataTypes.STRING,

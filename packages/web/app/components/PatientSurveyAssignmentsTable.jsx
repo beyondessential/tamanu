@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
-const getDateRequested = ({ createdAt }) => <DateDisplay date={createdAt} />;
+const getDateRequested = ({ assignedAt }) => <DateDisplay date={assignedAt} />;
 const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
 const getProgram = ({ survey }) => survey?.program?.name || '';
 const getForm = ({ survey }) => survey?.name || '';

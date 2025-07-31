@@ -8,6 +8,7 @@ export const PatientSurveyAssignmentsSchema = z.object({
   id: z.string(),
   patient: PatientSchema,
   assignedBy: UserSchema,
+  assignedAt: z.string(),
   survey: SurveyWithProgramSchema,
   status: z.enum(PATIENT_SURVEY_ASSIGNMENTS_STATUSES),
 });

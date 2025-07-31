@@ -12,6 +12,7 @@ import {
 import { SendIcon } from '../../../components/Icons/SendIcon';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { usePatientSurveyAssignmentsQuery } from '../../../api/queries/usePatientSurveyAssignmentsQuery';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPortal }) => {
   return (
@@ -59,7 +60,11 @@ export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
   });
 
   const handleSendToPatientPortal = () => {
-    sendPatientPortalForm({ patientId: patient.id, formId });
+    sendPatientPortalForm({
+      patientId: patient.id,
+      formId,
+      assignedAt: getCurrentDateTimeString(),
+    });
   };
 
   return (

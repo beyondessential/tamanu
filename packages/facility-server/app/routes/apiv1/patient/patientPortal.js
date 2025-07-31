@@ -136,7 +136,9 @@ patientPortal.post(
   asyncHandler(async (req, res) => {
     const { models, user } = req;
     const { id: patientId } = req.params;
-    const { formId } = req.body;
+    const { formId, assignedAt } = req.body;
+
+    console.log('assignedAt', assignedAt);
 
     const patient = await getPatientOrThrow({ models, patientId });
 
@@ -149,6 +151,7 @@ patientPortal.post(
       patientId: patient.id,
       surveyId: survey.id,
       assignedById: user.id,
+      assignedAt: assignedAt,
     });
 
     // TODO - send an email to patient if they have registered for the portal
@@ -160,13 +163,19 @@ patientPortal.post(
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, query } = req;
     const { id: patientId } = req.params;
+    const { page = 0, rowsPerPage = 25, order = 'ASC', orderBy = 'assignedAt' } = query;
 
     const patient = await getPatientOrThrow({ models, patientId });
 
-    const patientSurveyAssignments = await models.PatientSurveyAssignment.findAll({
-      where: { patientId: patient.id, status: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING },
+    const offset = page * rowsPerPage;
+
+    const baseQueryOptions = {
+      where: {
+        patientId: patient.id,
+        status: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      },
       include: [
         {
           model: models.Survey,
@@ -182,9 +191,30 @@ patientPortal.get(
           as: 'patient',
         },
       ],
+    };
+
+    const count = await models.PatientSurveyAssignment.count({
+      where: baseQueryOptions.where,
+    });
+
+    // If no results, return early
+    if (count === 0) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+      return;
+    }
+
+    const patientSurveyAssignments = await models.PatientSurveyAssignment.findAll({
+      ...baseQueryOptions,
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
+      limit: rowsPerPage,
+      offset,
     });
 
     res.send({
+      count,
       data: patientSurveyAssignments.map(assignment =>
         PatientSurveyAssignmentsSchema.parse(assignment.forResponse()),
       ),
