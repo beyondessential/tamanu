@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: settings
-        description: '{{ doc("table__settings") }}'
-        tags:
-          - system
+        description: "{{ doc('table__settings') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid

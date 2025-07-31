@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_field_definitions
-        description: '{{ doc("table__patient_field_definitions") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__patient_field_definitions') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

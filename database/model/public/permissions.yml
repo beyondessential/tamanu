@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: permissions
-        description: '{{ doc("table__permissions") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__permissions') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)

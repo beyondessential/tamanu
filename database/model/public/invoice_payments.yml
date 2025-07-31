@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_payments
-        description: '{{ doc("table__invoice_payments") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_payments') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
