@@ -233,7 +233,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                               <Box width="60px" fontWeight={400}>
                                 <TranslatedText
                                   stringId="medication.action.pharmacyOrder"
-                                  fallback="Order from pharmacy"
+                                  fallback="Order medication from pharmacy"
                                 />
                               </Box>
                             }
