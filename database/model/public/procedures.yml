@@ -106,9 +106,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in procedures."
             data_tests:
               - not_null
-          - name: assistant_id
-            data_type: character varying(255)
-            description: "{{ doc('procedures__assistant_id') }}"
           - name: department_id
             data_type: character varying(255)
             description: "{{ doc('procedures__department_id') }}"

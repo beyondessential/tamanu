@@ -67,7 +67,7 @@ export const AdditionalData = ({ patient, procedureId, procedureTypeId, updateRe
 
   const { mutate: submitSurveyResponse } = useMutation({
     mutationFn: async body => {
-      return api.post('surveyResponse', {
+      return api.post('procedure/surveyResponse', {
         surveyId: survey.id,
         startTime,
         patientId: patient.id,

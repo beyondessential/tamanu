@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 
 export const surveyResponse = express.Router();
@@ -51,51 +50,36 @@ surveyResponse.get(
   }),
 );
 
+export const createSurveyResponse = async req => {
+  const {
+    models,
+    body: { facilityId, ...body },
+    settings,
+  } = req;
+  // Responses for the vitals survey will check against 'Vitals' create permissions
+  // All others witll check against 'SurveyResponse' create permissions
+  const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
+  req.checkPermission('create', noun);
+
+  const getDefaultId = async type =>
+    models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
+  const updatedBody = {
+    locationId: body.locationId || (await getDefaultId('location')),
+    departmentId: body.departmentId || (await getDefaultId('department')),
+    userId: req.user.id,
+    facilityId,
+    ...body,
+  };
+
+  return models.SurveyResponse.createWithAnswers(updatedBody);
+};
+
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      body: { facilityId, procedureId, ...body },
-      db,
-      settings,
-    } = req;
-    // Responses for the vitals survey will check against 'Vitals' create permissions
-    // All others witll check against 'SurveyResponse' create permissions
-    const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
-    req.checkPermission('create', noun);
-
-    const getDefaultId = async type =>
-      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
-    const updatedBody = {
-      locationId: body.locationId || (await getDefaultId('location')),
-      departmentId: body.departmentId || (await getDefaultId('department')),
-      userId: req.user.id,
-      facilityId,
-      ...body,
-    };
-
-    const responseRecord = await db.transaction(async () => {
-      return models.SurveyResponse.createWithAnswers(updatedBody);
+    const responseRecord = await req.db.transaction(async () => {
+      return createSurveyResponse(req, res);
     });
-
-    if (procedureId) {
-      // Find or create the Procedure based on procedureId
-      const procedure = await models.Procedure.findOrCreate({
-        where: { id: procedureId },
-        defaults: {
-          // Add any default values needed for creating a new Procedure
-          // These are just examples - adjust based on your requirements
-          completed: false,
-          date: new Date(),
-        },
-      });
-
-      await models.ProcedureSurveyResponse.create({
-        surveyResponseId: responseRecord.id,
-        procedureId: procedure[0].id, // procedure[0] is the found/created instance
-      });
-    }
     res.send(responseRecord);
   }),
 );

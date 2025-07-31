@@ -4,6 +4,7 @@ import {
   randomRecordId,
 } from '@tamanu/database/demoData';
 import { generateId } from '@tamanu/utils/generateId';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 
 async function createDummyProcedure(models) {
@@ -223,6 +224,178 @@ describe('Procedures', () => {
       // But the note should be updated
       const updated = await models.Procedure.findByPk(procedure.id);
       expect(updated.note).toBe('updated note');
+    });
+  });
+
+  describe('Procedure Survey Responses', () => {
+    const createDummyData = async () => {
+      const facility = await models.Facility.create(fake(models.Facility));
+      const location = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
+      const department = await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
+      const examiner = await models.User.create(fake(models.User));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: examiner.id,
+      });
+      const program = await models.Program.create(fake(models.Program));
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        programId: program.id,
+      });
+
+      return { patient, encounter, facility, survey, department, location, examiner, program };
+    };
+
+    it('should create ProcedureSurveyResponse when procedureId is provided', async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+      const existingProcedure = await models.Procedure.create({
+        id: 'existing-procedure-id',
+        completed: false,
+        date: new Date(),
+        encounterId: encounter.id,
+      });
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        procedureId: existingProcedure.id,
+        answers: {},
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
+      expect(surveyResponse).toBeTruthy();
+
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
+        where: { surveyResponseId: surveyResponse.id },
+      });
+      expect(procedureSurveyResponse).toBeTruthy();
+      expect(procedureSurveyResponse.procedureId).toBe(existingProcedure.id);
+    });
+
+    it('should create new Procedure when procedureId does not exist', async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+      const newProcedureId = 'new-procedure-id';
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        procedureId: newProcedureId,
+        answers: {},
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
+      expect(surveyResponse).toBeTruthy();
+
+      const procedure = await models.Procedure.findByPk(newProcedureId);
+      expect(procedure).toBeTruthy();
+      expect(procedure.completed).toBe(false);
+
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
+        where: { surveyResponseId: surveyResponse.id },
+      });
+      expect(procedureSurveyResponse).toBeTruthy();
+      expect(procedureSurveyResponse.procedureId).toBe(newProcedureId);
+    });
+
+    it('should create survey response without ProcedureSurveyResponse when procedureId is not provided', async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        answers: {},
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
+      expect(surveyResponse).toBeTruthy();
+
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
+        where: { surveyResponseId: surveyResponse.id },
+      });
+      expect(procedureSurveyResponse).toBe(null);
+    });
+
+    it('should handle empty procedureId gracefully', async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        procedureId: '',
+        answers: {},
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
+      expect(surveyResponse).toBeTruthy();
+
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
+        where: { surveyResponseId: surveyResponse.id },
+      });
+      expect(procedureSurveyResponse).toBe(null);
+    });
+
+    it('should handle null procedureId gracefully', async () => {
+      const { patient, encounter, facility, survey, department, location } =
+        await createDummyData();
+
+      const result = await app.post('/api/procedure/surveyResponse').send({
+        patientId: patient.id,
+        encounterId: encounter.id,
+        surveyId: survey.id,
+        facilityId: facility.id,
+        locationId: location.id,
+        departmentId: department.id,
+        procedureId: null,
+        answers: {},
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
+      expect(surveyResponse).toBeTruthy();
+
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
+        where: { surveyResponseId: surveyResponse.id },
+      });
+      expect(procedureSurveyResponse).toBe(null);
     });
   });
 });

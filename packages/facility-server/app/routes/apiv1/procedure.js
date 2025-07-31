@@ -1,6 +1,8 @@
 import express from 'express';
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { findRouteObject } from '@tamanu/shared/utils/crudHelpers';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { createSurveyResponse } from './surveyResponse';
 
 export const procedure = express.Router();
 
@@ -113,4 +115,36 @@ procedure.post('/', async (req, res) => {
   }
 
   res.send(procedure);
+});
+
+procedure.post('/surveyResponse', async (req, res) => {
+  const {
+    models,
+    body: { procedureId },
+  } = req;
+
+  const responseRecord = await req.db.transaction(async () => {
+    const newSurveyResponse = await createSurveyResponse(req, res);
+
+    if (procedureId) {
+      // Find or create the Procedure based on procedureId
+      const procedure = await models.Procedure.findOrCreate({
+        where: { id: procedureId },
+        defaults: {
+          // Add any default values needed for creating a new Procedure
+          // These are just examples - adjust based on your requirements
+          completed: false,
+          date: getCurrentDateTimeString(),
+        },
+      });
+
+      await models.ProcedureSurveyResponse.create({
+        surveyResponseId: newSurveyResponse.id,
+        procedureId: procedure[0].id, // procedure[0] is the found/created instance
+      });
+    }
+    return newSurveyResponse;
+  });
+
+  res.send(responseRecord);
 });
