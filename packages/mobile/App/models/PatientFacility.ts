@@ -50,15 +50,20 @@ export class PatientFacility extends BaseModel {
     this.id = `${this.patient.replaceAll(';', ':')};${this.facility.replaceAll(';', ':')}`;
   }
 
-  static async createOrUpdate(values: Partial<PatientFacility>) {
-    const { patientId, facilityId } = values;
+  static async createOrUpdate({ patientId, facilityId }: Partial<PatientFacility>) {
     const record = await super.findOne({
       where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
     if (record) {
-      return record.update({patient: patientId, facility: facilityId, lastInteractedTime: new Date ()});
+      return super.updateValues(record.id, {
+        lastInteractedTime: new Date(),
+      });
     }
     const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    return super.create({ patient: patientId, facility: facilityId, createdAtSyncTick: syncTick });
+    return super.createAndSaveOne({
+      patient: patientId,
+      facility: facilityId,
+      createdAtSyncTick: syncTick,
+    });
   }
 }
