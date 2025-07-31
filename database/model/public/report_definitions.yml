@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_definitions
-        description: '{{ doc("table__report_definitions") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__report_definitions') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

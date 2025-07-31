@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_field_values
-        description: '{{ doc("table__patient_field_values") }}'
-        tags:
-          - patient
+        description: "{{ doc('table__patient_field_values') }}"
+        config:
+          tags:
+            - patient
         columns:
           - name: created_at
             data_type: timestamp with time zone
@@ -33,7 +35,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patient_field_definitions')
+                  to: "source('tamanu', 'patient_field_definitions')"
                   field: id
           - name: patient_id
             data_type: character varying(255)
@@ -41,7 +43,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

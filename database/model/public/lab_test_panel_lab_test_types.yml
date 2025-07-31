@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_test_panel_lab_test_types
-        description: '{{ doc("table__lab_test_panel_lab_test_types") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__lab_test_panel_lab_test_types') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: created_at
             data_type: timestamp with time zone
@@ -28,7 +30,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'lab_test_panels')
+                  to: "source('tamanu', 'lab_test_panels')"
                   field: id
           - name: lab_test_type_id
             data_type: character varying(255)
@@ -36,7 +38,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'lab_test_types')
+                  to: "source('tamanu', 'lab_test_types')"
                   field: id
           - name: id
             data_type: text

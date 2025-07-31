@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoices
-        description: '{{ doc("table__invoices") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoices') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -41,7 +43,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: created_at
             data_type: timestamp with time zone

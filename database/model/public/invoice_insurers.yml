@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_insurers
-        description: '{{ doc("table__invoice_insurers") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_insurers') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -21,7 +23,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
+                  to: "source('tamanu', 'invoices')"
                   field: id
           - name: insurer_id
             data_type: character varying(255)
@@ -29,9 +31,9 @@ sources:
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'insurer'
+                  to_condition: "type = 'insurer'"
           - name: percentage
             data_type: numeric
             description: "{{ doc('invoice_insurers__percentage') }}"

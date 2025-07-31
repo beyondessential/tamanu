@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: program_data_elements
-        description: '{{ doc("table__program_data_elements") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__program_data_elements') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

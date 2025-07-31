@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registrations
-        description: '{{ doc("table__patient_program_registrations") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_program_registrations') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: text
@@ -44,7 +46,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: program_registry_id
             data_type: character varying(255)
@@ -52,14 +54,14 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'program_registries')
+                  to: "source('tamanu', 'program_registries')"
                   field: id
           - name: clinical_status_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__clinical_status_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_registry_clinical_statuses')
+                  to: "source('tamanu', 'program_registry_clinical_statuses')"
                   field: id
           - name: clinician_id
             data_type: character varying(255)
@@ -67,30 +69,30 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: registering_facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__registering_facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__village_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'village'
+                  to_condition: "type = 'village'"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registrations."

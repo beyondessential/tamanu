@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_requests
-        description: '{{ doc("table__imaging_requests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_requests') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying
@@ -50,14 +52,14 @@ sources:
             description: "{{ doc('imaging_requests__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: requested_by_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__requested_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: legacy_results
             data_type: text
@@ -67,14 +69,14 @@ sources:
             description: "{{ doc('imaging_requests__completed_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
+                  to: "source('tamanu', 'locations')"
                   field: id
           - name: imaging_type
             data_type: character varying(31)
@@ -108,7 +110,7 @@ sources:
             description: "{{ doc('imaging_requests__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'location_groups')
+                  to: "source('tamanu', 'location_groups')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

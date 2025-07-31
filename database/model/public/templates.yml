@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: templates
-        description: '{{ doc("table__templates") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__templates') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -46,7 +48,7 @@ sources:
             description: "{{ doc('templates__created_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_diagnoses
-        description: '{{ doc("table__encounter_diagnoses") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounter_diagnoses') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -52,16 +54,16 @@ sources:
             description: "{{ doc('encounter_diagnoses__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: diagnosis_id
             data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__diagnosis_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'diagnosis'
+                  to_condition: "type = 'diagnosis'"
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in encounter_diagnoses."
@@ -75,5 +77,5 @@ sources:
             description: "{{ doc('encounter_diagnoses__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id

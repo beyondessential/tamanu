@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: logs__tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: changes
-        description: '{{ doc("logs__table__changes") }}'
-        tags: []
+        description: "{{ doc('logs__table__changes') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
@@ -45,7 +47,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: device_id
             data_type: text

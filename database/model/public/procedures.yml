@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: procedures
-        description: '{{ doc("table__procedures") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__procedures') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -50,51 +52,51 @@ sources:
             description: "{{ doc('procedures__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('procedures__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
+                  to: "source('tamanu', 'locations')"
                   field: id
           - name: procedure_type_id
             data_type: character varying(255)
             description: "{{ doc('procedures__procedure_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'procedureType'
+                  to_condition: "type = 'procedureType'"
           - name: anaesthetic_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetic_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'drug'
+                  to_condition: "type = 'drug'"
           - name: physician_id
             data_type: character varying(255)
             description: "{{ doc('procedures__physician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: assistant_id
             data_type: character varying(255)
             description: "{{ doc('procedures__assistant_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: anaesthetist_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetist_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: start_time
             data_type: character(19)

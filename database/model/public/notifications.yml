@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notifications
-        description: '{{ doc("table__notifications") }}'
-        tags: []
+        description: "{{ doc('table__notifications') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

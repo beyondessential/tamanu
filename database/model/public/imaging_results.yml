@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_results
-        description: '{{ doc("table__imaging_results") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_results') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid
@@ -44,14 +46,14 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'imaging_requests')
+                  to: "source('tamanu', 'imaging_requests')"
                   field: id
           - name: completed_by_id
             data_type: character varying(255)
             description: "{{ doc('imaging_results__completed_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: description
             data_type: text

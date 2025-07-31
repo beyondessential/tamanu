@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_discounts
-        description: '{{ doc("table__invoice_discounts") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_discounts') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -21,7 +23,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
+                  to: "source('tamanu', 'invoices')"
                   field: id
           - name: percentage
             data_type: numeric
@@ -42,7 +44,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: applied_time
             data_type: character(19)

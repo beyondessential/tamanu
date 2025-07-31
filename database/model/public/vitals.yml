@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,10 +6,11 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: vitals
-        description: '{{ doc("table__vitals") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__vitals') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
         columns:
           - name: id
             data_type: character varying(255)

@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_item_discounts
-        description: '{{ doc("table__invoice_item_discounts") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_item_discounts') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -21,7 +23,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoice_items')
+                  to: "source('tamanu', 'invoice_items')"
                   field: id
           - name: amount
             data_type: numeric

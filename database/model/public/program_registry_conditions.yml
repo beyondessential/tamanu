@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: program_registry_conditions
-        description: '{{ doc("table__program_registry_conditions") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__program_registry_conditions') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
@@ -48,7 +50,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'program_registries')
+                  to: "source('tamanu', 'program_registries')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

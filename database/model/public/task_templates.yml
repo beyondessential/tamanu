@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: task_templates
-        description: '{{ doc("table__task_templates") }}'
-        tags: []
+        description: "{{ doc('table__task_templates') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

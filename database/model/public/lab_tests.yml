@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_tests
-        description: '{{ doc("table__lab_tests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__lab_tests') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -43,31 +45,31 @@ sources:
             description: "{{ doc('lab_tests__lab_request_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_requests')
+                  to: "source('tamanu', 'lab_requests')"
                   field: id
           - name: lab_test_type_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_type_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_test_types')
+                  to: "source('tamanu', 'lab_test_types')"
                   field: id
           - name: category_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__category_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'labTestCategory'
+                  to_condition: "type = 'labTestCategory'"
           - name: lab_test_method_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_method_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'labTestMethod'
+                  to_condition: "type = 'labTestMethod'"
           - name: laboratory_officer
             data_type: character varying(255)
             description: "{{ doc('lab_tests__laboratory_officer') }}"

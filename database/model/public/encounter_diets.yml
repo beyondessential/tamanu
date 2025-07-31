@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_diets
-        description: '{{ doc("table__encounter_diets") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__encounter_diets') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -21,7 +23,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: diet_id
             data_type: character varying(255)
@@ -29,9 +31,9 @@ sources:
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'diet'
+                  to_condition: "type = 'diet'"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in encounter_diets."

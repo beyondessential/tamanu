@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,11 +6,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_facilities
-        description: '{{ doc("table__patient_facilities") }}'
+        description: "{{ doc('table__patient_facilities') }}"
         __generator:
           js_class: PatientFacility
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: text
@@ -29,7 +31,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: patient_id
             data_type: character varying(255)
@@ -37,7 +39,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

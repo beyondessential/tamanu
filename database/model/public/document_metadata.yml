@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: document_metadata
-        description: '{{ doc("table__document_metadata") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__document_metadata') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -41,14 +43,14 @@ sources:
             description: "{{ doc('document_metadata__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('document_metadata__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: attachment_id
             data_type: character varying(255)
@@ -56,7 +58,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'attachments')
+                  to: "source('tamanu', 'attachments')"
                   field: id
           - name: created_at
             data_type: timestamp with time zone
@@ -72,7 +74,7 @@ sources:
             description: "{{ doc('document_metadata__department_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'departments')
+                  to: "source('tamanu', 'departments')"
                   field: id
           - name: note
             data_type: character varying(255)

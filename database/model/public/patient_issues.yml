@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,11 +6,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_issues
-        description: '{{ doc("table__patient_issues") }}'
+        description: "{{ doc('table__patient_issues') }}"
         __generator:
           js_class: PatientIssue
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -48,7 +50,7 @@ sources:
             description: "{{ doc('patient_issues__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: recorded_date_legacy
             data_type: timestamp with time zone

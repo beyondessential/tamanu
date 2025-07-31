@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes_legacy
-        description: '{{ doc("table__notes_legacy") }}'
-        tags: []
+        description: "{{ doc('table__notes_legacy') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: character varying(255)

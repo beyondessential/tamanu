@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_lookup_ticks
-        description: '{{ doc("table__sync_lookup_ticks") }}'
-        tags: []
+        description: "{{ doc('table__sync_lookup_ticks') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: bigint

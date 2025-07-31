@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: survey_response_answers
-        description: '{{ doc("table__survey_response_answers") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__survey_response_answers') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,14 +41,14 @@ sources:
             description: "{{ doc('survey_response_answers__response_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'survey_responses')
+                  to: "source('tamanu', 'survey_responses')"
                   field: id
           - name: data_element_id
             data_type: character varying(255)
             description: "{{ doc('survey_response_answers__data_element_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_data_elements')
+                  to: "source('tamanu', 'program_data_elements')"
                   field: id
           - name: body_legacy
             data_type: text

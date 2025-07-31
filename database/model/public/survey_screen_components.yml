@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: survey_screen_components
-        description: '{{ doc("table__survey_screen_components") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__survey_screen_components') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_care_plans
-        description: '{{ doc("table__patient_care_plans") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_care_plans') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

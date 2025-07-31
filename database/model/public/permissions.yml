@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: permissions
-        description: '{{ doc("table__permissions") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__permissions') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)
@@ -30,7 +32,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'roles')
+                  to: "source('tamanu', 'roles')"
                   field: id
           - name: noun
             data_type: character varying(255)

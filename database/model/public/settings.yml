@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: settings
-        description: '{{ doc("table__settings") }}'
-        tags:
-          - system
+        description: "{{ doc('table__settings') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid
@@ -41,7 +43,7 @@ sources:
             description: "{{ doc('settings__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

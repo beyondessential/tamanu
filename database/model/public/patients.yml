@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patients
-        description: '{{ doc("table__patients") }}'
-        tags:
-          - patient
+        description: "{{ doc('table__patients') }}"
+        config:
+          tags:
+            - patient
         columns:
           - name: id
             data_type: character varying(255)

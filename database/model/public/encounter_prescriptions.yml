@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_prescriptions
-        description: '{{ doc("table__encounter_prescriptions") }}'
-        tags: []
+        description: "{{ doc('table__encounter_prescriptions') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

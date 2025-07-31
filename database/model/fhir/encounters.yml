@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: fhir__tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: encounters
-        description: '{{ doc("fhir__table__encounters") }}'
-        tags: []
+        description: "{{ doc('fhir__table__encounters') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

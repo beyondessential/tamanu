@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: logs__tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: accesses
-        description: '{{ doc("logs__table__accesses") }}'
-        tags: []
+        description: "{{ doc('logs__table__accesses') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

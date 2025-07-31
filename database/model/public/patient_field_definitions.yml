@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_field_definitions
-        description: '{{ doc("table__patient_field_definitions") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__patient_field_definitions') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
@@ -57,7 +59,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patient_field_definition_categories')
+                  to: "source('tamanu', 'patient_field_definition_categories')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

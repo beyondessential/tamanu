@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: fhir__tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: specimens
-        description: '{{ doc("fhir__table__specimens") }}'
-        tags: []
+        description: "{{ doc('fhir__table__specimens') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

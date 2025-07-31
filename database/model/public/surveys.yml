@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: surveys
-        description: '{{ doc("table__surveys") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__surveys') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,7 +41,7 @@ sources:
             description: "{{ doc('surveys__program_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'programs')
+                  to: "source('tamanu', 'programs')"
                   field: id
           - name: survey_type
             data_type: character varying(255)

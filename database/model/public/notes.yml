@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes
-        description: '{{ doc("table__notes") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__notes') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid
@@ -90,14 +92,14 @@ sources:
             description: "{{ doc('notes__author_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
             description: "{{ doc('notes__on_behalf_of_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: content
             data_type: text
@@ -109,5 +111,5 @@ sources:
             description: "{{ doc('notes__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'notes')
+                  to: "source('tamanu', 'notes')"
                   field: id

@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: departments
-        description: '{{ doc("table__departments") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__departments') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,7 +41,7 @@ sources:
             description: "{{ doc('departments__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: visibility_status
             data_type: text

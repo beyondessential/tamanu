@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_birth_data
-        description: '{{ doc("table__patient_birth_data") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_birth_data') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: created_at
             data_type: timestamp with time zone
@@ -29,7 +31,7 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
+                  to: "source('tamanu', 'patients')"
                   field: id
           - name: birth_weight
             data_type: numeric
@@ -87,7 +89,7 @@ sources:
             description: "{{ doc('patient_birth_data__birth_facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
+                  to: "source('tamanu', 'facilities')"
                   field: id
           - name: registered_birth_place
             data_type: character varying(255)

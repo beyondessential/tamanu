@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: vital_logs
-        description: '{{ doc("table__vital_logs") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__vital_logs') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -56,7 +58,7 @@ sources:
             description: "{{ doc('vital_logs__recorded_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: answer_id
             data_type: character varying(255)
@@ -64,7 +66,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'survey_response_answers')
+                  to: "source('tamanu', 'survey_response_answers')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

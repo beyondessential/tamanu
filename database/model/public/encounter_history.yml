@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_history
-        description: '{{ doc("table__encounter_history") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounter_history') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid
@@ -39,7 +41,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
+                  to: "source('tamanu', 'encounters')"
                   field: id
           - name: department_id
             data_type: character varying(255)
@@ -47,7 +49,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'departments')
+                  to: "source('tamanu', 'departments')"
                   field: id
           - name: location_id
             data_type: character varying(255)
@@ -55,7 +57,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'locations')
+                  to: "source('tamanu', 'locations')"
                   field: id
           - name: examiner_id
             data_type: character varying(255)
@@ -63,7 +65,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: encounter_type
             data_type: character varying(255)
@@ -90,7 +92,7 @@ sources:
             description: "{{ doc('encounter_history__actor_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: change_type
             data_type: character varying(255)

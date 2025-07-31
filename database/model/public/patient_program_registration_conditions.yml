@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registration_conditions
-        description: '{{ doc("table__patient_program_registration_conditions") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_program_registration_conditions') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -41,21 +43,21 @@ sources:
             description: "{{ doc('patient_program_registration_conditions__program_registry_condition_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_registry_conditions')
+                  to: "source('tamanu', 'program_registry_conditions')"
                   field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: deletion_clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__deletion_clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: updated_at_sync_tick
             data_type: bigint

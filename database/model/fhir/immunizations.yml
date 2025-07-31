@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: fhir__tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: immunizations
-        description: '{{ doc("fhir__table__immunizations") }}'
-        tags: []
+        description: "{{ doc('fhir__table__immunizations') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

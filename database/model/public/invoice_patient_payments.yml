@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_patient_payments
-        description: '{{ doc("table__invoice_patient_payments") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_patient_payments') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -22,7 +24,7 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoice_payments')
+                  to: "source('tamanu', 'invoice_payments')"
                   field: id
           - name: method_id
             data_type: character varying(255)
@@ -30,9 +32,9 @@ sources:
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
+                  to: "source('tamanu', 'reference_data')"
                   field: id
-                  to_condition: type = 'paymentMethod'
+                  to_condition: "type = 'paymentMethod'"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_patient_payments."

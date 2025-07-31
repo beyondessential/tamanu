@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,9 +6,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_items
-        description: '{{ doc("table__invoice_items") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_items') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
@@ -21,7 +23,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
+                  to: "source('tamanu', 'invoices')"
                   field: id
           - name: order_date
             data_type: character(10)
@@ -33,7 +35,7 @@ sources:
             description: "{{ doc('invoice_items__product_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'invoice_products')
+                  to: "source('tamanu', 'invoice_products')"
                   field: id
           - name: quantity
             data_type: integer
@@ -56,7 +58,7 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
+                  to: "source('tamanu', 'users')"
                   field: id
           - name: source_id
             data_type: uuid

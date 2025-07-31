@@ -1,3 +1,4 @@
+---
 version: 2
 sources:
   - name: tamanu
@@ -5,8 +6,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_ongoing_prescriptions
-        description: '{{ doc("table__patient_ongoing_prescriptions") }}'
-        tags: []
+        description: "{{ doc('table__patient_ongoing_prescriptions') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
