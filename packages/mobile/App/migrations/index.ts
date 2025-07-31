@@ -71,6 +71,7 @@ import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMe
 import { addPatientAllergiesTable1750787000000 } from './1750787000000-addPatientAllergiesTable';
 import { addMedicationAdministrationRecordTable1750787001000 } from './1750787001000-addMedicationAdministrationRecordTable';
 import { addFacilityIsSensitiveColumn1752187477000 } from './1752187477000-addFacilityIsSensitiveColumn';
+import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -145,4 +146,5 @@ export const migrationList = [
   addPatientAllergiesTable1750787000000,
   addMedicationAdministrationRecordTable1750787001000,
   addFacilityIsSensitiveColumn1752187477000,
+  correctPrescriptionStartDates1753393877000,
 ];
