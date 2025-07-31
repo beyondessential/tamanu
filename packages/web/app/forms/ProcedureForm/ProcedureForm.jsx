@@ -24,7 +24,7 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants/index.js';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import { AdditionalData } from './AdditionalData';
+import { ProcedureAdditionalData } from './ProcedureAdditionalData';
 import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
@@ -286,7 +286,7 @@ export const ProcedureForm = React.memo(
                 </Collapse>
               </FormGrid>
               <Divider />
-              <AdditionalData
+              <ProcedureAdditionalData
                 procedureId={procedureId}
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}

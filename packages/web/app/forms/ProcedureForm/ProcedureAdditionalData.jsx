@@ -10,6 +10,7 @@ import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
 import { getAnswersFromData, notifyError } from '../../utils';
 import { Colors } from '../../constants';
+import { CancelAdditionalDataModal, UnSavedChangesModal } from './ProcedureFormModals.jsx';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -56,10 +57,16 @@ const useProcedureSurveys = procedureTypeId => {
   return data?.map(survey => ({ label: survey.name, value: survey.id }));
 };
 
-export const AdditionalData = ({ patient, procedureId, procedureTypeId, updateRefreshCount }) => {
+export const ProcedureAdditionalData = ({
+  patient,
+  procedureId,
+  procedureTypeId,
+  updateRefreshCount,
+}) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
+  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
@@ -89,47 +96,62 @@ export const AdditionalData = ({ patient, procedureId, procedureTypeId, updateRe
   };
 
   const onCancel = () => {
-    setSelectedSurveyId(null);
+    setUnSavedChangesModalOpen(true);
   };
 
   return (
-    <Container>
-      <Heading>
-        <TranslatedText stringId="procedure.form.addionalDataHeading" fallback=" Additional data" />
-      </Heading>
-      <LeadText>
-        <TranslatedText
-          stringId="procedure.form.addionalDataText"
-          fallback="Add any additional data to the procedure record by selecting a form below."
-        />
-      </LeadText>
-      <SelectInput
-        name="survey"
-        label={
+    <>
+      <Container>
+        <Heading>
           <TranslatedText
-            stringId="procedure.form.additionalDataForm.label"
-            fallback="Select form"
+            stringId="procedure.form.addionalDataHeading"
+            fallback=" Additional data"
           />
-        }
-        options={surveys}
-        value={selectedSurveyId ?? ''}
-        onChange={onFormSelect}
+        </Heading>
+        <LeadText>
+          <TranslatedText
+            stringId="procedure.form.addionalDataText"
+            fallback="Add any additional data to the procedure record by selecting a form below."
+          />
+        </LeadText>
+        <SelectInput
+          name="survey"
+          label={
+            <TranslatedText
+              stringId="procedure.form.additionalDataForm.label"
+              fallback="Select form"
+            />
+          }
+          options={surveys}
+          value={selectedSurveyId ?? ''}
+          onChange={onFormSelect}
+        />
+        {survey && (
+          <SurveyBox>
+            <SurveyHeading variant="h6" data-testid="surveypaneheading-b5sc">
+              <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
+            </SurveyHeading>
+            <SurveyViewForm
+              onSubmit={submitSurveyResponse}
+              survey={survey}
+              onCancel={onCancel}
+              patient={patient}
+              patientAdditionalData={patientAdditionalData}
+              currentUser={currentUser}
+            />
+          </SurveyBox>
+        )}
+      </Container>
+      <CancelAdditionalDataModal
+        open={unSavedChangesModalOpen}
+        onCancel={() => {
+          setUnSavedChangesModalOpen(false);
+        }}
+        onConfirm={() => {
+          setUnSavedChangesModalOpen(false);
+          setSelectedSurveyId(null);
+        }}
       />
-      {survey && (
-        <SurveyBox>
-          <SurveyHeading variant="h6" data-testid="surveypaneheading-b5sc">
-            <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
-          </SurveyHeading>
-          <SurveyViewForm
-            onSubmit={submitSurveyResponse}
-            survey={survey}
-            onCancel={onCancel}
-            patient={patient}
-            patientAdditionalData={patientAdditionalData}
-            currentUser={currentUser}
-          />
-        </SurveyBox>
-      )}
-    </Container>
+    </>
   );
 };

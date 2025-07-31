@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import { useApi, useSuggester } from '../api';
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { UnSavedChangesModal } from '../forms/ProcedureForm/ProcedureFormModals';
 
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.
@@ -27,6 +28,7 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
+  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -37,64 +39,76 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
 
-  return (
-    <FormModal
-      width="md"
-      title={
-        <TranslatedText
-          stringId="procedure.modal.title"
-          fallback=":action procedure"
-          replacements={{
-            action: editedProcedure?.id ? (
-              <TranslatedText
-                stringId="general.action.update"
-                fallback="Update"
-                data-testid="translatedtext-l65z"
-              />
-            ) : (
-              <TranslatedText
-                stringId="general.action.new"
-                fallback="New"
-                data-testid="translatedtext-c8x5"
-              />
-            ),
-          }}
-          data-testid="translatedtext-om64"
-        />
-      }
-      open={!!editedProcedure}
-      onClose={onClose}
-      data-testid="formmodal-otam"
-    >
-      <ProcedureForm
-        onSubmit={async data => {
-          const actualDateTime = getActualDateTime(data.date, data.startTime);
-          const updatedData = {
-            ...data,
-            date: actualDateTime,
-            startTime: actualDateTime,
-            endTime: getEndDateTime(data),
-            encounterId,
-          };
+  const onCloseClick = () => {
+    setUnSavedChangesModalOpen(true);
+  };
 
-          if (updatedData.id) {
-            await api.put(`procedure/${updatedData.id}`, updatedData);
-          } else {
-            await api.post('procedure', updatedData);
-          }
-          onSaved();
+  return (
+    <>
+      <FormModal
+        width="md"
+        title={
+          <TranslatedText
+            stringId="procedure.modal.title"
+            fallback=":action procedure"
+            replacements={{
+              action: editedProcedure?.id ? (
+                <TranslatedText
+                  stringId="general.action.update"
+                  fallback="Update"
+                  data-testid="translatedtext-l65z"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="general.action.new"
+                  fallback="New"
+                  data-testid="translatedtext-c8x5"
+                />
+              ),
+            }}
+            data-testid="translatedtext-om64"
+          />
+        }
+        open={!!editedProcedure}
+        onClose={onCloseClick}
+        data-testid="formmodal-otam"
+      >
+        <ProcedureForm
+          onSubmit={async data => {
+            const actualDateTime = getActualDateTime(data.date, data.startTime);
+            const updatedData = {
+              ...data,
+              date: actualDateTime,
+              startTime: actualDateTime,
+              endTime: getEndDateTime(data),
+              encounterId,
+            };
+
+            await api.post(`procedure/${updatedData.id}`, updatedData);
+            onSaved();
+          }}
+          onCancel={onCloseClick}
+          editedObject={editedProcedure}
+          departmentSuggester={departmentSuggester}
+          locationSuggester={locationSuggester}
+          physicianSuggester={physicianSuggester}
+          anaesthetistSuggester={anaesthetistSuggester}
+          assistantSuggester={assistantSuggester}
+          procedureSuggester={procedureSuggester}
+          anaestheticSuggester={anaestheticSuggester}
+          data-testid="procedureform-euca"
+        />
+      </FormModal>
+      <UnSavedChangesModal
+        open={unSavedChangesModalOpen}
+        onCancel={() => {
+          setUnSavedChangesModalOpen(false);
         }}
-        onCancel={onClose}
-        editedObject={editedProcedure}
-        departmentSuggester={departmentSuggester}
-        locationSuggester={locationSuggester}
-        physicianSuggester={physicianSuggester}
-        anaesthetistSuggester={anaesthetistSuggester}
-        assistantSuggester={assistantSuggester}
-        procedureSuggester={procedureSuggester}
-        anaestheticSuggester={anaestheticSuggester}
-        data-testid="procedureform-euca"
+        onConfirm={() => {
+          setUnSavedChangesModalOpen(false);
+          onClose();
+        }}
       />
-    </FormModal>
+    </>
   );
 };
