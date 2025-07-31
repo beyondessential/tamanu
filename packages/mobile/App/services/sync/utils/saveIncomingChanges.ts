@@ -2,14 +2,13 @@ import { In } from 'typeorm';
 import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
-import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
-import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
+import { MODELS_ARRAY } from '~/models/modelsMap';
 
 const forceGC = () => {
   if (typeof gc === 'function') {
@@ -96,11 +95,11 @@ export const saveChangesForModel = async (
 
 const prepareChangesForModels = (
   records: SyncRecord[],
-  sortedModels: typeof MODELS_MAP,
+  incomingModels: typeof MODELS_ARRAY,
 ): Record<string, SyncRecord[]> => {
   const recordsByType = groupBy(records, 'recordType');
   const changesByModel: Record<string, SyncRecord[]> = {};
-  for (const model of sortedModels) {
+  for (const model of incomingModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
     if (recordsForModel.length > 0) {
       changesByModel[model.name] =
@@ -117,12 +116,11 @@ const prepareChangesForModels = (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  incomingModels: Partial<typeof MODELS_MAP>,
+  incomingModels: typeof MODELS_ARRAY,
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const sortedModels = await sortInDependencyOrder(incomingModels);
-  const preparedRecordByModel = prepareChangesForModels(records, sortedModels);
+  const preparedRecordByModel = prepareChangesForModels(records, incomingModels);
   for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
     const model = incomingModels[modelName];
     // For initial sync the database is empty beyond the user model
@@ -141,16 +139,15 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  incomingModels: Partial<typeof MODELS_MAP>,
+  incomingModels: typeof MODELS_ARRAY,
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
   const { maxBatchesToKeepInMemory = 5 } = syncSettings;
-  const sortedModels = await sortInDependencyOrder(incomingModels);
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
+    const preparedRecordByModel = await prepareChangesForModels(batchRecords, incomingModels);
     for (const [modelName, recordsForModel] of Object.entries(preparedRecordByModel)) {
       await saveChangesForModel(
         incomingModels[modelName],

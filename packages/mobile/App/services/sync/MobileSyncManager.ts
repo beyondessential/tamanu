@@ -23,6 +23,7 @@ import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -387,8 +388,9 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
+      const sortedModels = await sortInDependencyOrder(incomingModels);
       const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, incomingModels, syncSettings, progressCallback);
+        await saveChangesFromMemory(records, sortedModels, syncSettings, progressCallback);
       };
 
       await pullRecordsInBatches(
@@ -434,7 +436,8 @@ export class MobileSyncManager {
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         transactionEntityManager,
       );
-      await saveChangesFromSnapshot(incomingModels, syncSettings, saveProgressCallback);
+      const sortedModels = await sortInDependencyOrder(incomingModels);
+      await saveChangesFromSnapshot(sortedModels, syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
