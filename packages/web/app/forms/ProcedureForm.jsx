@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
-
+import Typography from '@material-ui/core/Typography';
+import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
@@ -14,9 +15,9 @@ import {
   TextField,
   TimeField,
 } from '../components/Field';
+import { MultiAutocompleteField } from '../components/Field/MultiAutocompleteField';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -27,11 +28,26 @@ const suggesterType = PropTypes.shape({
   fetchCurrentOption: PropTypes.func,
 });
 
+const Heading = styled(Typography)`
+  margin-bottom: 10px;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+`;
+
+const SubHeading = styled(Typography)`
+  font-size: 14px;
+  line-height: 18px;
+  margin-bottom: 20px;
+  color: ${props => props.theme.palette.text.tertiary};
+`;
+
 export const ProcedureForm = React.memo(
   ({
     onCancel,
     onSubmit,
     editedObject,
+    departmentSuggester,
     anaestheticSuggester,
     procedureSuggester,
     physicianSuggester,
@@ -45,16 +61,8 @@ export const ProcedureForm = React.memo(
         onSubmit={onSubmit}
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
-          const getButtonText = (isCompleted) => {
-            if (isCompleted)
-              return (
-                <TranslatedText
-                  stringId="general.action.finalise"
-                  fallback="Finalise"
-                  data-testid="translatedtext-zya3"
-                />
-              );
-            if (editedObject?.id)
+          const getButtonText = isCompleted => {
+            if (editedObject?.id && !isCompleted)
               return (
                 <TranslatedText
                   stringId="general.action.update"
@@ -64,8 +72,8 @@ export const ProcedureForm = React.memo(
               );
             return (
               <TranslatedText
-                stringId="general.action.submit"
-                fallback="Submit"
+                stringId="procedure.form.submit"
+                fallback="Save procedure"
                 data-testid="translatedtext-162m"
               />
             );
@@ -75,6 +83,15 @@ export const ProcedureForm = React.memo(
           const buttonText = getButtonText(isCompleted);
           return (
             <div>
+              <Heading>
+                <TranslatedText stringId="procedure.form.heading" fallback="Procedure details" />
+              </Heading>
+              <SubHeading>
+                <TranslatedText
+                  stringId="procedure.form.subHeading"
+                  fallback="Record relevant procedure details below."
+                />
+              </SubHeading>
               <FormGrid data-testid="formgrid-6sdo">
                 <div style={{ gridColumn: 'span 2' }}>
                   <Field
@@ -83,7 +100,6 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="procedure.procedureType.label"
                         fallback="Procedure"
-                        data-testid="translatedtext-bgyt"
                       />
                     }
                     required
@@ -92,93 +108,72 @@ export const ProcedureForm = React.memo(
                     data-testid="field-87c2"
                   />
                 </div>
-                <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-mumm">
-                  <Field
-                    name="physicianId"
-                    label={
-                      <TranslatedText
-                        stringId="general.localisedField.clinician.label.short"
-                        fallback="Clinician"
-                        data-testid="translatedtext-q0ge"
-                      />
-                    }
-                    required
-                    component={AutocompleteField}
-                    suggester={physicianSuggester}
-                    data-testid="field-lit6"
-                  />
-                  <Field
-                    name="date"
-                    label={
-                      <TranslatedText
-                        stringId="procedure.date.label"
-                        fallback="Procedure date"
-                        data-testid="translatedtext-11vd"
-                      />
-                    }
-                    saveDateAsString
-                    required
-                    component={DateField}
-                    data-testid="field-3a5v"
-                  />
-                  <Field
-                    locationGroupLabel={
-                      <TranslatedText
-                        stringId="procedure.area.label"
-                        fallback="Procedure area"
-                        data-testid="translatedtext-n90i"
-                      />
-                    }
-                    label={
-                      <TranslatedText
-                        stringId="procedure.location.label"
-                        fallback="Procedure location"
-                        data-testid="translatedtext-g854"
-                      />
-                    }
-                    name="locationId"
-                    enableLocationStatus={false}
-                    required
-                    component={LocationField}
-                    data-testid="field-p4ef"
-                  />
-                </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-8tii">
-                  <Field
-                    name="startTime"
-                    label={
-                      <TranslatedText
-                        stringId="procedure.startTime.label"
-                        fallback="Time started"
-                        data-testid="translatedtext-cwjp"
-                      />
-                    }
-                    component={TimeField}
-                    saveDateAsString
-                    data-testid="field-khml"
-                  />
-                  <Field
-                    name="endTime"
-                    label={
-                      <TranslatedText
-                        stringId="procedure.endTime.label"
-                        fallback="Time ended"
-                        data-testid="translatedtext-8agp"
-                      />
-                    }
-                    component={TimeField}
-                    saveDateAsString
-                    data-testid="field-hgzz"
-                  />
-                </FormGrid>
-
+                <Field
+                  name="date"
+                  label={
+                    <TranslatedText stringId="procedure.date.label" fallback="Procedure date" />
+                  }
+                  saveDateAsString
+                  required
+                  component={DateField}
+                  data-testid="field-3a5v"
+                />
+                <Field
+                  name="departmentId"
+                  label={
+                    <TranslatedText stringId="procedure.department.label" fallback="Department" />
+                  }
+                  suggester={departmentSuggester}
+                  component={AutocompleteField}
+                  data-testid="field-3a5v1"
+                />
+                <Field
+                  locationGroupLabel={
+                    <TranslatedText stringId="procedure.area.label" fallback="Procedure area" />
+                  }
+                  label={
+                    <TranslatedText
+                      stringId="procedure.location.label"
+                      fallback="Procedure location"
+                    />
+                  }
+                  name="locationId"
+                  enableLocationStatus={false}
+                  required
+                  component={LocationField}
+                  data-testid="field-p4ef"
+                />
+                <Field
+                  name="physicianId"
+                  label={
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Lead clinician"
+                    />
+                  }
+                  required
+                  component={AutocompleteField}
+                  suggester={physicianSuggester}
+                  data-testid="field-lit6"
+                />
+                <Field
+                  name="assistantClinicianIds"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.assistantClinicians.label"
+                      fallback="Assistant clinicians"
+                    />
+                  }
+                  component={MultiAutocompleteField}
+                  suggester={assistantSuggester}
+                  data-testid="field-f3l4"
+                />
                 <Field
                   name="anaesthetistId"
                   label={
                     <TranslatedText
                       stringId="procedure.anaesthetist.label"
                       fallback="Anaesthetist"
-                      data-testid="translatedtext-aka0"
                     />
                   }
                   component={AutocompleteField}
@@ -186,32 +181,62 @@ export const ProcedureForm = React.memo(
                   data-testid="field-96eg"
                 />
                 <Field
+                  name="assistantAnaesthetistId"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.assistantAnaesthetist.label"
+                      fallback="Assistant Anaesthetist"
+                    />
+                  }
+                  component={AutocompleteField}
+                  suggester={anaesthetistSuggester}
+                  data-testid="field-96eg1"
+                />
+                <Field
                   name="anaestheticId"
                   label={
                     <TranslatedText
                       stringId="procedure.anaesthetic.label"
                       fallback="Anaesthetic type"
-                      data-testid="translatedtext-zy5k"
                     />
                   }
                   component={AutocompleteField}
                   suggester={anaestheticSuggester}
-                  minRows={4}
-                  style={{ gridColumn: 'span 2' }}
                   data-testid="field-w9b5"
                 />
+                {/* Empty div to make the time in field start on a new row */}
+                <div />
                 <Field
-                  name="assistantId"
+                  name="timeIn"
+                  label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
+                  component={TimeField}
+                  saveDateAsString
+                  data-testid="field-khml1"
+                />
+                <Field
+                  name="timeOut"
+                  label={<TranslatedText stringId="procedure.timeOut.label" fallback="Time out" />}
+                  component={TimeField}
+                  saveDateAsString
+                  data-testid="field-hgzz1"
+                />
+                <Field
+                  name="startTime"
                   label={
-                    <TranslatedText
-                      stringId="procedure.assistant.label"
-                      fallback="Assistant"
-                      data-testid="translatedtext-vp0o"
-                    />
+                    <TranslatedText stringId="procedure.startTime.label" fallback="Time started" />
                   }
-                  component={AutocompleteField}
-                  suggester={assistantSuggester}
-                  data-testid="field-f3l4"
+                  component={TimeField}
+                  saveDateAsString
+                  data-testid="field-khml"
+                />
+                <Field
+                  name="endTime"
+                  label={
+                    <TranslatedText stringId="procedure.endTime.label" fallback="Time ended" />
+                  }
+                  component={TimeField}
+                  saveDateAsString
+                  data-testid="field-hgzz"
                 />
                 <Field
                   name="note"
@@ -219,7 +244,6 @@ export const ProcedureForm = React.memo(
                     <TranslatedText
                       stringId="procedure.noteOrInstruction.label"
                       fallback="Notes or additional instructions"
-                      data-testid="translatedtext-elx7"
                     />
                   }
                   component={TextField}
@@ -230,13 +254,7 @@ export const ProcedureForm = React.memo(
                 />
                 <Field
                   name="completed"
-                  label={
-                    <TranslatedText
-                      stringId="general.completed.label"
-                      fallback="Completed"
-                      data-testid="translatedtext-a0m2"
-                    />
-                  }
+                  label={<TranslatedText stringId="general.completed.label" fallback="Completed" />}
                   component={CheckField}
                   data-testid="field-uaz4"
                 />
@@ -251,7 +269,6 @@ export const ProcedureForm = React.memo(
                       <TranslatedText
                         stringId="procedure.completedNote.label"
                         fallback="Notes on completed procedure"
-                        data-testid="translatedtext-be1n"
                       />
                     }
                     component={TextField}
@@ -274,54 +291,41 @@ export const ProcedureForm = React.memo(
           date: getCurrentDateTimeString(),
           startTime: getCurrentDateTimeString(),
           physicianId: currentUser.id,
+          assistantClinicianIds:
+            editedObject?.assistantClinicians?.map(clinician => clinician.id) || [],
           ...editedObject,
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           procedureTypeId: foreignKey().translatedLabel(
-            <TranslatedText
-              stringId="procedure.procedureType.label"
-              fallback="Procedure"
-              data-testid="translatedtext-r5jo"
-            />,
+            <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />,
           ),
           locationId: foreignKey().translatedLabel(
-            <TranslatedText
-              stringId="general.location.label"
-              fallback="Location"
-              data-testid="translatedtext-uh8z"
-            />,
+            <TranslatedText stringId="general.location.label" fallback="Location" />,
           ),
           date: yup
             .date()
             .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="general.date.label"
-                fallback="Date"
-                data-testid="translatedtext-ni72"
-              />,
-            ),
+            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
           startTime: yup
             .date()
             .translatedLabel(
-              <TranslatedText
-                stringId="general.startTime.label"
-                fallback="Start time"
-                data-testid="translatedtext-sxek"
-              />,
+              <TranslatedText stringId="general.startTime.label" fallback="Start time" />,
             ),
           endTime: yup.date(),
+          timeIn: yup.date(),
+          timeOut: yup.date(),
           physicianId: foreignKey().translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
               fallback="Clinician"
-              data-testid="translatedtext-nour"
             />,
           ),
-          assistantId: optionalForeignKey(),
+          assistantClinicianIds: yup.array().of(yup.string()),
           anaesthetistId: optionalForeignKey(),
+          assistantAnaesthetistId: optionalForeignKey(),
           anaestheticId: optionalForeignKey(),
+          departmentId: optionalForeignKey(),
           note: yup.string(),
           completed: yup.boolean(),
           completedNote: yup.string(),
@@ -336,7 +340,6 @@ ProcedureForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
-
   anaestheticSuggester: suggesterType.isRequired,
   procedureSuggester: suggesterType.isRequired,
   physicianSuggester: suggesterType.isRequired,
