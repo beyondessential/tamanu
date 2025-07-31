@@ -14,6 +14,7 @@ import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { Facility } from './Facility';
 import { type PureAbility } from '@casl/ability';
 import { union } from 'lodash';
+import { MODELS_MAP } from './modelsMap';
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -67,12 +68,14 @@ export class User extends BaseModel implements IUser {
     return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
   }
 
-  async allowedFacilityIds(ability: PureAbility) {
+  async allowedFacilityIds(ability: PureAbility, models: typeof MODELS_MAP) {
     if (this.isSuperUser()) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
 
-    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    const restrictUsersToFacilities = await models.Setting.getByKey(
+      'auth.restrictUsersToFacilities',
+    );
     const hasLoginPermission = ability.can('login', 'Facility');
 
     // Get user's linked facilities (including sensitive ones)
@@ -99,8 +102,8 @@ export class User extends BaseModel implements IUser {
     return userLinkedFacilityIds;
   }
 
-  async canAccessFacility(id: string, ability: PureAbility) {
-    const userLinkedFacilities = await this.allowedFacilityIds(ability);
+  async canAccessFacility(id: string, ability: PureAbility, models: typeof MODELS_MAP) {
+    const userLinkedFacilities = await this.allowedFacilityIds(ability, models);
     if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
     return userLinkedFacilities.includes(id);
   }

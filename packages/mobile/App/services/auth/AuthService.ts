@@ -87,7 +87,7 @@ export class AuthService {
 
     const ability = generateAbilityForUser(user);
     const linkedFacility = await readConfig('facilityId', '');
-    const canAccessFacility = await user.canAccessFacility(linkedFacility, ability);
+    const canAccessFacility = await user.canAccessFacility(linkedFacility, ability, this.models);
 
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
