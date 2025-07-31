@@ -105,7 +105,7 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
       setErrorMessage(null);
     } catch (error) {
       setImageData(null);
-      setErrorMessage(`Error: ${error.message}`);
+      setErrorMessage('Image cannot be viewed at this time. Please try again in a few minutes or contact your system administrator.');
     }
   }, [api, imageId]);
   const isChartView = !!chartTitle;
