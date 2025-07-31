@@ -22,7 +22,6 @@ patientFacility.post('/$', async (req, res) => {
     {
       patientId,
       facilityId,
-      lastInteractedTime: new Date(),
     },
   );
 
