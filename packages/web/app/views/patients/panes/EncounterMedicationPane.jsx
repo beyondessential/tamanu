@@ -152,6 +152,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           encounter={encounter}
           open={pharmacyOrderModalOpen}
           onClose={() => setPharmacyOrderModalOpen(false)}
+          onSubmit={() => setRefreshEncounterMedications(prev => prev + 1)}
         />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
