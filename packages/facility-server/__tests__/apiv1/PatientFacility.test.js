@@ -14,6 +14,7 @@ describe('PatientFacility', () => {
     app = await baseApp.asRole('practitioner');
     models = ctx.models;
   });
+  afterAll(() => ctx.close());
 
   it('should create a patient facility when none exists', async () => {
     const { Patient, Facility, PatientFacility, LocalSystemFact } = models;
